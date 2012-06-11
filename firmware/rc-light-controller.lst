@@ -1,0 +1,506 @@
+gpasm-0.13.7 beta               rc-light-controller.asm6-11-2012  15:31:16          PAGE  1
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+ 
+               00001 ;**********************************************************************
+               00002 ;                                                                     
+               00003 ;   rc-light-controller.asm
+               00004 ;
+               00005 ;                                                                     
+               00006 ;**********************************************************************
+               00007 ;                                                                     
+               00008 ;   Author:         Werner Lane                                                   
+               00009 ;   E-mail:         laneboysrc@gmail.com 
+               00010 ;                                                                     
+               00011 ;**********************************************************************
+0000 00012     TITLE       RC Light Controller
+               00013     LIST        p=pic16f628a, r=dec
+               00014     RADIX       dec
+               00015     
+               00016     #include    <p16f628a.inc>
+               00001         LIST
+               00002 ; P16F628A.INC  Standard Header File, Version 1.10    Microchip Technology, Inc.
+               00265         LIST
+               00266 
+               00017  
+002007 3F50    00018     __CONFIG _CP_OFF & _WDT_OFF & _BODEN_ON & _PWRTE_ON & _INTRC_OSC_NOCLKOUT & _MCLRE_OFF & _LVP_OFF
+               00019 
+               00020 
+               00021 
+               00022 ;**********************************************************************
+               00023 ;   The following outputs are needed:
+               00024 ;   - Stand light, tail light
+               00025 ;   - Head light
+               00026 ;   - High beam
+               00027 ;   - Fog light, fog rear light
+               00028 ;   - Indicators L + R
+               00029 ;   - Brake light
+               00030 ;   - Reversing light
+               00031 ;   - Servo output for steering
+               00032 ;   
+               00033 ;   
+               00034 ;   Inputs:
+               00035 ;   - Steering servo
+               00036 ;   - Throttle servo
+               00037 ;   - CH3 momentary
+               00038 ;   
+               00039 ;   
+               00040 ;   Modes that the SW must handle:
+               00041 ;   - Light mode:
+               00042 ;       - Stand light
+               00043 ;       - + Head light
+               00044 ;       - + Fog lights
+               00045 ;       - + High beam
+               00046 ;   - Drive mode:
+               00047 ;       - Neutral
+               00048 ;       - Forward
+               00049 ;       - Braking
+               00050 ;       - Reverse
+gpasm-0.13.7 beta               rc-light-controller.asm6-11-2012  15:31:16          PAGE  2
+RC Light Controller
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+ 
+               00051 ;   - Indicators
+               00052 ;   - Steering servo pass-through
+               00053 ;   - Hazard lights
+               00054 ;
+               00055 ;
+               00056 ;   Other functions:
+               00057 ;   - Failsafe mode: all lights blink when no signal
+               00058 ;   - Program CH3
+               00059 ;   - Program TH neutral, full fwd, full rev
+               00060 ;   - Program servo output for steering servo: direction, neutral and end points
+               00061 ;
+               00062 ;
+               00063 ;   Slave unit is controlled via PPM (6 lights + 1 steering)
+               00064 ;
+               00065 ;
+               00066 ;   CH3 operation
+               00067 ;   - short press: cycle through light modes up, then down
+               00068 ;   - long press: off?
+               00069 ; 
+               00070 ;   Hazard lights; steering servo left-right-left-right within 2s?
+               00071 ;
+               00072 ;**********************************************************************
+               00073 
+               00074 
+               00075 
+               00076 ;***** VARIABLE DEFINITIONS
+  00000070     00077 w_temp              EQU 0x70    ; variable used for context saving 
+  00000071     00078 status_temp     EQU     0x71    ; variable used for context saving
+  00000072     00079 CounterA            EQU 0x72    ; counters for delay loop
+  00000073     00080 CounterB            EQU 0x73
+  00000074     00081 CounterC            EQU 0x74
+  00000075     00082 CloseCounter    EQU     0x75    ; counter x20ms for amount of time the servo is steered when closing
+  00000076     00083 OpenCounter         EQU 0x76    ; counter x20ms for amount of time the servo is steered when opening
+  00000077     00084 flag                EQU 0x77    ; just various flags
+               00085 
+0000 00086 #define door_status flag,0
+               00087 
+               00088 ;***** PORT DEFINITIONS
+0000 00089 #define servo     PORTB,3
+0000 00090 #define led_close PORTA,0
+0000 00091 #define led_open  PORTA,1
+0000 00092 #define sensor    PORTA,2
+               00093 
+               00094 ; unit: 20ms
+0000 00095 #define SERVO_MOVE_TIME 250     
+0000 00096 #define T20ms_H 0xB1
+0000 00097 #define T20ms_L 0xE0
+               00098 
+               00099 ;**********************************************************************
+0000           00100     ORG     0x000           ; processor reset vector
+0000 282B      00101     goto    Main            ; go to beginning of program
+               00102 
+               00103 ;**********************************************************************
+0004           00104     ORG     0x004           ; interrupt vector location
+gpasm-0.13.7 beta               rc-light-controller.asm6-11-2012  15:31:16          PAGE  3
+RC Light Controller
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+ 
+0004 00F0      00105     movwf   w_temp          ; save off current W register contents
+0005 0803      00106     movf        STATUS,w        ; move status register into W register
+0006 00F1      00107     movwf       status_temp     ; save off contents of STATUS register
+               00108 
+0007 1283 1303 00109     banksel T1CON
+0009 1010      00110     bcf T1CON,TMR1ON    ; stop the timer
+000A 30B1      00111     movlw       T20ms_H         ; set Timer1 to 20ms (0xFFFF-0x4E1F)
+000B 008F      00112     movwf       TMR1H
+000C 30E0      00113     movlw       T20ms_L
+000D 008E      00114     movwf       TMR1L
+000E 1410      00115     bsf T1CON,TMR1ON    ; re-start the 20ms timer
+               00116 
+000F 100C      00117     bcf PIR1, TMR1IF    ; clear the interrupt flag
+               00118 
+0010 08F5      00119     movf        CloseCounter,1  ; 'close' counter running?
+0011 1D03      00120     btfss       STATUS, Z
+0012 2819      00121     goto        closing         ; yes: send 'close' pulse to servo
+               00122 
+0013 08F6      00123     movf        OpenCounter,1   ; 'close' counter running?
+0014 1D03      00124     btfss       STATUS, Z
+0015 2820      00125     goto        opening         ; yes: send 'open' pulse to servo
+               00126 
+0016 1005      00127     bcf led_close       ; neither opening nor closing: clear all LEDs and return
+0017 1085      00128     bcf led_open
+0018 2826      00129     goto        done
+               00130 
+0019 00131 closing
+0019 1085      00132     bcf led_open
+001A 1405      00133     bsf led_close       ; turn on 'closing' LED
+001B 1586      00134     bsf servo           ; make a pulse to the servo of length 0.9ms
+001C 205D      00135     call        delay_0.9ms
+001D 1186      00136     bcf servo
+Message [305] : Using default destination of 1 (file).
+001E 03F5      00137     decf        CloseCounter
+001F 2826      00138     goto        done
+               00139 
+0020 00140 opening
+0020 1005      00141     bcf led_close
+0021 1485      00142     bsf led_open        ; turn on 'opening' LED
+0022 1586      00143     bsf servo           ; make a pulse to the servo of length 2.1ms
+0023 2058      00144     call        delay_2.1ms
+0024 1186      00145     bcf servo
+Message [305] : Using default destination of 1 (file).
+0025 03F6      00146     decf        OpenCounter
+               00147 
+0026 00148 done            
+0026 0871      00149     movf        status_temp,w   ; retrieve copy of STATUS register
+0027 0083      00150     movwf       STATUS          ; restore pre-isr STATUS register contents
+0028 0EF0      00151     swapf       w_temp,f
+0029 0E70      00152     swapf       w_temp,w        ; restore pre-isr W register contents
+002A 0009      00153     retfie                  ; return from interrupt
+               00154 
+               00155 
+               00156 
+gpasm-0.13.7 beta               rc-light-controller.asm6-11-2012  15:31:16          PAGE  4
+RC Light Controller
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+ 
+               00157 ;**********************************************************************
+002B 00158 Main
+002B 302A      00159     movlw   42
+               00160 
+002C 3007      00161     movlw       0x07
+002D 009F      00162     movwf       CMCON           ; disable the comparators
+               00163 
+002E 0185      00164     clrf        PORTA           ; set all (output) ports to GND
+002F 0186      00165     clrf        PORTB   
+               00166 
+0030 1683 1303 00167     banksel     TRISB
+Message [302] : Register in operand not in bank 0. Ensure bank bits are correct.
+0032 1281      00168     bcf OPTION_REG, T0CS        
+               00169 
+0033 3024      00170     movlw       0x24            ; make all ports except RA2 (sensor) and RA5 (tied to +5V) output
+Message [302] : Register in operand not in bank 0. Ensure bank bits are correct.
+0034 0085      00171     movwf       TRISA
+0035 3010      00172     movlw       0x10            ; make all ports except RB4 (tied to GND) output
+Message [302] : Register in operand not in bank 0. Ensure bank bits are correct.
+0036 0086      00173     movwf       TRISB
+               00174 
+0037 1283 1303 00175     banksel TMR1H
+0039 30B1      00176     movlw       T20ms_H         ; set Timer1 to 20ms (0xFFFF-0x4E1F)
+003A 008F      00177     movwf       TMR1H
+003B 30E0      00178     movlw       T20ms_L
+003C 008E      00179     movwf       TMR1L
+               00180 
+003D 3001      00181     movlw       0x01            ; set timer to use internal clock and switch it on
+003E 0090      00182     movwf       T1CON
+               00183 
+               00184 
+003F 170B      00185     bsf INTCON, PEIE    ; enable peripherals interrupt
+0040 178B      00186     bsf INTCON, GIE     ; enable interrupts globally
+0041 1683 1303 00187     banksel PIE1
+Message [302] : Register in operand not in bank 0. Ensure bank bits are correct.
+0043 140C      00188     bsf PIE1, TMR1IE    ; enable Timer1 interrupt
+               00189 
+0044 1283 1303 00190     banksel T1CON
+0046 3001      00191     movlw       0x01            ; switch the timer on, internal clock.
+0047 0090      00192     movwf       T1CON
+               00193 
+               00194     ; main loop polling the sensor line
+0048 00195 main_loop               
+0048 1905      00196     btfsc       sensor          ; sensor set?
+0049 2851      00197     goto        req_open        ; yes: check whether we have already opened
+               00198 
+004A 00199 req_close       
+004A 1C77      00200     btfss       door_status     ; already close?
+004B 2848      00201     goto        main_loop       ; yes: nothing to do...
+004C 1077      00202     bcf door_status     ; no: but now we are...
+004D 30FA      00203     movlw       SERVO_MOVE_TIME ; start servo movement timer
+004E 00F5      00204     movwf       CloseCounter
+004F 01F6      00205     clrf        OpenCounter     ; override "opening"
+0050 2848      00206     goto        main_loop       
+gpasm-0.13.7 beta               rc-light-controller.asm6-11-2012  15:31:16          PAGE  5
+RC Light Controller
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+ 
+               00207 
+0051 00208 req_open        
+0051 1877      00209     btfsc       door_status     ; already open?
+0052 2848      00210     goto        main_loop       ; yes: nothing to do...
+0053 1477      00211     bsf door_status     ; no: but now we are... 
+0054 30FA      00212     movlw       SERVO_MOVE_TIME ; start servo movement timer
+0055 00F6      00213     movwf       OpenCounter
+0056 01F5      00214     clrf        CloseCounter    ; override "closing"
+0057 2848      00215     goto        main_loop
+               00216 
+               00217 ;**********************************************************************
+0058 00218 delay_2.1ms
+0058 3003      00219     movlw       D'3'
+0059 00F3      00220     movwf       CounterB
+005A 30B9      00221     movlw       D'185'
+005B 00F2      00222     movwf       CounterA
+005C 2861      00223     goto        delay_loop
+               00224 
+005D 00225 delay_0.9ms
+005D 3002      00226     movlw       D'2'
+005E 00F3      00227     movwf       CounterB
+005F 3028      00228     movlw       D'40'
+0060 00F2      00229     movwf       CounterA
+0061 00230 delay_loop
+0061 0BF2      00231     decfsz      CounterA,1
+0062 2861      00232     goto        delay_loop 
+0063 0BF3      00233     decfsz      CounterB,1
+0064 2861      00234     goto        delay_loop 
+0065 0008      00235     return
+               00236 
+               00237 
+gpasm-0.13.7 beta               rc-light-controller.asm6-11-2012  15:31:16          PAGE  6
+RC Light Controller
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+ADEN                              00000003
+BRGH                              00000002
+C                                 00000000
+C1INV                             00000004
+C1OUT                             00000006
+C2INV                             00000005
+C2OUT                             00000007
+CCP1CON                           00000017
+CCP1IE                            00000002
+CCP1IF                            00000002
+CCP1M0                            00000000
+CCP1M1                            00000001
+CCP1M2                            00000002
+CCP1M3                            00000003
+CCP1X                             00000005
+CCP1Y                             00000004
+CCPR1H                            00000016
+CCPR1L                            00000015
+CIS                               00000003
+CM0                               00000000
+CM1                               00000001
+CM2                               00000002
+CMCON                             0000001F
+CMIE                              00000006
+CMIF                              00000006
+CREN                              00000004
+CSRC                              00000007
+CloseCounter                      00000075
+CounterA                          00000072
+CounterB                          00000073
+CounterC                          00000074
+DC                                00000001
+EEADR                             0000009B
+EECON1                            0000009C
+EECON2                            0000009D
+EEDATA                            0000009A
+EEIE                              00000007
+EEIF                              00000007
+F                                 00000001
+FERR                              00000002
+FSR                               00000004
+GIE                               00000007
+INDF                              00000000
+INTCON                            0000000B
+INTE                              00000004
+INTEDG                            00000006
+INTF                              00000001
+IRP                               00000007
+Main                              0000002B
+NOT_BO                            00000000
+NOT_BOD                           00000000
+NOT_BOR                           00000000
+NOT_PD                            00000003
+gpasm-0.13.7 beta               rc-light-controller.asm6-11-2012  15:31:16          PAGE  7
+RC Light Controller
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+ 
+NOT_POR                           00000001
+NOT_RBPU                          00000007
+NOT_T1SYNC                        00000002
+NOT_TO                            00000004
+OERR                              00000001
+OPTION_REG                        00000081
+OSCF                              00000003
+OpenCounter                       00000076
+PCL                               00000002
+PCLATH                            0000000A
+PCON                              0000008E
+PEIE                              00000006
+PIE1                              0000008C
+PIR1                              0000000C
+PORTA                             00000005
+PORTB                             00000006
+PR2                               00000092
+PS0                               00000000
+PS1                               00000001
+PS2                               00000002
+PSA                               00000003
+RBIE                              00000003
+RBIF                              00000000
+RCIE                              00000005
+RCIF                              00000005
+RCREG                             0000001A
+RCSTA                             00000018
+RD                                00000000
+RP0                               00000005
+RP1                               00000006
+RX9                               00000006
+RX9D                              00000000
+SPBRG                             00000099
+SPEN                              00000007
+SREN                              00000005
+STATUS                            00000003
+SYNC                              00000004
+T0CS                              00000005
+T0IE                              00000005
+T0IF                              00000002
+T0SE                              00000004
+T1CKPS0                           00000004
+T1CKPS1                           00000005
+T1CON                             00000010
+T1OSCEN                           00000003
+T2CKPS0                           00000000
+T2CKPS1                           00000001
+T2CON                             00000012
+TMR0                              00000001
+TMR1CS                            00000001
+TMR1H                             0000000F
+TMR1IE                            00000000
+TMR1IF                            00000000
+TMR1L                             0000000E
+gpasm-0.13.7 beta               rc-light-controller.asm6-11-2012  15:31:16          PAGE  8
+RC Light Controller
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+ 
+TMR1ON                            00000000
+TMR2                              00000011
+TMR2IE                            00000001
+TMR2IF                            00000001
+TMR2ON                            00000002
+TOUTPS0                           00000003
+TOUTPS1                           00000004
+TOUTPS2                           00000005
+TOUTPS3                           00000006
+TRISA                             00000085
+TRISB                             00000086
+TRMT                              00000001
+TX9                               00000006
+TX9D                              00000000
+TXEN                              00000005
+TXIE                              00000004
+TXIF                              00000004
+TXREG                             00000019
+TXSTA                             00000098
+VR0                               00000000
+VR1                               00000001
+VR2                               00000002
+VR3                               00000003
+VRCON                             0000009F
+VREN                              00000007
+VROE                              00000006
+VRR                               00000005
+W                                 00000000
+WR                                00000001
+WREN                              00000002
+WRERR                             00000003
+Z                                 00000002
+_BODEN_OFF                        00003FBF
+_BODEN_ON                         00003FFF
+_BOREN_OFF                        00003FBF
+_BOREN_ON                         00003FFF
+_CP_OFF                           00003FFF
+_CP_ON                            00001FFF
+_DATA_CP_OFF                      00003FFF
+_DATA_CP_ON                       00003EFF
+_ER_OSC_CLKOUT                    00003FFF
+_ER_OSC_NOCLKOUT                  00003FFE
+_EXTCLK_OSC                       00003FEF
+_HS_OSC                           00003FEE
+_INTOSC_OSC_CLKOUT                00003FFD
+_INTOSC_OSC_NOCLKOUT              00003FFC
+_INTRC_OSC_CLKOUT                 00003FFD
+_INTRC_OSC_NOCLKOUT               00003FFC
+_LP_OSC                           00003FEC
+_LVP_OFF                          00003F7F
+_LVP_ON                           00003FFF
+_MCLRE_OFF                        00003FDF
+_MCLRE_ON                         00003FFF
+_PWRTE_OFF                        00003FFF
+gpasm-0.13.7 beta               rc-light-controller.asm6-11-2012  15:31:16          PAGE  9
+RC Light Controller
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+ 
+_PWRTE_ON                         00003FF7
+_RC_OSC_CLKOUT                    00003FFF
+_RC_OSC_NOCLKOUT                  00003FFE
+_WDT_OFF                          00003FFB
+_WDT_ON                           00003FFF
+_XT_OSC                           00003FED
+__16F628A                         00000001
+closing                           00000019
+delay_0.9ms                       0000005D
+delay_2.1ms                       00000058
+delay_loop                        00000061
+done                              00000026
+flag                              00000077
+main_loop                         00000048
+opening                           00000020
+req_close                         0000004A
+req_open                          00000051
+status_temp                       00000071
+w_temp                            00000070
+SERVO_MOVE_TIME                   250
+T20ms_H                           0xB1
+T20ms_L                           0xE0
+door_status                       flag,0
+led_close                         PORTA,0
+led_open                          PORTA,1
+sensor                            PORTA,2
+servo                             PORTB,3
+
+
+MEMORY USAGE MAP ('X' = Used,  '-' = Unused)
+
+00000000 : X---XXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX
+00000040 : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXX---------- ----------------
+00002000 : -------X-------- ---------------- ---------------- ----------------
+
+All other memory blocks unused.
+
+Program Memory Words Used: 100
+
+
+Errors   :       0
+Warnings :       0 reported,       0 suppressed
+Messages :       6 reported,       0 suppressed
+

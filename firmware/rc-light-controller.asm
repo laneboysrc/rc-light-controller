@@ -9,10 +9,70 @@
 ;   E-mail:         laneboysrc@gmail.com 
 ;                                                                     
 ;**********************************************************************
-    LIST    P=PIC16F628A
-    #include <p16f628a.inc>
+    TITLE       RC Light Controller
+    LIST        p=pic16f628a, r=dec
+    RADIX       dec
+    
+    #include    <p16f628a.inc>
  
     __CONFIG _CP_OFF & _WDT_OFF & _BODEN_ON & _PWRTE_ON & _INTRC_OSC_NOCLKOUT & _MCLRE_OFF & _LVP_OFF
+
+
+
+;**********************************************************************
+;   The following outputs are needed:
+;   - Stand light, tail light
+;   - Head light
+;   - High beam
+;   - Fog light, fog rear light
+;   - Indicators L + R
+;   - Brake light
+;   - Reversing light
+;   - Servo output for steering
+;   
+;   
+;   Inputs:
+;   - Steering servo
+;   - Throttle servo
+;   - CH3 momentary
+;   
+;   
+;   Modes that the SW must handle:
+;   - Light mode:
+;       - Stand light
+;       - + Head light
+;       - + Fog lights
+;       - + High beam
+;   - Drive mode:
+;       - Neutral
+;       - Forward
+;       - Braking
+;       - Reverse
+;   - Indicators
+;   - Steering servo pass-through
+;   - Hazard lights
+;
+;
+;   Other functions:
+;   - Failsafe mode: all lights blink when no signal
+;   - Program CH3
+;   - Program TH neutral, full fwd, full rev
+;   - Program servo output for steering servo: direction, neutral and end points
+;
+;
+;   Slave unit is controlled via PPM (6 lights + 1 steering)
+;
+;
+;   Operation:
+;   - CH3
+;       - short press if hazard lights: hazard lights off
+;       - short press: cycle through light modes up, then down
+;       - long press: off?
+; 
+;   - Steering servo left-right-left-right within 2s?
+;       - Hazard lights
+;
+;**********************************************************************
 
 
 
@@ -42,7 +102,6 @@ flag		    EQU	0x77	; just various flags
 ;**********************************************************************
     ORG     0x000           ; processor reset vector
     goto    Main            ; go to beginning of program
-
 
 ;**********************************************************************
     ORG     0x004           ; interrupt vector location
@@ -100,6 +159,8 @@ done
 
 ;**********************************************************************
 Main
+    movlw   42
+
     movlw	0x07
     movwf	CMCON		; disable the comparators
 
