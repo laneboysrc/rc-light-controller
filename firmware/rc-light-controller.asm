@@ -103,63 +103,61 @@ flag		    EQU	0x77	; just various flags
     goto    Main            ; go to beginning of program
 
 ;**********************************************************************
-    ORG     0x004           ; interrupt vector location
-    movwf   w_temp          ; save off current W register contents
-    movf	STATUS,w        ; move status register into W register
-    movwf	status_temp     ; save off contents of STATUS register
+;    ORG     0x004           ; interrupt vector location
+;    movwf   w_temp          ; save off current W register contents
+;    movf	STATUS,w        ; move status register into W register
+;    movwf	status_temp     ; save off contents of STATUS register
 
-    banksel T1CON
-    bcf	T1CON,TMR1ON	; stop the timer
-    movlw	T20ms_H		; set Timer1 to 20ms (0xFFFF-0x4E1F)
-    movwf	TMR1H
-    movlw	T20ms_L
-    movwf	TMR1L
-    bsf	T1CON,TMR1ON	; re-start the 20ms timer
+;    banksel T1CON
+;    bcf	T1CON,TMR1ON	; stop the timer
+;    movlw	T20ms_H		; set Timer1 to 20ms (0xFFFF-0x4E1F)
+;    movwf	TMR1H
+;    movlw	T20ms_L
+;    movwf	TMR1L
+;    bsf	T1CON,TMR1ON	; re-start the 20ms timer
 
-    bcf	PIR1, TMR1IF	; clear the interrupt flag
+;    bcf	PIR1, TMR1IF	; clear the interrupt flag
 
-    movf	CloseCounter,1	; 'close' counter running?
-    btfss	STATUS, Z
-    goto	closing		; yes: send 'close' pulse to servo
+;    movf	CloseCounter,1	; 'close' counter running?
+;    btfss	STATUS, Z
+;    goto	closing		; yes: send 'close' pulse to servo
 
-    movf	OpenCounter,1	; 'close' counter running?
-    btfss	STATUS, Z
-    goto	opening		; yes: send 'open' pulse to servo
+;    movf	OpenCounter,1	; 'close' counter running?
+;    btfss	STATUS, Z
+;    goto	opening		; yes: send 'open' pulse to servo
 
-    bcf	led_close	; neither opening nor closing: clear all LEDs and return
-    bcf	led_open
-    goto	done
+;    bcf	led_close	; neither opening nor closing: clear all LEDs and return
+;    bcf	led_open
+;    goto	done
 
-closing
-    bcf	led_open
-    bsf	led_close	; turn on 'closing' LED
-    bsf	servo		; make a pulse to the servo of length 0.9ms
-    call	delay_0.9ms
-    bcf	servo
-    decf	CloseCounter
-    goto	done
+;closing
+;    bcf	led_open
+;    bsf	led_close	; turn on 'closing' LED
+;    bsf	servo		; make a pulse to the servo of length 0.9ms
+;    call	delay_0.9ms
+;    bcf	servo
+;    decf	CloseCounter
+;    goto	done
 
-opening
-    bcf	led_close
-    bsf	led_open	; turn on 'opening' LED
-    bsf	servo		; make a pulse to the servo of length 2.1ms
-    call	delay_2.1ms
-    bcf	servo
-    decf	OpenCounter
+;opening
+;    bcf	led_close
+;    bsf	led_open	; turn on 'opening' LED
+;    bsf	servo		; make a pulse to the servo of length 2.1ms
+;    call	delay_2.1ms
+;    bcf	servo
+;    decf	OpenCounter
 
-done		
-    movf	status_temp,w	; retrieve copy of STATUS register
-    movwf	STATUS          ; restore pre-isr STATUS register contents
-    swapf	w_temp,f
-    swapf	w_temp,w        ; restore pre-isr W register contents
-    retfie                  ; return from interrupt
+;done		
+;    movf	status_temp,w	; retrieve copy of STATUS register
+;    movwf	STATUS          ; restore pre-isr STATUS register contents
+;    swapf	w_temp,f
+;    swapf	w_temp,w        ; restore pre-isr W register contents
+;    retfie                  ; return from interrupt
 
 
 
 ;**********************************************************************
 Main
-    movlw   42
-
     movlw	0x07
     movwf	CMCON		; disable the comparators
 
@@ -167,53 +165,221 @@ Main
     clrf	PORTB	
 
     banksel	TRISB
-    bcf	OPTION_REG, T0CS	
+    bcf		OPTION_REG, T0CS	
 
-    movlw	0x24		; make all ports except RA2 (sensor) and RA5 (tied to +5V) output
+    movlw	0x00		; make all ports A output
     movwf	TRISA
-    movlw	0x10		; make all ports except RB4 (tied to GND) output
+    movlw	0x00		; make all ports B output
     movwf	TRISB
 
-    banksel TMR1H
-    movlw	T20ms_H		; set Timer1 to 20ms (0xFFFF-0x4E1F)
-    movwf	TMR1H
-    movlw	T20ms_L
-    movwf	TMR1L
+    banksel	PORTA
 
-    movlw	0x01		; set timer to use internal clock and switch it on
-    movwf	T1CON
+    ; main loop 
+main_loop
+    bsf		PORTA, 0
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
 
+    bcf		PORTA, 0
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
+    call	delay_2.1ms
 
-    bsf	INTCON, PEIE	; enable peripherals interrupt
-    bsf	INTCON, GIE	; enable interrupts globally
-    banksel PIE1
-    bsf	PIE1, TMR1IE	; enable Timer1 interrupt
-
-    banksel T1CON
-    movlw	0x01		; switch the timer on, internal clock.
-    movwf	T1CON
-
-    ; main loop polling the sensor line
-main_loop		
-    btfsc	sensor		; sensor set?
-    goto	req_open	; yes: check whether we have already opened
-
-req_close	
-    btfss	door_status	; already close?
-    goto 	main_loop	; yes: nothing to do...
-    bcf	door_status	; no: but now we are...
-    movlw	SERVO_MOVE_TIME	; start servo movement timer
-    movwf	CloseCounter
-    clrf	OpenCounter	; override "opening"
-    goto	main_loop	
-
-req_open	
-    btfsc	door_status	; already open?
-    goto 	main_loop	; yes: nothing to do...
-    bsf	door_status	; no: but now we are...	
-    movlw	SERVO_MOVE_TIME	; start servo movement timer
-    movwf	OpenCounter
-    clrf	CloseCounter	; override "closing"
     goto	main_loop
 
 ;**********************************************************************
