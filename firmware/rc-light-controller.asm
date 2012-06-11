@@ -169,218 +169,51 @@ Main
 
     movlw	0x00		; make all ports A output
     movwf	TRISA
-    movlw	0x00		; make all ports B output
+    movlw	0x20		; make all ports B except RB5 output
     movwf	TRISB
 
     banksel	PORTA
+    bcf		PORTA, 0
+
 
     ; main loop 
 main_loop
-    bsf		PORTA, 0
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
+    clrf    T1CON       ; Stop timer 1, runs at 1us per tick, internal oscillator
+    clrf    TMR1H    
+    clrf    TMR1L
 
-    bcf		PORTA, 0
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
-    call	delay_2.1ms
+    btfss   PORTB, 5    ; Wait until servo signal is high
+    goto    main_loop
 
-    goto	main_loop
+
+    movlw   0x01        ; Start timer 1
+    movwf   T1CON
+
+wait_for_low
+    btfsc   PORTB, 5    ; Wait until servo signal is LOW
+    goto    wait_for_low
+
+    
+    clrf    T1CON       ; Stop timer 1
+
+    movf    TMR1H, 0   ; 1500ms = 0x5DC
+    sublw   0x05
+    btfss   STATUS, 0   ; Carry/!Borrow bit
+    goto    is_larger
+
+    movf    TMR1L, 0   
+    sublw   0xdc
+    btfss   STATUS, 0   ; Carry/!Borrow bit
+    goto    is_larger
+
+    bsf     PORTA, 0
+    goto    main_loop
+
+is_larger
+    bcf     PORTA, 0
+    goto    main_loop
+
+
 
 ;**********************************************************************
 delay_2.1ms
