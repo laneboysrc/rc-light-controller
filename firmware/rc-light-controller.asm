@@ -66,11 +66,10 @@
 ;   Operation:
 ;   - CH3
 ;       - short press if hazard lights: hazard lights off
-;       - short press: cycle through light modes up, then down
-;       - long press: off?
-; 
-;   - Steering servo left-right-left-right within 2s?
-;       - Hazard lights
+;       - short press: cycle through light modes up
+;       - double press: cycle through light modes down
+;       - triple press: hazard lights
+;       - long press: all lights off
 ;
 ;**********************************************************************
 
