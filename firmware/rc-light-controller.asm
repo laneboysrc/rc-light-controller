@@ -127,14 +127,14 @@
 ;   So the pseudo code should look like:
 ;       
 ;       main
-;           wait for CH1 = Low
-;           wait for CH1 = High
+;           wait for CH3 = Low
+;           wait for CH3 = High
 ;           start TMR1
-;           wait for CH1 = Low
+;           wait for CH3 = Low
 ;           stop TMR1
 ;           save CH1 timing value
 ;   
-;           (repeat for CH2, CH3)
+;           (repeat for CH2, CH1 (if present))
 ;           
 ;           process channels
 ;           switch lights according to new mode
@@ -159,7 +159,18 @@
 ;   not present. 
 ;   
 ;   
-;   
+;   UART protocol:
+;   ==============
+;   3 Bytes: SYNC, Lights, ST
+;       SYNC:       Always 0xFF, does not appear in the other 2 bytes!
+;       Lights:     Each bit indicates a different light channel (0..6)
+;       ST:         Steering servo data: -110 .. 0 .. +110
+;
+;
+;   Flashing speed:
+;   ===============
+;   1.5 Hz = 333 ms per half-period
+;
 ;
 ;**********************************************************************
 
