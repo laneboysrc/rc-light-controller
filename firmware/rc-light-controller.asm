@@ -177,83 +177,32 @@
 
 
 ;***** VARIABLE DEFINITIONS
-w_temp		    EQU	0x70    ; variable used for context saving 
-status_temp   	EQU	0x71    ; variable used for context saving
-CounterA	    EQU	0x72	; counters for delay loop
-CounterB	    EQU	0x73
-CounterC	    EQU	0x74
-CloseCounter	EQU	0x75	; counter x20ms for amount of time the servo is steered when closing
-OpenCounter	    EQU	0x76	; counter x20ms for amount of time the servo is steered when opening
-flag		    EQU	0x77	; just various flags
 
-#define door_status flag,0
+	    cblock	h'20'	;bank 0  h'20' to h'7f'. 96 locations
 
-;***** PORT DEFINITIONS
-#define servo     PORTB,3
-#define led_close PORTA,0
-#define led_open  PORTA,1
-#define sensor    PORTA,2
+	    ;these allow us to save the context during interrupts.
+savew1	;SAVEW1 *MUST* be at location h'20'!
+savestatus	
+savepclath
+savefsr
 
-; unit: 20ms
-#define SERVO_MOVE_TIME 250	
-#define T20ms_H 0xB1
-#define T20ms_L 0xE0
+CounterA
+CounterB
+CounterC
+
+rx_data		;the received byte from the serial UART
+tx_data		;byte to be transmitted via UART
+
+	    endc
+
+
 
 ;**********************************************************************
-    ORG     0x000           ; processor reset vector
+    org     0x000           ; processor reset vector
+
     goto    Main            ; go to beginning of program
 
-;**********************************************************************
-;    ORG     0x004           ; interrupt vector location
-;    movwf   w_temp          ; save off current W register contents
-;    movf	STATUS,w        ; move status register into W register
-;    movwf	status_temp     ; save off contents of STATUS register
 
-;    banksel T1CON
-;    bcf	T1CON,TMR1ON	; stop the timer
-;    movlw	T20ms_H		; set Timer1 to 20ms (0xFFFF-0x4E1F)
-;    movwf	TMR1H
-;    movlw	T20ms_L
-;    movwf	TMR1L
-;    bsf	T1CON,TMR1ON	; re-start the 20ms timer
-
-;    bcf	PIR1, TMR1IF	; clear the interrupt flag
-
-;    movf	CloseCounter,1	; 'close' counter running?
-;    btfss	STATUS, Z
-;    goto	closing		; yes: send 'close' pulse to servo
-
-;    movf	OpenCounter,1	; 'close' counter running?
-;    btfss	STATUS, Z
-;    goto	opening		; yes: send 'open' pulse to servo
-
-;    bcf	led_close	; neither opening nor closing: clear all LEDs and return
-;    bcf	led_open
-;    goto	done
-
-;closing
-;    bcf	led_open
-;    bsf	led_close	; turn on 'closing' LED
-;    bsf	servo		; make a pulse to the servo of length 0.9ms
-;    call	delay_0.9ms
-;    bcf	servo
-;    decf	CloseCounter
-;    goto	done
-
-;opening
-;    bcf	led_close
-;    bsf	led_open	; turn on 'opening' LED
-;    bsf	servo		; make a pulse to the servo of length 2.1ms
-;    call	delay_2.1ms
-;    bcf	servo
-;    decf	OpenCounter
-
-;done		
-;    movf	status_temp,w	; retrieve copy of STATUS register
-;    movwf	STATUS          ; restore pre-isr STATUS register contents
-;    swapf	w_temp,f
-;    swapf	w_temp,w        ; restore pre-isr W register contents
-;    retfie                  ; return from interrupt
 
 
 
@@ -270,8 +219,68 @@ Main
 
     movlw	0x00		; make all ports A output
     movwf	TRISA
-    movlw	0x20		; make all ports B except RB5 output
+    movlw	0x26		; make all ports B output, except RB5, RB2 (UART!) and RB1 (UART!)
     movwf	TRISB
+
+
+    ; UART specific initialization
+    bcf	TXSTA, CSRC	; <7> (0) don't care in asynch mode
+    bcf	TXSTA, TX9	; <6>  0  select 8 bit mode
+    bsf	TXSTA, TXEN	; <5>  1  enable transmit function 
+			    ;      *MUST* be 1 for transmit to work!!!
+    bcf	TXSTA, SYNC	; <4>  0 asynchronous mode. 
+			    ;      *MUST* be 0 !!!
+			    ;      If NOT 0 the async mode is NOT selected!
+			    ; <3>  (0) not implemented
+    bcf	TXSTA, BRGH	; <2>  0 disable high baud rate generator !!!
+			    ; <1>    (0) trmt is read only.
+    bcf	TXSTA, TX9D	; <0>  (0)  tx9d data cleared to 0.
+
+
+xtal_freq	=   d'4000000'	;crystal frequency in Hertz.
+baudrate	=	d'2400'	;desired baudrate.
+;spbrg_value =	(((d'10'*xtal_freq/(d'16'*baudrate))+d'5')/d'10')-1
+			    ;this is based on txsta,brgh=1.
+spbrg_value	=	(((d'10'*xtal_freq/(d'64'*baudrate))+d'5')/d'10')-1
+			    ;this is based on txsta,brgh=0.
+
+    movlw	spbrg_value	
+    movwf	SPBRG
+
+
+    banksel	RCSTA
+
+;more uart specific initialization
+
+			    ;rcsta=ReCeive STAtus and control register
+			    ;assume nothing.
+
+    bsf	RCSTA, SPEN	; 7 spen 1=rx/tx set for serial uart mode
+			    ;   !!! very important to set spen=1
+    bcf	RCSTA, RX9	; 6 rc8/9 0=8 bit mode
+    bcf	RCSTA, SREN	; 5 sren 0=don't care in uart mode
+    bsf	RCSTA, CREN	; 4 cren 1=enable constant reception
+			    ;!!! (and low clears errors)
+			    ; 3 not used / 0 / don't care
+    bcf	RCSTA, FERR	; 2 ferr input framing error bit. 1=error
+			    ; 1 oerr input overrun error bit. 1=error
+			    ;!!! (reset oerr by neg pulse clearing cren)
+			    ;you can't clear this bit by using bcf.
+			    ;It is only cleared when you pulse cren low. 
+    bcf	RCSTA, RX9D	; 0 rx9d input (9th data bit). ignore.
+
+
+
+    movf	RCREG,w		;clear uart receiver
+    movf	RCREG,w		; including fifo
+    movf	RCREG,w		; which is three deep.
+
+
+    movlw	0		;any character will do.
+    movwf	TXREG		;send out dummy character
+			    ; to get transmit flag valid!
+
+
 
     banksel	PORTA
     bcf		PORTA, 0
@@ -279,6 +288,33 @@ Main
 
     ; main loop 
 main_loop
+    ; Send 'Hello world'+CR
+    movlw   0x48          
+    call	transmitw	;send W to the UART transmitter
+    movlw   0x65
+    call	transmitw	
+    movlw   0x6C
+    call	transmitw	
+    movlw   0x6C
+    call	transmitw	
+    movlw   0x6F
+    call	transmitw	
+    movlw   0x20
+    call	transmitw	
+    movlw   0x57
+    call	transmitw	
+    movlw   0x6F
+    call	transmitw	
+    movlw   0x72
+    call	transmitw	
+    movlw   0x6C
+    call	transmitw	
+    movlw   0x64
+    call	transmitw	
+    movlw   0x0d
+    call	transmitw	
+
+
     clrf    T1CON       ; Stop timer 1, runs at 1us per tick, internal oscillator
     clrf    TMR1H    
     clrf    TMR1L
@@ -335,6 +371,23 @@ delay_loop
     decfsz	CounterB,1
     goto	delay_loop 
     return
+
+
+;**********************************************************************
+transmitw
+			    ;transmitw is most common entry point.
+			    ;(output what is in W)
+    btfss	PIR1, TXIF
+    goto	transmitw	;wait for transmitter interrupt flag
+gietx	
+;    bcf	INTCON, GIE	;disable interrupts
+;	btfsc	INTCON, GIE	;making SURE they are disabled!
+;	goto	gietx
+    movwf	TXREG	;load data to be sent...
+;	bsf	INTCON, GIE	;re-enable interrupts
+    return			;tx_data unchanged. 
+			    ;transmitted data is in W
+
 
 
     END			; directive 'end of program'
