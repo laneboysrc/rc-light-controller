@@ -71,6 +71,22 @@
 ;       - triple press: hazard lights
 ;       - long press: all lights off
 ;
+;
+;   PPM:
+;   Each pulse is 300us, 
+;   Data: 1000-2000 us full range, 1500 us = center (includes pulse width!)
+;       Allow for +/- 10%: 900-2100 us
+;   Repeated every 20ms
+;   => 8 channels worst case: 8 * 2100 us =  16800 us
+;   => space between transmissions minimum: -20000 = 3200 us
+;   => 9 channels don't fit!
+;
+;
+;   CH3 behaviour:
+;   - Hard switch: on/off positions (i.e. HK 310)
+;   - Toggle button: press=on, press again=off (i.e. GT-3B)
+;   - Monentary button: press=on, release=off (in actual use ?)
+;
 ;**********************************************************************
 
 
