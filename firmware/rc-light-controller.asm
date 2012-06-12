@@ -69,7 +69,7 @@
 ;       - short press: cycle through light modes up
 ;       - double press: cycle through light modes down
 ;       - triple press: hazard lights
-;       - long press: all lights off
+;       - long press: all lights off --> NOT POSSIBLE WITH GT-3B!
 ;
 ;
 ;   PPM:
@@ -86,6 +86,80 @@
 ;   - Hard switch: on/off positions (i.e. HK 310)
 ;   - Toggle button: press=on, press again=off (i.e. GT-3B)
 ;   - Monentary button: press=on, release=off (in actual use ?)
+;
+;
+;   Timing architecture:
+;   ====================
+;   We are dealing with 3 RC channels. A channel has a signal of max 2.1 ms
+;   that is repeated every 20 ms. Hoever, there is no specification in which 
+;   sequence and with which timing the receiver outputs the individual channels.
+;   Worst case there is only 6.85 ms between the channels. As such we can
+;   not send the PPM signal synchronously between reading the channels.
+;   
+;   Using interrupts may be critical too, as we need precision. Lets assume we
+;   want to divide the servo range of 1 ms to 2 ms in 200 steps (100% in each
+;   direction as e.g. EPA in transmitters works). This requires a resolution
+;   of 5 us -- which is just 5 instruction cycles. No way to finish 
+;   processing interrupts this way.
+;
+;   So instead of PPM we could use UART where the PIC has HW support.
+;   Or we could do one 20 ms measure the 3 channels, then in the next 20 ms
+;   period send PPM.
+;
+;   UART at 57600 BAUD should be fast enough, even though we have increased
+;   data rate (since we are sending data values). On the plus side this 
+;   allows for "digital" accuracy as there is no jitter in timing generation
+;   (both sending and receiving) as there is with PPM).
+;   UART can also use parity for added security against bit defects.
+;
+;   ****************************************
+;   * CONCLUSION: let's use UART, not PPM! *
+;   ****************************************
+;
+;
+;   Measuring the 3 servo channels:
+;   ===============================
+;   The "Arduino OpenSourceLights" measure all 3 channels in turn, with a 
+;   21 ms timeout. This means worst one needs to wait 3 "rounds" each 20ms
+;   until all 3 channels have been measured. That's 60 ms, which is still very 
+;   low (usually tact switches are de-bounced with 40 ms).
+;   
+;   So the pseudo code should look like:
+;       
+;       main
+;           wait for CH1 = Low
+;           wait for CH1 = High
+;           start TMR1
+;           wait for CH1 = Low
+;           stop TMR1
+;           save CH1 timing value
+;   
+;           (repeat for CH2, CH3)
+;           
+;           process channels
+;           switch lights according to new mode
+;           send lights and steering to slave via UART (3 bytes)
+;
+;           goto main
+;
+;
+;   Robustness matters:
+;   ===================
+;   A servo signal should come every 20 ms. OpenSourceLights says in their
+;   comment that they meassured "~20-22ms" between pulses. So for the safe
+;   side let's assume that worst case we wait 25 ms for a servo pulse.
+;
+;   How to detect "failsafe"?
+;   Since at minimum CH3 must be present, we use it to detect fail safe. If
+;   no CH3 is received within 25 ms then we assume failure mode.
+;
+;   At startup we shall detect whether channels are present. 
+;   CH3 is always required, so we first wait for that to ensure the TX/RC are
+;   on. Then we wait for TH and ST. If they don't appear we assume they are 
+;   not present. 
+;   
+;   
+;   
 ;
 ;**********************************************************************
 
