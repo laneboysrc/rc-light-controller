@@ -51,16 +51,16 @@
 ;   - Indicators
 ;   - Steering servo pass-through
 ;   - Hazard lights
+;   - "Lichthupe"?
 ;
 ;
 ;   Other functions:
 ;   - Failsafe mode: all lights blink when no signal
 ;   - Program CH3
 ;   - Program TH neutral, full fwd, full rev
+;   - Program steering servo: neutral and end points
 ;   - Program servo output for steering servo: direction, neutral and end points
 ;
-;
-;   Slave unit is controlled via PPM (6 lights + 1 steering)
 ;
 ;
 ;   Operation:
@@ -168,6 +168,8 @@
 ;                   sends all 3 received bytes at its output. This provides
 ;                   us with a simple way of daisy-chaining several slave
 ;                   modules!
+;                   NOTE: this means that the steering servo can only be
+;                   connected to the last slave module!
 ;       Lights:     Each bit indicates a different light channel (0..6)
 ;       ST:         Steering servo data: -110 - 0 - +110
 ;
@@ -178,6 +180,30 @@
 ;   ===============
 ;   1.5 Hz = 333 ms per half-period
 ;
+;
+;   Steering servo:
+;   ===============
+;   We need to be concerned with quite some things:
+;   - Neutral/Trim of both servos
+;   - Direction of the steering servo
+;   - End point adjustment of both steering servos
+;   
+;   The best way will be to approach to first calibrate the original steering
+;   servo trim and end points. 
+;   Then do a 3 step calibration for the salve steering servo neutral and
+;   end points.
+;
+;   Ideally there should be a simple way to re-calibrate the original steering
+;   servo. 
+;       - Neutral may be automatically done each time the system is powered on
+;           Or each time the light mode is changed; assuming that the user
+;           does not operate both controls at the same time. Maybe to ensure
+;           that add a safety that only +/- 10% are automatically adjustable?
+;       - End points can be automatically adjusted if a value is received
+;         that is larger than the current stored end point. To reduce we need
+;         to check over a long period of time.
+;   Conclusion: maybe for the first version this is overkill, just allow
+;   for manual calibration.
 ;
 ;**********************************************************************
 
