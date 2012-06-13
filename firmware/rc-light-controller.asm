@@ -208,12 +208,16 @@
 ;
 ;   TX/RX system findings:
 ;   ======================
+;   In general the jitter is 3 us, which is expected given that it takes about
+;   3 instructions to detect a port change and start/stop the timer.
+;
 ;   GT3B: 
 ;       EPA can be +/- 120 %
 ;       Normal range (trim zero, 100% EPA): 986 .. 1568 .. 2120
 ;       Trim range: 1490 .. 1568 .. 1649  (L30 .. N00 .. R30)
 ;       Worst case with full EPA and trim: 870 .. 2300 (!)
 ;       Failsafe: Servo signal holds for about 500ms, then stops
+;       CH3: 1058, 2114
 ;
 ;   HK-310:
 ;       EPA can be +/- 120 %
@@ -349,16 +353,18 @@ main_loop
     clrf    TMR1L
 
 
+    ; Wait until servo signal is LOW 
+    ; This ensures that we do not start in the middle
+    ;  of a pulse
 ch3_wait_for_low1
-    btfsc   PORTB, 5    ; Wait until servo signal is LOW
+    btfsc   PORTB, 5    
     goto    ch3_wait_for_low1
 
 ch3_wait_for_high
     btfss   PORTB, 5    ; Wait until servo signal is high
     goto    ch3_wait_for_high
 
-    movlw   0x01        ; Start timer 1
-    movwf   T1CON
+    bsf     T1CON, 0    ; Start timer 1
 
 ch3_wait_for_low2
     btfsc   PORTB, 5    ; Wait until servo signal is LOW
