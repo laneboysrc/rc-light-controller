@@ -75,7 +75,7 @@
 ;   PPM:
 ;   Each pulse is 300us,
 ;   Data: 1000-2000 us full range, 1500 us = center (includes pulse width!)
-;       Allow for +/- 10%: 900-2100 us
+;       Allow for: 770-2350 us
 ;   Repeated every 20ms
 ;   => 8 channels worst case: 8 * 2100 us =  16800 us
 ;   => space between transmissions minimum: -20000 = 3200 us
@@ -85,7 +85,7 @@
 ;   CH3 behaviour:
 ;   - Hard switch: on/off positions (i.e. HK 310)
 ;   - Toggle button: press=on, press again=off (i.e. GT-3B)
-;   - Monentary button: press=on, release=off (in actual use ?)
+;   - Momentary button: press=on, release=off (in actual use ?)
 ;
 ;
 ;   Timing architecture:
@@ -205,6 +205,25 @@
 ;   Conclusion: maybe for the first version this is overkill, just allow
 ;   for manual calibration.
 ;
+;
+;   TX/RX system findings:
+;   ======================
+;   GT3B: 
+;       EPA can be +/- 120 %
+;       Normal range (trim zero, 100% EPA): 986 .. 1568 .. 2120
+;       Trim range: 1490 .. 1568 .. 1649  (L30 .. N00 .. R30)
+;       Worst case with full EPA and trim: 870 .. 2300 (!)
+;       Failsafe: Servo signal holds for about 500ms, then stops
+;
+;   HK-310:
+;       EPA can be +/- 120 %
+;       Normal range (sub-trim and trim zero, 100% EPA): 1073 .. 1568 .. 2117
+;       Sub-Trim range: 1232 .. 1565 .. 1901  (-100 .. 0 .. 100)
+;       Trim range: 1388 .. 1568 .. 1745
+;       Worst case with full EPA and sub-tirm and trim: 779 .. 2327 (!)
+;       Failsafe: Continously sends ST centre, TH off, CH3 holds last value
+;       CH3: 1013 = AUX, 2120 = OFF; fai
+;
 ;**********************************************************************
 
 
@@ -215,6 +234,10 @@
 	d1          ; Delay registers
 	d2
 	d3
+
+    temp
+    send_hi
+    send_lo
 
     ENDC
 
@@ -247,9 +270,9 @@ Main
     ;-----------------------------
     ; UART specific initialization
 OSC = d'4000000'        ; Osc frequency in Hz
-BAUDRATE = d'19200'     ; Desired baudrate
+BAUDRATE = d'38400'     ; Desired baudrate
 BRGH_VALUE = 1          ; Either 0 or 1
-SPBRG_VALUE = (((d'10'*OSC/((d'16'+d'48'*BRGH_VALUE)*BAUDRATE))+d'5')/d'10')-1
+SPBRG_VALUE = (((d'10'*OSC/((d'64'-(d'48'*BRGH_VALUE))*BAUDRATE))+d'5')/d'10')-1
 
     movlw   b'00100000'
             ; |||||||+ TX9D (not used)
@@ -292,8 +315,7 @@ SPBRG_VALUE = (((d'10'*OSC/((d'16'+d'48'*BRGH_VALUE)*BAUDRATE))+d'5')/d'10')-1
 
     ;**********************************************************************
 main_loop
-    call    Delay_2s
-    
+    IF 0
                             ; Send 'Hello world\n'
     movlw   0x48
     call    UART_send_w
@@ -320,31 +342,48 @@ main_loop
     movlw   0x0a
     call    UART_send_w
 
+    ENDIF
 
     clrf    T1CON       ; Stop timer 1, runs at 1us per tick, internal oscillator
     clrf    TMR1H
     clrf    TMR1L
 
-    btfss   PORTB, 5    ; Wait until servo signal is high
-    goto    main_loop
 
+ch3_wait_for_low1
+    btfsc   PORTB, 5    ; Wait until servo signal is LOW
+    goto    ch3_wait_for_low1
+
+ch3_wait_for_high
+    btfss   PORTB, 5    ; Wait until servo signal is high
+    goto    ch3_wait_for_high
 
     movlw   0x01        ; Start timer 1
     movwf   T1CON
 
-wait_for_low
+ch3_wait_for_low2
     btfsc   PORTB, 5    ; Wait until servo signal is LOW
-    goto    wait_for_low
-
+    goto    ch3_wait_for_low2
 
     clrf    T1CON       ; Stop timer 1
 
-    movf    TMR1H, 0    ; 1500ms = 0x5DC
+    movf    TMR1H, w    ; 1500ms = 0x5DC
+    movwf   send_hi
+    movf    TMR1L, w
+    movwf   send_lo
+    call UART_send_16bit
+    goto    main_loop
+
+    addlw   0x30
+    call    UART_send_w
+    goto    main_loop
+
+
+
     sublw   0x05
     btfss   STATUS, 0   ; Carry/!Borrow bit
     goto    is_larger
 
-    movf    TMR1L, 0
+    movf    TMR1L, w
     sublw   0xdc
     btfss   STATUS, 0   ; Carry/!Borrow bit
     goto    is_larger
@@ -408,5 +447,117 @@ UART_send_w
     return      
 
 
+;**********************************************************************
+; Send a 16 bit value stored in hi and lo as a number over the UART
+;**********************************************************************
+UART_send_16bit
+        clrf temp
+sub30k
+        movlw 3
+        addwf temp, f
+        movlw low(30000)
+        subwf send_lo, f
+
+        movlw high(30000)
+        skpc
+        movlw high(30000) + 1
+        subwf send_hi, f
+        skpnc
+        goto sub30k
+add10k
+        decf temp, f
+        movlw low(10000)
+        addwf send_lo, f
+
+        movlw high(10000)
+        skpnc
+        movlw high(10000) + 1
+        addwf send_hi, f
+        skpc
+        goto add10k
+        movf    temp, w
+        addlw   0x30
+        call    UART_send_w
+
+        clrf temp
+sub3k
+        movlw 3
+        addwf temp, f
+        movlw low(3000)
+        subwf send_lo, f
+        movlw high(3000)
+        skpc
+        movlw high(3000) + 1
+        subwf send_hi, f
+        skpnc
+        goto sub3k
+add1k
+        decf temp, f
+        movlw low(1000)
+        addwf send_lo, f
+
+        movlw high(1000)
+        skpnc
+        movlw high(1000) + 1
+        addwf send_hi, f
+        skpc
+        goto add1k
+        movf    temp, w
+        addlw   0x30
+        call    UART_send_w
+
+
+        clrf temp
+sub300
+        movlw 3
+        addwf temp, f
+        movlw low(300)
+        subwf send_lo, f
+        movlw high(300)
+        skpc
+        movlw high(300) + 1
+        subwf send_hi, f
+        skpnc
+        goto sub300
+        movlw 100
+add100
+        decf temp, f
+        addwf send_lo, f
+        skpc
+        goto add100
+        incf send_hi, f
+        btfsc send_hi, 7
+        goto add100
+        movf    temp, w
+        addlw   0x30
+        call    UART_send_w
+
+        clrf temp
+        movlw 30
+sub30
+        incf temp, f
+        subwf send_lo, f
+        skpnc
+        goto sub30
+        movfw temp
+        rlf temp, f
+        addwf temp, f
+        movlw 10
+add10
+    decf temp, f
+    addwf send_lo, f
+    skpc
+    goto add10
+    movf    temp, w
+    addlw   0x30
+    call    UART_send_w
+
+    movf    send_lo, w
+    addlw   0x30
+    call    UART_send_w
+    movlw   0x0a
+    call    UART_send_w
+
+    return
 
     END     ; Directive 'end of program'
