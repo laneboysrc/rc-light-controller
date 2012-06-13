@@ -162,9 +162,16 @@
 ;   UART protocol:
 ;   ==============
 ;   3 Bytes: SYNC, Lights, ST
-;       SYNC:       Always 0xFF, does not appear in the other 2 bytes!
+;       SYNC:       Always 0x8x, which does not appear in the other values
+;                   If a slave receives 0x8F the data is processed.
+;                   If the value is 0x8x then it increments the value by 1 and
+;                   sends all 3 received bytes at its output. This provides
+;                   us with a simple way of daisy-chaining several slave
+;                   modules!            
 ;       Lights:     Each bit indicates a different light channel (0..6)
-;       ST:         Steering servo data: -110 .. 0 .. +110
+;       ST:         Steering servo data: -110 - 0 - +110
+;
+;   
 ;
 ;
 ;   Flashing speed:
@@ -288,7 +295,7 @@ spbrg_value	=	(((d'10'*xtal_freq/(d'64'*baudrate))+d'5')/d'10')-1
 
     ; main loop 
 main_loop
-    ; Send 'Hello world'+CR
+    ; Send 'Hello world\n'
     movlw   0x48          
     call	transmitw	;send W to the UART transmitter
     movlw   0x65
@@ -311,7 +318,7 @@ main_loop
     call	transmitw	
     movlw   0x64
     call	transmitw	
-    movlw   0x0d
+    movlw   0x0a
     call	transmitw	
 
 
