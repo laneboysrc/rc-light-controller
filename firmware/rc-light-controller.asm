@@ -262,13 +262,16 @@
 ;       Switch pos 0: 1000 us
 ;       Switch pos 1: 2000 us
 ;       Center is therefore   (2000 + 1000) / 2 = 1500 us
-;       Hysteresis of 20%:   (2000 - 1000) / 5 = 200 us
+;       Hysteresis:           (2000 - 1000) / 8 = 125 us
 ;       If last switch position was pos 0:
-;           measured timing must be larger than 1500 + 200 = 1700 us to accept 
+;           measured timing must be larger than 1500 + 125 = 1625 us to accept 
 ;           as pos 1
 ;       If last switch position was pos 1:
-;           measured timing must be larger than 1500 - 200 = 1300 us to accept
+;           measured timing must be larger than 1500 - 125 = 1375 us to accept
 ;           as pos 0
+;   For accuracy is not important as we are dealing with a switch we can
+;   only use bits 11..4 (16 us resolution), so we can deal with byte 
+;   calculations.
 ;   Note: calculation must ensure that due to servo reversing pos 0 may
 ;   have a larger or smaller time value than pos 1.
 ;
@@ -319,9 +322,19 @@
 ;
 ;**********************************************************************
 
+#define PORT_CH3        PORTB, 5
+#define PORT_STEERING   PORTB, 0
+#define PORT_THROTTLE   PORTB, 1
 
+; Bitfields in variable servo_available that indicate availability of a 
+; particular servo channel
+#define CH3 0    
+#define THROTTLE 1   
+#define STEERING 2    
 
-;***** VARIABLE DEFINITIONS
+;**********************************************************************
+;* VARIABLE DEFINITIONS
+;**********************************************************************
     CBLOCK  0x20
 
 	d1          ; Delay registers
@@ -332,17 +345,47 @@
     send_hi
     send_lo
 
+    servo_available
+
+    steering
+    steering_l
+    steering_h
+    steering_epl_l
+    steering_epl_h
+    steering_epr_l
+    steering_epr_h
+
+    throttle
+    throttle_l
+    throttle_h
+    throttle_epl_l
+    throttle_epl_h
+    throttle_epr_l
+    throttle_epr_h
+    
+    ch3
+    ch3_value
+    ch3_ep0
+    ch3_ep1
+
     ENDC
 
 
 
 ;**********************************************************************
-    ORG     0x000           ; Processor reset vector
+; Reset vector 
+;**********************************************************************
+    ORG     0x000           
     goto    Main            
 
+;**********************************************************************
+; Interrupt vector 
+;**********************************************************************
+    ORG     0x004           
 
 
-
+;**********************************************************************
+; Main program
 ;**********************************************************************
 Main
     movlw   0x07
@@ -356,10 +399,26 @@ Main
 
     movlw   0x00        ; Make all ports A output
     movwf   TRISA
-    movlw   b'00100110' ; Make all ports B output, except RB5, RB2 (UART!) and RB1 (UART!)
+    movlw   b'00100110' ; Make all ports B output, except RB5, 
+                        ;  RB2 (UART) and RB1 (UART!)
     movwf   TRISB
 
 
+    BANKSEL servo_available
+    ; For now only define CH3 as being available
+    clrf    servo_available
+    bsf     servo_available, CH3
+
+    ; Load defaults for end points for position 0 and 1 of CH3; discard lower
+    ; 4 bits so our math can use bytes only
+    movlw   1000 >> 4
+    movwf   ch3_ep0
+
+    movlw   2000 >> 4
+    movwf   ch3_ep1
+
+
+    BANKSEL TXSTA
     ;-----------------------------
     ; UART specific initialization
 OSC = d'4000000'        ; Osc frequency in Hz
@@ -405,91 +464,276 @@ SPBRG_VALUE = (((d'10'*OSC/((d'64'-(d'48'*BRGH_VALUE))*BAUDRATE))+d'5')/d'10')-1
     movlw	0           ; Send dummy character to get a valid transmit flag
     movwf	TXREG
 
-
-    ;**********************************************************************
+    ;**************************************************************************
 main_loop
-    IF 0
-                            ; Send 'Hello world\n'
-    movlw   0x48
-    call    UART_send_w
-    movlw   0x65
-    call    UART_send_w
-    movlw   0x6C
-    call    UART_send_w
-    movlw   0x6C
-    call    UART_send_w
-    movlw   0x6F
-    call    UART_send_w
-    movlw   0x20
-    call    UART_send_w
-    movlw   0x57
-    call    UART_send_w
-    movlw   0x6F
-    call    UART_send_w
-    movlw   0x72
-    call    UART_send_w
-    movlw   0x6C
-    call    UART_send_w
-    movlw   0x64
-    call    UART_send_w
-    movlw   0x0a
-    call    UART_send_w
+    call    Read_ch3
+;    call    Read_throttle
+;    call    Read_steering
 
+    call    Process_ch3
+    call    Process_throttle
+    call    Process_steering
+
+    goto    main_loop
+
+
+;******************************************************************************
+; Read_ch3
+; 
+; Read servo channel 3 and write the result in ch3_h/ch3_l
+;
+; TODO: add timeouts!
+;******************************************************************************
+Read_ch3
+    ; test code loading constant value 
+    IF 0
+        movf    ch3_ep0, w
+        movf    ch3, f
+        skpnz
+        movf    ch3_ep1, w
+        movwf   ch3_value
+        return
     ENDIF
 
-    clrf    T1CON       ; Stop timer 1, runs at 1us per tick, internal oscillator
-    clrf    TMR1H
+    clrf    T1CON       ; Stop timer 1, runs at 1us per tick, internal osc
+    clrf    TMR1H       ; Reset the timer to 0
     clrf    TMR1L
-
+    clrf    ch3_value   ; Prime the result with "timing measurement failed"
 
     ; Wait until servo signal is LOW 
-    ; This ensures that we do not start in the middle
-    ;  of a pulse
+    ; This ensures that we do not start in the middle of a pulse
 ch3_wait_for_low1
-    btfsc   PORTB, 5    
+    btfsc   PORT_CH3
     goto    ch3_wait_for_low1
 
 ch3_wait_for_high
-    btfss   PORTB, 5    ; Wait until servo signal is high
+    btfss   PORT_CH3    ; Wait until servo signal is high
     goto    ch3_wait_for_high
 
     bsf     T1CON, 0    ; Start timer 1
 
 ch3_wait_for_low2
-    btfsc   PORTB, 5    ; Wait until servo signal is LOW
+    btfsc   PORT_CH3    ; Wait until servo signal is LOW
     goto    ch3_wait_for_low2
 
     clrf    T1CON       ; Stop timer 1
 
-    movf    TMR1H, w    ; 1500ms = 0x5DC
-    movwf   send_hi
+    movf    TMR1H, w    
+    movwf   ch3_value
     movf    TMR1L, w
-    movwf   send_lo
-    call UART_send_16bit
-    goto    main_loop
+    movwf   temp
+  
+    ; Use the middle 12 bit as an 8 bit value since we don't need high
+    ; accuracy for the CH3 
+    rlf     temp, f
+    rlf     ch3_value, f
+    rlf     temp, f
+    rlf     ch3_value, f
+    rlf     temp, f
+    rlf     ch3_value, f
+    rlf     temp, f
+    rlf     ch3_value, f
+    return
 
-    addlw   0x30
-    call    UART_send_w
-    goto    main_loop
 
+;******************************************************************************
+; Read_steering
+; 
+; Read the steering servo channel and write the result in steering_h/steering_l
+;******************************************************************************
+Read_steering
+    clrf    T1CON       ; Stop timer 1, runs at 1us per tick, internal osc
+    clrf    TMR1H       ; Reset the timer to 0
+    clrf    TMR1L
+    clrf    steering_h  ; Prime the result with "timing measurement failed"
+    clrf    steering_l
 
+    ; Terminate if the servo is indicated as "not connected"
+    btfss   servo_available, STEERING
+    return
 
-    sublw   0x05
-    btfss   STATUS, 0   ; Carry/!Borrow bit
-    goto    is_larger
+    ; Wait until servo signal is LOW 
+    ; This ensures that we do not start in the middle of a pulse
+st_wait_for_low1
+    btfsc   PORT_STEERING
+    goto    st_wait_for_low1
 
+st_wait_for_high
+    btfss   PORT_STEERING   ; Wait until servo signal is high
+    goto    st_wait_for_high
+
+    bsf     T1CON, 0    ; Start timer 1
+
+st_wait_for_low2
+    btfsc   PORT_STEERING   ; Wait until servo signal is LOW
+    goto    st_wait_for_low2
+
+    clrf    T1CON       ; Stop timer 1
+
+    movf    TMR1H, w    
+    movwf   steering_h
     movf    TMR1L, w
-    sublw   0xdc
-    btfss   STATUS, 0   ; Carry/!Borrow bit
-    goto    is_larger
+    movwf   steering_l
+    return
 
-    bsf     PORTA, 0
-    goto    main_loop
 
-is_larger
-    bcf     PORTA, 0
-    goto    main_loop
+;******************************************************************************
+; Read_throttle
+; 
+; Read the throttle servo channel and write the result in throttle_h/throttle_l
+;******************************************************************************
+Read_throttle
+    clrf    T1CON       ; Stop timer 1, runs at 1us per tick, internal osc
+    clrf    TMR1H       ; Reset the timer to 0
+    clrf    TMR1L
+    clrf    throttle_h  ; Prime the result with "timing measurement failed"
+    clrf    throttle_l
 
+    ; Terminate if the servo is indicated as "not connected"
+    btfss   servo_available, THROTTLE
+    return
+
+    ; Wait until servo signal is LOW 
+    ; This ensures that we do not start in the middle of a pulse
+th_wait_for_low1
+    btfsc   PORT_THROTTLE
+    goto    th_wait_for_low1
+
+th_wait_for_high
+    btfss   PORT_THROTTLE   ; Wait until servo signal is high
+    goto    th_wait_for_high
+
+    bsf     T1CON, 0    ; Start timer 1
+
+th_wait_for_low2
+    btfsc   PORT_THROTTLE   ; Wait until servo signal is LOW
+    goto    th_wait_for_low2
+
+    clrf    T1CON       ; Stop timer 1
+
+    movf    TMR1H, w    
+    movwf   throttle_h
+    movf    TMR1L, w
+    movwf   throttle_l
+    return
+
+
+;******************************************************************************
+; Process_ch3
+; 
+; Normalize the processed CH3 channel into ch3 value 0 or 1
+;
+;       Switch pos 0: 1000 us
+;       Switch pos 1: 2000 us
+;       Center is therefore   (2000 + 1000) / 2 = 1500 us
+;       Hysteresis:           (2000 - 1000) / 8 = 125 us
+;       If last switch position was pos 0:
+;           measured timing must be larger than 1500 + 125 = 1625 us to accept 
+;           as pos 1
+;       If last switch position was pos 1:
+;           measured timing must be larger than 1500 - 125 = 1375 us to accept
+;           as pos 0
+;   Note: calculation must ensure that due to servo reversing pos 0 may
+;   have a larger or smaller time value than pos 1.
+;******************************************************************************
+#define ch3_centre d1
+#define ch3_hysteresis d2   
+
+Process_ch3
+    ; Step 1: calculate the centre: (ep0 + ep1) / 2
+    ; To avoid potential overflow we actually calculate (ep0 / 2) + (ep1 / 2)
+    movf    ch3_ep0, w
+    movwf   ch3_centre
+    clrc
+    rrf     ch3_centre, f
+
+    movf    ch3_ep1, w
+    movwf   temp
+    clrc
+    rrf     temp, w
+    addwf   ch3_centre, f
+    
+    ; Step 2: calculate the hysteresis: (max(ep0, ep1) - min(ep0, ep1)) / 8
+    movf    ch3_ep0, w
+    movwf   temp
+    movf    ch3_ep1, w
+    call    Max
+    movwf   ch3_hysteresis
+
+    movf    ch3_ep0, w
+    movwf   temp
+    movf    ch3_ep1, w
+    call    Min
+    subwf   ch3_hysteresis, f
+    clrc
+    rrf     ch3_hysteresis, f
+    clrc
+    rrf     ch3_hysteresis, f
+    clrc
+    rrf     ch3_hysteresis, f
+
+    ; Step 3: 
+    movf    ch3, f
+    bz      process_ch3_pos0
+
+    ; CH3 was in pos 1    
+    movf    ch3_ep1, w
+    subwf   ch3_ep0, w
+    skpnc
+    goto    process_ch3_higher
+    goto    process_ch3_lower
+
+process_ch3_pos0
+    ; CH3 was in pos 0    
+    movf    ch3_ep1, w
+    subwf   ch3_ep0, w
+    skpnc
+    goto    process_ch3_lower
+;    goto    process_ch3_higher
+
+process_ch3_higher
+    movf    ch3_centre, w
+    addwf   ch3_hysteresis, w
+    subwf   ch3_value, w
+    skpc    
+    return
+    goto    process_ch3_toggle
+
+process_ch3_lower
+    movf    ch3_centre, w
+    addwf   ch3_hysteresis, w
+    subwf   ch3_value, w
+    skpnc    
+    return
+
+process_ch3_toggle
+    ; Toggle bit 0 of ch3 to change between pos 0 and pos 1
+    movlw  1
+    xorwf  ch3, f
+    return
+
+
+;******************************************************************************
+Max
+    subwf   temp, w
+    skpc
+    subwf   temp, f
+    movf    temp, w
+    return    
+
+
+Min
+    subwf   temp, w
+    skpnc
+    subwf   temp, f
+    movf    temp, w
+    return    
+
+
+
+Process_steering
+Process_throttle
+    return
 
 
 ;**********************************************************************
@@ -654,5 +898,36 @@ add10
     call    UART_send_w
 
     return
+
+
+    IF 0
+                            ; Send 'Hello world\n'
+    movlw   0x48
+    call    UART_send_w
+    movlw   0x65
+    call    UART_send_w
+    movlw   0x6C
+    call    UART_send_w
+    movlw   0x6C
+    call    UART_send_w
+    movlw   0x6F
+    call    UART_send_w
+    movlw   0x20
+    call    UART_send_w
+    movlw   0x57
+    call    UART_send_w
+    movlw   0x6F
+    call    UART_send_w
+    movlw   0x72
+    call    UART_send_w
+    movlw   0x6C
+    call    UART_send_w
+    movlw   0x64
+    call    UART_send_w
+    movlw   0x0a
+    call    UART_send_w
+
+    ENDIF
+
 
     END     ; Directive 'end of program'
