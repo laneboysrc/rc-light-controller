@@ -494,6 +494,10 @@ Read_ch3
         movwf   ch3_value
         return
     ENDIF
+;    IF 0
+        incf    ch3_value, f
+        return
+;    ENDIF
 
     clrf    T1CON       ; Stop timer 1, runs at 1us per tick, internal osc
     clrf    TMR1H       ; Reset the timer to 0
@@ -672,11 +676,15 @@ Process_ch3
     clrc
     rrf     ch3_hysteresis, f
 
-    ; Step 3: 
+    ; Step 3: Depending on whether CH3 was previously set we have to 
+    ; test for the positive or negative hysteresis around the centre. In
+    ; addition we have to utilize positive or negative hysteresis depending
+    ; on which end point is larger in value (to support reversed channels)
     movf    ch3, f
     bz      process_ch3_pos0
 
-    ; CH3 was in pos 1    
+    ; CH3 was in pos 1; check if we need to use the positive (ch reversed) or 
+    ; negative (ch normal) hysteresis
     movf    ch3_ep1, w
     subwf   ch3_ep0, w
     skpnc
@@ -684,7 +692,8 @@ Process_ch3
     goto    process_ch3_lower
 
 process_ch3_pos0
-    ; CH3 was in pos 0    
+    ; CH3 was in pos 0; check if we need to use the positive (ch normal) or 
+    ; negative (ch reversed) hysteresis
     movf    ch3_ep1, w
     subwf   ch3_ep0, w
     skpnc
@@ -692,6 +701,9 @@ process_ch3_pos0
 ;   goto    process_ch3_higher
 
 process_ch3_higher
+    ; Add the hysteresis to the centre. Then subtract it from the current 
+    ; ch3 value. If it is smaller C will be set and we treat it to toggle
+    ; channel 3.
     movf    ch3_centre, w
     addwf   ch3_hysteresis, w
     subwf   ch3_value, w
@@ -700,8 +712,11 @@ process_ch3_higher
     goto    process_ch3_toggle
 
 process_ch3_lower
+    ; Subtract the hysteresis to the centre. Then subtract it from the current 
+    ; ch3 value. If it is larger C will be set and we treat it to toggle
+    ; channel 3.
     movf    ch3_centre, w
-    addwf   ch3_hysteresis, w
+    subwf   ch3_hysteresis, w
     subwf   ch3_value, w
     skpnc    
     return
@@ -720,6 +735,24 @@ process_ch3_toggle
     return
 
 
+
+;******************************************************************************
+;******************************************************************************
+Process_steering
+    return
+
+
+;******************************************************************************
+;******************************************************************************
+Process_throttle
+    return
+
+
+;******************************************************************************
+; Max
+;  
+; Given two 8-bit values in temp and w, returns the larger one in both temp
+; and w
 ;******************************************************************************
 Max
     subwf   temp, w
@@ -729,18 +762,18 @@ Max
     return    
 
 
+;******************************************************************************
+; Max
+;  
+; Given two 8-bit values in temp and w, returns the smaller one in both temp
+; and w
+;******************************************************************************
 Min
     subwf   temp, w
     skpnc
     subwf   temp, f
     movf    temp, w
     return    
-
-
-
-Process_steering
-Process_throttle
-    return
 
 
 ;**********************************************************************
@@ -782,9 +815,9 @@ delay_0
     return
 
 
-;**********************************************************************
+;******************************************************************************
 ; Send W out via the UART
-;**********************************************************************
+;******************************************************************************
 UART_send_w
     btfss   PIR1, TXIF
     goto    UART_send_w ; Wait for transmitter interrupt flag
@@ -793,9 +826,10 @@ UART_send_w
     return      
 
 
-;**********************************************************************
-; Send a 16 bit value stored in hi and lo as a number over the UART
-;**********************************************************************
+;******************************************************************************
+; Send a 16 bit value stored in send_hi and send_lo as a 5 digit decimal 
+; number over the UART
+;******************************************************************************
 UART_send_16bit
         clrf temp
 sub30k
