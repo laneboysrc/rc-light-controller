@@ -494,10 +494,10 @@ Read_ch3
         movwf   ch3_value
         return
     ENDIF
-;    IF 0
+    IF 0
         incf    ch3_value, f
         return
-;    ENDIF
+    ENDIF
 
     clrf    T1CON       ; Stop timer 1, runs at 1us per tick, internal osc
     clrf    TMR1H       ; Reset the timer to 0
@@ -715,8 +715,8 @@ process_ch3_lower
     ; Subtract the hysteresis to the centre. Then subtract it from the current 
     ; ch3 value. If it is larger C will be set and we treat it to toggle
     ; channel 3.
-    movf    ch3_centre, w
-    subwf   ch3_hysteresis, w
+    movf    ch3_hysteresis, w
+    subwf   ch3_centre, w
     subwf   ch3_value, w
     skpnc    
     return
@@ -730,7 +730,7 @@ process_ch3_toggle
     clrf    send_hi
     movf    ch3, w
     movwf   send_lo
-    call    UART_send_16bit
+;    call    UART_send_16bit
 
     return
 
