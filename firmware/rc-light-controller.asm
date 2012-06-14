@@ -689,7 +689,7 @@ process_ch3_pos0
     subwf   ch3_ep0, w
     skpnc
     goto    process_ch3_lower
-;    goto    process_ch3_higher
+;   goto    process_ch3_higher
 
 process_ch3_higher
     movf    ch3_centre, w
@@ -710,6 +710,13 @@ process_ch3_toggle
     ; Toggle bit 0 of ch3 to change between pos 0 and pos 1
     movlw  1
     xorwf  ch3, f
+
+    ; Send the new value out via the UART for debugging purpose
+    clrf    send_hi
+    movf    ch3, w
+    movwf   send_lo
+    call    UART_send_16bit
+
     return
 
 
