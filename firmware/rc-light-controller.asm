@@ -225,7 +225,97 @@
 ;       Trim range: 1388 .. 1568 .. 1745
 ;       Worst case with full EPA and sub-tirm and trim: 779 .. 2327 (!)
 ;       Failsafe: Continously sends ST centre, TH off, CH3 holds last value
-;       CH3: 1013 = AUX, 2120 = OFF; fai
+;       CH3: 1013 = AUX, 2120 = OFF; 
+;
+;   TODO: find out normals for left/right fwd/bwd
+;
+;
+;   Servo processing:
+;   =================
+;   Given the TX/RX findings above, we will design the light controller
+;   to expect a servo range of 800 .. 1500 .. 2300 us (1500 +/-700 us).
+;
+;   Everything below 600 will be considered invalid.
+;   Everything between 600 and 800 will be clamped to 800.
+;   Everything between 2300 and 2500 will be clamped to 2300
+;   Everything above 2500 will be considered invalid.
+;
+;   Timeout for measuring high pulse: Use TMR1H bit 4: If set, more than 
+;   4096 ms have expired!
+;   Timeout for waiting for pulse to go high: Use TMR1H bit 7: If set, more 
+;   than 32768 ms have expired! 
+;   These tests allow us to use cheap bit test instructions.
+;
+;
+;   Defaults for steering and throttle:
+;   1000 .. 1500 .. 2000
+;   
+;   Defaults for CH3:
+;   1000, 2000
+;  
+;   End points and Centre can be configured (default to the above values).
+;   Assuming CH3 is a switch, only the endpoints can be configured.
+;
+;   CH3 processing:
+;   Implement a Schmitt-Trigger around the center between the endpoints.
+;   Example:
+;       Switch pos 0: 1000 us
+;       Switch pos 1: 2000 us
+;       Center is therefore   (2000 + 1000) / 2 = 1500 us
+;       Hysteresis of 20%:   (2000 - 1000) / 5 = 200 us
+;       If last switch position was pos 0:
+;           measured timing must be larger than 1500 + 200 = 1700 us to accept 
+;           as pos 1
+;       If last switch position was pos 1:
+;           measured timing must be larger than 1500 - 200 = 1300 us to accept
+;           as pos 0
+;   Note: calculation must ensure that due to servo reversing pos 0 may
+;   have a larger or smaller time value than pos 1.
+;
+;   Steering and Throttle processing:
+;   We have:
+;       EPL (end point left)
+;       EPR (end point right)
+;       CEN (neutral position)
+;           Margin for neutral position: +/- 5%
+;           Some speed controlled can configure this from 4..8%
+;       POS (measured servo pulse length)
+;   If EPL > EPR:
+;       EPL > CEN > EPR must be true
+;   If EPL < EPR:
+;       EPL < CEN < EPR must be true
+;
+;   We need to convert POS into a range of 
+;       -100 .. 0 .. +100   (left .. centre .. right)
+;   Note: this normalizes left and right! Due to servo reversing EPL may
+;   have a larger or smaller time value than EPR.
+;
+;   If POS == CEN:          ; We found dead centre
+;       POS_NORMALIZED = 0
+;   Else
+;       If EPL > CEN:       ; Servo REVERSED
+;           If POS > CEN:   ; We are dealing with a left turn
+;               POS_NORMALIZED = calculate(POS, EPL, CEN)
+;               POS_NORMALIZED = 0 - POS_NORMALIZED
+;           Else            ; We are dealing with a right turn
+;               POS_NORMALIZED = calculate(POS, EPR, CEN)
+;       Else                ; Servo NORMAL
+;           If POS > CEN:   ; We are dealing with a right turn
+;               POS_NORMALIZED = calculate(POS, EPR, CEN)
+;           Else            ; We are dealing with a left turn
+;               POS_NORMALIZED = calculate(POS, EPL, CEN)
+;               POS_NORMALIZED = 0 - POS_NORMALIZED
+;
+;   caluclate       ; inputs: POS, EP(L or R), CEN
+;       If EP > CEN:
+;           If POS > EP     ; Clamp invald input
+;               return 100
+;           POS_NORMALIZED = ((POS - CEN) * 100 / (EP - CEN))
+;       Else:               ; EP < CEN
+;           If POS < EP     ; Clamp invald input
+;               return 100
+;           POS_NORMALIZED = (CEN - POS) * 100 / (CEN - EP)
+;       
 ;
 ;**********************************************************************
 
