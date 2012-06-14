@@ -162,17 +162,16 @@
 ;   UART protocol:
 ;   ==============
 ;   3 Bytes: SYNC, Lights, ST
-;       SYNC:       Always 0x8x, which does not appear in the other values
-;                   If a slave receives 0x8F the data is processed.
-;                   If the value is 0x8x then it increments the value by 1 and
-;                   sends all 3 received bytes at its output. This provides
-;                   us with a simple way of daisy-chaining several slave
-;                   modules!
+;       SYNC:       Always 0x80..0x87, which does not appear in the other values
+;                   If a slave receives 0x87 the data is processed.
+;                   If the value is 0x86..0x80 then it increments the value 
+;                   by 1 and sends all 3 received bytes at its output. 
+;                   This provides us with a simple way of daisy-chaining 
+;                   several slave modules!
 ;                   NOTE: this means that the steering servo can only be
 ;                   connected to the last slave module!
 ;       Lights:     Each bit indicates a different light channel (0..6)
-;       ST:         Steering servo data: -110 - 0 - +110
-;
+;       ST:         Steering servo data: -120 - 0 - +120
 ;
 ;
 ;
