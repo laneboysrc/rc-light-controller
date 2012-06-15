@@ -414,14 +414,26 @@
 ; Main program
 ;**********************************************************************
 Main
+    BANKSEL CMCON
     movlw   0x07
     movwf   CMCON       ; Disable the comparators
 
     clrf    PORTA       ; Set all (output) ports to GND
     clrf    PORTB
 
-    BANKSEL TRISA
+    BANKSEL OPTION_REG
     bcf     OPTION_REG, T0CS
+
+    movlw   b'10100111'
+            ; |||||||+ PS0  (Set pre-scaler to 1:256)
+            ; ||||||+- PS1
+            ; |||||+-- PS2
+            ; ||||+--- PSA  (Use pre-scaler for Timer 0)
+            ; |||+---- T0SE (not used when Timer 0 uses internal osc)
+            ; ||+----- T0CS (Timer 0 to use internal oscillator)
+            ; |+------ INTEDG (not used in this application)
+            ; +------- RBPU (Disable Port B pull-ups)
+    movwf   OPTION_REG
 
     movlw   0x00        ; Make all ports A output
     movwf   TRISA
