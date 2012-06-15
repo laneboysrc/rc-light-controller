@@ -1,14 +1,14 @@
-;**********************************************************************
+;******************************************************************************
 ;
 ;   rc-light-controller.asm
 ;
 ;
-;**********************************************************************
+;******************************************************************************
 ;
 ;   Author:         Werner Lane
 ;   E-mail:         laneboysrc@gmail.com
 ;
-;**********************************************************************
+;******************************************************************************
     TITLE       RC Light Controller
     LIST        p=pic16f628a, r=dec
     RADIX       dec
@@ -19,7 +19,7 @@
 
 
 
-;**********************************************************************
+;******************************************************************************
 ;   The following outputs are needed:
 ;   - Stand light, tail light
 ;   - Head light
@@ -320,7 +320,33 @@
 ;           POS_NORMALIZED = (CEN - POS) * 100 / (CEN - EP)
 ;       
 ;
-;**********************************************************************
+;   Timer and PWM:
+;   ==============
+;   We need a way to measure time, e.g. for double click detection of ch3 and
+;   to derive the blink frequency. We will use TIMER0 for generating a low,
+;   steady frequency. TIMER0 will be set in such a way that within a worst-case
+;   mainloop it can only overflow once. This means we will be able to 
+;   accurately measure longer periods of time.
+;
+;   To do so we select a pre-scaler of 1:256. This gives us a timer clock of
+;   256 us. This means that the timer overflows every 65.536 ms.
+;   We will use T0IF to detect overflow.
+;   The blink frequency of 1.5 Hz can be easily derived: a single period is
+;   5 timer overflows (333 ms / 65.536 ms).
+;   For ease of implementation we can have several 8-bit variables that are
+;   incremented every 64.536 ms. E.g. we can have one for blinking, that is
+;   reset after it reaches "5", which toggles the blink flag.
+;   We can have another one that we reset when we receive a CH3 pulse and
+;   want to determine multiple clicks.
+;
+;   For combined tail/brake lights we have to control PWM on one output.
+;   We could assume that the servo pulses are periodic every 20 ms and use
+;   that to time our PWM -- at least a simple 50% PWM. That may flicker though.
+;   The PIC has a 10 bit PWM on output RB3. TIMER2 is used for the frequency.
+;    
+;
+;
+;******************************************************************************
 
 #define PORT_CH3        PORTB, 5
 #define PORT_STEERING   PORTB, 0
@@ -332,9 +358,9 @@
 #define THROTTLE 1   
 #define STEERING 2    
 
-;**********************************************************************
+;******************************************************************************
 ;* VARIABLE DEFINITIONS
-;**********************************************************************
+;******************************************************************************
     CBLOCK  0x20
 
 	d1          ; Delay registers
@@ -625,20 +651,25 @@ th_wait_for_low2
 ;******************************************************************************
 ; Process_ch3
 ; 
-; Normalize the processed CH3 channel into ch3 value 0 or 1
+; Normalize the processed CH3 channel into ch3 value 0 or 1.
 ;
-;       Switch pos 0: 1000 us
-;       Switch pos 1: 2000 us
-;       Center is therefore   (2000 + 1000) / 2 = 1500 us
-;       Hysteresis:           (2000 - 1000) / 8 = 125 us
-;       If last switch position was pos 0:
-;           measured timing must be larger than 1500 + 125 = 1625 us to accept 
-;           as pos 1
-;       If last switch position was pos 1:
-;           measured timing must be larger than 1500 - 125 = 1375 us to accept
-;           as pos 0
-;   Note: calculation must ensure that due to servo reversing pos 0 may
-;   have a larger or smaller time value than pos 1.
+; Algorithm:
+;
+; Switch position 0 stored in ch3_ep0: 1000 us 
+; Switch position 1 stored in ch3_ep1: 2000 is
+;   Note: these values can be changed through the setup procedure to adjust
+;   to a specific TX/RX.
+;
+; Center is therefore   (2000 + 1000) / 2 = 1500 us
+; Hysteresis:           (2000 - 1000) / 8 = 125 us
+;   Note: divide by 8 was chosen for simplicity of implementation
+; If last switch position was pos 0:
+;   measured timing must be larger than 1500 + 125 = 1625 us to accept as pos 1
+; If last switch position was pos 1:
+;   measured timing must be larger than 1500 - 125 = 1375 us to accept as pos 0
+;
+; Note: calculation must ensure that due to servo reversing pos 0 may
+; have a larger or smaller time value than pos 1.
 ;******************************************************************************
 #define ch3_centre d1
 #define ch3_hysteresis d2   
