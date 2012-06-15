@@ -366,8 +366,8 @@
 	d1          ; Delay registers
 	d2
 	d3
-
     temp
+
     send_hi
     send_lo
 
@@ -389,6 +389,10 @@
     throttle_epr_l
     throttle_epr_h
     
+    ENDC
+
+    CBLOCK  0x50
+
     ch3
     ch3_value
     ch3_ep0
@@ -402,7 +406,7 @@
 ; Reset vector 
 ;**********************************************************************
     ORG     0x000           
-    goto    Main            
+    goto    Init            
 
 ;**********************************************************************
 ; Interrupt vector 
@@ -411,20 +415,22 @@
 
 
 ;**********************************************************************
-; Main program
+; Initialization
 ;**********************************************************************
-Main
+Init
     movlw   0x07
     movwf   CMCON       ; Disable the comparators
 
     clrf    PORTA       ; Set all (output) ports to GND
     clrf    PORTB
 
+
     BANKSEL TRISA
     bcf     OPTION_REG, T0CS
 
     movlw   0x00        ; Make all ports A output
     movwf   TRISA
+
     movlw   b'00100110' ; Make all ports B output, except RB5, 
                         ;  RB2 (UART) and RB1 (UART!)
     movwf   TRISB
@@ -489,9 +495,12 @@ SPBRG_VALUE = (((d'10'*OSC/((d'64'-(d'48'*BRGH_VALUE))*BAUDRATE))+d'5')/d'10')-1
 
     movlw	0           ; Send dummy character to get a valid transmit flag
     movwf	TXREG
+;   goto    Main_loop    
 
-    ;**************************************************************************
-main_loop
+;**********************************************************************
+; Main program
+;**********************************************************************
+Main_loop
     call    Read_ch3
 ;    call    Read_throttle
 ;    call    Read_steering
@@ -500,7 +509,7 @@ main_loop
     call    Process_throttle
     call    Process_steering
 
-    goto    main_loop
+    goto    Main_loop
 
 
 ;******************************************************************************
