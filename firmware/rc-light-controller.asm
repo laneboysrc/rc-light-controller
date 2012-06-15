@@ -358,6 +358,8 @@
 #define THROTTLE 1   
 #define STEERING 2    
 
+#define BLINK_COUNTER_VALUE 5   ; 5 * 65.536 ms = ~333 ms = ~1.5 Hz
+
 ;******************************************************************************
 ;* VARIABLE DEFINITIONS
 ;******************************************************************************
@@ -391,12 +393,18 @@
     
     ENDC
 
-    CBLOCK  0x50
+    CBLOCK  0x40
 
     ch3
     ch3_value
     ch3_ep0
     ch3_ep1
+
+    ENDC
+
+    CBLOCK  0x50
+
+    blink_counter
 
     ENDC
 
@@ -438,6 +446,8 @@ Init
             ; |+------ INTEDG (not used in this application)
             ; +------- RBPU (Disable Port B pull-ups)
     movwf   OPTION_REG
+
+    bcf     INTCON, T0IF    ; Clear Timer 0 Interrupt Flag    
 
     movlw   0x00        ; Make all ports A output
     movwf   TRISA
@@ -506,6 +516,10 @@ SPBRG_VALUE = (((d'10'*OSC/((d'64'-(d'48'*BRGH_VALUE))*BAUDRATE))+d'5')/d'10')-1
 
     movlw	0           ; Send dummy character to get a valid transmit flag
     movwf	TXREG
+
+    movlw   BLINK_COUNTER_VALUE
+    movwf   blink_counter
+
 ;   goto    Main_loop    
 
 ;**********************************************************************
@@ -520,8 +534,24 @@ Main_loop
     call    Process_throttle
     call    Process_steering
 
+    call    Service_timer0
+
     goto    Main_loop
 
+;******************************************************************************
+; Service_timer0
+;******************************************************************************
+Service_timer0
+    btfsc   INTCON, T0IF
+    return
+
+    bcf     INTCON, T0IF
+    decfsz  blink_counter, f
+    return
+
+    movlw   5
+    movwf   blink_counter
+    return
 
 ;******************************************************************************
 ; Read_ch3
