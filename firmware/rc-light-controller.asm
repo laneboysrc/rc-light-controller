@@ -348,6 +348,8 @@
 ;
 ;******************************************************************************
 
+#define PORT_TEST_LED   PORTA, 0
+
 #define PORT_CH3        PORTB, 5
 #define PORT_STEERING   PORTB, 0
 #define PORT_THROTTLE   PORTB, 1
@@ -405,6 +407,7 @@
     CBLOCK  0x50
 
     blink_counter
+    mode
 
     ENDC
 
@@ -536,6 +539,11 @@ Main_loop
 
     call    Service_timer0
 
+    btfsc   mode, 0
+    bsf     PORT_TEST_LED
+    btfss   mode, 0
+    bcf     PORT_TEST_LED
+
     goto    Main_loop
 
 ;******************************************************************************
@@ -549,8 +557,10 @@ Service_timer0
     decfsz  blink_counter, f
     return
 
-    movlw   5
+    movlw   BLINK_COUNTER_VALUE
     movwf   blink_counter
+    movlw   0x01
+    xorwf   mode, f
     return
 
 ;******************************************************************************
@@ -602,6 +612,13 @@ ch3_wait_for_low2
     movwf   ch3_value
     movf    TMR1L, w
     movwf   temp
+
+    ; Send the ch3 raw value out via the UART for debugging purpose
+    movwf   send_lo
+    movf    ch3_value, w
+    movwf   send_hi
+    call    UART_send_16bit
+
   
     ; Use the middle 12 bit as an 8 bit value since we don't need high
     ; accuracy for the CH3 
@@ -613,6 +630,16 @@ ch3_wait_for_low2
     rlf     ch3_value, f
     rlf     temp, f
     rlf     ch3_value, f
+
+    ; Send the ch3 value out via the UART for debugging purpose
+    clrf    send_hi
+    movf    ch3_value, w
+    movwf   send_lo
+    call    UART_send_16bit
+
+;    0x65/0x66
+;    0x131/0x132
+
     return
 
 
@@ -807,11 +834,13 @@ process_ch3_toggle
     movlw  1
     xorwf  ch3, f
 
+    return
+
     ; Send the new value out via the UART for debugging purpose
     clrf    send_hi
     movf    ch3, w
     movwf   send_lo
-;    call    UART_send_16bit
+    call    UART_send_16bit
 
     return
 
