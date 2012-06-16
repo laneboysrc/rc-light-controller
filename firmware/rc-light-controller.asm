@@ -437,9 +437,7 @@ Init
     clrf    PORTB
 
     BANKSEL OPTION_REG
-    bcf     OPTION_REG, T0CS
-
-    movlw   b'10100111'
+    movlw   b'10000111'
             ; |||||||+ PS0  (Set pre-scaler to 1:256)
             ; ||||||+- PS1
             ; |||||+-- PS2
@@ -461,6 +459,18 @@ Init
 
 
     BANKSEL servo_available
+    ; Clear all memory locations between 0x20 and 0x7f
+    movlw   0x7f
+	movwf	FSR
+	movwf	0x20		; Store a non-zero value in the last RAM address we
+                        ;  like to clear
+clear_ram	
+    decf	FSR, f		
+	clrf	INDF		; Clear Indirect memory location
+	movfw	0x20		; If we reached the first RAM location it will be 0 now,
+    skpz                ;  so we are done!
+	goto	clear_ram   
+
     ; For now only define CH3 as being available
     clrf    servo_available
     bsf     servo_available, CH3
@@ -534,8 +544,8 @@ Main_loop
 ;    call    Read_steering
 
     call    Process_ch3
-    call    Process_throttle
-    call    Process_steering
+;    call    Process_throttle
+;    call    Process_steering
 
     call    Service_timer0
 
@@ -550,7 +560,7 @@ Main_loop
 ; Service_timer0
 ;******************************************************************************
 Service_timer0
-    btfsc   INTCON, T0IF
+    btfss   INTCON, T0IF
     return
 
     bcf     INTCON, T0IF
@@ -614,10 +624,10 @@ ch3_wait_for_low2
     movwf   temp
 
     ; Send the ch3 raw value out via the UART for debugging purpose
-    movwf   send_lo
-    movf    ch3_value, w
-    movwf   send_hi
-    call    UART_send_16bit
+;    movwf   send_lo
+;    movf    ch3_value, w
+;    movwf   send_hi
+;    call    UART_send_16bit
 
   
     ; Use the middle 12 bit as an 8 bit value since we don't need high
@@ -632,13 +642,13 @@ ch3_wait_for_low2
     rlf     ch3_value, f
 
     ; Send the ch3 value out via the UART for debugging purpose
-    clrf    send_hi
-    movf    ch3_value, w
-    movwf   send_lo
-    call    UART_send_16bit
+;    clrf    send_hi
+;    movf    ch3_value, w
+;    movwf   send_lo
+;    call    UART_send_16bit
 
-;    0x65/0x66
-;    0x131/0x132
+;    65/66
+;    131/132
 
     return
 
@@ -833,8 +843,6 @@ process_ch3_toggle
     ; Toggle bit 0 of ch3 to change between pos 0 and pos 1
     movlw  1
     xorwf  ch3, f
-
-    return
 
     ; Send the new value out via the UART for debugging purpose
     clrf    send_hi
