@@ -409,7 +409,11 @@
 
     blink_counter
     mode
-    light_mode
+    light_mode      ; Light mode: 
+                    ;  Bit 0: Stand light
+                    ;  Bit 1: Head light
+                    ;  Bit 2: Fog lights
+                    ;  Bit 3: High beam
 
     ENDC
 
