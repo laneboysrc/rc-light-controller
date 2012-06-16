@@ -361,6 +361,7 @@
 #define THROTTLE 1   
 #define STEERING 2    
 
+#define CH3_BUTTON_TIMEOUT 4    ; Time in which we accept double-click of CH3
 #define BLINK_COUNTER_VALUE 5   ; 5 * 65.536 ms = ~333 ms = ~1.5 Hz
 
 ;******************************************************************************
@@ -394,20 +395,15 @@
     throttle_epr_l
     throttle_epr_h
     
-    ENDC
-
-    CBLOCK  0x40
-
     ch3
     ch3_value
     ch3_ep0
     ch3_ep1
 
-    ENDC
-
-    CBLOCK  0x50
-
     blink_counter
+    ch3_click_counter
+    ch3_clicks
+
     mode
     light_mode      ; Light mode: 
                     ;  Bit 0: Stand light
@@ -557,9 +553,9 @@ Main_loop
 
     call    Service_timer0
 
-    btfsc   light_mode, 2
+    btfsc   light_mode, 0
     bsf     PORT_TEST_LED
-    btfss   light_mode, 2
+    btfss   light_mode, 0
     bcf     PORT_TEST_LED
 
     goto    Main_loop
@@ -569,22 +565,68 @@ Main_loop
 ;******************************************************************************
 Process_ch3_double_click
     btfss   ch3, 1
-    return
+    goto    process_ch3_click_timeout
 
     bcf     ch3, 1
+    incf    ch3_clicks, f
+    movlw   CH3_BUTTON_TIMEOUT
+    movwf   ch3_click_counter
 
-    btfsc   light_mode, 3
-    goto    light_mode_off
+    movlw   0x43                    ; send 'C'
+    goto    UART_send_w        
+    return
+    
+process_ch3_click_timeout
+    movf    ch3_clicks, f           ; Any buttons pending?
+    skpnz   
+    return                          ; No: done
 
+    movf    ch3_click_counter, f    ; Double-click timer expired?
+    skpz   
+    return                          ; No: wait for more buttons
+
+    movlw   0x50                    ; send 'P'
+    call    UART_send_w        
+
+    decfsz  ch3_clicks, f                
+    goto    process_ch3_double_click
+
+    ; --------------------------
+    ; Single click: switch light mode up (Stand, Head, Fog, High Beam) 
     rlf     light_mode, f
     bsf     light_mode, 0
     movlw   0x0f
     andwf   light_mode, f
     return
 
-light_mode_off
+process_ch3_double_click
+    decfsz  ch3_clicks, f              
+    goto    process_ch3_triple_click
+
+    ; --------------------------
+    ; Double click: switch light mode down (Stand, Head, Fog, High Beam)  
+    rrf     light_mode, f
+    movlw   0x0f
+    andwf   light_mode, f
+    return
+
+process_ch3_triple_click
+    decfsz  ch3_clicks, f              
+    goto    process_ch3_quad_click
+
+    ; --------------------------
+    ; Triple click: Hazard lights on/off  
+    movlw   0x02
+    xorwf   mode, f
+    return
+
+    ; --------------------------
+    ; Quad click: all lights off
+process_ch3_quad_click
+    clrf    ch3_clicks
     clrf    light_mode
     return
+
 
 ;******************************************************************************
 ; Service_timer0
@@ -594,6 +636,11 @@ Service_timer0
     return
 
     bcf     INTCON, T0IF
+
+    movf    ch3_click_counter, f
+    skpz     
+    decf    ch3_click_counter, f    
+
     decfsz  blink_counter, f
     return
 
