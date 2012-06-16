@@ -39,6 +39,7 @@
 ;
 ;   Modes that the SW must handle:
 ;   - Light mode:
+;       - Off
 ;       - Stand light
 ;       - + Head light
 ;       - + Fog lights
@@ -408,6 +409,7 @@
 
     blink_counter
     mode
+    light_mode
 
     ENDC
 
@@ -547,14 +549,38 @@ Main_loop
 ;    call    Process_throttle
 ;    call    Process_steering
 
+    call    Process_ch3_double_click
+
     call    Service_timer0
 
-    btfsc   mode, 0
+    btfsc   light_mode, 2
     bsf     PORT_TEST_LED
-    btfss   mode, 0
+    btfss   light_mode, 2
     bcf     PORT_TEST_LED
 
     goto    Main_loop
+
+;******************************************************************************
+; Process_ch3_double_click
+;******************************************************************************
+Process_ch3_double_click
+    btfss   ch3, 1
+    return
+
+    bcf     ch3, 1
+
+    btfsc   light_mode, 3
+    goto    light_mode_off
+
+    rlf     light_mode, f
+    bsf     light_mode, 0
+    movlw   0x0f
+    andwf   light_mode, f
+    return
+
+light_mode_off
+    clrf    light_mode
+    return
 
 ;******************************************************************************
 ; Service_timer0
@@ -622,13 +648,6 @@ ch3_wait_for_low2
     movwf   ch3_value
     movf    TMR1L, w
     movwf   temp
-
-    ; Send the ch3 raw value out via the UART for debugging purpose
-;    movwf   send_lo
-;    movf    ch3_value, w
-;    movwf   send_hi
-;    call    UART_send_16bit
-
   
     ; Use the middle 12 bit as an 8 bit value since we don't need high
     ; accuracy for the CH3 
@@ -640,16 +659,6 @@ ch3_wait_for_low2
     rlf     ch3_value, f
     rlf     temp, f
     rlf     ch3_value, f
-
-    ; Send the ch3 value out via the UART for debugging purpose
-;    clrf    send_hi
-;    movf    ch3_value, w
-;    movwf   send_lo
-;    call    UART_send_16bit
-
-;    65/66
-;    131/132
-
     return
 
 
@@ -841,15 +850,9 @@ process_ch3_lower
 
 process_ch3_toggle
     ; Toggle bit 0 of ch3 to change between pos 0 and pos 1
-    movlw  1
-    xorwf  ch3, f
-
-    ; Send the new value out via the UART for debugging purpose
-    clrf    send_hi
-    movf    ch3, w
-    movwf   send_lo
-    call    UART_send_16bit
-
+    movlw   1
+    xorwf   ch3, f
+    bsf     ch3, 1
     return
 
 
