@@ -811,8 +811,8 @@ Process_ch3
     ; test for the positive or negative hysteresis around the centre. In
     ; addition we have to utilize positive or negative hysteresis depending
     ; on which end point is larger in value (to support reversed channels)
-    movf    ch3, f
-    bz      process_ch3_pos0
+    btfss   ch3, 0
+    goto    process_ch3_pos0
 
     ; CH3 was in pos 1; check if we need to use the positive (ch reversed) or 
     ; negative (ch normal) hysteresis
