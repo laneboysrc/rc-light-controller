@@ -361,7 +361,7 @@
 #define THROTTLE 1   
 #define STEERING 2    
 
-#define CH3_BUTTON_TIMEOUT 4    ; Time in which we accept double-click of CH3
+#define CH3_BUTTON_TIMEOUT 7    ; Time in which we accept double-click of CH3
 #define BLINK_COUNTER_VALUE 5   ; 5 * 65.536 ms = ~333 ms = ~1.5 Hz
 
 ;******************************************************************************
@@ -597,6 +597,8 @@ process_ch3_click_timeout
     bsf     light_mode, 0
     movlw   0x0f
     andwf   light_mode, f
+    movlw   0x31                    ; send '1'
+    goto    UART_send_w        
     return
 
 process_ch3_double_click
@@ -608,6 +610,8 @@ process_ch3_double_click
     rrf     light_mode, f
     movlw   0x0f
     andwf   light_mode, f
+    movlw   0x32                    ; send '2'
+    goto    UART_send_w        
     return
 
 process_ch3_triple_click
@@ -618,6 +622,8 @@ process_ch3_triple_click
     ; Triple click: Hazard lights on/off  
     movlw   0x02
     xorwf   mode, f
+    movlw   0x33                    ; send '3'
+    goto    UART_send_w        
     return
 
     ; --------------------------
@@ -625,6 +631,8 @@ process_ch3_triple_click
 process_ch3_quad_click
     clrf    ch3_clicks
     clrf    light_mode
+    movlw   0x34                    ; send '4'
+    goto    UART_send_w        
     return
 
 
