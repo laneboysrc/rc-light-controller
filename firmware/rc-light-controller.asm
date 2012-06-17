@@ -346,7 +346,26 @@
 ;   The PIC has a 10 bit PWM on output RB3. TIMER2 is used for the frequency.
 ;    
 ;
-;
+;   Port usage:
+;   ===========
+;   RA5:    Servo input (Vpp double-usage)
+;   RB7:    Servo input (PGD double-usage)
+;   RB6:    Servo input (PGC double-usage)
+;   RB1:    Connected to RB6 (RX double-usage for slave!
+;   RB2:    Slave out (TX Master) / Servo out (Slave)
+;   RB3:    LED output with PWM (CCP1)
+;   
+;   Ports with no special assignment:
+;   RA0
+;   RA1
+;   RA2
+;   RA3
+;   RA4
+;   RA6
+;   RA7
+;   RB0
+;   RB4
+;   RB5
 ;******************************************************************************
 
 #define PORT_TEST_LED   PORTA, 0
@@ -361,7 +380,7 @@
 #define THROTTLE 1   
 #define STEERING 2    
 
-#define CH3_BUTTON_TIMEOUT 7    ; Time in which we accept double-click of CH3
+#define CH3_BUTTON_TIMEOUT 6    ; Time in which we accept double-click of CH3
 #define BLINK_COUNTER_VALUE 5   ; 5 * 65.536 ms = ~333 ms = ~1.5 Hz
 
 ;******************************************************************************
@@ -514,12 +533,12 @@ SPBRG_VALUE = (((d'10'*OSC/((d'64'-(d'48'*BRGH_VALUE))*BAUDRATE))+d'5')/d'10')-1
     movwf	SPBRG
 
     BANKSEL RCSTA
-    movlw   b'10010000'
+    movlw   b'10000000'
             ; |||||||+ RX9D (not used)
             ; ||||||+- OERR (overrun error, read only)
             ; |||||+-- FERR (framing error)
             ; ||||+---      (not implemented)
-            ; |||+---- CREN (set to enable constant reception)
+            ; |||+---- CREN (disable reception for MASTER)
             ; ||+----- SREN (not used in async mode)
             ; |+------ RX9  (cleared to use 8 bit mode = no parity)
             ; +------- SPEN (set to enable USART)
