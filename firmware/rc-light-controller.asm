@@ -369,6 +369,8 @@
 ;******************************************************************************
 
 #define PORT_TEST_LED   PORTA, 0
+#define PORT_TEST_LED2  PORTA, 1
+#define PORT_TEST_LED3  PORTB, 3
 
 #define PORT_CH3        PORTB, 5
 #define PORT_STEERING   PORTB, 0
@@ -382,6 +384,10 @@
 
 #define CH3_BUTTON_TIMEOUT 6    ; Time in which we accept double-click of CH3
 #define BLINK_COUNTER_VALUE 5   ; 5 * 65.536 ms = ~333 ms = ~1.5 Hz
+
+#define PWM_OFF 0
+#define PWM_HALF 0x0f
+#define PWM_FULL 0x3f
 
 ;******************************************************************************
 ;* VARIABLE DEFINITIONS
@@ -471,12 +477,15 @@ Init
 
     bcf     INTCON, T0IF    ; Clear Timer 0 Interrupt Flag    
 
-    movlw   0x00        ; Make all ports A output
+    movlw   b'00000000' ; Make all ports A output
     movwf   TRISA
 
     movlw   b'00100110' ; Make all ports B output, except RB5, 
                         ;  RB2 (UART) and RB1 (UART!)
     movwf   TRISB
+
+    movlw   0x3f        ; Limit the PWM to 8 bit
+    movwf   PR2
 
 
     BANKSEL servo_available
@@ -551,6 +560,31 @@ SPBRG_VALUE = (((d'10'*OSC/((d'64'-(d'48'*BRGH_VALUE))*BAUDRATE))+d'5')/d'10')-1
     movlw	0           ; Send dummy character to get a valid transmit flag
     movwf	TXREG
 
+    ; Initialize Timer 2 for PWM
+    movlw   0x00
+    movwf   CCPR1L 
+    movlw   b'00001100'
+            ; |||||||+ CCP1M0 (PWM mode)
+            ; ||||||+- CCP1M1 
+            ; |||||+-- CCP1M2
+            ; ||||+--- CCP1M3
+            ; |||+---- CCP1Y (PWM LSB)
+            ; ||+----- CCP1X (PWM LSB+1)
+            ; |+------ (not implemented)
+            ; +------- (not implemented)
+    movwf   CCP1CON
+    movlw   b'00000110'
+            ; |||||||+ T2CKPS0 (Prescaler 1:16)
+            ; ||||||+- T2CKPS1 
+            ; |||||+-- TMR2ON (Timer2 On bit)
+            ; ||||+--- TOUTPS0 (Postscale 1:1)
+            ; |||+---- TOUTPS1 
+            ; ||+----- TOUTPS2 
+            ; |+------ TOUTPS3 
+            ; +-------      (not implemented)
+    movwf   T2CON
+
+
     movlw   BLINK_COUNTER_VALUE
     movwf   blink_counter
 
@@ -576,6 +610,24 @@ Main_loop
     bsf     PORT_TEST_LED
     btfss   light_mode, 0
     bcf     PORT_TEST_LED
+
+    btfsc   light_mode, 1
+    bsf     PORT_TEST_LED2
+    btfss   light_mode, 1
+    bcf     PORT_TEST_LED2
+
+;    btfsc   light_mode, 2
+;    bsf     PORT_TEST_LED3
+;    btfss   light_mode, 2
+;    bcf     PORT_TEST_LED3
+
+    movlw   PWM_OFF
+    btfsc   light_mode, 2
+    movlw   PWM_HALF
+    btfsc   light_mode, 3
+    movlw   PWM_FULL
+    movwf   CCPR1L 
+
 
     goto    Main_loop
 
