@@ -737,20 +737,6 @@ Service_timer0
 ; TODO: add timeouts!
 ;******************************************************************************
 Read_ch3
-    ; test code loading constant value 
-    IF 0
-        movf    ch3_ep0, w
-        movf    ch3, f
-        skpnz
-        movf    ch3_ep1, w
-        movwf   ch3_value
-        return
-    ENDIF
-    IF 0
-        incf    ch3_value, f
-        return
-    ENDIF
-
     clrf    T1CON       ; Stop timer 1, runs at 1us per tick, internal osc
     clrf    TMR1H       ; Reset the timer to 0
     clrf    TMR1L
