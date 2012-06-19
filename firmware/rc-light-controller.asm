@@ -2,7 +2,6 @@
 ;
 ;   rc-light-controller.asm
 ;
-;
 ;******************************************************************************
 ;
 ;   Author:         Werner Lane
@@ -17,356 +16,6 @@
 
     __CONFIG _CP_OFF & _WDT_OFF & _BODEN_ON & _PWRTE_ON & _INTRC_OSC_NOCLKOUT & _MCLRE_OFF & _LVP_OFF
 
-
-
-;******************************************************************************
-;   The following outputs are needed:
-;   - Stand light, tail light
-;   - Head light
-;   - High beam
-;   - Fog light, fog rear light
-;   - Indicators L + R
-;   - Brake light
-;   - Reversing light
-;   - Servo output for steering
-;
-;
-;   Inputs:
-;   - Steering servo
-;   - Throttle servo
-;   - CH3 momentary
-;
-;
-;   Modes that the SW must handle:
-;   - Light mode:
-;       - Off
-;       - Stand light
-;       - + Head light
-;       - + Fog lights
-;       - + High beam
-;   - Drive mode:
-;       - Neutral
-;       - Forward
-;       - Braking
-;       - Reverse
-;   - Indicators
-;   - Steering servo pass-through
-;   - Hazard lights
-;   - "Lichthupe"?
-;
-;
-;   Other functions:
-;   - Failsafe mode: all lights blink when no signal
-;   - Program CH3
-;   - Program TH neutral, full fwd, full rev
-;   - Program steering servo: neutral and end points
-;   - Program servo output for steering servo: direction, neutral and end points
-;
-;
-;
-;   Operation:
-;   - CH3
-;       - short press if hazard lights: hazard lights off
-;       - short press: cycle through light modes up
-;       - double press: cycle through light modes down
-;       - triple press: hazard lights
-;       - long press: all lights off --> NOT POSSIBLE WITH GT-3B!
-;
-;
-;   PPM:
-;   Each pulse is 300us,
-;   Data: 1000-2000 us full range, 1500 us = center (includes pulse width!)
-;       Allow for: 770-2350 us
-;   Repeated every 20ms
-;   => 8 channels worst case: 8 * 2100 us =  16800 us
-;   => space between transmissions minimum: -20000 = 3200 us
-;   => 9 channels don't fit!
-;
-;
-;   CH3 behaviour:
-;   - Hard switch: on/off positions (i.e. HK 310)
-;   - Toggle button: press=on, press again=off (i.e. GT-3B)
-;   - Momentary button: press=on, release=off (in actual use ?)
-;
-;
-;   Timing architecture:
-;   ====================
-;   We are dealing with 3 RC channels. A channel has a signal of max 2.1 ms
-;   that is repeated every 20 ms. Hoever, there is no specification in which
-;   sequence and with which timing the receiver outputs the individual channels.
-;   Worst case there is only 6.85 ms between the channels. As such we can
-;   not send the PPM signal synchronously between reading the channels.
-;
-;   Using interrupts may be critical too, as we need precision. Lets assume we
-;   want to divide the servo range of 1 ms to 2 ms in 200 steps (100% in each
-;   direction as e.g. EPA in transmitters works). This requires a resolution
-;   of 5 us -- which is just 5 instruction cycles. No way to finish
-;   processing interrupts this way.
-;
-;   So instead of PPM we could use UART where the PIC has HW support.
-;   Or we could do one 20 ms measure the 3 channels, then in the next 20 ms
-;   period send PPM.
-;
-;   UART at 57600 BAUD should be fast enough, even though we have increased
-;   data rate (since we are sending data values). On the plus side this
-;   allows for "digital" accuracy as there is no jitter in timing generation
-;   (both sending and receiving) as there is with PPM).
-;   UART can also use parity for added security against bit defects.
-;
-;   ****************************************
-;   * CONCLUSION: let's use UART, not PPM! *
-;   ****************************************
-;
-;
-;   Measuring the 3 servo channels:
-;   ===============================
-;   The "Arduino OpenSourceLights" measure all 3 channels in turn, with a
-;   21 ms timeout. This means worst one needs to wait 3 "rounds" each 20ms
-;   until all 3 channels have been measured. That's 60 ms, which is still very
-;   low (usually tact switches are de-bounced with 40 ms).
-;
-;   So the pseudo code should look like:
-;
-;       main
-;           wait for CH3 = Low
-;           wait for CH3 = High
-;           start TMR1
-;           wait for CH3 = Low
-;           stop TMR1
-;           save CH1 timing value
-;
-;           (repeat for CH2, CH1 (if present))
-;
-;           process channels
-;           switch lights according to new mode
-;           send lights and steering to slave via UART (3 bytes)
-;
-;           goto main
-;
-;
-;   Robustness matters:
-;   ===================
-;   A servo signal should come every 20 ms. OpenSourceLights says in their
-;   comment that they meassured "~20-22ms" between pulses. So for the safe
-;   side let's assume that worst case we wait 25 ms for a servo pulse.
-;
-;   How to detect "failsafe"?
-;   Since at minimum CH3 must be present, we use it to detect fail safe. If
-;   no CH3 is received within 25 ms then we assume failure mode.
-;
-;   At startup we shall detect whether channels are present.
-;   CH3 is always required, so we first wait for that to ensure the TX/RC are
-;   on. Then we wait for TH and ST. If they don't appear we assume they are
-;   not present.
-;
-;
-;   UART protocol:
-;   ==============
-;   3 Bytes: SYNC, Lights, ST
-;       SYNC:       Always 0x80..0x87, which does not appear in the other values
-;                   If a slave receives 0x87 the data is processed.
-;                   If the value is 0x86..0x80 then it increments the value 
-;                   by 1 and sends all 3 received bytes at its output. 
-;                   This provides us with a simple way of daisy-chaining 
-;                   several slave modules!
-;                   NOTE: this means that the steering servo can only be
-;                   connected to the last slave module!
-;       Lights:     Each bit indicates a different light channel (0..6)
-;       ST:         Steering servo data: -120 - 0 - +120
-;
-;
-;
-;   Flashing speed:
-;   ===============
-;   1.5 Hz = 333 ms per half-period
-;
-;
-;   Steering servo:
-;   ===============
-;   We need to be concerned with quite some things:
-;   - Neutral/Trim of both servos
-;   - Direction of the steering servo
-;   - End point adjustment of both steering servos
-;   
-;   The best way will be to approach to first calibrate the original steering
-;   servo trim and end points. 
-;   Then do a 3 step calibration for the salve steering servo neutral and
-;   end points.
-;
-;   Ideally there should be a simple way to re-calibrate the original steering
-;   servo. 
-;       - Neutral may be automatically done each time the system is powered on
-;           Or each time the light mode is changed; assuming that the user
-;           does not operate both controls at the same time. Maybe to ensure
-;           that add a safety that only +/- 10% are automatically adjustable?
-;       - End points can be automatically adjusted if a value is received
-;         that is larger than the current stored end point. To reduce we need
-;         to check over a long period of time.
-;   Conclusion: maybe for the first version this is overkill, just allow
-;   for manual calibration.
-;
-;
-;   TX/RX system findings:
-;   ======================
-;   In general the jitter is 3 us, which is expected given that it takes about
-;   3 instructions to detect a port change and start/stop the timer.
-;
-;   GT3B: 
-;       EPA can be +/- 120 %
-;       Normal range (trim zero, 100% EPA): 986 .. 1568 .. 2120
-;       Trim range: 1490 .. 1568 .. 1649  (L30 .. N00 .. R30)
-;       Worst case with full EPA and trim: 870 .. 2300 (!)
-;       Failsafe: Servo signal holds for about 500ms, then stops
-;       CH3: 1058, 2114
-;
-;   HK-310:
-;       EPA can be +/- 120 %
-;       Normal range (sub-trim and trim zero, 100% EPA): 1073 .. 1568 .. 2117
-;       Sub-Trim range: 1232 .. 1565 .. 1901  (-100 .. 0 .. 100)
-;       Trim range: 1388 .. 1568 .. 1745
-;       Worst case with full EPA and sub-tirm and trim: 779 .. 2327 (!)
-;       Failsafe: Continously sends ST centre, TH off, CH3 holds last value
-;       CH3: 1013 = AUX, 2120 = OFF; 
-;
-;   TODO: find out normals for left/right fwd/bwd
-;
-;
-;   Servo processing:
-;   =================
-;   Given the TX/RX findings above, we will design the light controller
-;   to expect a servo range of 800 .. 1500 .. 2300 us (1500 +/-700 us).
-;
-;   Everything below 600 will be considered invalid.
-;   Everything between 600 and 800 will be clamped to 800.
-;   Everything between 2300 and 2500 will be clamped to 2300
-;   Everything above 2500 will be considered invalid.
-;
-;   Timeout for measuring high pulse: Use TMR1H bit 4: If set, more than 
-;   4096 ms have expired!
-;   Timeout for waiting for pulse to go high: Use TMR1H bit 7: If set, more 
-;   than 32768 ms have expired! 
-;   These tests allow us to use cheap bit test instructions.
-;
-;
-;   Defaults for steering and throttle:
-;   1000 .. 1500 .. 2000
-;   
-;   Defaults for CH3:
-;   1000, 2000
-;  
-;   End points and Centre can be configured (default to the above values).
-;   Assuming CH3 is a switch, only the endpoints can be configured.
-;
-;   CH3 processing:
-;   Implement a Schmitt-Trigger around the center between the endpoints.
-;   Example:
-;       Switch pos 0: 1000 us
-;       Switch pos 1: 2000 us
-;       Center is therefore   (2000 + 1000) / 2 = 1500 us
-;       Hysteresis:           (2000 - 1000) / 8 = 125 us
-;       If last switch position was pos 0:
-;           measured timing must be larger than 1500 + 125 = 1625 us to accept 
-;           as pos 1
-;       If last switch position was pos 1:
-;           measured timing must be larger than 1500 - 125 = 1375 us to accept
-;           as pos 0
-;   For accuracy is not important as we are dealing with a switch we can
-;   only use bits 11..4 (16 us resolution), so we can deal with byte 
-;   calculations.
-;   Note: calculation must ensure that due to servo reversing pos 0 may
-;   have a larger or smaller time value than pos 1.
-;
-;   Steering and Throttle processing:
-;   We have:
-;       EPL (end point left)
-;       EPR (end point right)
-;       CEN (neutral position)
-;           Margin for neutral position: +/- 5%
-;           Some speed controlled can configure this from 4..8%
-;       POS (measured servo pulse length)
-;   If EPL > EPR:
-;       EPL > CEN > EPR must be true
-;   If EPL < EPR:
-;       EPL < CEN < EPR must be true
-;
-;   We need to convert POS into a range of 
-;       -100 .. 0 .. +100   (left .. centre .. right)
-;   Note: this normalizes left and right! Due to servo reversing EPL may
-;   have a larger or smaller time value than EPR.
-;
-;   If POS == CEN:          ; We found dead centre
-;       POS_NORMALIZED = 0
-;   Else
-;       If EPL > CEN:       ; Servo REVERSED
-;           If POS > CEN:   ; We are dealing with a left turn
-;               POS_NORMALIZED = calculate(POS, EPL, CEN)
-;               POS_NORMALIZED = 0 - POS_NORMALIZED
-;           Else            ; We are dealing with a right turn
-;               POS_NORMALIZED = calculate(POS, EPR, CEN)
-;       Else                ; Servo NORMAL
-;           If POS > CEN:   ; We are dealing with a right turn
-;               POS_NORMALIZED = calculate(POS, EPR, CEN)
-;           Else            ; We are dealing with a left turn
-;               POS_NORMALIZED = calculate(POS, EPL, CEN)
-;               POS_NORMALIZED = 0 - POS_NORMALIZED
-;
-;   caluclate       ; inputs: POS, EP(L or R), CEN
-;       If EP > CEN:
-;           If POS > EP     ; Clamp invald input
-;               return 100
-;           POS_NORMALIZED = ((POS - CEN) * 100 / (EP - CEN))
-;       Else:               ; EP < CEN
-;           If POS < EP     ; Clamp invald input
-;               return 100
-;           POS_NORMALIZED = (CEN - POS) * 100 / (CEN - EP)
-;       
-;
-;   Timer and PWM:
-;   ==============
-;   We need a way to measure time, e.g. for double click detection of ch3 and
-;   to derive the blink frequency. We will use TIMER0 for generating a low,
-;   steady frequency. TIMER0 will be set in such a way that within a worst-case
-;   mainloop it can only overflow once. This means we will be able to 
-;   accurately measure longer periods of time.
-;
-;   To do so we select a pre-scaler of 1:256. This gives us a timer clock of
-;   256 us. This means that the timer overflows every 65.536 ms.
-;   We will use T0IF to detect overflow.
-;   The blink frequency of 1.5 Hz can be easily derived: a single period is
-;   5 timer overflows (333 ms / 65.536 ms).
-;   For ease of implementation we can have several 8-bit variables that are
-;   incremented every 64.536 ms. E.g. we can have one for blinking, that is
-;   reset after it reaches "5", which toggles the blink flag.
-;   We can have another one that we reset when we receive a CH3 pulse and
-;   want to determine multiple clicks.
-;
-;   For combined tail/brake lights we have to control PWM on one output.
-;   We could assume that the servo pulses are periodic every 20 ms and use
-;   that to time our PWM -- at least a simple 50% PWM. That may flicker though.
-;   The PIC has a 10 bit PWM on output RB3. TIMER2 is used for the frequency.
-;    
-;
-;   Port usage:
-;   ===========
-;   RA5:    Servo input (Vpp double-usage)
-;   RB7:    Servo input (PGD double-usage)
-;   RB6:    Servo input (PGC double-usage)
-;   RB1:    Connected to RB6 (RX double-usage for slave!
-;   RB2:    Slave out (TX Master) / Servo out (Slave)
-;   RB3:    LED output with PWM (CCP1)
-;   
-;   Ports with no special assignment:
-;   RA0
-;   RA1
-;   RA2
-;   RA3
-;   RA4
-;   RA6
-;   RA7
-;   RB0
-;   RB4
-;   RB5
-;******************************************************************************
 
 #define PORT_TEST_LED   PORTA, 0
 #define PORT_TEST_LED2  PORTA, 1
@@ -399,6 +48,13 @@
 	d3
     temp
 
+    xl          ; Temporary parameters for 16 bit less-than function
+    xh
+    yl 
+    yh
+    zh
+    zl
+
     send_hi
     send_lo
 
@@ -415,6 +71,8 @@
     throttle
     throttle_l
     throttle_h
+    throttle_centre_l
+    throttle_centre_h
     throttle_epl_l
     throttle_epl_h
     throttle_epr_l
@@ -438,23 +96,219 @@
 
     ENDC
 
+swap_x_y    macro   x, y
+    ; Currently X contains A; Y contains B
+    movf  x, w      ; W = A
+    XORWF y, w      ; W = A ^ B
+    XORWF x, f      ; X = ((A^B)^A) = B
+    XORWF y, f      ; Y = ((A^B)^B) = A
+    ; Now X contains B. Y contains A.
+            endm
 
-
-;**********************************************************************
+;******************************************************************************
 ; Reset vector 
-;**********************************************************************
+;******************************************************************************
     ORG     0x000           
     goto    Init            
 
-;**********************************************************************
+;******************************************************************************
 ; Interrupt vector 
-;**********************************************************************
+;******************************************************************************
     ORG     0x004           
 
 
-;**********************************************************************
+;******************************************************************************
+; Process_throttle
+;   If POS == CEN:          ; We found dead centre
+;       POS_NORMALIZED = 0
+;   Else
+;       If EPR < CEN:       ; Servo REVERSED
+;           If POS < CEN:   ; We are dealing with a right turn
+;               POS_NORMALIZED = calculate_normalized_servo_pos(CEN, POS, EPR)
+;           Else            ; We are dealing with a left turn
+;               POS_NORMALIZED = calculate_normalized_servo_pos(CEN, POS, EPL)
+;               POS_NORMALIZED = 0 - POS_NORMALIZED
+;       Else                ; Servo NORMAL
+;           If POS < CEN:   ; We are dealing with a left turn
+;               POS_NORMALIZED = calculate_normalized_servo_pos(CEN, POS, EPL)
+;               POS_NORMALIZED = 0 - POS_NORMALIZED
+;           Else            ; We are dealing with a right turn
+;               POS_NORMALIZED = calculate_normalized_servo_pos(CEN, POS, EPR)
+;
+;******************************************************************************
+Process_throttle
+    movf    throttle_h, w
+    movwf   xh
+    movf    throttle_l, w
+    movwf   xl
+
+    ; Check for invalid throttle measurement (e.g. timeout) by testing whether
+    ; throttle_h/l == 0. If yes treat it as "throttle centre"
+    clrf    yh
+    clrf    yl
+    call    If_x_eq_y
+    bnz     throttle_is_valid
+
+    clrf    throttle
+    return
+
+throttle_is_valid
+    ; Throttle in centre? (note that we preloaded xh/xl just before this)
+    ; If yes then set throttle output variable to '0'
+    movf    throttle_centre_h, w
+    movwf   yh
+    movf    throttle_centre_l, w
+    movwf   yl
+    call    If_x_eq_y
+    bnz     throttle_off_centre
+
+    clrf    throttle
+    return
+
+throttle_off_centre
+    movf    throttle_centre_h, w
+    movwf   xh
+    movf    throttle_centre_l, w
+    movwf   xl
+    movf    throttle_epr_h, w
+    movwf   yh
+    movf    throttle_epr_l, w
+    movwf   yl
+    call    If_y_lt_x
+    bc      throttle_normal
+
+    movf    throttle_h, w
+    movwf   yh
+    movf    throttle_l, w
+    movwf   yl   
+    call    If_y_lt_x
+    bc      throttle_left
+
+throttle_right
+    movf    throttle_epr_h, w
+    movwf   zh
+    movf    throttle_epr_l, w
+    movwf   zl
+    call    calculate_normalized_servo_position
+    movwf   throttle
+    return    
+
+throttle_normal
+    movf    throttle_h, w
+    movwf   yh
+    movf    throttle_l, w
+    movwf   yl   
+    call    If_y_lt_x
+    bc      throttle_right
+
+throttle_left
+    movf    throttle_epl_l, w
+    movwf   zh
+    movf    throttle_epl_l, w
+    movwf   zl
+    call    calculate_normalized_servo_position
+    sublw   0
+    movwf   throttle
+    return    
+
+
+;******************************************************************************
+; xh/xl: CEN centre pulse width
+; yh/yl: POS servo measured pulse width
+; zh/zl: EP  end point pulse width
+;
+;       If EP < CEN:
+;           If POS < EP     ; Clamp invald input
+;               return 100
+;           return (CEN - POS) * 100 / (CEN - EP)
+;       Else:               ; EP >= CEN
+;           If EP < POS     ; Clamp invald input
+;               return ((POS - CEN) * 100 / (EP - CEN))
+;           return 100
+;
+; Result in W: 0..100
+;******************************************************************************
+calculate_normalized_servo_position
+    ; First swap POS and EP to get EP in the y variable for If_y_lt_x
+    swap_x_y    yh, zh
+    swap_x_y    yl, zl
+
+    ; x = CEN, y = EP, z = POS
+
+    call    If_y_lt_x
+    bc      calculate_ep_gt_cen
+        
+    movfw   zl
+    subwf   yl, w
+    movfw   zh
+    skpc                
+    incfsz  zh, w       
+    subwf   yh, w
+    bc      calculate_normalized_left
+
+    movlw   100
+    return
+
+calculate_normalized_left
+    ; (CEN - POS) * 100 / (CEN - EP)
+    return    
+
+calculate_ep_gt_cen
+    movfw   yl
+    subwf   zl, w
+    movfw   yh
+    skpc                
+    incfsz  yh, w       
+    subwf   zh, w
+    bnc     calculate_normalized_right
+
+    movlw   100
+    return
+
+calculate_normalized_right
+    ; ((POS - CEN) * 100 / (EP - CEN))
+    return
+
+
+;******************************************************************************
+; If_y_lt_x
+;
+; This function compares the 16 bit unsigned values in yh/yl with xh/xl.
+; If y < x then C flag is cleared on exit
+; If y >= x then C flag is set on exit
+;
+; x and y stay unchanged.
+;******************************************************************************
+If_y_lt_x
+    movfw   xl
+    subwf   yl, w
+    movfw   xh
+    skpc                
+    incfsz  xh, w       
+    subwf   yh, w
+    return
+
+;******************************************************************************
+; If_x_eq_y
+;
+; This function compares the 16 bit unsigned values in yh/yl with xh/xl.
+; If x == y then Z flag is set on exit
+; If y != x then Z flag is cleared on exit
+;
+; x and y stay unchanged.
+;******************************************************************************
+If_x_eq_y
+    movfw   xl
+    subwf   yl, w
+    skpz
+    return
+    movfw   xh
+    subwf   yh, w
+    return
+
+;******************************************************************************
 ; Initialization
-;**********************************************************************
+;******************************************************************************
 Init
     BANKSEL CMCON
     movlw   0x07
@@ -595,7 +449,7 @@ SPBRG_VALUE = (((d'10'*OSC/((d'64'-(d'48'*BRGH_VALUE))*BAUDRATE))+d'5')/d'10')-1
 ;**********************************************************************
 Main_loop
     call    Read_ch3
-;    call    Read_throttle
+    call    Read_throttle
 ;    call    Read_steering
 
     call    Process_ch3
@@ -979,10 +833,6 @@ Process_steering
     return
 
 
-;******************************************************************************
-;******************************************************************************
-Process_throttle
-    return
 
 
 ;******************************************************************************
@@ -1209,3 +1059,354 @@ add10
 
 
     END     ; Directive 'end of program'
+
+
+;******************************************************************************
+;   The following outputs are needed:
+;   - Stand light, tail light
+;   - Head light
+;   - High beam
+;   - Fog light, fog rear light
+;   - Indicators L + R
+;   - Brake light
+;   - Reversing light
+;   - Servo output for steering
+;
+;
+;   Inputs:
+;   - Steering servo
+;   - Throttle servo
+;   - CH3 momentary
+;
+;
+;   Modes that the SW must handle:
+;   - Light mode:
+;       - Off
+;       - Stand light
+;       - + Head light
+;       - + Fog lights
+;       - + High beam
+;   - Drive mode:
+;       - Neutral
+;       - Forward
+;       - Braking
+;       - Reverse
+;   - Indicators
+;   - Steering servo pass-through
+;   - Hazard lights
+;   - "Lichthupe"?
+;
+;
+;   Other functions:
+;   - Failsafe mode: all lights blink when no signal
+;   - Program CH3
+;   - Program TH neutral, full fwd, full rev
+;   - Program steering servo: neutral and end points
+;   - Program servo output for steering servo: direction, neutral and end points
+;
+;
+;
+;   Operation:
+;   - CH3
+;       - short press if hazard lights: hazard lights off
+;       - short press: cycle through light modes up
+;       - double press: cycle through light modes down
+;       - triple press: hazard lights
+;       - long press: all lights off --> NOT POSSIBLE WITH GT-3B!
+;
+;
+;   PPM:
+;   Each pulse is 300us,
+;   Data: 1000-2000 us full range, 1500 us = center (includes pulse width!)
+;       Allow for: 770-2350 us
+;   Repeated every 20ms
+;   => 8 channels worst case: 8 * 2100 us =  16800 us
+;   => space between transmissions minimum: -20000 = 3200 us
+;   => 9 channels don't fit!
+;
+;
+;   CH3 behaviour:
+;   - Hard switch: on/off positions (i.e. HK 310)
+;   - Toggle button: press=on, press again=off (i.e. GT-3B)
+;   - Momentary button: press=on, release=off (in actual use ?)
+;
+;
+;   Timing architecture:
+;   ====================
+;   We are dealing with 3 RC channels. A channel has a signal of max 2.1 ms
+;   that is repeated every 20 ms. Hoever, there is no specification in which
+;   sequence and with which timing the receiver outputs the individual channels.
+;   Worst case there is only 6.85 ms between the channels. As such we can
+;   not send the PPM signal synchronously between reading the channels.
+;
+;   Using interrupts may be critical too, as we need precision. Lets assume we
+;   want to divide the servo range of 1 ms to 2 ms in 200 steps (100% in each
+;   direction as e.g. EPA in transmitters works). This requires a resolution
+;   of 5 us -- which is just 5 instruction cycles. No way to finish
+;   processing interrupts this way.
+;
+;   So instead of PPM we could use UART where the PIC has HW support.
+;   Or we could do one 20 ms measure the 3 channels, then in the next 20 ms
+;   period send PPM.
+;
+;   UART at 57600 BAUD should be fast enough, even though we have increased
+;   data rate (since we are sending data values). On the plus side this
+;   allows for "digital" accuracy as there is no jitter in timing generation
+;   (both sending and receiving) as there is with PPM).
+;   UART can also use parity for added security against bit defects.
+;
+;   ****************************************
+;   * CONCLUSION: let's use UART, not PPM! *
+;   ****************************************
+;
+;
+;   Measuring the 3 servo channels:
+;   ===============================
+;   The "Arduino OpenSourceLights" measure all 3 channels in turn, with a
+;   21 ms timeout. This means worst one needs to wait 3 "rounds" each 20ms
+;   until all 3 channels have been measured. That's 60 ms, which is still very
+;   low (usually tact switches are de-bounced with 40 ms).
+;
+;   So the pseudo code should look like:
+;
+;       main
+;           wait for CH3 = Low
+;           wait for CH3 = High
+;           start TMR1
+;           wait for CH3 = Low
+;           stop TMR1
+;           save CH1 timing value
+;
+;           (repeat for CH2, CH1 (if present))
+;
+;           process channels
+;           switch lights according to new mode
+;           send lights and steering to slave via UART (3 bytes)
+;
+;           goto main
+;
+;
+;   Robustness matters:
+;   ===================
+;   A servo signal should come every 20 ms. OpenSourceLights says in their
+;   comment that they meassured "~20-22ms" between pulses. So for the safe
+;   side let's assume that worst case we wait 25 ms for a servo pulse.
+;
+;   How to detect "failsafe"?
+;   Since at minimum CH3 must be present, we use it to detect fail safe. If
+;   no CH3 is received within 25 ms then we assume failure mode.
+;
+;   At startup we shall detect whether channels are present.
+;   CH3 is always required, so we first wait for that to ensure the TX/RC are
+;   on. Then we wait for TH and ST. If they don't appear we assume they are
+;   not present.
+;
+;
+;   UART protocol:
+;   ==============
+;   3 Bytes: SYNC, Lights, ST
+;       SYNC:       Always 0x80..0x87, which does not appear in the other values
+;                   If a slave receives 0x87 the data is processed.
+;                   If the value is 0x86..0x80 then it increments the value 
+;                   by 1 and sends all 3 received bytes at its output. 
+;                   This provides us with a simple way of daisy-chaining 
+;                   several slave modules!
+;                   NOTE: this means that the steering servo can only be
+;                   connected to the last slave module!
+;       Lights:     Each bit indicates a different light channel (0..6)
+;       ST:         Steering servo data: -120 - 0 - +120
+;
+;
+;
+;   Flashing speed:
+;   ===============
+;   1.5 Hz = 333 ms per half-period
+;
+;
+;   Steering servo:
+;   ===============
+;   We need to be concerned with quite some things:
+;   - Neutral/Trim of both servos
+;   - Direction of the steering servo
+;   - End point adjustment of both steering servos
+;   
+;   The best way will be to approach to first calibrate the original steering
+;   servo trim and end points. 
+;   Then do a 3 step calibration for the salve steering servo neutral and
+;   end points.
+;
+;   Ideally there should be a simple way to re-calibrate the original steering
+;   servo. 
+;       - Neutral may be automatically done each time the system is powered on
+;           Or each time the light mode is changed; assuming that the user
+;           does not operate both controls at the same time. Maybe to ensure
+;           that add a safety that only +/- 10% are automatically adjustable?
+;       - End points can be automatically adjusted if a value is received
+;         that is larger than the current stored end point. To reduce we need
+;         to check over a long period of time.
+;   Conclusion: maybe for the first version this is overkill, just allow
+;   for manual calibration.
+;
+;
+;   TX/RX system findings:
+;   ======================
+;   In general the jitter is 3 us, which is expected given that it takes about
+;   3 instructions to detect a port change and start/stop the timer.
+;
+;   GT3B: 
+;       EPA can be +/- 120 %
+;       Normal range (trim zero, 100% EPA): 986 .. 1568 .. 2120
+;       Trim range: 1490 .. 1568 .. 1649  (L30 .. N00 .. R30)
+;       Worst case with full EPA and trim: 870 .. 2300 (!)
+;       Failsafe: Servo signal holds for about 500ms, then stops
+;       CH3: 1058, 2114
+;
+;   HK-310:
+;       EPA can be +/- 120 %
+;       Normal range (sub-trim and trim zero, 100% EPA): 1073 .. 1568 .. 2117
+;       Sub-Trim range: 1232 .. 1565 .. 1901  (-100 .. 0 .. 100)
+;       Trim range: 1388 .. 1568 .. 1745
+;       Worst case with full EPA and sub-tirm and trim: 779 .. 2327 (!)
+;       Failsafe: Continously sends ST centre, TH off, CH3 holds last value
+;       CH3: 1013 = AUX, 2120 = OFF; 
+;
+;   TODO: find out normals for left/right fwd/bwd
+;
+;
+;   Servo processing:
+;   =================
+;   Given the TX/RX findings above, we will design the light controller
+;   to expect a servo range of 800 .. 1500 .. 2300 us (1500 +/-700 us).
+;
+;   Everything below 600 will be considered invalid.
+;   Everything between 600 and 800 will be clamped to 800.
+;   Everything between 2300 and 2500 will be clamped to 2300
+;   Everything above 2500 will be considered invalid.
+;
+;   Timeout for measuring high pulse: Use TMR1H bit 4: If set, more than 
+;   4096 ms have expired!
+;   Timeout for waiting for pulse to go high: Use TMR1H bit 7: If set, more 
+;   than 32768 ms have expired! 
+;   These tests allow us to use cheap bit test instructions.
+;
+;
+;   Defaults for steering and throttle:
+;   1000 .. 1500 .. 2000
+;   
+;   Defaults for CH3:
+;   1000, 2000
+;  
+;   End points and Centre can be configured (default to the above values).
+;   Assuming CH3 is a switch, only the endpoints can be configured.
+;
+;   CH3 processing:
+;   Implement a Schmitt-Trigger around the center between the endpoints.
+;   Example:
+;       Switch pos 0: 1000 us
+;       Switch pos 1: 2000 us
+;       Center is therefore   (2000 + 1000) / 2 = 1500 us
+;       Hysteresis:           (2000 - 1000) / 8 = 125 us
+;       If last switch position was pos 0:
+;           measured timing must be larger than 1500 + 125 = 1625 us to accept 
+;           as pos 1
+;       If last switch position was pos 1:
+;           measured timing must be larger than 1500 - 125 = 1375 us to accept
+;           as pos 0
+;   For accuracy is not important as we are dealing with a switch we can
+;   only use bits 11..4 (16 us resolution), so we can deal with byte 
+;   calculations.
+;   Note: calculation must ensure that due to servo reversing pos 0 may
+;   have a larger or smaller time value than pos 1.
+;
+;   Steering and Throttle processing:
+;   We have:
+;       EPL (end point left)
+;       EPR (end point right)
+;       CEN (neutral position)
+;           Margin for neutral position: +/- 5%
+;           Some speed controlled can configure this from 4..8%
+;       POS (measured servo pulse length)
+;   If EPL > EPR:
+;       EPL > CEN > EPR must be true
+;   If EPL < EPR:
+;       EPL < CEN < EPR must be true
+;
+;   We need to convert POS into a range of 
+;       -100 .. 0 .. +100   (left .. centre .. right)
+;   Note: this normalizes left and right! Due to servo reversing EPL may
+;   have a larger or smaller time value than EPR.
+;
+;   If POS == CEN:          ; We found dead centre
+;       POS_NORMALIZED = 0
+;   Else
+;       If EPL > CEN:       ; Servo REVERSED
+;           If POS > CEN:   ; We are dealing with a left turn
+;               POS_NORMALIZED = calculate(POS, EPL, CEN)
+;               POS_NORMALIZED = 0 - POS_NORMALIZED
+;           Else            ; We are dealing with a right turn
+;               POS_NORMALIZED = calculate(POS, EPR, CEN)
+;       Else                ; Servo NORMAL
+;           If POS > CEN:   ; We are dealing with a right turn
+;               POS_NORMALIZED = calculate(POS, EPR, CEN)
+;           Else            ; We are dealing with a left turn
+;               POS_NORMALIZED = calculate(POS, EPL, CEN)
+;               POS_NORMALIZED = 0 - POS_NORMALIZED
+;
+;   caluclate       ; inputs: POS, EP(L or R), CEN
+;       If EP > CEN:
+;           If POS > EP     ; Clamp invald input
+;               return 100
+;           POS_NORMALIZED = ((POS - CEN) * 100 / (EP - CEN))
+;       Else:               ; EP < CEN
+;           If POS < EP     ; Clamp invald input
+;               return 100
+;           POS_NORMALIZED = (CEN - POS) * 100 / (CEN - EP)
+;       
+;
+;   Timer and PWM:
+;   ==============
+;   We need a way to measure time, e.g. for double click detection of ch3 and
+;   to derive the blink frequency. We will use TIMER0 for generating a low,
+;   steady frequency. TIMER0 will be set in such a way that within a worst-case
+;   mainloop it can only overflow once. This means we will be able to 
+;   accurately measure longer periods of time.
+;
+;   To do so we select a pre-scaler of 1:256. This gives us a timer clock of
+;   256 us. This means that the timer overflows every 65.536 ms.
+;   We will use T0IF to detect overflow.
+;   The blink frequency of 1.5 Hz can be easily derived: a single period is
+;   5 timer overflows (333 ms / 65.536 ms).
+;   For ease of implementation we can have several 8-bit variables that are
+;   incremented every 64.536 ms. E.g. we can have one for blinking, that is
+;   reset after it reaches "5", which toggles the blink flag.
+;   We can have another one that we reset when we receive a CH3 pulse and
+;   want to determine multiple clicks.
+;
+;   For combined tail/brake lights we have to control PWM on one output.
+;   We could assume that the servo pulses are periodic every 20 ms and use
+;   that to time our PWM -- at least a simple 50% PWM. That may flicker though.
+;   The PIC has a 10 bit PWM on output RB3. TIMER2 is used for the frequency.
+;    
+;
+;   Port usage:
+;   ===========
+;   RA5:    Servo input (Vpp double-usage)
+;   RB7:    Servo input (PGD double-usage)
+;   RB6:    Servo input (PGC double-usage)
+;   RB1:    Connected to RB6 (RX double-usage for slave!
+;   RB2:    Slave out (TX Master) / Servo out (Slave)
+;   RB3:    LED output with PWM (CCP1)
+;   
+;   Ports with no special assignment:
+;   RA0
+;   RA1
+;   RA2
+;   RA3
+;   RA4
+;   RA6
+;   RA7
+;   RB0
+;   RB4
+;   RB5
+;******************************************************************************
+
