@@ -55,8 +55,8 @@
     xh
     yl 
     yh
-    zh
     zl
+    zh
 
     send_hi
     send_lo
@@ -255,7 +255,7 @@ calculate_normalized_servo_position
 calculate_normalized_left
     ; (CEN - POS) * 100 / (CEN - EP)
     ; Worst case we are dealing with CEN = 2300 and POS = 800 (we clamp 
-    ; measured values into that range!
+    ; measured values into that range!)
     ; To keep within 16 bits we have to scale down:
     ;
     ;   ((CEN - POS) / 4) * 100 / ((CEN - EP) / 4)
@@ -311,17 +311,109 @@ calculate_ep_gt_cen
 
 calculate_normalized_right
     ; ((POS - CEN) * 100 / (EP - CEN))
-    ; !!! TODO !!!
-    return
+    ; Worst case we are dealing with CEN = 800 and POS = 2300 (we clamp 
+    ; measured values into that range!)
+    ; To keep within 16 bits we have to scale down:
+    ;
+    ;   ((POS - CEN) / 4) * 100 / ((EP - CEN) / 4)
+    
+    ; x = CEN, y = EP, z = POS
+
+    swap_x_y    yh, zh
+    swap_x_y    yl, zl
+    swap_x_y    xh, yh
+    swap_x_y    xl, yl
+
+    ; x = POS, y = CEN, z = EP
+
+    call    Sub_y_from_x    ; xh/hl =  POS - CEN
+    call    Div_x_by_4      ; xh/hl =  (POS - CEN) / 4
+    call    Mul_x_by_10     ; xh/hl =  ((POS - CEN) / 4) * 100
+
+    swap_x_y    xh, wh
+    swap_x_y    xl, wl
+    swap_x_y    xh, zh
+    swap_x_y    xl, zl
+
+    ; w = ((POS - CEN) / 4) * 100, x = EP, y = CEN
+
+    call    Sub_y_from_x    ; xh/hl =  EP - CEN
+    call    Div_x_by_4      ; xh/hl =  (EP - CEN) / 4
+    call    Mul_x_by_10     ; xh/hl =  ((EP - CEN) / 4) * 100
+
+    swap_x_y    xh, yh
+    swap_x_y    xl, yl
+    swap_x_y    wh, xh
+    swap_x_y    wl, xl
+
+    ; x = ((POS - CE) / 4) * 100, y = ((EP - CEN) / 4) * 100
+
+    call    Div_x_by_y
+    movf    xl, w
+    return  
 
 ;******************************************************************************
 ; Div_x_by_y
 ;
-; xh/xl = xh/xl / yh/yl
+; xh/xl = xh/xl / yh/yl; Remainder in zh/zl
+;
+; Based on "32 by 16 Divison" by Nikolai Golovchenko
+; http://www.piclist.com/techref/microchip/math/div/div16or32by16to16.htm
 ;******************************************************************************
+#define counter d0
 Div_x_by_y
-    ; !!! TODO !!!
+    clrf    zl      ; Clear remainder
+    clrf    zh
+    clrf    temp    ; Clear remainder extension
+    movlw   16
+    movwf   counter
+    setc            ; First iteration will be subtraction
+
+div16by16loop
+    ; Shift in next result bit and shift out next dividend bit to remainder
+    rlf     xl, f   ; Shift LSB
+    rlf     xh, f   ; Shift MSB
+    rlf     zl, f
+    rlf     zh, f
+    rlf     temp, f
+
+    movf    yl, w
+    btfss   xl, 0
+    goto    div16by16add
+
+    ; Subtract divisor from remainder
+    subwf   zl, f
+    movf    yh, w
+    skpc
+    incfsz  yh, w
+    subwf   zh, f
+    movlw   1
+    skpc
+    subwf   temp, f
+    goto    div16by16next
+
+div16by16add
+    ; Add divisor to remainder
+    addwf   zl, f
+    movf    yh, w
+    skpnc
+    incfsz  yh, w
+    addwf   zh, f
+    movlw   1
+    skpnc
+    addwf   temp, f
+
+div16by16next
+    ; Carry is next result bit
+    decfsz  counter, f
+    goto    div16by16loop
+
+; Shift in last bit
+    rlf     xl, f
+    rlf     xh, f
     return
+#undefine counter
+
 
 ;******************************************************************************
 ; Mul_x_by_100
