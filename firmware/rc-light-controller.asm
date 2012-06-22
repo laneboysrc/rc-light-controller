@@ -43,12 +43,15 @@
 ;******************************************************************************
     CBLOCK  0x20
 
-	d1          ; Delay registers
+	d0          ; Delay registers
+	d1
 	d2
 	d3
     temp
 
-    xl          ; Temporary parameters for 16 bit less-than function
+    wl          ; Temporary parameters for 16 bit functions
+    wh
+    xl
     xh
     yl 
     yh
@@ -251,6 +254,47 @@ calculate_normalized_servo_position
 
 calculate_normalized_left
     ; (CEN - POS) * 100 / (CEN - EP)
+    ; Worst case we are dealing with CEN = 2300 and POS = 800 (we clamp 
+    ; measured values into that range!
+    ; To keep within 16 bits we have to scale down:
+    ;
+    ;   ((CEN - POS) / 4) * 100 / ((CEN - EP) / 4)
+    
+
+    movf    xh, w           ; Save CEN in wh/wl as xh/xl gets result of 
+    movwf   wh              ;  sub_x_from_y
+    movf    xl, w
+    movwf   wl
+
+    swap_x_y    yh, zh
+    swap_x_y    yl, zl
+
+    ; w = CEN, x = CEN, y = POS, z = EP
+
+    call    Sub_y_from_x    ; xh/hl =  CEN - POS
+    call    Div_x_by_4      ; xh/hl =  (CEN - POS) / 4
+    call    Mul_x_by_10     ; xh/hl =  ((CEN - POS) / 4) * 100
+
+    swap_x_y    wh, xh
+    swap_x_y    wl, xl
+    swap_x_y    yh, zh
+    swap_x_y    yl, zl
+
+    ; w = ((CEN - POS) / 4) * 100, x = CEN, y = EP, z = POS
+
+    call    Sub_y_from_x    ; xh/hl =  CEN - EP
+    call    Div_x_by_4      ; xh/hl =  (CEN - EP) / 4
+    call    Mul_x_by_10     ; xh/hl =  ((CEN - EP) / 4) * 100
+
+    swap_x_y    xh, yh
+    swap_x_y    xl, yl
+    swap_x_y    wh, xh
+    swap_x_y    wl, xl
+
+    ; x = ((CEN - POS) / 4) * 100, y = ((CEN - EP) / 4) * 100
+
+    call    Div_x_by_y
+    movf    xl, w
     return    
 
 calculate_ep_gt_cen
@@ -267,8 +311,101 @@ calculate_ep_gt_cen
 
 calculate_normalized_right
     ; ((POS - CEN) * 100 / (EP - CEN))
+    ; !!! TODO !!!
     return
 
+;******************************************************************************
+; Div_x_by_y
+;
+; xh/xl = xh/xl / yh/yl
+;******************************************************************************
+Div_x_by_y
+    ; !!! TODO !!!
+    return
+
+;******************************************************************************
+; Mul_x_by_100
+;
+; Calculates xh/xl = xh/xl * 100
+; Only valid for xh/xl <= 655 as the output is only 16 bits
+;******************************************************************************
+Mul_x_by_10
+    ; Shift accumulator left 2 times: xh/xl = xh/xl * 4
+	clrc
+	rlf	    xl, f
+	rlf	    xh, f
+	rlf	    xl, f
+	rlf	    xh, f
+
+    ; Copy accumulator to temporary location
+	movf	xh, w
+	movwf	d1
+	movf	xl, w
+	movwf	d0
+
+    ; Shift temporary value left 3 times: d1/d0 = xh/xl * 4 * 8   = xh/xl * 32
+	clrc
+	rlf	    d0, f
+	rlf	    d1, f
+	rlf	    d0, f
+	rlf	    d1, f
+	rlf	    d0, f
+	rlf	    d1, f
+
+    ; xh/xl = xh/xl * 32  +  xh/xl * 4   = xh/xl * 36
+	movf	d0, w
+	addwf	xl, f
+	movf	d1, w
+	skpnc
+	incfsz	d1, w
+	addwf	xh, f
+
+    ; Shift temporary value left by 1: d1/d0 = xh/xl * 32 * 2   = xh/xl * 64
+	clrc
+	rlf	    d0, f
+	rlf	    d1, f
+
+    ; xh/xl = xh/xl * 36  +  xh/xl * 64   = xh/xl * 100 
+	movf	d0, w
+	addwf	xl, f
+	movf	d1, w
+	skpnc
+	incfsz	d1, w
+	addwf	xh, f
+    return
+
+
+;******************************************************************************
+; Div_x_by_4
+;
+; Calculates xh/xl = xh/xl / 4
+;******************************************************************************
+Div_x_by_4
+	clrc
+	rrf     xh, f
+	rrf	    xl, f
+	clrc
+	rrf     xh, f
+	rrf	    xl, f
+    return
+
+
+;******************************************************************************
+; Sub_y_from_x
+;
+; This function calculates xh/xl = xh/xl - yh/yl.
+; C flag is valid, Z flag is not!
+;
+; y stays unchanged.
+;******************************************************************************
+Sub_y_from_x
+    movf    yl, w
+    subwf   xl, f
+    movf    yl, w
+    skpc
+    incfsz  yh, W
+    subwf   xh, f
+    return         
 
 ;******************************************************************************
 ; If_y_lt_x
