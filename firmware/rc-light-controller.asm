@@ -869,7 +869,14 @@ process_ch3_click_timeout
     goto    process_ch3_double_click
 
     ; --------------------------
+    ; Single click: switch hazard lights off it they are active
+    btfss   blink_mode, BLINK_MODE_HAZARD
+    goto    process_ch3_no_hazard
+    bcf     blink_mode, BLINK_MODE_HAZARD
+    return
+
     ; Single click: switch light mode up (Stand, Head, Fog, High Beam) 
+process_ch3_no_hazard
     rlf     light_mode, f
     bsf     light_mode, LIGHT_MODE_STAND
     movlw   0x0f
