@@ -23,9 +23,7 @@
 ; TODO:
 ;
 ; - Algorithm for forward/neutral/brake
-; - After power up store initial CH3 value and process only when changed.
-; - Slave protocol 
-; - Center, endpoint and neutral adjustment for steering and throttle
+; - Center, endpoint and neutral programming for steering and throttle
 ; - Steering wheel servo programming
 ;
 ;******************************************************************************
@@ -66,8 +64,9 @@
 #define LIGHT_MODE_HIGH_BEAM 3      ; High beam
 
 ; Bitfields in variable drive_mode
-#define DRIVE_MODE_BRAKE 0 
-#define DRIVE_MODE_REVERSE 1 
+#define DRIVE_MODE_FORWARD 0 
+#define DRIVE_MODE_BRAKE 1 
+#define DRIVE_MODE_REVERSE 2
 
 
 
@@ -76,13 +75,13 @@
 ;******************************************************************************
     CBLOCK  0x20
 
-	d0          ; Delay registers
+	d0          ; Delay and temp registers
 	d1
 	d2
 	d3
     temp
 
-    wl          ; Temporary parameters for 16 bit functions
+    wl          ; Temporary parameters for 16 bit math functions
     wh
     xl
     xh
@@ -129,6 +128,10 @@
 
     ENDC
 
+
+;******************************************************************************
+;* MACROS
+;******************************************************************************
 swap_x_y    macro   x, y
     ; Currently X contains A; Y contains B
     movf  x, w      ; W = A
@@ -137,6 +140,7 @@ swap_x_y    macro   x, y
     XORWF y, f      ; Y = ((A^B)^B) = A
     ; Now X contains B. Y contains A.
             endm
+
 
 ;******************************************************************************
 ; Reset vector 
@@ -354,11 +358,12 @@ SPBRG_VALUE = (((d'10'*OSC/((d'64'-(d'48'*BRGH_VALUE))*BAUDRATE))+d'5')/d'10')-1
 Main_loop
     call    Read_ch3
     call    Read_throttle
-;    call    Read_steering
+    call    Read_steering
 
     call    Process_ch3
-;    call    Process_throttle
-;    call    Process_steering
+    call    Process_throttle
+    call    Process_steering
+
     call    Process_ch3_double_click
 
     call    Service_timer0
@@ -519,6 +524,7 @@ output_local_get_state_hazard
 
 output_local_get_state_end
     return
+
 
 ;******************************************************************************
 ; Service_timer0
@@ -719,6 +725,15 @@ process_ch3_toggle
 ; Process_ch3_double_click
 ;******************************************************************************
 Process_ch3_double_click
+    btfsc   ch3, 7
+    goto    process_ch3_initialized
+
+    ; Ignore the potential "toggle" after power on
+    bcf     ch3, 7
+    bcf     ch3, 1
+    return
+
+process_ch3_initialized
     btfss   ch3, 1
     goto    process_ch3_click_timeout
 
@@ -730,6 +745,8 @@ Process_ch3_double_click
     movlw   0x43                    ; send 'C'
     call    UART_send_w        
     return
+
+
     
 process_ch3_click_timeout
     movf    ch3_clicks, f           ; Any buttons pending?
