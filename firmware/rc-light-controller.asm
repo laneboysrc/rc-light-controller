@@ -33,9 +33,18 @@
 ;******************************************************************************
 
 
-#define PORT_TEST_LED   PORTA, 0
-#define PORT_TEST_LED2  PORTA, 1
-#define PORT_TEST_LED3  PORTB, 3
+#define PORT_OUT0       PORTA, 0
+#define PORT_OUT1       PORTA, 1
+#define PORT_OUT2       PORTA, 2
+#define PORT_OUT3       PORTA, 3
+#define PORT_OUT4       PORTA, 4
+#define PORT_OUT5       PORTA, 6
+
+;PORT_OUT6 is RB3 but is controlled via PWM:
+#define PWM_OFF 0
+#define PWM_HALF 0x0f
+#define PWM_FULL 0x3f
+
 
 #define PORT_CH3        PORTB, 5
 #define PORT_STEERING   PORTB, 0
@@ -44,13 +53,11 @@
 #define CH3_BUTTON_TIMEOUT 6    ; Time in which we accept double-click of CH3
 #define BLINK_COUNTER_VALUE 5   ; 5 * 65.536 ms = ~333 ms = ~1.5 Hz
 
-#define PWM_OFF 0
-#define PWM_HALF 0x0f
-#define PWM_FULL 0x3f
-
 ; Bitfields in variable blink_mode
-#define BLINK_MODE_BLINKFLAG 0      ; Toggles with 1.5 Hz
-#define BLINK_MODE_HAZARD 1         ; Hazard lights active
+#define BLINK_MODE_BLINKFLAG 0          ; Toggles with 1.5 Hz
+#define BLINK_MODE_HAZARD 1             ; Hazard lights active
+#define BLINK_MODE_INDICATOR_LEFT 2     ; Left indicator active
+#define BLINK_MODE_INDICATOR_RIGHT 3    ; Right indicator active
 
 ; Bitfields in variable light_mode
 #define LIGHT_MODE_STAND 0          ; Stand lights
@@ -58,6 +65,9 @@
 #define LIGHT_MODE_FOG 2            ; Fog lights
 #define LIGHT_MODE_HIGH_BEAM 3      ; High beam
 
+; Bitfields in variable drive_mode
+#define DRIVE_MODE_BRAKE 0 
+#define DRIVE_MODE_REVERSE 1 
 
 ;******************************************************************************
 ;* VARIABLE DEFINITIONS
@@ -113,6 +123,7 @@
 
     blink_mode      
     light_mode
+    drive_mode
 
     ENDC
 
@@ -129,6 +140,43 @@ swap_x_y    macro   x, y
 ; Reset vector 
 ;******************************************************************************
     ORG     0x000           
+    goto    Init
+
+
+;******************************************************************************
+;******************************************************************************
+;******************************************************************************
+;
+; Light configuration
+;
+;******************************************************************************
+;******************************************************************************
+;******************************************************************************
+local_light_table
+    addwf   PCL, f
+
+            ; +-------      (not used)
+            ; |+------ OUT5 (high brightness)
+            ; ||+----- OUT5 (low brightness)
+            ; |||+---- OUT4
+            ; ||||+--- OUT3
+            ; |||||+-- OUT2
+            ; ||||||+- OUT1
+            ; |||||||+ OUT0
+    dt      b'00100001'     ; Stand lights
+    dt      b'00100011'     ; Head lights
+    dt      b'00100111'     ; Fog lights
+    dt      b'00101111'     ; High beam
+    dt      b'01000000'     ; Brake lights
+    dt      b'00000000'     ; Reverse lights
+    dt      b'00000000'     ; Indicator left
+    dt      b'00000000'     ; Indicator right
+    dt      b'00000000'     ; Hazard lights
+
+    IF ((HIGH ($)) != (HIGH (local_light_table)))
+        ERROR "local_light_table CROSSES PAGE BOUNDARY!"
+    ENDIF
+
 
 ;******************************************************************************
 ; Initialization
@@ -291,32 +339,123 @@ Main_loop
 ; Output_local_lights
 ;******************************************************************************
 Output_local_lights
-    btfsc   light_mode, LIGHT_MODE_STAND
-    bsf     PORT_TEST_LED
+    clrf    temp
+
+    ; Stand lights
     btfss   light_mode, LIGHT_MODE_STAND
-    bcf     PORT_TEST_LED
+    goto    output_local_get_state_head
+    movlw   0
+    call    local_light_table
+    iorwf   temp, f
 
-    btfsc   light_mode, LIGHT_MODE_HEAD
-    bsf     PORT_TEST_LED2
+    ; Head lights
+output_local_get_state_head
     btfss   light_mode, LIGHT_MODE_HEAD
-    bcf     PORT_TEST_LED2
+    goto    output_local_get_state_fog
+    movlw   1
+    call    local_light_table
+    iorwf   temp, f
 
-;    btfsc   light_mode, LIGHT_MODE_FOG
-;    bsf     PORT_TEST_LED3
-;    btfss   light_mode, LIGHT_MODE_FOG
-;    bcf     PORT_TEST_LED3
+    ; Fog lights    
+output_local_get_state_fog
+    btfss   light_mode, LIGHT_MODE_FOG
+    goto    output_local_get_state_high_beam
+    movlw   2
+    call    local_light_table
+    iorwf   temp, f
+
+    ; High beam    
+output_local_get_state_high_beam
+    btfss   light_mode, LIGHT_MODE_HIGH_BEAM
+    goto    output_local_get_state_brake
+    movlw   3
+    call    local_light_table
+    iorwf   temp, f
+
+    ; Brake lights    
+output_local_get_state_brake
+    btfss   drive_mode, DRIVE_MODE_BRAKE
+    goto    output_local_get_state_reverse
+    movlw   4
+    call    local_light_table
+    iorwf   temp, f
+
+    ; Reverse lights        
+output_local_get_state_reverse
+    btfss   drive_mode, DRIVE_MODE_REVERSE
+    goto    output_local_get_state_indicator_left
+    movlw   5
+    call    local_light_table
+    iorwf   temp, f
+
+    ; Indicator left    
+output_local_get_state_indicator_left
+    ; Skip all indicators and hazard lights if blink flag is in off period
+    btfss   blink_mode, BLINK_MODE_BLINKFLAG
+    goto    output_local_get_state_end
+
+    btfss   blink_mode, BLINK_MODE_INDICATOR_LEFT
+    goto    output_local_get_state_indicator_right
+    movlw   6
+    call    local_light_table
+    iorwf   temp, f
+    
+    ; Indicator right
+output_local_get_state_indicator_right
+    btfss   blink_mode, BLINK_MODE_INDICATOR_RIGHT
+    goto    output_local_get_state_hazard
+    movlw   7
+    call    local_light_table
+    iorwf   temp, f
+   
+    ; Hazard lights 
+output_local_get_state_hazard
+    btfss   blink_mode, BLINK_MODE_HAZARD
+    goto    output_local_get_state_end
+    movlw   8
+    call    local_light_table
+    iorwf   temp, f
+
+    ; Now that we have all light states collected in temp we output them 
+    ; bit-by-bit.
+output_local_get_state_end
+    btfss   temp, 0
+    bcf     PORT_OUT0  
+    btfsc   temp, 0
+    bsf     PORT_OUT0  
+
+    btfss   temp, 1
+    bcf     PORT_OUT1  
+    btfsc   temp, 1
+    bsf     PORT_OUT1  
+    
+    btfss   temp, 2
+    bcf     PORT_OUT2 
+    btfsc   temp, 2
+    bsf     PORT_OUT2 
+
+    btfss   temp, 3
+    bcf     PORT_OUT3  
+    btfsc   temp, 3
+    bsf     PORT_OUT3  
+
+    btfss   temp, 4
+    bcf     PORT_OUT4  
+    btfsc   temp, 4
+    bsf     PORT_OUT4  
 
     movlw   PWM_OFF
-    btfsc   light_mode, LIGHT_MODE_HEAD
+    btfsc   temp, 5
     movlw   PWM_HALF
-    btfsc   light_mode, LIGHT_MODE_HIGH_BEAM
+    btfsc   temp, 6
     movlw   PWM_FULL
     movwf   CCPR1L 
-    return
 
+    return
 
 ;******************************************************************************
 ; Output_local_lights
+;
 ;******************************************************************************
 Output_slave_lights
     return
@@ -362,8 +501,6 @@ Service_timer0
 ; Read_ch3
 ; 
 ; Read servo channel 3 and write the result in ch3_h/ch3_l
-;
-; TODO: add timeouts!
 ;******************************************************************************
 Read_ch3
     clrf    T1CON       ; Stop timer 1, runs at 1us per tick, internal osc
@@ -532,7 +669,7 @@ Process_ch3_double_click
     movwf   ch3_click_counter
 
     movlw   0x43                    ; send 'C'
-    goto    UART_send_w        
+    call    UART_send_w        
     return
     
 process_ch3_click_timeout
@@ -564,7 +701,7 @@ process_ch3_no_hazard
     movlw   0x0f
     andwf   light_mode, f
     movlw   0x31                    ; send '1'
-    goto    UART_send_w        
+    call    UART_send_w        
     return
 
 process_ch3_double_click
@@ -577,7 +714,7 @@ process_ch3_double_click
     movlw   0x0f
     andwf   light_mode, f
     movlw   0x32                    ; send '2'
-    goto    UART_send_w        
+    call    UART_send_w        
     return
 
 process_ch3_triple_click
@@ -588,7 +725,7 @@ process_ch3_triple_click
     ; Triple click: all lights off
     clrf    light_mode
     movlw   0x33                    ; send '3'
-    goto    UART_send_w        
+    call    UART_send_w        
     return
 
     ; --------------------------
@@ -598,7 +735,7 @@ process_ch3_quad_click
     movlw   1 << BLINK_MODE_HAZARD
     xorwf   blink_mode, f
     movlw   0x34                    ; send '4'
-    goto    UART_send_w        
+    call    UART_send_w        
     return
 
 
@@ -938,10 +1075,8 @@ Calculate_normalized_servo_position
     skpc                
     incfsz  zh, w       
     subwf   yh, w
-    bc      calculate_normalized_left
-
-    movlw   100
-    return
+    skpnc   
+    retlw   100
 
 calculate_normalized_left
     ; (CEN - POS) * 100 / (CEN - EP)
@@ -995,10 +1130,8 @@ calculate_ep_gt_cen
     skpc                
     incfsz  yh, w       
     subwf   zh, w
-    bnc     calculate_normalized_right
-
-    movlw   100
-    return
+    skpc    
+    retlw   100
 
 calculate_normalized_right
     ; ((POS - CEN) * 100 / (EP - CEN))
@@ -1484,8 +1617,8 @@ add10
 ;   - Drive mode:
 ;       - Neutral
 ;       - Forward
-;       - Braking
-;       - Reverse
+;       - Braking - Brake lights
+;       - Reverse - Reverse light
 ;   - Indicators
 ;   - Steering servo pass-through
 ;   - Hazard lights
@@ -1789,23 +1922,49 @@ add10
 ;
 ;   Port usage:
 ;   ===========
+;   Ports special assignment:
 ;   RA5:    Servo input (Vpp double-usage)
 ;   RB7:    Servo input (PGD double-usage)
 ;   RB6:    Servo input (PGC double-usage)
 ;   RB1:    Connected to RB6 (RX double-usage for slave!
 ;   RB2:    Slave out (TX Master) / Servo out (Slave)
-;   RB3:    LED output with PWM (CCP1)
+;   RB3:    LED output with PWM (CCP1) [Out6/Out7]
 ;   
 ;   Ports with no special assignment:
-;   RA0
-;   RA1
-;   RA2
-;   RA3
-;   RA4
-;   RA6
+;   RA0 [Out0?]
+;   RA1 [Out1?]
+;   RA2 [Out2?]
+;   RA3 [Out3?]
+;   RA4 [Out4?]
+;   RA6 [Out5?]
 ;   RA7
 ;   RB0
 ;   RB4
-;   RB5
+;   RB5 [Button?]
+;
+;
+;   Outputs:
+;   ========
+;   Master and slave have identical light outputs:
+;   5 hardware outputs = 5 bits: Out0..Out5. 
+;   1 hardware output with brightness control = 2 bits: Out6=dim, Out7=bright
+;     If both Out6 and Out7 are set then the output is "bright"
+;
+;   This is 7 bits, so we can use it in a table to program easily:
+;
+;                       Out7 Out6 Out5 Out4 Out3 Out2 Out1 Out0    
+;    Stand light
+;    Head light
+;    Fog lights
+;    High beam
+;    Brake
+;    Reverse
+;    Indicator left
+;    Indicator right
+;    Hazard lights   
+;
+;    This table allows us to assign multiple functions to a single output,
+;    and to assign more than one output to a single function.
+;
 ;******************************************************************************
 
