@@ -23,6 +23,7 @@
 ; TODO:
 ;
 ; - Algorithm for forward/neutral/brake
+; - Algorithm for indicators
 ; - Center, endpoint and neutral programming for steering and throttle
 ; - Steering wheel servo programming
 ;
@@ -365,6 +366,7 @@ Main_loop
     call    Process_steering
 
     call    Process_ch3_double_click
+    call    Process_drive_mode
 
     call    Service_timer0
 
@@ -958,6 +960,27 @@ throttle_left
     sublw   0
     movwf   throttle
     return    
+
+
+;******************************************************************************
+; Process_drive_mode
+;
+; Simulates the state machine in the ESC and updates the variable drive_mode
+; accordingly.
+;
+; Currently programmed for the HPI SC-15WP
+;
+; +/-5: forward = 0, reverse = 0
+; >+5: forward = 1, brake_armed = 1
+; <-5:
+;   if brake_armed: brake = 1
+;   if not brake_armed: reverse = 1, brake = 0
+; 2 seconds in Neutral: brake_armed = 0
+; Brake -> Neutral: brake = 0, brake_armed = 0
+; Reverse -> Neutral: brake = 1 for 2 seconds
+;******************************************************************************
+Process_drive_mode
+    return
 
 
 
