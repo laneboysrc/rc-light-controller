@@ -23,9 +23,9 @@
 ; TODO:
 ;
 ; - Algorithm for forward/neutral/brake
-; - Center, endpoint and neutral adjustment for steering and throttle
 ; - After power up store initial CH3 value and process only when changed.
 ; - Slave protocol 
+; - Center, endpoint and neutral adjustment for steering and throttle
 ; - Steering wheel servo programming
 ;
 ;******************************************************************************
@@ -68,6 +68,8 @@
 ; Bitfields in variable drive_mode
 #define DRIVE_MODE_BRAKE 0 
 #define DRIVE_MODE_REVERSE 1 
+
+
 
 ;******************************************************************************
 ;* VARIABLE DEFINITIONS
@@ -152,7 +154,39 @@ swap_x_y    macro   x, y
 ;******************************************************************************
 ;******************************************************************************
 ;******************************************************************************
+light_table
+    btfsc   d0, 0               ; d0 indicates whether we are processing
+                                ; master or slave lights
+    goto    slave_light_table
+
+
 local_light_table
+    addwf   PCL, f
+
+            ; +-------      (not used)
+            ; |+------ OUT5 (high brightness)
+            ; ||+----- OUT5 (low brightness)
+            ; |||+---- OUT4
+            ; ||||+--- OUT3
+            ; |||||+-- OUT2
+            ; ||||||+- OUT1
+            ; |||||||+ OUT0
+    dt      b'00100001'     ; Stand lights
+    dt      b'00100011'     ; Head lights
+    dt      b'00100111'     ; Fog lights
+    dt      b'00101111'     ; High beam
+    dt      b'01000000'     ; Brake lights
+    dt      b'00000000'     ; Reverse lights
+    dt      b'00000000'     ; Indicator left
+    dt      b'00000000'     ; Indicator right
+    dt      b'00001111'     ; Hazard lights
+
+    IF ((HIGH ($)) != (HIGH (local_light_table)))
+        ERROR "local_light_table CROSSES PAGE BOUNDARY!"
+    ENDIF
+    
+
+slave_light_table
     addwf   PCL, f
 
             ; +-------      (not used)
@@ -173,8 +207,8 @@ local_light_table
     dt      b'00000000'     ; Indicator right
     dt      b'00000000'     ; Hazard lights
 
-    IF ((HIGH ($)) != (HIGH (local_light_table)))
-        ERROR "local_light_table CROSSES PAGE BOUNDARY!"
+    IF ((HIGH ($)) != (HIGH (slave_light_table)))
+        ERROR "slave_light_table CROSSES PAGE BOUNDARY!"
     ENDIF
 
 
@@ -330,7 +364,7 @@ Main_loop
     call    Service_timer0
 
     call    Output_local_lights
-    call    Output_slave_lights
+    call    Output_slave
 
     goto    Main_loop
 
@@ -339,86 +373,11 @@ Main_loop
 ; Output_local_lights
 ;******************************************************************************
 Output_local_lights
-    clrf    temp
-
-    ; Stand lights
-    btfss   light_mode, LIGHT_MODE_STAND
-    goto    output_local_get_state_head
-    movlw   0
-    call    local_light_table
-    iorwf   temp, f
-
-    ; Head lights
-output_local_get_state_head
-    btfss   light_mode, LIGHT_MODE_HEAD
-    goto    output_local_get_state_fog
-    movlw   1
-    call    local_light_table
-    iorwf   temp, f
-
-    ; Fog lights    
-output_local_get_state_fog
-    btfss   light_mode, LIGHT_MODE_FOG
-    goto    output_local_get_state_high_beam
-    movlw   2
-    call    local_light_table
-    iorwf   temp, f
-
-    ; High beam    
-output_local_get_state_high_beam
-    btfss   light_mode, LIGHT_MODE_HIGH_BEAM
-    goto    output_local_get_state_brake
-    movlw   3
-    call    local_light_table
-    iorwf   temp, f
-
-    ; Brake lights    
-output_local_get_state_brake
-    btfss   drive_mode, DRIVE_MODE_BRAKE
-    goto    output_local_get_state_reverse
-    movlw   4
-    call    local_light_table
-    iorwf   temp, f
-
-    ; Reverse lights        
-output_local_get_state_reverse
-    btfss   drive_mode, DRIVE_MODE_REVERSE
-    goto    output_local_get_state_indicator_left
-    movlw   5
-    call    local_light_table
-    iorwf   temp, f
-
-    ; Indicator left    
-output_local_get_state_indicator_left
-    ; Skip all indicators and hazard lights if blink flag is in off period
-    btfss   blink_mode, BLINK_MODE_BLINKFLAG
-    goto    output_local_get_state_end
-
-    btfss   blink_mode, BLINK_MODE_INDICATOR_LEFT
-    goto    output_local_get_state_indicator_right
-    movlw   6
-    call    local_light_table
-    iorwf   temp, f
-    
-    ; Indicator right
-output_local_get_state_indicator_right
-    btfss   blink_mode, BLINK_MODE_INDICATOR_RIGHT
-    goto    output_local_get_state_hazard
-    movlw   7
-    call    local_light_table
-    iorwf   temp, f
-   
-    ; Hazard lights 
-output_local_get_state_hazard
-    btfss   blink_mode, BLINK_MODE_HAZARD
-    goto    output_local_get_state_end
-    movlw   8
-    call    local_light_table
-    iorwf   temp, f
+    clrf    d0
+    call    Output_get_state
 
     ; Now that we have all light states collected in temp we output them 
     ; bit-by-bit.
-output_local_get_state_end
     btfss   temp, 0
     bcf     PORT_OUT0  
     btfsc   temp, 0
@@ -453,13 +412,113 @@ output_local_get_state_end
 
     return
 
+
 ;******************************************************************************
-; Output_local_lights
+; Output_slave
 ;
 ;******************************************************************************
-Output_slave_lights
+Output_slave
+    movlw   1
+    movwf   d0
+    call    Output_get_state
+
+    ; Forward the information to the slave
+    movlw   0x87            ; Magic byte for synchronization
+    call    UART_send_w        
+
+    movf    temp, w         ; LED data
+    call    UART_send_w        
+
+    movf    steering, w     ; Steering wheel servo data
+    call    UART_send_w        
+
     return
 
+
+;******************************************************************************
+; Output_get_state
+;
+;******************************************************************************
+Output_get_state
+    clrf    temp
+
+    ; Stand lights
+    btfss   light_mode, LIGHT_MODE_STAND
+    goto    output_local_get_state_head
+    movlw   0
+    call    light_table
+    iorwf   temp, f
+
+    ; Head lights
+output_local_get_state_head
+    btfss   light_mode, LIGHT_MODE_HEAD
+    goto    output_local_get_state_fog
+    movlw   1
+    call    light_table
+    iorwf   temp, f
+
+    ; Fog lights    
+output_local_get_state_fog
+    btfss   light_mode, LIGHT_MODE_FOG
+    goto    output_local_get_state_high_beam
+    movlw   2
+    call    light_table
+    iorwf   temp, f
+
+    ; High beam    
+output_local_get_state_high_beam
+    btfss   light_mode, LIGHT_MODE_HIGH_BEAM
+    goto    output_local_get_state_brake
+    movlw   3
+    call    light_table
+    iorwf   temp, f
+
+    ; Brake lights    
+output_local_get_state_brake
+    btfss   drive_mode, DRIVE_MODE_BRAKE
+    goto    output_local_get_state_reverse
+    movlw   4
+    call    light_table
+    iorwf   temp, f
+
+    ; Reverse lights        
+output_local_get_state_reverse
+    btfss   drive_mode, DRIVE_MODE_REVERSE
+    goto    output_local_get_state_indicator_left
+    movlw   5
+    call    light_table
+    iorwf   temp, f
+
+    ; Indicator left    
+output_local_get_state_indicator_left
+    ; Skip all indicators and hazard lights if blink flag is in off period
+    btfss   blink_mode, BLINK_MODE_BLINKFLAG
+    goto    output_local_get_state_end
+
+    btfss   blink_mode, BLINK_MODE_INDICATOR_LEFT
+    goto    output_local_get_state_indicator_right
+    movlw   6
+    call    light_table
+    iorwf   temp, f
+    
+    ; Indicator right
+output_local_get_state_indicator_right
+    btfss   blink_mode, BLINK_MODE_INDICATOR_RIGHT
+    goto    output_local_get_state_hazard
+    movlw   7
+    call    light_table
+    iorwf   temp, f
+   
+    ; Hazard lights 
+output_local_get_state_hazard
+    btfss   blink_mode, BLINK_MODE_HAZARD
+    goto    output_local_get_state_end
+    movlw   8
+    call    light_table
+    iorwf   temp, f
+
+output_local_get_state_end
+    return
 
 ;******************************************************************************
 ; Service_timer0
