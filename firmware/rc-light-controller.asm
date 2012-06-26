@@ -17,6 +17,23 @@
     __CONFIG _CP_OFF & _WDT_OFF & _BODEN_ON & _PWRTE_ON & _INTRC_OSC_NOCLKOUT & _MCLRE_OFF & _LVP_OFF
 
 
+;******************************************************************************
+;******************************************************************************
+;******************************************************************************
+; TODO:
+;
+; - Add timeout to servo measurements
+; - Algorithm for forward/neutral/brake
+; - Center, endpoint and neutral adjustment for steering and throttle
+; - After power up store initial CH3 value and process only when changed.
+; - Slave protocol 
+; - Steering wheel servo programming
+;
+;******************************************************************************
+;******************************************************************************
+;******************************************************************************
+
+
 #define PORT_TEST_LED   PORTA, 0
 #define PORT_TEST_LED2  PORTA, 1
 #define PORT_TEST_LED3  PORTB, 3
@@ -75,6 +92,8 @@
     steering
     steering_l
     steering_h
+    steering_centre_l
+    steering_centre_h
     steering_epl_l
     steering_epl_h
     steering_epr_l
@@ -124,9 +143,8 @@ swap_x_y    macro   x, y
 ;******************************************************************************
     ORG     0x004           
 
-
 ;******************************************************************************
-; Process_throttle
+; Process_steering
 ;   If POS == CEN:          ; We found dead centre
 ;       POS_NORMALIZED = 0
 ;   Else
@@ -141,6 +159,101 @@ swap_x_y    macro   x, y
 ;               POS_NORMALIZED = calculate_normalized_servo_pos(CEN, POS, EPL)
 ;               POS_NORMALIZED = 0 - POS_NORMALIZED
 ;           Else            ; We are dealing with a right turn
+;               POS_NORMALIZED = calculate_normalized_servo_pos(CEN, POS, EPR)
+;
+;******************************************************************************
+Process_steering
+    movf    steering_h, w
+    movwf   xh
+    movf    steering_l, w
+    movwf   xl
+
+    ; Check for invalid throttle measurement (e.g. timeout) by testing whether
+    ; throttle_h/l == 0. If yes treat it as "throttle centre"
+    clrf    yh
+    clrf    yl
+    call    If_x_eq_y
+    bnz     steering_is_valid
+
+    clrf    steering
+    return
+
+steering_is_valid
+    ; Steering in centre? (note that we preloaded xh/xl just before this)
+    ; If yes then set steering output variable to '0'
+    movf    steering_centre_h, w
+    movwf   yh
+    movf    steering_centre_l, w
+    movwf   yl
+    call    If_x_eq_y
+    bnz     steering_off_centre
+
+    clrf    steering
+    return
+
+steering_off_centre
+    movf    steering_centre_h, w
+    movwf   xh
+    movf    steering_centre_l, w
+    movwf   xl
+    movf    steering_epr_h, w
+    movwf   yh
+    movf    steering_epr_l, w
+    movwf   yl
+    call    If_y_lt_x
+    bc      steering_normal
+
+    movf    steering_h, w
+    movwf   yh
+    movf    steering_l, w
+    movwf   yl   
+    call    If_y_lt_x
+    bc      steering_left
+
+steering_right
+    movf    steering_epr_h, w
+    movwf   zh
+    movf    steering_epr_l, w
+    movwf   zl
+    call    calculate_normalized_servo_position
+    movwf   steering
+    return    
+
+steering_normal
+    movf    steering_h, w
+    movwf   yh
+    movf    steering_l, w
+    movwf   yl   
+    call    If_y_lt_x
+    bc      steering_right
+
+steering_left
+    movf    steering_epl_l, w
+    movwf   zh
+    movf    steering_epl_l, w
+    movwf   zl
+    call    calculate_normalized_servo_position
+    sublw   0
+    movwf   steering
+    return  
+
+
+;******************************************************************************
+; Process_throttle
+;   If POS == CEN:          ; We found neutral
+;       POS_NORMALIZED = 0
+;   Else
+;       If EPR < CEN:       ; Servo REVERSED
+;           If POS < CEN:   ; We are dealing with forwards
+;               POS_NORMALIZED = calculate_normalized_servo_pos(CEN, POS, EPR)
+;           Else            ; We are dealing with backwards
+;               POS_NORMALIZED = calculate_normalized_servo_pos(CEN, POS, EPL)
+;               POS_NORMALIZED = 0 - POS_NORMALIZED
+;       Else                ; Servo NORMAL
+;           If POS < CEN:   ; We are dealing with backwards
+;               POS_NORMALIZED = calculate_normalized_servo_pos(CEN, POS, EPL)
+;               POS_NORMALIZED = 0 - POS_NORMALIZED
+;           Else            ; We are dealing with forwards
 ;               POS_NORMALIZED = calculate_normalized_servo_pos(CEN, POS, EPR)
 ;
 ;******************************************************************************
@@ -1067,10 +1180,6 @@ process_ch3_toggle
 
 
 
-;******************************************************************************
-;******************************************************************************
-Process_steering
-    return
 
 
 
