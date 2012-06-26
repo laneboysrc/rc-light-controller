@@ -38,6 +38,15 @@
 #define PWM_HALF 0x0f
 #define PWM_FULL 0x3f
 
+#define BLINK_MODE_BLINKFLAG 0      ; Toggles with 1.5 Hz
+#define BLINK_MODE_HAZARD 1         ; Hazard lights active
+
+#define LIGHT_MODE_STAND 0          ; Stand lights
+#define LIGHT_MODE_HEAD 1           ; Head lights
+#define LIGHT_MODE_FOG 2            ; Fog lights
+#define LIGHT_MODE_HIGH_BEAM 3      ; High beam
+
+
 ;******************************************************************************
 ;* VARIABLE DEFINITIONS
 ;******************************************************************************
@@ -90,12 +99,8 @@
     ch3_click_counter
     ch3_clicks
 
-    mode
-    light_mode      ; Light mode: 
-                    ;  Bit 0: Stand light
-                    ;  Bit 1: Head light
-                    ;  Bit 2: Fog lights
-                    ;  Bit 3: High beam
+    blink_mode      
+    light_mode
 
     ENDC
 
@@ -352,6 +357,7 @@ calculate_normalized_right
     movf    xl, w
     return  
 
+
 ;******************************************************************************
 ; Div_x_by_y
 ;
@@ -499,6 +505,7 @@ Sub_y_from_x
     subwf   xh, f
     return         
 
+
 ;******************************************************************************
 ; If_y_lt_x
 ;
@@ -517,6 +524,7 @@ If_y_lt_x
     subwf   yh, w
     return
 
+
 ;******************************************************************************
 ; If_x_eq_y
 ;
@@ -534,6 +542,7 @@ If_x_eq_y
     movfw   xh
     subwf   yh, w
     return
+
 
 ;******************************************************************************
 ; Initialization
@@ -689,30 +698,31 @@ Main_loop
 
     call    Service_timer0
 
-    btfsc   light_mode, 0
+    btfsc   light_mode, LIGHT_MODE_STAND
     bsf     PORT_TEST_LED
-    btfss   light_mode, 0
+    btfss   light_mode, LIGHT_MODE_STAND
     bcf     PORT_TEST_LED
 
-    btfsc   light_mode, 1
+    btfsc   light_mode, LIGHT_MODE_HEAD
     bsf     PORT_TEST_LED2
-    btfss   light_mode, 1
+    btfss   light_mode, LIGHT_MODE_HEAD
     bcf     PORT_TEST_LED2
 
-;    btfsc   light_mode, 2
+;    btfsc   light_mode, LIGHT_MODE_FOG
 ;    bsf     PORT_TEST_LED3
-;    btfss   light_mode, 2
+;    btfss   light_mode, LIGHT_MODE_FOG
 ;    bcf     PORT_TEST_LED3
 
     movlw   PWM_OFF
-    btfsc   light_mode, 2
+    btfsc   light_mode, LIGHT_MODE_HEAD
     movlw   PWM_HALF
-    btfsc   light_mode, 3
+    btfsc   light_mode, LIGHT_MODE_HIGH_BEAM
     movlw   PWM_FULL
     movwf   CCPR1L 
 
 
     goto    Main_loop
+
 
 ;******************************************************************************
 ; Process_ch3_double_click
@@ -748,7 +758,7 @@ process_ch3_click_timeout
     ; --------------------------
     ; Single click: switch light mode up (Stand, Head, Fog, High Beam) 
     rlf     light_mode, f
-    bsf     light_mode, 0
+    bsf     light_mode, LIGHT_MODE_STAND
     movlw   0x0f
     andwf   light_mode, f
     movlw   0x31                    ; send '1'
@@ -773,18 +783,18 @@ process_ch3_triple_click
     goto    process_ch3_quad_click
 
     ; --------------------------
-    ; Triple click: Hazard lights on/off  
-    movlw   0x02
-    xorwf   mode, f
+    ; Triple click: all lights off
+    clrf    light_mode
     movlw   0x33                    ; send '3'
     goto    UART_send_w        
     return
 
     ; --------------------------
-    ; Quad click: all lights off
+    ; Quad click: Hazard lights on/off  
 process_ch3_quad_click
     clrf    ch3_clicks
-    clrf    light_mode
+    movlw   1 << BLINK_MODE_HAZARD
+    xorwf   blink_mode, f
     movlw   0x34                    ; send '4'
     goto    UART_send_w        
     return
@@ -808,9 +818,10 @@ Service_timer0
 
     movlw   BLINK_COUNTER_VALUE
     movwf   blink_counter
-    movlw   0x01
-    xorwf   mode, f
+    movlw   1 << BLINK_MODE_BLINKFLAG
+    xorwf   blink_mode, f
     return
+
 
 ;******************************************************************************
 ; Read_ch3
@@ -1340,8 +1351,8 @@ add10
 ;       - short press if hazard lights: hazard lights off
 ;       - short press: cycle through light modes up
 ;       - double press: cycle through light modes down
-;       - triple press: hazard lights
-;       - long press: all lights off --> NOT POSSIBLE WITH GT-3B!
+;       - triple press: all lights off
+;       - quadruple press: hazard lights
 ;
 ;
 ;   PPM:
