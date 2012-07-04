@@ -363,18 +363,18 @@ Main_loop
     movwf   throttle_centre_l
 
     movlw   HIGH(1000)
-    movwf   throttle_epl_h
-    movlw   LOW(1000)
-    movwf   throttle_epl_l
-
-    movlw   HIGH(2000)
     movwf   throttle_epr_h
-    movlw   LOW(2000)
+    movlw   LOW(1000)
     movwf   throttle_epr_l
 
-    movlw   HIGH(1200)
+    movlw   HIGH(2000)
+    movwf   throttle_epl_h
+    movlw   LOW(2000)
+    movwf   throttle_epl_l
+
+    movlw   HIGH(1800)
     movwf   throttle_h
-    movlw   LOW(1200)
+    movlw   LOW(1800)
     movwf   throttle_l
 
     call    Process_throttle
@@ -1470,7 +1470,7 @@ Div_x_by_4
 Sub_y_from_x
     movf    yl, w
     subwf   xl, f
-    movf    yl, w
+    movf    yh, w
     skpc
     incfsz  yh, W
     subwf   xh, f
