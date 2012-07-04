@@ -76,6 +76,16 @@
 ;******************************************************************************
     CBLOCK  0x20
 
+    throttle
+    throttle_l
+    throttle_h
+    throttle_centre_l
+    throttle_centre_h
+    throttle_epl_l
+    throttle_epl_h
+    throttle_epr_l
+    throttle_epr_h
+
 	d0          ; Delay and temp registers
 	d1
 	d2
@@ -103,16 +113,6 @@
     steering_epl_h
     steering_epr_l
     steering_epr_h
-
-    throttle
-    throttle_l
-    throttle_h
-    throttle_centre_l
-    throttle_centre_h
-    throttle_epl_l
-    throttle_epl_h
-    throttle_epr_l
-    throttle_epr_h
     
     ch3
     ch3_value
@@ -357,6 +357,33 @@ SPBRG_VALUE = (((d'10'*OSC/((d'64'-(d'48'*BRGH_VALUE))*BAUDRATE))+d'5')/d'10')-1
 ; Main program
 ;**********************************************************************
 Main_loop
+    movlw   HIGH(1500)
+    movwf   throttle_centre_h
+    movlw   LOW(1500)
+    movwf   throttle_centre_l
+
+    movlw   HIGH(1000)
+    movwf   throttle_epl_h
+    movlw   LOW(1000)
+    movwf   throttle_epl_l
+
+    movlw   HIGH(2000)
+    movwf   throttle_epr_h
+    movlw   LOW(2000)
+    movwf   throttle_epr_l
+
+    movlw   HIGH(1200)
+    movwf   throttle_h
+    movlw   LOW(1200)
+    movwf   throttle_l
+
+    call    Process_throttle
+    goto    Main_loop
+
+
+
+
+
     call    Read_ch3
     call    Read_throttle
     call    Read_steering
@@ -952,7 +979,7 @@ throttle_normal
     bc      throttle_right
 
 throttle_left
-    movf    throttle_epl_l, w
+    movf    throttle_epl_h, w
     movwf   zh
     movf    throttle_epl_l, w
     movwf   zl
@@ -1118,7 +1145,7 @@ steering_normal
     bc      steering_right
 
 steering_left
-    movf    steering_epl_l, w
+    movf    steering_epl_h, w
     movwf   zh
     movf    steering_epl_l, w
     movwf   zl
@@ -1209,26 +1236,25 @@ calculate_normalized_left
 
     call    Sub_y_from_x    ; xh/hl =  CEN - EP
     call    Div_x_by_4      ; xh/hl =  (CEN - EP) / 4
-    call    Mul_x_by_10     ; xh/hl =  ((CEN - EP) / 4) * 100
 
     swap_x_y    xh, yh
     swap_x_y    xl, yl
     swap_x_y    wh, xh
     swap_x_y    wl, xl
 
-    ; x = ((CEN - POS) / 4) * 100, y = ((CEN - EP) / 4) * 100
+    ; x = ((CEN - POS) / 4) * 100, y = ((CEN - EP) / 4)
 
     call    Div_x_by_y
     movf    xl, w
     return    
 
 calculate_ep_gt_cen
-    movfw   yl
-    subwf   zl, w
-    movfw   yh
+    movfw   zl
+    subwf   yl, w
+    movfw   zh
     skpc                
-    incfsz  yh, w       
-    subwf   zh, w
+    incfsz  zh, w       
+    subwf   yh, w
     skpc    
     retlw   100
 
@@ -1262,14 +1288,13 @@ calculate_normalized_right
 
     call    Sub_y_from_x    ; xh/hl =  EP - CEN
     call    Div_x_by_4      ; xh/hl =  (EP - CEN) / 4
-    call    Mul_x_by_10     ; xh/hl =  ((EP - CEN) / 4) * 100
 
     swap_x_y    xh, yh
     swap_x_y    xl, yl
     swap_x_y    wh, xh
     swap_x_y    wl, xl
 
-    ; x = ((POS - CE) / 4) * 100, y = ((EP - CEN) / 4) * 100
+    ; x = ((POS - CE) / 4) * 100, y = ((EP - CEN) / 4)
 
     call    Div_x_by_y
     movf    xl, w
