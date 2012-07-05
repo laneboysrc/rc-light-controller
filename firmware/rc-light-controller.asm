@@ -2090,5 +2090,40 @@ add10
 ;    This table allows us to assign multiple functions to a single output,
 ;    and to assign more than one output to a single function.
 ;
+;
+;   Auto configuration:
+;   ===================
+;   In order to avoid having to setup the light controller manually every time
+;   something is changed on the vehicle RC system, automatic configuration
+;   shall be employed.
+;
+;   The assumption is that both throttle and steering are in Neutral on power
+;   on. So at startup we measure the servo signals and treat them as neutral.
+;   To ensure sensible values we only accept 1500 us +/-25% (Note: translate
+;   this to a senisble hex value for easy comparison!)
+;
+;   To adjust direction and reverse settings, we require the user to first
+;   do full throttle forward, then full throttle back. And steering left, then
+;   steering right. 
+;   Worst case the user has to switch the vehicle on/off again to re-initialize.
+;
+;   The end-points are set to 30% initially and "grow" when servo signals are
+;   received that are larger than the current value (up to the maximum of 800
+;   and 2300 us respectively where we clamp servo signals).
+;
+;
+;   Steering wheel servo configuration:
+;   ===================================
+;   To allow easy reconfiguration of the steering wheel servo the user has to
+;   press the CH3 button 8 times. The steering channel will then directly drive
+;   the steering wheel servo output, allowing the user to set the center 
+;   position. Toggling CH3 once switches to "left end point". The user can
+;   use the steering channel to set the left end point of the steering wheel
+;   servo. Note that this may mean that the user has to turn the steering
+;   channel to the right in case of servo reversing is needed! The user
+;   confirms with toggling CH3 again, switching to "left end point" mode.
+;   Once this is set, toggling CH3 stores all values persistently and switches
+;   back to normal operation.
+;
 ;******************************************************************************
 
