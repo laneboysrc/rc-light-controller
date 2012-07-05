@@ -24,7 +24,7 @@
 ;
 ; - Algorithm for forward/neutral/brake
 ; - Algorithm for indicators
-; - Center, endpoint and neutral programming for steering and throttle
+; - Automatic center, endpoint and neutral programming for steering and throttle
 ; - Steering wheel servo programming
 ;
 ;******************************************************************************
@@ -76,16 +76,6 @@
 ;******************************************************************************
     CBLOCK  0x20
 
-    throttle
-    throttle_l
-    throttle_h
-    throttle_centre_l
-    throttle_centre_h
-    throttle_epl_l
-    throttle_epl_h
-    throttle_epr_l
-    throttle_epr_h
-
 	d0          ; Delay and temp registers
 	d1
 	d2
@@ -103,6 +93,16 @@
 
     send_hi
     send_lo
+
+    throttle
+    throttle_l
+    throttle_h
+    throttle_centre_l
+    throttle_centre_h
+    throttle_epl_l
+    throttle_epl_h
+    throttle_epr_l
+    throttle_epr_h
 
     steering
     steering_l
@@ -357,33 +357,6 @@ SPBRG_VALUE = (((d'10'*OSC/((d'64'-(d'48'*BRGH_VALUE))*BAUDRATE))+d'5')/d'10')-1
 ; Main program
 ;**********************************************************************
 Main_loop
-    movlw   HIGH(1500)
-    movwf   throttle_centre_h
-    movlw   LOW(1500)
-    movwf   throttle_centre_l
-
-    movlw   HIGH(1000)
-    movwf   throttle_epr_h
-    movlw   LOW(1000)
-    movwf   throttle_epr_l
-
-    movlw   HIGH(2000)
-    movwf   throttle_epl_h
-    movlw   LOW(2000)
-    movwf   throttle_epl_l
-
-    movlw   HIGH(1800)
-    movwf   throttle_h
-    movlw   LOW(1800)
-    movwf   throttle_l
-
-    call    Process_throttle
-    goto    Main_loop
-
-
-
-
-
     call    Read_ch3
     call    Read_throttle
     call    Read_steering
@@ -620,21 +593,22 @@ ch3_wait_for_low2
 
     clrf    T1CON       ; Stop timer 1
 
-    movf    TMR1H, w    
-    movwf   ch3_value
-    movf    TMR1L, w
-    movwf   temp
+    call    Validate_servo_measurement
   
     ; Use the middle 12 bit as an 8 bit value since we don't need high
     ; accuracy for the CH3 
-    rlf     temp, f
-    rlf     ch3_value, f
-    rlf     temp, f
-    rlf     ch3_value, f
-    rlf     temp, f
-    rlf     ch3_value, f
-    rlf     temp, f
-    rlf     ch3_value, f
+    rlf     xl, f
+    rlf     xh, f
+    rlf     xl, f
+    rlf     xh, f
+    rlf     xl, f
+    rlf     xh, f
+    rlf     xl, f
+    rlf     xh, f
+
+    movf    xh, w    
+    movwf   ch3_value
+
     return
 
 
@@ -887,9 +861,10 @@ th_wait_for_low2
 
     clrf    T1CON       ; Stop timer 1
 
-    movf    TMR1H, w    
+    call    Validate_servo_measurement
+    movf    xh, w    
     movwf   throttle_h
-    movf    TMR1L, w
+    movf    xl, w
     movwf   throttle_l
     return
 
@@ -1053,9 +1028,10 @@ st_wait_for_low2
 
     clrf    T1CON       ; Stop timer 1
 
-    movf    TMR1H, w    
+    call    Validate_servo_measurement
+    movf    xh, w    
     movwf   steering_h
-    movf    TMR1L, w
+    movf    xl, w
     movwf   steering_l
     return
 
@@ -1165,6 +1141,67 @@ steering_left
 ;******************************************************************************
 ;******************************************************************************
 
+;******************************************************************************
+; Validate_servo_measurement
+;
+; TMR1H/TMR1L: measured servo pulse width in us
+;
+; This function ensures that the measured servo pulse is in the range of
+; 600 ... 2500 us. If not, "0" is returned to indicate failure.
+; If the servo pulse is less than 800 us it is clamped to 800 us.
+; If the servo pulse is more than 2300 us it is clamped to 2300 us.
+;
+; The resulting servo pulse width (clamped; or 0 if out of range) is returned
+; in xh/xl
+;******************************************************************************
+Validate_servo_measurement
+    movf    TMR1H, w
+    movwf   xh
+    movf    TMR1L, w
+    movwf   xl
+
+    movlw   HIGH(600)
+    movwf   yh
+    movlw   LOW(600)
+    movwf   yl
+    call    If_y_lt_x
+    bnc     Validate_servo_above_min
+    
+Validate_servo_out_of_range
+    clrf    xh
+    clrf    xl
+    return
+
+Validate_servo_above_min
+    movlw   HIGH(2500)
+    movwf   yh
+    movlw   LOW(2500)
+    movwf   yl    
+    call    If_y_lt_x
+    bnc     Validate_servo_out_of_range
+
+    movlw   HIGH(800)
+    movwf   yh
+    movlw   LOW(800)
+    movwf   yl    
+    call    If_y_lt_x
+    bnc     Validate_servo_above_clamp_min
+
+Validate_servo_clamp
+    movf    yh, w
+    movwf   xh
+    movf    yl, w
+    movwf   xl
+    return
+
+Validate_servo_above_clamp_min
+    movlw   HIGH(2300)
+    movwf   yh
+    movlw   LOW(2300)
+    movwf   yl    
+    call    If_y_lt_x
+    bnc     Validate_servo_clamp
+    return
 
 
 ;******************************************************************************
@@ -1930,10 +1967,21 @@ add10
 ;   Given the TX/RX findings above, we will design the light controller
 ;   to expect a servo range of 800 .. 1500 .. 2300 us (1500 +/-700 us).
 ;
-;   Everything below 600 will be considered invalid.
-;   Everything between 600 and 800 will be clamped to 800.
-;   Everything between 2300 and 2500 will be clamped to 2300
-;   Everything above 2500 will be considered invalid.
+;       Everything below 600 will be considered invalid.
+;       Everything between 600 and 800 will be clamped to 800.
+;       Everything between 2300 and 2500 will be clamped to 2300
+;       Everything above 2500 will be considered invalid.
+;       Defaults are 1000 .. 1500 .. 2000 us
+;   
+;   Hex values for those numbers:
+;       600     0x258    
+;       800     0x320
+;       1000    0x3E8 
+;       1500    0x5dc    
+;       2000    0x7d0
+;       2300    0x8FC
+;       2500    0x9c4
+;   
 ;
 ;   Timeout for measuring high pulse: Use TMR1H bit 4: If set, more than 
 ;   4096 ms have expired!
@@ -1945,12 +1993,6 @@ add10
 ;   NOTE: SINCE WE ARE TARGETING THE HK-310 ONLY WHICH ALWAYS SENDS A SERVO
 ;         PULSE WE DO NOT IMPLEMENT TIMEOUTS FOR NOW!
 ;   ###########################################################################
-;
-;   Defaults for steering and throttle:
-;   1000 .. 1500 .. 2000
-;   
-;   Defaults for CH3:
-;   1000, 2000
 ;  
 ;   End points and Centre can be configured (default to the above values).
 ;   Assuming CH3 is a switch, only the endpoints can be configured.
