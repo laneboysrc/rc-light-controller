@@ -26,37 +26,41 @@
 ; - Algorithm for indicators
 ; - Automatic center, endpoint and neutral programming for steering and throttle
 ; - Steering wheel servo programming
+; - Re-visit UART protocols to see how we can do 8 channels and half brightness
+; - How to do half brightness with TLC5916?
+; - Indicator algorithm
 ;
 ;******************************************************************************
 ;******************************************************************************
 ;******************************************************************************
 
+;******************************************************************************
+;   Port usage:
+;   ===========
+;   RA5:        IN  Servo input (Vpp double-usage)
+;   RB7:        IN  Servo input (PGD double-usage)
+;   RB6, RB1:   IN  Servo input (PGC and RX for slave double-usage)
+;   RB2:        OUT Slave out (TX Master) / Servo out (Slave)
+;
+;   RA3:        OUT CLK TLC5916
+;   RA4:        OUT SDI TLC5916
+;   RA2:        OUT LE TLC5916
+;   RB0:        OUT OE TLC5916
+;
 
-#define PORT_OUT0       PORTA, 0
-#define PORT_OUT1       PORTA, 1
-#define PORT_OUT2       PORTA, 2
-#define PORT_OUT3       PORTA, 3
-#define PORT_OUT4       PORTA, 4
-#define PORT_OUT5       PORTA, 6
-
-
-; TLC5916 LED driver serial communication ports
-#define PORT_CLK        PORTA, 0
-#define PORT_SDI        PORTA, 1
-#define PORT_LE         PORTA, 2
-#define PORT_OE         PORTA, 3
-
-
-
-;PORT_OUT6 is RB3 but is controlled via PWM:
-#define PWM_OFF 0
-#define PWM_HALF 0x0f
-#define PWM_FULL 0x3f
-
-
+; WRONG PORTS FOR BREADBOARD; FIXME!
 #define PORT_CH3        PORTB, 5
 #define PORT_STEERING   PORTB, 0
 #define PORT_THROTTLE   PORTB, 1
+
+; TLC5916 LED driver serial communication ports
+#define PORT_CLK        PORTA, 3
+#define PORT_SDI        PORTA, 4
+#define PORT_LE         PORTA, 2
+#define PORT_OE         PORTB, 0
+
+
+
 
 #define CH3_BUTTON_TIMEOUT 6    ; Time in which we accept double-click of CH3
 #define BLINK_COUNTER_VALUE 5   ; 5 * 65.536 ms = ~333 ms = ~1.5 Hz
@@ -177,9 +181,9 @@ light_table
 local_light_table
     addwf   PCL, f
 
-            ; +-------      (not used)
-            ; |+------ OUT5 (high brightness)
-            ; ||+----- OUT5 (low brightness)
+            ; +------- OUT7     
+            ; |+------ OUT6 
+            ; ||+----- OUT5 
             ; |||+---- OUT4
             ; ||||+--- OUT3
             ; |||||+-- OUT2
@@ -203,9 +207,9 @@ local_light_table
 slave_light_table
     addwf   PCL, f
 
-            ; +-------      (not used)
-            ; |+------ OUT5 (high brightness)
-            ; ||+----- OUT5 (low brightness)
+            ; +------- OUT7     
+            ; |+------ OUT6 
+            ; ||+----- OUT5 
             ; |||+---- OUT4
             ; ||||+--- OUT3
             ; |||||+-- OUT2
@@ -252,12 +256,13 @@ Init
 
     bcf     INTCON, T0IF    ; Clear Timer 0 Interrupt Flag    
 
-    movlw   b'00000000' ; Make all ports A output
+
+    movlw   b'00100000' ; Make all ports A exceot RA5 output
     movwf   TRISA
 
-    movlw   b'00100110' ; Make all ports B output, except RB5, 
-                        ;  RB2 (UART) and RB1 (UART!)
+    movlw   b'11000110' ; Make RB6, RB7  RB2 (UART) and RB1 (UART!) inputs
     movwf   TRISB
+
 
     movlw   0x3f        ; Limit the PWM to 8 bit
     movwf   PR2
@@ -391,41 +396,7 @@ Main_loop
 Output_local_lights
     clrf    d0
     call    Output_get_state
-
-    ; Now that we have all light states collected in temp we output them 
-    ; bit-by-bit.
-    btfss   temp, 0
-    bcf     PORT_OUT0  
-    btfsc   temp, 0
-    bsf     PORT_OUT0  
-
-    btfss   temp, 1
-    bcf     PORT_OUT1  
-    btfsc   temp, 1
-    bsf     PORT_OUT1  
-    
-    btfss   temp, 2
-    bcf     PORT_OUT2 
-    btfsc   temp, 2
-    bsf     PORT_OUT2 
-
-    btfss   temp, 3
-    bcf     PORT_OUT3  
-    btfsc   temp, 3
-    bsf     PORT_OUT3  
-
-    btfss   temp, 4
-    bcf     PORT_OUT4  
-    btfsc   temp, 4
-    bsf     PORT_OUT4  
-
-    movlw   PWM_OFF
-    btfsc   temp, 5
-    movlw   PWM_HALF
-    btfsc   temp, 6
-    movlw   PWM_FULL
-    movwf   CCPR1L 
-
+    call    TLC5916_send
     return
 
 
