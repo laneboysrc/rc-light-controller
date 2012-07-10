@@ -39,6 +39,15 @@
 #define PORT_OUT4       PORTA, 4
 #define PORT_OUT5       PORTA, 6
 
+
+; TLC5916 LED driver serial communication ports
+#define PORT_CLK        PORTA, 0
+#define PORT_SDI        PORTA, 1
+#define PORT_LE         PORTA, 2
+#define PORT_OE         PORTA, 3
+
+
+
 ;PORT_OUT6 is RB3 but is controlled via PWM:
 #define PWM_OFF 0
 #define PWM_HALF 0x0f
@@ -1549,6 +1558,34 @@ If_x_eq_y
     return
     movfw   xh
     subwf   yh, w
+    return
+
+
+;******************************************************************************
+; TLC5916_send
+;
+; Sends the value in the temp register to the TLC5916 LED driver.
+;******************************************************************************
+TLC5916_send
+    movlw   8
+    movwf   d0
+
+tlc5916_send_loop
+    rlf     temp, f
+    skpc    
+    bcf     PORT_SDI
+    skpnc    
+    bsf     PORT_SDI
+    bsf     PORT_CLK
+    nop
+    bcf     PORT_CLK
+    decfsz  d0, f
+    goto    tlc5916_send_loop
+
+    bsf     PORT_LE
+    nop
+    bcf     PORT_LE
+    bcf     PORT_OE
     return
 
 
