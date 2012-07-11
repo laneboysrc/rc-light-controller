@@ -40,18 +40,20 @@
 ;   RA5:        IN  Servo input (Vpp double-usage)
 ;   RB7:        IN  Servo input (PGD double-usage)
 ;   RB6, RB1:   IN  Servo input (PGC and RX for slave double-usage)
-;   RB2:        OUT Slave out (TX Master) / Servo out (Slave)
+;   RB2:        OUT Slave out (TX Master) / Servo out (Slave) 
 ;
 ;   RA3:        OUT CLK TLC5916
 ;   RA4:        OUT SDI TLC5916
 ;   RA2:        OUT LE TLC5916
 ;   RB0:        OUT OE TLC5916
 ;
+;   RA7, RB3:   IN  Tied to +Vdd for routing convenience!
+;   RB5         IN  RB5 is tied to RB2 for routing convenience!
+;   RA6, RA0, RA1, RB4:     OUT NC pins, switch to output
 
-; WRONG PORTS FOR BREADBOARD; FIXME!
-#define PORT_CH3        PORTB, 5
-#define PORT_STEERING   PORTB, 0
-#define PORT_THROTTLE   PORTB, 1
+#define PORT_CH3        PORTB, 6
+#define PORT_STEERING   PORTB, 7
+#define PORT_THROTTLE   PORTA, 5
 
 ; TLC5916 LED driver serial communication ports
 #define PORT_CLK        PORTA, 3
@@ -257,18 +259,17 @@ Init
     bcf     INTCON, T0IF    ; Clear Timer 0 Interrupt Flag    
 
 
-    movlw   b'00100000' ; Make all ports A exceot RA5 output
+    ;-----------------------------
+    ; Port direction
+    movlw   b'10100000' ; Make all ports A exceot RA7 and RA5 output
     movwf   TRISA
 
-    movlw   b'11000110' ; Make RB6, RB7  RB2 (UART) and RB1 (UART!) inputs
+    movlw   b'11101110' ; Make RB7, RB6, RB5, RB3, RB2 and RB1 inputs
     movwf   TRISB
 
 
-    movlw   0x3f        ; Limit the PWM to 8 bit
-    movwf   PR2
-
-
     BANKSEL d0
+    ;-----------------------------
     ; Clear all memory locations between 0x20 and 0x7f
     movlw   0x7f
 	movwf	FSR
@@ -337,29 +338,6 @@ SPBRG_VALUE = (((d'10'*OSC/((d'64'-(d'48'*BRGH_VALUE))*BAUDRATE))+d'5')/d'10')-1
     movlw	0           ; Send dummy character to get a valid transmit flag
     movwf	TXREG
 
-    ; Initialize Timer 2 for PWM
-    movlw   0x00
-    movwf   CCPR1L 
-    movlw   b'00001100'
-            ; |||||||+ CCP1M0 (PWM mode)
-            ; ||||||+- CCP1M1 
-            ; |||||+-- CCP1M2
-            ; ||||+--- CCP1M3
-            ; |||+---- CCP1Y (PWM LSB)
-            ; ||+----- CCP1X (PWM LSB+1)
-            ; |+------ (not implemented)
-            ; +------- (not implemented)
-    movwf   CCP1CON
-    movlw   b'00000110'
-            ; |||||||+ T2CKPS0 (Prescaler 1:16)
-            ; ||||||+- T2CKPS1 
-            ; |||||+-- TMR2ON (Timer2 On bit)
-            ; ||||+--- TOUTPS0 (Postscale 1:1)
-            ; |||+---- TOUTPS1 
-            ; ||+----- TOUTPS2 
-            ; |+------ TOUTPS3 
-            ; +-------      (not implemented)
-    movwf   T2CON
 
 
     movlw   BLINK_COUNTER_VALUE
