@@ -91,6 +91,41 @@
 ;******************************************************************************
     CBLOCK  0x20
 
+    throttle
+    throttle_l
+    throttle_h
+    throttle_centre_l
+    throttle_centre_h
+    throttle_epl_l
+    throttle_epl_h
+    throttle_epr_l
+    throttle_epr_h
+    throttle_reverse
+
+    steering
+    steering_l
+    steering_h
+    steering_centre_l
+    steering_centre_h
+    steering_epl_l
+    steering_epl_h
+    steering_epr_l
+    steering_epr_h
+    steering_reverse
+    
+    ch3
+    ch3_value
+    ch3_ep0
+    ch3_ep1
+
+    blink_counter
+    ch3_click_counter
+    ch3_clicks
+
+    blink_mode      
+    light_mode
+    drive_mode
+
 	d0          ; Delay and temp registers
 	d1
 	d2
@@ -108,39 +143,6 @@
 
     send_hi
     send_lo
-
-    throttle
-    throttle_l
-    throttle_h
-    throttle_centre_l
-    throttle_centre_h
-    throttle_epl_l
-    throttle_epl_h
-    throttle_epr_l
-    throttle_epr_h
-
-    steering
-    steering_l
-    steering_h
-    steering_centre_l
-    steering_centre_h
-    steering_epl_l
-    steering_epl_h
-    steering_epr_l
-    steering_epr_h
-    
-    ch3
-    ch3_value
-    ch3_ep0
-    ch3_ep1
-
-    blink_counter
-    ch3_click_counter
-    ch3_clicks
-
-    blink_mode      
-    light_mode
-    drive_mode
 
     ENDC
 
@@ -343,12 +345,49 @@ SPBRG_VALUE = (((d'10'*OSC/((d'64'-(d'48'*BRGH_VALUE))*BAUDRATE))+d'5')/d'10')-1
     movlw   BLINK_COUNTER_VALUE
     movwf   blink_counter
 
+    movlw   HIGH(1500)
+    movwf   throttle_centre_h
+    movwf   steering_centre_h
+    movlw   LOW(1500)
+    movwf   throttle_centre_l
+    movwf   steering_centre_l
+
+    movlw   HIGH(1000)
+    movwf   throttle_epl_h
+    movwf   steering_epl_h
+    movlw   LOW(1000)
+    movwf   throttle_epl_l
+    movwf   steering_epl_l
+
+    movlw   HIGH(2000)
+    movwf   throttle_epr_h
+    movwf   steering_epr_h
+    movlw   LOW(2000)
+    movwf   throttle_epr_l
+    movwf   steering_epr_l
+
 ;   goto    Main_loop    
 
 ;**********************************************************************
 ; Main program
 ;**********************************************************************
 Main_loop
+
+    movlw   HIGH(1100)
+    movwf   steering_h
+    movwf   throttle_h
+    movlw   LOW(1100)
+    movwf   steering_l
+    movwf   throttle_l
+    incf    throttle_reverse, f
+
+    call    Process_throttle
+    call    Process_steering
+
+    goto    Main_loop
+
+
+
     call    Read_ch3
     call    Read_throttle
     call    Read_steering
@@ -832,18 +871,14 @@ th_wait_for_low2
 ;   If POS == CEN:          ; We found neutral
 ;       POS_NORMALIZED = 0
 ;   Else
-;       If EPR < CEN:       ; Servo REVERSED
-;           If POS < CEN:   ; We are dealing with forwards
-;               POS_NORMALIZED = calculate_normalized_servo_pos(CEN, POS, EPR)
-;           Else            ; We are dealing with backwards
-;               POS_NORMALIZED = calculate_normalized_servo_pos(CEN, POS, EPL)
+;       If POS < CEN:   ; We need to calculate against EPL
+;           POS_NORMALIZED = calculate_normalized_servo_pos(CEN, POS, EPL)
+;           if not REV:
 ;               POS_NORMALIZED = 0 - POS_NORMALIZED
-;       Else                ; Servo NORMAL
-;           If POS < CEN:   ; We are dealing with backwards
-;               POS_NORMALIZED = calculate_normalized_servo_pos(CEN, POS, EPL)
+;       Else            ; We need to calculate against EPR
+;           POS_NORMALIZED = calculate_normalized_servo_pos(CEN, POS, EPR)
+;           if REV:
 ;               POS_NORMALIZED = 0 - POS_NORMALIZED
-;           Else            ; We are dealing with forwards
-;               POS_NORMALIZED = calculate_normalized_servo_pos(CEN, POS, EPR)
 ;
 ;******************************************************************************
 Process_throttle
@@ -876,40 +911,12 @@ throttle_is_valid
     return
 
 throttle_off_centre
-    movf    throttle_centre_h, w
+    movf    throttle_h, w
     movwf   xh
-    movf    throttle_centre_l, w
-    movwf   xl
-    movf    throttle_epr_h, w
-    movwf   yh
-    movf    throttle_epr_l, w
-    movwf   yl
-    call    If_y_lt_x
-    bc      throttle_normal
-
-    movf    throttle_h, w
-    movwf   yh
     movf    throttle_l, w
-    movwf   yl   
+    movwf   xl   
     call    If_y_lt_x
-    bc      throttle_left
-
-throttle_right
-    movf    throttle_epr_h, w
-    movwf   zh
-    movf    throttle_epr_l, w
-    movwf   zl
-    call    Calculate_normalized_servo_position
-    movwf   throttle
-    return    
-
-throttle_normal
-    movf    throttle_h, w
-    movwf   yh
-    movf    throttle_l, w
-    movwf   yl   
-    call    If_y_lt_x
-    bc      throttle_right
+    bnc     throttle_right
 
 throttle_left
     movf    throttle_epl_h, w
@@ -917,6 +924,20 @@ throttle_left
     movf    throttle_epl_l, w
     movwf   zl
     call    Calculate_normalized_servo_position
+    movf    throttle_reverse, f
+    skpnz   
+    sublw   0
+    movwf   throttle
+    return    
+
+throttle_right
+    movf    throttle_epr_h, w
+    movwf   zh
+    movf    throttle_epr_l, w
+    movwf   zl
+    call    Calculate_normalized_servo_position
+    movf    throttle_reverse, f
+    skpz   
     sublw   0
     movwf   throttle
     return    
@@ -999,18 +1020,14 @@ st_wait_for_low2
 ;   If POS == CEN:          ; We found dead centre
 ;       POS_NORMALIZED = 0
 ;   Else
-;       If EPR < CEN:       ; Servo REVERSED
-;           If POS < CEN:   ; We are dealing with a right turn
-;               POS_NORMALIZED = calculate_normalized_servo_pos(CEN, POS, EPR)
-;           Else            ; We are dealing with a left turn
-;               POS_NORMALIZED = calculate_normalized_servo_pos(CEN, POS, EPL)
+;       If POS < CEN:   ; We need to calculate against EPL
+;           POS_NORMALIZED = calculate_normalized_servo_pos(CEN, POS, EPL)
+;           If not REV
 ;               POS_NORMALIZED = 0 - POS_NORMALIZED
-;       Else                ; Servo NORMAL
-;           If POS < CEN:   ; We are dealing with a left turn
-;               POS_NORMALIZED = calculate_normalized_servo_pos(CEN, POS, EPL)
+;       Else            ; We need to calculate against EPR
+;           POS_NORMALIZED = calculate_normalized_servo_pos(CEN, POS, EPR)
+;           If REV
 ;               POS_NORMALIZED = 0 - POS_NORMALIZED
-;           Else            ; We are dealing with a right turn
-;               POS_NORMALIZED = calculate_normalized_servo_pos(CEN, POS, EPR)
 ;
 ;******************************************************************************
 Process_steering
@@ -1043,40 +1060,12 @@ steering_is_valid
     return
 
 steering_off_centre
-    movf    steering_centre_h, w
+    movf    steering_h, w
     movwf   xh
-    movf    steering_centre_l, w
-    movwf   xl
-    movf    steering_epr_h, w
-    movwf   yh
-    movf    steering_epr_l, w
-    movwf   yl
-    call    If_y_lt_x
-    bc      steering_normal
-
-    movf    steering_h, w
-    movwf   yh
     movf    steering_l, w
-    movwf   yl   
+    movwf   xl   
     call    If_y_lt_x
-    bc      steering_left
-
-steering_right
-    movf    steering_epr_h, w
-    movwf   zh
-    movf    steering_epr_l, w
-    movwf   zl
-    call    Calculate_normalized_servo_position
-    movwf   steering
-    return    
-
-steering_normal
-    movf    steering_h, w
-    movwf   yh
-    movf    steering_l, w
-    movwf   yl   
-    call    If_y_lt_x
-    bc      steering_right
+    bnc      steering_right
 
 steering_left
     movf    steering_epl_h, w
@@ -1084,9 +1073,23 @@ steering_left
     movf    steering_epl_l, w
     movwf   zl
     call    Calculate_normalized_servo_position
+    movf    steering_reverse, f
+    skpnz   
     sublw   0
     movwf   steering
     return  
+
+steering_right
+    movf    steering_epr_h, w
+    movwf   zh
+    movf    steering_epr_l, w
+    movwf   zl
+    call    Calculate_normalized_servo_position
+    movf    steering_reverse, f
+    skpz   
+    sublw   0
+    movwf   steering
+    return   
 
 
 ;******************************************************************************
@@ -1165,8 +1168,8 @@ Validate_servo_above_clamp_min
 ;******************************************************************************
 ; Calculate_normalized_servo_position
 ;
-; xh/xl: CEN centre pulse width
-; yh/yl: POS servo measured pulse width
+; xh/xl: POS servo measured pulse width
+; yh/yl: CEN centre pulse width
 ; zh/zl: EP  end point pulse width
 ;
 ;       If EP < CEN:
@@ -1181,7 +1184,10 @@ Validate_servo_above_clamp_min
 ; Result in W: 0..100
 ;******************************************************************************
 Calculate_normalized_servo_position
-    ; First swap POS and EP to get EP in the y variable for If_y_lt_x
+    ; x = POS, y = CEN, z = EP
+
+    swap_x_y    xh, yh
+    swap_x_y    xl, yl
     swap_x_y    yh, zh
     swap_x_y    yl, zl
 
@@ -2006,34 +2012,32 @@ add10
 ;   We have:
 ;       EPL (end point left)
 ;       EPR (end point right)
+;       REV (flag that indicates servo reversing)
 ;       CEN (neutral position)
 ;           Margin for neutral position: +/- 5%
 ;           Some speed controlled can configure this from 4..8%
 ;       POS (measured servo pulse length)
-;   If EPL > EPR:
+;   To make processing easier we ensure that
 ;       EPL > CEN > EPR must be true
-;   If EPL < EPR:
-;       EPL < CEN < EPR must be true
+;   This can be achieved with the REV flag that indicates when a channel is
+;   reversed.
+;   By default we assume that 
+;       Throttle forward is EPR, backward EPL
+;       Steering left is EPL, Steering right is EPR
 ;
 ;   We need to convert POS into a range of 
 ;       -100 .. 0 .. +100   (left .. centre .. right)
-;   Note: this normalizes left and right! Due to servo reversing EPL may
-;   have a larger or smaller time value than EPR.
 ;
 ;   If POS == CEN:          ; We found dead centre
 ;       POS_NORMALIZED = 0
 ;   Else
-;       If EPL > CEN:       ; Servo REVERSED
-;           If POS > CEN:   ; We are dealing with a left turn
-;               POS_NORMALIZED = calculate(POS, EPL, CEN)
+;       If POS > CEN:   ; We are dealing with a right turn
+;           POS_NORMALIZED = calculate(POS, EPR, CEN)
+;           If REV
 ;               POS_NORMALIZED = 0 - POS_NORMALIZED
-;           Else            ; We are dealing with a right turn
-;               POS_NORMALIZED = calculate(POS, EPR, CEN)
-;       Else                ; Servo NORMAL
-;           If POS > CEN:   ; We are dealing with a right turn
-;               POS_NORMALIZED = calculate(POS, EPR, CEN)
-;           Else            ; We are dealing with a left turn
-;               POS_NORMALIZED = calculate(POS, EPL, CEN)
+;       Else            ; We are dealing with a left turn
+;           POS_NORMALIZED = calculate(POS, EPL, CEN)
+;           If not REV
 ;               POS_NORMALIZED = 0 - POS_NORMALIZED
 ;
 ;   caluclate       ; inputs: POS, EP(L or R), CEN
