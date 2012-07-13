@@ -22,9 +22,10 @@
 ;******************************************************************************
 ; TODO:
 ;
+; - Automatic neutral programming for steering and throttle
+; - Automatic endpoint programming for steering and throttle
 ; - Algorithm for forward/neutral/brake
 ; - Algorithm for indicators
-; - Automatic center, endpoint and neutral programming for steering and throttle
 ; - Steering wheel servo programming
 ; - Re-visit UART protocols to see how we can do 8 channels and half brightness
 ; - How to do half brightness with TLC5916?
@@ -177,9 +178,14 @@ swap_x_y    macro   x, y
 ;******************************************************************************
 ;******************************************************************************
 light_table
-    btfsc   d0, 0               ; d0 indicates whether we are processing
-                                ; master or slave lights
+    ; d0 indicates which light table we request:
+    ;   0: local
+    ;   1: slave
+    ;   2: slave_half
+    btfsc   d0, 0               
     goto    slave_light_table
+    btfsc   d0, 1
+    goto    slave_light_half_table
 
 
 local_light_table
@@ -211,7 +217,7 @@ local_light_table
 slave_light_table
     addwf   PCL, f
 
-            ; +------- OUT7     
+            ; +------- (not used, must be 0!)     
             ; |+------ OUT6 
             ; ||+----- OUT5 
             ; |||+---- OUT4
@@ -219,11 +225,11 @@ slave_light_table
             ; |||||+-- OUT2
             ; ||||||+- OUT1
             ; |||||||+ OUT0
-    dt      b'00100001'     ; Stand lights
-    dt      b'00100011'     ; Head lights
-    dt      b'00100111'     ; Fog lights
-    dt      b'00101111'     ; High beam
-    dt      b'01000000'     ; Brake lights
+    dt      b'00000001'     ; Stand lights
+    dt      b'00000011'     ; Head lights
+    dt      b'00000111'     ; Fog lights
+    dt      b'00001111'     ; High beam
+    dt      b'00010000'     ; Brake lights
     dt      b'00000000'     ; Reverse lights
     dt      b'00000000'     ; Indicator left
     dt      b'00000000'     ; Indicator right
@@ -231,6 +237,32 @@ slave_light_table
 
     IF ((HIGH ($)) != (HIGH (slave_light_table)))
         ERROR "slave_light_table CROSSES PAGE BOUNDARY!"
+    ENDIF
+
+
+slave_light_half_table
+    addwf   PCL, f
+
+            ; +------- (not used, must be 0!)      
+            ; |+------ OUT6 
+            ; ||+----- OUT5 
+            ; |||+---- OUT4
+            ; ||||+--- OUT3
+            ; |||||+-- OUT2
+            ; ||||||+- OUT1
+            ; |||||||+ OUT0
+    dt      b'00010000'     ; Stand lights
+    dt      b'00010000'     ; Head lights
+    dt      b'00010000'     ; Fog lights
+    dt      b'00010000'     ; High beam
+    dt      b'00000000'     ; Brake lights
+    dt      b'00000000'     ; Reverse lights
+    dt      b'00000000'     ; Indicator left
+    dt      b'00000000'     ; Indicator right
+    dt      b'00000000'     ; Hazard lights
+
+    IF ((HIGH ($)) != (HIGH (slave_light_half_table)))
+        ERROR "slave_light_half_table CROSSES PAGE BOUNDARY!"
     ENDIF
 
 
@@ -352,17 +384,17 @@ SPBRG_VALUE = (((d'10'*OSC/((d'64'-(d'48'*BRGH_VALUE))*BAUDRATE))+d'5')/d'10')-1
     movwf   throttle_centre_l
     movwf   steering_centre_l
 
-    movlw   HIGH(1000)
+    movlw   HIGH(1400)
     movwf   throttle_epl_h
     movwf   steering_epl_h
-    movlw   LOW(1000)
+    movlw   LOW(1400)
     movwf   throttle_epl_l
     movwf   steering_epl_l
 
-    movlw   HIGH(2000)
+    movlw   HIGH(1600)
     movwf   throttle_epr_h
     movwf   steering_epr_h
-    movlw   LOW(2000)
+    movlw   LOW(1600)
     movwf   throttle_epr_l
     movwf   steering_epr_l
 
@@ -372,22 +404,6 @@ SPBRG_VALUE = (((d'10'*OSC/((d'64'-(d'48'*BRGH_VALUE))*BAUDRATE))+d'5')/d'10')-1
 ; Main program
 ;**********************************************************************
 Main_loop
-
-    movlw   HIGH(1100)
-    movwf   steering_h
-    movwf   throttle_h
-    movlw   LOW(1100)
-    movwf   steering_l
-    movwf   throttle_l
-    incf    throttle_reverse, f
-
-    call    Process_throttle
-    call    Process_steering
-
-    goto    Main_loop
-
-
-
     call    Read_ch3
     call    Read_throttle
     call    Read_steering
@@ -422,15 +438,20 @@ Output_local_lights
 ;
 ;******************************************************************************
 Output_slave
-    movlw   1
-    movwf   d0
-    call    Output_get_state
-
     ; Forward the information to the slave
     movlw   0x87            ; Magic byte for synchronization
     call    UART_send_w        
 
-    movf    temp, w         ; LED data
+    movlw   1
+    movwf   d0
+    call    Output_get_state
+    movf    temp, w         ; LED data for full brightness
+    call    UART_send_w        
+
+    movlw   2
+    movwf   d0
+    call    Output_get_state
+    movf    temp, w         ; LED data for half brightness
     call    UART_send_w        
 
     movf    steering, w     ; Steering wheel servo data
@@ -1885,7 +1906,7 @@ add10
 ;
 ;   UART protocol:
 ;   ==============
-;   3 Bytes: SYNC, Lights, ST
+;   3 Bytes: SYNC, Lights, Lights-half, ST
 ;       SYNC:       Always 0x80..0x87, which does not appear in the other values
 ;                   If a slave receives 0x87 the data is processed.
 ;                   If the value is 0x86..0x80 then it increments the value 
@@ -1895,6 +1916,11 @@ add10
 ;                   NOTE: this means that the steering servo can only be
 ;                   connected to the last slave module!
 ;       Lights:     Each bit indicates a different light channel (0..6)
+;       Lights-half:Each bit indicates a different light channel (0..6) for
+;                   outputs that shall be on in half brightness. Note that if
+;                   the same bit is set in "Lights" then the output will be
+;                   fully on (i.e. full brightness takes precedence over half
+;                   brightness).
 ;       ST:         Steering servo data: -120 - 0 - +120
 ;
 ;
