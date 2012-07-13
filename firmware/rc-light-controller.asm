@@ -23,12 +23,9 @@
 ; TODO:
 ;
 ; - Automatic neutral programming for steering and throttle
-; - Automatic endpoint programming for steering and throttle
 ; - Algorithm for forward/neutral/brake
 ; - Algorithm for indicators
 ; - Steering wheel servo programming
-; - Re-visit UART protocols to see how we can do 8 channels and half brightness
-; - How to do half brightness with TLC5916?
 ; - Indicator algorithm
 ;
 ;******************************************************************************
@@ -944,6 +941,13 @@ throttle_left
     movwf   zh
     movf    throttle_epl_l, w
     movwf   zl
+
+    call    Min_x_z     ; Adjust endpoint if POS is less than EPL
+    movf    zh, w
+    movwf   throttle_epl_h
+    movf    zl, w
+    movwf   throttle_epl_l
+
     call    Calculate_normalized_servo_position
     movf    throttle_reverse, f
     skpnz   
@@ -956,6 +960,13 @@ throttle_right
     movwf   zh
     movf    throttle_epr_l, w
     movwf   zl
+
+    call    Max_x_z     ; Adjust endpoint if POS is larger than EPR
+    movf    zh, w
+    movwf   throttle_epl_h
+    movf    zl, w
+    movwf   throttle_epl_l
+
     call    Calculate_normalized_servo_position
     movf    throttle_reverse, f
     skpz   
@@ -1093,6 +1104,13 @@ steering_left
     movwf   zh
     movf    steering_epl_l, w
     movwf   zl
+
+    call    Min_x_z     ; Adjust endpoint if POS is smaller than EPR
+    movf    zh, w
+    movwf   throttle_epl_h
+    movf    zl, w
+    movwf   throttle_epl_l
+
     call    Calculate_normalized_servo_position
     movf    steering_reverse, f
     skpnz   
@@ -1105,6 +1123,13 @@ steering_right
     movwf   zh
     movf    steering_epr_l, w
     movwf   zl
+
+    call    Max_x_z     ; Adjust endpoint if POS is larger than EPR
+    movf    zh, w
+    movwf   throttle_epl_h
+    movf    zl, w
+    movwf   throttle_epl_l
+
     call    Calculate_normalized_servo_position
     movf    steering_reverse, f
     skpz   
@@ -1349,6 +1374,52 @@ Min
     subwf   temp, f
     movf    temp, w
     return    
+
+
+;******************************************************************************
+; Min_x_z
+;  
+; Given two 16-bit values in xl/xh and zl/zh, returns the smaller one in zl/zh.
+;******************************************************************************
+Min_x_z
+    movf    xl, w
+    subwf	zl, w	
+    movf	xh,w
+    skpc
+    addlw   1
+    subwf	zh, w
+    andlw	b'10000000'	
+    skpz
+    return
+
+	movf	xl, w
+	movwf	zl
+	movf	xh, w
+	movwf	zh
+    return
+
+
+;******************************************************************************
+; Max_x_z
+;  
+; Given two 16-bit values in xl/xh and zl/zh, returns the larger one in zl/zh.
+;******************************************************************************
+Max_x_z
+    movf    xl, w
+    subwf   zl, w		
+    movf    xh,w
+    skpc
+    addlw   1
+    subwf   zh, w		
+    andlw   b'10000000'  
+    skpnz
+    return
+
+	movf	xl, w
+	movwf	zl
+	movf	xh, w
+	movwf	zh
+    return
 
 
 ;******************************************************************************
