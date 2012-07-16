@@ -22,7 +22,6 @@
 ;******************************************************************************
 ; TODO:
 ;
-; - Automatic neutral programming for steering and throttle
 ; - Algorithm for forward/neutral/brake
 ; - Algorithm for indicators
 ; - Steering wheel servo programming
@@ -141,6 +140,9 @@
 
     send_hi
     send_lo
+
+    debug_steering_old
+    debug_throttle_old
 
     ENDC
 
@@ -430,8 +432,9 @@ Main_loop
 
     call    Service_timer0
 
-    call    Output_local_lights
-    call    Output_slave
+    call    Debug_output_values
+;    call    Output_local_lights
+;    call    Output_slave
 
     goto    Main_loop
 
@@ -1651,6 +1654,43 @@ tlc5916_send_loop
     bcf     PORT_OE
     return
 
+
+;**********************************************************************
+Debug_output_values
+    movf    steering, w
+    subwf   debug_steering_old, w
+    bz      debug_output_throttle
+
+    movlw   83                  ; 'S'   
+    call    UART_send_w
+    movlw   84                  ; 'T'   
+    call    UART_send_w
+    movf    steering, w
+    movwf   debug_steering_old
+    movwf   send_lo
+    clrf    send_hi
+    call    UART_send_16bit
+    movlw   h'0d'               ; CR
+    call    UART_send_w
+
+debug_output_throttle
+    movf    throttle, w
+    subwf   debug_throttle_old, w
+    bz      debug_output_end
+
+    movlw   84                  ; 'T'   
+    call    UART_send_w
+    movlw   72                  ; 'H'   
+    call    UART_send_w
+    movf    throttle, w
+    movwf   send_lo
+    clrf    send_hi
+    call    UART_send_16bit
+    movlw   h'0d'               ; CR
+    call    UART_send_w
+
+debug_output_end
+    return
 
 ;**********************************************************************
 Delay_2.1ms
