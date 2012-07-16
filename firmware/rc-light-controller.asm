@@ -374,12 +374,12 @@ SPBRG_VALUE = (((d'10'*OSC/((d'64'-(d'48'*BRGH_VALUE))*BAUDRATE))+d'5')/d'10')-1
     movlw   BLINK_COUNTER_VALUE
     movwf   blink_counter
 
-    movlw   HIGH(1500)
-    movwf   throttle_centre_h
-    movwf   steering_centre_h
-    movlw   LOW(1500)
-    movwf   throttle_centre_l
-    movwf   steering_centre_l
+;    movlw   HIGH(1500)
+;    movwf   throttle_centre_h
+;    movwf   steering_centre_h
+;    movlw   LOW(1500)
+;    movwf   throttle_centre_l
+;    movwf   steering_centre_l
 
     movlw   HIGH(1400)
     movwf   throttle_epl_h
@@ -394,6 +394,22 @@ SPBRG_VALUE = (((d'10'*OSC/((d'64'-(d'48'*BRGH_VALUE))*BAUDRATE))+d'5')/d'10')-1
     movlw   LOW(1600)
     movwf   throttle_epr_l
     movwf   steering_epr_l
+
+    
+    ; Initialize neutral for steering and throttle 2 seconds after power up
+    call    Delay_2s
+
+    call    Read_throttle
+    movf    throttle_h, w
+    movwf   throttle_centre_h
+    movf    throttle_l, w
+    movwf   throttle_centre_l
+
+    call    Read_steering
+    movf    steering_h, w
+    movwf   steering_centre_h
+    movf    steering_l, w
+    movwf   steering_centre_l
 
 ;   goto    Main_loop    
 
