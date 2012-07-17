@@ -399,6 +399,8 @@ SPBRG_VALUE = (((d'10'*OSC/((d'64'-(d'48'*BRGH_VALUE))*BAUDRATE))+d'5')/d'10')-1
 
     
     ; Initialize neutral for steering and throttle 2 seconds after power up
+    IF 0
+
     call    Delay_2s
 
     call    Read_throttle
@@ -415,10 +417,30 @@ SPBRG_VALUE = (((d'10'*OSC/((d'64'-(d'48'*BRGH_VALUE))*BAUDRATE))+d'5')/d'10')-1
 
 ;   goto    Main_loop    
 
+    ENDIF
+
+
 ;**********************************************************************
 ; Main program
 ;**********************************************************************
 Main_loop
+
+    call    Send_Hello_world
+    call    Delay_2s
+
+    comf    d1, f
+    movf    d1, w
+    movwf   temp
+    call    TLC5916_send
+
+
+    goto    Main_loop
+
+
+
+
+
+
     call    Read_ch3
     call    Read_throttle
     call    Read_steering
@@ -1857,8 +1879,10 @@ add10
     return
 
 
-    IF 0
-                            ; Send 'Hello world\n'
+;******************************************************************************
+; Send 'Hello world\n' via the UART
+;******************************************************************************
+Send_Hello_world
     movlw   0x48
     call    UART_send_w
     movlw   0x65
@@ -1883,8 +1907,7 @@ add10
     call    UART_send_w
     movlw   0x0a
     call    UART_send_w
-
-    ENDIF
+    return
 
 
     END     ; Directive 'end of program'
