@@ -62,6 +62,8 @@
 
 #define CH3_BUTTON_TIMEOUT 6    ; Time in which we accept double-click of CH3
 #define BLINK_COUNTER_VALUE 5   ; 5 * 65.536 ms = ~333 ms = ~1.5 Hz
+#define BRAKE_AFTER_REVERSE_COUNTER_VALUE 30 ; 30 * 65.536 ms = ~2 s
+#define BRAKE_DISARM_COUNTER_VALUE 30        ; 30 * 65.536 ms = ~2 s
 
 ; Bitfields in variable blink_mode
 #define BLINK_MODE_BLINKFLAG 0          ; Toggles with 1.5 Hz
@@ -79,8 +81,11 @@
 #define DRIVE_MODE_FORWARD 0 
 #define DRIVE_MODE_BRAKE 1 
 #define DRIVE_MODE_REVERSE 2
+#define DRIVE_MODE_BRAKE_ARMED 3
+#define DRIVE_MODE_REVERSE_BRAKE 4
+#define DRIVE_MODE_BRAKE_DISARM 5
 
-
+#define CENTRE_TOLERANCE 10
 
 ;******************************************************************************
 ;* VARIABLE DEFINITIONS
@@ -114,6 +119,8 @@
     ch3_ep0
     ch3_ep1
 
+    drive_mode_counter
+    drive_mode_brake_disarm_counter   
     blink_counter
     ch3_click_counter
     ch3_clicks
@@ -201,7 +208,7 @@ local_light_table
     dt      b'00100011'     ; Head lights
     dt      b'00100111'     ; Fog lights
     dt      b'00101111'     ; High beam
-    dt      b'01000000'     ; Brake lights
+    dt      b'01001000'     ; Brake lights
     dt      b'00000000'     ; Reverse lights
     dt      b'00000000'     ; Indicator left
     dt      b'00000000'     ; Indicator right
@@ -262,6 +269,101 @@ slave_light_half_table
     IF ((HIGH ($)) != (HIGH (slave_light_half_table)))
         ERROR "slave_light_half_table CROSSES PAGE BOUNDARY!"
     ENDIF
+
+
+
+;******************************************************************************
+; Process_drive_mode
+;
+; Simulates the state machine in the ESC and updates the variable drive_mode
+; accordingly.
+;
+; Currently programmed for the HPI SC-15WP
+;
+; +/-10: forward = 0, reverse = 0
+; >+10: forward = 1, brake_armed = 1
+; <-10:
+;   if brake_armed: brake = 1
+;   if not brake_armed: reverse = 1, brake = 0
+; 2 seconds in Neutral: brake_armed = 0
+; Brake -> Neutral: brake = 0, brake_armed = 0
+; Reverse -> Neutral: brake = 1 for 2 seconds
+
+; Bitfields in variable drive_mode
+;#define DRIVE_MODE_FORWARD 0 
+;#define DRIVE_MODE_BRAKE 1 
+;#define DRIVE_MODE_REVERSE 2
+;#define DRIVE_MODE_BRAKE_ARMED 3
+;******************************************************************************
+Process_drive_mode
+    movf    throttle, w
+
+    ; Calculate abs(throttle) for easier math. We can use the highest bit 
+    ; of throttle to get the sign later!
+    movwf   temp
+    btfsc   temp, 7
+    decf    temp, f
+    btfsc   temp, 7
+    comf    temp, f
+
+    movlw   CENTRE_TOLERANCE
+    subwf   temp, w
+    bc      process_drive_mode_not_neutral
+
+    btfsc   drive_mode, DRIVE_MODE_REVERSE_BRAKE
+    return
+    btfsc   drive_mode, DRIVE_MODE_BRAKE_DISARM
+    return
+
+    bcf     drive_mode, DRIVE_MODE_FORWARD
+    btfss   drive_mode, DRIVE_MODE_REVERSE
+    goto    process_drive_mode_not_neutral_after_reverse
+
+    bcf     drive_mode, DRIVE_MODE_REVERSE
+    bsf     drive_mode, DRIVE_MODE_REVERSE_BRAKE
+    bsf     drive_mode, DRIVE_MODE_BRAKE
+    movlw   BRAKE_AFTER_REVERSE_COUNTER_VALUE
+    movwf   drive_mode_counter   
+    return
+
+process_drive_mode_not_neutral_after_reverse
+    bsf     drive_mode, DRIVE_MODE_BRAKE_DISARM
+    movlw   BRAKE_DISARM_COUNTER_VALUE
+    movwf   drive_mode_brake_disarm_counter   
+
+    btfsc   drive_mode, DRIVE_MODE_BRAKE
+    bcf     drive_mode, DRIVE_MODE_BRAKE_ARMED
+    bcf     drive_mode, DRIVE_MODE_BRAKE
+    return
+
+process_drive_mode_not_neutral
+    bcf     drive_mode, DRIVE_MODE_REVERSE_BRAKE
+    bcf     drive_mode, DRIVE_MODE_BRAKE_DISARM
+
+    btfsc   throttle, 7
+    goto    process_drive_mode_brake_or_reverse
+
+    bsf     drive_mode, DRIVE_MODE_FORWARD
+    bsf     drive_mode, DRIVE_MODE_BRAKE_ARMED
+    bcf     drive_mode, DRIVE_MODE_REVERSE
+    bcf     drive_mode, DRIVE_MODE_BRAKE
+    return
+
+process_drive_mode_brake_or_reverse
+    btfsc   drive_mode, DRIVE_MODE_BRAKE_ARMED
+    goto    process_drive_mode_brake
+
+    bsf     drive_mode, DRIVE_MODE_REVERSE
+    bcf     drive_mode, DRIVE_MODE_BRAKE
+    bcf     drive_mode, DRIVE_MODE_FORWARD
+    return
+    
+process_drive_mode_brake
+    bsf     drive_mode, DRIVE_MODE_BRAKE
+    bcf     drive_mode, DRIVE_MODE_FORWARD
+    bcf     drive_mode, DRIVE_MODE_REVERSE
+    return
+
 
 
 ;******************************************************************************
@@ -430,11 +532,11 @@ Main_loop
     call    Process_throttle
     call    Process_steering
 
-    call    Debug_output_values
-    
     call    Process_ch3_double_click
     call    Process_drive_mode
     call    Service_timer0
+
+    call    Debug_output_values
 
     call    Output_local_lights
 ;    call    Output_slave
@@ -567,6 +669,8 @@ output_local_get_state_end
 
 ;******************************************************************************
 ; Service_timer0
+;
+; Soft-timer with a resolution of 65.536 ms
 ;******************************************************************************
 Service_timer0
     btfss   INTCON, T0IF
@@ -578,6 +682,29 @@ Service_timer0
     skpz     
     decf    ch3_click_counter, f    
 
+
+    decfsz  drive_mode_brake_disarm_counter, f
+    goto    service_timer0_drive_mode
+
+    btfss   drive_mode, DRIVE_MODE_BRAKE_DISARM
+    goto    service_timer0_drive_mode
+
+    bcf     drive_mode, DRIVE_MODE_BRAKE_DISARM
+    bcf     drive_mode, DRIVE_MODE_BRAKE_ARMED
+
+
+service_timer0_drive_mode
+    decfsz  drive_mode_counter, f
+    goto    service_timer0_blink
+
+    btfss   drive_mode, DRIVE_MODE_REVERSE_BRAKE
+    goto    service_timer0_blink
+
+    bcf     drive_mode, DRIVE_MODE_REVERSE_BRAKE
+    bcf     drive_mode, DRIVE_MODE_BRAKE
+
+
+service_timer0_blink
     decfsz  blink_counter, f
     return
 
@@ -585,6 +712,9 @@ Service_timer0
     movwf   blink_counter
     movlw   1 << BLINK_MODE_BLINKFLAG
     xorwf   blink_mode, f
+
+    
+
     return
 
 
@@ -995,27 +1125,6 @@ throttle_right
     sublw   0
     movwf   throttle
     return    
-
-
-;******************************************************************************
-; Process_drive_mode
-;
-; Simulates the state machine in the ESC and updates the variable drive_mode
-; accordingly.
-;
-; Currently programmed for the HPI SC-15WP
-;
-; +/-5: forward = 0, reverse = 0
-; >+5: forward = 1, brake_armed = 1
-; <-5:
-;   if brake_armed: brake = 1
-;   if not brake_armed: reverse = 1, brake = 0
-; 2 seconds in Neutral: brake_armed = 0
-; Brake -> Neutral: brake = 0, brake_armed = 0
-; Reverse -> Neutral: brake = 1 for 2 seconds
-;******************************************************************************
-Process_drive_mode
-    return
 
 
 
@@ -1660,6 +1769,8 @@ tlc5916_send_loop
 
 ;**********************************************************************
 Debug_output_values
+    IF 0
+
     movf    steering, w
     subwf   debug_steering_old, w
     bz      debug_output_throttle
@@ -1674,6 +1785,8 @@ Debug_output_values
     movlw   h'0d'               ; CR
     call    UART_send_w
 
+    ENDIF
+
 debug_output_throttle
     movf    throttle, w
     subwf   debug_throttle_old, w
@@ -1685,6 +1798,12 @@ debug_output_throttle
     call    UART_send_w
     movf    throttle, w
     movwf   debug_throttle_old
+    call    UART_send_signed_char
+    movlw   h'0d'               ; CR
+    call    UART_send_w
+
+
+    movf    drive_mode, w
     call    UART_send_signed_char
     movlw   h'0d'               ; CR
     call    UART_send_w
