@@ -25,7 +25,6 @@
 ; - Algorithm for forward/neutral/brake
 ; - Algorithm for indicators
 ; - Steering wheel servo programming
-; - Indicator algorithm
 ;
 ;******************************************************************************
 ;******************************************************************************
@@ -34,9 +33,9 @@
 ;******************************************************************************
 ;   Port usage:
 ;   ===========
-;   RA5:        IN  Servo input (Vpp double-usage)
-;   RB7:        IN  Servo input (PGD double-usage)
-;   RB6, RB1:   IN  Servo input (PGC and RX for slave double-usage)
+;   RB6, RB1:   IN  Servo input ST (PGC and RX for slave double-usage)
+;   RB7:        IN  Servo input TH (PGD double-usage)
+;   RA5:        IN  Servo input CH3 (Vpp double-usage)
 ;   RB2:        OUT Slave out (TX Master) / Servo out (Slave) 
 ;
 ;   RA3:        OUT CLK TLC5916
@@ -48,9 +47,9 @@
 ;   RB5         IN  RB5 is tied to RB2 for routing convenience!
 ;   RA6, RA0, RA1, RB4:     OUT NC pins, switch to output
 
-#define PORT_CH3        PORTB, 6
-#define PORT_STEERING   PORTB, 7
-#define PORT_THROTTLE   PORTA, 5
+#define PORT_CH3        PORTA, 5
+#define PORT_STEERING   PORTB, 6
+#define PORT_THROTTLE   PORTB, 7
 
 ; TLC5916 LED driver serial communication ports
 #define PORT_CLK        PORTA, 3
@@ -397,10 +396,11 @@ SPBRG_VALUE = (((d'10'*OSC/((d'64'-(d'48'*BRGH_VALUE))*BAUDRATE))+d'5')/d'10')-1
     movwf   throttle_epr_l
     movwf   steering_epr_l
 
-    
-    ; Initialize neutral for steering and throttle 2 seconds after power up
-    IF 0
+    ; Steering is reversed for the Dingo (not auto-adjust yet)
+    movlw   1                   
+    movwf   steering_reverse
 
+    ; Initialize neutral for steering and throttle 2 seconds after power up
     call    Delay_2s
 
     call    Read_throttle
@@ -417,8 +417,6 @@ SPBRG_VALUE = (((d'10'*OSC/((d'64'-(d'48'*BRGH_VALUE))*BAUDRATE))+d'5')/d'10')-1
 
 ;   goto    Main_loop    
 
-    ENDIF
-
 
 ;**********************************************************************
 ; Main program
@@ -433,14 +431,12 @@ Main_loop
     call    Process_steering
 
     call    Debug_output_values
+    
+    call    Process_ch3_double_click
+    call    Process_drive_mode
+    call    Service_timer0
 
-
-;    call    Process_ch3_double_click
-;    call    Process_drive_mode
-
-;    call    Service_timer0
-
-;    call    Output_local_lights
+    call    Output_local_lights
 ;    call    Output_slave
 
     goto    Main_loop
@@ -773,7 +769,7 @@ Process_ch3_double_click
     goto    process_ch3_initialized
 
     ; Ignore the potential "toggle" after power on
-    bcf     ch3, 7
+    bsf     ch3, 7
     bcf     ch3, 1
     return
 
@@ -989,9 +985,9 @@ throttle_right
 
     call    Max_x_z     ; Adjust endpoint if POS is larger than EPR
     movf    zh, w
-    movwf   throttle_epl_h
+    movwf   throttle_epr_h
     movf    zl, w
-    movwf   throttle_epl_l
+    movwf   throttle_epr_l
 
     call    Calculate_normalized_servo_position
     movf    throttle_reverse, f
@@ -1133,9 +1129,9 @@ steering_left
 
     call    Min_x_z     ; Adjust endpoint if POS is smaller than EPR
     movf    zh, w
-    movwf   throttle_epl_h
+    movwf   steering_epl_h
     movf    zl, w
-    movwf   throttle_epl_l
+    movwf   steering_epl_l
 
     call    Calculate_normalized_servo_position
     movf    steering_reverse, f
@@ -1152,9 +1148,9 @@ steering_right
 
     call    Max_x_z     ; Adjust endpoint if POS is larger than EPR
     movf    zh, w
-    movwf   throttle_epl_h
+    movwf   steering_epr_h
     movf    zl, w
-    movwf   throttle_epl_l
+    movwf   steering_epr_l
 
     call    Calculate_normalized_servo_position
     movf    steering_reverse, f
@@ -1410,7 +1406,7 @@ Min
 Min_x_z
     movf    xl, w
     subwf	zl, w	
-    movf	xh,w
+    movf	xh, w
     skpc
     addlw   1
     subwf	zh, w
@@ -1433,7 +1429,7 @@ Min_x_z
 Max_x_z
     movf    xl, w
     subwf   zl, w		
-    movf    xh,w
+    movf    xh, w
     skpc
     addlw   1
     subwf   zh, w		
