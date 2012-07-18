@@ -19,7 +19,7 @@ UsedLibrary="/home/laneboysrc/projects/rc-light-controller/electronics/TI-TLC591
 
 [Win_1]
 Type="Schematic Editor"
-Loc="357 82 1839 1050"
+Loc="197 81 1679 1049"
 State=2
 Number=1
 File="rc-light-controller.sch"
@@ -55,11 +55,12 @@ ArcDirection=0
 AddLevel=2
 PadsSameType=0
 Layer=91
+Views=" 1: -1114398 264822 1283358 1683082"
 Sheet=1
 
 [Win_2]
 Type="Board Editor"
-Loc="0 0 1543 968"
+Loc="0 24 1543 992"
 State=2
 Number=2
 File="rc-light-controller.brd"

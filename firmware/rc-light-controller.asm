@@ -376,12 +376,12 @@ SPBRG_VALUE = (((d'10'*OSC/((d'64'-(d'48'*BRGH_VALUE))*BAUDRATE))+d'5')/d'10')-1
     movlw   BLINK_COUNTER_VALUE
     movwf   blink_counter
 
-;    movlw   HIGH(1500)
-;    movwf   throttle_centre_h
-;    movwf   steering_centre_h
-;    movlw   LOW(1500)
-;    movwf   throttle_centre_l
-;    movwf   steering_centre_l
+    movlw   HIGH(1500)
+    movwf   throttle_centre_h
+    movwf   steering_centre_h
+    movlw   LOW(1500)
+    movwf   throttle_centre_l
+    movwf   steering_centre_l
 
     movlw   HIGH(1400)
     movwf   throttle_epl_h
@@ -424,23 +424,6 @@ SPBRG_VALUE = (((d'10'*OSC/((d'64'-(d'48'*BRGH_VALUE))*BAUDRATE))+d'5')/d'10')-1
 ; Main program
 ;**********************************************************************
 Main_loop
-
-    call    Send_Hello_world
-    call    Delay_2s
-
-    comf    d1, f
-    movf    d1, w
-    movwf   temp
-    call    TLC5916_send
-
-
-    goto    Main_loop
-
-
-
-
-
-
     call    Read_ch3
     call    Read_throttle
     call    Read_steering
@@ -449,12 +432,14 @@ Main_loop
     call    Process_throttle
     call    Process_steering
 
-    call    Process_ch3_double_click
-    call    Process_drive_mode
-
-    call    Service_timer0
-
     call    Debug_output_values
+
+
+;    call    Process_ch3_double_click
+;    call    Process_drive_mode
+
+;    call    Service_timer0
+
 ;    call    Output_local_lights
 ;    call    Output_slave
 
@@ -1689,9 +1674,7 @@ Debug_output_values
     call    UART_send_w
     movf    steering, w
     movwf   debug_steering_old
-    movwf   send_lo
-    clrf    send_hi
-    call    UART_send_16bit
+    call    UART_send_signed_char
     movlw   h'0d'               ; CR
     call    UART_send_w
 
@@ -1705,14 +1688,16 @@ debug_output_throttle
     movlw   72                  ; 'H'   
     call    UART_send_w
     movf    throttle, w
-    movwf   send_lo
-    clrf    send_hi
-    call    UART_send_16bit
+    movwf   debug_throttle_old
+    call    UART_send_signed_char
     movlw   h'0d'               ; CR
     call    UART_send_w
 
 debug_output_end
     return
+
+
+
 
 ;**********************************************************************
 Delay_2.1ms
@@ -1751,6 +1736,26 @@ delay_0
 	decfsz	d3, f
 	goto	delay_0
     return
+
+
+;******************************************************************************
+; Send W, which is treated as signed char, as human readable number via the
+; UART.
+;******************************************************************************
+UART_send_signed_char
+    clrf    send_hi
+    movwf   send_lo
+    btfss   send_lo, 7  ; Highest bit indicates negative values
+    goto    UART_send_signed_char_pos
+
+    movlw   45          ; Send leading minus
+    call    UART_send_w
+
+    decf    send_lo, f  ; Absolute value of the number to send
+    comf    send_lo, f
+
+UART_send_signed_char_pos
+    goto    UART_send_16bit
 
 
 ;******************************************************************************
