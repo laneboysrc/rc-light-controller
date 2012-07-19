@@ -219,15 +219,15 @@ local_light_table
             ; |||||+-- OUT2
             ; ||||||+- OUT1
             ; |||||||+ OUT0
-    dt      b'00100001'     ; Stand lights
-    dt      b'00100011'     ; Head lights
-    dt      b'00100111'     ; Fog lights
-    dt      b'00101111'     ; High beam
-    dt      b'01001000'     ; Brake lights
-    dt      b'00000000'     ; Reverse lights
-    dt      b'00000000'     ; Indicator left
-    dt      b'00000000'     ; Indicator right
-    dt      b'00001111'     ; Hazard lights
+    dt      b'00000001'     ; Stand lights
+    dt      b'00000011'     ; Head lights
+    dt      b'00000111'     ; Fog lights
+    dt      b'00001111'     ; High beam
+    dt      b'00010000'     ; Brake lights
+    dt      b'00100000'     ; Reverse lights
+    dt      b'10000000'     ; Indicator left
+    dt      b'01000000'     ; Indicator right
+    dt      b'11000000'     ; Hazard lights
 
     IF ((HIGH ($)) != (HIGH (local_light_table)))
         ERROR "local_light_table CROSSES PAGE BOUNDARY!"
@@ -608,6 +608,10 @@ Service_timer0
     skpz     
     decf    ch3_click_counter, f    
 
+    movf    indicator_state_counter, f
+    skpz     
+    decf    indicator_state_counter, f    
+
 
     decfsz  drive_mode_brake_disarm_counter, f
     goto    service_timer0_drive_mode
@@ -936,6 +940,8 @@ process_ch3_8_click
 
     movlw   1
     movwf   setup_mode    
+    movlw   0x38                    ; send '8'
+    call    UART_send_w        
 
 process_ch3_click_end
     clrf    ch3_clicks
@@ -2330,7 +2336,6 @@ Debug_output_values
     call    UART_send_w
 
 debug_output_steering
-    IF 0
     movf    steering, w
     subwf   debug_steering_old, w
     bz      debug_output_throttle
@@ -2344,10 +2349,8 @@ debug_output_steering
     call    UART_send_signed_char
     movlw   h'0d'               ; CR
     call    UART_send_w
-    ENDIF
 
 debug_output_throttle
-    IF 0
     movf    throttle, w
     subwf   debug_throttle_old, w
     bz      debug_output_end
@@ -2362,7 +2365,7 @@ debug_output_throttle
     movlw   h'0d'               ; CR
     call    UART_send_w
 
-
+    IF 0
     movf    drive_mode, w
     call    UART_send_signed_char
     movlw   h'0d'               ; CR
