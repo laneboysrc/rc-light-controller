@@ -58,12 +58,11 @@
 #define PORT_OE         PORTB, 0
 
 
-
-
 #define CH3_BUTTON_TIMEOUT 6    ; Time in which we accept double-click of CH3
 #define BLINK_COUNTER_VALUE 5   ; 5 * 65.536 ms = ~333 ms = ~1.5 Hz
 #define BRAKE_AFTER_REVERSE_COUNTER_VALUE 30 ; 30 * 65.536 ms = ~2 s
 #define BRAKE_DISARM_COUNTER_VALUE 30        ; 30 * 65.536 ms = ~2 s
+#define INDICATOR_STATE_COUNTER_VALUE 30     ; 30 * 65.536 ms = ~2 s
 
 ; Bitfields in variable blink_mode
 #define BLINK_MODE_BLINKFLAG 0          ; Toggles with 1.5 Hz
@@ -85,7 +84,10 @@
 #define DRIVE_MODE_REVERSE_BRAKE 4
 #define DRIVE_MODE_BRAKE_DISARM 5
 
-#define CENTRE_TOLERANCE 10
+#define CENTRE_THRESHOLD 10
+#define STEERING_BLINK_THRESHOLD 50
+#define STEERING_BLINK_OFF_THRESHOLD 30
+
 
 ;******************************************************************************
 ;* VARIABLE DEFINITIONS
@@ -93,6 +95,7 @@
     CBLOCK  0x20
 
     throttle
+    throttle_abs
     throttle_l
     throttle_h
     throttle_centre_l
@@ -104,6 +107,7 @@
     throttle_reverse
 
     steering
+    steering_abs
     steering_l
     steering_h
     steering_centre_l
@@ -121,6 +125,7 @@
 
     drive_mode_counter
     drive_mode_brake_disarm_counter   
+    indicator_state_counter
     blink_counter
     ch3_click_counter
     ch3_clicks
@@ -128,6 +133,7 @@
     blink_mode      
     light_mode
     drive_mode
+    indicator_state
 
 	d0          ; Delay and temp registers
 	d1
@@ -149,6 +155,7 @@
 
     debug_steering_old
     debug_throttle_old
+    debug_indicator_state_old
 
     ENDC
 
@@ -269,100 +276,6 @@ slave_light_half_table
     IF ((HIGH ($)) != (HIGH (slave_light_half_table)))
         ERROR "slave_light_half_table CROSSES PAGE BOUNDARY!"
     ENDIF
-
-
-
-;******************************************************************************
-; Process_drive_mode
-;
-; Simulates the state machine in the ESC and updates the variable drive_mode
-; accordingly.
-;
-; Currently programmed for the HPI SC-15WP
-;
-; +/-10: forward = 0, reverse = 0
-; >+10: forward = 1, brake_armed = 1
-; <-10:
-;   if brake_armed: brake = 1
-;   if not brake_armed: reverse = 1, brake = 0
-; 2 seconds in Neutral: brake_armed = 0
-; Brake -> Neutral: brake = 0, brake_armed = 0
-; Reverse -> Neutral: brake = 1 for 2 seconds
-
-; Bitfields in variable drive_mode
-;#define DRIVE_MODE_FORWARD 0 
-;#define DRIVE_MODE_BRAKE 1 
-;#define DRIVE_MODE_REVERSE 2
-;#define DRIVE_MODE_BRAKE_ARMED 3
-;******************************************************************************
-Process_drive_mode
-    movf    throttle, w
-
-    ; Calculate abs(throttle) for easier math. We can use the highest bit 
-    ; of throttle to get the sign later!
-    movwf   temp
-    btfsc   temp, 7
-    decf    temp, f
-    btfsc   temp, 7
-    comf    temp, f
-
-    movlw   CENTRE_TOLERANCE
-    subwf   temp, w
-    bc      process_drive_mode_not_neutral
-
-    btfsc   drive_mode, DRIVE_MODE_REVERSE_BRAKE
-    return
-    btfsc   drive_mode, DRIVE_MODE_BRAKE_DISARM
-    return
-
-    bcf     drive_mode, DRIVE_MODE_FORWARD
-    btfss   drive_mode, DRIVE_MODE_REVERSE
-    goto    process_drive_mode_not_neutral_after_reverse
-
-    bcf     drive_mode, DRIVE_MODE_REVERSE
-    bsf     drive_mode, DRIVE_MODE_REVERSE_BRAKE
-    bsf     drive_mode, DRIVE_MODE_BRAKE
-    movlw   BRAKE_AFTER_REVERSE_COUNTER_VALUE
-    movwf   drive_mode_counter   
-    return
-
-process_drive_mode_not_neutral_after_reverse
-    bsf     drive_mode, DRIVE_MODE_BRAKE_DISARM
-    movlw   BRAKE_DISARM_COUNTER_VALUE
-    movwf   drive_mode_brake_disarm_counter   
-
-    btfsc   drive_mode, DRIVE_MODE_BRAKE
-    bcf     drive_mode, DRIVE_MODE_BRAKE_ARMED
-    bcf     drive_mode, DRIVE_MODE_BRAKE
-    return
-
-process_drive_mode_not_neutral
-    bcf     drive_mode, DRIVE_MODE_REVERSE_BRAKE
-    bcf     drive_mode, DRIVE_MODE_BRAKE_DISARM
-
-    btfsc   throttle, 7
-    goto    process_drive_mode_brake_or_reverse
-
-    bsf     drive_mode, DRIVE_MODE_FORWARD
-    bsf     drive_mode, DRIVE_MODE_BRAKE_ARMED
-    bcf     drive_mode, DRIVE_MODE_REVERSE
-    bcf     drive_mode, DRIVE_MODE_BRAKE
-    return
-
-process_drive_mode_brake_or_reverse
-    btfsc   drive_mode, DRIVE_MODE_BRAKE_ARMED
-    goto    process_drive_mode_brake
-
-    bsf     drive_mode, DRIVE_MODE_REVERSE
-    bcf     drive_mode, DRIVE_MODE_BRAKE
-    bcf     drive_mode, DRIVE_MODE_FORWARD
-    return
-    
-process_drive_mode_brake
-    bsf     drive_mode, DRIVE_MODE_BRAKE
-    bcf     drive_mode, DRIVE_MODE_FORWARD
-    bcf     drive_mode, DRIVE_MODE_REVERSE
-    return
 
 
 
@@ -534,6 +447,7 @@ Main_loop
 
     call    Process_ch3_double_click
     call    Process_drive_mode
+    call    Process_indicators
     call    Service_timer0
 
     call    Debug_output_values
@@ -1064,8 +978,8 @@ Process_throttle
     call    If_x_eq_y
     bnz     throttle_is_valid
 
-    clrf    throttle
-    return
+    clrw
+    goto    throttle_set
 
 throttle_is_valid
     ; Throttle in centre? (note that we preloaded xh/xl just before this)
@@ -1077,8 +991,8 @@ throttle_is_valid
     call    If_x_eq_y
     bnz     throttle_off_centre
 
-    clrf    throttle
-    return
+    clrw
+    goto    throttle_set
 
 throttle_off_centre
     movf    throttle_h, w
@@ -1104,8 +1018,7 @@ throttle_left
     movf    throttle_reverse, f
     skpnz   
     sublw   0
-    movwf   throttle
-    return    
+    goto    throttle_set
 
 throttle_right
     movf    throttle_epr_h, w
@@ -1123,9 +1036,101 @@ throttle_right
     movf    throttle_reverse, f
     skpz   
     sublw   0
+
+throttle_set
     movwf   throttle
+
+    ; Calculate abs(throttle) for easier math. We can use the highest bit 
+    ; of throttle to get the sign later!
+    movwf   throttle_abs
+    btfsc   throttle_abs, 7
+    decf    throttle_abs, f
+    btfsc   throttle_abs, 7
+    comf    throttle_abs, f
     return    
 
+
+;******************************************************************************
+; Process_drive_mode
+;
+; Simulates the state machine in the ESC and updates the variable drive_mode
+; accordingly.
+;
+; Currently programmed for the HPI SC-15WP
+;
+; +/-10: forward = 0, reverse = 0
+; >+10: forward = 1, brake_armed = 1
+; <-10:
+;   if brake_armed: brake = 1
+;   if not brake_armed: reverse = 1, brake = 0
+; 2 seconds in Neutral: brake_armed = 0
+; Brake -> Neutral: brake = 0, brake_armed = 0
+; Reverse -> Neutral: brake = 1 for 2 seconds
+
+; Bitfields in variable drive_mode
+;#define DRIVE_MODE_FORWARD 0 
+;#define DRIVE_MODE_BRAKE 1 
+;#define DRIVE_MODE_REVERSE 2
+;#define DRIVE_MODE_BRAKE_ARMED 3
+;******************************************************************************
+Process_drive_mode
+    movlw   CENTRE_THRESHOLD
+    subwf   throttle_abs, w
+    bc      process_drive_mode_not_neutral
+
+    btfsc   drive_mode, DRIVE_MODE_REVERSE_BRAKE
+    return
+    btfsc   drive_mode, DRIVE_MODE_BRAKE_DISARM
+    return
+
+    bcf     drive_mode, DRIVE_MODE_FORWARD
+    btfss   drive_mode, DRIVE_MODE_REVERSE
+    goto    process_drive_mode_not_neutral_after_reverse
+
+    bcf     drive_mode, DRIVE_MODE_REVERSE
+    bsf     drive_mode, DRIVE_MODE_REVERSE_BRAKE
+    bsf     drive_mode, DRIVE_MODE_BRAKE
+    movlw   BRAKE_AFTER_REVERSE_COUNTER_VALUE
+    movwf   drive_mode_counter   
+    return
+
+process_drive_mode_not_neutral_after_reverse
+    bsf     drive_mode, DRIVE_MODE_BRAKE_DISARM
+    movlw   BRAKE_DISARM_COUNTER_VALUE
+    movwf   drive_mode_brake_disarm_counter   
+
+    btfsc   drive_mode, DRIVE_MODE_BRAKE
+    bcf     drive_mode, DRIVE_MODE_BRAKE_ARMED
+    bcf     drive_mode, DRIVE_MODE_BRAKE
+    return
+
+process_drive_mode_not_neutral
+    bcf     drive_mode, DRIVE_MODE_REVERSE_BRAKE
+    bcf     drive_mode, DRIVE_MODE_BRAKE_DISARM
+
+    btfsc   throttle, 7
+    goto    process_drive_mode_brake_or_reverse
+
+    bsf     drive_mode, DRIVE_MODE_FORWARD
+    bsf     drive_mode, DRIVE_MODE_BRAKE_ARMED
+    bcf     drive_mode, DRIVE_MODE_REVERSE
+    bcf     drive_mode, DRIVE_MODE_BRAKE
+    return
+
+process_drive_mode_brake_or_reverse
+    btfsc   drive_mode, DRIVE_MODE_BRAKE_ARMED
+    goto    process_drive_mode_brake
+
+    bsf     drive_mode, DRIVE_MODE_REVERSE
+    bcf     drive_mode, DRIVE_MODE_BRAKE
+    bcf     drive_mode, DRIVE_MODE_FORWARD
+    return
+    
+process_drive_mode_brake
+    bsf     drive_mode, DRIVE_MODE_BRAKE
+    bcf     drive_mode, DRIVE_MODE_FORWARD
+    bcf     drive_mode, DRIVE_MODE_REVERSE
+    return
 
 
 ;******************************************************************************
@@ -1206,8 +1211,8 @@ Process_steering
     call    If_x_eq_y
     bnz     steering_is_valid
 
-    clrf    steering
-    return
+    clrw
+    goto    steering_set
 
 steering_is_valid
     ; Steering in centre? (note that we preloaded xh/xl just before this)
@@ -1219,8 +1224,8 @@ steering_is_valid
     call    If_x_eq_y
     bnz     steering_off_centre
 
-    clrf    steering
-    return
+    clrw
+    goto    steering_set
 
 steering_off_centre
     movf    steering_h, w
@@ -1246,8 +1251,7 @@ steering_left
     movf    steering_reverse, f
     skpnz   
     sublw   0
-    movwf   steering
-    return  
+    goto    steering_set
 
 steering_right
     movf    steering_epr_h, w
@@ -1265,10 +1269,252 @@ steering_right
     movf    steering_reverse, f
     skpz   
     sublw   0
+
+steering_set
     movwf   steering
+
+    ; Calculate abs(steering) for easier math. We can use the highest bit 
+    ; of throttle to get the sign later!
+    movwf   steering_abs
+    btfsc   steering_abs, 7
+    decf    steering_abs, f
+    btfsc   steering_abs, 7
+    comf    steering_abs, f
     return   
 
 
+;******************************************************************************
+; Process_indicators
+; 
+; Implements a sensible indicator algorithm.
+;
+; To turn on the indicators, throtte and steering must be centered for 2 s,
+; then steering must be either left or right >50% for more than 2 s.
+;
+; Indicators are turned off when: 
+;   - opposite steering is >30%
+;   - steering neutral or opposite for >2s
+;******************************************************************************
+#define STATE_INDICATOR_NOT_NEUTRAL 0
+#define STATE_INDICATOR_NEUTRAL_WAIT 1
+#define STATE_INDICATOR_BLINK_ARMED 2
+#define STATE_INDICATOR_BLINK_ARMED_LEFT 3
+#define STATE_INDICATOR_BLINK_ARMED_RIGHT 4
+#define STATE_INDICATOR_BLINK_LEFT 5
+#define STATE_INDICATOR_BLINK_LEFT_WAIT 6
+#define STATE_INDICATOR_BLINK_RIGHT 7
+#define STATE_INDICATOR_BLINK_RIGHT_WAIT 8
+
+Process_indicators
+    movf    indicator_state, w
+    movwf   temp
+    skpnz   
+    goto    process_indicators_not_neutral
+    decf    temp, f
+    skpnz   
+    goto    process_indicators_neutral_wait
+    decf    temp, f
+    skpnz   
+    goto    process_indicators_blink_armed
+    decf    temp, f
+    skpnz   
+    goto    process_indicators_blink_armed_left
+    decf    temp, f
+    skpnz   
+    goto    process_indicators_blink_armed_right
+    decf    temp, f
+    skpnz   
+    goto    process_indicators_blink_left
+    decf    temp, f
+    skpnz   
+    goto    process_indicators_blink_left_wait
+    decf    temp, f
+    skpnz   
+    goto    process_indicators_blink_right
+    goto    process_indicators_blink_right_wait
+
+process_indicators_not_neutral
+    movlw   CENTRE_THRESHOLD
+    subwf   throttle_abs, w
+    skpnc
+    return
+
+    movlw   CENTRE_THRESHOLD
+    subwf   steering_abs, w
+    skpnc
+    return
+
+    movlw   INDICATOR_STATE_COUNTER_VALUE
+    movwf   indicator_state_counter
+    movlw   STATE_INDICATOR_NEUTRAL_WAIT
+    movwf   indicator_state
+    return
+
+process_indicators_neutral_wait
+    movlw   CENTRE_THRESHOLD
+    subwf   throttle_abs, w
+    bc      process_indicators_set_not_neutral
+
+    movlw   CENTRE_THRESHOLD
+    subwf   steering_abs, w
+    bc      process_indicators_set_not_neutral
+
+    movf    indicator_state_counter, f
+    skpz    
+    return
+
+process_indicators_set_blink_armed
+    movlw   STATE_INDICATOR_BLINK_ARMED
+    movwf   indicator_state
+    return
+
+process_indicators_set_not_neutral
+    movlw   STATE_INDICATOR_NOT_NEUTRAL
+    movwf   indicator_state
+    bcf     blink_mode, BLINK_MODE_INDICATOR_RIGHT
+    bcf     blink_mode, BLINK_MODE_INDICATOR_LEFT
+    return
+
+process_indicators_blink_armed
+    movlw   CENTRE_THRESHOLD
+    subwf   throttle_abs, w
+    bc      process_indicators_set_not_neutral
+
+    movlw   STEERING_BLINK_THRESHOLD
+    subwf   steering_abs, w
+    skpc
+    return    
+
+    movlw   INDICATOR_STATE_COUNTER_VALUE
+    movwf   indicator_state_counter    
+    movlw   STATE_INDICATOR_BLINK_ARMED_LEFT
+    btfss   steering, 7 
+    movlw   STATE_INDICATOR_BLINK_ARMED_RIGHT
+    movwf   indicator_state
+    return
+  
+process_indicators_blink_armed_left  
+    movlw   CENTRE_THRESHOLD
+    subwf   throttle_abs, w
+    bc      process_indicators_set_not_neutral
+
+    movlw   STEERING_BLINK_THRESHOLD
+    subwf   steering_abs, w
+    bnc     process_indicators_set_blink_armed
+
+    btfss   steering, 7 
+    goto    process_indicators_set_blink_armed
+
+    movf    indicator_state_counter, f
+    skpz    
+    return
+
+process_indicators_set_blink_left  
+    movlw   STATE_INDICATOR_BLINK_LEFT
+    movwf   indicator_state
+    bsf     blink_mode, BLINK_MODE_INDICATOR_LEFT
+    return
+
+process_indicators_blink_armed_right  
+    movlw   CENTRE_THRESHOLD
+    subwf   throttle_abs, w
+    bc      process_indicators_set_not_neutral
+
+    movlw   STEERING_BLINK_THRESHOLD
+    subwf   steering_abs, w
+    bnc     process_indicators_set_blink_armed
+
+    btfsc   steering, 7 
+    goto    process_indicators_set_blink_armed
+
+    movf    indicator_state_counter, f
+    skpz    
+    return
+
+process_indicators_set_blink_right
+    movlw   STATE_INDICATOR_BLINK_RIGHT
+    movwf   indicator_state
+    bsf     blink_mode, BLINK_MODE_INDICATOR_RIGHT
+    return
+
+process_indicators_blink_left
+    btfss   steering, 7 
+    goto    process_indicators_blink_left_centre
+
+    movlw   STEERING_BLINK_THRESHOLD
+    subwf   steering_abs, w
+    bc      process_indicators_set_not_neutral
+
+process_indicators_blink_left_centre
+    movlw   CENTRE_THRESHOLD
+    subwf   steering_abs, w
+    skpnc
+    return
+
+    movlw   INDICATOR_STATE_COUNTER_VALUE
+    movwf   indicator_state_counter             
+    movlw   STATE_INDICATOR_BLINK_LEFT_WAIT
+    movwf   indicator_state
+    return
+
+process_indicators_blink_left_wait
+    btfss   steering, 7 
+    goto    process_indicators_blink_left_wait_centre
+
+    movlw   STEERING_BLINK_THRESHOLD
+    subwf   steering_abs, w
+    bc      process_indicators_set_not_neutral
+
+process_indicators_blink_left_wait_centre
+    movlw   CENTRE_THRESHOLD
+    subwf   steering_abs, w
+    bc      process_indicators_set_blink_left
+
+    movf    indicator_state_counter, f
+    skpz    
+    return
+    goto    process_indicators_set_not_neutral
+
+process_indicators_blink_right
+    btfsc   steering, 7 
+    goto    process_indicators_blink_right_centre
+
+    movlw   STEERING_BLINK_THRESHOLD
+    subwf   steering_abs, w
+    bc      process_indicators_set_not_neutral
+
+process_indicators_blink_right_centre
+    movlw   CENTRE_THRESHOLD
+    subwf   steering_abs, w
+    skpnc
+    return
+
+    movlw   INDICATOR_STATE_COUNTER_VALUE
+    movwf   indicator_state_counter             
+    movlw   STATE_INDICATOR_BLINK_RIGHT_WAIT
+    movwf   indicator_state
+    return
+
+process_indicators_blink_right_wait
+    btfsc   steering, 7 
+    goto    process_indicators_blink_right_wait_centre
+
+    movlw   STEERING_BLINK_THRESHOLD
+    subwf   steering_abs, w
+    bc      process_indicators_set_not_neutral
+
+process_indicators_blink_right_wait_centre
+    movlw   CENTRE_THRESHOLD
+    subwf   steering_abs, w
+    bc      process_indicators_set_blink_right
+
+    movf    indicator_state_counter, f
+    skpz    
+    return
+    goto    process_indicators_set_not_neutral
+
+
+    
 ;******************************************************************************
 ;******************************************************************************
 ;******************************************************************************
@@ -1769,8 +2015,20 @@ tlc5916_send_loop
 
 ;**********************************************************************
 Debug_output_values
-    IF 0
+    movf    indicator_state, w
+    subwf   debug_indicator_state_old, w
+    bz      debug_output_steering
 
+    movlw   73                  ; 'I'   
+    call    UART_send_w
+    movf    indicator_state, w
+    movwf   debug_indicator_state_old
+    call    UART_send_signed_char
+    movlw   h'0d'               ; CR
+    call    UART_send_w
+
+debug_output_steering
+    IF 0
     movf    steering, w
     subwf   debug_steering_old, w
     bz      debug_output_throttle
@@ -1784,10 +2042,10 @@ Debug_output_values
     call    UART_send_signed_char
     movlw   h'0d'               ; CR
     call    UART_send_w
-
     ENDIF
 
 debug_output_throttle
+    IF 0
     movf    throttle, w
     subwf   debug_throttle_old, w
     bz      debug_output_end
@@ -1807,6 +2065,7 @@ debug_output_throttle
     call    UART_send_signed_char
     movlw   h'0d'               ; CR
     call    UART_send_w
+    ENDIF
 
 debug_output_end
     return
