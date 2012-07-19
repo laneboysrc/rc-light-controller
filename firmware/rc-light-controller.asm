@@ -46,9 +46,10 @@
 
 #define CH3_BUTTON_TIMEOUT 6    ; Time in which we accept double-click of CH3
 #define BLINK_COUNTER_VALUE 5   ; 5 * 65.536 ms = ~333 ms = ~1.5 Hz
-#define BRAKE_AFTER_REVERSE_COUNTER_VALUE 30 ; 30 * 65.536 ms = ~2 s
+#define BRAKE_AFTER_REVERSE_COUNTER_VALUE 20 ; 30 * 65.536 ms = ~2 s
 #define BRAKE_DISARM_COUNTER_VALUE 30        ; 30 * 65.536 ms = ~2 s
-#define INDICATOR_STATE_COUNTER_VALUE 30     ; 30 * 65.536 ms = ~2 s
+#define INDICATOR_STATE_COUNTER_VALUE 15     ; 15 * 65.536 ms = ~1 s
+#define INDICATOR_STATE_COUNTER_VALUE_OFF 45 ; 45 * 65.536 ms = ~3 s
 
 ; Bitfields in variable blink_mode
 #define BLINK_MODE_BLINKFLAG 0          ; Toggles with 1.5 Hz
@@ -178,6 +179,11 @@ swap_x_y    macro   x, y
     XORWF x, f      ; X = ((A^B)^A) = B
     XORWF y, f      ; Y = ((A^B)^B) = A
     ; Now X contains B. Y contains A.
+            endm
+
+UART_send_char  macro   c
+    movlw   c
+    call    UART_send_w
             endm
 
 
@@ -1403,10 +1409,12 @@ process_indicators_not_neutral
 process_indicators_neutral_wait
     movlw   CENTRE_THRESHOLD
     subwf   throttle_abs, w
+    movlw   1
     bc      process_indicators_set_not_neutral
 
     movlw   CENTRE_THRESHOLD
     subwf   steering_abs, w
+    movlw   2
     bc      process_indicators_set_not_neutral
 
     movf    indicator_state_counter, f
@@ -1419,6 +1427,15 @@ process_indicators_set_blink_armed
     return
 
 process_indicators_set_not_neutral
+    movwf   send_lo
+    movlw   0x65
+    call    UART_send_w
+    clrf    send_hi
+    call    UART_send_16bit
+    movlw   0x0d
+    call    UART_send_w
+
+
     movlw   STATE_INDICATOR_NOT_NEUTRAL
     movwf   indicator_state
     bcf     blink_mode, BLINK_MODE_INDICATOR_RIGHT
@@ -1428,6 +1445,7 @@ process_indicators_set_not_neutral
 process_indicators_blink_armed
     movlw   CENTRE_THRESHOLD
     subwf   throttle_abs, w
+    movlw   3
     bc      process_indicators_set_not_neutral
 
     movlw   STEERING_BLINK_THRESHOLD
@@ -1446,6 +1464,7 @@ process_indicators_blink_armed
 process_indicators_blink_armed_left  
     movlw   CENTRE_THRESHOLD
     subwf   throttle_abs, w
+    movlw   4
     bc      process_indicators_set_not_neutral
 
     movlw   STEERING_BLINK_THRESHOLD
@@ -1468,6 +1487,7 @@ process_indicators_set_blink_left
 process_indicators_blink_armed_right  
     movlw   CENTRE_THRESHOLD
     subwf   throttle_abs, w
+    movlw   5
     bc      process_indicators_set_not_neutral
 
     movlw   STEERING_BLINK_THRESHOLD
@@ -1488,12 +1508,13 @@ process_indicators_set_blink_right
     return
 
 process_indicators_blink_left
-    btfss   steering, 7 
+    btfsc   steering, 7 
     goto    process_indicators_blink_left_centre
 
     movlw   STEERING_BLINK_THRESHOLD
     subwf   steering_abs, w
-    bc      process_indicators_set_not_neutral
+    movlw   6
+    bnc     process_indicators_set_not_neutral
 
 process_indicators_blink_left_centre
     movlw   CENTRE_THRESHOLD
@@ -1501,18 +1522,19 @@ process_indicators_blink_left_centre
     skpnc
     return
 
-    movlw   INDICATOR_STATE_COUNTER_VALUE
+    movlw   INDICATOR_STATE_COUNTER_VALUE_OFF
     movwf   indicator_state_counter             
     movlw   STATE_INDICATOR_BLINK_LEFT_WAIT
     movwf   indicator_state
     return
 
 process_indicators_blink_left_wait
-    btfss   steering, 7 
+    btfsc   steering, 7 
     goto    process_indicators_blink_left_wait_centre
 
     movlw   STEERING_BLINK_THRESHOLD
     subwf   steering_abs, w
+    movlw   7
     bc      process_indicators_set_not_neutral
 
 process_indicators_blink_left_wait_centre
@@ -1523,15 +1545,17 @@ process_indicators_blink_left_wait_centre
     movf    indicator_state_counter, f
     skpz    
     return
+    movlw   8
     goto    process_indicators_set_not_neutral
 
 process_indicators_blink_right
-    btfsc   steering, 7 
+    btfss   steering, 7 
     goto    process_indicators_blink_right_centre
 
     movlw   STEERING_BLINK_THRESHOLD
     subwf   steering_abs, w
-    bc      process_indicators_set_not_neutral
+    movlw   9
+    bnc     process_indicators_set_not_neutral
 
 process_indicators_blink_right_centre
     movlw   CENTRE_THRESHOLD
@@ -1539,18 +1563,19 @@ process_indicators_blink_right_centre
     skpnc
     return
 
-    movlw   INDICATOR_STATE_COUNTER_VALUE
+    movlw   INDICATOR_STATE_COUNTER_VALUE_OFF
     movwf   indicator_state_counter             
     movlw   STATE_INDICATOR_BLINK_RIGHT_WAIT
     movwf   indicator_state
     return
 
 process_indicators_blink_right_wait
-    btfsc   steering, 7 
+    btfss   steering, 7 
     goto    process_indicators_blink_right_wait_centre
 
     movlw   STEERING_BLINK_THRESHOLD
     subwf   steering_abs, w
+    movlw   10
     bc      process_indicators_set_not_neutral
 
 process_indicators_blink_right_wait_centre
@@ -1561,6 +1586,7 @@ process_indicators_blink_right_wait_centre
     movf    indicator_state_counter, f
     skpz    
     return
+    movlw   11
     goto    process_indicators_set_not_neutral
 
 
@@ -2336,6 +2362,7 @@ Debug_output_values
     call    UART_send_w
 
 debug_output_steering
+    IF 0
     movf    steering, w
     subwf   debug_steering_old, w
     bz      debug_output_throttle
@@ -2349,8 +2376,10 @@ debug_output_steering
     call    UART_send_signed_char
     movlw   h'0d'               ; CR
     call    UART_send_w
+    ENDIF
 
 debug_output_throttle
+    IF 0
     movf    throttle, w
     subwf   debug_throttle_old, w
     bz      debug_output_end
@@ -2365,7 +2394,6 @@ debug_output_throttle
     movlw   h'0d'               ; CR
     call    UART_send_w
 
-    IF 0
     movf    drive_mode, w
     call    UART_send_signed_char
     movlw   h'0d'               ; CR
