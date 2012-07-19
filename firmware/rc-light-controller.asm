@@ -16,18 +16,6 @@
 
     __CONFIG _CP_OFF & _WDT_OFF & _BODEN_ON & _PWRTE_ON & _INTRC_OSC_NOCLKOUT & _MCLRE_OFF & _LVP_OFF
 
-
-;******************************************************************************
-;******************************************************************************
-;******************************************************************************
-; TODO:
-;
-; - Steering wheel servo programming
-;
-;******************************************************************************
-;******************************************************************************
-;******************************************************************************
-
 ;******************************************************************************
 ;   Port usage:
 ;   ===========
@@ -95,6 +83,9 @@
 #define EEPROM_ADR_SERVO_CENTRE 2
 #define EEPROM_ADR_SERVO_EPR 3
 
+; Bitfields in variable setup_mode
+#define SETUP_MODE_NEXT 6
+#define SETUP_MODE_CANCEL 7
 
 
 ;******************************************************************************
@@ -142,11 +133,15 @@
     light_mode
     drive_mode
     indicator_state
+    setup_mode
 
+    servo
     servo_epl
     servo_centre
     servo_epr
-    servo
+    servo_setup_epl
+    servo_setup_centre
+    servo_setup_epr
 
 	d0          ; Delay and temp registers
 	d1
@@ -464,6 +459,7 @@ Main_loop
     call    Process_ch3_double_click
     call    Process_drive_mode
     call    Process_indicators
+    call    Process_steering_servo
     call    Service_timer0
 
     call    Debug_output_values
@@ -845,8 +841,6 @@ process_ch3_initialized
     movlw   0x43                    ; send 'C'
     call    UART_send_w        
     return
-
-
     
 process_ch3_click_timeout
     movf    ch3_clicks, f           ; Any buttons pending?
@@ -857,6 +851,24 @@ process_ch3_click_timeout
     skpz   
     return                          ; No: wait for more buttons
 
+
+    movf    setup_mode, f
+    bz      process_ch3_click_no_setup
+
+    ; Steering servo setup in progress:
+    ; 1 click: next setup step
+    ; more than 1 click: cancel setup
+    decfsz  ch3_clicks, f                
+    goto    process_ch3_setup_cancel
+    bsf     setup_mode, SETUP_MODE_NEXT
+    return    
+    
+process_ch3_setup_cancel
+    bsf     setup_mode, SETUP_MODE_CANCEL
+    return    
+
+    ; Normal operation; setup is not active
+process_ch3_click_no_setup
     movlw   0x50                    ; send 'P'
     call    UART_send_w        
 
@@ -904,9 +916,12 @@ process_ch3_triple_click
     call    UART_send_w        
     return
 
+process_ch3_quad_click
+    decfsz  ch3_clicks, f              
+    goto    process_ch3_8_click
+
     ; --------------------------
     ; Quad click: Hazard lights on/off  
-process_ch3_quad_click
     clrf    ch3_clicks
     movlw   1 << BLINK_MODE_HAZARD
     xorwf   blink_mode, f
@@ -914,7 +929,19 @@ process_ch3_quad_click
     call    UART_send_w        
     return
 
+process_ch3_8_click
+    movlw   4
+    subwf   ch3_clicks, w
+    bnz     process_ch3_click_end
 
+    movlw   1
+    movwf   setup_mode    
+
+process_ch3_click_end
+    clrf    ch3_clicks
+    return
+
+    
 
 ;******************************************************************************
 ;******************************************************************************
@@ -1559,6 +1586,70 @@ process_indicators_blink_right_wait_centre
 #define SIGN_FLAG wl
 
 Process_steering_servo
+    movf    setup_mode, f
+    bz      process_steering_servo_no_setup
+
+    btfsc   setup_mode, SETUP_MODE_CANCEL
+    goto    process_steering_servo_setup_cancel
+    btfsc   setup_mode, 3
+    goto    process_steering_servo_setup_right
+    btfsc   setup_mode, 2
+    goto    process_steering_servo_setup_left
+    btfsc   setup_mode, 1
+    goto    process_steering_servo_setup_centre
+
+process_steering_servo_setup_init
+    movlw   -120
+    movwf   servo_epl
+    clrf    servo_centre
+    movlw   120
+    movwf   servo_epr
+    bsf     setup_mode, 1
+    goto    process_steering_servo_no_setup
+
+process_steering_servo_setup_centre
+    btfss   setup_mode, SETUP_MODE_NEXT
+    goto    process_steering_servo_no_setup
+
+    bcf     setup_mode, SETUP_MODE_NEXT
+    call    process_steering_servo_no_setup
+    movf    servo, w
+    movwf   servo_setup_centre         
+    bsf     setup_mode, 2
+    return
+
+process_steering_servo_setup_left
+    btfss   setup_mode, SETUP_MODE_NEXT
+    goto    process_steering_servo_no_setup
+
+    bcf     setup_mode, SETUP_MODE_NEXT
+    call    process_steering_servo_no_setup
+    movf    servo, w
+    movwf   servo_setup_epl         
+    bsf     setup_mode, 3
+    return
+
+process_steering_servo_setup_right
+    btfss   setup_mode, SETUP_MODE_NEXT
+    goto    process_steering_servo_no_setup
+
+    call    process_steering_servo_no_setup
+    movf    servo, w
+    movwf   servo_epr         
+    movf    servo_setup_epl, w         
+    movwf   servo_epl         
+    movf    servo_setup_epr, w         
+    movwf   servo_epr
+    call    Servo_store_values
+    clrf    setup_mode
+    return
+
+process_steering_servo_setup_cancel
+    clrf    setup_mode
+    call    Servo_load_values
+    return
+
+process_steering_servo_no_setup
     movf    servo_epr, w
     btfss   steering, 7
     movf    servo_epl, w
