@@ -22,8 +22,6 @@
 ;******************************************************************************
 ; TODO:
 ;
-; - Algorithm for forward/neutral/brake
-; - Algorithm for indicators
 ; - Steering wheel servo programming
 ;
 ;******************************************************************************
@@ -88,6 +86,16 @@
 #define STEERING_BLINK_THRESHOLD 50
 #define STEERING_BLINK_OFF_THRESHOLD 30
 
+#define EEPROM_MAGIC1 0x55
+#define EEPROM_MAGIC2 0xAA
+
+#define EEPROM_ADR_MAGIC1 0      
+#define EEPROM_ADR_MAGIC2 4
+#define EEPROM_ADR_SERVO_EPL 1
+#define EEPROM_ADR_SERVO_CENTRE 2
+#define EEPROM_ADR_SERVO_EPR 3
+
+
 
 ;******************************************************************************
 ;* VARIABLE DEFINITIONS
@@ -134,6 +142,11 @@
     light_mode
     drive_mode
     indicator_state
+
+    servo_epl
+    servo_centre
+    servo_epr
+    servo
 
 	d0          ; Delay and temp registers
 	d1
@@ -415,6 +428,9 @@ SPBRG_VALUE = (((d'10'*OSC/((d'64'-(d'48'*BRGH_VALUE))*BAUDRATE))+d'5')/d'10')-1
     movlw   1                   
     movwf   steering_reverse
 
+    ; Load steering servo values from the EEPROM
+    call    Servo_load_values
+
     ; Initialize neutral for steering and throttle 2 seconds after power up
     call    Delay_2s
 
@@ -489,7 +505,7 @@ Output_slave
     movf    temp, w         ; LED data for half brightness
     call    UART_send_w        
 
-    movf    steering, w     ; Steering wheel servo data
+    movf    servo, w        ; Steering wheel servo data
     call    UART_send_w        
 
     return
@@ -1133,6 +1149,7 @@ process_drive_mode_brake
     return
 
 
+
 ;******************************************************************************
 ;******************************************************************************
 ;******************************************************************************
@@ -1514,6 +1531,156 @@ process_indicators_blink_right_wait_centre
     goto    process_indicators_set_not_neutral
 
 
+
+;******************************************************************************
+;******************************************************************************
+;******************************************************************************
+;
+; STEERING SERVO related functions
+;
+;******************************************************************************
+;******************************************************************************
+;******************************************************************************
+
+
+;******************************************************************************
+; Process_steering_servo
+;
+; This function calculates:
+;
+;       right - centre * 100
+;       -------------------- + centre
+;           abs(steering)
+;
+; To ease calculation we first do right - centre, then calculate its absolute
+; value but store the sign. After multiplication and division using the
+; absolute value we re-apply the sign, then add centre.
+;******************************************************************************
+#define SIGN_FLAG wl
+
+Process_steering_servo
+    movf    servo_epr, w
+    btfss   steering, 7
+    movf    servo_epl, w
+    movwf   temp
+
+    movf    servo_centre, w
+    subwf   temp, f
+
+    clrf    SIGN_FLAG
+    btfsc   temp, 7
+    incf    SIGN_FLAG, f
+        
+    btfsc   temp, 7
+    decf    temp, f
+    btfsc   temp, 7
+    comf    temp, f
+
+    ; temp contains now     abs(right - centre)
+    movf    temp, w
+    movwf   xl
+    clrf    xh
+    call    Mul_x_by_100
+    movf    steering_abs, w
+    movwf   yl
+    clrf    yh
+    call    Div_x_by_y
+
+    movf    SIGN_FLAG, f
+    bz      process_servo_not_negative
+
+    ; Re-apply the sign bit
+    movf    xl, w
+    clrf    xl
+    subwf   xl, f   
+
+process_servo_not_negative
+    movf    servo_centre, w
+    addwf   xl, w
+    movwf   servo
+    return
+
+
+;******************************************************************************
+; Servo_load_values
+; 
+;******************************************************************************
+Servo_load_values
+    ; First check if the magic variables are intact. If not, assume the 
+    ; EEPROM has not been initialized yet or is corrupted, so write default
+    ; values back.
+    movlw   EEPROM_ADR_MAGIC1
+    call    EEPROM_read_byte
+    sublw   EEPROM_MAGIC1
+    bnz     Servo_load_defaults
+
+    movlw   EEPROM_ADR_MAGIC2
+    call    EEPROM_read_byte
+    sublw   EEPROM_MAGIC2
+    bnz     Servo_load_defaults
+
+    movlw   EEPROM_ADR_SERVO_EPL
+    call    EEPROM_read_byte
+    movwf   servo_epl
+
+    movlw   EEPROM_ADR_SERVO_CENTRE
+    call    EEPROM_read_byte
+    movwf   servo_centre
+
+    movlw   EEPROM_ADR_SERVO_EPR
+    call    EEPROM_read_byte
+    movwf   servo_epr
+    return
+
+
+;******************************************************************************
+; Servo_store_values
+; 
+;******************************************************************************
+Servo_store_values
+    movf    servo_epl, w
+    movwf   temp
+    movlw   EEPROM_ADR_SERVO_EPL
+    call    EEPROM_write_byte
+
+    movf    servo_centre, w
+    movwf   temp
+    movlw   EEPROM_ADR_SERVO_CENTRE
+    call    EEPROM_write_byte
+
+    movf    servo_epr, w
+    movwf   temp
+    movlw   EEPROM_ADR_SERVO_EPR
+    call    EEPROM_write_byte
+    return
+
+
+;******************************************************************************
+; Servo_load_defaults
+;
+; Load default values of -100..0..100 for the steering servo, write them 
+; back to the EEPROM and write the 2 magic variables. 
+;******************************************************************************
+Servo_load_defaults
+    movlw   -100
+    movwf   servo_epl
+    clrf    servo_centre
+    movlw   100
+    movwf   servo_epr
+
+    call    Servo_store_values
+
+    movlw   EEPROM_MAGIC1
+    movwf   temp
+    movlw   EEPROM_ADR_MAGIC1
+    call    EEPROM_write_byte
+
+    movlw   EEPROM_MAGIC2
+    movwf   temp
+    movlw   EEPROM_ADR_MAGIC2
+    call    EEPROM_write_byte
+    return
+
     
 ;******************************************************************************
 ;******************************************************************************
@@ -1649,7 +1816,7 @@ calculate_normalized_left
 
     call    Sub_y_from_x    ; xh/hl =  CEN - POS
     call    Div_x_by_4      ; xh/hl =  (CEN - POS) / 4
-    call    Mul_x_by_10     ; xh/hl =  ((CEN - POS) / 4) * 100
+    call    Mul_x_by_100    ; xh/hl =  ((CEN - POS) / 4) * 100
 
     swap_x_y    wh, xh
     swap_x_y    wl, xl
@@ -1701,7 +1868,7 @@ calculate_normalized_right
 
     call    Sub_y_from_x    ; xh/hl =  POS - CEN
     call    Div_x_by_4      ; xh/hl =  (POS - CEN) / 4
-    call    Mul_x_by_10     ; xh/hl =  ((POS - CEN) / 4) * 100
+    call    Mul_x_by_100    ; xh/hl =  ((POS - CEN) / 4) * 100
 
     swap_x_y    xh, wh
     swap_x_y    xl, wl
@@ -1868,7 +2035,7 @@ div16by16next
 ; Calculates xh/xl = xh/xl * 100
 ; Only valid for xh/xl <= 655 as the output is only 16 bits
 ;******************************************************************************
-Mul_x_by_10
+Mul_x_by_100
     ; Shift accumulator left 2 times: xh/xl = xh/xl * 4
 	clrc
 	rlf	    xl, f
@@ -2011,6 +2178,50 @@ tlc5916_send_loop
     bcf     PORT_LE
     bcf     PORT_OE
     return
+
+
+;******************************************************************************
+; EEPROM_write_byte
+;
+; Writes the value stored in 'temp' into the address given in W
+;******************************************************************************
+EEPROM_write_byte
+	BANKSEL EEADR
+	movwf   EEADR
+	BANKSEL temp
+	movf    temp, w
+	BANKSEL EEDATA
+	movwf   EEDATA		    ; Setup byte to write
+	bsf	    EECON1, WREN    ; Enable writes
+	
+	movlw   H'55'           ; Required sequence!
+	movwf   EECON2
+    movlw   H'AA'
+	movwf   EECON2
+	bsf     EECON1, WR      ; Begin write procedure
+	bcf     EECON1, WREN	; Disable writes 
+                            ;  Note: does not affect current write cycle
+	
+	; Wait for the write to complete before we return
+	BANKSEL PIR1
+    btfss   PIR1, EEIF
+	goto    $-1		 
+	bcf     PIR1, EEIF      ; Clear EEPROM Write Operation IRQ flag
+    return
+
+
+;******************************************************************************
+; EEPROM_read_byte
+;
+; Reads the value stored at address W. The read value is returned in W.
+;******************************************************************************
+EEPROM_read_byte
+	BANKSEL EEADR
+	movwf   EEADR
+	bsf     EECON1, RD      
+	movf    EEDATA, w
+	BANKSEL PIR1
+	return
 
 
 ;**********************************************************************
@@ -2699,8 +2910,8 @@ Send_Hello_world
 ;   and 2300 us respectively where we clamp servo signals).
 ;
 ;
-;   Steering wheel servo configuration:
-;   ===================================
+;   Steering wheel servo:
+;   =====================
 ;   To allow easy reconfiguration of the steering wheel servo the user has to
 ;   press the CH3 button 8 times. The steering channel will then directly drive
 ;   the steering wheel servo output, allowing the user to set the center 
@@ -2711,6 +2922,23 @@ Send_Hello_world
 ;   confirms with toggling CH3 again, switching to "left end point" mode.
 ;   Once this is set, toggling CH3 stores all values persistently and switches
 ;   back to normal operation.
+;
+;   The slave controller accepts inputs of -120..0..+120, which it translates
+;   to servo pulses 780..1500..2220 us. (This scales easily by multiplying
+;   the servo value by 6, offsetting by 1500!)
+;   The scaling will be done in the master.
+;   The master stores 3 values for the steering wheel servo: left, centre and
+;   right. Each of those may contain a value in the range of -120 to +120.
+;   If the "steering" variable is 0 then it sends the centre value.
+;   If the "steering" variable has a positive value it sends the interpolated
+;   value:
+;
+;       right - centre * 100
+;       -------------------- + centre
+;           abs(steering)
+;
+;   Note this needs to be a signed operation! If "steering" is negative then
+;   'right' is replaced with 'left' in the formula above.
 ;
 ;******************************************************************************
 
