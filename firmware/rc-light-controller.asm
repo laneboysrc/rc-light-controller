@@ -16,6 +16,20 @@
 
     __CONFIG _CP_OFF & _WDT_OFF & _BODEN_ON & _PWRTE_ON & _INTRC_OSC_NOCLKOUT & _MCLRE_OFF & _LVP_OFF
 
+
+;******************************************************************************
+;******************************************************************************
+;******************************************************************************
+; TODO:
+;
+; Synchronize blink start
+; Test steering servo programming
+;
+;******************************************************************************
+;******************************************************************************
+;******************************************************************************
+
+
 ;******************************************************************************
 ;   Port usage:
 ;   ===========
@@ -49,7 +63,7 @@
 #define BRAKE_AFTER_REVERSE_COUNTER_VALUE 20 ; 30 * 65.536 ms = ~2 s
 #define BRAKE_DISARM_COUNTER_VALUE 30        ; 30 * 65.536 ms = ~2 s
 #define INDICATOR_STATE_COUNTER_VALUE 15     ; 15 * 65.536 ms = ~1 s
-#define INDICATOR_STATE_COUNTER_VALUE_OFF 45 ; 45 * 65.536 ms = ~3 s
+#define INDICATOR_STATE_COUNTER_VALUE_OFF 30 ; ~2 s
 
 ; Bitfields in variable blink_mode
 #define BLINK_MODE_BLINKFLAG 0          ; Toggles with 1.5 Hz
@@ -865,6 +879,7 @@ process_ch3_click_timeout
     movf    setup_mode, f
     bz      process_ch3_click_no_setup
 
+    ;====================================
     ; Steering servo setup in progress:
     ; 1 click: next setup step
     ; more than 1 click: cancel setup
@@ -877,6 +892,7 @@ process_ch3_setup_cancel
     bsf     setup_mode, SETUP_MODE_CANCEL
     return    
 
+    ;====================================
     ; Normal operation; setup is not active
 process_ch3_click_no_setup
     movlw   0x50                    ; send 'P'
@@ -886,12 +902,6 @@ process_ch3_click_no_setup
     goto    process_ch3_double_click
 
     ; --------------------------
-    ; Single click: switch hazard lights off it they are active
-    btfss   blink_mode, BLINK_MODE_HAZARD
-    goto    process_ch3_no_hazard
-    bcf     blink_mode, BLINK_MODE_HAZARD
-    return
-
     ; Single click: switch light mode up (Stand, Head, Fog, High Beam) 
 process_ch3_no_hazard
     rlf     light_mode, f
@@ -920,8 +930,14 @@ process_ch3_triple_click
     goto    process_ch3_quad_click
 
     ; --------------------------
-    ; Triple click: all lights off
-    clrf    light_mode
+    ; Triple click: all lights on/off
+    movlw   0x0f
+    andwf   light_mode, w
+    sublw   0x0f
+    movlw   0x0f
+    skpnz
+    movlw   0x00     
+    movwf   light_mode
     movlw   0x33                    ; send '3'
     call    UART_send_w        
     return
@@ -1514,7 +1530,7 @@ process_indicators_blink_left
     movlw   STEERING_BLINK_THRESHOLD
     subwf   steering_abs, w
     movlw   6
-    bnc     process_indicators_set_not_neutral
+    bc      process_indicators_set_not_neutral
 
 process_indicators_blink_left_centre
     movlw   CENTRE_THRESHOLD
