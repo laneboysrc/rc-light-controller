@@ -1,8 +1,20 @@
-rc-light-controller.hex: rc-light-controller.asm
-	gpasm rc-light-controller.asm
+dingo: master-dingo.hex
+
+master-dingo.hex: rc-light-controller.o light-table-dingo.o
+	gplink -o master-dingo rc-light-controller.o light-table-dingo.o
+
+light-table-dingo.o: light-table-dingo.asm
+	gpasm -c -p pic16f628a light-table-dingo.asm
+
+rc-light-controller.o: rc-light-controller.asm
+	gpasm -c rc-light-controller.asm
 
 clean:
-	rm -f rc-light-controller.hex
+	rm -f master-dingo.hex
+	rm -f master-dingo.lst
+	rm -f master-dingo.cod
 	rm -f rc-light-controller.lst
-	rm -f rc-light-controller.cod
+	rm -f rc-light-controller.o
+	rm -f light-table-dingo.lst
+	rm -f light-table-dingo.o
 
