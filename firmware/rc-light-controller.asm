@@ -23,6 +23,8 @@
 ; TODO:
 ;
 ; Test steering servo programming
+; Initalize LEDs and signal initialization
+; LEDs during steering servo programming
 ;
 ;******************************************************************************
 ;******************************************************************************
