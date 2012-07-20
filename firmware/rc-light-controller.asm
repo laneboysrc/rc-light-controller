@@ -16,18 +16,11 @@
 
     __CONFIG _CP_OFF & _WDT_OFF & _BODEN_ON & _PWRTE_ON & _INTRC_OSC_NOCLKOUT & _MCLRE_OFF & _LVP_OFF
 
-
-;******************************************************************************
-;******************************************************************************
-;******************************************************************************
-; TODO:
-;
-; Test steering servo programming
-; LEDs during steering servo programming
-;
-;******************************************************************************
-;******************************************************************************
-;******************************************************************************
+    EXTERN local_light_table
+    EXTERN slave_light_table
+    EXTERN slave_light_half_table
+    EXTERN local_setup_light_table
+    EXTERN slave_setup_light_table
 
 
 ;******************************************************************************
@@ -102,6 +95,11 @@
 #define SETUP_MODE_NEXT 6
 #define SETUP_MODE_CANCEL 7
 
+#define LIGHT_TABLE_LOCAL 0
+#define LIGHT_TABLE_SLAVE 1
+#define LIGHT_TABLE_SLAVE_HALF 2
+#define LIGHT_TABLE_LOCAL_SETUP 3
+#define LIGHT_TABLE_SLAVE_SETUP 4
 
 ;******************************************************************************
 ;* VARIABLE DEFINITIONS
@@ -188,10 +186,10 @@
 ;******************************************************************************
 swap_x_y    macro   x, y
     ; Currently X contains A; Y contains B
-    movf  x, w      ; W = A
-    XORWF y, w      ; W = A ^ B
-    XORWF x, f      ; X = ((A^B)^A) = B
-    XORWF y, f      ; Y = ((A^B)^B) = A
+    movf    x, w    ; W = A
+    xorwf   y, w    ; W = A ^ B
+    xorwf   x, f    ; X = ((A^B)^A) = B
+    xorwf   y, f    ; Y = ((A^B)^B) = A
     ; Now X contains B. Y contains A.
             endm
 
@@ -208,31 +206,6 @@ swap_x_y    macro   x, y
 ; Relocatable code section
 ;******************************************************************************
     CODE
-
-;******************************************************************************
-;******************************************************************************
-;******************************************************************************
-;
-; Light configuration
-;
-;******************************************************************************
-;******************************************************************************
-;******************************************************************************
-    EXTERN local_light_table
-    EXTERN slave_light_table
-    EXTERN slave_light_half_table
-
-light_table
-    ; d0 indicates which light table we request:
-    ;   0: local
-    ;   1: slave
-    ;   2: slave_half
-    btfsc   d0, 0               
-    goto    slave_light_table
-    btfsc   d0, 1
-    goto    slave_light_half_table
-    goto    local_light_table
-
 
 ;******************************************************************************
 ; Initialization
@@ -448,10 +421,21 @@ Main_loop
 ; Output_local_lights
 ;******************************************************************************
 Output_local_lights
-    clrf    d0
+    movf    setup_mode, f
+    bnz     output_local_lights_setup
+
+    movlw   1 << LIGHT_TABLE_LOCAL
+    movwf   d0
     call    Output_get_state
     call    TLC5916_send
     return
+
+output_local_lights_setup
+    movlw   1 << LIGHT_TABLE_LOCAL_SETUP
+    movwf   d0
+    call    Output_get_setup_state
+    call    TLC5916_send
+    return    
 
 
 ;******************************************************************************
@@ -463,27 +447,42 @@ Output_slave
     movlw   0x87            ; Magic byte for synchronization
     call    UART_send_w        
 
-    movlw   1
+    movf    setup_mode, f
+    bnz     output_slave_setup
+
+    movlw   1 << LIGHT_TABLE_SLAVE
     movwf   d0
     call    Output_get_state
     movf    temp, w         ; LED data for full brightness
     call    UART_send_w        
 
-    movlw   2
+    movlw   1 << LIGHT_TABLE_SLAVE_HALF
     movwf   d0
     call    Output_get_state
     movf    temp, w         ; LED data for half brightness
     call    UART_send_w        
 
+output_slave_servo
     movf    servo, w        ; Steering wheel servo data
     call    UART_send_w        
-
     return
 
+output_slave_setup
+    movlw   1 << LIGHT_TABLE_SLAVE_SETUP
+    movwf   d0
+    call    Output_get_setup_state
+    movf    temp, w         ; LED data for full brightness
+    call    UART_send_w        
+
+    clrf    temp            ; LED data for half brightness: N/A for setup
+    call    UART_send_w        
+    goto    output_slave_servo
 
 ;******************************************************************************
 ; Output_get_state
 ;
+; d0 contains the light table index to process.
+; Resulting lights are stored in temp.
 ;******************************************************************************
 Output_get_state
     clrf    temp
@@ -566,6 +565,50 @@ output_local_get_state_hazard
 output_local_get_state_end
     return
 
+
+;******************************************************************************
+; Output_get_setup_state
+;
+; d0 contains the light table index to process.
+; Resulting lights are stored in temp.
+;******************************************************************************
+Output_get_setup_state
+    movlw   0    
+    btfsc   setup_mode, 2
+    addlw   1
+    btfsc   setup_mode, 3
+    addlw   1
+    call    light_table
+    movwf   temp
+    return
+
+
+;******************************************************************************
+; light_table
+;
+; Retrieve a line from the light table.
+; w: the line we request
+; d0 indicates which light table we request:
+;   0: local
+;   1: slave
+;   2: slave_half
+;   4: local_setup
+;   8: slave_setup
+;
+; Resulting light pattern is in w
+;******************************************************************************
+light_table
+    btfsc   d0, LIGHT_TABLE_LOCAL
+    goto    local_light_table
+    btfsc   d0, LIGHT_TABLE_SLAVE
+    goto    slave_light_table
+    btfsc   d0, LIGHT_TABLE_SLAVE_HALF
+    goto    slave_light_half_table
+    btfsc   d0, LIGHT_TABLE_LOCAL_SETUP              
+    goto    local_setup_light_table
+    btfsc   d0, LIGHT_TABLE_SLAVE_SETUP               
+    goto    slave_setup_light_table
+    return
 
 ;******************************************************************************
 ; Service_timer0
@@ -2222,7 +2265,7 @@ mul_xl_by_w_loop
 	addwf   xh, f
     rrf     xh, f
     rrf     xl, f
-	decfsz  count
+	decfsz  count, f
     goto    mul_xl_by_w_loop
     return
 
