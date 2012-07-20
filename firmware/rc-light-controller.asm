@@ -2293,6 +2293,53 @@ EEPROM_read_byte
 
 ;**********************************************************************
 Debug_output_values
+
+#define setup_mode_old debug_indicator_state_old
+#define servo_old debug_throttle_old
+
+debug_output_setup
+    movf    setup_mode, w
+    subwf   setup_mode_old, w
+    bnz     debug_output_servo
+    movf    servo, w
+    subwf   servo_old, w
+    bz      debug_output_indicator
+
+debug_output_servo
+    movlw   73                  ; 'S'   
+    call    UART_send_w
+    movlw   101                 ; 'e'   
+    call    UART_send_w
+    movlw   114                 ; 't'   
+    call    UART_send_w
+    movlw   117                 ; 'u'   
+    call    UART_send_w
+    movlw   112                 ; 'p'   
+    call    UART_send_w
+    movf    setup_mode, w
+    movwf   setup_mode_old
+    call    UART_send_signed_char
+    movlw   0x20                ; Space
+    call    UART_send_w
+    movlw   73                  ; 'S'   
+    call    UART_send_w
+    movlw   101                 ; 'e'   
+    call    UART_send_w
+    movlw   114                 ; 'r'   
+    call    UART_send_w
+    movlw   118                 ; 'v'   
+    call    UART_send_w
+    movlw   111                 ; 'o'   
+    call    UART_send_w
+    movf    servo, w
+    movwf   servo_old
+    call    UART_send_signed_char
+    movlw   h'0d'               ; CR
+    call    UART_send_w
+    
+
+debug_output_indicator
+    IF 0
     movf    indicator_state, w
     subwf   debug_indicator_state_old, w
     bz      debug_output_steering
@@ -2304,6 +2351,7 @@ Debug_output_values
     call    UART_send_signed_char
     movlw   h'0d'               ; CR
     call    UART_send_w
+    ENDIF
 
 debug_output_steering
     IF 0
