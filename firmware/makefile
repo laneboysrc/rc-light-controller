@@ -24,4 +24,7 @@ clean:
 	rm -f rc-light-controller.o
 	rm -f light-table-dingo.lst
 	rm -f light-table-dingo.o
+	rm -f rc-light-controller-slave.hex
+	rm -f rc-light-controller-slave.lst
+	rm -f rc-light-controller-slave.cod
 
