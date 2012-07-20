@@ -1,5 +1,7 @@
 dingo: master-dingo.hex
 
+slave: slave.hex
+
 master-dingo.hex: rc-light-controller.o light-table-dingo.o
 	gplink -o master-dingo rc-light-controller.o light-table-dingo.o
 
@@ -8,6 +10,11 @@ light-table-dingo.o: light-table-dingo.asm
 
 rc-light-controller.o: rc-light-controller.asm
 	gpasm -c rc-light-controller.asm
+
+slave.hex: rc-light-controller-slave.asm
+	gpasm rc-light-controller-slave.asm
+
+
 
 clean:
 	rm -f master-dingo.hex
