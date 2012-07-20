@@ -195,10 +195,6 @@ swap_x_y    macro   x, y
     ; Now X contains B. Y contains A.
             endm
 
-UART_send_char  macro   c
-    movlw   c
-    call    UART_send_w
-            endm
 
 
 ;******************************************************************************
