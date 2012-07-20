@@ -23,7 +23,6 @@
 ; TODO:
 ;
 ; Test steering servo programming
-; Initalize LEDs and signal initialization
 ; LEDs during steering servo programming
 ;
 ;******************************************************************************
@@ -374,9 +373,36 @@ SPBRG_VALUE = (((d'10'*OSC/((d'64'-(d'48'*BRGH_VALUE))*BAUDRATE))+d'5')/d'10')-1
     ; Load steering servo values from the EEPROM
     call    Servo_load_values
 
+    ;------------------------------------
     ; Initialize neutral for steering and throttle 2 seconds after power up
-    call    Delay_2s
+    ; During this time we use all local LED outputs as running lights.
+	movlw	0x11
+	movwf	d1
+	movlw	0x5D
+	movwf	d2
+	movlw	0x05
+	movwf	d3
 
+    clrf    temp
+    call    TLC5916_send
+    clrf    xl
+    setc
+
+init_delay
+	decfsz	d1, f
+	goto	$ + 2
+	decfsz	d2, f
+	goto	$ + 6
+    rrf     xl, f
+    movf    xl, w
+    movwf   temp
+    call    TLC5916_send
+	decfsz	d3, f
+	goto	init_delay
+    return
+
+
+    ;------------------------------------
     call    Read_throttle
     movf    throttle_h, w
     movwf   throttle_centre_h
