@@ -59,6 +59,7 @@
     CBLOCK  0x20    ; Bank 0
 
     servo_sync_flag
+    pwm_counter
 
     uart_light_mode
     uart_light_mode_half
@@ -104,11 +105,24 @@ Interrupt_handler
 	btfss	INTCON, T0IF
 	goto	int_clean   
 
-    ; TODO: PWM function
+    decfsz  pwm_counter, f
+    goto    int_reload
+      
+    movf    light_mode, w
+    iorwf   light_mode_half, w
+    movwf   temp
+    call    TLC5916_send
+    goto    int_lights_done
+
+int_reload
+    movlw   2
+    movwf   pwm_counter
+
     movf    light_mode, w
     movwf   temp
     call    TLC5916_send
 
+int_lights_done
     clrf    servo_sync_flag
 
 int_t0if_done
@@ -482,6 +496,8 @@ Add_x_and_780
 
 
 ;******************************************************************************
+; Timing architecture:
+; ====================
 ; Timer0 will be used to provide a periodic interrupt of 4096 us.
 ; This will require a pre-scaler value of 16.
 ;
@@ -489,12 +505,8 @@ Add_x_and_780
 ; by an interrupt by means of synchronization.
 ;
 ; The servo pulse is generated using Timer1 in "Compare mode, generate software 
-; interrupt on match" mode.
-;
-;
-;
-;
-;
-;
+; interrupt on match" mode. The servo pulse is sent after each UART command.
+; Since the master sends the UART based on reading the RC receiver, the repeat 
+; timing should relatively match the normal 20 ms interval between pulses.
 ;******************************************************************************
 
