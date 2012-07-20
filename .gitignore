@@ -2,4 +2,5 @@
 firmware/*.hex
 firmware/*.lst
 firmware/*.cod
+firmware/*.o
 
