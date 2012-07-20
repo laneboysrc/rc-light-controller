@@ -1371,12 +1371,10 @@ process_indicators_not_neutral
 process_indicators_neutral_wait
     movlw   CENTRE_THRESHOLD
     subwf   throttle_abs, w
-    movlw   1
     bc      process_indicators_set_not_neutral
 
     movlw   CENTRE_THRESHOLD
     subwf   steering_abs, w
-    movlw   2
     bc      process_indicators_set_not_neutral
 
     movf    indicator_state_counter, f
@@ -1389,15 +1387,6 @@ process_indicators_set_blink_armed
     return
 
 process_indicators_set_not_neutral
-    movwf   send_lo
-    movlw   0x65
-    call    UART_send_w
-    clrf    send_hi
-    call    UART_send_16bit
-    movlw   0x0d
-    call    UART_send_w
-
-
     movlw   STATE_INDICATOR_NOT_NEUTRAL
     movwf   indicator_state
     bcf     blink_mode, BLINK_MODE_INDICATOR_RIGHT
@@ -1407,7 +1396,6 @@ process_indicators_set_not_neutral
 process_indicators_blink_armed
     movlw   CENTRE_THRESHOLD
     subwf   throttle_abs, w
-    movlw   3
     bc      process_indicators_set_not_neutral
 
     movlw   STEERING_BLINK_THRESHOLD
@@ -1426,7 +1414,6 @@ process_indicators_blink_armed
 process_indicators_blink_armed_left  
     movlw   CENTRE_THRESHOLD
     subwf   throttle_abs, w
-    movlw   4
     bc      process_indicators_set_not_neutral
 
     movlw   STEERING_BLINK_THRESHOLD
@@ -1450,7 +1437,6 @@ process_indicators_set_blink_left
 process_indicators_blink_armed_right  
     movlw   CENTRE_THRESHOLD
     subwf   throttle_abs, w
-    movlw   5
     bc      process_indicators_set_not_neutral
 
     movlw   STEERING_BLINK_THRESHOLD
@@ -1477,7 +1463,6 @@ process_indicators_blink_left
 
     movlw   STEERING_BLINK_THRESHOLD
     subwf   steering_abs, w
-    movlw   6
     bc      process_indicators_set_not_neutral
 
 process_indicators_blink_left_centre
@@ -1498,7 +1483,6 @@ process_indicators_blink_left_wait
 
     movlw   STEERING_BLINK_THRESHOLD
     subwf   steering_abs, w
-    movlw   7
     bc      process_indicators_set_not_neutral
 
 process_indicators_blink_left_wait_centre
@@ -1509,7 +1493,6 @@ process_indicators_blink_left_wait_centre
     movf    indicator_state_counter, f
     skpz    
     return
-    movlw   8
     goto    process_indicators_set_not_neutral
 
 process_indicators_blink_right
@@ -1518,7 +1501,6 @@ process_indicators_blink_right
 
     movlw   STEERING_BLINK_THRESHOLD
     subwf   steering_abs, w
-    movlw   9
     bnc     process_indicators_set_not_neutral
 
 process_indicators_blink_right_centre
@@ -1539,7 +1521,6 @@ process_indicators_blink_right_wait
 
     movlw   STEERING_BLINK_THRESHOLD
     subwf   steering_abs, w
-    movlw   10
     bc      process_indicators_set_not_neutral
 
 process_indicators_blink_right_wait_centre
@@ -1550,7 +1531,6 @@ process_indicators_blink_right_wait_centre
     movf    indicator_state_counter, f
     skpz    
     return
-    movlw   11
     goto    process_indicators_set_not_neutral
 
 
