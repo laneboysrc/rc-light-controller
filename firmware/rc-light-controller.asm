@@ -399,7 +399,6 @@ init_delay
     call    TLC5916_send
 	decfsz	d3, f
 	goto	init_delay
-    return
 
 
     ;------------------------------------
@@ -414,6 +413,7 @@ init_delay
     movwf   steering_centre_h
     movf    steering_l, w
     movwf   steering_centre_l
+
 
 ;   goto    Main_loop    
 
@@ -1352,8 +1352,9 @@ steering_set
 #define STATE_INDICATOR_BLINK_RIGHT_WAIT 8
 
 Process_indicators
+    IF 0
     movf    indicator_state, w
-    addwf   PCL,F
+    addwf   PCL, f
 
 Process_indicators_table
     goto    process_indicators_not_neutral
@@ -1368,8 +1369,8 @@ Process_indicators_table
     IF ((HIGH ($)) != (HIGH (Process_indicators_table)))
         ERROR "Process_indicators_table CROSSES PAGE BOUNDARY!"
     ENDIF
+    ENDIF
 
-    IF 0
     movf    indicator_state, w
     movwf   temp
     skpnz   
@@ -1396,7 +1397,6 @@ Process_indicators_table
     skpnz   
     goto    process_indicators_blink_right
     goto    process_indicators_blink_right_wait
-    ENDIF
 
 process_indicators_not_neutral
     movlw   CENTRE_THRESHOLD
@@ -1598,9 +1598,9 @@ process_indicators_blink_right_wait_centre
 ;
 ; This function calculates:
 ;
-;       right - centre * 100
-;       -------------------- + centre
-;           abs(steering)
+;       (right - centre) * abs(steering)
+;       -------------------------------- + centre
+;                 100
 ;
 ; To ease calculation we first do right - centre, then calculate its absolute
 ; value but store the sign. After multiplication and division using the
@@ -1661,8 +1661,8 @@ process_steering_servo_setup_right
     movwf   servo_epr         
     movf    servo_setup_epl, w         
     movwf   servo_epl         
-    movf    servo_setup_epr, w         
-    movwf   servo_epr
+    movf    servo_setup_centre, w         
+    movwf   servo_centre
     call    Servo_store_values
     clrf    setup_mode
     return
@@ -1673,8 +1673,15 @@ process_steering_servo_setup_cancel
     return
 
 process_steering_servo_no_setup
+    movf    steering_abs, f
+    bnz     process_steering_servo_not_centre
+    movf    servo_centre, w
+    movwf   servo    
+    return
+
+process_steering_servo_not_centre
     movf    servo_epr, w
-    btfss   steering, 7
+    btfsc   steering, 7
     movf    servo_epl, w
     movwf   temp
 
@@ -1693,9 +1700,9 @@ process_steering_servo_no_setup
     ; temp contains now     abs(right - centre)
     movf    temp, w
     movwf   xl
-    clrf    xh
-    call    Mul_x_by_100
     movf    steering_abs, w
+    call    Mul_xl_by_w
+    movlw   100
     movwf   yl
     clrf    yh
     call    Div_x_by_y
@@ -1762,7 +1769,7 @@ Servo_load_values
     call    UART_send_signed_char
     movf    servo_epr, w
     call    UART_send_signed_char
-    movlw   0x0d                ; CR   
+    movlw   0x0a                ; LF  
     call    UART_send_w
 
     return
@@ -1791,7 +1798,7 @@ Servo_store_values
     call    UART_send_signed_char
     movf    servo_epr, w
     call    UART_send_signed_char
-    movlw   0x0d                ; CR   
+    movlw   0x0a                ; LF   
     call    UART_send_w
 
     movf    servo_epl, w
@@ -1828,7 +1835,7 @@ Servo_load_defaults
     call    UART_send_w
     movlw   102                 ; 'f'   
     call    UART_send_w
-    movlw   0x0d                ; CR   
+    movlw   0x0a                ; LF   
     call    UART_send_w
 
     movlw   -100
@@ -2199,6 +2206,28 @@ div16by16next
 
 
 ;******************************************************************************
+; Mul_xl_by_w
+;
+; Calculates xh/xl = xl * w
+;******************************************************************************
+#define count d0
+Mul_xl_by_w
+    clrf    xh
+	clrf    count
+    bsf     count, 3
+    rrf     xl, f
+
+mul_xl_by_w_loop
+	skpnc
+	addwf   xh, f
+    rrf     xh, f
+    rrf     xl, f
+	decfsz  count
+    goto    mul_xl_by_w_loop
+    return
+
+
+;******************************************************************************
 ; Mul_x_by_100
 ;
 ; Calculates xh/xl = xh/xl * 100
@@ -2408,22 +2437,24 @@ debug_output_setup
     bz      debug_output_indicator
 
 debug_output_servo
-    movlw   73                  ; 'S'   
+    movlw   83                  ; 'S'   
     call    UART_send_w
     movlw   101                 ; 'e'   
     call    UART_send_w
-    movlw   114                 ; 't'   
+    movlw   116                 ; 't'   
     call    UART_send_w
     movlw   117                 ; 'u'   
     call    UART_send_w
     movlw   112                 ; 'p'   
+    call    UART_send_w
+    movlw   0x20                ; Space
     call    UART_send_w
     movf    setup_mode, w
     movwf   setup_mode_old
     call    UART_send_signed_char
     movlw   0x20                ; Space
     call    UART_send_w
-    movlw   73                  ; 'S'   
+    movlw   83                  ; 'S'   
     call    UART_send_w
     movlw   101                 ; 'e'   
     call    UART_send_w
@@ -2433,10 +2464,12 @@ debug_output_servo
     call    UART_send_w
     movlw   111                 ; 'o'   
     call    UART_send_w
+    movlw   0x20                ; Space
+    call    UART_send_w
     movf    servo, w
     movwf   servo_old
     call    UART_send_signed_char
-    movlw   h'0d'               ; CR
+    movlw   0x0a                ; LF
     call    UART_send_w
     
 
@@ -2451,7 +2484,7 @@ debug_output_indicator
     movf    indicator_state, w
     movwf   debug_indicator_state_old
     call    UART_send_signed_char
-    movlw   h'0d'               ; CR
+    movlw   0x0a                ; LF
     call    UART_send_w
     ENDIF
 
@@ -2468,7 +2501,7 @@ debug_output_steering
     movf    steering, w
     movwf   debug_steering_old
     call    UART_send_signed_char
-    movlw   h'0d'               ; CR
+    movlw   0x0a                ; LF
     call    UART_send_w
     ENDIF
 
@@ -2485,12 +2518,12 @@ debug_output_throttle
     movf    throttle, w
     movwf   debug_throttle_old
     call    UART_send_signed_char
-    movlw   h'0d'               ; CR
+    movlw   0x0a                ; LF
     call    UART_send_w
 
     movf    drive_mode, w
     call    UART_send_signed_char
-    movlw   h'0d'               ; CR
+    movlw   0x0a                ; LF
     call    UART_send_w
     ENDIF
 
@@ -2678,8 +2711,9 @@ add10
     movf    send_lo, w
     addlw   0x30
     call    UART_send_w
-    movlw   0x0a
-    call    UART_send_w
+
+;    movlw   0x0a
+;    call    UART_send_w
 
     return
 
