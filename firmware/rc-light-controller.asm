@@ -1673,6 +1673,16 @@ process_servo_not_negative
 ; 
 ;******************************************************************************
 Servo_load_values
+    movlw   69                  ; 'E'   
+    call    UART_send_w
+    movlw   69                  ; 'E'   
+    call    UART_send_w
+    movlw   114                 ; 'r'   
+    call    UART_send_w
+    movlw   100                 ; 'd'   
+    call    UART_send_w
+    movlw   0x20                ; Space   
+
     ; First check if the magic variables are intact. If not, assume the 
     ; EEPROM has not been initialized yet or is corrupted, so write default
     ; values back.
@@ -1697,6 +1707,17 @@ Servo_load_values
     movlw   EEPROM_ADR_SERVO_EPR
     call    EEPROM_read_byte
     movwf   servo_epr
+
+    call    UART_send_w
+    movf    servo_epl, w
+    call    UART_send_signed_char
+    movf    servo_centre, w
+    call    UART_send_signed_char
+    movf    servo_epr, w
+    call    UART_send_signed_char
+    movlw   0x0d                ; CR   
+    call    UART_send_w
+
     return
 
 
@@ -1705,6 +1726,27 @@ Servo_load_values
 ; 
 ;******************************************************************************
 Servo_store_values
+    movlw   69                  ; 'E'   
+    call    UART_send_w
+    movlw   69                  ; 'E'   
+    call    UART_send_w
+    movlw   115                 ; 's'   
+    call    UART_send_w
+    movlw   116                 ; 't'   
+    call    UART_send_w
+    movlw   111                 ; 'o'   
+    call    UART_send_w
+    movlw   0x20                ; Space   
+    call    UART_send_w
+    movf    servo_epl, w
+    call    UART_send_signed_char
+    movf    servo_centre, w
+    call    UART_send_signed_char
+    movf    servo_epr, w
+    call    UART_send_signed_char
+    movlw   0x0d                ; CR   
+    call    UART_send_w
+
     movf    servo_epl, w
     movwf   temp
     movlw   EEPROM_ADR_SERVO_EPL
@@ -1729,6 +1771,19 @@ Servo_store_values
 ; back to the EEPROM and write the 2 magic variables. 
 ;******************************************************************************
 Servo_load_defaults
+    movlw   69                  ; 'E'   
+    call    UART_send_w
+    movlw   69                  ; 'E'   
+    call    UART_send_w
+    movlw   100                 ; 'd'   
+    call    UART_send_w
+    movlw   101                 ; 'e'   
+    call    UART_send_w
+    movlw   102                 ; 'f'   
+    call    UART_send_w
+    movlw   0x0d                ; CR   
+    call    UART_send_w
+
     movlw   -100
     movwf   servo_epl
     clrf    servo_centre
@@ -2394,7 +2449,6 @@ debug_output_throttle
 
 debug_output_end
     return
-
 
 
 
