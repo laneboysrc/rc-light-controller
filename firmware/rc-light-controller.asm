@@ -1325,6 +1325,24 @@ steering_set
 
 Process_indicators
     movf    indicator_state, w
+    addwf   PCL,F
+
+Process_indicators_table
+    goto    process_indicators_not_neutral
+    goto    process_indicators_neutral_wait
+    goto    process_indicators_blink_armed
+    goto    process_indicators_blink_armed_left
+    goto    process_indicators_blink_armed_right
+    goto    process_indicators_blink_left
+    goto    process_indicators_blink_left_wait
+    goto    process_indicators_blink_right
+    goto    process_indicators_blink_right_wait
+    IF ((HIGH ($)) != (HIGH (Process_indicators_table)))
+        ERROR "Process_indicators_table CROSSES PAGE BOUNDARY!"
+    ENDIF
+
+    IF 0
+    movf    indicator_state, w
     movwf   temp
     skpnz   
     goto    process_indicators_not_neutral
@@ -1350,6 +1368,7 @@ Process_indicators
     skpnz   
     goto    process_indicators_blink_right
     goto    process_indicators_blink_right_wait
+    ENDIF
 
 process_indicators_not_neutral
     movlw   CENTRE_THRESHOLD
