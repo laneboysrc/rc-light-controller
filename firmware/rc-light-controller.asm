@@ -22,7 +22,6 @@
 ;******************************************************************************
 ; TODO:
 ;
-; Synchronize blink start
 ; Test steering servo programming
 ;
 ;******************************************************************************
@@ -664,6 +663,26 @@ service_timer0_blink
     return
 
 
+;******************************************************************************
+; Synchronize_blinking
+;
+; This function ensures that blinking always starts with a full "on" period.
+; It resets the blink counter and sets the blink flag, but only if none
+; of hazard and indicator are already on (= blinking)
+;******************************************************************************
+Synchronize_blinking
+    btfsc   blink_mode, BLINK_MODE_HAZARD
+    return
+    btfsc   blink_mode, BLINK_MODE_INDICATOR_LEFT
+    return
+    btfsc   blink_mode, BLINK_MODE_INDICATOR_RIGHT
+    return
+
+    movlw   BLINK_COUNTER_VALUE
+    movwf   blink_counter
+    bsf     blink_mode, BLINK_MODE_BLINKFLAG
+    return
+
 
 ;******************************************************************************
 ;******************************************************************************
@@ -899,7 +918,6 @@ process_ch3_click_no_setup
 
     ; --------------------------
     ; Single click: switch light mode up (Stand, Head, Fog, High Beam) 
-process_ch3_no_hazard
     rlf     light_mode, f
     bsf     light_mode, LIGHT_MODE_STAND
     movlw   0x0f
@@ -945,6 +963,7 @@ process_ch3_quad_click
     ; --------------------------
     ; Quad click: Hazard lights on/off  
     clrf    ch3_clicks
+    call    Synchronize_blinking
     movlw   1 << BLINK_MODE_HAZARD
     xorwf   blink_mode, f
     movlw   0x34                    ; send '4'
@@ -1493,6 +1512,7 @@ process_indicators_blink_armed_left
 process_indicators_set_blink_left  
     movlw   STATE_INDICATOR_BLINK_LEFT
     movwf   indicator_state
+    call    Synchronize_blinking
     bsf     blink_mode, BLINK_MODE_INDICATOR_LEFT
     return
 
@@ -1516,6 +1536,7 @@ process_indicators_blink_armed_right
 process_indicators_set_blink_right
     movlw   STATE_INDICATOR_BLINK_RIGHT
     movwf   indicator_state
+    call    Synchronize_blinking
     bsf     blink_mode, BLINK_MODE_INDICATOR_RIGHT
     return
 
