@@ -533,11 +533,17 @@ Add_x_and_780
 ;******************************************************************************
 ; Timing architecture:
 ; ====================
-; Timer0 will be used to provide a periodic interrupt of 4096 us.
-; This will require a pre-scaler value of 16.
+; Timer0 will be used to provide a periodic interrupt of 2048 us.
+; This will require a pre-scaler value of 8.
 ;
-; This allows us to send a servo pulse of 2500 us without being disturbed
-; by an interrupt by means of synchronization.
+; The original design used 4096 us, as to allow to send a servo pulse of 2500 
+; us without being disturbed by an interrupt by means of synchronization.
+; However, 4096 us causes visible flicker on the PWM of the LEDs for anything
+; other than 50%. Hence we changed to 2048 and worst case delay the interrupt
+; a bit. 
+; Need to test this though to ensure no judder issue. Maybe we need a clever 
+; algorithm that checks against servo pulses conflicting with the interrupt
+; and does something smart about it.
 ;
 ; The servo pulse is generated using Timer1 in "Compare mode, generate software 
 ; interrupt on match" mode. The servo pulse is sent after each UART command.
