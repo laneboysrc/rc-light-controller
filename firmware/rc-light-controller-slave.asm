@@ -172,8 +172,8 @@ Init
     movwf   TRISA
 
     ; FIXME: RB2 needs to be output for slave!
-;    movlw   b'11101110' ; Make RB7, RB6, RB5, RB3, RB2 and RB1 inputs (for UART TX!)
-    movlw   b'01101110' ; Make RB6, RB5, RB3, RB2 and RB1 inputs (for SERVO!)
+;    movlw   b'11101110' ; Make RB7, RB6, RB5, RB3, RB2 and RB1 inputs (for MASTER!)
+    movlw   b'01101110' ; Make RB6, RB5, RB3, RB2 and RB1 inputs (for SLAVE!)
     movwf   TRISB
 
 
@@ -200,13 +200,13 @@ BAUDRATE = d'38400'     ; Desired baudrate
 BRGH_VALUE = 1          ; Either 0 or 1
 SPBRG_VALUE = (((d'10'*OSC/((d'64'-(d'48'*BRGH_VALUE))*BAUDRATE))+d'5')/d'10')-1
 
-    movlw   b'00000000'
+    movlw   b'00100000'
             ; |||||||+ TX9D (not used)
             ; ||||||+- TRMT (read only)
             ; |||||+-- BRGH (high baud rate generator)
             ; ||||+---      (not implemented)
             ; |||+---- SYNC (cleared to select async mode)
-            ; ||+----- TXEN (disable transmit function)
+            ; ||+----- TXEN (enable transmit function)
             ; |+------ TX9  (cleared to use 8 bit mode = no parity)
             ; +------- CSRC (not used in async mode)
     movwf   TXSTA
@@ -220,7 +220,7 @@ SPBRG_VALUE = (((d'10'*OSC/((d'64'-(d'48'*BRGH_VALUE))*BAUDRATE))+d'5')/d'10')-1
     movwf	SPBRG
 
     BANKSEL RCSTA
-    movlw   b'00010000'
+    movlw   b'10010000'
             ; |||||||+ RX9D (not used)
             ; ||||||+- OERR (overrun error, read only)
             ; |||||+-- FERR (framing error)
