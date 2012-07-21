@@ -20,13 +20,13 @@
 ;******************************************************************************
 ;   Port usage:
 ;   ===========
-;   RB6, RB1:   IN  Servo input ST (PGC and RX for slave double-usage)
-;   RB7:        IN  Servo input TH (PGD double-usage)
-;   RA5:        IN  Servo input CH3 (Vpp double-usage)
-;   RB2:        OUT Slave out (TX Master) / Servo out (Slave) 
+;   RB6, RB1:   IN  RX (PGC double-usage)
+;   RB7:        OUT Servo out (PGD double-usage) 
+;   RA5:        IN  (Vpp double-usage)
+;   RB2, RB5:   OUT Slave out (TX Master) 
 ;
 ;   RA3:        OUT CLK TLC5916
-;   RA4:        OUT SDI TLC5916
+;   RA4:        OUT SDI TLC5916 (needs pull-up!)
 ;   RA2:        OUT LE TLC5916
 ;   RB0:        OUT OE TLC5916
 ;
@@ -34,7 +34,7 @@
 ;   RB5         IN  RB5 is tied to RB2 for routing convenience!
 ;   RA6, RA0, RA1, RB4:     OUT NC pins, switch to output
 
-#define PORT_SERVO      PORTB, 2
+#define PORT_SERVO      PORTB, 7
 
 ; TLC5916 LED driver serial communication ports
 #define PORT_CLK        PORTA, 3
@@ -106,21 +106,22 @@ Interrupt_handler
 	goto	int_clean   
 
     decfsz  pwm_counter, f
-    goto    int_reload
-      
+    goto    int_no_reload
+
+    movlw   4
+    movwf   pwm_counter
     movf    light_mode, w
     iorwf   light_mode_half, w
     movwf   temp
-    call    TLC5916_send
+    call    TLC5916_send     
     goto    int_lights_done
 
-int_reload
-    movlw   2
-    movwf   pwm_counter
-
+int_no_reload
     movf    light_mode, w
+
     movwf   temp
     call    TLC5916_send
+
 
 int_lights_done
     clrf    servo_sync_flag
@@ -171,7 +172,8 @@ Init
     movwf   TRISA
 
     ; FIXME: RB2 needs to be output for slave!
-    movlw   b'11101110' ; Make RB7, RB6, RB5, RB3, RB2 and RB1 inputs
+;    movlw   b'11101110' ; Make RB7, RB6, RB5, RB3, RB2 and RB1 inputs (for UART TX!)
+    movlw   b'01101110' ; Make RB6, RB5, RB3, RB2 and RB1 inputs (for SERVO!)
     movwf   TRISB
 
 
@@ -198,13 +200,13 @@ BAUDRATE = d'38400'     ; Desired baudrate
 BRGH_VALUE = 1          ; Either 0 or 1
 SPBRG_VALUE = (((d'10'*OSC/((d'64'-(d'48'*BRGH_VALUE))*BAUDRATE))+d'5')/d'10')-1
 
-    movlw   b'00100000'
+    movlw   b'00000000'
             ; |||||||+ TX9D (not used)
             ; ||||||+- TRMT (read only)
             ; |||||+-- BRGH (high baud rate generator)
             ; ||||+---      (not implemented)
             ; |||+---- SYNC (cleared to select async mode)
-            ; ||+----- TXEN (set to enable transmit function)
+            ; ||+----- TXEN (disable transmit function)
             ; |+------ TX9  (cleared to use 8 bit mode = no parity)
             ; +------- CSRC (not used in async mode)
     movwf   TXSTA
@@ -218,7 +220,7 @@ SPBRG_VALUE = (((d'10'*OSC/((d'64'-(d'48'*BRGH_VALUE))*BAUDRATE))+d'5')/d'10')-1
     movwf	SPBRG
 
     BANKSEL RCSTA
-    movlw   b'10010000'
+    movlw   b'00010000'
             ; |||||||+ RX9D (not used)
             ; ||||||+- OERR (overrun error, read only)
             ; |||||+-- FERR (framing error)
@@ -248,6 +250,8 @@ SPBRG_VALUE = (((d'10'*OSC/((d'64'-(d'48'*BRGH_VALUE))*BAUDRATE))+d'5')/d'10')-1
             ; +------- 
     movwf   CCP1CON
 
+    movlw   1
+    movwf   pwm_counter
 
     bcf     INTCON, T0IF    ; Clear Timer0 Interrupt Flag    
     bcf     PIR1, CCP1IF    ; Clear Timer1 Compare Interrupt Flag
@@ -275,6 +279,36 @@ Main_loop
 ; protocol frame via the UART.
 ;******************************************************************************
 Read_UART
+    bsf     servo_sync_flag, 0
+    btfsc   servo_sync_flag, 0
+    goto    $ - 1   
+
+    bsf     servo_sync_flag, 0
+    btfsc   servo_sync_flag, 0
+    goto    $ - 1   
+
+    bsf     servo_sync_flag, 0
+    btfsc   servo_sync_flag, 0
+    goto    $ - 1   
+
+    bsf     servo_sync_flag, 0
+    btfsc   servo_sync_flag, 0
+    goto    $ - 1   
+
+    bsf     servo_sync_flag, 0
+    btfsc   servo_sync_flag, 0
+    goto    $ - 1   
+
+    movlw   b'00000001'
+    movwf   uart_light_mode 
+    movlw   b'00000010'
+    movwf   uart_light_mode_half
+    movlw   50
+    movwf   uart_servo
+
+    return
+
+
     call    read_UART_byte
     sublw   0x8f                    ; First byte the magic 0x8f?
     bnz     Read_UART               ; No: wait for 0x8f to appear
@@ -380,6 +414,7 @@ Set_light_mode
 ;******************************************************************************
 Make_servo_pulse    
     movf    uart_servo, w
+    addlw   120
     movwf   xl
     call    Mul_x_by_6
     call    Add_x_and_780
@@ -398,11 +433,11 @@ Make_servo_pulse
     bsf     servo_sync_flag, 0
     btfsc   servo_sync_flag, 0
     goto    $ - 1
-
+   
     bsf     T1CON, 0        ; Start timer 1
     bsf     PORT_SERVO      ; Set servo port to high pulse
 
-    btfsc   PIR1, CCP1IF    ; Wait for compare value reached
+    btfss   PIR1, CCP1IF    ; Wait for compare value reached
     goto    $ - 1
 
     bcf     PORT_SERVO      ; Turn off servo pulse
