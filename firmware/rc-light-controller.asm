@@ -349,29 +349,35 @@ SPBRG_VALUE = (((d'10'*OSC/((d'64'-(d'48'*BRGH_VALUE))*BAUDRATE))+d'5')/d'10')-1
     ;------------------------------------
     ; Initialize neutral for steering and throttle 2 seconds after power up
     ; During this time we use all local LED outputs as running lights.
-	movlw	0x11
-	movwf	d1
-	movlw	0x5D
-	movwf	d2
-	movlw	0x05
-	movwf	d3
-
     clrf    temp
     call    TLC5916_send
     clrf    xl
     setc
 
-init_delay
+	movlw   20              ; Execute 100 ms delay loop 20 times    
+	movwf   d3
+
+init_delay1                 ; Delay loop of 100 ms
+	movlw   0x1f
+	movwf   d1
+	movlw   0x4f
+	movwf   d2
+init_delay2
 	decfsz	d1, f
-	goto	$ + 2
+	goto	$+2
 	decfsz	d2, f
-	goto	$ + 6
-    rrf     xl, f
+	goto	init_delay2
+
+    rlf     xl, f
     movf    xl, w
     movwf   temp
+    movf    STATUS, w
+    movwf   xh
     call    TLC5916_send
+    movf    xh, w
+    movwf   STATUS
 	decfsz	d3, f
-	goto	init_delay
+	goto	init_delay1
 
 
     ;------------------------------------
