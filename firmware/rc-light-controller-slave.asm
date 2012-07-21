@@ -20,10 +20,10 @@
 ;******************************************************************************
 ;   Port usage:
 ;   ===========
-;   RB6, RB1:   IN  RX (PGC double-usage)
+;   RB6, RB1:   IN  Slave in  (UART RX, PGC double-usage)
 ;   RB7:        OUT Servo out (PGD double-usage) 
-;   RA5:        IN  (Vpp double-usage)
-;   RB2, RB5:   OUT Slave out (TX Master) 
+;   RA5:        IN  N/A       (Vpp double-usage)
+;   RB2, RB5:   OUT Slave out (UART TX) 
 ;
 ;   RA3:        OUT CLK TLC5916
 ;   RA4:        OUT SDI TLC5916 (needs pull-up!)
