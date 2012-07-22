@@ -26,10 +26,12 @@
 ;   RB2, RB5:   OUT Slave out (UART TX) 
 ;
 ;   RA3:        OUT CLK TLC5916
-;   RA4:        OUT SDI TLC5916 (needs pull-up!)
+;   RA0, RA4:   OUT SDI TLC5916
 ;   RA2:        OUT LE TLC5916
 ;   RB0:        OUT OE TLC5916
 ;
+;   RA4         IN  Tied to RA0 for routing convenience. Note that RA4 is open
+;                   drain so not good to use as SDI!
 ;   RA7, RB3:   IN  Tied to +Vdd for routing convenience!
 ;   RB5         IN  RB5 is tied to RB2 for routing convenience!
 ;   RA6, RA0, RA1, RB4:     OUT NC pins, switch to output
@@ -60,6 +62,8 @@
 
     servo_sync_flag
     pwm_counter
+    int_temp
+    int_d0
 
     uart_light_mode
     uart_light_mode_half
@@ -95,33 +99,42 @@ Interrupt_handler
 	movf	STATUS, w       ; W now has copy of status
 	clrf	STATUS          ; Ensure we are in bank 0 now!
 	movwf	savestatus	    ; Save status
-	movf	PCLATH, w       ; Save pclath
-	movwf	savepclath	
-	clrf	PCLATH		    ; Explicitly select Page 0
+;	movf	PCLATH, w       ; Save pclath
+;	movwf	savepclath	
+;	clrf	PCLATH		    ; Explicitly select Page 0
+;	movf	FSR, w
+;	movwf	savefsr		    ; Save FSR (just in case)
 
-	movf	FSR, w
-	movwf	savefsr		    ; Save FSR (just in case)
+;	btfss	INTCON, T0IF
+;	goto	int_clean   
 
-	btfss	INTCON, T0IF
-	goto	int_clean   
-
+    movf    light_mode, w
     decfsz  pwm_counter, f
     goto    int_no_reload
 
-    movlw   4
+    movlw   6
     movwf   pwm_counter
-    movf    light_mode, w
-    iorwf   light_mode_half, w
-    movwf   temp
-    call    TLC5916_send     
-    goto    int_lights_done
+    movf    light_mode_half, w
 
 int_no_reload
-    movf    light_mode, w
+    movwf   int_temp
+    movlw   8
+    movwf   int_d0
 
-    movwf   temp
-    call    TLC5916_send
+int_tlc5916_send_loop
+    rlf     int_temp, f
+    skpc    
+    bcf     PORT_SDI
+    skpnc    
+    bsf     PORT_SDI
+    bsf     PORT_CLK
+    bcf     PORT_CLK
+    decfsz  int_d0, f
+    goto    int_tlc5916_send_loop
 
+    bsf     PORT_LE
+    bcf     PORT_LE
+    bcf     PORT_OE
 
 int_lights_done
     clrf    servo_sync_flag
@@ -130,10 +143,10 @@ int_t0if_done
 	bcf	    INTCON, T0IF    ; Clear interrupt flag that caused interrupt
 
 int_clean
-		movf	savefsr, w
-		movwf	FSR		    ; Restore FSR
-		movf	savepclath, w
-		movwf	PCLATH      ; Restore PCLATH (Page=original)
+;		movf	savefsr, w
+;		movwf	FSR		    ; Restore FSR
+;		movf	savepclath, w
+;		movwf	PCLATH      ; Restore PCLATH (Page=original)
 		movf	savestatus, w
 		movwf	STATUS      ; Restore status! (bank=original)
 		swapf	savew, f    ; Restore W from *original* bank! 
@@ -154,8 +167,8 @@ Init
 
 
     BANKSEL OPTION_REG
-    movlw   b'10000100'
-            ; |||||||+ PS0  (Set pre-scaler to 1:16)
+    movlw   b'10000011'
+            ; |||||||+ PS0  (Set pre-scaler to 1:8)
             ; ||||||+- PS1
             ; |||||+-- PS2
             ; ||||+--- PSA  (Use pre-scaler for Timer 0)
@@ -299,6 +312,27 @@ Read_UART
     btfsc   servo_sync_flag, 0
     goto    $ - 1   
 
+    bsf     servo_sync_flag, 0
+    btfsc   servo_sync_flag, 0
+    goto    $ - 1   
+
+    bsf     servo_sync_flag, 0
+    btfsc   servo_sync_flag, 0
+    goto    $ - 1   
+
+    bsf     servo_sync_flag, 0
+    btfsc   servo_sync_flag, 0
+    goto    $ - 1   
+
+    bsf     servo_sync_flag, 0
+    btfsc   servo_sync_flag, 0
+    goto    $ - 1   
+
+    bsf     servo_sync_flag, 0
+    btfsc   servo_sync_flag, 0
+    goto    $ - 1   
+
+
     movlw   b'00000001'
     movwf   uart_light_mode 
     movlw   b'00000010'
@@ -407,6 +441,7 @@ Set_light_mode
     movf    uart_light_mode, w
     movwf   light_mode
     movf    uart_light_mode_half, w
+    iorwf   light_mode, w
     movwf   light_mode_half
     return    
 
@@ -422,9 +457,9 @@ Make_servo_pulse
     clrf    T1CON           ; Stop timer 1, runs at 1us per tick, internal osc
     clrf    TMR1H           ; Reset the timer to 0
     clrf    TMR1L
-    movf    xl, w           ; Load Timer1 compare register
+    movlw   LOW(1800)       ; Load Timer1 compare register with the wait time
     movwf   CCPR1L
-    movf    xh, w
+    movlw   HIGH(1800)      
     movwf   CCPR1H
     bcf     PIR1, CCP1IF    ; Clear Timer1 compare interrupt flag
 
@@ -433,6 +468,20 @@ Make_servo_pulse
     bsf     servo_sync_flag, 0
     btfsc   servo_sync_flag, 0
     goto    $ - 1
+   
+    bsf     T1CON, 0        ; Start timer 1
+
+    btfss   PIR1, CCP1IF    ; Wait for compare value reached
+    goto    $ - 1
+
+    clrf    T1CON           ; Stop timer 1, runs at 1us per tick, internal osc
+    clrf    TMR1H           ; Reset the timer to 0
+    clrf    TMR1L
+    movf    xl, w           ; Load Timer1 compare register with the servo time
+    movwf   CCPR1L
+    movf    xh, w
+    movwf   CCPR1H
+    bcf     PIR1, CCP1IF    ; Clear Timer1 compare interrupt flag
    
     bsf     T1CON, 0        ; Start timer 1
     bsf     PORT_SERVO      ; Set servo port to high pulse
@@ -539,11 +588,26 @@ Add_x_and_780
 ; The original design used 4096 us, as to allow to send a servo pulse of 2500 
 ; us without being disturbed by an interrupt by means of synchronization.
 ; However, 4096 us causes visible flicker on the PWM of the LEDs for anything
-; other than 50%. Hence we changed to 2048 and worst case delay the interrupt
-; a bit. 
-; Need to test this though to ensure no judder issue. Maybe we need a clever 
-; algorithm that checks against servo pulses conflicting with the interrupt
-; and does something smart about it.
+; other than 50%. 
+;
+; To ensure we output a precise pulse for the servo we must not have the
+; interrupt interfere with the pulse generation. Ideally we would use the 
+; CCP1/RB3 pin to let the timer hardware pull the pin low, but the pin is tied
+; up and we need the other 4 already assigned pins on the servo ports anyway.
+;
+; The pulse we create is between 780 and 2220 us. The difference is 1440 us, 
+; which is significantly shorter than the interrupt. We do not care if there
+; is an interrupt occuring between 0 and 780 us (as long as the interrupt is
+; done before 780 us), so all we need to do is ensure that the interrupt falls
+; within the first 780 us. If we give ourself a bit of buffer at the end, we 
+; would like to have the interrupt occur 2048 - 1440 - 100 (buffer) = 508 us
+; before the 780 us time. So we need to start the servo pulse 780 - 508 - 2048
+; = ~1800 us before we start the servo pulse.
+; So the algorithm is as follows: 
+; - wait for the interrup sync flag
+; - wait precisely 1800 us
+; - load the timer with the servo pulse time, set the pulse high and start the 
+;   timer
 ;
 ; The servo pulse is generated using Timer1 in "Compare mode, generate software 
 ; interrupt on match" mode. The servo pulse is sent after each UART command.

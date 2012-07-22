@@ -32,10 +32,12 @@
 ;   RB2, RB5:   OUT Slave out (UART TX)
 ;
 ;   RA3:        OUT CLK TLC5916
-;   RA4:        OUT SDI TLC5916 (needs pull-up!)
+;   RA0, RA4:   OUT SDI TLC5916
 ;   RA2:        OUT LE TLC5916
 ;   RB0:        OUT OE TLC5916
 ;
+;   RA4         IN  Tied to RA0 for routing convenience. Note that RA4 is open
+;                   drain so not good to use as SDI!
 ;   RA7, RB3:   IN  Tied to +Vdd for routing convenience!
 ;   RB5         IN  RB5 is tied to RB2 for routing convenience!
 ;   RA6, RA0, RA1, RB4:     OUT NC pins, switch to output
