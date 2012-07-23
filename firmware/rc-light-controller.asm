@@ -48,7 +48,7 @@
 
 ; TLC5916 LED driver serial communication ports
 #define PORT_CLK        PORTA, 3
-#define PORT_SDI        PORTA, 4
+#define PORT_SDI        PORTA, 0
 #define PORT_LE         PORTA, 2
 #define PORT_OE         PORTB, 0
 
@@ -238,7 +238,7 @@ Init
 
     ;-----------------------------
     ; Port direction
-    movlw   b'10100000' ; Make all ports A exceot RA7 and RA5 output
+    movlw   b'10110000' ; Make all ports A exceot RA7, RA5 and RA4 output
     movwf   TRISA
 
     movlw   b'11101110' ; Make RB7, RB6, RB5, RB3, RB2 and RB1 inputs
