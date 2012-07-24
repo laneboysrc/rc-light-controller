@@ -16,6 +16,7 @@
 
     __CONFIG _CP_OFF & _WDT_OFF & _BODEN_ON & _PWRTE_ON & _INTRC_OSC_NOCLKOUT & _MCLRE_OFF & _LVP_OFF
 
+;#define DEBUG
 
 ;******************************************************************************
 ;   Port usage:
@@ -185,7 +186,6 @@ Init
     movwf   TRISA
 
     ; FIXME: RB2 needs to be output for slave!
-;    movlw   b'11101110' ; Make RB7, RB6, RB5, RB3, RB2 and RB1 inputs (for MASTER!)
     movlw   b'01101110' ; Make RB6, RB5, RB3, RB2 and RB1 inputs (for SLAVE!)
     movwf   TRISB
 
@@ -292,6 +292,7 @@ Main_loop
 ; protocol frame via the UART.
 ;******************************************************************************
 Read_UART
+    IFDEF   DEBUG
     bsf     servo_sync_flag, 0
     btfsc   servo_sync_flag, 0
     goto    $ - 1   
@@ -331,7 +332,6 @@ Read_UART
     bsf     servo_sync_flag, 0
     btfsc   servo_sync_flag, 0
     goto    $ - 1   
-
 
     movlw   b'00000001'
     movwf   uart_light_mode 
@@ -341,6 +341,7 @@ Read_UART
     movwf   uart_servo
 
     return
+    ENDIF
 
 
     call    read_UART_byte
@@ -512,13 +513,11 @@ tlc5916_send_loop
     skpnc    
     bsf     PORT_SDI
     bsf     PORT_CLK
-    nop
     bcf     PORT_CLK
     decfsz  d0, f
     goto    tlc5916_send_loop
 
     bsf     PORT_LE
-    nop
     bcf     PORT_LE
     bcf     PORT_OE
     return
