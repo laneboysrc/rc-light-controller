@@ -46,6 +46,8 @@
 #define PORT_OE         PORTB, 0
 
 
+#define SLAVE_MAGIC_BYTE    0x87
+
 ;******************************************************************************
 ;* VARIABLE DEFINITIONS
 ;******************************************************************************
@@ -345,25 +347,25 @@ Read_UART
 
 
     call    read_UART_byte
-    sublw   0x8f                    ; First byte the magic 0x8f?
+    sublw   SLAVE_MAGIC_BYTE        ; First byte the magic byte?
     bnz     Read_UART               ; No: wait for 0x8f to appear
 
 read_UART_byte_2
     call    read_UART_byte
     movwf   uart_light_mode         ; Store 2nd byte
-    sublw   0x8f                    ; Is it the magic byte?
+    sublw   SLAVE_MAGIC_BYTE        ; Is it the magic byte?
     bz      read_UART_byte_2        ; Yes: we must be out of sync...
 
 read_UART_byte_3
     call    read_UART_byte
     movwf   uart_light_mode_half
-    sublw   0x8f
+    sublw   SLAVE_MAGIC_BYTE
     bz      read_UART_byte_2
 
 read_UART_byte_4
     call    read_UART_byte
     movwf   uart_servo
-    sublw   0x8f
+    sublw   SLAVE_MAGIC_BYTE
     bz      read_UART_byte_2
     return
 

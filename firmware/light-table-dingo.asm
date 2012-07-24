@@ -50,11 +50,11 @@ slave_light_table
             ; |||||+-- OUT2
             ; ||||||+- OUT1
             ; |||||||+ OUT0
-    dt      b'00000001'     ; Stand lights
-    dt      b'00000011'     ; Head lights
-    dt      b'00000111'     ; Fog lights
-    dt      b'00001111'     ; High beam
-    dt      b'00010000'     ; Brake lights
+    dt      b'00000000'     ; Stand lights
+    dt      b'11111111'     ; Head lights
+    dt      b'00000000'     ; Fog lights
+    dt      b'00000000'     ; High beam
+    dt      b'11111111'     ; Brake lights
     dt      b'00000000'     ; Reverse lights
     dt      b'00000000'     ; Indicator left
     dt      b'00000000'     ; Indicator right
@@ -77,10 +77,10 @@ slave_light_half_table
             ; |||||+-- OUT2
             ; ||||||+- OUT1
             ; |||||||+ OUT0
-    dt      b'00010000'     ; Stand lights
-    dt      b'00010000'     ; Head lights
-    dt      b'00010000'     ; Fog lights
-    dt      b'00010000'     ; High beam
+    dt      b'11111111'     ; Stand lights
+    dt      b'00000000'     ; Head lights
+    dt      b'00000000'     ; Fog lights
+    dt      b'00000000'     ; High beam
     dt      b'00000000'     ; Brake lights
     dt      b'00000000'     ; Reverse lights
     dt      b'00000000'     ; Indicator left
