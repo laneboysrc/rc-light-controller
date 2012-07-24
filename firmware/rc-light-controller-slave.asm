@@ -115,7 +115,7 @@ Interrupt_handler
     decfsz  pwm_counter, f
     goto    int_no_reload
 
-    movlw   6
+    movlw   4
     movwf   pwm_counter
     movf    light_mode_half, w
 
