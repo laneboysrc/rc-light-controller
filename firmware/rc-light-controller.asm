@@ -16,6 +16,9 @@
 
     __CONFIG _CP_OFF & _WDT_OFF & _BODEN_ON & _PWRTE_ON & _INTRC_OSC_NOCLKOUT & _MCLRE_OFF & _LVP_OFF
 
+;#define DEBUG
+
+
     EXTERN local_light_table
     EXTERN slave_light_table
     EXTERN slave_light_half_table
@@ -172,7 +175,10 @@
     yh
     zl
     zh
+    ENDC
 
+    IFDEF DEBUG
+    CBLOCK
     send_hi
     send_lo
 
@@ -181,7 +187,7 @@
     debug_indicator_state_old
 
     ENDC
-
+    ENDIF
 
 ;******************************************************************************
 ;* MACROS
@@ -417,10 +423,15 @@ Main_loop
     call    Process_steering_servo
     call    Service_timer0
 
+    IFDEF  DEBUG
     call    Debug_output_values
+    ENDIF
 
     call    Output_local_lights
-;    call    Output_slave
+
+    IFNDEF  DEBUG
+    call    Output_slave
+    ENDIF
 
     goto    Main_loop
 
@@ -887,8 +898,10 @@ process_ch3_initialized
     movlw   CH3_BUTTON_TIMEOUT
     movwf   ch3_click_counter
 
+    IFDEF   DEBUG
     movlw   0x43                    ; send 'C'
     call    UART_send_w        
+    ENDIF
     return
     
 process_ch3_click_timeout
@@ -920,8 +933,10 @@ process_ch3_setup_cancel
     ;====================================
     ; Normal operation; setup is not active
 process_ch3_click_no_setup
+    IFDEF   DEBUG
     movlw   0x50                    ; send 'P'
     call    UART_send_w        
+    ENDIF
 
     decfsz  ch3_clicks, f                
     goto    process_ch3_double_click
@@ -932,8 +947,10 @@ process_ch3_click_no_setup
     bsf     light_mode, LIGHT_MODE_STAND
     movlw   0x0f
     andwf   light_mode, f
+    IFDEF   DEBUG
     movlw   0x31                    ; send '1'
     call    UART_send_w        
+    ENDIF
     return
 
 process_ch3_double_click
@@ -945,8 +962,10 @@ process_ch3_double_click
     rrf     light_mode, f
     movlw   0x0f
     andwf   light_mode, f
+    IFDEF   DEBUG
     movlw   0x32                    ; send '2'
     call    UART_send_w        
+    ENDIF
     return
 
 process_ch3_triple_click
@@ -962,8 +981,10 @@ process_ch3_triple_click
     skpnz
     movlw   0x00     
     movwf   light_mode
+    IFDEF   DEBUG
     movlw   0x33                    ; send '3'
     call    UART_send_w        
+    ENDIF
     return
 
 process_ch3_quad_click
@@ -976,8 +997,10 @@ process_ch3_quad_click
     call    Synchronize_blinking
     movlw   1 << BLINK_MODE_HAZARD
     xorwf   blink_mode, f
+    IFDEF   DEBUG
     movlw   0x34                    ; send '4'
     call    UART_send_w        
+    ENDIF
     return
 
 process_ch3_8_click
@@ -987,8 +1010,10 @@ process_ch3_8_click
 
     movlw   1
     movwf   setup_mode    
+    IFDEF   DEBUG
     movlw   0x38                    ; send '8'
     call    UART_send_w        
+    ENDIF
 
 process_ch3_click_end
     clrf    ch3_clicks
@@ -1778,6 +1803,7 @@ process_servo_not_negative
 ; 
 ;******************************************************************************
 Servo_load_values
+    IFDEF   DEBUG
     movlw   69                  ; 'E'   
     call    UART_send_w
     movlw   69                  ; 'E'   
@@ -1787,6 +1813,7 @@ Servo_load_values
     movlw   100                 ; 'd'   
     call    UART_send_w
     movlw   0x20                ; Space   
+    ENDIF
 
     ; First check if the magic variables are intact. If not, assume the 
     ; EEPROM has not been initialized yet or is corrupted, so write default
@@ -1813,6 +1840,7 @@ Servo_load_values
     call    EEPROM_read_byte
     movwf   servo_epr
 
+    IFDEF   DEBUG
     call    UART_send_w
     movf    servo_epl, w
     call    UART_send_signed_char
@@ -1822,6 +1850,7 @@ Servo_load_values
     call    UART_send_signed_char
     movlw   0x0a                ; LF  
     call    UART_send_w
+    ENDIF
 
     return
 
@@ -1831,6 +1860,7 @@ Servo_load_values
 ; 
 ;******************************************************************************
 Servo_store_values
+    IFDEF   DEBUG
     movlw   69                  ; 'E'   
     call    UART_send_w
     movlw   69                  ; 'E'   
@@ -1851,6 +1881,7 @@ Servo_store_values
     call    UART_send_signed_char
     movlw   0x0a                ; LF   
     call    UART_send_w
+    ENDIF
 
     movf    servo_epl, w
     movwf   temp
@@ -1876,6 +1907,7 @@ Servo_store_values
 ; back to the EEPROM and write the 2 magic variables. 
 ;******************************************************************************
 Servo_load_defaults
+    IFDEF   DEBUG
     movlw   69                  ; 'E'   
     call    UART_send_w
     movlw   69                  ; 'E'   
@@ -1888,6 +1920,7 @@ Servo_load_defaults
     call    UART_send_w
     movlw   0x0a                ; LF   
     call    UART_send_w
+    ENDIF
 
     movlw   -100
     movwf   servo_epl
@@ -2417,13 +2450,11 @@ tlc5916_send_loop
     skpnc    
     bsf     PORT_SDI
     bsf     PORT_CLK
-    nop
     bcf     PORT_CLK
     decfsz  d0, f
     goto    tlc5916_send_loop
 
     bsf     PORT_LE
-    nop
     bcf     PORT_LE
     bcf     PORT_OE
     return
@@ -2473,6 +2504,7 @@ EEPROM_read_byte
 	return
 
 
+    IFDEF   DEBUG
 ;**********************************************************************
 Debug_output_values
 
@@ -2580,9 +2612,9 @@ debug_output_throttle
 
 debug_output_end
     return
+    ENDIF
 
-
-
+    IF 0
 ;**********************************************************************
 Delay_2.1ms
     movlw   D'3'
@@ -2602,8 +2634,9 @@ delay_loop
     decfsz  d2, f
     goto    delay_loop
     return
+    ENDIF
 
-
+    IF 0
 ;**********************************************************************
 Delay_2s
 	movlw	0x11
@@ -2620,12 +2653,25 @@ delay_0
 	decfsz	d3, f
 	goto	delay_0
     return
+    ENDIF
+
+
+;******************************************************************************
+; Send W out via the UART
+;******************************************************************************
+UART_send_w
+    btfss   PIR1, TXIF
+    goto    UART_send_w ; Wait for transmitter interrupt flag
+
+    movwf   TXREG	    ; Send data stored in W
+    return    
 
 
 ;******************************************************************************
 ; Send W, which is treated as signed char, as human readable number via the
 ; UART.
 ;******************************************************************************
+    IFDEF   DEBUG
 UART_send_signed_char
     clrf    send_hi
     movwf   send_lo
@@ -2640,19 +2686,10 @@ UART_send_signed_char
 
 UART_send_signed_char_pos
     goto    UART_send_16bit
+    ENDIF
+  
 
-
-;******************************************************************************
-; Send W out via the UART
-;******************************************************************************
-UART_send_w
-    btfss   PIR1, TXIF
-    goto    UART_send_w ; Wait for transmitter interrupt flag
-
-    movwf   TXREG	    ; Send data stored in W
-    return      
-
-
+    IFDEF   DEBUG
 ;******************************************************************************
 ; Send a 16 bit value stored in send_hi and send_lo as a 5 digit decimal 
 ; number over the UART
@@ -2767,8 +2804,9 @@ add10
 ;    call    UART_send_w
 
     return
+    ENDIF
 
-
+    IFDEF   DEBUG
 ;******************************************************************************
 ; Send 'Hello world\n' via the UART
 ;******************************************************************************
@@ -2798,6 +2836,7 @@ Send_Hello_world
     movlw   0x0a
     call    UART_send_w
     return
+    ENDIF
 
 
     END     ; Directive 'end of program'
