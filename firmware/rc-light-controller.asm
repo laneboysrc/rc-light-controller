@@ -2844,10 +2844,10 @@ Send_Hello_world
 
 ;******************************************************************************
 ;   The following outputs are needed:
-;   - Stand light, tail light
-;   - Head light
+;   - Parking light, tail light
+;   - Low beam
 ;   - High beam
-;   - Fog light, fog rear light
+;   - Fog lamps, fog rear light
 ;   - Indicators L + R
 ;   - Brake light
 ;   - Reversing light
