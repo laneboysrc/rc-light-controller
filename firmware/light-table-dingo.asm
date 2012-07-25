@@ -23,15 +23,15 @@ local_light_table
             ; |||||+-- OUT2
             ; ||||||+- OUT1
             ; |||||||+ OUT0
-    dt      b'00000001'     ; Stand lights
-    dt      b'00000011'     ; Head lights
-    dt      b'00000111'     ; Fog lights
-    dt      b'00001111'     ; High beam
-    dt      b'00010000'     ; Brake lights
-    dt      b'00100000'     ; Reverse lights
-    dt      b'10000000'     ; Indicator left
-    dt      b'01000000'     ; Indicator right
-    dt      b'11000000'     ; Hazard lights
+    dt      b'00000000'     ; Parking lights
+    dt      b'00000000'     ; Low beam
+    dt      b'00010100'     ; Fog lamps
+    dt      b'00011100'     ; High beam
+    dt      b'00000000'     ; Brake
+    dt      b'00000000'     ; Reverse
+    dt      b'00000000'     ; Indicator left
+    dt      b'00000000'     ; Indicator right
+    dt      b'00000000'     ; Hazard lights
 
     IF ((HIGH ($)) != (HIGH (local_light_table)))
         ERROR "local_light_table CROSSES PAGE BOUNDARY!"
@@ -50,15 +50,15 @@ slave_light_table
             ; |||||+-- OUT2
             ; ||||||+- OUT1
             ; |||||||+ OUT0
-    dt      b'00000000'     ; Stand lights
-    dt      b'11111111'     ; Head lights
-    dt      b'00000000'     ; Fog lights
-    dt      b'00000000'     ; High beam
-    dt      b'11111111'     ; Brake lights
-    dt      b'00000000'     ; Reverse lights
-    dt      b'00000000'     ; Indicator left
-    dt      b'00000000'     ; Indicator right
-    dt      b'00000000'     ; Hazard lights
+    dt      b'00000100'     ; Parking lights
+    dt      b'00001100'     ; Low beam
+    dt      b'00001100'     ; Fog lamps
+    dt      b'00001100'     ; High beam
+    dt      b'00010000'     ; Brake
+    dt      b'00100000'     ; Reverse
+    dt      b'01000000'     ; Indicator left
+    dt      b'10000000'     ; Indicator right
+    dt      b'11000000'     ; Hazard lights
 
     IF ((HIGH ($)) != (HIGH (slave_light_table)))
         ERROR "slave_light_table CROSSES PAGE BOUNDARY!"
@@ -77,12 +77,12 @@ slave_light_half_table
             ; |||||+-- OUT2
             ; ||||||+- OUT1
             ; |||||||+ OUT0
-    dt      b'11111111'     ; Stand lights
-    dt      b'00000000'     ; Head lights
-    dt      b'00000000'     ; Fog lights
-    dt      b'00000000'     ; High beam
-    dt      b'00000000'     ; Brake lights
-    dt      b'00000000'     ; Reverse lights
+    dt      b'00010000'     ; Parking lights
+    dt      b'00010000'     ; Low beam
+    dt      b'00010000'     ; Fog lamps
+    dt      b'00010000'     ; High beam
+    dt      b'00000000'     ; Brake
+    dt      b'00000000'     ; Reverse
     dt      b'00000000'     ; Indicator left
     dt      b'00000000'     ; Indicator right
     dt      b'00000000'     ; Hazard lights
@@ -103,9 +103,9 @@ local_setup_light_table
             ; |||||+-- OUT2
             ; ||||||+- OUT1
             ; |||||||+ OUT0
-    dt      b'11000000'     ; Centre
-    dt      b'10000000'     ; Left
-    dt      b'01000000'     ; Right
+    dt      b'00000000'     ; Centre
+    dt      b'00000000'     ; Left
+    dt      b'00000000'     ; Right
 
     IF ((HIGH ($)) != (HIGH (local_light_table)))
         ERROR "local_setup_light_table CROSSES PAGE BOUNDARY!"
@@ -125,8 +125,8 @@ slave_setup_light_table
             ; ||||||+- OUT1
             ; |||||||+ OUT0
     dt      b'11000000'     ; Centre
-    dt      b'10000000'     ; Left
-    dt      b'01000000'     ; Right
+    dt      b'01000000'     ; Left
+    dt      b'10000000'     ; Right
 
     IF ((HIGH ($)) != (HIGH (local_light_table)))
         ERROR "slave_setup_light_table CROSSES PAGE BOUNDARY!"
