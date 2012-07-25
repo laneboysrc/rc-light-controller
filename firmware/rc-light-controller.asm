@@ -70,9 +70,9 @@
 #define BLINK_MODE_INDICATOR_RIGHT 3    ; Right indicator active
 
 ; Bitfields in variable light_mode
-#define LIGHT_MODE_STAND 0          ; Stand lights
-#define LIGHT_MODE_HEAD 1           ; Head lights
-#define LIGHT_MODE_FOG 2            ; Fog lights
+#define LIGHT_MODE_PARKING 0        ; Parking lights
+#define LIGHT_MODE_LOW_BEAM 1       ; Low beam
+#define LIGHT_MODE_FOG 2            ; Fog lamps
 #define LIGHT_MODE_HIGH_BEAM 3      ; High beam
 
 ; Bitfields in variable drive_mode
@@ -506,22 +506,22 @@ output_slave_setup
 Output_get_state
     clrf    temp
 
-    ; Stand lights
-    btfss   light_mode, LIGHT_MODE_STAND
-    goto    output_local_get_state_head
+    ; Parking lights
+    btfss   light_mode, LIGHT_MODE_PARKING
+    goto    output_local_get_state_low_beam
     movlw   0
     call    light_table
     iorwf   temp, f
 
-    ; Head lights
-output_local_get_state_head
-    btfss   light_mode, LIGHT_MODE_HEAD
+    ; Low beam
+output_local_get_state_low_beam
+    btfss   light_mode, LIGHT_MODE_LOW_BEAM
     goto    output_local_get_state_fog
     movlw   1
     call    light_table
     iorwf   temp, f
 
-    ; Fog lights    
+    ; Fog lamps    
 output_local_get_state_fog
     btfss   light_mode, LIGHT_MODE_FOG
     goto    output_local_get_state_high_beam
@@ -942,9 +942,9 @@ process_ch3_click_no_setup
     goto    process_ch3_double_click
 
     ; --------------------------
-    ; Single click: switch light mode up (Stand, Head, Fog, High Beam) 
+    ; Single click: switch light mode up (Parking, Low Beam, Fog, High Beam) 
     rlf     light_mode, f
-    bsf     light_mode, LIGHT_MODE_STAND
+    bsf     light_mode, LIGHT_MODE_PARKING
     movlw   0x0f
     andwf   light_mode, f
     IFDEF   DEBUG
@@ -958,7 +958,7 @@ process_ch3_double_click
     goto    process_ch3_triple_click
 
     ; --------------------------
-    ; Double click: switch light mode down (Stand, Head, Fog, High Beam)  
+    ; Double click: switch light mode down (Parking, Low Beam, Fog, High Beam)  
     rrf     light_mode, f
     movlw   0x0f
     andwf   light_mode, f
@@ -2863,8 +2863,8 @@ Send_Hello_world
 ;   Modes that the SW must handle:
 ;   - Light mode:
 ;       - Off
-;       - Stand light
-;       - + Head light
+;       - Parking light
+;       - + Low beam
 ;       - + Fog lights
 ;       - + High beam
 ;   - Drive mode:
@@ -3214,9 +3214,9 @@ Send_Hello_world
 ;   This is 7 bits, so we can use it in a table to program easily:
 ;
 ;                       Out7 Out6 Out5 Out4 Out3 Out2 Out1 Out0    
-;    Stand light
-;    Head light
-;    Fog lights
+;    Parking light
+;    Low beam light
+;    Fog lamps
 ;    High beam
 ;    Brake
 ;    Reverse
