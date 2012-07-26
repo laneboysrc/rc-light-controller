@@ -50,10 +50,10 @@ slave_light_table
             ; |||||+-- OUT2
             ; ||||||+- OUT1
             ; |||||||+ OUT0
-    dt      b'00000100'     ; Parking lights
-    dt      b'00001100'     ; Low beam
-    dt      b'00001100'     ; Fog lamps
-    dt      b'00001100'     ; High beam
+    dt      b'00000000'     ; Parking lights
+    dt      b'00001000'     ; Low beam
+    dt      b'00001000'     ; Fog lamps
+    dt      b'00001000'     ; High beam
     dt      b'00010000'     ; Brake
     dt      b'00100000'     ; Reverse
     dt      b'01000000'     ; Indicator left
@@ -77,10 +77,10 @@ slave_light_half_table
             ; |||||+-- OUT2
             ; ||||||+- OUT1
             ; |||||||+ OUT0
-    dt      b'00010000'     ; Parking lights
-    dt      b'00010000'     ; Low beam
-    dt      b'00010000'     ; Fog lamps
-    dt      b'00010000'     ; High beam
+    dt      b'00010100'     ; Parking lights
+    dt      b'00010100'     ; Low beam
+    dt      b'00010100'     ; Fog lamps
+    dt      b'00010100'     ; High beam
     dt      b'00000000'     ; Brake
     dt      b'00000000'     ; Reverse
     dt      b'00000000'     ; Indicator left
