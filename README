@@ -1,0 +1,4 @@
+This project is for a light controller for Radio Controlled cars. 
+It makes uses of a PIC 16F628A microcontroller. Firmware and schematics in
+Eagle format are included.
+
