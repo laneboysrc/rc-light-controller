@@ -5,4 +5,7 @@ firmware/*.cod
 firmware/*.o
 electronics/rc-light-controller/*.b#*
 electronics/rc-light-controller/*.s#*
-
+arduino-open-source-lights/
+datasheets/
+TLU-01/
+PPM_protocol.bmp
