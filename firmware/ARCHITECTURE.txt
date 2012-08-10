@@ -202,7 +202,41 @@ HK-310:
     Failsafe: Continously sends ST centre, TH off, CH3 holds last value
     CH3: 1013 = AUX, 2120 = OFF 
 
-TODO: find out normals for left/right fwd/bwd
+    By default all channels are set to "REV" strangely. This means:
+    ST: left means smaller values
+    TH: fwd means larger values
+    CH3: AUX means small value, OFF means large value (note: it is easy to 
+            place in the switch physically in both directions when assembling
+            the transmitter, so different HK310 may have this reversed ...
+
+    The repeat frequency of servo pulses is 16 ms (precisely) = 62.5 Hz.
+    The order of which they are sent is ST, TH, CH3. There is a gap of 100 ns
+    between the channel outputs.
+        
+        => This means we can change our algorithm: we can read the channels
+        in sequence, when one is finished, we treat it as start for the
+        next one. The way the software works now means that it will take
+        3 x 16 ms to read all 3 channels = 48 ms = ~20 Hz instead of 62.5 Hz
+
+    When the receiver is powered on the servo output stays high until the
+    first valid transmitter command is received. If during operation the
+    transmitter signal is lost the receiver outputs the programmed failsafe
+    values. 
+
+    When the transmitter is powered it sends "neutral" values for ST and TH,
+    and the initial position of CH3 (apparently it reads this directly during
+    power up). The real data based on actual ST/TH position is only sent
+    after the transmitter has booted (= showing its main operating screen).
+    The boot time seems to be approx 4 seconds.
+
+    The pin on the battery connector outputs a strange pulse that is the 
+    combination of all 3 servo pulses. The signal is high when idle and
+    low during the signal pulse. Its falling edge is 700 ns after the start 
+    (rising edge) of the ST output, its rising edge aligns is 100 ns after the 
+    end (falling edge) of the CH3 output.
+
+    The receiver operates at 3.3V. The servo outputs are also 3.3V.
+    
 
 
 Servo processing:
