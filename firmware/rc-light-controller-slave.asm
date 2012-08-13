@@ -48,6 +48,10 @@
 
 #define SLAVE_MAGIC_BYTE    0x87
 
+#define PWM_COUNTER_RELOAD_VALUE 2
+#define PWM_DUTY_CYCLE 20       ; Duty cycle of how long the half bright LEDs
+                                ;  are on. Value in percent. 
+
 ;******************************************************************************
 ;* VARIABLE DEFINITIONS
 ;******************************************************************************
@@ -111,15 +115,30 @@ Interrupt_handler
 ;	btfss	INTCON, T0IF
 ;	goto	int_clean   
 
-    movf    light_mode, w
     decfsz  pwm_counter, f
-    goto    int_no_reload
+    goto    int_full_brightness
 
-    movlw   5
+
+int_full_brightness
+    clrf    servo_sync_flag
+    movf    light_mode, w
+    goto    int_output_lights
+
+
+int_half_brightness
+    movlw   PWM_COUNTER_RELOAD_VALUE
     movwf   pwm_counter
-    movf    light_mode_half, w
 
-int_no_reload
+    ; Set timer 0 to a percentage of the period to achieve a PWM signal at
+    ; a relatively high frequency. The original algorightm cause an annoying 
+    ; flicker on camera.
+    movlw   256 - (256 * PWM_DUTY_CYCLE / 100)
+    movwf   TMR0
+    movf    light_mode_half, w
+;   goto    int_output_lights
+
+
+int_output_lights
     movwf   int_temp
     movlw   8
     movwf   int_d0
@@ -140,7 +159,6 @@ int_tlc5916_send_loop
     bcf     PORT_OE
 
 int_lights_done
-    clrf    servo_sync_flag
 
 int_t0if_done
 	bcf	    INTCON, T0IF    ; Clear interrupt flag that caused interrupt
@@ -265,7 +283,7 @@ SPBRG_VALUE = (((d'10'*OSC/((d'64'-(d'48'*BRGH_VALUE))*BAUDRATE))+d'5')/d'10')-1
             ; +------- 
     movwf   CCP1CON
 
-    movlw   1
+    movlw   PWM_COUNTER_RELOAD_VALUE
     movwf   pwm_counter
 
     bcf     INTCON, T0IF    ; Clear Timer0 Interrupt Flag    
