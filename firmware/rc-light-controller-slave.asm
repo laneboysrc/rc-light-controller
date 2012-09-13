@@ -16,7 +16,7 @@
 
     __CONFIG _CP_OFF & _DATA_CP_OFF & _LVP_OFF & _BOREN_OFF & _MCLRE_OFF & _PWRTE_ON & _WDT_OFF & _INTRC_OSC_NOCLKOUT
 
-;#define DEBUG
+#define DEBUG
 
 ;******************************************************************************
 ;   Port usage:
@@ -102,10 +102,11 @@
 ;******************************************************************************
     ORG     0x004           
 Interrupt_handler
-	movwf	savew           ; Save W register
-	movf	STATUS, w       ; W now has copy of status
-	clrf	STATUS          ; Ensure we are in bank 0 now!
-	movwf	savestatus	    ; Save status
+	movwf	savew           ; Save W register                               (1)
+	movf	STATUS, w       ; W now has copy of status                      (1)
+	clrf	STATUS          ; Ensure we are in bank 0 now!                  (1)
+	movwf	savestatus	    ; Save status                                   (1)
+
 ;	movf	PCLATH, w       ; Save pclath
 ;	movwf	savepclath	
 ;	clrf	PCLATH		    ; Explicitly select Page 0
@@ -115,64 +116,65 @@ Interrupt_handler
 ;	btfss	INTCON, T0IF
 ;	goto	int_clean   
 
-    decfsz  pwm_counter, f
-    goto    int_full_brightness
-
-
-int_full_brightness
-    clrf    servo_sync_flag
-    movf    light_mode, w
-    goto    int_output_lights
+    decfsz  pwm_counter, f                                                 ;(1)
+    goto    int_full_brightness                                            ;(2)
 
 
 int_half_brightness
-    movlw   PWM_COUNTER_RELOAD_VALUE
-    movwf   pwm_counter
+    movlw   PWM_COUNTER_RELOAD_VALUE                                       ;(1)
+    movwf   pwm_counter                                                    ;(1)
 
     ; Set timer 0 to a percentage of the period to achieve a PWM signal at
     ; a relatively high frequency. The original algorightm cause an annoying 
     ; flicker on camera.
-    movlw   256 - (256 * PWM_DUTY_CYCLE / 100)
-    movwf   TMR0
-    movf    light_mode_half, w
+    movlw   256 - (256 * PWM_DUTY_CYCLE / 100)                             ;(1)
+    movwf   TMR0                                                           ;(1)
+    movf    light_mode_half, w                                             ;(1)
+    goto    int_output_lights                                              ;(2)
+
+
+int_full_brightness
+    clrf    servo_sync_flag                                                ;(1)
+    movf    light_mode, w                                                  ;(1)
 ;   goto    int_output_lights
 
-
 int_output_lights
-    movwf   int_temp
-    movlw   8
-    movwf   int_d0
+    movwf   int_temp                                                       ;(1)
+    movlw   8                                                              ;(1)
+    movwf   int_d0                                                         ;(1)     16 cycles until here
 
 int_tlc5916_send_loop
-    rlf     int_temp, f
-    skpc    
-    bcf     PORT_SDI
-    skpnc    
-    bsf     PORT_SDI
-    bsf     PORT_CLK
-    bcf     PORT_CLK
-    decfsz  int_d0, f
-    goto    int_tlc5916_send_loop
+    rlf     int_temp, f                                                    ;(1)
+    skpc                                                                   ;(2)  
+    bcf     PORT_SDI                                                        
+    skpnc                                                                  ;(1)
+    bsf     PORT_SDI                                                       ;(1)
+    bsf     PORT_CLK                                                       ;(1)
+    bcf     PORT_CLK                                                       ;(1)
+    decfsz  int_d0, f                                                      ;(1)
+    goto    int_tlc5916_send_loop                                          ;(2)     10 cycles * 8
 
-    bsf     PORT_LE
-    bcf     PORT_LE
-    bcf     PORT_OE
+    bsf     PORT_LE                                                        ;(1) 
+    bcf     PORT_LE                                                        ;(1) 
+    bcf     PORT_OE                                                        ;(1) 
 
 int_lights_done
 
 int_t0if_done
-	bcf	    INTCON, T0IF    ; Clear interrupt flag that caused interrupt
+	bcf	    INTCON, T0IF    ; Clear interrupt flag that caused interrupt   ;(1) 
 
 int_clean
 ;		movf	savefsr, w
 ;		movwf	FSR		    ; Restore FSR
 ;		movf	savepclath, w
 ;		movwf	PCLATH      ; Restore PCLATH (Page=original)
-		movf	savestatus, w
-		movwf	STATUS      ; Restore status! (bank=original)
-		swapf	savew, f    ; Restore W from *original* bank! 
-		swapf	savew, w    ; Swapf does not affect any flags!
-		retfie              
+		movf	savestatus, w                                              ;(1) 
+		movwf	STATUS      ; Restore status! (bank=original)              ;(1) 
+		swapf	savew, f    ; Restore W from *original* bank!              ;(1)
+		swapf	savew, w    ; Swapf does not affect any flags!             ;(1)
+		retfie                                                             ;(5)     13 cycles
+
+                                                                           ; TOTAL: 110 cycles = 110 us
 
 
 ;******************************************************************************
@@ -353,11 +355,11 @@ Read_UART
     btfsc   servo_sync_flag, 0
     goto    $ - 1   
 
-    movlw   b'00000001'
+    movlw   b'01001001'
     movwf   uart_light_mode 
-    movlw   b'00000010'
+    movlw   b'10010010'
     movwf   uart_light_mode_half
-    movlw   50
+    movlw   0
     movwf   uart_servo
 
     return
