@@ -48,7 +48,9 @@
 
 #define SLAVE_MAGIC_BYTE    0x87
 
-#define PWM_COUNTER_RELOAD_VALUE 2
+#define TMR0_PRESCALER 16           
+#define PWM_BASE_TIME 2400      ; We need 2400 us or more to precisely output
+                                ;  a servo pulse in the main loop
 #define PWM_DUTY_CYCLE 20       ; Duty cycle of how long the half bright LEDs
                                 ;  are on. Value in percent. 
 
@@ -116,18 +118,16 @@ Interrupt_handler
 ;	btfss	INTCON, T0IF
 ;	goto	int_clean   
 
-    decfsz  pwm_counter, f                                                 ;(1)
+    comf    pwm_counter, f                                                 ;(1)
+    btfss   pwm_counter, 0                                                 ;(1)
     goto    int_full_brightness                                            ;(2)
 
 
 int_half_brightness
-    movlw   PWM_COUNTER_RELOAD_VALUE                                       ;(1)
-    movwf   pwm_counter                                                    ;(1)
-
     ; Set timer 0 to a percentage of the period to achieve a PWM signal at
     ; a relatively high frequency. The original algorightm cause an annoying 
     ; flicker on camera.
-    movlw   256 - (256 * PWM_DUTY_CYCLE / 100)                             ;(1)
+    movlw   256 - (PWM_BASE_TIME / TMR0_PRESCALER * PWM_DUTY_CYCLE / 100)  ;(1)
     movwf   TMR0                                                           ;(1)
     movf    light_mode_half, w                                             ;(1)
     goto    int_output_lights                                              ;(2)
@@ -135,6 +135,8 @@ int_half_brightness
 
 int_full_brightness
     clrf    servo_sync_flag                                                ;(1)
+    movlw   256 - (PWM_BASE_TIME / TMR0_PRESCALER)                         ;(1)
+    movwf   TMR0                                                           ;(1)
     movf    light_mode, w                                                  ;(1)
 ;   goto    int_output_lights
 
@@ -190,8 +192,8 @@ Init
 
 
     BANKSEL OPTION_REG
-    movlw   b'10000011'
-            ; |||||||+ PS0  (Set pre-scaler to 1:8)
+    movlw   b'10000100'
+            ; |||||||+ PS0  (Set pre-scaler to 1:16)
             ; ||||||+- PS1
             ; |||||+-- PS2
             ; ||||+--- PSA  (Use pre-scaler for Timer 0)
@@ -284,9 +286,6 @@ SPBRG_VALUE = (((d'10'*OSC/((d'64'-(d'48'*BRGH_VALUE))*BAUDRATE))+d'5')/d'10')-1
             ; |+------ 
             ; +------- 
     movwf   CCP1CON
-
-    movlw   PWM_COUNTER_RELOAD_VALUE
-    movwf   pwm_counter
 
     bcf     INTCON, T0IF    ; Clear Timer0 Interrupt Flag    
     bcf     PIR1, CCP1IF    ; Clear Timer1 Compare Interrupt Flag
@@ -480,31 +479,19 @@ Make_servo_pulse
     clrf    T1CON           ; Stop timer 1, runs at 1us per tick, internal osc
     clrf    TMR1H           ; Reset the timer to 0
     clrf    TMR1L
-    movlw   LOW(1800)       ; Load Timer1 compare register with the wait time
+    movf    xl, w           ; Load Timer1 compare register with the servo time
     movwf   CCPR1L
-    movlw   HIGH(1800)      
+    movf    xh, w
     movwf   CCPR1H
     bcf     PIR1, CCP1IF    ; Clear Timer1 compare interrupt flag
+
 
     ; Synchronize with the interrupt to ensure the servo pulse is not
     ; interrupted and stays precise (i.e. no servo chatter)
     bsf     servo_sync_flag, 0
     btfsc   servo_sync_flag, 0
     goto    $ - 1
-   
-    bsf     T1CON, 0        ; Start timer 1
 
-    btfss   PIR1, CCP1IF    ; Wait for compare value reached
-    goto    $ - 1
-
-    clrf    T1CON           ; Stop timer 1, runs at 1us per tick, internal osc
-    clrf    TMR1H           ; Reset the timer to 0
-    clrf    TMR1L
-    movf    xl, w           ; Load Timer1 compare register with the servo time
-    movwf   CCPR1L
-    movf    xh, w
-    movwf   CCPR1H
-    bcf     PIR1, CCP1IF    ; Clear Timer1 compare interrupt flag
    
     bsf     T1CON, 0        ; Start timer 1
     bsf     PORT_SERVO      ; Set servo port to high pulse
@@ -603,32 +590,33 @@ Add_x_and_780
 ;******************************************************************************
 ; Timing architecture:
 ; ====================
-; Timer0 will be used to provide a periodic interrupt of 2048 us.
-; This will require a pre-scaler value of 8.
+; Timer0 will be used to provide the timing for the LED PWM. To ensure that
+; there is no visible flicker on cameras, we want to keep the PWM frequency
+; as high as possible. 
 ;
-; The original design used 4096 us, as to allow to send a servo pulse of 2500 
-; us without being disturbed by an interrupt by means of synchronization.
-; However, 4096 us causes visible flicker on the PWM of the LEDs for anything
-; other than 50%. 
+; However, to ensure that we output a precise pulse for the servo we must not 
+; have the interrupt interfere with the pulse generation. Ideally we would use 
+; the CCP1/RB3 pin to let the timer hardware pull the pin low, but the pin is 
+; tied up in the hardware design.
 ;
-; To ensure we output a precise pulse for the servo we must not have the
-; interrupt interfere with the pulse generation. Ideally we would use the 
-; CCP1/RB3 pin to let the timer hardware pull the pin low, but the pin is tied
-; up and we need the other 4 already assigned pins on the servo ports anyway.
+; The servo pulse we generate has a worst-case of 2220 us. The interrupt 
+; duration is approx 110 us. Therefore we need 2400 us between two interrupts
+; (including a bit of safety margin).
 ;
-; The pulse we create is between 780 and 2220 us. The difference is 1440 us, 
-; which is significantly shorter than the interrupt. We do not care if there
-; is an interrupt occuring between 0 and 780 us (as long as the interrupt is
-; done before 780 us), so all we need to do is ensure that the interrupt falls
-; within the first 780 us. If we give ourself a bit of buffer at the end, we 
-; would like to have the interrupt occur 2048 - 1440 - 100 (buffer) = 508 us
-; before the 780 us time. So we need to start the servo pulse 780 - 508 - 2048
-; = ~1800 us before we start the servo pulse.
-; So the algorithm is as follows: 
-; - wait for the interrup sync flag
-; - wait precisely 1800 us
-; - load the timer with the servo pulse time, set the pulse high and start the 
-;   timer
+; By setting the Timer0 prescaler to 16 we can achieve 4096 us. To achieve
+; 2400 us we need to preload the Timer0 with a value of 
+;
+;     256 - (2400 / 16)  = 106
+;
+; To achieve a 20% PWM, we need the short Timer0 period to be 
+;
+;     2400 * (20 / 100)  = 480 us
+;
+; which translates in a preload value of 
+;
+;     256 - (480 / 16)   = 226
+;
+; With these figures the PWM frequency is ~350 Hz.
 ;
 ; The servo pulse is generated using Timer1 in "Compare mode, generate software 
 ; interrupt on match" mode. The servo pulse is sent after each UART command.
