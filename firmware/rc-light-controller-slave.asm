@@ -16,7 +16,7 @@
 
     __CONFIG _CP_OFF & _DATA_CP_OFF & _LVP_OFF & _BOREN_OFF & _MCLRE_OFF & _PWRTE_ON & _WDT_OFF & _INTRC_OSC_NOCLKOUT
 
-#define DEBUG
+;#define DEBUG
 
 ;******************************************************************************
 ;   Port usage:
