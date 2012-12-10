@@ -42,6 +42,13 @@ local_light_table
 slave_light_table
     addwf   PCL, f
 
+            ; BUG! The Dingo uses bit 7, which must be 0 at all times
+            ; to preserve the UART protocol, which reserves values 0x80..0x87
+            ; for the magic byte used for synchronization. The reason why
+            ; it still works is that 0x87 is the magic byte used in the 
+            ; Dingo, but since OUT0..OUT2 are unused it can never appear.
+            ; TODO: use AND 0x7F in the UART send code in the master.
+
             ; +------- (not used, must be 0!)     
             ; |+------ OUT6 
             ; ||+----- OUT5 
