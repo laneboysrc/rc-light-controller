@@ -81,9 +81,11 @@
 #define SETUP_MODE_CANCEL 7
 
 ; Bitfields in variable startup_mode
+; Note: the higher 4 bits are used so we can simply "or" it with ch3
+; and send it to the slave
 #define STARTUP_MODE_READY 0        ; Normal operation of the light controller
-#define STARTUP_MODE_NEUTRAL 1      ; Waiting before reading ST/TH neutral
-#define STARTUP_MODE_REVERSING 2    ; Waiting for Forward/Left to obtain direction
+#define STARTUP_MODE_NEUTRAL 0x10   ; Waiting before reading ST/TH neutral
+#define STARTUP_MODE_REVERSING 0x20 ; Waiting for Forward/Left to obtain direction
 
 #define LIGHT_TABLE_LOCAL 0
 #define LIGHT_TABLE_SLAVE 1
@@ -307,34 +309,14 @@ SPBRG_VALUE = (((d'10'*OSC/((d'64'-(d'48'*BRGH_VALUE))*BAUDRATE))+d'5')/d'10')-1
     movwf	TXREG
 
 
-
     movlw   BLINK_COUNTER_VALUE
     movwf   blink_counter
 
-    movlw   HIGH(1500)
-    movwf   throttle_centre_h
-    movwf   steering_centre_h
-    movlw   LOW(1500)
-    movwf   throttle_centre_l
-    movwf   steering_centre_l
-
-    movlw   HIGH(1400)
-    movwf   throttle_epl_h
-    movwf   steering_epl_h
-    movlw   LOW(1400)
-    movwf   throttle_epl_l
-    movwf   steering_epl_l
-
-    movlw   HIGH(1600)
-    movwf   throttle_epr_h
-    movwf   steering_epr_h
-    movlw   LOW(1600)
-    movwf   throttle_epr_l
-    movwf   steering_epr_l
 
     ; Load steering servo values from the EEPROM
     call    Servo_load_values
 
+    
 ;   goto Init_neutral
 
 
@@ -370,7 +352,15 @@ init_delay2
     movwf   temp
     movf    STATUS, w
     movwf   xh
+
+    IFNDEF  PREPROCESSING_MASTER
     call    TLC5916_send
+    ELSE
+    IFNDEF  DEBUG
+    call    Output_slave
+    ENDIF
+    ENDIF
+    
     movf    xh, w
     movwf   STATUS
 	decfsz	d3, f
@@ -386,8 +376,57 @@ init_delay2
     call    Read_steering
     movf    steering_h, w
     movwf   steering_centre_h
+    movwf   xh
     movf    steering_l, w
     movwf   steering_centre_l
+    movwf   xl
+
+    ; Now that we have determined the center for steering and throttle, 
+    ; we need to set initial endpoints around them. We use a value of +/- 100ms
+    ; for that. 
+    ; If we would use a fixed initial endpoint value we may get into trouble
+    ; due to steering trim/sub-trim.
+
+    movlw   HIGH(100)
+    movwf   yh
+    movlw   LOW(100)
+    movwf   yl
+
+    call    Add_y_to_x
+    movf    xh, w
+    movwf   steering_epr_h    
+    movf    xl, w
+    movwf   steering_epr_l    
+
+    movf    steering_centre_h, w
+    movwf   xh
+    movf    steering_centre_l, w
+    movwf   xl
+    call    Sub_y_from_x
+    movf    xh, w
+    movwf   steering_epl_h    
+    movf    xl, w
+    movwf   steering_epl_l    
+
+    movf    throttle_centre_h, w
+    movwf   xh
+    movf    throttle_centre_l, w
+    movwf   xl
+    call    Add_y_to_x
+    movf    xh, w
+    movwf   throttle_epr_h    
+    movf    xl, w
+    movwf   throttle_epr_l    
+
+    movf    throttle_centre_h, w
+    movwf   xh
+    movf    throttle_centre_l, w
+    movwf   xl
+    call    Sub_y_from_x
+    movf    xh, w
+    movwf   throttle_epl_h    
+    movf    xl, w
+    movwf   throttle_epl_l    
 
 ;   goto    Init_reversing
 
@@ -403,6 +442,7 @@ init_delay2
 Init_reversing
     movlw   STARTUP_MODE_REVERSING
     movwf   startup_mode    
+    clrf    reversing_mode
 
 init_reversing_loop
     call    Read_steering
@@ -411,18 +451,18 @@ init_reversing_loop
     call    Process_steering
     call    Process_throttle
 
-    btfss   reversing_mode, 0
+    btfsc   reversing_mode, 0
     goto    init_reversing_throttle
     movfw   steering_abs
     sublw   100
     bnz     init_reversing_throttle
     bsf     reversing_mode, 0
     clrf    steering_reverse
-    btfsc   steering, 7
+    btfss   steering, 7
     incf    steering_reverse, f
 
 init_reversing_throttle    
-    btfss   reversing_mode, 1
+    btfsc   reversing_mode, 1
     goto    init_reversing_check_done
     movfw   throttle_abs
     sublw   100
@@ -433,10 +473,19 @@ init_reversing_throttle
     incf    throttle_reverse, f
 
 init_reversing_check_done
+    IFDEF   PREPROCESSING_MASTER
+    IFNDEF  DEBUG
+    call    Output_slave
+    ENDIF
+    ENDIF
+
     btfss   reversing_mode, 0
     goto    init_reversing_loop
     btfss   reversing_mode, 1
     goto    init_reversing_loop
+
+    movlw   STARTUP_MODE_READY
+    movwf   startup_mode    
 
 ;   goto    Main_loop    
 
@@ -464,12 +513,12 @@ Main_loop
     call    Process_steering_servo
     call    Service_timer0
 
-    IFDEF   DEBUG                       ;  {
-    call    Debug_output_values
-    ENDIF                               ;  } DEBUG
-
     call    Output_local_lights
     ENDIF                               ; } PREPROCESSING_MASTER
+
+    IFDEF   DEBUG                       ; {
+    call    Debug_output_values
+    ENDIF                               ; } DEBUG
 
     IFNDEF  DEBUG
     call    Output_slave
@@ -509,7 +558,7 @@ Output_slave
     call    UART_send_w        
 
     ; ------------------    
-    IFDEF  PREPROCESSING_MASTER        ; {
+    IFDEF  PREPROCESSING_MASTER         ; {
     ; ------------------    
     
     movf    steering, w
@@ -518,11 +567,16 @@ Output_slave
     movf    throttle, w
     call    UART_send_w        
 
-    movf    ch3, w                     ; TODO: add bits to indicate initialization
+    movf    ch3, w                       
+    andlw   0x01                        ; Mask out other bits used in ch3 for 
+                                        ;  toggle and intialization
+    addwf   startup_mode, w             ; Add startup mode to the transmitted 
+                                        ;  byte. Since we are using bits 4, 5 
+                                        ;  this works fine.
     call    UART_send_w        
 
     ; ------------------    
-    ELSE                               ; } { PREPROCESSING_MASTER
+    ELSE                                ; } { PREPROCESSING_MASTER
     ; ------------------    
 
     movf    setup_mode, f
@@ -2559,6 +2613,24 @@ Div_x_by_4
 
 
 ;******************************************************************************
+; Add_y_to_x
+;
+; This function calculates xh/xl = xh/xl + yh/yl.
+; C flag is valid, Z flag is not!
+;
+; y stays unchanged.
+;******************************************************************************
+Add_y_to_x
+    movf    yl, w
+    addwf   xl, f
+    movf    yh, w
+    skpnc
+    incf    yh, W
+    addwf   xh, f
+    return         
+
+
+;******************************************************************************
 ; Sub_y_from_x
 ;
 ; This function calculates xh/xl = xh/xl - yh/yl.
@@ -2782,10 +2854,10 @@ debug_output_throttle
     movlw   0x0a                ; LF
     call    UART_send_w
 
-    movf    drive_mode, w
-    call    UART_send_signed_char
-    movlw   0x0a                ; LF
-    call    UART_send_w
+;    movf    drive_mode, w
+;    call    UART_send_signed_char
+;    movlw   0x0a                ; LF
+;    call    UART_send_w
 
 debug_output_end
     return
