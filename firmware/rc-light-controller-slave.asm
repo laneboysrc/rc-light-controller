@@ -12,38 +12,12 @@
     LIST        p=pic16f628a, r=dec
     RADIX       dec
 
-    #include    <p16f628a.inc>
-
-    __CONFIG _CP_OFF & _DATA_CP_OFF & _LVP_OFF & _BOREN_OFF & _MCLRE_OFF & _PWRTE_ON & _WDT_OFF & _INTRC_OSC_NOCLKOUT
-
 ;#define DEBUG
 
-;******************************************************************************
-;   Port usage:
-;   ===========
-;   RB6, RB1:   IN  Slave in  (UART RX, PGC double-usage)
-;   RB7:        OUT Servo out (PGD double-usage) 
-;   RA5:        IN  N/A       (Vpp double-usage)
-;   RB2, RB5:   OUT Slave out (UART TX) 
-;
-;   RA3:        OUT CLK TLC5916
-;   RA0, RA4:   OUT SDI TLC5916
-;   RA2:        OUT LE TLC5916
-;   RB0:        OUT OE TLC5916
-;
-;   RA4         IN  Tied to RA0 for routing convenience. Note that RA4 is open
-;                   drain so not good to use as SDI!
-;   RA7, RB3:   IN  Tied to +Vdd for routing convenience!
-;   RB5         IN  RB5 is tied to RB2 for routing convenience!
-;   RA6, RA0, RA1, RB4:     OUT NC pins, switch to output
+    #include    <p16f628a.inc>
+    #include    io_slave.tmp
 
-#define PORT_SERVO      PORTB, 7
-
-; TLC5916 LED driver serial communication ports
-#define PORT_CLK        PORTA, 3
-#define PORT_SDI        PORTA, 0
-#define PORT_LE         PORTA, 2
-#define PORT_OE         PORTB, 0
+    __CONFIG _CP_OFF & _DATA_CP_OFF & _LVP_OFF & _BOREN_OFF & _MCLRE_OFF & _PWRTE_ON & _WDT_OFF & _INTRC_OSC_NOCLKOUT
 
 
 #define SLAVE_MAGIC_BYTE    0x87
@@ -211,13 +185,8 @@ Init
 
 
     ;-----------------------------
-    ; Port direction
-    movlw   b'10110000' ; Make all ports A exceot RA7, RA5 and RA4 output
-    movwf   TRISA
-
-    ; FIXME: RB2 needs to be output for slave!
-    movlw   b'01101110' ; Make RB6, RB5, RB3, RB2 and RB1 inputs (for SLAVE!)
-    movwf   TRISB
+    ; Port direction (macro included from io_slave.tmp)
+    IO_INIT_SLAVE
 
 
     BANKSEL xl

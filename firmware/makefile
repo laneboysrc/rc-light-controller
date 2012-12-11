@@ -1,38 +1,40 @@
-dingo: master-dingo.hex
-
-slave: rc-light-controller-slave.hex
-
+.PHONY: dingo
+dingo: dingo-master dingo-slave
 
 
-master-dingo.hex: rc-light-controller.o light-table-dingo.o
-	gplink -o master-dingo rc-light-controller.o light-table-dingo.o
+.PHONY: dingo-master
+dingo-master: dingo-master.hex
 
-light-table-dingo.o: light-table-dingo.asm
-	gpasm -c -p pic16f628a light-table-dingo.asm
+dingo-master.hex: dingo-master.o dingo-light-table.o
+	gplink -m -o dingo-master dingo-master.o dingo-light-table.o
 
-rc-light-controller.o: rc-light-controller.asm
-	gpasm -c rc-light-controller.asm
+dingo-master.o: rc-light-controller.asm
+	cp io_original.inc io_master.tmp
+	gpasm -c -o dingo-master rc-light-controller.asm
+	rm -f io_master.tmp
+
+dingo-light-table.o: dingo-light-table.asm
+	gpasm -c -p pic16f628a dingo-light-table.asm
 
 
+.PHONY: dingo-slave
+dingo-slave: dingo-slave.hex
 
-rc-light-controller-slave.hex: rc-light-controller-slave.o
-	gplink -o rc-light-controller-slave rc-light-controller-slave.o
+dingo-slave.hex: dingo-slave.o
+	gplink -m -o dingo-slave dingo-slave.o
 
-rc-light-controller-slave.o: rc-light-controller-slave.asm
-	gpasm -c rc-light-controller-slave.asm
+dingo-slave.o: rc-light-controller-slave.asm io_original.inc
+	cp io_original.inc io_slave.tmp
+	gpasm -c -o dingo-slave rc-light-controller-slave.asm
+	rm -f io_slave.tmp
 
 
 
 clean:
-	rm -f master-dingo.hex
-	rm -f master-dingo.lst
-	rm -f master-dingo.cod
-	rm -f rc-light-controller.lst
-	rm -f rc-light-controller.o
-	rm -f light-table-dingo.lst
-	rm -f light-table-dingo.o
-	rm -f rc-light-controller-slave.hex
-	rm -f rc-light-controller-slave.lst
-	rm -f rc-light-controller-slave.cod
-	rm -f rc-light-controller-slave.o
+	rm -f *.hex
+	rm -f *.lst
+	rm -f *.map
+	rm -f *.cod
+	rm -f *.o
+	rm -f *.tmp
 
