@@ -80,6 +80,11 @@
 #define SETUP_MODE_NEXT 6
 #define SETUP_MODE_CANCEL 7
 
+; Bitfields in variable startup_mode
+#define STARTUP_MODE_READY 0        ; Normal operation of the light controller
+#define STARTUP_MODE_NEUTRAL 1      ; Waiting before reading ST/TH neutral
+#define STARTUP_MODE_REVERSING 2    ; Waiting for Forward/Left to obtain direction
+
 #define LIGHT_TABLE_LOCAL 0
 #define LIGHT_TABLE_SLAVE 1
 #define LIGHT_TABLE_SLAVE_HALF 2
@@ -132,6 +137,8 @@
     drive_mode
     indicator_state
     setup_mode
+    startup_mode
+    reversing_mode
 
     servo
     servo_epl
@@ -323,22 +330,26 @@ SPBRG_VALUE = (((d'10'*OSC/((d'64'-(d'48'*BRGH_VALUE))*BAUDRATE))+d'5')/d'10')-1
     movwf   throttle_epr_l
     movwf   steering_epr_l
 
-    ; Steering is reversed for the Dingo (not auto-adjust yet)
-    movlw   1                   
-    movwf   steering_reverse
-
     ; Load steering servo values from the EEPROM
     call    Servo_load_values
 
-    ;------------------------------------
-    ; Initialize neutral for steering and throttle 2 seconds after power up
-    ; During this time we use all local LED outputs as running lights.
+;   goto Init_neutral
+
+
+;**********************************************************************
+; Initialize neutral for steering and throttle 5 seconds after power up
+; During this time we use all local LED outputs as running lights.
+;**********************************************************************
+Init_neutral
+    movlw   STARTUP_MODE_NEUTRAL
+    movwf   startup_mode    
+
     clrf    temp
     call    TLC5916_send
     clrf    xl
     setc
 
-	movlw   20              ; Execute 100 ms delay loop 20 times    
+	movlw   50              ; Execute 100 ms delay loop 50 times    
 	movwf   d3
 
 init_delay1                 ; Delay loop of 100 ms
@@ -363,7 +374,6 @@ init_delay2
 	decfsz	d3, f
 	goto	init_delay1
 
-
     ;------------------------------------
     call    Read_throttle
     movf    throttle_h, w
@@ -377,6 +387,54 @@ init_delay2
     movf    steering_l, w
     movwf   steering_centre_l
 
+;   goto    Init_reversing
+
+
+;**********************************************************************
+; Automatic steering and throttle reversing detection
+;
+; Wait until we received a 100% value for both steering and throttle.
+; We use that 100% value to determine the direction. We assume
+; that the user did Foward/Left as first TH/ST movements, so we know
+; whether we have to reverse throttle and steering channels or not.
+;**********************************************************************
+Init_reversing
+    movlw   STARTUP_MODE_REVERSING
+    movwf   startup_mode    
+
+init_reversing_loop
+    call    Read_steering
+    call    Read_throttle
+
+    call    Process_steering
+    call    Process_throttle
+
+    btfss   reversing_mode, 0
+    goto    init_reversing_throttle
+    movfw   steering_abs
+    sublw   100
+    bnz     init_reversing_throttle
+    bsf     reversing_mode, 0
+    clrf    steering_reverse
+    btfsc   steering, 7
+    incf    steering_reverse, f
+
+init_reversing_throttle    
+    btfss   reversing_mode, 1
+    goto    init_reversing_check_done
+    movfw   throttle_abs
+    sublw   100
+    bnz     init_reversing_check_done
+    bsf     reversing_mode, 1
+    clrf    throttle_reverse
+    btfsc   throttle, 7
+    incf    throttle_reverse, f
+
+init_reversing_check_done
+    btfss   reversing_mode, 0
+    goto    init_reversing_loop
+    btfss   reversing_mode, 1
+    goto    init_reversing_loop
 
 ;   goto    Main_loop    
 
