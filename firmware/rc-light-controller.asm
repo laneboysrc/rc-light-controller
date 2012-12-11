@@ -443,10 +443,14 @@ init_reversing_check_done
 ; Main program
 ;**********************************************************************
 Main_loop
+    IFDEF   SEQUENTIAL_CHANNEL_READING  ; {   
+    call    Read_all
+    ELSE                                ; } {
     call    Read_ch3
     call    Read_throttle
     call    Read_steering
-
+    ENDIF                               ; } SEQUENTIAL_CHANNEL_READING
+    
     call    Process_ch3
     call    Process_throttle
     call    Process_steering
@@ -460,10 +464,10 @@ Main_loop
 
     IFDEF   DEBUG                       ;  {
     call    Debug_output_values
-    ENDIF                               ;  }
+    ENDIF                               ;  } DEBUG
 
     call    Output_local_lights
-    ENDIF                               ; }
+    ENDIF                               ; } PREPROCESSING_MASTER
 
     IFNDEF  DEBUG
     call    Output_slave
@@ -762,6 +766,121 @@ Synchronize_blinking
     movwf   blink_counter
     bsf     blink_mode, BLINK_MODE_BLINKFLAG
     return
+
+
+;******************************************************************************
+; Read_all
+; 
+; Read all servo channels in one go. 
+; This function can only be used if you have verified that your receiver
+; is indeed outputting all channels in sequence Steering / Throttle / CH3, one 
+; after each other.
+; This is true for the HK-3000 receiver. 
+;
+; By using this function we can read all channels in one "loop", and therefore
+; increasing response speed of the light controller.
+;******************************************************************************
+Read_all
+    clrf    T1CON       ; Stop timer 1, runs at 1us per tick, internal osc
+    clrf    TMR1H       ; Reset the timer to 0
+    clrf    TMR1L
+
+    ; Wait until servo signal is LOW 
+    ; This ensures that we do not start in the middle of a pulse
+all_st_wait_for_low1
+    btfsc   PORT_STEERING
+    goto    all_st_wait_for_low1
+
+all_st_wait_for_high
+    btfss   PORT_STEERING   ; Wait until servo signal is high
+    goto    all_st_wait_for_high
+
+    bsf     T1CON, 0    ; Start timer 1
+
+all_st_wait_for_low2
+    btfsc   PORT_STEERING   ; Wait until servo signal is LOW again
+    goto    all_st_wait_for_low2
+
+    clrf    T1CON       ; Stop timer 1
+
+    movf    TMR1H, w    ; Store read values temporarily; validate later
+    movwf   steering_h
+    movf    TMR1L, w
+    movwf   steering_l
+
+    ; At this point the throttle signal is already being output
+    ; from the receiver -- it takes 100ns after the steering pulse goes
+    ; low for the throttle to be high. So we can directly wait for the
+    ; throttle to be low again to read the measured value.
+
+    clrf    TMR1H       ; Reset the timer to 0 ... 
+    movlw   10          ;  but prime it with the no of instructions until here
+    movwf   TMR1L
+    bsf     T1CON, 0    ; Start timer 1
+
+all_th_wait_for_low2
+    btfsc   PORT_THROTTLE   ; Wait until servo signal is LOW
+    goto    all_th_wait_for_low2
+
+    clrf    T1CON       ; Stop timer 1
+
+    movf    TMR1H, w    ; Store read values temporarily; validate later
+    movwf   throttle_h
+    movf    TMR1L, w
+    movwf   throttle_l
+
+    clrf    TMR1H       ; Reset the timer to 0 ... 
+    movlw   10          ;  but prime it with the no of instructions until here
+    movwf   TMR1L
+    bsf     T1CON, 0    ; Start timer 1
+
+all_ch3_wait_for_low2
+    btfsc   PORT_CH3    ; Wait until servo signal is LOW
+    goto    all_ch3_wait_for_low2
+
+    clrf    T1CON       ; Stop timer 1
+
+    call    Validate_servo_measurement
+  
+    ; Use the middle 12 bit as an 8 bit value since we don't need high
+    ; accuracy for the CH3 
+    rlf     xl, f
+    rlf     xh, f
+    rlf     xl, f
+    rlf     xh, f
+    rlf     xl, f
+    rlf     xh, f
+    rlf     xl, f
+    rlf     xh, f
+
+    movf    xh, w    
+    movwf   ch3_value
+
+    ; We are done now measuring all 3 channels, so do throttle and steering 
+    ; validation
+    
+    movf    steering_h, w    
+    movwf   TMR1H
+    movf    steering_l, w
+    movwf   TMR1L
+    call    Validate_servo_measurement
+    movf    xh, w    
+    movwf   steering_h
+    movf    xl, w
+    movwf   steering_l
+
+    movf    throttle_h, w    
+    movwf   TMR1H
+    movf    throttle_l, w
+    movwf   TMR1L
+    call    Validate_servo_measurement
+    movf    xh, w    
+    movwf   throttle_h
+    movf    xl, w
+    movwf   throttle_l
+
+    return
+
 
 
 ;******************************************************************************
@@ -2570,6 +2689,7 @@ Debug_output_values
 #define setup_mode_old debug_indicator_state_old
 #define servo_old debug_throttle_old
 
+    IF 0
 debug_output_setup
     movf    setup_mode, w
     subwf   setup_mode_old, w
@@ -2613,7 +2733,7 @@ debug_output_servo
     call    UART_send_signed_char
     movlw   0x0a                ; LF
     call    UART_send_w
-    
+    ENDIF    
 
 debug_output_indicator
     IF 0
@@ -2631,7 +2751,6 @@ debug_output_indicator
     ENDIF
 
 debug_output_steering
-    IF 0
     movf    steering, w
     subwf   debug_steering_old, w
     bz      debug_output_throttle
@@ -2645,10 +2764,8 @@ debug_output_steering
     call    UART_send_signed_char
     movlw   0x0a                ; LF
     call    UART_send_w
-    ENDIF
 
 debug_output_throttle
-    IF 0
     movf    throttle, w
     subwf   debug_throttle_old, w
     bz      debug_output_end
@@ -2667,7 +2784,6 @@ debug_output_throttle
     call    UART_send_signed_char
     movlw   0x0a                ; LF
     call    UART_send_w
-    ENDIF
 
 debug_output_end
     return
