@@ -3,6 +3,7 @@ firmware/*.hex
 firmware/*.lst
 firmware/*.cod
 firmware/*.o
+firmware/*.map
 electronics/rc-light-controller/*.b#*
 electronics/rc-light-controller/*.s#*
 arduino-open-source-lights/
