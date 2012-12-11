@@ -12,7 +12,17 @@
     LIST        p=pic16f628a, r=dec
     RADIX       dec
 
+; Enable debug functions like human readable UART output to read incoming
+; servo values.
 ;#define DEBUG
+
+; Instead of processing light functions in the master, when PREPROCESSING_MASTER
+; is defined all that is done is reading receiver values, normalizing them
+; and sending them to an "intelligen slave", which contains the light table
+; and other logic.
+; Define this in the make file when building a master that is designed to go
+; into the receiver.
+;#define PREPROCESSING_MASTER    
 
     #include    <p16f628a.inc>
     #include    io_master.tmp
@@ -383,17 +393,19 @@ Main_loop
     call    Process_throttle
     call    Process_steering
 
+    IFNDEF  PREPROCESSING_MASTER        ; {
     call    Process_ch3_double_click
     call    Process_drive_mode
     call    Process_indicators
     call    Process_steering_servo
     call    Service_timer0
 
-    IFDEF  DEBUG
+    IFDEF   DEBUG                       ;  {
     call    Debug_output_values
-    ENDIF
+    ENDIF                               ;  }
 
     call    Output_local_lights
+    ENDIF                               ; }
 
     IFNDEF  DEBUG
     call    Output_slave
@@ -432,6 +444,23 @@ Output_slave
     movlw   0x87            ; Magic byte for synchronization
     call    UART_send_w        
 
+    ; ------------------    
+    IFDEF  PREPROCESSING_MASTER        ; {
+    ; ------------------    
+    
+    movf    steering, w
+    call    UART_send_w        
+    
+    movf    throttle, w
+    call    UART_send_w        
+
+    movf    ch3, w                     ; TODO: add bits to indicate initialization
+    call    UART_send_w        
+
+    ; ------------------    
+    ELSE                               ; } { PREPROCESSING_MASTER
+    ; ------------------    
+
     movf    setup_mode, f
     bnz     output_slave_setup
 
@@ -463,6 +492,10 @@ output_slave_setup
     call    UART_send_w        
     goto    output_slave_servo
 
+    ; ------------------    
+    ENDIF                               ; } PREPROCESSING_MASTER
+    ; ------------------    
+    
 ;******************************************************************************
 ; Output_get_state
 ;
@@ -583,6 +616,7 @@ Output_get_setup_state
 ; Resulting light pattern is in w
 ;******************************************************************************
 light_table
+    IFNDEF  PREPROCESSING_MASTER        ; {
     btfsc   d0, LIGHT_TABLE_LOCAL
     goto    local_light_table
     btfsc   d0, LIGHT_TABLE_SLAVE
@@ -593,6 +627,7 @@ light_table
     goto    local_setup_light_table
     btfsc   d0, LIGHT_TABLE_SLAVE_SETUP               
     goto    slave_setup_light_table
+    ENDIF                               ; }
     return
 
 ;******************************************************************************

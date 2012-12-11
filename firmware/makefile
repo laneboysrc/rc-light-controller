@@ -29,6 +29,19 @@ dingo-slave.o: rc-light-controller-slave.asm io_original.inc
 	rm -f io_slave.tmp
 
 
+.PHONY: xr311
+xr311: xr311-master
+
+.PHONY: xr311-master
+xr311-master: xr311-master.hex
+
+xr311-master.hex: xr311-master.o
+	gplink -m -o xr311-master xr311-master.o
+	
+xr311-master.o: rc-light-controller.asm
+	cp io_original.inc io_master.tmp
+	gpasm -c -D PREPROCESSING_MASTER -o xr311-master rc-light-controller.asm
+	rm -f io_master.tmp
 
 clean:
 	rm -f *.hex
