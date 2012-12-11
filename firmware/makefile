@@ -8,7 +8,7 @@ dingo-master: dingo-master.hex
 dingo-master.hex: dingo-master.o dingo-light-table.o
 	gplink -m -o dingo-master dingo-master.o dingo-light-table.o
 
-dingo-master.o: rc-light-controller.asm
+dingo-master.o: rc-light-controller.asm io_original.inc
 	cp io_original.inc io_master.tmp
 	gpasm -c -o dingo-master rc-light-controller.asm
 	rm -f io_master.tmp
@@ -38,8 +38,8 @@ xr311-master: xr311-master.hex
 xr311-master.hex: xr311-master.o
 	gplink -m -o xr311-master xr311-master.o
 	
-xr311-master.o: rc-light-controller.asm
-	cp io_original.inc io_master.tmp
+xr311-master.o: rc-light-controller.asm io_preprocessor.inc
+	cp io_preprocessor.inc io_master.tmp
 	gpasm -c -D PREPROCESSING_MASTER -D SEQUENTIAL_CHANNEL_READING -o xr311-master rc-light-controller.asm
 	rm -f io_master.tmp
 

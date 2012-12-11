@@ -162,6 +162,8 @@
     yh
     zl
     zh
+
+    port_dummy  ; Register to fake IO ports
     ENDC
 
     IFDEF DEBUG
