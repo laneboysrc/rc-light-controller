@@ -29,8 +29,10 @@ dingo-slave.o: rc-light-controller-slave.asm io_original.inc
 	rm -f io_slave.tmp
 
 
+
 .PHONY: xr311
-xr311: xr311-master
+xr311: xr311-master xr311-slave
+
 
 .PHONY: xr311-master
 xr311-master: xr311-master.hex
@@ -42,6 +44,22 @@ xr311-master.o: rc-light-controller.asm io_preprocessor.inc
 	cp io_preprocessor.inc io_master.tmp
 	gpasm -c -D PREPROCESSING_MASTER -D SEQUENTIAL_CHANNEL_READING -o xr311-master rc-light-controller.asm
 	rm -f io_master.tmp
+
+
+.PHONY: xr311-slave
+xr311-slave: xr311-slave.hex
+
+xr311-slave.hex: xr311-slave.o xr311-light-table.o
+	gplink -m -o xr311-slave xr311-slave.o xr311-light-table.o
+	
+xr311-slave.o: rc-light-controller-intelligent-slave.asm io_original.inc
+	cp io_original.inc io_master.tmp
+	gpasm -c -o xr311-slave rc-light-controller-intelligent-slave.asm
+	rm -f io_master.tmp
+	
+xr311-light-table.o: xr311-light-table.asm
+	gpasm -c -p pic16f628a xr311-light-table.asm
+
 
 clean:
 	rm -f *.hex
