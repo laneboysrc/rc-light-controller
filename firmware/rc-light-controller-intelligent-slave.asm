@@ -124,10 +124,6 @@
     servo_setup_centre
     servo_setup_epr
 
-    uart_light_mode
-    uart_light_mode_half
-    uart_servo
-
 
 	d0          ; Delay and temp registers
 	d1
@@ -333,21 +329,43 @@ Read_UART
 
 read_UART_byte_2
     call    read_UART_byte
-    movwf   uart_light_mode         ; Store 2nd byte
+    movwf   steering                ; Store 2nd byte
     sublw   SLAVE_MAGIC_BYTE        ; Is it the magic byte?
     bz      read_UART_byte_2        ; Yes: we must be out of sync...
 
 read_UART_byte_3
     call    read_UART_byte
-    movwf   uart_light_mode_half
+    movwf   throttle
     sublw   SLAVE_MAGIC_BYTE
     bz      read_UART_byte_2
 
 read_UART_byte_4
     call    read_UART_byte
-    movwf   uart_servo
+    movwf   ch3                     ; The 3rd byte contains information for
+    movwf   startup_mode            ;  CH3 as well as startup_mode
     sublw   SLAVE_MAGIC_BYTE
     bz      read_UART_byte_2
+    
+    movlw   0x01                    ; Remove startup_mode bits from CH3
+    andwf   ch3, f   
+    movlw   0x30                    ; Remove CH3 bits from startup_mode
+    andwf   startup_mode, f   
+
+    ; Calculate abs(throttle) and abs(steering) for easier math.
+    movfw   throttle
+    movwf   throttle_abs
+    btfsc   throttle_abs, 7
+    decf    throttle_abs, f
+    btfsc   throttle_abs, 7
+    comf    throttle_abs, f
+
+    movfw   steering
+    movwf   steering_abs
+    btfsc   steering_abs, 7
+    decf    steering_abs, f
+    btfsc   steering_abs, 7
+    comf    steering_abs, f
+    
     return
 
 
