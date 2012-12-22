@@ -24,15 +24,15 @@ local_light_table
             ; |||||+-- OUT2
             ; ||||||+- OUT1
             ; |||||||+ OUT0
-    dt      b'00000000'     ; Parking lights
-    dt      b'00000000'     ; Low beam
-    dt      b'00010100'     ; Fog lamps
-    dt      b'00011100'     ; High beam
-    dt      b'00000000'     ; Brake
-    dt      b'00000000'     ; Reverse
-    dt      b'00000000'     ; Indicator left
-    dt      b'00000000'     ; Indicator right
-    dt      b'00000000'     ; Hazard lights
+    dt      b'00010000'     ; Parking lights
+    dt      b'00100000'     ; Low beam
+    dt      b'00000000'     ; Fog lamps
+    dt      b'00000000'     ; High beam
+    dt      b'00001000'     ; Brake
+    dt      b'00000100'     ; Reverse
+    dt      b'00000001'     ; Indicator left
+    dt      b'00000010'     ; Indicator right
+    dt      b'00000011'     ; Hazard lights
 
     IF ((HIGH ($)) != (HIGH (local_light_table)))
         ERROR "local_light_table CROSSES PAGE BOUNDARY!"
@@ -51,10 +51,10 @@ local_light_half_table
             ; |||||+-- OUT2
             ; ||||||+- OUT1
             ; |||||||+ OUT0
-    dt      b'00000000'     ; Parking lights
+    dt      b'00001000'     ; Parking lights
     dt      b'00000000'     ; Low beam
-    dt      b'00010100'     ; Fog lamps
-    dt      b'00011100'     ; High beam
+    dt      b'00000000'     ; Fog lamps
+    dt      b'00000000'     ; High beam
     dt      b'00000000'     ; Brake
     dt      b'00000000'     ; Reverse
     dt      b'00000000'     ; Indicator left
@@ -131,9 +131,9 @@ local_setup_light_table
             ; |||||+-- OUT2
             ; ||||||+- OUT1
             ; |||||||+ OUT0
-    dt      b'00000000'     ; Centre
-    dt      b'00000000'     ; Left
-    dt      b'00000000'     ; Right
+    dt      b'00000001'     ; Centre
+    dt      b'00000010'     ; Left
+    dt      b'00000100'     ; Right
 
     IF ((HIGH ($)) != (HIGH (local_light_table)))
         ERROR "local_setup_light_table CROSSES PAGE BOUNDARY!"
@@ -152,9 +152,9 @@ slave_setup_light_table
             ; |||||+-- OUT2
             ; ||||||+- OUT1
             ; |||||||+ OUT0
-    dt      b'11000000'     ; Centre
-    dt      b'01000000'     ; Left
-    dt      b'10000000'     ; Right
+    dt      b'00000000'     ; Centre
+    dt      b'00000000'     ; Left
+    dt      b'00000000'     ; Right
 
     IF ((HIGH ($)) != (HIGH (local_light_table)))
         ERROR "slave_setup_light_table CROSSES PAGE BOUNDARY!"
