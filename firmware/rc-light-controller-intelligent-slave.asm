@@ -155,7 +155,7 @@
 	d1
 	d2
 	d3
-    temp
+    temp: 2     ; Reserve an extra byte labeled temp+1 
 
     wl          ; Temporary parameters for 16 bit math functions
     wh
@@ -2783,12 +2783,21 @@ If_x_eq_y
 ; TLC5916_send
 ;
 ; Sends the value in the temp register to the TLC5916 LED driver.
+; In case DUAL_TLC5916 is defined then 16 bits temp, temp+1 are sent. This 
+; is used if two TLC5916 are wired up in series for 16 output channels.
 ;******************************************************************************
 TLC5916_send
+    IFDEF DUAL_TLC5916      ; {
+    movlw   16
+    ELSE                    ; } {
     movlw   8
+    ENDIF                   ; } DUAL_TLC5916
     movwf   d0
 
 tlc5916_send_loop
+    IFDEF DUAL_TLC5916
+    rlf     temp+1, f
+    ENDIF
     rlf     temp, f
     skpc    
     bcf     PORT_SDI
