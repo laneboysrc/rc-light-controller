@@ -295,12 +295,64 @@ SPBRG_VALUE = (((d'10'*OSC/((d'64'-(d'48'*BRGH_VALUE))*BAUDRATE))+d'5')/d'10')-1
 Main_loop
 
     ; #### TEST CODE FOR INITIAL HARDWARE TEST #####
-    movlw   0x55
+    movlw   1 << 0
     movwf   temp
-    movlw   0xaa
+    movlw   1 << 1
     movwf   temp+1
     call    TLC5916_send
     call    Delay_2s
+
+    movlw   1 << 1
+    movwf   temp
+    movlw   1 << 2
+    movwf   temp+1
+    call    TLC5916_send
+    call    Delay_2s
+
+    movlw   1 << 2
+    movwf   temp
+    movlw   1 << 3
+    movwf   temp+1
+    call    TLC5916_send
+    call    Delay_2s
+
+    movlw   1 << 3
+    movwf   temp
+    movlw   1 << 4
+    movwf   temp+1
+    call    TLC5916_send
+    call    Delay_2s
+
+
+    movlw   1 << 4
+    movwf   temp
+    movlw   1 << 5
+    movwf   temp+1
+    call    TLC5916_send
+    call    Delay_2s
+
+    movlw   1 << 5
+    movwf   temp
+    movlw   1 << 6
+    movwf   temp+1
+    call    TLC5916_send
+    call    Delay_2s
+
+
+    movlw   1 << 6
+    movwf   temp
+    movlw   1 << 7
+    movwf   temp+1
+    call    TLC5916_send
+    call    Delay_2s
+
+    movlw   1 << 7
+    movwf   temp
+    movlw   1 << 0
+    movwf   temp+1
+    call    TLC5916_send
+    call    Delay_2s
+
     goto    Main_loop
     ; #### END OF TEST CODE FOR INITIAL HARDWARE TEST #####
 
@@ -459,17 +511,18 @@ Output_local_lights
     movf    setup_mode, f
     bnz     output_local_lights_setup
 
-    IFDEF   DUAL_TLC5916
-    movlw   1 << LIGHT_TABLE_LOCAL_HALF
-    movwf   d0
-    call    Output_get_state
-    movf    temp, w         
-    movwf   temp+1
-    ENDIF
-
     movlw   1 << LIGHT_TABLE_LOCAL
     movwf   d0
     call    Output_get_state
+
+    IFDEF   DUAL_TLC5916
+    movf    temp, w         
+    movwf   temp+1
+
+    movlw   1 << LIGHT_TABLE_LOCAL_HALF
+    movwf   d0
+    call    Output_get_state
+    ENDIF
 
     call    TLC5916_send
     return
