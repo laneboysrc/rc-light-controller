@@ -659,11 +659,12 @@ Output_get_setup_state
 ; Retrieve a line from the light table.
 ; w: the line we request
 ; d0 indicates which light table we request:
-;   0: local
-;   1: slave
-;   2: slave_half
-;   4: local_setup
-;   8: slave_setup
+;   0:  local
+;   1:  local_half
+;   2:  slave
+;   4:  slave_half
+;   8:  local_setup
+;   16: slave_setup
 ;
 ; Resulting light pattern is in w
 ;******************************************************************************
