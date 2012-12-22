@@ -1,0 +1,21 @@
+TO DO LIST for the RC Light Controller
+
+* Split code into reusable modules
+    * Reading of servo pulses, PPM, UART from pre-processor
+    * High level light functions
+    * Output functions (PWM, different chips)
+    * Steering wheel servo function
+
+* Make light mode running of CH3 configurable as to how many steps up/down
+
+* Add documentation about the different supported configurations
+
+* Add documentation on how to build the firmware
+
+* Add documentation how to build a new "car"
+
+* Switch to a more modern and faster PIC chip
+    * Have the code independent of the PIC chip?
+    
+* Combined tail/brake/indicator lights (configurable?)
+
