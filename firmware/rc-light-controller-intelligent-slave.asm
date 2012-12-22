@@ -37,7 +37,7 @@
 #define BLINK_COUNTER_VALUE 5   ; 5 * 65.536 ms = ~333 ms = ~1.5 Hz
 #define BRAKE_AFTER_REVERSE_COUNTER_VALUE 15 ; 15 * 65.536 ms = ~1 s
 #define BRAKE_DISARM_COUNTER_VALUE 15        ; 15 * 65.536 ms = ~1 s
-#define INDICATOR_STATE_COUNTER_VALUE 15     ; 15 * 65.536 ms = ~1 s
+#define INDICATOR_STATE_COUNTER_VALUE 8      ; 8 * 65.536 ms = ~0.5 s
 #define INDICATOR_STATE_COUNTER_VALUE_OFF 30 ; ~2 s
 
 ; Bitfields in variable ch3_flags
@@ -769,8 +769,15 @@ Synchronize_blinking
 ;******************************************************************************
 Process_ch3_double_click
     movf    startup_mode, f
-    bz      process_ch3_initialized
+    bz      process_ch3_no_startup
+    return
 
+process_ch3_no_startup
+    btfsc   ch3_flags, CH3_FLAG_INITIALIZED
+    goto    process_ch3_initialized
+
+    ; Ignore the potential "toggle" after power on
+    bsf     ch3_flags, CH3_FLAG_INITIALIZED
     bcf     ch3_flags, CH3_FLAG_LAST_STATE
     btfsc   ch3, CH3_FLAG_LAST_STATE
     bsf     ch3_flags, CH3_FLAG_LAST_STATE
