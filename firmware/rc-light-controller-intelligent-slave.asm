@@ -293,6 +293,7 @@ SPBRG_VALUE = (((d'10'*OSC/((d'64'-(d'48'*BRGH_VALUE))*BAUDRATE))+d'5')/d'10')-1
 
     clrf    temp
     clrf    temp+1
+    comf    temp+1, f
     call    TLC5916_send
 
 ;   goto    Main_loop    
