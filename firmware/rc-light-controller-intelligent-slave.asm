@@ -16,13 +16,6 @@
 ; servo values.
 ;#define DEBUG
 
-; Instead of processing light functions in the master, when PREPROCESSING_MASTER
-; is defined all that is done is reading receiver values, normalizing them
-; and sending them to an "intelligen slave", which contains the light table
-; and other logic.
-; Define this in the make file when building a master that is designed to go
-; into the receiver.
-;#define PREPROCESSING_MASTER    
 
     #include    <p16f628a.inc>
     #include    io_master.tmp
@@ -35,6 +28,9 @@
     EXTERN slave_light_half_table
     EXTERN local_setup_light_table
     EXTERN slave_setup_light_table
+
+#define SLAVE_MAGIC_BYTE    0x87
+
 
 #define CH3_BUTTON_TIMEOUT 6    ; Time in which we accept double-click of CH3
 #define BLINK_COUNTER_VALUE 5   ; 5 * 65.536 ms = ~333 ms = ~1.5 Hz
@@ -149,6 +145,11 @@
     servo_setup_epl
     servo_setup_centre
     servo_setup_epr
+
+    uart_light_mode
+    uart_light_mode_half
+    uart_servo
+
 
 	d0          ; Delay and temp registers
 	d1
@@ -494,19 +495,8 @@ init_reversing_check_done
 ; Main program
 ;**********************************************************************
 Main_loop
-    IFDEF   SEQUENTIAL_CHANNEL_READING  ; {   
-    call    Read_all
-    ELSE                                ; } {
-    call    Read_ch3
-    call    Read_throttle
-    call    Read_steering
-    ENDIF                               ; } SEQUENTIAL_CHANNEL_READING
+    call    Read_UART
     
-    call    Process_ch3
-    call    Process_throttle
-    call    Process_steering
-
-    IFNDEF  PREPROCESSING_MASTER        ; {
     call    Process_ch3_double_click
     call    Process_drive_mode
     call    Process_indicators
@@ -514,17 +504,120 @@ Main_loop
     call    Service_timer0
 
     call    Output_local_lights
-    ENDIF                               ; } PREPROCESSING_MASTER
-
-    IFDEF   DEBUG                       ; {
-    call    Debug_output_values
-    ENDIF                               ; } DEBUG
 
     IFNDEF  DEBUG
     call    Output_slave
     ENDIF
 
     goto    Main_loop
+
+
+;******************************************************************************
+; Read_UART
+;
+; This function returns after having successfully received a complete
+; protocol frame via the UART.
+;******************************************************************************
+Read_UART
+    IFDEF   DEBUG
+
+    ; TODO: add some useful debug code here
+
+    return
+    ENDIF
+
+
+    call    read_UART_byte
+    sublw   SLAVE_MAGIC_BYTE        ; First byte the magic byte?
+    bnz     Read_UART               ; No: wait for 0x8f to appear
+
+read_UART_byte_2
+    call    read_UART_byte
+    movwf   uart_light_mode         ; Store 2nd byte
+    sublw   SLAVE_MAGIC_BYTE        ; Is it the magic byte?
+    bz      read_UART_byte_2        ; Yes: we must be out of sync...
+
+read_UART_byte_3
+    call    read_UART_byte
+    movwf   uart_light_mode_half
+    sublw   SLAVE_MAGIC_BYTE
+    bz      read_UART_byte_2
+
+read_UART_byte_4
+    call    read_UART_byte
+    movwf   uart_servo
+    sublw   SLAVE_MAGIC_BYTE
+    bz      read_UART_byte_2
+    return
+
+
+;******************************************************************************
+; read_UART_byte
+;
+; Recieve one byte from the UART in W.
+;
+; To enable reception of a byte, CREN must be 1. 
+;
+; On any error, recover by pulsing CREN low then back to high. 
+;
+; When a byte has been received the RCIF flag will be set. RCIF is 
+; automatically cleared when RCREG is read and empty. RCREG is double buffered, 
+; so it is a two byte deep FIFO. If a third byte comes in, then OERR is set. 
+; You can still recover the two bytes in the FIFO, but the third (newest) is 
+; lost. CREN must be pulsed negative to clear the OERR flag. 
+;
+; On a framing error FERR is set. FERR is automatically reset when RCREG is 
+; read, so errors must be tested for *before* RCREG is read. It is *NOT* 
+; recommended that you ignore the error flags. Eventually an error will cause 
+; the receiver to hang up if you don't clear the error condition.
+;******************************************************************************
+read_UART_byte
+	btfsc   RCSTA, OERR
+	goto    overerror       ; if overflow error...
+	btfsc   RCSTA, FERR
+	goto	frameerror      ; if framing error...
+uart_ready
+	btfss	PIR1, RCIF
+	goto	read_UART_byte  ; if not ready, wait...	
+
+uart_gotit
+	bcf     INTCON, GIE     ; Turn GIE off. This is IMPORTANT!
+	btfsc	INTCON, GIE     ; MicroChip recommends this check!
+	goto 	uart_gotit      ; !!! GOTCHA !!! without this check
+                            ;   you are not sure gie is cleared!
+	movf	RCREG, w        ; Read UART data
+	bsf     INTCON, GIE     ; Re-enable interrupts
+	return
+
+overerror	   		
+    ; Over-run errors are usually caused by the incoming data building up in 
+    ; the fifo. This is often the case when the program has not read the UART
+    ; in a while. Flushing the FIFO will allow normal input to resume.
+    ; Note that flushing the FIFO also automatically clears the FERR flag.
+    ; Pulsing CREN resets the OERR flag.
+
+	bcf     INTCON, GIE
+	btfsc	INTCON, GIE
+	goto 	overerror
+
+	bcf     RCSTA, CREN     ; Pulse CREN off...
+	movf	RCREG, w        ; Flush the FIFO, all 3 elements
+	movf	RCREG, w		
+	movf	RCREG, w
+	bsf     RCSTA, CREN     ; Turn CREN back on. This pulsing clears OERR
+	bsf     INTCON, GIE
+	goto	read_UART_byte  ; Try again...
+
+frameerror			
+    ; Framing errors are usually due to wrong baud rate coming in.
+
+	bcf     INTCON, GIE
+	btfsc	INTCON, GIE
+	goto 	frameerror
+
+	movf	RCREG,w		;reading rcreg clears ferr flag.
+	bsf     INTCON, GIE
+	goto	read_UART_byte  ; Try again...
 
 
 ;******************************************************************************
