@@ -841,7 +841,7 @@ process_ch3_click_no_setup
     ; Single click: switch light mode up (Parking, Low Beam, Fog, High Beam) 
     rlf     light_mode, f
     bsf     light_mode, LIGHT_MODE_PARKING
-    movlw   0x0f
+    movlw   0x03
     andwf   light_mode, f
     IFDEF   DEBUG
     movlw   0x31                    ; send '1'
@@ -856,7 +856,7 @@ process_ch3_double_click
     ; --------------------------
     ; Double click: switch light mode down (Parking, Low Beam, Fog, High Beam)  
     rrf     light_mode, f
-    movlw   0x0f
+    movlw   0x03
     andwf   light_mode, f
     IFDEF   DEBUG
     movlw   0x32                    ; send '2'
@@ -870,10 +870,10 @@ process_ch3_triple_click
 
     ; --------------------------
     ; Triple click: all lights on/off
-    movlw   0x0f
+    movlw   0x03
     andwf   light_mode, w
-    sublw   0x0f
-    movlw   0x0f
+    sublw   0x03
+    movlw   0x03
     skpnz
     movlw   0x00     
     movwf   light_mode
