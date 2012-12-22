@@ -25,7 +25,7 @@ dingo-slave.hex: dingo-slave.o
 
 dingo-slave.o: rc-light-controller-slave.asm io_original.inc
 	cp io_original.inc io_slave.tmp
-	gpasm -c -D DUAL_TLC5916 -o dingo-slave rc-light-controller-slave.asm
+	gpasm -c -o dingo-slave rc-light-controller-slave.asm
 	rm -f io_slave.tmp
 
 
@@ -54,7 +54,7 @@ xr311-slave.hex: xr311-slave.o xr311-light-table.o
 	
 xr311-slave.o: rc-light-controller-intelligent-slave.asm io_original.inc
 	cp io_original.inc io_master.tmp
-	gpasm -c -o xr311-slave rc-light-controller-intelligent-slave.asm
+	gpasm -c -D DUAL_TLC5916 -o xr311-slave rc-light-controller-intelligent-slave.asm
 	rm -f io_master.tmp
 	
 xr311-light-table.o: xr311-light-table.asm

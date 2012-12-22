@@ -24,6 +24,7 @@
 
 
     EXTERN local_light_table
+    EXTERN local_light_half_table
     EXTERN slave_light_table
     EXTERN slave_light_half_table
     EXTERN local_setup_light_table
@@ -84,10 +85,11 @@
 #define STARTUP_MODE_REVERSING 0x20 ; Waiting for Forward/Left to obtain direction
 
 #define LIGHT_TABLE_LOCAL 0
-#define LIGHT_TABLE_SLAVE 1
-#define LIGHT_TABLE_SLAVE_HALF 2
-#define LIGHT_TABLE_LOCAL_SETUP 3
-#define LIGHT_TABLE_SLAVE_SETUP 4
+#define LIGHT_TABLE_LOCAL_HALF 1
+#define LIGHT_TABLE_SLAVE 2
+#define LIGHT_TABLE_SLAVE_HALF 3
+#define LIGHT_TABLE_LOCAL_SETUP 4
+#define LIGHT_TABLE_SLAVE_SETUP 5
 
 ;******************************************************************************
 ;* VARIABLE DEFINITIONS
@@ -256,12 +258,12 @@ SPBRG_VALUE = (((d'10'*OSC/((d'64'-(d'48'*BRGH_VALUE))*BAUDRATE))+d'5')/d'10')-1
     movwf	SPBRG
 
     BANKSEL RCSTA
-    movlw   b'10000000'
+    movlw   b'10010000'
             ; |||||||+ RX9D (not used)
             ; ||||||+- OERR (overrun error, read only)
             ; |||||+-- FERR (framing error)
             ; ||||+---      (not implemented)
-            ; |||+---- CREN (disable reception for MASTER)
+            ; |||+---- CREN (enable reception for SLAVE)
             ; ||+----- SREN (not used in async mode)
             ; |+------ RX9  (cleared to use 8 bit mode = no parity)
             ; +------- SPEN (set to enable USART)
@@ -291,6 +293,18 @@ SPBRG_VALUE = (((d'10'*OSC/((d'64'-(d'48'*BRGH_VALUE))*BAUDRATE))+d'5')/d'10')-1
 ; Main program
 ;**********************************************************************
 Main_loop
+
+    ; #### TEST CODE FOR INITIAL HARDWARE TEST #####
+    movlw   0x55
+    movwf   temp
+    movlw   0xaa
+    movwf   temp+1
+    call    TLC5916_send
+    call    Delay_2s
+    goto    Main_loop
+    ; #### END OF TEST CODE FOR INITIAL HARDWARE TEST #####
+
+
     call    Read_UART
     
     call    Process_ch3_double_click
@@ -445,9 +459,18 @@ Output_local_lights
     movf    setup_mode, f
     bnz     output_local_lights_setup
 
+    IFDEF   DUAL_TLC5916
+    movlw   1 << LIGHT_TABLE_LOCAL_HALF
+    movwf   d0
+    call    Output_get_state
+    movf    temp, w         
+    movwf   temp+1
+    ENDIF
+
     movlw   1 << LIGHT_TABLE_LOCAL
     movwf   d0
     call    Output_get_state
+
     call    TLC5916_send
     return
 
@@ -648,6 +671,8 @@ light_table
     IFNDEF  PREPROCESSING_MASTER        ; {
     btfsc   d0, LIGHT_TABLE_LOCAL
     goto    local_light_table
+    btfsc   d0, LIGHT_TABLE_LOCAL_HALF
+    goto    local_light_half_table
     btfsc   d0, LIGHT_TABLE_SLAVE
     goto    slave_light_table
     btfsc   d0, LIGHT_TABLE_SLAVE_HALF
@@ -2255,7 +2280,7 @@ delay_loop
     return
     ENDIF
 
-    IF 0
+    IF 1
 ;**********************************************************************
 Delay_2s
 	movlw	0x11
@@ -2452,6 +2477,7 @@ Send_Hello_world
     call    UART_send_w
     movlw   0x64
     call    UART_send_w
+UART_send_CR
     movlw   0x0a
     call    UART_send_w
     return
