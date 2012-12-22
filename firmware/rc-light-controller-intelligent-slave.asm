@@ -284,7 +284,9 @@ SPBRG_VALUE = (((d'10'*OSC/((d'64'-(d'48'*BRGH_VALUE))*BAUDRATE))+d'5')/d'10')-1
     ; Load steering servo values from the EEPROM
     call    Servo_load_values
 
-    
+    clrf    temp
+    clrf    temp+1
+    call    TLC5916_send
 
 ;   goto    Main_loop    
 
@@ -444,6 +446,9 @@ frameerror
 ; Output_local_lights
 ;******************************************************************************
 Output_local_lights
+    movf    startup_mode, f
+    bnz     output_local_startup
+
     movf    setup_mode, f
     bnz     output_local_lights_setup
 
@@ -467,6 +472,19 @@ output_local_lights_setup
     movlw   1 << LIGHT_TABLE_LOCAL_SETUP
     movwf   d0
     call    Output_get_setup_state
+    IFDEF   DUAL_TLC5916
+    movfw   temp
+    movwf   temp+1
+    clrf    temp
+    ENDIF
+    call    TLC5916_send
+    return    
+
+output_local_startup
+    swapf   startup_mode, w     ; Move bits 4..7 to 0..3
+    andlw   0x07                ; Mask out bits 0..2
+    movwf   temp+1
+    clrf    temp
     call    TLC5916_send
     return    
 
