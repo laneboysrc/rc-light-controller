@@ -40,6 +40,11 @@
 #define INDICATOR_STATE_COUNTER_VALUE 15     ; 15 * 65.536 ms = ~1 s
 #define INDICATOR_STATE_COUNTER_VALUE_OFF 30 ; ~2 s
 
+; Bitfields in variable ch3_flags
+#define CH3_FLAG_LAST_STATE 0
+#define CH3_FLAG_TOGGLED 1
+#define CH3_FLAG_INITIALIZED 7
+
 ; Bitfields in variable blink_mode
 #define BLINK_MODE_BLINKFLAG 0          ; Toggles with 1.5 Hz
 #define BLINK_MODE_HAZARD 1             ; Hazard lights active
@@ -107,6 +112,8 @@
     drive_mode_brake_disarm_counter   
     indicator_state_counter
     blink_counter
+
+    ch3_flags
     ch3_click_counter
     ch3_clicks
 
@@ -498,28 +505,6 @@ Output_slave
     movlw   0x87            ; Magic byte for synchronization
     call    UART_send_w        
 
-    ; ------------------    
-    IFDEF  PREPROCESSING_MASTER         ; {
-    ; ------------------    
-    
-    movf    steering, w
-    call    UART_send_w        
-    
-    movf    throttle, w
-    call    UART_send_w        
-
-    movf    ch3, w                       
-    andlw   0x01                        ; Mask out other bits used in ch3 for 
-                                        ;  toggle and intialization
-    addwf   startup_mode, w             ; Add startup mode to the transmitted 
-                                        ;  byte. Since we are using bits 4, 5 
-                                        ;  this works fine.
-    call    UART_send_w        
-
-    ; ------------------    
-    ELSE                                ; } { PREPROCESSING_MASTER
-    ; ------------------    
-
     movf    setup_mode, f
     bnz     output_slave_setup
 
@@ -551,9 +536,6 @@ output_slave_setup
     call    UART_send_w        
     goto    output_slave_servo
 
-    ; ------------------    
-    ENDIF                               ; } PREPROCESSING_MASTER
-    ; ------------------    
     
 ;******************************************************************************
 ; Output_get_state
@@ -785,19 +767,24 @@ Synchronize_blinking
 ; Process_ch3_double_click
 ;******************************************************************************
 Process_ch3_double_click
-    btfsc   ch3, 7
-    goto    process_ch3_initialized
+    movf    startup_mode, f
+    bz      process_ch3_initialized
 
-    ; Ignore the potential "toggle" after power on
-    bsf     ch3, 7
-    bcf     ch3, 1
+    bcf     ch3_flags, CH3_FLAG_LAST_STATE
+    btfsc   ch3, CH3_FLAG_LAST_STATE
+    bsf     ch3_flags, CH3_FLAG_LAST_STATE
     return
 
 process_ch3_initialized
-    btfss   ch3, 1
+    movfw   ch3
+    xorwf   ch3_flags, w
+    movwf   temp
+    btfss   temp, CH3_FLAG_LAST_STATE
     goto    process_ch3_click_timeout
 
-    bcf     ch3, 1
+    bcf     ch3_flags, CH3_FLAG_LAST_STATE
+    btfsc   ch3, CH3_FLAG_LAST_STATE
+    bsf     ch3_flags, CH3_FLAG_LAST_STATE
     incf    ch3_clicks, f
     movlw   CH3_BUTTON_TIMEOUT
     movwf   ch3_click_counter
