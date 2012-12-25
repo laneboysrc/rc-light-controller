@@ -25,6 +25,7 @@
 
     EXTERN local_light_table
     EXTERN local_light_half_table
+    EXTERN local_light_blink_table
     EXTERN slave_light_table
     EXTERN slave_light_half_table
     EXTERN local_setup_light_table
@@ -91,10 +92,11 @@
 
 #define LIGHT_TABLE_LOCAL 0
 #define LIGHT_TABLE_LOCAL_HALF 1
-#define LIGHT_TABLE_SLAVE 2
-#define LIGHT_TABLE_SLAVE_HALF 3
-#define LIGHT_TABLE_LOCAL_SETUP 4
-#define LIGHT_TABLE_SLAVE_SETUP 5
+#define LIGHT_TABLE_LOCAL_BLINK 2
+#define LIGHT_TABLE_SLAVE 3
+#define LIGHT_TABLE_SLAVE_HALF 4
+#define LIGHT_TABLE_LOCAL_SETUP 5
+#define LIGHT_TABLE_SLAVE_SETUP 6
 
 ;******************************************************************************
 ;* VARIABLE DEFINITIONS
@@ -138,7 +140,7 @@
 	d1
 	d2
 	d3
-    temp: 2     ; Reserve an extra byte labeled temp+1 
+    temp: 3     ; Reserve extra bytes labeled temp+1, temp+2 ...
 
     wl          ; Temporary parameters for 16 bit math functions
     wh
@@ -484,6 +486,37 @@ Output_local_lights
     movlw   1 << LIGHT_TABLE_LOCAL_HALF
     movwf   d0
     call    Output_get_state
+
+    movlw   1 << LIGHT_TABLE_LOCAL_BLINK
+    movwf   d0
+    call    Output_get_blink_state
+
+    ; Special processing for all indicators and hazard lights if blink flag is 
+    ; in off period
+    btfss   blink_mode, BLINK_MODE_BLINKFLAG
+    goto    output_local_lights_blink_off    
+
+    movfw   temp+2
+    iorwf   temp+1, f
+    goto    output_local_lights_end    
+
+output_local_lights_blink_off 
+    ; To achieve US style combined indicators/tail/brake lights we have
+    ; to do trickery to blink them properly
+    movfw   temp+1
+    iorwf   temp, w
+    andwf   temp+2, f
+
+    movfw   temp+2
+    iorwf   temp, f
+    comf    temp+2, w
+    andwf   temp+1, f
+
+output_local_lights_end    
+    ; Remove half bright LEDs that are also fully lit to avoid more than
+    ; 20mA going into the LEDs as the two TLC5916 are in parallel now.    
+    comf    temp+1, w
+    andwf   temp, f  
     ENDIF
 
     call    TLC5916_send
@@ -602,40 +635,48 @@ output_local_get_state_brake
     ; Reverse lights        
 output_local_get_state_reverse
     btfss   drive_mode, DRIVE_MODE_REVERSE
-    goto    output_local_get_state_indicator_left
+    goto    output_local_get_state_end
     movlw   5
     call    light_table
     iorwf   temp, f
 
+output_local_get_state_end
+    return
+
+
+;******************************************************************************
+; Output_get_blink_state
+;
+; d0 contains the light table index to process.
+; Resulting lights are stored in temp+2.
+;******************************************************************************
+Output_get_blink_state
+    clrf    temp+2
+    
     ; Indicator left    
 output_local_get_state_indicator_left
-    ; Skip all indicators and hazard lights if blink flag is in off period
-    btfss   blink_mode, BLINK_MODE_BLINKFLAG
-    goto    output_local_get_state_end
-
     btfss   blink_mode, BLINK_MODE_INDICATOR_LEFT
     goto    output_local_get_state_indicator_right
-    movlw   6
+    movlw   0
     call    light_table
-    iorwf   temp, f
+    iorwf   temp+2, f
     
     ; Indicator right
 output_local_get_state_indicator_right
     btfss   blink_mode, BLINK_MODE_INDICATOR_RIGHT
     goto    output_local_get_state_hazard
-    movlw   7
+    movlw   1
     call    light_table
-    iorwf   temp, f
+    iorwf   temp+2, f
    
     ; Hazard lights 
 output_local_get_state_hazard
     btfss   blink_mode, BLINK_MODE_HAZARD
     goto    output_local_get_state_end
-    movlw   8
+    movlw   2
     call    light_table
-    iorwf   temp, f
+    iorwf   temp+2, f
 
-output_local_get_state_end
     return
 
 
@@ -664,10 +705,11 @@ Output_get_setup_state
 ; d0 indicates which light table we request:
 ;   0:  local
 ;   1:  local_half
-;   2:  slave
-;   4:  slave_half
-;   8:  local_setup
-;   16: slave_setup
+;   2:  local_blink
+;   4:  slave
+;   8:  slave_half
+;   16:  local_setup
+;   32: slave_setup
 ;
 ; Resulting light pattern is in w
 ;******************************************************************************
@@ -677,6 +719,8 @@ light_table
     goto    local_light_table
     btfsc   d0, LIGHT_TABLE_LOCAL_HALF
     goto    local_light_half_table
+    btfsc   d0, LIGHT_TABLE_LOCAL_BLINK
+    goto    local_light_blink_table
     btfsc   d0, LIGHT_TABLE_SLAVE
     goto    slave_light_table
     btfsc   d0, LIGHT_TABLE_SLAVE_HALF

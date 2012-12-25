@@ -384,3 +384,19 @@ value:
 Note this needs to be a signed operation! If "steering" is negative then
 'right' is replaced with 'left' in the formula above.
 
+
+
+Combined Tail/Brake/Indicators
+==============================
+In the 1970s some US cars had only a single red light in the back that
+served as tail light, brake light and indicators all at the same time. At
+least that is how I remember seeing it in movies.
+The Tamiya XR311 also has only a single light for tail/brake/indicator (plus
+and additional reversing light), so I had to implement this function.
+
+
+Tail       | Brake     | Indicator || Output    
+off        | off       | on  | off || high | off  
+half       | off       | on  | off || high | half  
+off        | high      | on  | off || high | half
+half       | high      | on  | off || high | half
