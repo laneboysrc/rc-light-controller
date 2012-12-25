@@ -219,7 +219,7 @@ Init
 
     ;-----------------------------
     ; Port direction (macro included from io_master.tmp)
-    IO_INIT_MASTER
+    IO_INIT_SLAVE
 
 
     BANKSEL d0
@@ -283,6 +283,18 @@ SPBRG_VALUE = (((d'10'*OSC/((d'64'-(d'48'*BRGH_VALUE))*BAUDRATE))+d'5')/d'10')-1
     movlw	0           ; Send dummy character to get a valid transmit flag
     movwf	TXREG
 
+
+    movlw   b'00001010'
+            ; |||||||+ CCPM0 (Compare mode, generate software interrupt on 
+            ; ||||||+- CCPM1  match (CCP1IF bit is set, CCP1 pin is unaffected)
+            ; |||||+-- CCPM2 
+            ; ||||+--- CCPM3 
+            ; |||+---- CCP1Y (not used)
+            ; ||+----- CCP1X (not used)
+            ; |+------ 
+            ; +------- 
+    movwf   CCP1CON
+    
 
     movlw   BLINK_COUNTER_VALUE
     movwf   blink_counter
@@ -684,6 +696,7 @@ Make_servo_pulse
     movf    servo, w
     addlw   120
     movwf   xl
+    clrf    xh
     call    Mul_x_by_6
     call    Add_x_and_780
 
