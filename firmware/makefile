@@ -1,3 +1,35 @@
+.PHONY: phil-ford
+xr311: phil-ford-master phil-ford-slave
+
+
+.PHONY: phil-ford
+phil-ford-master: phil-ford-master.hex
+
+phil-ford-master.hex: phil-ford-master.o
+	gplink -m -o phil-ford-master phil-ford-master.o
+	
+phil-ford-master.o: rc-light-controller.asm io_preprocessor_12f1840.inc
+	cp io_preprocessor_12f1840.inc io_master.tmp
+	gpasm -c -p pic12f1840 -D PREPROCESSING_MASTER -D SEQUENTIAL_CHANNEL_READING -o phil-ford-master rc-light-controller.asm
+	rm -f io_master.tmp
+
+
+.PHONY: phil-ford-slave
+phil-ford-slave: phil-ford-slave.hex
+
+phil-ford-slave.hex: phil-ford-slave.o phil-ford-light-table.o
+	gplink -m -o phil-ford-slave phil-ford-slave.o phil-ford-light-table.o
+	
+phil-ford-slave.o: rc-light-controller-intelligent-slave.asm io_phil-ford.inc
+	cp io_phil-ford.inc io_master.tmp
+	gpasm -c -p pic16f628a -o phil-ford-slave rc-light-controller-intelligent-slave.asm
+	rm -f io_master.tmp
+	
+phil-ford-light-table.o: phil-ford-light-table.asm
+	gpasm -c -p pic16f628a phil-ford-light-table.asm
+
+
+
 .PHONY: dingo
 dingo: dingo-master dingo-slave
 
