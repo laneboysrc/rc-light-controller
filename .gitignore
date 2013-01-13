@@ -1,4 +1,5 @@
 *~
+firmware/*.tmp
 firmware/*.hex
 firmware/*.lst
 firmware/*.cod

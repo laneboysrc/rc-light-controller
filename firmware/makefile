@@ -1,5 +1,5 @@
 .PHONY: phil-ford
-xr311: phil-ford-master phil-ford-slave
+phil-ford: phil-ford-master phil-ford-slave
 
 
 .PHONY: phil-ford
