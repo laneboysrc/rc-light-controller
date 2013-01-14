@@ -4,6 +4,7 @@ firmware/*.hex
 firmware/*.lst
 firmware/*.cod
 firmware/*.o
+firmware/*.a
 firmware/*.map
 electronics/rc-light-controller/*.b#*
 electronics/rc-light-controller/*.s#*

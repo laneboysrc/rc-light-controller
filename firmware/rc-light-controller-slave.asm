@@ -14,7 +14,7 @@
 
 ;#define DEBUG
 
-    #include    io_slave.tmp
+    #include    io.tmp
 
 
 #define SLAVE_MAGIC_BYTE    0x87

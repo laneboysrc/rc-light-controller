@@ -24,7 +24,7 @@
 ; into the receiver.
 ;#define PREPROCESSING_MASTER    
 
-    #include    io_master.tmp
+    #include    io.tmp
 
 
     EXTERN local_light_table

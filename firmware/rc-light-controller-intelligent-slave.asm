@@ -16,7 +16,7 @@
 ; servo values.
 ;#define DEBUG
 
-    #include    io_master.tmp
+    #include    io.tmp
 
 
     EXTERN local_light_table
