@@ -27,11 +27,36 @@
     #include    io.tmp
 
 
-    EXTERN local_light_table
-    EXTERN slave_light_table
-    EXTERN slave_light_half_table
-    EXTERN local_setup_light_table
-    EXTERN slave_setup_light_table
+    EXTERN  local_light_table
+    EXTERN  slave_light_table
+    EXTERN  slave_light_half_table
+    EXTERN  local_setup_light_table
+    EXTERN  slave_setup_light_table
+
+    ; Functions imported from utils.asm
+    EXTERN  Min
+    EXTERN  Max
+    EXTERN  Add_y_to_x
+    EXTERN  Sub_y_from_x
+    EXTERN  If_x_eq_y
+    EXTERN  If_y_lt_x
+    EXTERN  Min_x_z
+    EXTERN  Max_x_z
+    EXTERN  Mul_xl_by_w
+    EXTERN  Div_x_by_y
+    EXTERN  Mul_x_by_100
+    EXTERN  Div_x_by_4
+    EXTERN  Mul_x_by_6
+    EXTERN  Add_x_and_780    
+
+    EXTERN  xl
+    EXTERN  xh
+    EXTERN  yl
+    EXTERN  yh
+    EXTERN  zl
+    EXTERN  zh
+
+
 
 #define CH3_BUTTON_TIMEOUT 6    ; Time in which we accept double-click of CH3
 #define BLINK_COUNTER_VALUE 5   ; 5 * 65.536 ms = ~333 ms = ~1.5 Hz
@@ -93,89 +118,81 @@
 ;******************************************************************************
 ;* VARIABLE DEFINITIONS
 ;******************************************************************************
-    CBLOCK  0x20
+    UDATA  0x20
 
-    throttle
-    throttle_abs
-    throttle_l
-    throttle_h
-    throttle_centre_l
-    throttle_centre_h
-    throttle_epl_l
-    throttle_epl_h
-    throttle_epr_l
-    throttle_epr_h
-    throttle_reverse
+throttle            res 1
+throttle_abs        res 1    
+throttle_l          res 1
+throttle_h          res 1
+throttle_centre_l   res 1
+throttle_centre_h   res 1
+throttle_epl_l      res 1
+throttle_epl_h      res 1
+throttle_epr_l      res 1
+throttle_epr_h      res 1
+throttle_reverse    res 1
 
-    steering
-    steering_abs
-    steering_l
-    steering_h
-    steering_centre_l
-    steering_centre_h
-    steering_epl_l
-    steering_epl_h
-    steering_epr_l
-    steering_epr_h
-    steering_reverse
-    
-    ch3
-    ch3_value
-    ch3_ep0
-    ch3_ep1
+steering            res 1
+steering_abs        res 1
+steering_l          res 1
+steering_h          res 1
+steering_centre_l   res 1
+steering_centre_h   res 1
+steering_epl_l      res 1
+steering_epl_h      res 1
+steering_epr_l      res 1
+steering_epr_h      res 1
+steering_reverse    res 1
 
-    drive_mode_counter
-    drive_mode_brake_disarm_counter   
-    indicator_state_counter
-    blink_counter
-    ch3_click_counter
-    ch3_clicks
+ch3                 res 1
+ch3_value           res 1
+ch3_ep0             res 1
+ch3_ep1             res 1
 
-    blink_mode      
-    light_mode
-    drive_mode
-    indicator_state
-    setup_mode
-    startup_mode
-    reversing_mode
+drive_mode_counter  res 1
+drive_mode_brake_disarm_counter res 1  
+indicator_state_counter res 1
+blink_counter       res 1
+ch3_click_counter   res 1
+ch3_clicks          res 1
 
-    servo
-    servo_epl
-    servo_centre
-    servo_epr
-    servo_setup_epl
-    servo_setup_centre
-    servo_setup_epr
+blink_mode          res 1
+light_mode          res 1
+drive_mode          res 1
+indicator_state     res 1
+setup_mode          res 1
+startup_mode        res 1
+reversing_mode      res 1
 
-	d0          ; Delay and temp registers
-	d1
-	d2
-	d3
-    temp
+servo               res 1
+servo_epl           res 1
+servo_centre        res 1
+servo_epr           res 1
+servo_setup_epl     res 1
+servo_setup_centre  res 1
+servo_setup_epr     res 1
 
-    wl          ; Temporary parameters for 16 bit math functions
-    wh
-    xl
-    xh
-    yl 
-    yh
-    zl
-    zh
+wl                  res 1 
+wh                  res 1
 
-    port_dummy  ; Register to fake IO ports
-    ENDC
+d0                  res 1 ; Delay and temp registers
+d1                  res 1
+d2                  res 1
+d3                  res 1
+temp                res 1
+
+port_dummy          res 1 ; Register to fake IO ports
 
     IFDEF DEBUG
-    CBLOCK
-    send_hi
-    send_lo
+send_hi             res 1
+send_lo             res 1
 
-    debug_steering_old
-    debug_throttle_old
-    debug_indicator_state_old
-
-    ENDC
+debug_steering_old  res 1
+debug_throttle_old  res 1
+debug_indicator_state_old res 1
     ENDIF
+
+
 
 ;******************************************************************************
 ;* MACROS
@@ -2299,304 +2316,6 @@ calculate_normalized_right
     return  
 
 
-;******************************************************************************
-; Max
-;  
-; Given two 8-bit values in temp and w, returns the larger one in both temp
-; and w
-;******************************************************************************
-Max
-    subwf   temp, w
-    skpc
-    subwf   temp, f
-    movf    temp, w
-    return    
-
-
-;******************************************************************************
-; Min
-;  
-; Given two 8-bit values in temp and w, returns the smaller one in both temp
-; and w
-;******************************************************************************
-Min
-    subwf   temp, w
-    skpnc
-    subwf   temp, f
-    movf    temp, w
-    return    
-
-
-;******************************************************************************
-; Min_x_z
-;  
-; Given two 16-bit values in xl/xh and zl/zh, returns the smaller one in zl/zh.
-;******************************************************************************
-Min_x_z
-    movf    xl, w
-    subwf	zl, w	
-    movf	xh, w
-    skpc
-    addlw   1
-    subwf	zh, w
-    andlw	b'10000000'	
-    skpz
-    return
-
-	movf	xl, w
-	movwf	zl
-	movf	xh, w
-	movwf	zh
-    return
-
-
-;******************************************************************************
-; Max_x_z
-;  
-; Given two 16-bit values in xl/xh and zl/zh, returns the larger one in zl/zh.
-;******************************************************************************
-Max_x_z
-    movf    xl, w
-    subwf   zl, w		
-    movf    xh, w
-    skpc
-    addlw   1
-    subwf   zh, w		
-    andlw   b'10000000'  
-    skpnz
-    return
-
-	movf	xl, w
-	movwf	zl
-	movf	xh, w
-	movwf	zh
-    return
-
-
-;******************************************************************************
-; Div_x_by_y
-;
-; xh/xl = xh/xl / yh/yl; Remainder in zh/zl
-;
-; Based on "32 by 16 Divison" by Nikolai Golovchenko
-; http://www.piclist.com/techref/microchip/math/div/div16or32by16to16.htm
-;******************************************************************************
-#define counter d0
-Div_x_by_y
-    clrf    zl      ; Clear remainder
-    clrf    zh
-    clrf    temp    ; Clear remainder extension
-    movlw   16
-    movwf   counter
-    setc            ; First iteration will be subtraction
-
-div16by16loop
-    ; Shift in next result bit and shift out next dividend bit to remainder
-    rlf     xl, f   ; Shift LSB
-    rlf     xh, f   ; Shift MSB
-    rlf     zl, f
-    rlf     zh, f
-    rlf     temp, f
-
-    movf    yl, w
-    btfss   xl, 0
-    goto    div16by16add
-
-    ; Subtract divisor from remainder
-    subwf   zl, f
-    movf    yh, w
-    skpc
-    incfsz  yh, w
-    subwf   zh, f
-    movlw   1
-    skpc
-    subwf   temp, f
-    goto    div16by16next
-
-div16by16add
-    ; Add divisor to remainder
-    addwf   zl, f
-    movf    yh, w
-    skpnc
-    incfsz  yh, w
-    addwf   zh, f
-    movlw   1
-    skpnc
-    addwf   temp, f
-
-div16by16next
-    ; Carry is next result bit
-    decfsz  counter, f
-    goto    div16by16loop
-
-; Shift in last bit
-    rlf     xl, f
-    rlf     xh, f
-    return
-#undefine counter
-
-
-;******************************************************************************
-; Mul_xl_by_w
-;
-; Calculates xh/xl = xl * w
-;******************************************************************************
-#define count d0
-Mul_xl_by_w
-    clrf    xh
-	clrf    count
-    bsf     count, 3
-    rrf     xl, f
-
-mul_xl_by_w_loop
-	skpnc
-	addwf   xh, f
-    rrf     xh, f
-    rrf     xl, f
-	decfsz  count, f
-    goto    mul_xl_by_w_loop
-    return
-
-
-;******************************************************************************
-; Mul_x_by_100
-;
-; Calculates xh/xl = xh/xl * 100
-; Only valid for xh/xl <= 655 as the output is only 16 bits
-;******************************************************************************
-Mul_x_by_100
-    ; Shift accumulator left 2 times: xh/xl = xh/xl * 4
-	clrc
-	rlf	    xl, f
-	rlf	    xh, f
-	rlf	    xl, f
-	rlf	    xh, f
-
-    ; Copy accumulator to temporary location
-	movf	xh, w
-	movwf	d1
-	movf	xl, w
-	movwf	d0
-
-    ; Shift temporary value left 3 times: d1/d0 = xh/xl * 4 * 8   = xh/xl * 32
-	clrc
-	rlf	    d0, f
-	rlf	    d1, f
-	rlf	    d0, f
-	rlf	    d1, f
-	rlf	    d0, f
-	rlf	    d1, f
-
-    ; xh/xl = xh/xl * 32  +  xh/xl * 4   = xh/xl * 36
-	movf	d0, w
-	addwf	xl, f
-	movf	d1, w
-	skpnc
-	incfsz	d1, w
-	addwf	xh, f
-
-    ; Shift temporary value left by 1: d1/d0 = xh/xl * 32 * 2   = xh/xl * 64
-	clrc
-	rlf	    d0, f
-	rlf	    d1, f
-
-    ; xh/xl = xh/xl * 36  +  xh/xl * 64   = xh/xl * 100 
-	movf	d0, w
-	addwf	xl, f
-	movf	d1, w
-	skpnc
-	incfsz	d1, w
-	addwf	xh, f
-    return
-
-
-;******************************************************************************
-; Div_x_by_4
-;
-; Calculates xh/xl = xh/xl / 4
-;******************************************************************************
-Div_x_by_4
-	clrc
-	rrf     xh, f
-	rrf	    xl, f
-	clrc
-	rrf     xh, f
-	rrf	    xl, f
-    return
-
-
-;******************************************************************************
-; Add_y_to_x
-;
-; This function calculates xh/xl = xh/xl + yh/yl.
-; C flag is valid, Z flag is not!
-;
-; y stays unchanged.
-;******************************************************************************
-Add_y_to_x
-    movf    yl, w
-    addwf   xl, f
-    movf    yh, w
-    skpnc
-    incf    yh, W
-    addwf   xh, f
-    return         
-
-
-;******************************************************************************
-; Sub_y_from_x
-;
-; This function calculates xh/xl = xh/xl - yh/yl.
-; C flag is valid, Z flag is not!
-;
-; y stays unchanged.
-;******************************************************************************
-Sub_y_from_x
-    movf    yl, w
-    subwf   xl, f
-    movf    yh, w
-    skpc
-    incfsz  yh, W
-    subwf   xh, f
-    return         
-
-
-;******************************************************************************
-; If_y_lt_x
-;
-; This function compares the 16 bit unsigned values in yh/yl with xh/xl.
-; If y < x then C flag is cleared on exit
-; If y >= x then C flag is set on exit
-;
-; x and y stay unchanged.
-;******************************************************************************
-If_y_lt_x
-    movfw   xl
-    subwf   yl, w
-    movfw   xh
-    skpc                
-    incfsz  xh, w       
-    subwf   yh, w
-    return
-
-
-;******************************************************************************
-; If_x_eq_y
-;
-; This function compares the 16 bit unsigned values in yh/yl with xh/xl.
-; If x == y then Z flag is set on exit
-; If y != x then Z flag is cleared on exit
-;
-; x and y stay unchanged.
-;******************************************************************************
-If_x_eq_y
-    movfw   xl
-    subwf   yl, w
-    skpz
-    return
-    movfw   xh
-    subwf   yh, w
-    return
 
 
 ;******************************************************************************
