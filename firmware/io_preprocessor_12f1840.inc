@@ -63,7 +63,6 @@ ENDIF
 
 
 ; Dummy definitions, mapped to an unused register so they don't disturb anything
-#define PORT_SERVO      port_dummy, 0         
 #define PORT_CLK        port_dummy, 0
 #define PORT_SDI        port_dummy, 0
 #define PORT_LE         port_dummy, 0

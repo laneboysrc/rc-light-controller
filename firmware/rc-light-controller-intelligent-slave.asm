@@ -237,7 +237,9 @@ Main_loop
     call    Service_timer0
 
     call    Output_local_lights
+    IFDEF   ENABLE_SERVO_OUTPUT
     call    Make_servo_pulse
+    ENDIF
 
     IFNDEF  DEBUG
     ;call    Output_slave
@@ -644,8 +646,7 @@ light_table
     return
 
 
-
-    
+    IFDEF ENABLE_SERVO_OUTPUT    
 ;******************************************************************************
 Make_servo_pulse    
     movf    servo, w
@@ -675,7 +676,8 @@ Make_servo_pulse
     bcf     PIR1, CCP1IF
 
     return
-    
+    ENDIF    
+
     
 ;******************************************************************************
 ; Service_timer0
