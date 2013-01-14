@@ -106,10 +106,11 @@ xr311-master-utils.o: utils.asm io_preprocessor_12f1840.inc
 	rm -f io.tmp
 
 
-io_slave = io_original.inc
+#io_slave = io_original.inc
 
 .PHONY: xr311-slave
-xr311-slave : xr311-slave.hex
+xr311-slave : io_slave = io_original.inc
+xr311-slave : xr311-slave.hex 
 
 xr311-slave.hex : xr311-slave.o xr311-light-table.o xr311-slave-utils.a
 	gplink -m -O 2 -o xr311-slave xr311-slave.o xr311-light-table.o xr311-slave-utils.a
