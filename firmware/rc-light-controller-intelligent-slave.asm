@@ -9,18 +9,14 @@
 ;
 ;******************************************************************************
     TITLE       RC Light Controller
-    LIST        p=pic16f628a, r=dec
+    LIST        r=dec
     RADIX       dec
 
 ; Enable debug functions like human readable UART output to read incoming
 ; servo values.
 ;#define DEBUG
 
-
-    #include    <p16f628a.inc>
     #include    io_master.tmp
-
-    __CONFIG _CP_OFF & _DATA_CP_OFF & _LVP_OFF & _BOREN_OFF & _MCLRE_OFF & _PWRTE_ON & _WDT_OFF & _INTRC_OSC_NOCLKOUT
 
 
     EXTERN local_light_table

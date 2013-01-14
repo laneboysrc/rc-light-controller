@@ -12,6 +12,20 @@
 ;
 ;******************************************************************************
 
+    PROCESSOR   PIC16F628A
+
+    #include    <p16f628a.inc>
+
+IFDEF INCLUDE_CONFIG
+    CONFIG      FOSC = INTOSCIO
+    CONFIG      WDTE = OFF
+    CONFIG      PWRTE = ON
+    CONFIG      MCLRE = OFF
+    CONFIG      BOREN = OFF
+    CONFIG      LVP = OFF
+    CONFIG      CP = OFF, CPD = OFF
+ENDIF
+
 ;******************************************************************************
 ;   Port usage:
 ;   ===========                                             

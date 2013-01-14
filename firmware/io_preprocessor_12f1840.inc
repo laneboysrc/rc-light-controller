@@ -18,6 +18,28 @@
 ;
 ;******************************************************************************
 
+    PROCESSOR   PIC12F1840
+
+    #include    <p12f1840.inc>
+
+IFDEF INCLUDE_CONFIG
+    CONFIG      FOSC = INTOSC
+    CONFIG      PLLEN = ON
+
+    CONFIG      PWRTE = ON
+    CONFIG      WDTE = OFF 
+    CONFIG      MCLRE = OFF
+    CONFIG      CP = OFF, CPD = OFF
+    CONFIG      BOREN = OFF
+    CONFIG      CLKOUTEN = OFF
+    CONFIG      IESO = OFF
+    CONFIG      FCMEN = OFF
+    CONFIG      WRT = OFF
+    CONFIG      STVREN = OFF
+    CONFIG      LVP = OFF
+ENDIF
+
+
 ;******************************************************************************
 ;   Port usage:
 ;   ===========                                             
@@ -50,11 +72,8 @@ IO_INIT_MASTER macro
     BANKSEL TRISA
     ;-----------------------------
     ; Port direction
-    movlw   b'10000011' ; Make all ports A except RA7, RA1 and RA0 output
+    movlw   b'11111111' ; Make all ports A input
     movwf   TRISA
-
-    movlw   b'00000000' ; Make all ports B outputs
-    movwf   TRISB
     endm
     
 IO_INIT_SLAVE macro

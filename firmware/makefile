@@ -2,7 +2,7 @@
 phil-ford: phil-ford-master phil-ford-slave
 
 
-.PHONY: phil-ford
+.PHONY: phil-ford-master
 phil-ford-master: phil-ford-master.hex
 
 phil-ford-master.hex: phil-ford-master.o
@@ -10,7 +10,7 @@ phil-ford-master.hex: phil-ford-master.o
 	
 phil-ford-master.o: rc-light-controller.asm io_preprocessor_12f1840.inc
 	cp io_preprocessor_12f1840.inc io_master.tmp
-	gpasm -c -p pic12f1840 -D PREPROCESSING_MASTER -D SEQUENTIAL_CHANNEL_READING -o phil-ford-master rc-light-controller.asm
+	gpasm -c -D INCLUDE_CONFIG -D PREPROCESSING_MASTER -D SEQUENTIAL_CHANNEL_READING -o phil-ford-master rc-light-controller.asm
 	rm -f io_master.tmp
 
 
@@ -22,11 +22,11 @@ phil-ford-slave.hex: phil-ford-slave.o phil-ford-light-table.o
 	
 phil-ford-slave.o: rc-light-controller-intelligent-slave.asm io_phil-ford.inc
 	cp io_phil-ford.inc io_master.tmp
-	gpasm -c -p pic16f628a -o phil-ford-slave rc-light-controller-intelligent-slave.asm
+	gpasm -c -D INCLUDE_CONFIG -o phil-ford-slave rc-light-controller-intelligent-slave.asm
 	rm -f io_master.tmp
 	
 phil-ford-light-table.o: phil-ford-light-table.asm
-	gpasm -c -p pic16f628a phil-ford-light-table.asm
+	gpasm -c phil-ford-light-table.asm
 
 
 
@@ -42,11 +42,13 @@ dingo-master.hex: dingo-master.o dingo-light-table.o
 
 dingo-master.o: rc-light-controller.asm io_original.inc
 	cp io_original.inc io_master.tmp
-	gpasm -c -o dingo-master rc-light-controller.asm
+	gpasm -c -D INCLUDE_CONFIG -o dingo-master rc-light-controller.asm
 	rm -f io_master.tmp
 
-dingo-light-table.o: dingo-light-table.asm
-	gpasm -c -p pic16f628a dingo-light-table.asm
+dingo-light-table.o: dingo-light-table.asm io_original.inc
+	cp io_original.inc io_master.tmp
+	gpasm -c dingo-light-table.asm
+	rm -f io_master.tmp
 
 
 .PHONY: dingo-slave
@@ -57,7 +59,7 @@ dingo-slave.hex: dingo-slave.o
 
 dingo-slave.o: rc-light-controller-slave.asm io_original.inc
 	cp io_original.inc io_slave.tmp
-	gpasm -c -o dingo-slave rc-light-controller-slave.asm
+	gpasm -c -D INCLUDE_CONFIG -o dingo-slave rc-light-controller-slave.asm
 	rm -f io_slave.tmp
 
 
@@ -74,7 +76,7 @@ xr311-master.hex: xr311-master.o
 	
 xr311-master.o: rc-light-controller.asm io_preprocessor.inc
 	cp io_preprocessor.inc io_master.tmp
-	gpasm -c -D PREPROCESSING_MASTER -D SEQUENTIAL_CHANNEL_READING -o xr311-master rc-light-controller.asm
+	gpasm -c -D INCLUDE_CONFIG -D PREPROCESSING_MASTER -D SEQUENTIAL_CHANNEL_READING -o xr311-master rc-light-controller.asm
 	rm -f io_master.tmp
 
 
@@ -86,11 +88,13 @@ xr311-slave.hex: xr311-slave.o xr311-light-table.o
 	
 xr311-slave.o: rc-light-controller-intelligent-slave.asm io_original.inc
 	cp io_original.inc io_master.tmp
-	gpasm -c -D DUAL_TLC5916 -o xr311-slave rc-light-controller-intelligent-slave.asm
+	gpasm -c -D INCLUDE_CONFIG -D DUAL_TLC5916 -o xr311-slave rc-light-controller-intelligent-slave.asm
 	rm -f io_master.tmp
 	
 xr311-light-table.o: xr311-light-table.asm
-	gpasm -c -p pic16f628a xr311-light-table.asm
+	cp io_original.inc io_master.tmp
+	gpasm -c xr311-light-table.asm
+	rm -f io_master.tmp
 
 
 clean:
