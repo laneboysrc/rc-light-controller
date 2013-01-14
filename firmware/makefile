@@ -106,27 +106,29 @@ xr311-master-utils.o: utils.asm io_preprocessor_12f1840.inc
 	rm -f io.tmp
 
 
+io_slave = io_original.inc
+
 .PHONY: xr311-slave
 xr311-slave : xr311-slave.hex
 
 xr311-slave.hex : xr311-slave.o xr311-light-table.o xr311-slave-utils.a
 	gplink -m -O 2 -o xr311-slave xr311-slave.o xr311-light-table.o xr311-slave-utils.a
+	rm -f io.tmp
 	
-xr311-slave.o : rc-light-controller-intelligent-slave.asm io_original.inc
-	cp io_original.inc io.tmp
+xr311-slave.o : rc-light-controller-intelligent-slave.asm io.tmp 
 	gpasm -c -D INCLUDE_CONFIG -D DUAL_TLC5916 -D ENABLE_SERVO_OUTPUT -o xr311-slave rc-light-controller-intelligent-slave.asm
-	rm -f io.tmp
 	
-xr311-light-table.o : xr311-light-table.asm io_original.inc 
-	cp io_original.inc io.tmp
-	gpasm -c xr311-light-table.asm
-	rm -f io.tmp
+xr311-light-table.o : xr311-light-table.asm io.tmp 
+	gpasm -c -o xr311-light-table.o xr311-light-table.asm
 
-xr311-slave-utils.o : utils.asm io_original.inc
-	cp io_original.inc io.tmp
-	gpasm -c  -o xr311-slave-utils utils.asm
-	rm -f io.tmp
+xr311-slave-utils.o : utils.asm io.tmp
+	gpasm -c -o xr311-slave-utils utils.asm
 
+$(io_slave) :
+	io_slave = io_original.inc
+
+io.tmp : $(io_slave)
+	cp $(io_slave) io.tmp
 
 
 clean :
@@ -141,5 +143,4 @@ clean :
 
 %.a : %.o
 	gplib -c $@ $<
-
 
