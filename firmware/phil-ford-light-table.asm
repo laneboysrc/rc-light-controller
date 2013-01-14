@@ -1,7 +1,8 @@
     TITLE       Light tables for the Tamiya XR311
     RADIX       dec
 
-    #include    <p16f628a.inc>
+    #include    io_master.tmp
+
 
     GLOBAL local_light_table
     GLOBAL local_light_half_table

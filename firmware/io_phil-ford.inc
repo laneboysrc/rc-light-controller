@@ -65,6 +65,12 @@ ENDIF
 #define PORT_LED_INDICATOR_RIGHT    PORTA, 3
 #define PORT_LED_REVERSE            PORTB, 0
 
+#define PORT_SERVO                  port_dummy, 0
+
+#define PORT_SDI                    port_dummy, 1
+#define PORT_CLK                    port_dummy, 2
+#define PORT_LE                     port_dummy, 3
+#define PORT_OE                     port_dummy, 4
 
 ;******************************************************************************
 ;* MACROS

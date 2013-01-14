@@ -25,8 +25,10 @@ phil-ford-slave.o: rc-light-controller-intelligent-slave.asm io_phil-ford.inc
 	gpasm -c -D INCLUDE_CONFIG -o phil-ford-slave rc-light-controller-intelligent-slave.asm
 	rm -f io_master.tmp
 	
-phil-ford-light-table.o: phil-ford-light-table.asm
+phil-ford-light-table.o: phil-ford-light-table.asm io_phil-ford.inc
+	cp io_phil-ford.inc io_master.tmp
 	gpasm -c phil-ford-light-table.asm
+	rm -f io_master.tmp
 
 
 
