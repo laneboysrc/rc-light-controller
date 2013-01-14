@@ -2,6 +2,7 @@
 phil-ford: phil-ford-master phil-ford-slave
 
 
+
 .PHONY: phil-ford-master
 phil-ford-master: phil-ford-master.hex
 
@@ -12,9 +13,6 @@ phil-ford-master.o: rc-light-controller.asm io_preprocessor_12f1840.inc
 	cp io_preprocessor_12f1840.inc io.tmp
 	gpasm -c -D INCLUDE_CONFIG -D PREPROCESSING_MASTER -D SEQUENTIAL_CHANNEL_READING -o phil-ford-master rc-light-controller.asm
 	rm -f io.tmp
-
-phil-ford-master-utils.a: phil-ford-master-utils.o
-	gplib -c phil-ford-master-utils.a phil-ford-master-utils.o
 
 phil-ford-master-utils.o: utils.asm io_preprocessor_12f1840.inc
 	cp io_preprocessor_12f1840.inc io.tmp
@@ -37,9 +35,6 @@ phil-ford-light-table.o: phil-ford-light-table.asm io_phil-ford.inc
 	cp io_phil-ford.inc io.tmp
 	gpasm -c phil-ford-light-table.asm
 	rm -f io.tmp
-
-phil-ford-slave-utils.a: phil-ford-slave-utils.o
-	gplib -c phil-ford-slave-utils.a phil-ford-slave-utils.o
 
 phil-ford-slave-utils.o: utils.asm io_preprocessor_12f1840.inc
 	cp io_original.inc io.tmp
@@ -67,9 +62,6 @@ dingo-light-table.o: dingo-light-table.asm io_original.inc
 	gpasm -c dingo-light-table.asm
 	rm -f io.tmp
 
-dingo-master-utils.a: dingo-master-utils.o
-	gplib -c dingo-master-utils.a dingo-master-utils.o
-
 dingo-master-utils.o: utils.asm io_original.inc
 	cp io_original.inc io.tmp
 	gpasm -c -o dingo-master-utils utils.asm
@@ -86,9 +78,6 @@ dingo-slave.o: rc-light-controller-slave.asm io_original.inc
 	cp io_original.inc io.tmp
 	gpasm -c -D INCLUDE_CONFIG -D ENABLE_SERVO_OUTPUT -o dingo-slave rc-light-controller-slave.asm
 	rm -f io.tmp
-
-dingo-slave-utils.a: dingo-slave-utils.o
-	gplib -c dingo-slave-utils.a dingo-slave-utils.o
 
 dingo-slave-utils.o: utils.asm io_preprocessor_12f1840.inc
 	cp io_original.inc io.tmp
@@ -111,9 +100,6 @@ xr311-master.o: rc-light-controller.asm io_preprocessor.inc
 	gpasm -c -D INCLUDE_CONFIG -D PREPROCESSING_MASTER -D SEQUENTIAL_CHANNEL_READING -o xr311-master rc-light-controller.asm
 	rm -f io.tmp
 
-xr311-master-utils.a: xr311-master-utils.o
-	gplib -c xr311-master-utils.a xr311-master-utils.o
-
 xr311-master-utils.o: utils.asm io_preprocessor_12f1840.inc
 	cp io_preprocessor.inc io.tmp
 	gpasm -c  -o xr311-master-utils utils.asm
@@ -121,31 +107,29 @@ xr311-master-utils.o: utils.asm io_preprocessor_12f1840.inc
 
 
 .PHONY: xr311-slave
-xr311-slave: xr311-slave.hex
+xr311-slave : xr311-slave.hex
 
-xr311-slave.hex: xr311-slave.o xr311-light-table.o xr311-slave-utils.a
+xr311-slave.hex : xr311-slave.o xr311-light-table.o xr311-slave-utils.a
 	gplink -m -O 2 -o xr311-slave xr311-slave.o xr311-light-table.o xr311-slave-utils.a
 	
-xr311-slave.o: rc-light-controller-intelligent-slave.asm io_original.inc
+xr311-slave.o : rc-light-controller-intelligent-slave.asm io_original.inc
 	cp io_original.inc io.tmp
 	gpasm -c -D INCLUDE_CONFIG -D DUAL_TLC5916 -D ENABLE_SERVO_OUTPUT -o xr311-slave rc-light-controller-intelligent-slave.asm
 	rm -f io.tmp
 	
-xr311-light-table.o: xr311-light-table.asm
+xr311-light-table.o : xr311-light-table.asm io_original.inc 
 	cp io_original.inc io.tmp
 	gpasm -c xr311-light-table.asm
 	rm -f io.tmp
 
-xr311-slave-utils.a: xr311-slave-utils.o
-	gplib -c xr311-slave-utils.a xr311-slave-utils.o
-
-xr311-slave-utils.o: utils.asm io_preprocessor_12f1840.inc
+xr311-slave-utils.o : utils.asm io_original.inc
 	cp io_original.inc io.tmp
 	gpasm -c  -o xr311-slave-utils utils.asm
 	rm -f io.tmp
 
 
-clean:
+
+clean :
 	rm -f *.hex
 	rm -f *.lst
 	rm -f *.map
@@ -153,4 +137,9 @@ clean:
 	rm -f *.o
 	rm -f *.a
 	rm -f *.tmp
+
+
+%.a : %.o
+	gplib -c $@ $<
+
 
