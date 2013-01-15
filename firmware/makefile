@@ -95,13 +95,13 @@ xr311-master: xr311-master.hex
 xr311-master.hex: xr311-master.o xr311-master-utils.a
 	gplink -m -O 2 -o xr311-master xr311-master.o xr311-master-utils.a
 	
-xr311-master.o: rc-light-controller.asm io_preprocessor.inc
-	cp io_preprocessor.inc io.tmp
+xr311-master.o: rc-light-controller.asm io_preprocessor_16f628a.inc
+	cp io_preprocessor_16f628a.inc io.tmp
 	gpasm -c -D INCLUDE_CONFIG -D PREPROCESSING_MASTER -D SEQUENTIAL_CHANNEL_READING -o xr311-master rc-light-controller.asm
 	rm -f io.tmp
 
-xr311-master-utils.o: utils.asm io_preprocessor_12f1840.inc
-	cp io_preprocessor.inc io.tmp
+xr311-master-utils.o: utils.asm io_preprocessor_16f628a.inc
+	cp io_preprocessor_16f628a.inc io.tmp
 	gpasm -c  -o xr311-master-utils utils.asm
 	rm -f io.tmp
 
