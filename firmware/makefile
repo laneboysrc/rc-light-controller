@@ -6,8 +6,8 @@ phil-ford: phil-ford-master phil-ford-slave
 .PHONY: phil-ford-master
 phil-ford-master: phil-ford-master.hex
 
-phil-ford-master.hex: phil-ford-master.o phil-ford-master-utils.a
-	gplink -m -O 2 -o phil-ford-master phil-ford-master.o phil-ford-master-utils.a
+phil-ford-master.hex: phil-ford-master.o phil-ford-master-utils.o
+	gplink -m -O 2 -o phil-ford-master phil-ford-master.o phil-ford-master-utils.o
 	
 phil-ford-master.o: rc-light-controller.asm io_preprocessor_12f1840.inc
 	cp io_preprocessor_12f1840.inc io.tmp
@@ -23,8 +23,8 @@ phil-ford-master-utils.o: utils.asm io_preprocessor_12f1840.inc
 .PHONY: phil-ford-slave
 phil-ford-slave: phil-ford-slave.hex
 
-phil-ford-slave.hex: phil-ford-slave.o phil-ford-light-table.o phil-ford-slave-utils.a
-	gplink -m -O 2 -o phil-ford-slave phil-ford-slave.o phil-ford-light-table.o phil-ford-slave-utils.a
+phil-ford-slave.hex: phil-ford-slave.o phil-ford-light-table.o phil-ford-slave-utils.o
+	gplink -m -O 2 -o phil-ford-slave phil-ford-slave.o phil-ford-light-table.o phil-ford-slave-utils.o
 	
 phil-ford-slave.o: rc-light-controller-intelligent-slave.asm io_phil-ford.inc
 	cp io_phil-ford.inc io.tmp
@@ -49,8 +49,8 @@ dingo: dingo-master dingo-slave
 .PHONY: dingo-master
 dingo-master: dingo-master.hex
 
-dingo-master.hex: dingo-master.o dingo-light-table.o dingo-master-utils.a
-	gplink -m -O 2 -o dingo-master dingo-master.o dingo-light-table.o dingo-master-utils.a
+dingo-master.hex: dingo-master.o dingo-light-table.o dingo-master-utils.o
+	gplink -m -O 2 -o dingo-master dingo-master.o dingo-light-table.o dingo-master-utils.o
 
 dingo-master.o: rc-light-controller.asm io_original.inc
 	cp io_original.inc io.tmp
@@ -71,8 +71,8 @@ dingo-master-utils.o: utils.asm io_original.inc
 .PHONY: dingo-slave
 dingo-slave: dingo-slave.hex
 
-dingo-slave.hex: dingo-slave.o dingo-slave-utils.a
-	gplink -m -O 2 -o dingo-slave dingo-slave.o dingo-slave-utils.a
+dingo-slave.hex: dingo-slave.o dingo-slave-utils.o
+	gplink -m -O 2 -o dingo-slave dingo-slave.o dingo-slave-utils.o
 
 dingo-slave.o: rc-light-controller-slave.asm io_original.inc
 	cp io_original.inc io.tmp
@@ -92,8 +92,8 @@ xr311: xr311-master xr311-slave
 .PHONY: xr311-master
 xr311-master: xr311-master.hex
 
-xr311-master.hex: xr311-master.o xr311-master-utils.a
-	gplink -m -O 2 -o xr311-master xr311-master.o xr311-master-utils.a
+xr311-master.hex: xr311-master.o xr311-master-utils.o
+	gplink -m -O 2 -o xr311-master xr311-master.o xr311-master-utils.o
 	
 xr311-master.o: rc-light-controller.asm io_preprocessor_16f628a.inc
 	cp io_preprocessor_16f628a.inc io.tmp
@@ -112,8 +112,8 @@ xr311-master-utils.o: utils.asm io_preprocessor_16f628a.inc
 xr311-slave : io_slave = io_original.inc
 xr311-slave : xr311-slave.hex 
 
-xr311-slave.hex : xr311-slave.o xr311-light-table.o xr311-slave-utils.a
-	gplink -m -O 2 -o xr311-slave xr311-slave.o xr311-light-table.o xr311-slave-utils.a
+xr311-slave.hex : xr311-slave.o xr311-light-table.o xr311-slave-utils.o
+	gplink -m -O 2 -o xr311-slave xr311-slave.o xr311-light-table.o xr311-slave-utils.o
 	rm -f io.tmp
 	
 xr311-slave.o : rc-light-controller-intelligent-slave.asm io.tmp 
@@ -138,10 +138,6 @@ clean :
 	rm -f *.map
 	rm -f *.cod
 	rm -f *.o
-	rm -f *.a
 	rm -f *.tmp
 
-
-%.a : %.o
-	gplib -c $@ $<
 
