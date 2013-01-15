@@ -419,6 +419,57 @@ Add_x_and_780
     return
 
 
+;******************************************************************************
+; TLC5916_send
+;
+; Sends the value in the temp register to the TLC5916 LED driver.
+; In case DUAL_TLC5916 is defined then 16 bits temp, temp+1 are sent. This 
+; is used if two TLC5916 are wired up in series for 16 output channels.
+;******************************************************************************
+.utils_TLC5916_send
+    GLOBAL TLC5916_send
+    IFNDEF PORT_SDI
+    #define PORT_SDI temp, 0
+    ENDIF
+    IFNDEF PORT_CLK
+    #define PORT_CLK temp, 0
+    ENDIF
+    IFNDEF PORT_LE
+    #define PORT_LE temp, 0
+    ENDIF
+    IFNDEF PORT_OE
+    #define PORT_OE temp, 0
+    ENDIF
+TLC5916_send
+    IFDEF DUAL_TLC5916      ; {
+    movlw   16
+    ELSE                    ; } {
+    movlw   8
+    ENDIF                   ; } DUAL_TLC5916
+    movwf   d0
+
+tlc5916_send_loop
+    ; FIXME: temp / temp+1 are not imported from external stuff!
+
+    IFDEF DUAL_TLC5916
+    rlf     temp+1, f
+    ENDIF
+    rlf     temp, f
+    skpc    
+    bcf     PORT_SDI
+    skpnc    
+    bsf     PORT_SDI
+    bsf     PORT_CLK
+    bcf     PORT_CLK
+    decfsz  d0, f
+    goto    tlc5916_send_loop
+
+    bsf     PORT_LE
+    bcf     PORT_LE
+    bcf     PORT_OE
+    return
+
+
     END     ; Directive 'end of program'
 
 

@@ -25,35 +25,36 @@
 ;#define PREPROCESSING_MASTER    
 
 
-    EXTERN  local_light_table
-    EXTERN  slave_light_table
-    EXTERN  slave_light_half_table
-    EXTERN  local_setup_light_table
-    EXTERN  slave_setup_light_table
+    EXTERN local_light_table
+    EXTERN slave_light_table
+    EXTERN slave_light_half_table
+    EXTERN local_setup_light_table
+    EXTERN slave_setup_light_table
 
 
     ; Functions imported from utils.asm
-    EXTERN  Min
-    EXTERN  Max
-    EXTERN  Add_y_to_x
-    EXTERN  Sub_y_from_x
-    EXTERN  If_x_eq_y
-    EXTERN  If_y_lt_x
-    EXTERN  Min_x_z
-    EXTERN  Max_x_z
-    EXTERN  Mul_xl_by_w
-    EXTERN  Div_x_by_y
-    EXTERN  Mul_x_by_100
-    EXTERN  Div_x_by_4
-    EXTERN  Mul_x_by_6
-    EXTERN  Add_x_and_780    
-
-    EXTERN  xl
-    EXTERN  xh
-    EXTERN  yl
-    EXTERN  yh
-    EXTERN  zl
-    EXTERN  zh
+    EXTERN Min
+    EXTERN Max
+    EXTERN Add_y_to_x
+    EXTERN Sub_y_from_x
+    EXTERN If_x_eq_y
+    EXTERN If_y_lt_x
+    EXTERN Min_x_z
+    EXTERN Max_x_z
+    EXTERN Mul_xl_by_w
+    EXTERN Div_x_by_y
+    EXTERN Mul_x_by_100
+    EXTERN Div_x_by_4
+    EXTERN Mul_x_by_6
+    EXTERN Add_x_and_780    
+    EXTERN TLC5916_send
+    
+    EXTERN xl
+    EXTERN xh
+    EXTERN yl
+    EXTERN yh
+    EXTERN zl
+    EXTERN zh
 
 
 
@@ -2316,31 +2317,6 @@ calculate_normalized_right
 
 
 
-
-;******************************************************************************
-; TLC5916_send
-;
-; Sends the value in the temp register to the TLC5916 LED driver.
-;******************************************************************************
-TLC5916_send
-    movlw   8
-    movwf   d0
-
-tlc5916_send_loop
-    rlf     temp, f
-    skpc    
-    bcf     PORT_SDI
-    skpnc    
-    bsf     PORT_SDI
-    bsf     PORT_CLK
-    bcf     PORT_CLK
-    decfsz  d0, f
-    goto    tlc5916_send_loop
-
-    bsf     PORT_LE
-    bcf     PORT_LE
-    bcf     PORT_OE
-    return
 
 
 ; Hack for the PIC12F1840 that has Data and Address low/high registers because
