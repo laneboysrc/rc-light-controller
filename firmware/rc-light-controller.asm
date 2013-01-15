@@ -13,7 +13,7 @@
     RADIX       dec
 
 #define INCLUDE_CONFIG
-    #include    io.tmp
+    #include    hw.tmp
 
 
 ; Instead of processing light functions in the master, when PREPROCESSING_MASTER

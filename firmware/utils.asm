@@ -12,7 +12,7 @@
     LIST        r=dec
     RADIX       dec
 
-    #include    io.tmp
+    #include    hw.tmp
 
 
     GLOBAL  xl

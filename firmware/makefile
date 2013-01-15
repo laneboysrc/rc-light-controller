@@ -8,13 +8,13 @@ all: phil-ford xr311 dingo
 .PHONY: phil-ford
 phil-ford: phil-ford-preprocessor phil-ford-master
 
-phil-ford-master: io_phil-ford.inc
+phil-ford-master: hw_phil-ford.inc
 	$(eval CFLAGS = )
 	$(eval files = rc-light-controller-intelligent-slave utils phil-ford-light-table)
 	$(build)
 
 .PHONY: phil-ford-preprocessor
-phil-ford-preprocessor : io_preprocessor_12f1840.inc
+phil-ford-preprocessor : hw_preprocessor_12f1840.inc
 	$(eval CFLAGS = -D PREPROCESSING_MASTER -D SEQUENTIAL_CHANNEL_READING )
 	$(eval files = rc-light-controller utils)
 	$(build)
@@ -27,13 +27,13 @@ phil-ford-preprocessor : io_preprocessor_12f1840.inc
 dingo: dingo-master dingo-slave
 
 .PHONY: dingo-master
-dingo-master: io_original.inc
+dingo-master: hw_original.inc
 	$(eval CFLAGS = )
 	$(eval files = rc-light-controller utils dingo-light-table)
 	$(build)
 
 .PHONY: dingo-slave
-dingo-slave : io_original.inc
+dingo-slave : hw_original.inc
 	$(eval CFLAGS = -D ENABLE_SERVO_OUTPUT)
 	$(eval files = rc-light-controller-slave utils)
 	$(build)
@@ -46,13 +46,13 @@ dingo-slave : io_original.inc
 xr311: xr311-preprocessor xr311-master
 
 .PHONY: xr311-preprocessor
-xr311-preprocessor : io_preprocessor_16f628a.inc
+xr311-preprocessor : hw_preprocessor_16f628a.inc
 	$(eval CFLAGS = -D PREPROCESSING_MASTER -D SEQUENTIAL_CHANNEL_READING)
 	$(eval files = rc-light-controller utils)
 	$(build)
 
 .PHONY: xr311-master
-xr311-master : io_original.inc
+xr311-master : hw_original.inc
 	$(eval CFLAGS = -D DUAL_TLC5916 -D ENABLE_SERVO_OUTPUT)
 	$(eval files = rc-light-controller-intelligent-slave utils xr311-light-table)
 	$(build)
@@ -109,12 +109,12 @@ xr311-master : io_original.inc
 # The following code is a "macro" that recursivly involes this makefile for
 # building a  single component (= a master, a slave, or a pre-processor).
 #
-# It sets variables 'CFLAGS', 'prefix', 'io' and 'objects' for the new instance
+# It sets variables 'CFLAGS', 'prefix', 'hw' and 'objects' for the new instance
 # of make and asks to build the target $@.hex, which translates into 
 # <component>.hex
 #
-# 'io' is set to the first dependency of the component, which must be the
-#  io_*.inc file specifying the hardware of the component.
+# 'hw' is set to the first dependency of the component, which must be the
+#  hw_*.inc file specifying the hardware of the component.
 #
 # 'objects' is transformed from the list of source files (without extension)
 # required for the module by prepending the component name, a dash, and 
@@ -127,15 +127,15 @@ xr311-master : io_original.inc
 # will translate into 'objects' being 
 #
 #    xr311-slave-rc-light-controller.o xr311-slave-utils.o
-build = @$(MAKE) CFLAGS="$(CFLAGS)" prefix="$@" io="$<" objects="$(patsubst %,$@-%.o,$(files))" $@.hex 
+build = @$(MAKE) CFLAGS="$(CFLAGS)" prefix="$@" hw="$<" objects="$(patsubst %,$@-%.o,$(files))" $@.hex 
 
 $(prefix).hex : $(objects) 
 	gplink -m -O 2 -o $@ $^
 
-$(prefix)-%.o : %.asm $(io)
-	@cp $(io) io.tmp
+$(prefix)-%.o : %.asm $(hw)
+	@cp $(hw) hw.tmp
 	gpasm -c $(CFLAGS) -o $@ $<
-	@$(RM) io.tmp
+	@$(RM) hw.tmp
 
 clean :
 	$(RM) *.hex

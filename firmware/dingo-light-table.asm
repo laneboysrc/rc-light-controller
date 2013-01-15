@@ -1,7 +1,7 @@
     TITLE       Light tables for the Axial SCX10 Dingo
     RADIX       dec
 
-    #include    io.tmp
+    #include    hw.tmp
 
         
     GLOBAL local_light_table

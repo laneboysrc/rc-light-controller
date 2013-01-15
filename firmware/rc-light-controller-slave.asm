@@ -13,7 +13,7 @@
     RADIX       dec
 
 #define INCLUDE_CONFIG
-    #include    io.tmp
+    #include    hw.tmp
 
 
     ; Functions imported from utils.asm
