@@ -12,9 +12,9 @@
     LIST        r=dec
     RADIX       dec
 
-; Enable debug functions like human readable UART output to read incoming
-; servo values.
-;#define DEBUG
+#define INCLUDE_CONFIG
+    #include    io.tmp
+
 
 ; Instead of processing light functions in the master, when PREPROCESSING_MASTER
 ; is defined all that is done is reading receiver values, normalizing them
@@ -24,14 +24,13 @@
 ; into the receiver.
 ;#define PREPROCESSING_MASTER    
 
-    #include    io.tmp
-
 
     EXTERN  local_light_table
     EXTERN  slave_light_table
     EXTERN  slave_light_half_table
     EXTERN  local_setup_light_table
     EXTERN  slave_setup_light_table
+
 
     ; Functions imported from utils.asm
     EXTERN  Min

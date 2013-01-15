@@ -1,143 +1,147 @@
+.PHONY: all
+all: phil-ford xr311 dingo
+
+
+##############################################################################
+# Phil's FORD trailing truck
+##############################################################################
 .PHONY: phil-ford
-phil-ford: phil-ford-master phil-ford-slave
+phil-ford: phil-ford-preprocessor phil-ford-master
+
+phil-ford-master: io_phil-ford.inc
+	$(eval CFLAGS = )
+	$(eval files = rc-light-controller-intelligent-slave utils phil-ford-light-table)
+	$(build)
+
+.PHONY: phil-ford-preprocessor
+phil-ford-preprocessor : io_preprocessor_12f1840.inc
+	$(eval CFLAGS = -D PREPROCESSING_MASTER -D SEQUENTIAL_CHANNEL_READING )
+	$(eval files = rc-light-controller utils)
+	$(build)
 
 
-
-.PHONY: phil-ford-master
-phil-ford-master: phil-ford-master.hex
-
-phil-ford-master.hex: phil-ford-master.o phil-ford-master-utils.o
-	gplink -m -O 2 -o phil-ford-master phil-ford-master.o phil-ford-master-utils.o
-	
-phil-ford-master.o: rc-light-controller.asm io_preprocessor_12f1840.inc
-	cp io_preprocessor_12f1840.inc io.tmp
-	gpasm -c -D INCLUDE_CONFIG -D PREPROCESSING_MASTER -D SEQUENTIAL_CHANNEL_READING -o phil-ford-master rc-light-controller.asm
-	rm -f io.tmp
-
-phil-ford-master-utils.o: utils.asm io_preprocessor_12f1840.inc
-	cp io_preprocessor_12f1840.inc io.tmp
-	gpasm -c -o phil-ford-master-utils utils.asm
-	rm -f io.tmp
-	
-
-.PHONY: phil-ford-slave
-phil-ford-slave: phil-ford-slave.hex
-
-phil-ford-slave.hex: phil-ford-slave.o phil-ford-light-table.o phil-ford-slave-utils.o
-	gplink -m -O 2 -o phil-ford-slave phil-ford-slave.o phil-ford-light-table.o phil-ford-slave-utils.o
-	
-phil-ford-slave.o: rc-light-controller-intelligent-slave.asm io_phil-ford.inc
-	cp io_phil-ford.inc io.tmp
-	gpasm -c -D INCLUDE_CONFIG -o phil-ford-slave rc-light-controller-intelligent-slave.asm
-	rm -f io.tmp
-	
-phil-ford-light-table.o: phil-ford-light-table.asm io_phil-ford.inc
-	cp io_phil-ford.inc io.tmp
-	gpasm -c phil-ford-light-table.asm
-	rm -f io.tmp
-
-phil-ford-slave-utils.o: utils.asm io_preprocessor_12f1840.inc
-	cp io_original.inc io.tmp
-	gpasm -c -o phil-ford-slave-utils utils.asm
-	rm -f io.tmp
-
-
+##############################################################################
+# AXIAL SCX10 Dingo
+##############################################################################
 .PHONY: dingo
 dingo: dingo-master dingo-slave
 
-
 .PHONY: dingo-master
-dingo-master: dingo-master.hex
-
-dingo-master.hex: dingo-master.o dingo-light-table.o dingo-master-utils.o
-	gplink -m -O 2 -o dingo-master dingo-master.o dingo-light-table.o dingo-master-utils.o
-
-dingo-master.o: rc-light-controller.asm io_original.inc
-	cp io_original.inc io.tmp
-	gpasm -c -D INCLUDE_CONFIG -o dingo-master rc-light-controller.asm
-	rm -f io.tmp
-
-dingo-light-table.o: dingo-light-table.asm io_original.inc
-	cp io_original.inc io.tmp
-	gpasm -c dingo-light-table.asm
-	rm -f io.tmp
-
-dingo-master-utils.o: utils.asm io_original.inc
-	cp io_original.inc io.tmp
-	gpasm -c -o dingo-master-utils utils.asm
-	rm -f io.tmp
-	
+dingo-master: io_original.inc
+	$(eval CFLAGS = )
+	$(eval files = rc-light-controller utils dingo-light-table)
+	$(build)
 
 .PHONY: dingo-slave
-dingo-slave: dingo-slave.hex
-
-dingo-slave.hex: dingo-slave.o dingo-slave-utils.o
-	gplink -m -O 2 -o dingo-slave dingo-slave.o dingo-slave-utils.o
-
-dingo-slave.o: rc-light-controller-slave.asm io_original.inc
-	cp io_original.inc io.tmp
-	gpasm -c -D INCLUDE_CONFIG -D ENABLE_SERVO_OUTPUT -o dingo-slave rc-light-controller-slave.asm
-	rm -f io.tmp
-
-dingo-slave-utils.o: utils.asm io_preprocessor_12f1840.inc
-	cp io_original.inc io.tmp
-	gpasm -c -o dingo-slave-utils utils.asm
-	rm -f io.tmp
+dingo-slave : io_original.inc
+	$(eval CFLAGS = -D ENABLE_SERVO_OUTPUT)
+	$(eval files = rc-light-controller-slave utils)
+	$(build)
 
 
+##############################################################################
+# TAMIYA XR311
+##############################################################################
 .PHONY: xr311
-xr311: xr311-master xr311-slave
+xr311: xr311-preprocessor xr311-master
 
+.PHONY: xr311-preprocessor
+xr311-preprocessor : io_preprocessor_16f628a.inc
+	$(eval CFLAGS = -D PREPROCESSING_MASTER -D SEQUENTIAL_CHANNEL_READING)
+	$(eval files = rc-light-controller utils)
+	$(build)
 
 .PHONY: xr311-master
-xr311-master: xr311-master.hex
-
-xr311-master.hex: xr311-master.o xr311-master-utils.o
-	gplink -m -O 2 -o xr311-master xr311-master.o xr311-master-utils.o
+xr311-master : io_original.inc
+	$(eval CFLAGS = -D DUAL_TLC5916 -D ENABLE_SERVO_OUTPUT)
+	$(eval files = rc-light-controller-intelligent-slave utils xr311-light-table)
+	$(build)
 	
-xr311-master.o: rc-light-controller.asm io_preprocessor_16f628a.inc
-	cp io_preprocessor_16f628a.inc io.tmp
-	gpasm -c -D INCLUDE_CONFIG -D PREPROCESSING_MASTER -D SEQUENTIAL_CHANNEL_READING -o xr311-master rc-light-controller.asm
-	rm -f io.tmp
-
-xr311-master-utils.o: utils.asm io_preprocessor_16f628a.inc
-	cp io_preprocessor_16f628a.inc io.tmp
-	gpasm -c  -o xr311-master-utils utils.asm
-	rm -f io.tmp
 
 
-#io_slave = io_original.inc
-
-.PHONY: xr311-slave
-xr311-slave : io_slave = io_original.inc
-xr311-slave : xr311-slave.hex 
-
-xr311-slave.hex : xr311-slave.o xr311-light-table.o xr311-slave-utils.o
-	gplink -m -O 2 -o xr311-slave xr311-slave.o xr311-light-table.o xr311-slave-utils.o
-	rm -f io.tmp
 	
-xr311-slave.o : rc-light-controller-intelligent-slave.asm io.tmp 
-	gpasm -c -D INCLUDE_CONFIG -D DUAL_TLC5916 -D ENABLE_SERVO_OUTPUT -o xr311-slave rc-light-controller-intelligent-slave.asm
-	
-xr311-light-table.o : xr311-light-table.asm io.tmp 
-	gpasm -c -o xr311-light-table.o xr311-light-table.asm
+##############################################################################
+##############################################################################
+##############################################################################
+# Internal functions, do not modify!
+#
+#
+# Architecture of this makefile
+# -----------------------------
+# The RC light controller is based on various modules that allow different
+# configurations. The original configuration was a master-slave concept,
+# but it has been intended with the pre-processor concept that puts a 
+# small micro-controller into the receiver, connecting with a single wire
+# to the light controller master. Also different functions are configurable,
+# such as whether a steering wheel output is available, support for different
+# LED drivers, and possibly more in the future.
+# 
+# This quickly lead to the problem of maintaining the makefile. It became
+# unwieldly especially during refactoring the source code.
+# 
+# The solution was that each hex file is built from just three configuration
+# options:
+# 
+#   - The name of the io_*.inc file, specifying the hardware and chip type
+#   - The defines that switch features through conditional compilation
+#   - The list of "modules" that are needed
+# 
+# To make this work two important features of GNU Make were needed:
+# 
+#   - The $(eval x) function is used to set variables from within recipes
+# 
+#     Example: $(eval CFLAGS = -D DUAL_TLC5916 -D ENABLE_SERVO_OUTPUT)  
+# 
+# 
+#   - Calling the make file recursively to execute the build of an individual
+#     component given the variables set in the recipe for the component.
+#
+#     $(MAKE) var1=value1 var2=... target
+#
+#
+#
+##############################################################################
+##############################################################################
+##############################################################################
 
-xr311-slave-utils.o : utils.asm io.tmp
-	gpasm -c -o xr311-slave-utils utils.asm
 
-$(io_slave) :
-	io_slave = io_original.inc
 
-io.tmp : $(io_slave)
-	cp $(io_slave) io.tmp
+# The following code is a "macro" that recursivly involes this makefile for
+# building a  single component (= a master, a slave, or a pre-processor).
+#
+# It sets variables 'CFLAGS', 'prefix', 'io' and 'objects' for the new instance
+# of make and asks to build the target $@.hex, which translates into 
+# <component>.hex
+#
+# 'io' is set to the first dependency of the component, which must be the
+#  io_*.inc file specifying the hardware of the component.
+#
+# 'objects' is transformed from the list of source files (without extension)
+# required for the module by prepending the component name, a dash, and 
+# appending the .o file extension. 
+#
+# So if you build component 'xr311-slave' then a list of files 
+#
+#    rc-light-controller utils
+#
+# will translate into 'objects' being 
+#
+#    xr311-slave-rc-light-controller.o xr311-slave-utils.o
+build = @$(MAKE) CFLAGS="$(CFLAGS)" prefix="$@" io="$<" objects="$(patsubst %,$@-%.o,$(files))" $@.hex 
 
+$(prefix).hex : $(objects) 
+	gplink -m -O 2 -o $@ $^
+
+$(prefix)-%.o : %.asm $(io)
+	@cp $(io) io.tmp
+	gpasm -c $(CFLAGS) -o $@ $<
+	@$(RM) io.tmp
 
 clean :
-	rm -f *.hex
-	rm -f *.lst
-	rm -f *.map
-	rm -f *.cod
-	rm -f *.o
-	rm -f *.tmp
-
-
+	$(RM) *.hex
+	$(RM) *.lst
+	$(RM) *.map
+	$(RM) *.cod
+	$(RM) *.o
+	$(RM) *.tmp
+	

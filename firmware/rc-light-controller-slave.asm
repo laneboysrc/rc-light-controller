@@ -12,9 +12,9 @@
     LIST        r=dec
     RADIX       dec
 
-;#define DEBUG
-
+#define INCLUDE_CONFIG
     #include    io.tmp
+
 
     ; Functions imported from utils.asm
     EXTERN  Min

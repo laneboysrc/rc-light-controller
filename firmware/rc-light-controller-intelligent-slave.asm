@@ -12,10 +12,7 @@
     LIST        r=dec
     RADIX       dec
 
-; Enable debug functions like human readable UART output to read incoming
-; servo values.
-;#define DEBUG
-
+#define INCLUDE_CONFIG
     #include    io.tmp
 
 
