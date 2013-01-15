@@ -10,7 +10,7 @@ phil-ford: phil-ford-preprocessor phil-ford-master
 
 phil-ford-master: hw_phil-ford.inc
 	$(eval CFLAGS = )
-	$(eval files = rc-light-controller-intelligent-slave utils phil-ford-light-table)
+	$(eval files = rc-light-controller-intelligent-slave utils phil-ford-lights)
 	$(build)
 
 .PHONY: phil-ford-preprocessor
@@ -29,7 +29,7 @@ dingo: dingo-master dingo-slave
 .PHONY: dingo-master
 dingo-master: hw_original.inc
 	$(eval CFLAGS = )
-	$(eval files = rc-light-controller utils dingo-light-table)
+	$(eval files = rc-light-controller utils dingo-lights)
 	$(build)
 
 .PHONY: dingo-slave
@@ -54,7 +54,7 @@ xr311-preprocessor : hw_preprocessor_16f628a.inc
 .PHONY: xr311-master
 xr311-master : hw_original.inc
 	$(eval CFLAGS = -D DUAL_TLC5916 -D ENABLE_SERVO_OUTPUT)
-	$(eval files = rc-light-controller-intelligent-slave utils xr311-light-table)
+	$(eval files = rc-light-controller-intelligent-slave utils xr311-lights)
 	$(build)
 	
 
