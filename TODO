@@ -2,11 +2,8 @@ TO DO LIST for the RC Light Controller
 
 * Split code into reusable modules
     * Reading of servo pulses, PPM, UART from pre-processor
-    * High level light functions
     * Output functions (PWM, different chips)
     * Steering wheel servo function
-
-* Make light mode running of CH3 configurable as to how many steps up/down
 
 * Add documentation about the different supported configurations
 
@@ -16,6 +13,13 @@ TO DO LIST for the RC Light Controller
 
 * Switch to a more modern and faster PIC chip
     * Have the code independent of the PIC chip?
-    
-* Combined tail/brake/indicator lights (configurable?)
 
+* Make servo_reader initialization work properly
+
+* Reconsider startup of the servo reader: we should only wait 3 seconds
+  for neutral but do not require the user to do left/forward.
+  Instead we should just assume a steering direction and have the user
+  swap LEDs. As for throttle we can assume that the first throttle
+  signal will be forward anyway, so we can wait for that silently with
+  the light controller already being in normal operation -- instead of
+  waiting until the user gives forward.
