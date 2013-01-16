@@ -97,15 +97,18 @@
 #define EEPROM_ADR_SERVO_EPR 3
 
 ; Bitfields in variable setup_mode
+#define SETUP_MODE_INIT 0
+#define SETUP_MODE_CENTRE 1
+#define SETUP_MODE_LEFT 2
+#define SETUP_MODE_RIGHT 3
 #define SETUP_MODE_NEXT 6
 #define SETUP_MODE_CANCEL 7
 
 ; Bitfields in variable startup_mode
 ; Note: the higher 4 bits are used so we can simply "or" it with ch3
 ; and send it to the slave
-#define STARTUP_MODE_READY 0        ; Normal operation of the light controller
-#define STARTUP_MODE_NEUTRAL 0x10   ; Waiting before reading ST/TH neutral
-#define STARTUP_MODE_REVERSING 0x20 ; Waiting for Forward/Left to obtain direction
+#define STARTUP_MODE_NEUTRAL 4      ; Waiting before reading ST/TH neutral
+#define STARTUP_MODE_REVERSING 5    ; Waiting for Forward/Left to obtain direction
 
 IFNDEF LIGHT_MODE_MASK
 #define LIGHT_MODE_MASK b'00001111'
@@ -296,7 +299,7 @@ read_UART_byte_4
     
     movlw   0x01                    ; Remove startup_mode bits from CH3
     andwf   ch3, f   
-    movlw   0x30                    ; Remove CH3 bits from startup_mode
+    movlw   0xf0                    ; Remove CH3 bits from startup_mode
     andwf   startup_mode, f   
 
     ; Calculate abs(throttle) and abs(steering) for easier math.
@@ -653,7 +656,7 @@ process_ch3_8_click
     subwf   ch3_clicks, w
     bnz     process_ch3_click_end
 
-    movlw   1
+    movlw   1 << SETUP_MODE_INIT
     movwf   setup_mode    
     IFDEF   DEBUG
     movlw   0x38                    ; send '8'
@@ -1059,11 +1062,11 @@ Process_steering_servo
 
     btfsc   setup_mode, SETUP_MODE_CANCEL
     goto    process_steering_servo_setup_cancel
-    btfsc   setup_mode, 3
+    btfsc   setup_mode, SETUP_MODE_RIGHT
     goto    process_steering_servo_setup_right
-    btfsc   setup_mode, 2
+    btfsc   setup_mode, SETUP_MODE_LEFT
     goto    process_steering_servo_setup_left
-    btfsc   setup_mode, 1
+    btfsc   setup_mode, SETUP_MODE_CENTRE
     goto    process_steering_servo_setup_centre
 
 process_steering_servo_setup_init
@@ -1072,29 +1075,30 @@ process_steering_servo_setup_init
     clrf    servo_centre
     movlw   120
     movwf   servo_epr
-    bsf     setup_mode, 1
+    movlw   1 << SETUP_MODE_CENTRE
+    movwf   setup_mode
     goto    process_steering_servo_no_setup
 
 process_steering_servo_setup_centre
     btfss   setup_mode, SETUP_MODE_NEXT
     goto    process_steering_servo_no_setup
 
-    bcf     setup_mode, SETUP_MODE_NEXT
     call    process_steering_servo_no_setup
     movf    servo, w
     movwf   servo_setup_centre         
-    bsf     setup_mode, 2
+    movlw   1 << SETUP_MODE_LEFT
+    movwf   setup_mode
     return
 
 process_steering_servo_setup_left
     btfss   setup_mode, SETUP_MODE_NEXT
     goto    process_steering_servo_no_setup
 
-    bcf     setup_mode, SETUP_MODE_NEXT
     call    process_steering_servo_no_setup
     movf    servo, w
     movwf   servo_setup_epl         
-    bsf     setup_mode, 3
+    movlw   1 << SETUP_MODE_RIGHT
+    movwf   setup_mode
     return
 
 process_steering_servo_setup_right
