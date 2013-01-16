@@ -36,7 +36,6 @@
     EXTERN Div_x_by_4
     EXTERN Mul_x_by_6
     EXTERN Add_x_and_780    
-    EXTERN TLC5916_send
 
     EXTERN xl
     EXTERN xh
@@ -53,7 +52,7 @@
     GLOBAL servo
     GLOBAL UART_send_w
 
-
+     
     
 #define SLAVE_MAGIC_BYTE    0x87
 
@@ -75,12 +74,6 @@
 #define BLINK_MODE_HAZARD 1             ; Hazard lights active
 #define BLINK_MODE_INDICATOR_LEFT 2     ; Left indicator active
 #define BLINK_MODE_INDICATOR_RIGHT 3    ; Right indicator active
-
-; Bitfields in variable light_mode
-#define LIGHT_MODE_PARKING 0        ; Parking lights
-#define LIGHT_MODE_LOW_BEAM 1       ; Low beam
-#define LIGHT_MODE_FOG 2            ; Fog lamps
-#define LIGHT_MODE_HIGH_BEAM 3      ; High beam
 
 ; Bitfields in variable drive_mode
 #define DRIVE_MODE_FORWARD 0 
@@ -113,6 +106,10 @@
 #define STARTUP_MODE_READY 0        ; Normal operation of the light controller
 #define STARTUP_MODE_NEUTRAL 0x10   ; Waiting before reading ST/TH neutral
 #define STARTUP_MODE_REVERSING 0x20 ; Waiting for Forward/Left to obtain direction
+
+IFNDEF LIGHT_MODE_MASK
+#define LIGHT_MODE_MASK b'00001111'
+ENDIF
 
 
 ;******************************************************************************
@@ -592,8 +589,8 @@ process_ch3_click_no_setup
     ; --------------------------
     ; Single click: switch light mode up (Parking, Low Beam, Fog, High Beam) 
     rlf     light_mode, f
-    bsf     light_mode, LIGHT_MODE_PARKING
-    movlw   0x03
+    bsf     light_mode, 0
+    movlw   LIGHT_MODE_MASK
     andwf   light_mode, f
     IFDEF   DEBUG
     movlw   0x31                    ; send '1'
@@ -608,7 +605,7 @@ process_ch3_double_click
     ; --------------------------
     ; Double click: switch light mode down (Parking, Low Beam, Fog, High Beam)  
     rrf     light_mode, f
-    movlw   0x03
+    movlw   LIGHT_MODE_MASK
     andwf   light_mode, f
     IFDEF   DEBUG
     movlw   0x32                    ; send '2'
@@ -622,10 +619,10 @@ process_ch3_triple_click
 
     ; --------------------------
     ; Triple click: all lights on/off
-    movlw   0x03
+    movlw   LIGHT_MODE_MASK
     andwf   light_mode, w
-    sublw   0x03
-    movlw   0x03
+    sublw   LIGHT_MODE_MASK
+    movlw   LIGHT_MODE_MASK
     skpnz
     movlw   0x00     
     movwf   light_mode

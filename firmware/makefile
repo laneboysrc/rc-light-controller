@@ -8,15 +8,15 @@ all: phil-ford xr311 dingo
 .PHONY: phil-ford
 phil-ford: phil-ford-preprocessor phil-ford-master
 
-phil-ford-master: hw_phil-ford.inc
-	$(eval CFLAGS = )
-	$(eval files = rc-light-controller-intelligent-slave utils phil-ford-lights)
-	$(build)
-
 .PHONY: phil-ford-preprocessor
 phil-ford-preprocessor : hw_preprocessor_12f1840.inc
 	$(eval CFLAGS = -D PREPROCESSING_MASTER -D SEQUENTIAL_CHANNEL_READING )
 	$(eval files = rc-light-controller utils)
+	$(build)
+
+phil-ford-master: hw_phil-ford.inc
+	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x07)
+	$(eval files = rc-light-controller-intelligent-slave utils phil-ford-lights)
 	$(build)
 
 
@@ -53,7 +53,7 @@ xr311-preprocessor : hw_preprocessor_16f628a.inc
 
 .PHONY: xr311-master
 xr311-master : hw_original.inc
-	$(eval CFLAGS = -D DUAL_TLC5916 -D ENABLE_SERVO_OUTPUT)
+	$(eval CFLAGS = -D DUAL_TLC5916 -D ENABLE_SERVO_OUTPUT -D LIGHT_MODE_MASK=0x03)
 	$(eval files = rc-light-controller-intelligent-slave utils xr311-lights)
 	$(build)
 	
