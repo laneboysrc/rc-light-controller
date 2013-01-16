@@ -13,8 +13,6 @@
     EXTERN drive_mode
     EXTERN setup_mode
     EXTERN startup_mode
-    EXTERN servo
-
 
 
 ; Bitfields in variable blink_mode
@@ -26,8 +24,7 @@
 ; Bitfields in variable light_mode
 #define LIGHT_MODE_PARKING 0        ; Parking lights
 #define LIGHT_MODE_LOW_BEAM 1       ; Low beam
-#define LIGHT_MODE_FOG 2            ; Fog lamps
-#define LIGHT_MODE_HIGH_BEAM 3      ; High beam
+#define LIGHT_MODE_ROOF 2           ; Roof lamps
 
 ; Bitfields in variable drive_mode
 #define DRIVE_MODE_FORWARD 0 
@@ -37,15 +34,17 @@
 #define DRIVE_MODE_REVERSE_BRAKE 4
 #define DRIVE_MODE_BRAKE_DISARM 5
 
-  
+; Bitfields in variable setup_mode
+#define SETUP_MODE_INIT 0
+#define SETUP_MODE_CENTRE 1
+#define SETUP_MODE_LEFT 2
+#define SETUP_MODE_RIGHT 3
+#define SETUP_MODE_NEXT 6
+#define SETUP_MODE_CANCEL 7
 
-#define LIGHT_TABLE_LOCAL 0
-#define LIGHT_TABLE_LOCAL_HALF 1
-#define LIGHT_TABLE_LOCAL_BLINK 2
-#define LIGHT_TABLE_SLAVE 3
-#define LIGHT_TABLE_SLAVE_HALF 4
-#define LIGHT_TABLE_LOCAL_SETUP 5
-#define LIGHT_TABLE_SLAVE_SETUP 6
+; Bitfields in variable startup_mode
+#define STARTUP_MODE_NEUTRAL 4      ; Waiting before reading ST/TH neutral
+#define STARTUP_MODE_REVERSING 5    ; Waiting for Forward/Left to obtain direction
 
     
 ;******************************************************************************
@@ -57,175 +56,6 @@ d0                  res 1
 temp                res 1
 
 
-
-
-;============================================================================
-.light_table CODE    0x010 
-;============================================================================
-local_light_table
-    addwf   PCL, f
-
-            ; +------- OUT7 Low beam right
-            ; |+------ OUT6 Low beam left
-            ; ||+----- OUT5 Reversing lights
-            ; |||+---- OUT4 Parking lights
-            ; ||||+--- OUT3 Tail/Brake/Indicator left
-            ; |||||+-- OUT2 Tail/Brake/Indicator right
-            ; ||||||+- OUT1 Indicator left
-            ; |||||||+ OUT0 Indicator right
-    dt      b'00010000'     ; Parking lights
-    dt      b'11000000'     ; Low beam
-    dt      b'00000000'     ; Fog lamps
-    dt      b'00000000'     ; High beam
-    dt      b'00001100'     ; Brake
-    dt      b'00100000'     ; Reverse
-
-    IF ((HIGH ($)) != (HIGH (local_light_table)))
-        ERROR "local_light_table CROSSES PAGE BOUNDARY!"
-    ENDIF
-
-    
-;============================================================================
-local_light_half_table
-    addwf   PCL, f
-
-            ; +------- OUT7 Low beam right
-            ; |+------ OUT6 Low beam left
-            ; ||+----- OUT5 Reversing lights
-            ; |||+---- OUT4 Parking lights
-            ; ||||+--- OUT3 Tail/Brake/Indicator left
-            ; |||||+-- OUT2 Tail/Brake/Indicator right
-            ; ||||||+- OUT1 Indicator left
-            ; |||||||+ OUT0 Indicator right
-    dt      b'00001100'     ; Parking lights
-    dt      b'00000000'     ; Low beam
-    dt      b'00000000'     ; Fog lamps
-    dt      b'00000000'     ; High beam
-    dt      b'00000000'     ; Brake
-    dt      b'00000000'     ; Reverse
-
-    IF ((HIGH ($)) != (HIGH (local_light_half_table)))
-        ERROR "local_light_half_table CROSSES PAGE BOUNDARY!"
-    ENDIF
-
-
-;============================================================================
-local_light_blink_table
-    addwf   PCL, f
-
-            ; +------- OUT7 Low beam right
-            ; |+------ OUT6 Low beam left
-            ; ||+----- OUT5 Reversing lights
-            ; |||+---- OUT4 Parking lights
-            ; ||||+--- OUT3 Tail/Brake/Indicator left
-            ; |||||+-- OUT2 Tail/Brake/Indicator right
-            ; ||||||+- OUT1 Indicator left
-            ; |||||||+ OUT0 Indicator right
-    dt      b'00001010'     ; Indicator left
-    dt      b'00000101'     ; Indicator right
-    dt      b'00001111'     ; Hazard lights
-
-    IF ((HIGH ($)) != (HIGH (local_light_blink_table)))
-        ERROR "local_light_blink_table CROSSES PAGE BOUNDARY!"
-    ENDIF
-    
-
-;============================================================================
-slave_light_table
-    addwf   PCL, f
-
-            ; +------- (not used, must be 0!)     
-            ; |+------ OUT6 
-            ; ||+----- OUT5 
-            ; |||+---- OUT4
-            ; ||||+--- OUT3
-            ; |||||+-- OUT2
-            ; ||||||+- OUT1
-            ; |||||||+ OUT0
-    dt      b'00000000'     ; Parking lights
-    dt      b'00000000'     ; Low beam
-    dt      b'00000000'     ; Fog lamps
-    dt      b'00000000'     ; High beam
-    dt      b'00000000'     ; Brake
-    dt      b'00000000'     ; Reverse
-    dt      b'00000000'     ; Indicator left
-    dt      b'00000000'     ; Indicator right
-    dt      b'00000000'     ; Hazard lights
-
-    IF ((HIGH ($)) != (HIGH (slave_light_table)))
-        ERROR "slave_light_table CROSSES PAGE BOUNDARY!"
-    ENDIF
-
-
-;============================================================================
-slave_light_half_table
-    addwf   PCL, f
-
-            ; +------- (not used, must be 0!)      
-            ; |+------ OUT6 
-            ; ||+----- OUT5 
-            ; |||+---- OUT4
-            ; ||||+--- OUT3
-            ; |||||+-- OUT2
-            ; ||||||+- OUT1
-            ; |||||||+ OUT0
-    dt      b'00000000'     ; Parking lights
-    dt      b'00000000'     ; Low beam
-    dt      b'00000000'     ; Fog lamps
-    dt      b'00000000'     ; High beam
-    dt      b'00000000'     ; Brake
-    dt      b'00000000'     ; Reverse
-    dt      b'00000000'     ; Indicator left
-    dt      b'00000000'     ; Indicator right
-    dt      b'00000000'     ; Hazard lights
-
-    IF ((HIGH ($)) != (HIGH (slave_light_half_table)))
-        ERROR "slave_light_half_table CROSSES PAGE BOUNDARY!"
-    ENDIF
-
-
-;============================================================================
-local_setup_light_table
-    addwf   PCL, f
-
-            ; +------- OUT7     
-            ; |+------ OUT6 
-            ; ||+----- OUT5 
-            ; |||+---- OUT4
-            ; ||||+--- OUT3
-            ; |||||+-- OUT2
-            ; ||||||+- OUT1
-            ; |||||||+ OUT0
-    dt      b'00000001'     ; Centre
-    dt      b'00000010'     ; Left
-    dt      b'00000100'     ; Right
-
-    IF ((HIGH ($)) != (HIGH (local_light_table)))
-        ERROR "local_setup_light_table CROSSES PAGE BOUNDARY!"
-    ENDIF
-
-
-;============================================================================
-slave_setup_light_table
-    addwf   PCL, f
-
-            ; +------- OUT7     
-            ; |+------ OUT6 
-            ; ||+----- OUT5 
-            ; |||+---- OUT4
-            ; ||||+--- OUT3
-            ; |||||+-- OUT2
-            ; ||||||+- OUT1
-            ; |||||||+ OUT0
-    dt      b'00000000'     ; Centre
-    dt      b'00000000'     ; Left
-    dt      b'00000000'     ; Right
-
-    IF ((HIGH ($)) != (HIGH (local_light_table)))
-        ERROR "slave_setup_light_table CROSSES PAGE BOUNDARY!"
-    ENDIF
-
-
 ;============================================================================
 ;============================================================================
 ;============================================================================
@@ -235,6 +65,9 @@ slave_setup_light_table
 ; Init_local_lights
 ;******************************************************************************
 Init_local_lights
+    clrf    PORTA
+    clrf    PORTB
+    call    light_parking_on
     return
 
 
@@ -242,6 +75,7 @@ Init_local_lights
 ; Output_slave
 ;******************************************************************************
 Output_slave
+    ; No slave in this vehicle
     return
 
 
@@ -250,222 +84,191 @@ Output_slave
 ;******************************************************************************
 Output_local_lights
     movf    startup_mode, f
-    bnz     output_local_startup
+    bnz     _output_local_lights_startup
 
     movf    setup_mode, f
-    bnz     output_local_lights_setup
+    bnz     _output_local_lights_setup
 
-    movlw   1 << LIGHT_TABLE_LOCAL
-    movwf   d0
-    call    Output_get_state
-
-    IFDEF   DUAL_TLC5916
-    movf    temp, w         
-    movwf   temp+1
-
-    movlw   1 << LIGHT_TABLE_LOCAL_HALF
-    movwf   d0
-    call    Output_get_state
-
-    movlw   1 << LIGHT_TABLE_LOCAL_BLINK
-    movwf   d0
-    call    Output_get_blink_state
-
-    ; Special processing for all indicators and hazard lights if blink flag is 
-    ; in off period
-    btfss   blink_mode, BLINK_MODE_BLINKFLAG
-    goto    output_local_lights_blink_off    
-
-    movfw   temp+2
-    iorwf   temp+1, f
-    goto    output_local_lights_end    
-
-output_local_lights_blink_off 
-    ; To achieve US style combined indicators/tail/brake lights we have
-    ; to do trickery to blink them properly
-    movfw   temp+1
-    iorwf   temp, w
-    andwf   temp+2, f
-
-    movfw   temp+2
-    iorwf   temp, f
-    comf    temp+2, w
-    andwf   temp+1, f
-
-output_local_lights_end    
-    ; Remove half bright LEDs that are also fully lit to avoid more than
-    ; 20mA going into the LEDs as the two TLC5916 are in parallel now.    
-    comf    temp+1, w
-    andwf   temp, f  
-    ENDIF
-
-    ;call    TLC5916_send
-    return
-
-output_local_lights_setup
-    movlw   1 << LIGHT_TABLE_LOCAL_SETUP
-    movwf   d0
-    call    Output_get_setup_state
-    IFDEF   DUAL_TLC5916
-    movfw   temp
-    movwf   temp+1
-    clrf    temp
-    ENDIF
-    ;call    TLC5916_send
-    return    
-
-output_local_startup
-    swapf   startup_mode, w     ; Move bits 4..7 to 0..3
-    andlw   0x07                ; Mask out bits 0..2
-    movwf   temp+1
-    clrf    temp
-    ;call    TLC5916_send
-    return    
-
-;******************************************************************************
-; Output_get_state
-;
-; d0 contains the light table index to process.
-; Resulting lights are stored in temp.
-;******************************************************************************
-Output_get_state
-    clrf    temp
-
-    ; Parking lights
+    btfsc   light_mode, LIGHT_MODE_PARKING
+    call    light_parking_on
     btfss   light_mode, LIGHT_MODE_PARKING
-    goto    output_local_get_state_low_beam
-    movlw   0
-    call    light_table
-    iorwf   temp, f
+    call    light_parking_off
 
-    ; Low beam
-output_local_get_state_low_beam
+    btfsc   light_mode, LIGHT_MODE_LOW_BEAM
+    call    light_main_beam_on
     btfss   light_mode, LIGHT_MODE_LOW_BEAM
-    goto    output_local_get_state_fog
-    movlw   1
-    call    light_table
-    iorwf   temp, f
+    call    light_main_beam_off
 
-    ; Fog lamps    
-output_local_get_state_fog
-    btfss   light_mode, LIGHT_MODE_FOG
-    goto    output_local_get_state_high_beam
-    movlw   2
-    call    light_table
-    iorwf   temp, f
+    btfsc   light_mode, LIGHT_MODE_ROOF
+    call    light_roof_on
+    btfss   light_mode, LIGHT_MODE_ROOF
+    call    light_roof_off
 
-    ; High beam    
-output_local_get_state_high_beam
-    btfss   light_mode, LIGHT_MODE_HIGH_BEAM
-    goto    output_local_get_state_brake
-    movlw   3
-    call    light_table
-    iorwf   temp, f
+    ; The brake light and tail light is combined, so turn the low brightness
+    ; tail light off when braking is engaged
+    btfsc   drive_mode, DRIVE_MODE_BRAKE    
+    goto    _output_local_lights_tail_off    
+    btfsc   light_mode, LIGHT_MODE_PARKING
+    call    light_tail_on
+    btfss   light_mode, LIGHT_MODE_PARKING
+_output_local_lights_tail_off    
+    call    light_tail_off
 
-    ; Brake lights    
-output_local_get_state_brake
+    btfsc   drive_mode, DRIVE_MODE_BRAKE
+    call    light_brake_on
     btfss   drive_mode, DRIVE_MODE_BRAKE
-    goto    output_local_get_state_reverse
-    movlw   4
-    call    light_table
-    iorwf   temp, f
+    call    light_brake_off
 
-    ; Reverse lights        
-output_local_get_state_reverse
+    btfsc   drive_mode, DRIVE_MODE_REVERSE
+    call    light_reverse_on
     btfss   drive_mode, DRIVE_MODE_REVERSE
-    goto    output_local_get_state_end
-    movlw   5
-    call    light_table
-    iorwf   temp, f
-
-output_local_get_state_end
-    return
+    call    light_reverse_off
 
 
-;******************************************************************************
-; Output_get_blink_state
-;
-; d0 contains the light table index to process.
-; Resulting lights are stored in temp+2.
-;******************************************************************************
-Output_get_blink_state
-    clrf    temp+2
+    btfss   blink_mode, BLINK_MODE_BLINKFLAG
+    goto    _output_local_lights_indicators_off
+
+    btfsc   blink_mode, BLINK_MODE_HAZARD
+    goto    _output_local_lights_check_indicator
     
-    ; Indicator left    
-output_local_get_state_indicator_left
+    call    light_indicator_left_on
+    call    light_indicator_right_on
+    goto    _output_local_lights_blinking_end
+
+_output_local_lights_check_indicator
+    btfsc   blink_mode, BLINK_MODE_INDICATOR_LEFT
+    call    light_indicator_left_on
     btfss   blink_mode, BLINK_MODE_INDICATOR_LEFT
-    goto    output_local_get_state_indicator_right
-    movlw   0
-    call    light_table
-    iorwf   temp+2, f
-    
-    ; Indicator right
-output_local_get_state_indicator_right
+    call    light_indicator_left_off
+    btfsc   blink_mode, BLINK_MODE_INDICATOR_RIGHT
+    call    light_indicator_right_on
     btfss   blink_mode, BLINK_MODE_INDICATOR_RIGHT
-    goto    output_local_get_state_hazard
-    movlw   1
-    call    light_table
-    iorwf   temp+2, f
-   
-    ; Hazard lights 
-output_local_get_state_hazard
-    btfss   blink_mode, BLINK_MODE_HAZARD
-    goto    output_local_get_state_end
-    movlw   2
-    call    light_table
-    iorwf   temp+2, f
+    call    light_indicator_right_off
+    goto    _output_local_lights_blinking_end
 
+_output_local_lights_indicators_off
+    call    light_indicator_left_off
+    call    light_indicator_right_off
+
+_output_local_lights_blinking_end
     return
 
 
-;******************************************************************************
-; Output_get_setup_state
-;
-; d0 contains the light table index to process.
-; Resulting lights are stored in temp.
-;******************************************************************************
-Output_get_setup_state
-    movlw   0    
-    btfsc   setup_mode, 2
-    addlw   1
-    btfsc   setup_mode, 3
-    addlw   1
-    call    light_table
-    movwf   temp
-    return
+_output_local_lights_setup
+    ; No steering wheel servo in this car so don't bother ...
+    return    
+
+_output_local_lights_startup
+    call    light_parking_off
+    call    light_roof_off
+    call    light_tail_off
+    call    light_brake_off
+    call    light_reverse_off
+    call    light_indicator_left_off
+    call    light_indicator_right_off
+    
+    call    light_main_beam_on
+    return    
 
 
 ;******************************************************************************
-; light_table
-;
-; Retrieve a line from the light table.
-; w: the line we request
-; d0 indicates which light table we request:
-;   0:  local
-;   1:  local_half
-;   2:  local_blink
-;   4:  slave
-;   8:  slave_half
-;   16:  local_setup
-;   32: slave_setup
-;
-; Resulting light pattern is in w
-;******************************************************************************
-light_table
-    btfsc   d0, LIGHT_TABLE_LOCAL
-    goto    local_light_table
-    btfsc   d0, LIGHT_TABLE_LOCAL_HALF
-    goto    local_light_half_table
-    btfsc   d0, LIGHT_TABLE_LOCAL_BLINK
-    goto    local_light_blink_table
-    btfsc   d0, LIGHT_TABLE_SLAVE
-    goto    slave_light_table
-    btfsc   d0, LIGHT_TABLE_SLAVE_HALF
-    goto    slave_light_half_table
-    btfsc   d0, LIGHT_TABLE_LOCAL_SETUP              
-    goto    local_setup_light_table
-    btfsc   d0, LIGHT_TABLE_SLAVE_SETUP               
-    goto    slave_setup_light_table
+light_parking_on
+    BANKSEL TRISA
+    bcf     PORT_LED_PARKING
+    BANKSEL 0
     return
+
+light_parking_off
+    BANKSEL TRISA
+    bsf     PORT_LED_PARKING
+    BANKSEL 0
+    return
+
+light_main_beam_on
+    BANKSEL TRISA
+    bcf     PORT_LED_MAIN_BEAM
+    BANKSEL 0
+    return
+
+light_main_beam_off
+    BANKSEL TRISA
+    bsf     PORT_LED_MAIN_BEAM
+    BANKSEL 0
+    return
+
+light_roof_on
+    BANKSEL TRISA
+    bcf     PORT_LED_ROOF
+    BANKSEL 0
+    return
+
+light_roof_off
+    BANKSEL TRISA
+    bsf     PORT_LED_ROOF
+    BANKSEL 0
+    return
+
+light_tail_on
+    BANKSEL TRISA
+    bcf     PORT_LED_TAIL
+    BANKSEL 0
+    return
+
+light_tail_off
+    BANKSEL TRISA
+    bsf     PORT_LED_TAIL
+    BANKSEL 0
+    return
+
+light_brake_on
+    BANKSEL TRISA
+    bcf     PORT_LED_BRAKE
+    bcf     PORT_LED_BRAKE3
+    BANKSEL 0
+    return
+
+light_brake_off
+    BANKSEL TRISA
+    bsf     PORT_LED_BRAKE
+    bsf     PORT_LED_BRAKE3
+    BANKSEL 0
+    return
+
+light_indicator_left_on
+    BANKSEL TRISA
+    bcf     PORT_LED_INDICATOR_LEFT
+    BANKSEL 0
+    return
+
+light_indicator_left_off
+    BANKSEL TRISA
+    bsf     PORT_LED_INDICATOR_LEFT
+    BANKSEL 0
+    return
+
+light_indicator_right_on
+    BANKSEL TRISA
+    bcf     PORT_LED_INDICATOR_RIGHT
+    BANKSEL 0
+    return
+
+light_indicator_right_off
+    BANKSEL TRISA
+    bsf     PORT_LED_INDICATOR_RIGHT
+    BANKSEL 0
+    return
+
+light_reverse_on
+    BANKSEL TRISA
+    bcf     PORT_LED_REVERSE
+    BANKSEL 0
+    return
+
+light_reverse_off
+    BANKSEL TRISA
+    bsf     PORT_LED_REVERSE
+    BANKSEL 0
+    return   
+
 
     END

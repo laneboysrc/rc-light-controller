@@ -55,15 +55,15 @@ ENDIF
 ;   RB5 (11)
 
 
-#define PORT_LED_BRAKE              PORTB, 2
-#define PORT_LED_TAIL               PORTA, 4
-#define PORT_LED_BRAKE3             PORTA, 1
-#define PORT_LED_ROOF               PORTA, 0
-#define PORT_LED_MAIN_BEAM          PORTA, 2
-#define PORT_LED_PARKING            PORTA, 7
-#define PORT_LED_INDICATOR_LEFT     PORTA, 6
-#define PORT_LED_INDICATOR_RIGHT    PORTA, 3
-#define PORT_LED_REVERSE            PORTB, 0
+#define PORT_LED_BRAKE              TRISB, 2
+#define PORT_LED_TAIL               TRISA, 4
+#define PORT_LED_BRAKE3             TRISA, 1
+#define PORT_LED_ROOF               TRISA, 0
+#define PORT_LED_MAIN_BEAM          TRISA, 2
+#define PORT_LED_PARKING            TRISA, 7
+#define PORT_LED_INDICATOR_LEFT     TRISA, 6
+#define PORT_LED_INDICATOR_RIGHT    TRISA, 3
+#define PORT_LED_REVERSE            TRISB, 0
 
 
 ;******************************************************************************
