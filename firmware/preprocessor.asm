@@ -1,0 +1,147 @@
+;******************************************************************************
+;
+;   preprocessor.asm
+;
+;******************************************************************************
+;
+;   Author:         Werner Lane
+;   E-mail:         laneboysrc@gmail.com
+;
+;******************************************************************************
+    TITLE       RC Light Controller - Pre-processor
+    LIST        r=dec
+    RADIX       dec
+
+#define INCLUDE_CONFIG
+    #include    hw.tmp
+
+
+    GLOBAL startup_mode
+
+
+    ; Functions imported from utils.asm
+    EXTERN Min
+    EXTERN Max
+    EXTERN Add_y_to_x
+    EXTERN Sub_y_from_x
+    EXTERN If_x_eq_y
+    EXTERN If_y_lt_x
+    EXTERN Min_x_z
+    EXTERN Max_x_z
+    EXTERN Mul_xl_by_w
+    EXTERN Div_x_by_y
+    EXTERN Mul_x_by_100
+    EXTERN Div_x_by_4
+    EXTERN Mul_x_by_6
+    EXTERN Add_x_and_780    
+    EXTERN TLC5916_send
+    
+    EXTERN xl
+    EXTERN xh
+    EXTERN yl
+    EXTERN yh
+    EXTERN zl
+    EXTERN zh
+
+
+    ; Functions and variables imported from *_reader.asm
+    EXTERN Read_all_channels
+    EXTERN Init_reader
+    
+    EXTERN steering            
+    EXTERN steering_abs       
+    EXTERN throttle            
+    EXTERN throttle_abs       
+    EXTERN ch3                 
+
+
+; Bitfields in variable startup_mode
+; Note: the higher 4 bits are used so we can simply "or" it with ch3
+; and send it to the slave
+#define STARTUP_MODE_NEUTRAL 4      ; Waiting before reading ST/TH neutral
+#define STARTUP_MODE_REVERSING 5    ; Waiting for Forward/Left to obtain direction
+
+
+;******************************************************************************
+;* VARIABLE DEFINITIONS
+;******************************************************************************
+.data_preprocessor UDATA
+
+startup_mode        res 1
+temp                res 1
+
+
+;******************************************************************************
+; Reset vector 
+;******************************************************************************
+.code_preprocessor_reset CODE 0x000           
+    goto    Init
+
+
+;******************************************************************************
+; Relocatable code section
+;******************************************************************************
+.code_preprocessor CODE
+
+;******************************************************************************
+; Initialization
+;******************************************************************************
+Init
+    ;-----------------------------
+    ; Initialise the chip (macro included from hw_*.tmp)
+    IO_INIT_PREPROCESSOR
+
+    call Init_reader
+
+;   goto    Main_loop    
+
+
+;**********************************************************************
+; Main program
+;**********************************************************************
+Main_loop
+    call    Read_all_channels
+    call    Output_preprocessed_channels
+    goto    Main_loop
+
+
+;******************************************************************************
+; Output_preprocessed_channels
+;
+;******************************************************************************
+Output_preprocessed_channels
+    movlw   0x87            ; Magic byte for synchronization
+    call    UART_send_w        
+
+    movf    steering, w
+    call    UART_send_w        
+    
+    movf    throttle, w
+    call    UART_send_w        
+
+    ; Mask out other bits used in ch3 for toggle and intialization
+    ; Add startup mode to the transmitted byte. Since we are using bits 4, 5 
+    ; of startup_mode only this works fine.
+    movf    ch3, w                       
+    andlw   0x01                        
+    iorwf   startup_mode, w              
+    call    UART_send_w        
+    
+    return
+    
+
+;******************************************************************************
+; Send W out via the UART
+;******************************************************************************
+UART_send_w
+    btfss   PIR1, TXIF
+    goto    UART_send_w ; Wait for transmitter interrupt flag
+
+    movwf   TXREG	    ; Send data stored in W
+    return    
+
+
+    END     ; Directive 'end of program'
+
+
+

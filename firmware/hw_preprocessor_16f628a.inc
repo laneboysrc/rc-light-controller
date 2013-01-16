@@ -1,12 +1,13 @@
 ;******************************************************************************
 ;
-;   io_preprocessor.inc
+;   hw_preprocessor.inc
 ;
-;   This file contains IO port definitions for a light controller "master"
-;   that functions as a pre-processor.
+;   This file contains IO port definitions for a light controller pre-processor.
+;
 ;   A pre-processor connects to the receiver and normalizes the servo channels
-;   but does not control lights directly. It outputs to an intelligent slave
-;   containing the light tables etc.
+;   but does not control lights directly. It outputs to a "master" light 
+;   controller containing the code to switch the lights etc.
+;
 ;   The pre-processor is intended to be built into the RC receiver.
 ;
 ;   The IO ports have been assigned in such a away that none of the programming
@@ -56,7 +57,7 @@ ENDIF
 ;******************************************************************************
 ;* MACROS
 ;******************************************************************************
-IO_INIT_MASTER macro
+IO_INIT_PREPROCESSOR macro
     BANKSEL CMCON
     movlw   0x07
     movwf   CMCON       ; Disable the comparators
@@ -90,7 +91,7 @@ IO_INIT_MASTER macro
     movwf   TRISB
 
 
-    BANKSEL d0
+    BANKSEL 0
     ;-----------------------------
     ; Clear all memory locations between 0x20 and 0x7f
     movlw   0x7f
@@ -150,10 +151,5 @@ SPBRG_VALUE = (((d'10'*OSC/((d'64'-(d'48'*BRGH_VALUE))*BAUDRATE))+d'5')/d'10')-1
 
     movlw	0           ; Send dummy character to get a valid transmit flag
     movwf	TXREG
-    endm
-
-    
-IO_INIT_SLAVE macro
-  
     endm
     

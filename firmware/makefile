@@ -10,8 +10,8 @@ phil-ford: phil-ford-preprocessor phil-ford-master
 
 .PHONY: phil-ford-preprocessor
 phil-ford-preprocessor : hw_preprocessor_12f1840.inc
-	$(eval CFLAGS = -D PREPROCESSING_MASTER -D SEQUENTIAL_CHANNEL_READING )
-	$(eval files = rc-light-controller utils)
+	$(eval CFLAGS = -D SEQUENTIAL_CHANNEL_READING )
+	$(eval files = preprocessor servo-reader utils)
 	$(build)
 
 phil-ford-master: hw_phil-ford.inc
@@ -47,8 +47,8 @@ xr311: xr311-preprocessor xr311-master
 
 .PHONY: xr311-preprocessor
 xr311-preprocessor : hw_preprocessor_16f628a.inc
-	$(eval CFLAGS = -D PREPROCESSING_MASTER -D SEQUENTIAL_CHANNEL_READING)
-	$(eval files = rc-light-controller utils)
+	$(eval CFLAGS = -D SEQUENTIAL_CHANNEL_READING)
+	$(eval files = preprocessor servo-reader utils)
 	$(build)
 
 .PHONY: xr311-master

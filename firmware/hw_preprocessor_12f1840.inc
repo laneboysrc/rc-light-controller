@@ -66,7 +66,7 @@ ENDIF
 ;******************************************************************************
 ;* MACROS
 ;******************************************************************************
-IO_INIT_MASTER macro
+IO_INIT_PREPROCESSOR macro
     ;BANKSEL TRISA
     ;-----------------------------
     ; Port direction
@@ -74,8 +74,3 @@ IO_INIT_MASTER macro
     movwf   TRISA
     endm
 
-    
-IO_INIT_SLAVE macro
-  
-    endm
-    
