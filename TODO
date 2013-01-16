@@ -1,8 +1,6 @@
 TO DO LIST for the RC Light Controller
 
 * Split code into reusable modules
-    * Reading of servo pulses, PPM, UART from pre-processor
-    * Output functions (PWM, different chips)
     * Steering wheel servo function
 
 * Add documentation about the different supported configurations
@@ -24,4 +22,4 @@ TO DO LIST for the RC Light Controller
   the light controller already being in normal operation -- instead of
   waiting until the user gives forward.
   
-* Remove Output_slave; rename Output_local_lights
+* rename Output_local_lights
