@@ -15,13 +15,21 @@
 #define INCLUDE_CONFIG
     #include    hw.tmp
 
+    
+    GLOBAL blink_mode
+    GLOBAL light_mode
+    GLOBAL drive_mode
+    GLOBAL setup_mode
+    GLOBAL startup_mode
+    GLOBAL servo
+
 
     ; Functions imported from <car>-lights.asm
-    EXTERN Output_local_lights
     EXTERN Init_local_lights
-    EXTERN Output_slave
+    EXTERN Output_local_lights
 
-    ; Functions imported from utils.asm
+
+    ; Functions and variables imported from utils.asm
     EXTERN Min
     EXTERN Max
     EXTERN Add_y_to_x
@@ -43,20 +51,19 @@
     EXTERN yh
     EXTERN zl
     EXTERN zh
-    
-    GLOBAL blink_mode
-    GLOBAL light_mode
-    GLOBAL drive_mode
-    GLOBAL setup_mode
-    GLOBAL startup_mode
-    GLOBAL servo
-    GLOBAL UART_send_w
 
+
+    ; Functions and variables imported from *_reader.asm
+    EXTERN Read_all_channels
+    EXTERN Init_reader
+    
+    EXTERN steering            
+    EXTERN steering_abs       
+    EXTERN throttle            
+    EXTERN throttle_abs       
+    EXTERN ch3                 
      
     
-#define SLAVE_MAGIC_BYTE    0x87
-
-
 #define CH3_BUTTON_TIMEOUT 6    ; Time in which we accept double-click of CH3
 #define BLINK_COUNTER_VALUE 5   ; 5 * 65.536 ms = ~333 ms = ~1.5 Hz
 #define BRAKE_AFTER_REVERSE_COUNTER_VALUE 15 ; 15 * 65.536 ms = ~1 s
@@ -118,14 +125,7 @@ ENDIF
 ;******************************************************************************
 ;* VARIABLE DEFINITIONS
 ;******************************************************************************
-    UDATA  0x20
-
-steering            res 1
-steering_abs        res 1
-throttle            res 1
-throttle_abs        res 1
-ch3                 res 1
-
+.data_master UDATA
 
 drive_mode_counter  res 1
 drive_mode_brake_disarm_counter res 1
@@ -143,7 +143,6 @@ light_mode          res 1
 drive_mode          res 1
 setup_mode          res 1
 startup_mode        res 1
-;reversing_mode      res 1
 
 servo               res 1
 servo_epl           res 1
@@ -163,16 +162,6 @@ temp                res 3 ; Reserve extra bytes labeled temp+1, temp+2 ...
 wl                  res 1 ; Temporary parameters for 16 bit math functions
 wh                  res 1
 
-port_dummy          res 1 ; Register to fake IO ports
-
-IFDEF DEBUG
-send_hi             res 1
-send_lo             res 1
-
-debug_steering_old  res 1
-debug_throttle_old  res 1
-debug_indicator_state_old res 1
-ENDIF
 
 ;******************************************************************************
 ;* MACROS
@@ -205,10 +194,12 @@ swap_x_y    macro   x, y
 ;******************************************************************************
 Init
     ;-----------------------------
-    ; Initialise the chip (macro included from io_master.tmp)
-    IO_INIT_SLAVE
+    ; Initialise the chip (macro included from hw_*.tmp)
+    IO_INIT_MASTER
 
+    call    Init_local_lights
 
+    ; Steering servo related initalization
     movlw   b'00001010'
             ; |||||||+ CCPM0 (Compare mode, generate software interrupt on 
             ; ||||||+- CCPM1  match (CCP1IF bit is set, CCP1 pin is unaffected)
@@ -219,19 +210,13 @@ Init
             ; |+------ 
             ; +------- 
     movwf   CCP1CON
-    
+    call    Servo_load_values
 
     movlw   BLINK_COUNTER_VALUE
     movwf   blink_counter
 
-
-    ; Load steering servo values from the EEPROM
-    call    Servo_load_values
-
+    call    Init_reader
     
-    call    Init_local_lights
-
-
 ;   goto    Main_loop    
 
 
@@ -239,160 +224,25 @@ Init
 ; Main program
 ;**********************************************************************
 Main_loop
-    call    Read_UART
+    call    Read_all_channels
     
     call    Process_ch3_double_click
     call    Process_drive_mode
     call    Process_indicators
     call    Process_steering_servo
-    call    Service_timer0
+    call   Service_timer0
 
     call    Output_local_lights
+    
     IFDEF   ENABLE_SERVO_OUTPUT
     call    Make_servo_pulse
-    ENDIF
-
-    IFNDEF  DEBUG
-    call    Output_slave
     ENDIF
 
     goto    Main_loop
 
 
 ;******************************************************************************
-; Read_UART
-;
-; This function returns after having successfully received a complete
-; protocol frame via the UART.
-;******************************************************************************
-Read_UART
-    IFDEF   DEBUG
-
-    ; TODO: add some useful debug code here
-
-    return
-    ENDIF
-
-
-    call    read_UART_byte
-    sublw   SLAVE_MAGIC_BYTE        ; First byte the magic byte?
-    bnz     Read_UART               ; No: wait for 0x8f to appear
-
-read_UART_byte_2
-    call    read_UART_byte
-    movwf   steering                ; Store 2nd byte
-    sublw   SLAVE_MAGIC_BYTE        ; Is it the magic byte?
-    bz      read_UART_byte_2        ; Yes: we must be out of sync...
-
-read_UART_byte_3
-    call    read_UART_byte
-    movwf   throttle
-    sublw   SLAVE_MAGIC_BYTE
-    bz      read_UART_byte_2
-
-read_UART_byte_4
-    call    read_UART_byte
-    movwf   ch3                     ; The 3rd byte contains information for
-    movwf   startup_mode            ;  CH3 as well as startup_mode
-    sublw   SLAVE_MAGIC_BYTE
-    bz      read_UART_byte_2
-    
-    movlw   0x01                    ; Remove startup_mode bits from CH3
-    andwf   ch3, f   
-    movlw   0xf0                    ; Remove CH3 bits from startup_mode
-    andwf   startup_mode, f   
-
-    ; Calculate abs(throttle) and abs(steering) for easier math.
-    movfw   throttle
-    movwf   throttle_abs
-    btfsc   throttle_abs, 7
-    decf    throttle_abs, f
-    btfsc   throttle_abs, 7
-    comf    throttle_abs, f
-
-    movfw   steering
-    movwf   steering_abs
-    btfsc   steering_abs, 7
-    decf    steering_abs, f
-    btfsc   steering_abs, 7
-    comf    steering_abs, f
-    
-    return
-
-
-;******************************************************************************
-; read_UART_byte
-;
-; Recieve one byte from the UART in W.
-;
-; To enable reception of a byte, CREN must be 1. 
-;
-; On any error, recover by pulsing CREN low then back to high. 
-;
-; When a byte has been received the RCIF flag will be set. RCIF is 
-; automatically cleared when RCREG is read and empty. RCREG is double buffered, 
-; so it is a two byte deep FIFO. If a third byte comes in, then OERR is set. 
-; You can still recover the two bytes in the FIFO, but the third (newest) is 
-; lost. CREN must be pulsed negative to clear the OERR flag. 
-;
-; On a framing error FERR is set. FERR is automatically reset when RCREG is 
-; read, so errors must be tested for *before* RCREG is read. It is *NOT* 
-; recommended that you ignore the error flags. Eventually an error will cause 
-; the receiver to hang up if you don't clear the error condition.
-;******************************************************************************
-read_UART_byte
-	btfsc   RCSTA, OERR
-	goto    overerror       ; if overflow error...
-	btfsc   RCSTA, FERR
-	goto	frameerror      ; if framing error...
-uart_ready
-	btfss	PIR1, RCIF
-	goto	read_UART_byte  ; if not ready, wait...	
-
-uart_gotit
-	bcf     INTCON, GIE     ; Turn GIE off. This is IMPORTANT!
-	btfsc	INTCON, GIE     ; MicroChip recommends this check!
-	goto 	uart_gotit      ; !!! GOTCHA !!! without this check
-                            ;   you are not sure gie is cleared!
-	movf	RCREG, w        ; Read UART data
-	bsf     INTCON, GIE     ; Re-enable interrupts
-	return
-
-overerror	   		
-    ; Over-run errors are usually caused by the incoming data building up in 
-    ; the fifo. This is often the case when the program has not read the UART
-    ; in a while. Flushing the FIFO will allow normal input to resume.
-    ; Note that flushing the FIFO also automatically clears the FERR flag.
-    ; Pulsing CREN resets the OERR flag.
-
-	bcf     INTCON, GIE
-	btfsc	INTCON, GIE
-	goto 	overerror
-
-	bcf     RCSTA, CREN     ; Pulse CREN off...
-	movf	RCREG, w        ; Flush the FIFO, all 3 elements
-	movf	RCREG, w		
-	movf	RCREG, w
-	bsf     RCSTA, CREN     ; Turn CREN back on. This pulsing clears OERR
-	bsf     INTCON, GIE
-	goto	read_UART_byte  ; Try again...
-
-frameerror			
-    ; Framing errors are usually due to wrong baud rate coming in.
-
-	bcf     INTCON, GIE
-	btfsc	INTCON, GIE
-	goto 	frameerror
-
-	movf	RCREG,w		;reading rcreg clears ferr flag.
-	bsf     INTCON, GIE
-	goto	read_UART_byte  ; Try again...
-
-
-
-
     IFDEF ENABLE_SERVO_OUTPUT    
-;******************************************************************************
 Make_servo_pulse    
     movf    servo, w
     addlw   120
@@ -474,8 +324,6 @@ service_timer0_blink
     movlw   1 << BLINK_MODE_BLINKFLAG
     xorwf   blink_mode, f
 
-    
-
     return
 
 
@@ -498,19 +346,6 @@ Synchronize_blinking
     movwf   blink_counter
     bsf     blink_mode, BLINK_MODE_BLINKFLAG
     return
-
-
-
-
-;******************************************************************************
-;******************************************************************************
-;******************************************************************************
-;
-; CH3 related functions
-;
-;******************************************************************************
-;******************************************************************************
-;******************************************************************************
 
 
 ;******************************************************************************
@@ -667,19 +502,6 @@ process_ch3_click_end
     clrf    ch3_clicks
     return
 
-    
-
-;******************************************************************************
-;******************************************************************************
-;******************************************************************************
-;
-; THROTTLE related functions
-;
-;******************************************************************************
-;******************************************************************************
-;******************************************************************************
-
-
 
 ;******************************************************************************
 ; Process_drive_mode
@@ -762,19 +584,6 @@ process_drive_mode_brake
     bcf     drive_mode, DRIVE_MODE_FORWARD
     bcf     drive_mode, DRIVE_MODE_REVERSE
     return
-
-
-
-;******************************************************************************
-;******************************************************************************
-;******************************************************************************
-;
-; STEERING related functions
-;
-;******************************************************************************
-;******************************************************************************
-;******************************************************************************
-
 
 
 ;******************************************************************************
@@ -1027,18 +836,6 @@ process_indicators_blink_right_wait_centre
     skpz    
     return
     goto    process_indicators_set_not_neutral
-
-
-
-;******************************************************************************
-;******************************************************************************
-;******************************************************************************
-;
-; STEERING SERVO related functions
-;
-;******************************************************************************
-;******************************************************************************
-;******************************************************************************
 
 
 ;******************************************************************************
@@ -1314,220 +1111,6 @@ Servo_load_defaults
     call    EEPROM_write_byte
     return
 
-    
-;******************************************************************************
-;******************************************************************************
-;******************************************************************************
-;
-; UTILITY FUNCTIONS
-;
-;******************************************************************************
-;******************************************************************************
-;******************************************************************************
-
-;******************************************************************************
-; Validate_servo_measurement
-;
-; TMR1H/TMR1L: measured servo pulse width in us
-;
-; This function ensures that the measured servo pulse is in the range of
-; 600 ... 2500 us. If not, "0" is returned to indicate failure.
-; If the servo pulse is less than 800 us it is clamped to 800 us.
-; If the servo pulse is more than 2300 us it is clamped to 2300 us.
-;
-; The resulting servo pulse width (clamped; or 0 if out of range) is returned
-; in xh/xl
-;******************************************************************************
-Validate_servo_measurement
-    movf    TMR1H, w
-    movwf   xh
-    movf    TMR1L, w
-    movwf   xl
-
-    movlw   HIGH(600)
-    movwf   yh
-    movlw   LOW(600)
-    movwf   yl
-    call    If_y_lt_x
-    bnc     Validate_servo_above_min
-    
-Validate_servo_out_of_range
-    clrf    xh
-    clrf    xl
-    return
-
-Validate_servo_above_min
-    movlw   HIGH(2500)
-    movwf   yh
-    movlw   LOW(2500)
-    movwf   yl    
-    call    If_y_lt_x
-    bnc     Validate_servo_out_of_range
-
-    movlw   HIGH(800)
-    movwf   yh
-    movlw   LOW(800)
-    movwf   yl    
-    call    If_y_lt_x
-    bnc     Validate_servo_above_clamp_min
-
-Validate_servo_clamp
-    movf    yh, w
-    movwf   xh
-    movf    yl, w
-    movwf   xl
-    return
-
-Validate_servo_above_clamp_min
-    movlw   HIGH(2300)
-    movwf   yh
-    movlw   LOW(2300)
-    movwf   yl    
-    call    If_y_lt_x
-    bnc     Validate_servo_clamp
-    return
-
-
-;******************************************************************************
-; Calculate_normalized_servo_position
-;
-; xh/xl: POS servo measured pulse width
-; yh/yl: CEN centre pulse width
-; zh/zl: EP  end point pulse width
-;
-;       If EP < CEN:
-;           If POS < EP     ; Clamp invald input
-;               return 100
-;           return (CEN - POS) * 100 / (CEN - EP)
-;       Else:               ; EP >= CEN
-;           If EP < POS     ; Clamp invald input
-;               return ((POS - CEN) * 100 / (EP - CEN))
-;           return 100
-;
-; Result in W: 0..100
-;******************************************************************************
-Calculate_normalized_servo_position
-    ; x = POS, y = CEN, z = EP
-
-    swap_x_y    xh, yh
-    swap_x_y    xl, yl
-    swap_x_y    yh, zh
-    swap_x_y    yl, zl
-
-    ; x = CEN, y = EP, z = POS
-
-    call    If_y_lt_x
-    bc      calculate_ep_gt_cen
-        
-    movfw   zl
-    subwf   yl, w
-    movfw   zh
-    skpc                
-    incfsz  zh, w       
-    subwf   yh, w
-    skpnc   
-    retlw   100
-
-calculate_normalized_left
-    ; (CEN - POS) * 100 / (CEN - EP)
-    ; Worst case we are dealing with CEN = 2300 and POS = 800 (we clamp 
-    ; measured values into that range!)
-    ; To keep within 16 bits we have to scale down:
-    ;
-    ;   ((CEN - POS) / 4) * 100 / ((CEN - EP) / 4)
-    
-
-    movf    xh, w           ; Save CEN in wh/wl as xh/xl gets result of 
-    movwf   wh              ;  sub_x_from_y
-    movf    xl, w
-    movwf   wl
-
-    swap_x_y    yh, zh
-    swap_x_y    yl, zl
-
-    ; w = CEN, x = CEN, y = POS, z = EP
-
-    call    Sub_y_from_x    ; xh/hl =  CEN - POS
-    call    Div_x_by_4      ; xh/hl =  (CEN - POS) / 4
-    call    Mul_x_by_100    ; xh/hl =  ((CEN - POS) / 4) * 100
-
-    swap_x_y    wh, xh
-    swap_x_y    wl, xl
-    swap_x_y    yh, zh
-    swap_x_y    yl, zl
-
-    ; w = ((CEN - POS) / 4) * 100, x = CEN, y = EP, z = POS
-
-    call    Sub_y_from_x    ; xh/hl =  CEN - EP
-    call    Div_x_by_4      ; xh/hl =  (CEN - EP) / 4
-
-    swap_x_y    xh, yh
-    swap_x_y    xl, yl
-    swap_x_y    wh, xh
-    swap_x_y    wl, xl
-
-    ; x = ((CEN - POS) / 4) * 100, y = ((CEN - EP) / 4)
-
-    call    Div_x_by_y
-    movf    xl, w
-    return    
-
-calculate_ep_gt_cen
-    movfw   zl
-    subwf   yl, w
-    movfw   zh
-    skpc                
-    incfsz  zh, w       
-    subwf   yh, w
-    skpc    
-    retlw   100
-
-calculate_normalized_right
-    ; ((POS - CEN) * 100 / (EP - CEN))
-    ; Worst case we are dealing with CEN = 800 and POS = 2300 (we clamp 
-    ; measured values into that range!)
-    ; To keep within 16 bits we have to scale down:
-    ;
-    ;   ((POS - CEN) / 4) * 100 / ((EP - CEN) / 4)
-    
-    ; x = CEN, y = EP, z = POS
-
-    swap_x_y    yh, zh
-    swap_x_y    yl, zl
-    swap_x_y    xh, yh
-    swap_x_y    xl, yl
-
-    ; x = POS, y = CEN, z = EP
-
-    call    Sub_y_from_x    ; xh/hl =  POS - CEN
-    call    Div_x_by_4      ; xh/hl =  (POS - CEN) / 4
-    call    Mul_x_by_100    ; xh/hl =  ((POS - CEN) / 4) * 100
-
-    swap_x_y    xh, wh
-    swap_x_y    xl, wl
-    swap_x_y    xh, zh
-    swap_x_y    xl, zl
-
-    ; w = ((POS - CEN) / 4) * 100, x = EP, y = CEN
-
-    call    Sub_y_from_x    ; xh/hl =  EP - CEN
-    call    Div_x_by_4      ; xh/hl =  (EP - CEN) / 4
-
-    swap_x_y    xh, yh
-    swap_x_y    xl, yl
-    swap_x_y    wh, xh
-    swap_x_y    wl, xl
-
-    ; x = ((POS - CE) / 4) * 100, y = ((EP - CEN) / 4)
-
-    call    Div_x_by_y
-    movf    xl, w
-    return  
-
-
-
-
-
 
 ;******************************************************************************
 ; EEPROM_write_byte
@@ -1571,339 +1154,6 @@ EEPROM_read_byte
 	movf    EEDATA, w
 	BANKSEL PIR1
 	return
-
-
-    IFDEF   DEBUG
-;**********************************************************************
-Debug_output_values
-
-#define setup_mode_old debug_indicator_state_old
-#define servo_old debug_throttle_old
-
-    IF 0
-debug_output_setup
-    movf    setup_mode, w
-    subwf   setup_mode_old, w
-    bnz     debug_output_servo
-    movf    servo, w
-    subwf   servo_old, w
-    bz      debug_output_indicator
-
-debug_output_servo
-    movlw   83                  ; 'S'   
-    call    UART_send_w
-    movlw   101                 ; 'e'   
-    call    UART_send_w
-    movlw   116                 ; 't'   
-    call    UART_send_w
-    movlw   117                 ; 'u'   
-    call    UART_send_w
-    movlw   112                 ; 'p'   
-    call    UART_send_w
-    movlw   0x20                ; Space
-    call    UART_send_w
-    movf    setup_mode, w
-    movwf   setup_mode_old
-    call    UART_send_signed_char
-    movlw   0x20                ; Space
-    call    UART_send_w
-    movlw   83                  ; 'S'   
-    call    UART_send_w
-    movlw   101                 ; 'e'   
-    call    UART_send_w
-    movlw   114                 ; 'r'   
-    call    UART_send_w
-    movlw   118                 ; 'v'   
-    call    UART_send_w
-    movlw   111                 ; 'o'   
-    call    UART_send_w
-    movlw   0x20                ; Space
-    call    UART_send_w
-    movf    servo, w
-    movwf   servo_old
-    call    UART_send_signed_char
-    movlw   0x0a                ; LF
-    call    UART_send_w
-    ENDIF    
-
-debug_output_indicator
-    IF 0
-    movf    indicator_state, w
-    subwf   debug_indicator_state_old, w
-    bz      debug_output_steering
-
-    movlw   73                  ; 'I'   
-    call    UART_send_w
-    movf    indicator_state, w
-    movwf   debug_indicator_state_old
-    call    UART_send_signed_char
-    movlw   0x0a                ; LF
-    call    UART_send_w
-    ENDIF
-
-debug_output_steering
-    movf    steering, w
-    subwf   debug_steering_old, w
-    bz      debug_output_throttle
-
-    movlw   83                  ; 'S'   
-    call    UART_send_w
-    movlw   84                  ; 'T'   
-    call    UART_send_w
-    movf    steering, w
-    movwf   debug_steering_old
-    call    UART_send_signed_char
-    movlw   0x0a                ; LF
-    call    UART_send_w
-
-debug_output_throttle
-    movf    throttle, w
-    subwf   debug_throttle_old, w
-    bz      debug_output_end
-
-    movlw   84                  ; 'T'   
-    call    UART_send_w
-    movlw   72                  ; 'H'   
-    call    UART_send_w
-    movf    throttle, w
-    movwf   debug_throttle_old
-    call    UART_send_signed_char
-    movlw   0x0a                ; LF
-    call    UART_send_w
-
-;    movf    drive_mode, w
-;    call    UART_send_signed_char
-;    movlw   0x0a                ; LF
-;    call    UART_send_w
-
-debug_output_end
-    return
-    ENDIF
-
-    IF 0
-;**********************************************************************
-Delay_2.1ms
-    movlw   D'3'
-    movwf   d2
-    movlw   D'185'
-    movwf   d1
-    goto    delay_loop
-
-Delay_0.9ms
-    movlw   D'2'
-    movwf   d2
-    movlw   D'40'
-    movwf   d1
-delay_loop
-    decfsz  d1, f
-    goto    delay_loop
-    decfsz  d2, f
-    goto    delay_loop
-    return
-    ENDIF
-
-    IF 1
-;**********************************************************************
-Delay_2s
-	movlw	0x11
-	movwf	d1
-	movlw	0x5D
-	movwf	d2
-	movlw	0x05
-	movwf	d3
-delay_0
-	decfsz	d1, f
-	goto	$ + 2
-	decfsz	d2, f
-	goto	$ + 2
-	decfsz	d3, f
-	goto	delay_0
-    return
-    ENDIF
-
-
-;******************************************************************************
-; Send W out via the UART
-;******************************************************************************
-UART_send_w
-    btfss   PIR1, TXIF
-    goto    UART_send_w ; Wait for transmitter interrupt flag
-
-    movwf   TXREG	    ; Send data stored in W
-    return    
-
-
-;******************************************************************************
-; Send W, which is treated as signed char, as human readable number via the
-; UART.
-;******************************************************************************
-    IFDEF   DEBUG
-UART_send_signed_char
-    clrf    send_hi
-    movwf   send_lo
-    btfss   send_lo, 7  ; Highest bit indicates negative values
-    goto    UART_send_signed_char_pos
-
-    movlw   45          ; Send leading minus
-    call    UART_send_w
-
-    decf    send_lo, f  ; Absolute value of the number to send
-    comf    send_lo, f
-
-UART_send_signed_char_pos
-    goto    UART_send_16bit
-    ENDIF
-  
-
-    IFDEF   DEBUG
-;******************************************************************************
-; Send a 16 bit value stored in send_hi and send_lo as a 5 digit decimal 
-; number over the UART
-;******************************************************************************
-UART_send_16bit
-        clrf temp
-sub30k
-        movlw 3
-        addwf temp, f
-        movlw low(30000)
-        subwf send_lo, f
-
-        movlw high(30000)
-        skpc
-        movlw high(30000) + 1
-        subwf send_hi, f
-        skpnc
-        goto sub30k
-add10k
-        decf temp, f
-        movlw low(10000)
-        addwf send_lo, f
-
-        movlw high(10000)
-        skpnc
-        movlw high(10000) + 1
-        addwf send_hi, f
-        skpc
-        goto add10k
-        movf    temp, w
-        addlw   0x30
-        call    UART_send_w
-
-        clrf temp
-sub3k
-        movlw 3
-        addwf temp, f
-        movlw low(3000)
-        subwf send_lo, f
-        movlw high(3000)
-        skpc
-        movlw high(3000) + 1
-        subwf send_hi, f
-        skpnc
-        goto sub3k
-add1k
-        decf temp, f
-        movlw low(1000)
-        addwf send_lo, f
-
-        movlw high(1000)
-        skpnc
-        movlw high(1000) + 1
-        addwf send_hi, f
-        skpc
-        goto add1k
-        movf    temp, w
-        addlw   0x30
-        call    UART_send_w
-
-
-        clrf temp
-sub300
-        movlw 3
-        addwf temp, f
-        movlw low(300)
-        subwf send_lo, f
-        movlw high(300)
-        skpc
-        movlw high(300) + 1
-        subwf send_hi, f
-        skpnc
-        goto sub300
-        movlw 100
-add100
-        decf temp, f
-        addwf send_lo, f
-        skpc
-        goto add100
-        incf send_hi, f
-        btfsc send_hi, 7
-        goto add100
-        movf    temp, w
-        addlw   0x30
-        call    UART_send_w
-
-        clrf temp
-        movlw 30
-sub30
-        incf temp, f
-        subwf send_lo, f
-        skpnc
-        goto sub30
-        movfw temp
-        rlf temp, f
-        addwf temp, f
-        movlw 10
-add10
-    decf temp, f
-    addwf send_lo, f
-    skpc
-    goto add10
-    movf    temp, w
-    addlw   0x30
-    call    UART_send_w
-
-    movf    send_lo, w
-    addlw   0x30
-    call    UART_send_w
-
-;    movlw   0x0a
-;    call    UART_send_w
-
-    return
-    ENDIF
-
-    IFDEF   DEBUG
-;******************************************************************************
-; Send 'Hello world\n' via the UART
-;******************************************************************************
-Send_Hello_world
-    movlw   0x48
-    call    UART_send_w
-    movlw   0x65
-    call    UART_send_w
-    movlw   0x6C
-    call    UART_send_w
-    movlw   0x6C
-    call    UART_send_w
-    movlw   0x6F
-    call    UART_send_w
-    movlw   0x20
-    call    UART_send_w
-    movlw   0x57
-    call    UART_send_w
-    movlw   0x6F
-    call    UART_send_w
-    movlw   0x72
-    call    UART_send_w
-    movlw   0x6C
-    call    UART_send_w
-    movlw   0x64
-    call    UART_send_w
-UART_send_CR
-    movlw   0x0a
-    call    UART_send_w
-    return
-    ENDIF
 
 
     END     ; Directive 'end of program'

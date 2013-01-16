@@ -23,3 +23,5 @@ TO DO LIST for the RC Light Controller
   signal will be forward anyway, so we can wait for that silently with
   the light controller already being in normal operation -- instead of
   waiting until the user gives forward.
+  
+* Remove Output_slave; rename Output_local_lights

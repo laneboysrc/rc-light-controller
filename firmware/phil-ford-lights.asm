@@ -5,7 +5,6 @@
 
     GLOBAL Init_local_lights
     GLOBAL Output_local_lights
-    GLOBAL Output_slave
 
     
     EXTERN blink_mode
@@ -68,14 +67,6 @@ Init_local_lights
     clrf    PORTA
     clrf    PORTB
     call    light_parking_on
-    return
-
-
-;******************************************************************************
-; Output_slave
-;******************************************************************************
-Output_slave
-    ; No slave in this vehicle
     return
 
 

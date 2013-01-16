@@ -70,10 +70,6 @@ ENDIF
 ;* MACROS
 ;******************************************************************************
 IO_INIT_MASTER macro
-    ERROR "Phil's light controller isn't a master, it is an intelligent slave!"
-    endm
-    
-IO_INIT_SLAVE macro
     BANKSEL TRISA
     ;-----------------------------
     ; Port direction

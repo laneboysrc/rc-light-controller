@@ -16,7 +16,7 @@ phil-ford-preprocessor : hw_preprocessor_12f1840.inc
 
 phil-ford-master: hw_phil-ford.inc
 	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x07)
-	$(eval files = rc-light-controller-intelligent-slave utils phil-ford-lights)
+	$(eval files = master uart-reader utils phil-ford-lights)
 	$(build)
 
 
@@ -29,13 +29,13 @@ dingo: dingo-master dingo-slave
 .PHONY: dingo-master
 dingo-master: hw_original.inc
 	$(eval CFLAGS = )
-	$(eval files = rc-light-controller utils dingo-lights)
+	$(eval files = master servo-reader utils dingo-lights)
 	$(build)
 
 .PHONY: dingo-slave
 dingo-slave : hw_original.inc
 	$(eval CFLAGS = -D ENABLE_SERVO_OUTPUT)
-	$(eval files = rc-light-controller-slave utils)
+	$(eval files = slave utils)
 	$(build)
 
 
@@ -54,7 +54,7 @@ xr311-preprocessor : hw_preprocessor_16f628a.inc
 .PHONY: xr311-master
 xr311-master : hw_original.inc
 	$(eval CFLAGS = -D DUAL_TLC5916 -D ENABLE_SERVO_OUTPUT -D LIGHT_MODE_MASK=0x03)
-	$(eval files = rc-light-controller-intelligent-slave utils xr311-lights)
+	$(eval files = master uart-reader utils xr311-lights)
 	$(build)
 	
 
