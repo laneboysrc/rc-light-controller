@@ -3,9 +3,10 @@
 
     #include    hw.tmp
 
+    GLOBAL Init_local_lights
     GLOBAL Output_local_lights
-    
-    EXTERN TLC5916_send
+    GLOBAL Output_slave
+
     
     EXTERN blink_mode
     EXTERN light_mode
@@ -231,6 +232,20 @@ slave_setup_light_table
 .lights CODE
 
 ;******************************************************************************
+; Init_local_lights
+;******************************************************************************
+Init_local_lights
+    return
+
+
+;******************************************************************************
+; Output_slave
+;******************************************************************************
+Output_slave
+    return
+
+
+;******************************************************************************
 ; Output_local_lights
 ;******************************************************************************
 Output_local_lights
@@ -284,7 +299,7 @@ output_local_lights_end
     andwf   temp, f  
     ENDIF
 
-    call    TLC5916_send
+    ;call    TLC5916_send
     return
 
 output_local_lights_setup
@@ -296,7 +311,7 @@ output_local_lights_setup
     movwf   temp+1
     clrf    temp
     ENDIF
-    call    TLC5916_send
+    ;call    TLC5916_send
     return    
 
 output_local_startup
@@ -304,7 +319,7 @@ output_local_startup
     andlw   0x07                ; Mask out bits 0..2
     movwf   temp+1
     clrf    temp
-    call    TLC5916_send
+    ;call    TLC5916_send
     return    
 
 ;******************************************************************************

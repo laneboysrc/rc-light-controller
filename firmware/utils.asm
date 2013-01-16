@@ -21,7 +21,8 @@
     GLOBAL  yh
     GLOBAL  zl
     GLOBAL  zh
-
+    GLOBAL  light_data
+    
 ;******************************************************************************
 ; Relocatable variables section
 ;******************************************************************************
@@ -37,6 +38,12 @@ zh                  res 1
 d0                  res 1
 d1                  res 1
 temp                res 1
+
+IFDEF DUAL_TLC5916
+light_data          res 2
+ELSE
+light_data          res 1
+ENDIF
  
 
 ;******************************************************************************
@@ -426,20 +433,12 @@ Add_x_and_780
 ; In case DUAL_TLC5916 is defined then 16 bits temp, temp+1 are sent. This 
 ; is used if two TLC5916 are wired up in series for 16 output channels.
 ;******************************************************************************
+IFDEF PORT_SDI              ; Only enable this function when the ports are defined
+IFDEF PORT_CLK
+IFDEF PORT_LE
+IFDEF PORT_OE
 .utils_TLC5916_send
     GLOBAL TLC5916_send
-    IFNDEF PORT_SDI
-    #define PORT_SDI temp, 0
-    ENDIF
-    IFNDEF PORT_CLK
-    #define PORT_CLK temp, 0
-    ENDIF
-    IFNDEF PORT_LE
-    #define PORT_LE temp, 0
-    ENDIF
-    IFNDEF PORT_OE
-    #define PORT_OE temp, 0
-    ENDIF
 TLC5916_send
     IFDEF DUAL_TLC5916      ; {
     movlw   16
@@ -449,12 +448,11 @@ TLC5916_send
     movwf   d0
 
 tlc5916_send_loop
-    ; FIXME: temp / temp+1 are not imported from external stuff!
 
     IFDEF DUAL_TLC5916
-    rlf     temp+1, f
+    rlf     light_data+1, f
     ENDIF
-    rlf     temp, f
+    rlf     light_data, f
     skpc    
     bcf     PORT_SDI
     skpnc    
@@ -468,6 +466,10 @@ tlc5916_send_loop
     bcf     PORT_LE
     bcf     PORT_OE
     return
+ENDIF ; PORT_OE
+ENDIF ; PORT_LE
+ENDIF ; PORT_CLK
+ENDIF ; PORT_SDI
 
 
     END     ; Directive 'end of program'

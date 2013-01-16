@@ -18,6 +18,7 @@
 
     ; Functions imported from <car>-lights.asm
     EXTERN Output_local_lights
+    EXTERN Init_local_lights
     EXTERN Output_slave
 
     ; Functions imported from utils.asm
@@ -227,10 +228,9 @@ Init
     ; Load steering servo values from the EEPROM
     call    Servo_load_values
 
-    clrf    temp
-    clrf    temp+1
-    comf    temp+1, f
-    call    TLC5916_send
+    
+    call    Init_local_lights
+
 
 ;   goto    Main_loop    
 
@@ -253,7 +253,7 @@ Main_loop
     ENDIF
 
     IFNDEF  DEBUG
-    ;call    Output_slave
+    call    Output_slave
     ENDIF
 
     goto    Main_loop

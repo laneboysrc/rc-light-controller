@@ -258,8 +258,10 @@ Init_neutral
     movlw   STARTUP_MODE_NEUTRAL
     movwf   startup_mode    
 
+    IFNDEF  PREPROCESSING_MASTER
     clrf    temp
     call    TLC5916_send
+    ENDIF
     clrf    xl
     setc
 
@@ -461,6 +463,8 @@ Main_loop
 ; Output_local_lights
 ;******************************************************************************
 Output_local_lights
+    IFNDEF  PREPROCESSING_MASTER
+
     movf    setup_mode, f
     bnz     output_local_lights_setup
 
@@ -475,6 +479,8 @@ output_local_lights_setup
     movwf   d0
     call    Output_get_setup_state
     call    TLC5916_send
+    
+    ENDIF
     return    
 
 

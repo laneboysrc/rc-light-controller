@@ -4,10 +4,13 @@
     #include    hw.tmp
     
     
-
+    GLOBAL Init_local_lights
     GLOBAL Output_local_lights
+    GLOBAL Output_slave
+
     
     EXTERN TLC5916_send
+    EXTERN light_data
     
     EXTERN blink_mode
     EXTERN light_mode
@@ -235,6 +238,24 @@ slave_setup_light_table
 .lights CODE
 
 ;******************************************************************************
+; Init_local_lights
+;******************************************************************************
+Init_local_lights
+    clrf    light_data
+    clrf    light_data+1
+    comf    light_data+1, f
+    call    TLC5916_send
+    return
+
+
+;******************************************************************************
+; Output_slave
+;******************************************************************************
+Output_slave
+    return
+
+    
+;******************************************************************************
 ; Output_local_lights
 ;******************************************************************************
 Output_local_lights
@@ -248,9 +269,8 @@ Output_local_lights
     movwf   d0
     call    Output_get_state
 
-    IFDEF   DUAL_TLC5916
-    movf    temp, w         
-    movwf   temp+1
+    movf    light_data, w         
+    movwf   light_data+1
 
     movlw   1 << LIGHT_TABLE_LOCAL_HALF
     movwf   d0
@@ -265,28 +285,27 @@ Output_local_lights
     btfss   blink_mode, BLINK_MODE_BLINKFLAG
     goto    output_local_lights_blink_off    
 
-    movfw   temp+2
-    iorwf   temp+1, f
+    movfw   temp
+    iorwf   light_data+1, f
     goto    output_local_lights_end    
 
 output_local_lights_blink_off 
     ; To achieve US style combined indicators/tail/brake lights we have
     ; to do trickery to blink them properly
-    movfw   temp+1
-    iorwf   temp, w
-    andwf   temp+2, f
+    movfw   light_data+1
+    iorwf   light_data, w
+    andwf   temp, f
 
-    movfw   temp+2
-    iorwf   temp, f
-    comf    temp+2, w
-    andwf   temp+1, f
+    movfw   temp
+    iorwf   light_data, f
+    comf    temp, w
+    andwf   light_data+1, f
 
 output_local_lights_end    
     ; Remove half bright LEDs that are also fully lit to avoid more than
     ; 20mA going into the LEDs as the two TLC5916 are in parallel now.    
-    comf    temp+1, w
-    andwf   temp, f  
-    ENDIF
+    comf    light_data+1, w
+    andwf   light_data, f  
 
     call    TLC5916_send
     return
@@ -295,19 +314,17 @@ output_local_lights_setup
     movlw   1 << LIGHT_TABLE_LOCAL_SETUP
     movwf   d0
     call    Output_get_setup_state
-    IFDEF   DUAL_TLC5916
     movfw   temp
-    movwf   temp+1
-    clrf    temp
-    ENDIF
+    movwf   light_data+1
+    clrf    light_data
     call    TLC5916_send
     return    
 
 output_local_startup
     swapf   startup_mode, w     ; Move bits 4..7 to 0..3
     andlw   0x07                ; Mask out bits 0..2
-    movwf   temp+1
-    clrf    temp
+    movwf   light_data+1
+    clrf    light_data
     call    TLC5916_send
     return    
     
@@ -316,17 +333,17 @@ output_local_startup
 ; Output_get_state
 ;
 ; d0 contains the light table index to process.
-; Resulting lights are stored in temp.
+; Resulting lights are stored in light_data.
 ;******************************************************************************
 Output_get_state
-    clrf    temp
+    clrf    light_data
 
     ; Parking lights
     btfss   light_mode, LIGHT_MODE_PARKING
     goto    output_local_get_state_low_beam
     movlw   0
     call    light_table
-    iorwf   temp, f
+    iorwf   light_data, f
 
     ; Low beam
 output_local_get_state_low_beam
@@ -334,7 +351,7 @@ output_local_get_state_low_beam
     goto    output_local_get_state_fog
     movlw   1
     call    light_table
-    iorwf   temp, f
+    iorwf   light_data, f
 
     ; Fog lamps    
 output_local_get_state_fog
@@ -342,7 +359,7 @@ output_local_get_state_fog
     goto    output_local_get_state_high_beam
     movlw   2
     call    light_table
-    iorwf   temp, f
+    iorwf   light_data, f
 
     ; High beam    
 output_local_get_state_high_beam
@@ -350,7 +367,7 @@ output_local_get_state_high_beam
     goto    output_local_get_state_brake
     movlw   3
     call    light_table
-    iorwf   temp, f
+    iorwf   light_data, f
 
     ; Brake lights    
 output_local_get_state_brake
@@ -358,7 +375,7 @@ output_local_get_state_brake
     goto    output_local_get_state_reverse
     movlw   4
     call    light_table
-    iorwf   temp, f
+    iorwf   light_data, f
 
     ; Reverse lights        
 output_local_get_state_reverse
@@ -366,7 +383,7 @@ output_local_get_state_reverse
     goto    output_local_get_state_end
     movlw   5
     call    light_table
-    iorwf   temp, f
+    iorwf   light_data, f
 
 output_local_get_state_end
     return
@@ -376,10 +393,10 @@ output_local_get_state_end
 ; Output_get_blink_state
 ;
 ; d0 contains the light table index to process.
-; Resulting lights are stored in temp+2.
+; Resulting lights are stored in temp.
 ;******************************************************************************
 Output_get_blink_state
-    clrf    temp+2
+    clrf    temp
     
     ; Indicator left    
 output_local_get_state_indicator_left
@@ -387,7 +404,7 @@ output_local_get_state_indicator_left
     goto    output_local_get_state_indicator_right
     movlw   0
     call    light_table
-    iorwf   temp+2, f
+    iorwf   temp, f
     
     ; Indicator right
 output_local_get_state_indicator_right
@@ -395,7 +412,7 @@ output_local_get_state_indicator_right
     goto    output_local_get_state_hazard
     movlw   1
     call    light_table
-    iorwf   temp+2, f
+    iorwf   temp, f
    
     ; Hazard lights 
 output_local_get_state_hazard
@@ -403,7 +420,7 @@ output_local_get_state_hazard
     goto    output_local_get_state_end
     movlw   2
     call    light_table
-    iorwf   temp+2, f
+    iorwf   temp, f
 
     return
 
@@ -436,7 +453,7 @@ Output_get_setup_state
 ;   2:  local_blink
 ;   4:  slave
 ;   8:  slave_half
-;   16:  local_setup
+;   16: local_setup
 ;   32: slave_setup
 ;
 ; Resulting light pattern is in w
