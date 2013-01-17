@@ -3,20 +3,25 @@
 
     #include    hw.tmp
 
+
     GLOBAL Init_lights
     GLOBAL Output_lights
 
 
+    ; Functions and variables imported from utils.asm
     EXTERN TLC5916_send
+    EXTERN UART_send_w
     EXTERN light_data
     
         
+    ; Functions and variables imported from master.asm
     EXTERN blink_mode
     EXTERN light_mode
     EXTERN drive_mode
     EXTERN setup_mode
     EXTERN startup_mode
     EXTERN servo
+
 
 ; Bitfields in variable blink_mode
 #define BLINK_MODE_BLINKFLAG 0          ; Toggles with 1.5 Hz
@@ -410,15 +415,5 @@ light_table
     goto    slave_setup_light_table
     return
     
-
-;******************************************************************************
-; Send W out via the UART
-;******************************************************************************
-UART_send_w
-    btfss   PIR1, TXIF
-    goto    UART_send_w ; Wait for transmitter interrupt flag
-
-    movwf   TXREG	    ; Send data stored in W
-    return    
 
     END

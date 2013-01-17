@@ -1,8 +1,5 @@
 TO DO LIST for the RC Light Controller
 
-* Split code into reusable modules
-    * Steering wheel servo function
-
 * Add documentation about the different supported configurations
 
 * Add documentation on how to build the firmware
@@ -11,11 +8,9 @@ TO DO LIST for the RC Light Controller
 
 * Switch to a more modern and faster PIC chip
     * Have the code independent of the PIC chip?
-
-* Make steering_reverse user configurable through CH3
   
 * Sort out duplicate of temp, d0 ...; Specify and enforce usage rules. Think about
   parameter passing. 
   
-* Move UART functions into utils
-
+* Make steering_reverse user configurable through CH3
+  

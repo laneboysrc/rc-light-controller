@@ -20,21 +20,8 @@
 
 
     ; Functions imported from utils.asm
-    EXTERN  Min
-    EXTERN  Max
-    EXTERN  Add_y_to_x
-    EXTERN  Sub_y_from_x
-    EXTERN  If_x_eq_y
-    EXTERN  If_y_lt_x
-    EXTERN  Min_x_z
-    EXTERN  Max_x_z
-    EXTERN  Mul_xl_by_w
-    EXTERN  Div_x_by_y
-    EXTERN  Mul_x_by_100
-    EXTERN  Div_x_by_4
-    EXTERN  Mul_x_by_6
-    EXTERN  Add_x_and_780    
-    EXTERN  TLC5916_send
+    EXTERN TLC5916_send
+    EXTERN UART_read_byte
 
     EXTERN  xl
     EXTERN  xh
@@ -190,7 +177,7 @@ Init
     ; Initialise the chip (macro included from hw_*.tmp)
     IO_INIT_SLAVE
 
-    call Init_steering_wheel_servo
+    call    Init_steering_wheel_servo
 
     bcf     INTCON, T0IF    ; Clear Timer0 Interrupt Flag    
     bcf     PIR1, CCP1IF    ; Clear Timer1 Compare Interrupt Flag
@@ -218,97 +205,28 @@ Main_loop
 ; protocol frame via the UART.
 ;******************************************************************************
 Read_UART
-    call    read_UART_byte
+    call    UART_read_byte
     sublw   SLAVE_MAGIC_BYTE        ; First byte the magic byte?
     bnz     Read_UART               ; No: wait for 0x8f to appear
 
 read_UART_byte_2
-    call    read_UART_byte
+    call    UART_read_byte
     movwf   uart_light_mode         ; Store 2nd byte
     sublw   SLAVE_MAGIC_BYTE        ; Is it the magic byte?
     bz      read_UART_byte_2        ; Yes: we must be out of sync...
 
 read_UART_byte_3
-    call    read_UART_byte
+    call    UART_read_byte
     movwf   uart_light_mode_half
     sublw   SLAVE_MAGIC_BYTE
     bz      read_UART_byte_2
 
 read_UART_byte_4
-    call    read_UART_byte
+    call    UART_read_byte
     movwf   uart_servo
     sublw   SLAVE_MAGIC_BYTE
     bz      read_UART_byte_2
     return
-
-
-;******************************************************************************
-; read_UART_byte
-;
-; Recieve one byte from the UART in W.
-;
-; To enable reception of a byte, CREN must be 1. 
-;
-; On any error, recover by pulsing CREN low then back to high. 
-;
-; When a byte has been received the RCIF flag will be set. RCIF is 
-; automatically cleared when RCREG is read and empty. RCREG is double buffered, 
-; so it is a two byte deep FIFO. If a third byte comes in, then OERR is set. 
-; You can still recover the two bytes in the FIFO, but the third (newest) is 
-; lost. CREN must be pulsed negative to clear the OERR flag. 
-;
-; On a framing error FERR is set. FERR is automatically reset when RCREG is 
-; read, so errors must be tested for *before* RCREG is read. It is *NOT* 
-; recommended that you ignore the error flags. Eventually an error will cause 
-; the receiver to hang up if you don't clear the error condition.
-;******************************************************************************
-read_UART_byte
-	btfsc   RCSTA, OERR
-	goto    overerror       ; if overflow error...
-	btfsc   RCSTA, FERR
-	goto	frameerror      ; if framing error...
-uart_ready
-	btfss	PIR1, RCIF
-	goto	read_UART_byte  ; if not ready, wait...	
-
-uart_gotit
-	bcf     INTCON, GIE     ; Turn GIE off. This is IMPORTANT!
-	btfsc	INTCON, GIE     ; MicroChip recommends this check!
-	goto 	uart_gotit      ; !!! GOTCHA !!! without this check
-                            ;   you are not sure gie is cleared!
-	movf	RCREG, w        ; Read UART data
-	bsf     INTCON, GIE     ; Re-enable interrupts
-	return
-
-overerror	   		
-    ; Over-run errors are usually caused by the incoming data building up in 
-    ; the fifo. This is often the case when the program has not read the UART
-    ; in a while. Flushing the FIFO will allow normal input to resume.
-    ; Note that flushing the FIFO also automatically clears the FERR flag.
-    ; Pulsing CREN resets the OERR flag.
-
-	bcf     INTCON, GIE
-	btfsc	INTCON, GIE
-	goto 	overerror
-
-	bcf     RCSTA, CREN     ; Pulse CREN off...
-	movf	RCREG, w        ; Flush the FIFO, all 3 elements
-	movf	RCREG, w		
-	movf	RCREG, w
-	bsf     RCSTA, CREN     ; Turn CREN back on. This pulsing clears OERR
-	bsf     INTCON, GIE
-	goto	read_UART_byte  ; Try again...
-
-frameerror			
-    ; Framing errors are usually due to wrong baud rate coming in.
-
-	bcf     INTCON, GIE
-	btfsc	INTCON, GIE
-	goto 	frameerror
-
-	movf	RCREG,w		;reading rcreg clears ferr flag.
-	bsf     INTCON, GIE
-	goto	read_UART_byte  ; Try again...
 
 
 ;******************************************************************************

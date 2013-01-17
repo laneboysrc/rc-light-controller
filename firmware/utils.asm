@@ -22,6 +22,7 @@
     GLOBAL  zl
     GLOBAL  zh
     GLOBAL  light_data
+
     
 ;******************************************************************************
 ; Relocatable variables section
@@ -470,6 +471,92 @@ ENDIF ; PORT_OE
 ENDIF ; PORT_LE
 ENDIF ; PORT_CLK
 ENDIF ; PORT_SDI
+
+    
+
+;******************************************************************************
+; Send W out via the UART
+;******************************************************************************
+.utils_UART_send_w CODE
+    GLOBAL UART_send_w
+UART_send_w
+    btfss   PIR1, TXIF
+    goto    $-1         ; Wait for transmitter interrupt flag
+
+    movwf   TXREG	    ; Send data stored in W
+    return    
+
+
+;******************************************************************************
+; UART_read_byte
+;
+; Recieve one byte from the UART in W.
+;
+; To enable reception of a byte, CREN must be 1. 
+;
+; On any error, recover by pulsing CREN low then back to high. 
+;
+; When a byte has been received the RCIF flag will be set. RCIF is 
+; automatically cleared when RCREG is read and empty. RCREG is double buffered, 
+; so it is a two byte deep FIFO. If a third byte comes in, then OERR is set. 
+; You can still recover the two bytes in the FIFO, but the third (newest) is 
+; lost. CREN must be pulsed negative to clear the OERR flag. 
+;
+; On a framing error FERR is set. FERR is automatically reset when RCREG is 
+; read, so errors must be tested for *before* RCREG is read. It is *NOT* 
+; recommended that you ignore the error flags. Eventually an error will cause 
+; the receiver to hang up if you don't clear the error condition.
+;******************************************************************************
+.utils_UART_read_byte CODE
+    GLOBAL UART_read_byte
+UART_read_byte
+	btfsc   RCSTA, OERR
+	goto    overerror       ; if overflow error...
+	btfsc   RCSTA, FERR
+	goto	frameerror      ; if framing error...
+uart_ready
+	btfss	PIR1, RCIF
+	goto	UART_read_byte  ; if not ready, wait...	
+
+uart_gotit
+	bcf     INTCON, GIE     ; Turn GIE off. This is IMPORTANT!
+	btfsc	INTCON, GIE     ; MicroChip recommends this check!
+	goto 	uart_gotit      ; !!! GOTCHA !!! without this check
+                            ;   you are not sure gie is cleared!
+	movf	RCREG, w        ; Read UART data
+	bsf     INTCON, GIE     ; Re-enable interrupts
+	return
+
+overerror	   		
+    ; Over-run errors are usually caused by the incoming data building up in 
+    ; the fifo. This is often the case when the program has not read the UART
+    ; in a while. Flushing the FIFO will allow normal input to resume.
+    ; Note that flushing the FIFO also automatically clears the FERR flag.
+    ; Pulsing CREN resets the OERR flag.
+
+	bcf     INTCON, GIE
+	btfsc	INTCON, GIE
+	goto 	overerror
+
+	bcf     RCSTA, CREN     ; Pulse CREN off...
+	movf	RCREG, w        ; Flush the FIFO, all 3 elements
+	movf	RCREG, w		
+	movf	RCREG, w
+	bsf     RCSTA, CREN     ; Turn CREN back on. This pulsing clears OERR
+	bsf     INTCON, GIE
+	goto	UART_read_byte  ; Try again...
+
+frameerror			
+    ; Framing errors are usually due to wrong baud rate coming in.
+
+	bcf     INTCON, GIE
+	btfsc	INTCON, GIE
+	goto 	frameerror
+
+	movf	RCREG,w		;reading rcreg clears ferr flag.
+	bsf     INTCON, GIE
+	goto	UART_read_byte  ; Try again...
+
 
 
     END     ; Directive 'end of program'

@@ -19,29 +19,8 @@
     GLOBAL startup_mode
 
 
-    ; Functions imported from utils.asm
-    EXTERN Min
-    EXTERN Max
-    EXTERN Add_y_to_x
-    EXTERN Sub_y_from_x
-    EXTERN If_x_eq_y
-    EXTERN If_y_lt_x
-    EXTERN Min_x_z
-    EXTERN Max_x_z
-    EXTERN Mul_xl_by_w
-    EXTERN Div_x_by_y
-    EXTERN Mul_x_by_100
-    EXTERN Div_x_by_4
-    EXTERN Mul_x_by_6
-    EXTERN Add_x_and_780    
-    EXTERN TLC5916_send
-    
-    EXTERN xl
-    EXTERN xh
-    EXTERN yl
-    EXTERN yh
-    EXTERN zl
-    EXTERN zh
+    ; Functions and variables imported from utils.asm
+    EXTERN UART_send_w
 
 
     ; Functions and variables imported from *_reader.asm
@@ -128,17 +107,6 @@ Output_preprocessed_channels
     call    UART_send_w        
     
     return
-    
-
-;******************************************************************************
-; Send W out via the UART
-;******************************************************************************
-UART_send_w
-    btfss   PIR1, TXIF
-    goto    UART_send_w ; Wait for transmitter interrupt flag
-
-    movwf   TXREG	    ; Send data stored in W
-    return    
 
 
     END     ; Directive 'end of program'

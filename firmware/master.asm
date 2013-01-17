@@ -44,6 +44,7 @@
     EXTERN Div_x_by_4
     EXTERN Mul_x_by_6
     EXTERN Add_x_and_780    
+    EXTERN UART_send_w
 
     EXTERN xl
     EXTERN xh
