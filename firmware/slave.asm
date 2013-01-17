@@ -16,6 +16,9 @@
     #include    hw.tmp
 
 
+    GLOBAL servo
+
+
     ; Functions imported from utils.asm
     EXTERN  Min
     EXTERN  Max
@@ -31,6 +34,7 @@
     EXTERN  Div_x_by_4
     EXTERN  Mul_x_by_6
     EXTERN  Add_x_and_780    
+    EXTERN  TLC5916_send
 
     EXTERN  xl
     EXTERN  xh
@@ -38,6 +42,12 @@
     EXTERN  yh
     EXTERN  zl
     EXTERN  zh
+    EXTERN  light_data     
+
+     
+    ; Functions and variables imported from steering_wheel_servo.asm
+    EXTERN Init_steering_wheel_servo
+    EXTERN Make_steering_wheel_servo_pulse     
 
 
 #define SLAVE_MAGIC_BYTE    0x87
@@ -51,15 +61,16 @@
 ;******************************************************************************
 ;* VARIABLE DEFINITIONS
 ;******************************************************************************
-    
-.udata_int UDATA 0x70       ; 16 Bytes that are accessible via any bank!
+.data_slave_int UDATA 0x70  ; 16 Bytes that are accessible via any bank!
+
 savew               res 1   ; Interrupt save registers
 savestatus	        res 1
 savepclath          res 1
 savefsr             res 1
 
 
-    UDATA           
+.data_slave UDATA           
+
 servo_sync_flag     res 1
 pwm_counter         res 1
 int_temp            res 1
@@ -71,6 +82,7 @@ uart_servo          res 1
 
 light_mode          res 1
 light_mode_half     res 1
+servo               res 1
 
 temp                res 1
 d0                  res 1
@@ -80,13 +92,15 @@ d0                  res 1
 ; Reset vector 
 ;******************************************************************************
 .code_reset CODE    0x000           
+
     goto    Init
 
 
 ;******************************************************************************
 ; Interrupt vector
 ;******************************************************************************
-.code_int   CODE     0x004           
+.code_int   CODE     0x004   
+        
 Interrupt_handler
 	movwf	savew           ; Save W register                               (1)
 	movf	STATUS, w       ; W now has copy of status                      (1)
@@ -166,27 +180,17 @@ int_clean
 ;******************************************************************************
 ; Relocatable code section
 ;******************************************************************************
-    CODE
-
+.code_slave CODE
 
 ;******************************************************************************
 ; Initialization
 ;******************************************************************************
 Init
     ;-----------------------------
-    ; Initialise the chip (macro included from io_master.tmp)
+    ; Initialise the chip (macro included from hw_*.tmp)
     IO_INIT_SLAVE
 
-    movlw   b'00001010'
-            ; |||||||+ CCPM0 (Compare mode, generate software interrupt on 
-            ; ||||||+- CCPM1  match (CCP1IF bit is set, CCP1 pin is unaffected)
-            ; |||||+-- CCPM2 
-            ; ||||+--- CCPM3 
-            ; |||+---- CCP1Y (not used)
-            ; ||+----- CCP1X (not used)
-            ; |+------ 
-            ; +------- 
-    movwf   CCP1CON
+    call Init_steering_wheel_servo
 
     bcf     INTCON, T0IF    ; Clear Timer0 Interrupt Flag    
     bcf     PIR1, CCP1IF    ; Clear Timer1 Compare Interrupt Flag
@@ -203,7 +207,7 @@ Init
 Main_loop
     call    Read_UART
     call    Set_light_mode
-    call    Make_servo_pulse    
+    call    Make_steering_wheel_servo_pulse   
     goto    Main_loop
 
 
@@ -214,58 +218,6 @@ Main_loop
 ; protocol frame via the UART.
 ;******************************************************************************
 Read_UART
-    IFDEF   DEBUG
-    bsf     servo_sync_flag, 0
-    btfsc   servo_sync_flag, 0
-    goto    $ - 1   
-
-    bsf     servo_sync_flag, 0
-    btfsc   servo_sync_flag, 0
-    goto    $ - 1   
-
-    bsf     servo_sync_flag, 0
-    btfsc   servo_sync_flag, 0
-    goto    $ - 1   
-
-    bsf     servo_sync_flag, 0
-    btfsc   servo_sync_flag, 0
-    goto    $ - 1   
-
-    bsf     servo_sync_flag, 0
-    btfsc   servo_sync_flag, 0
-    goto    $ - 1   
-
-    bsf     servo_sync_flag, 0
-    btfsc   servo_sync_flag, 0
-    goto    $ - 1   
-
-    bsf     servo_sync_flag, 0
-    btfsc   servo_sync_flag, 0
-    goto    $ - 1   
-
-    bsf     servo_sync_flag, 0
-    btfsc   servo_sync_flag, 0
-    goto    $ - 1   
-
-    bsf     servo_sync_flag, 0
-    btfsc   servo_sync_flag, 0
-    goto    $ - 1   
-
-    bsf     servo_sync_flag, 0
-    btfsc   servo_sync_flag, 0
-    goto    $ - 1   
-
-    movlw   b'01001001'
-    movwf   uart_light_mode 
-    movlw   b'10010010'
-    movwf   uart_light_mode_half
-    movlw   0
-    movwf   uart_servo
-
-    return
-    ENDIF
-
-
     call    read_UART_byte
     sublw   SLAVE_MAGIC_BYTE        ; First byte the magic byte?
     bnz     Read_UART               ; No: wait for 0x8f to appear
@@ -368,71 +320,22 @@ Set_light_mode
     movwf   light_mode_half
     return    
 
-    
+
 ;******************************************************************************
-Make_servo_pulse    
-    movf    uart_servo, w
-    addlw   120
-    movwf   xl
-    call    Mul_x_by_6
-    call    Add_x_and_780
-
-    clrf    T1CON           ; Stop timer 1, runs at 1us per tick, internal osc
-    clrf    TMR1H           ; Reset the timer to 0
-    clrf    TMR1L
-    movf    xl, w           ; Load Timer1 compare register with the servo time
-    movwf   CCPR1L
-    movf    xh, w
-    movwf   CCPR1H
-    bcf     PIR1, CCP1IF    ; Clear Timer1 compare interrupt flag
-
-
+Process_steering_wheel_servo
+IFDEF ENABLE_SERVO_OUTPUT    
     ; Synchronize with the interrupt to ensure the servo pulse is not
     ; interrupted and stays precise (i.e. no servo chatter)
     bsf     servo_sync_flag, 0
     btfsc   servo_sync_flag, 0
     goto    $ - 1
 
-   
-    bsf     T1CON, 0        ; Start timer 1
-    bsf     PORT_SERVO      ; Set servo port to high pulse
-
-    btfss   PIR1, CCP1IF    ; Wait for compare value reached
-    goto    $ - 1
-
-    bcf     PORT_SERVO      ; Turn off servo pulse
-    clrf    T1CON           ; Stop timer 1
-    bcf     PIR1, CCP1IF
-
+    movf    uart_servo
+    movwf   servo    
+    
+    call    Make_steering_wheel_servo_pulse
+ENDIF
     return
-
-
-;******************************************************************************
-; TLC5916_send
-;
-; Sends the value in the temp register to the TLC5916 LED driver.
-;******************************************************************************
-TLC5916_send
-    movlw   8
-    movwf   d0
-
-tlc5916_send_loop
-    rlf     temp, f
-    skpc    
-    bcf     PORT_SDI
-    skpnc    
-    bsf     PORT_SDI
-    bsf     PORT_CLK
-    bcf     PORT_CLK
-    decfsz  d0, f
-    goto    tlc5916_send_loop
-
-    bsf     PORT_LE
-    bcf     PORT_LE
-    bcf     PORT_OE
-    return
-
-
 
     END
 

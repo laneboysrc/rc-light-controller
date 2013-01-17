@@ -64,6 +64,11 @@
     EXTERN throttle_abs       
     EXTERN ch3                 
      
+     
+    ; Functions and variables imported from steering_wheel_servo.asm
+    EXTERN Init_steering_wheel_servo
+    EXTERN Make_steering_wheel_servo_pulse     
+
     
 #define CH3_BUTTON_TIMEOUT 6    ; Time in which we accept double-click of CH3
 #define BLINK_COUNTER_VALUE 5   ; 5 * 65.536 ms = ~333 ms = ~1.5 Hz
@@ -188,7 +193,7 @@ swap_x_y    macro   x, y
 ;******************************************************************************
 ; Relocatable code section
 ;******************************************************************************
-    CODE
+.code_master CODE
 
 ;******************************************************************************
 ; Initialization
@@ -198,22 +203,13 @@ Init
     ; Initialise the chip (macro included from hw_*.tmp)
     IO_INIT_MASTER
 
-    ; Steering servo related initalization
-    movlw   b'00001010'
-            ; |||||||+ CCPM0 (Compare mode, generate software interrupt on 
-            ; ||||||+- CCPM1  match (CCP1IF bit is set, CCP1 pin is unaffected)
-            ; |||||+-- CCPM2 
-            ; ||||+--- CCPM3 
-            ; |||+---- CCP1Y (not used)
-            ; ||+----- CCP1X (not used)
-            ; |+------ 
-            ; +------- 
-    movwf   CCP1CON
-
     call    Init_lights
 
-    call    EEPROM_load_persistent_data
+    IFDEF   ENABLE_SERVO_OUTPUT
+    call    Init_steering_wheel_servo
+    ENDIF
 
+    call    EEPROM_load_persistent_data
     call    Init_reader
 
     movlw   BLINK_COUNTER_VALUE
@@ -237,43 +233,10 @@ Main_loop
     call    Output_lights
     
     IFDEF   ENABLE_SERVO_OUTPUT
-    call    Make_servo_pulse
+    call    Make_steering_wheel_servo_pulse
     ENDIF
 
     goto    Main_loop
-
-
-;******************************************************************************
-    IFDEF ENABLE_SERVO_OUTPUT    
-Make_servo_pulse    
-    movf    servo, w
-    addlw   120
-    movwf   xl
-    clrf    xh
-    call    Mul_x_by_6
-    call    Add_x_and_780
-
-    clrf    T1CON           ; Stop timer 1, runs at 1us per tick, internal osc
-    clrf    TMR1H           ; Reset the timer to 0
-    clrf    TMR1L
-    movf    xl, w           ; Load Timer1 compare register with the servo time
-    movwf   CCPR1L
-    movf    xh, w
-    movwf   CCPR1H
-    bcf     PIR1, CCP1IF    ; Clear Timer1 compare interrupt flag
-  
-    bsf     T1CON, 0        ; Start timer 1
-    bsf     PORT_SERVO      ; Set servo port to high pulse
-
-    btfss   PIR1, CCP1IF    ; Wait for compare value reached
-    goto    $ - 1
-
-    bcf     PORT_SERVO      ; Turn off servo pulse
-    clrf    T1CON           ; Stop timer 1
-    bcf     PIR1, CCP1IF
-
-    return
-    ENDIF    
 
     
 ;******************************************************************************
@@ -1098,6 +1061,3 @@ EEPROM_read_byte
 
 
     END     ; Directive 'end of program'
-
-
-

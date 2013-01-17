@@ -35,7 +35,7 @@ dingo-master: hw_original.inc
 .PHONY: dingo-slave
 dingo-slave : hw_original.inc
 	$(eval CFLAGS = -D ENABLE_SERVO_OUTPUT)
-	$(eval files = slave utils)
+	$(eval files = slave steering-wheel-servo utils)
 	$(build)
 
 
@@ -54,7 +54,7 @@ xr311-preprocessor : hw_preprocessor_16f628a.inc
 .PHONY: xr311-master
 xr311-master : hw_original.inc
 	$(eval CFLAGS = -D DUAL_TLC5916 -D ENABLE_SERVO_OUTPUT -D LIGHT_MODE_MASK=0x03)
-	$(eval files = master uart-reader utils xr311-lights)
+	$(eval files = master uart-reader steering-wheel-servo utils xr311-lights)
 	$(build)
 	
 
