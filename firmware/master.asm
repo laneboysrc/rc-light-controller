@@ -131,7 +131,7 @@
 ; Note: the higher 4 bits are used so we can simply "or" it with ch3
 ; and send it to the slave
 #define STARTUP_MODE_NEUTRAL 4      ; Waiting before reading ST/TH neutral
-#define STARTUP_MODE_REVERSING 5    ; Waiting for Forward/Left to obtain direction
+
 
 IFNDEF LIGHT_MODE_MASK
 #define LIGHT_MODE_MASK b'00001111'
