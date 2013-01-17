@@ -3,11 +3,14 @@
 
     #include    hw.tmp
 
-    GLOBAL Init_local_lights
-    GLOBAL Output_local_lights
+    GLOBAL Init_lights
+    GLOBAL Output_lights
+
 
     EXTERN TLC5916_send
+    EXTERN light_data
     
+        
     EXTERN blink_mode
     EXTERN light_mode
     EXTERN drive_mode
@@ -204,18 +207,18 @@ slave_setup_light_table
 .lights CODE
 
 ;******************************************************************************
-; Init_local_lights
+; Init_lights
 ;******************************************************************************
-Init_local_lights
+Init_lights
     clrf    temp
     call    TLC5916_send
     return
     
     
 ;******************************************************************************
-; Output_local_lights
+; Output_lights
 ;******************************************************************************
-Output_local_lights
+Output_lights
     movf    setup_mode, f
     bnz     output_local_lights_setup
 

@@ -3,8 +3,8 @@
 
     #include    hw.tmp
 
-    GLOBAL Init_local_lights
-    GLOBAL Output_local_lights
+    GLOBAL Init_lights
+    GLOBAL Output_lights
 
     
     EXTERN blink_mode
@@ -61,9 +61,9 @@ temp                res 1
 .lights CODE
 
 ;******************************************************************************
-; Init_local_lights
+; Init_lights
 ;******************************************************************************
-Init_local_lights
+Init_lights
     clrf    PORTA
     clrf    PORTB
     call    light_parking_on
@@ -71,14 +71,14 @@ Init_local_lights
 
 
 ;******************************************************************************
-; Output_local_lights
+; Output_lights
 ;******************************************************************************
-Output_local_lights
+Output_lights
     movf    startup_mode, f
-    bnz     _output_local_lights_startup
+    bnz     _output_lights_startup
 
     movf    setup_mode, f
-    bnz     _output_local_lights_setup
+    bnz     _output_lights_setup
 
     btfsc   light_mode, LIGHT_MODE_PARKING
     call    light_parking_on
@@ -98,11 +98,11 @@ Output_local_lights
     ; The brake light and tail light is combined, so turn the low brightness
     ; tail light off when braking is engaged
     btfsc   drive_mode, DRIVE_MODE_BRAKE    
-    goto    _output_local_lights_tail_off    
+    goto    _output_lights_tail_off    
     btfsc   light_mode, LIGHT_MODE_PARKING
     call    light_tail_on
     btfss   light_mode, LIGHT_MODE_PARKING
-_output_local_lights_tail_off    
+_output_lights_tail_off    
     call    light_tail_off
 
     btfsc   drive_mode, DRIVE_MODE_BRAKE
@@ -117,16 +117,16 @@ _output_local_lights_tail_off
 
 
     btfss   blink_mode, BLINK_MODE_BLINKFLAG
-    goto    _output_local_lights_indicators_off
+    goto    _output_lights_indicators_off
 
     btfsc   blink_mode, BLINK_MODE_HAZARD
-    goto    _output_local_lights_check_indicator
+    goto    _output_lights_check_indicator
     
     call    light_indicator_left_on
     call    light_indicator_right_on
-    goto    _output_local_lights_blinking_end
+    goto    _output_lights_blinking_end
 
-_output_local_lights_check_indicator
+_output_lights_check_indicator
     btfsc   blink_mode, BLINK_MODE_INDICATOR_LEFT
     call    light_indicator_left_on
     btfss   blink_mode, BLINK_MODE_INDICATOR_LEFT
@@ -135,21 +135,21 @@ _output_local_lights_check_indicator
     call    light_indicator_right_on
     btfss   blink_mode, BLINK_MODE_INDICATOR_RIGHT
     call    light_indicator_right_off
-    goto    _output_local_lights_blinking_end
+    goto    _output_lights_blinking_end
 
-_output_local_lights_indicators_off
+_output_lights_indicators_off
     call    light_indicator_left_off
     call    light_indicator_right_off
 
-_output_local_lights_blinking_end
+_output_lights_blinking_end
     return
 
 
-_output_local_lights_setup
+_output_lights_setup
     ; No steering wheel servo in this car so don't bother ...
     return    
 
-_output_local_lights_startup
+_output_lights_startup
     call    light_parking_off
     call    light_roof_off
     call    light_tail_off

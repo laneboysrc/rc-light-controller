@@ -25,8 +25,8 @@
 
 
     ; Functions imported from <car>-lights.asm
-    EXTERN Init_local_lights
-    EXTERN Output_local_lights
+    EXTERN Init_lights
+    EXTERN Output_lights
 
 
     ; Functions and variables imported from utils.asm
@@ -210,7 +210,7 @@ Init
             ; +------- 
     movwf   CCP1CON
 
-    call    Init_local_lights
+    call    Init_lights
 
     call    EEPROM_load_persistent_data
 
@@ -234,7 +234,7 @@ Main_loop
     call    Process_steering_wheel_servo
     call    Service_timer0
 
-    call    Output_local_lights
+    call    Output_lights
     
     IFDEF   ENABLE_SERVO_OUTPUT
     call    Make_servo_pulse
