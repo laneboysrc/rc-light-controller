@@ -23,14 +23,6 @@
     EXTERN TLC5916_send
     EXTERN UART_read_byte
 
-    EXTERN  xl
-    EXTERN  xh
-    EXTERN  yl
-    EXTERN  yh
-    EXTERN  zl
-    EXTERN  zh
-    EXTERN  light_data     
-
      
     ; Functions and variables imported from steering_wheel_servo.asm
     EXTERN Init_steering_wheel_servo
@@ -70,9 +62,6 @@ uart_servo          res 1
 light_mode          res 1
 light_mode_half     res 1
 servo               res 1
-
-temp                res 1
-d0                  res 1
 
 
 ;******************************************************************************

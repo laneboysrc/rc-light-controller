@@ -42,13 +42,20 @@
     EXTERN Mul_x_by_6
     EXTERN Add_x_and_780    
     
+    EXTERN wl
+    EXTERN wh
     EXTERN xl
     EXTERN xh
     EXTERN yl
     EXTERN yh
     EXTERN zl
     EXTERN zh
+    EXTERN d1
+    EXTERN d2
+    EXTERN temp
 
+
+    ; Functions imported from master.asm or preprocessor.asm
     EXTERN startup_mode
 
 
@@ -121,15 +128,6 @@ flags               res 1
 
 init_prescaler      res 1
 init_counter        res 1
-
-wl                  res 1
-wh                  res 1
-
-d0                  res 1
-d1                  res 1
-d2                  res 1
-d3                  res 1
-temp                res 1
 
 
 ;******************************************************************************

@@ -11,6 +11,9 @@
     ; Functions and variables imported from utils.asm
     EXTERN TLC5916_send
     EXTERN UART_send_w
+
+    EXTERN d0
+    EXTERN temp
     EXTERN light_data
     
         
@@ -66,9 +69,6 @@
 ; Relocatable variables section
 ;******************************************************************************
 .data_lights UDATA
-
-d0                  res 1
-temp                res 1
 
 
 ;============================================================================

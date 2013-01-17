@@ -106,7 +106,7 @@ _IO_INIT_COMMON macro   master
     endif
 
 
-    BANKSEL d0
+    BANKSEL 0
     ;-----------------------------
     ; Clear all memory locations between 0x20 and 0x7f
     movlw   0x7f

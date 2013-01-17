@@ -46,12 +46,19 @@
     EXTERN Add_x_and_780    
     EXTERN UART_send_w
 
+    EXTERN wl
+    EXTERN wh
     EXTERN xl
     EXTERN xh
     EXTERN yl
     EXTERN yh
     EXTERN zl
     EXTERN zh
+    EXTERN d0
+    EXTERN d1
+    EXTERN d2
+    EXTERN d3
+    EXTERN temp
 
 
     ; Functions and variables imported from *_reader.asm
@@ -159,15 +166,6 @@ servo_epr           res 1
 servo_setup_epl     res 1
 servo_setup_centre  res 1
 servo_setup_epr     res 1
-
-d0                  res 1 ; Delay and temp registers
-d1                  res 1
-d2                  res 1
-d3                  res 1
-temp                res 3 ; Reserve extra bytes labeled temp+1, temp+2 ...
-
-wl                  res 1 ; Temporary parameters for 16 bit math functions
-wh                  res 1
 
 
 ;******************************************************************************

@@ -15,13 +15,22 @@
     #include    hw.tmp
 
 
-    GLOBAL  xl
-    GLOBAL  xh
-    GLOBAL  yl
-    GLOBAL  yh
-    GLOBAL  zl
-    GLOBAL  zh
-    GLOBAL  light_data
+    GLOBAL wl
+    GLOBAL wh
+    GLOBAL xl
+    GLOBAL xh
+    GLOBAL yl
+    GLOBAL yh
+    GLOBAL zl
+    GLOBAL zh
+
+    GLOBAL d0
+    GLOBAL d1
+    GLOBAL d2
+    GLOBAL d3
+    GLOBAL temp
+
+    GLOBAL light_data
 
     
 ;******************************************************************************
@@ -29,6 +38,8 @@
 ;******************************************************************************
 .data_utils UDATA
 
+wl                  res 1
+wh                  res 1
 xl                  res 1
 xh                  res 1
 yl                  res 1
@@ -38,6 +49,8 @@ zh                  res 1
 
 d0                  res 1
 d1                  res 1
+d2                  res 1
+d3                  res 1
 temp                res 1
 
 IFDEF DUAL_TLC5916

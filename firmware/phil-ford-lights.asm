@@ -7,13 +7,14 @@
     GLOBAL Output_lights
 
     
+    ; Functions and variables imported from master.asm
     EXTERN blink_mode
     EXTERN light_mode
     EXTERN drive_mode
     EXTERN setup_mode
     EXTERN startup_mode
 
-
+    
 ; Bitfields in variable blink_mode
 #define BLINK_MODE_BLINKFLAG 0          ; Toggles with 1.5 Hz
 #define BLINK_MODE_HAZARD 1             ; Hazard lights active
@@ -50,9 +51,6 @@
 ; Relocatable variables section
 ;******************************************************************************
 .data_lights UDATA
-
-d0                  res 1
-temp                res 1
 
 
 ;============================================================================
