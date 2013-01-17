@@ -1,6 +1,6 @@
 ;******************************************************************************
 ;
-;   rc-light-controller-intelligent-slave.asm
+;   master.asm
 ;
 ;******************************************************************************
 ;
@@ -8,7 +8,7 @@
 ;   E-mail:         laneboysrc@gmail.com
 ;
 ;******************************************************************************
-    TITLE       RC Light Controller
+    TITLE       RC Light Controller - Master
     LIST        r=dec
     RADIX       dec
 
@@ -59,8 +59,10 @@
     
     EXTERN steering            
     EXTERN steering_abs       
+    EXTERN steering_reverse
     EXTERN throttle            
     EXTERN throttle_abs       
+    EXTERN throttle_reverse
     EXTERN ch3                 
      
     
@@ -197,8 +199,6 @@ Init
     ; Initialise the chip (macro included from hw_*.tmp)
     IO_INIT_MASTER
 
-    call    Init_local_lights
-
     ; Steering servo related initalization
     movlw   b'00001010'
             ; |||||||+ CCPM0 (Compare mode, generate software interrupt on 
@@ -210,12 +210,15 @@ Init
             ; |+------ 
             ; +------- 
     movwf   CCP1CON
-    call    Servo_load_values
+
+    call    Init_local_lights
+
+    call    EEPROM_load_persistent_data
+
+    call    Init_reader
 
     movlw   BLINK_COUNTER_VALUE
     movwf   blink_counter
-
-    call    Init_reader
     
 ;   goto    Main_loop    
 
@@ -229,8 +232,8 @@ Main_loop
     call    Process_ch3_double_click
     call    Process_drive_mode
     call    Process_indicators
-    call    Process_steering_servo
-    call   Service_timer0
+    call    Process_steering_wheel_servo
+    call    Service_timer0
 
     call    Output_local_lights
     
@@ -839,7 +842,7 @@ process_indicators_blink_right_wait_centre
 
 
 ;******************************************************************************
-; Process_steering_servo
+; Process_steering_wheel_servo
 ;
 ; This function calculates:
 ;
@@ -853,7 +856,7 @@ process_indicators_blink_right_wait_centre
 ;******************************************************************************
 #define SIGN_FLAG wl
 
-Process_steering_servo
+Process_steering_wheel_servo
     movf    setup_mode, f
     bz      process_steering_servo_no_setup
 
@@ -909,13 +912,13 @@ process_steering_servo_setup_right
     movwf   servo_epl         
     movf    servo_setup_centre, w         
     movwf   servo_centre
-    call    Servo_store_values
+    call    EEPROM_save_persistent_data
     clrf    setup_mode
     return
 
 process_steering_servo_setup_cancel
     clrf    setup_mode
-    call    Servo_load_values
+    call    EEPROM_load_persistent_data
     return
 
 process_steering_servo_no_setup
@@ -969,34 +972,22 @@ process_servo_not_negative
 
 
 ;******************************************************************************
-; Servo_load_values
+; EEPROM_load_persistent_data
 ; 
 ;******************************************************************************
-Servo_load_values
-    IFDEF   DEBUG
-    movlw   69                  ; 'E'   
-    call    UART_send_w
-    movlw   69                  ; 'E'   
-    call    UART_send_w
-    movlw   114                 ; 'r'   
-    call    UART_send_w
-    movlw   100                 ; 'd'   
-    call    UART_send_w
-    movlw   0x20                ; Space   
-    ENDIF
-
+EEPROM_load_persistent_data
     ; First check if the magic variables are intact. If not, assume the 
     ; EEPROM has not been initialized yet or is corrupted, so write default
     ; values back.
     movlw   EEPROM_ADR_MAGIC1
     call    EEPROM_read_byte
     sublw   EEPROM_MAGIC1
-    bnz     Servo_load_defaults
+    bnz     EEPROM_load_defaults
 
     movlw   EEPROM_ADR_MAGIC2
     call    EEPROM_read_byte
     sublw   EEPROM_MAGIC2
-    bnz     Servo_load_defaults
+    bnz     EEPROM_load_defaults
 
     movlw   EEPROM_ADR_SERVO_EPL
     call    EEPROM_read_byte
@@ -1009,19 +1000,6 @@ Servo_load_values
     movlw   EEPROM_ADR_SERVO_EPR
     call    EEPROM_read_byte
     movwf   servo_epr
-
-    IFDEF   DEBUG
-    call    UART_send_w
-    movf    servo_epl, w
-    call    UART_send_signed_char
-    movf    servo_centre, w
-    call    UART_send_signed_char
-    movf    servo_epr, w
-    call    UART_send_signed_char
-    movlw   0x0a                ; LF  
-    call    UART_send_w
-    ENDIF
-
     return
 
 
@@ -1029,30 +1007,7 @@ Servo_load_values
 ; Servo_store_values
 ; 
 ;******************************************************************************
-Servo_store_values
-    IFDEF   DEBUG
-    movlw   69                  ; 'E'   
-    call    UART_send_w
-    movlw   69                  ; 'E'   
-    call    UART_send_w
-    movlw   115                 ; 's'   
-    call    UART_send_w
-    movlw   116                 ; 't'   
-    call    UART_send_w
-    movlw   111                 ; 'o'   
-    call    UART_send_w
-    movlw   0x20                ; Space   
-    call    UART_send_w
-    movf    servo_epl, w
-    call    UART_send_signed_char
-    movf    servo_centre, w
-    call    UART_send_signed_char
-    movf    servo_epr, w
-    call    UART_send_signed_char
-    movlw   0x0a                ; LF   
-    call    UART_send_w
-    ENDIF
-
+EEPROM_save_persistent_data
     movf    servo_epl, w
     movwf   temp
     movlw   EEPROM_ADR_SERVO_EPL
@@ -1076,29 +1031,14 @@ Servo_store_values
 ; Load default values of -100..0..100 for the steering servo, write them 
 ; back to the EEPROM and write the 2 magic variables. 
 ;******************************************************************************
-Servo_load_defaults
-    IFDEF   DEBUG
-    movlw   69                  ; 'E'   
-    call    UART_send_w
-    movlw   69                  ; 'E'   
-    call    UART_send_w
-    movlw   100                 ; 'd'   
-    call    UART_send_w
-    movlw   101                 ; 'e'   
-    call    UART_send_w
-    movlw   102                 ; 'f'   
-    call    UART_send_w
-    movlw   0x0a                ; LF   
-    call    UART_send_w
-    ENDIF
-
+EEPROM_load_defaults
     movlw   -100
     movwf   servo_epl
     clrf    servo_centre
     movlw   100
     movwf   servo_epr
 
-    call    Servo_store_values
+    call    EEPROM_save_persistent_data
 
     movlw   EEPROM_MAGIC1
     movwf   temp

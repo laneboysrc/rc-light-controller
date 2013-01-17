@@ -20,8 +20,10 @@
 
     GLOBAL steering            
     GLOBAL steering_abs       
+    GLOBAL steering_reverse
     GLOBAL throttle            
     GLOBAL throttle_abs       
+    GLOBAL throttle_reverse
     GLOBAL ch3  
 
 
@@ -55,8 +57,29 @@
 ; Note: the higher 4 bits are used so we can simply "or" it with ch3
 ; and send it to the slave
 #define STARTUP_MODE_NEUTRAL 4      ; Waiting before reading ST/TH neutral
-#define STARTUP_MODE_REVERSING 5    ; Waiting for Forward/Left to obtain direction
 
+
+; The initial endpoint delta that is used right after initialization of the
+; neutrals. 
+; Example: 
+;   ep-left = centre - INITIAL_ENDPOINT_DELTA
+;   ep-right = centre + INITIAL_ENDPOINT_DELTA
+IFNDEF INITIAL_ENDPOINT_DELTA
+#define INITIAL_ENDPOINT_DELTA 200
+ENDIF
+
+; Specify the frequency in Hz with which the receiver outputs the servo signals.
+; Usually this is somewhere betwen 50 and 60 Hz. 
+; The HobbyKing HK310 uses 60 Hz.
+IFNDEF RECEIVER_OUTPUT_RATE 
+#define RECEIVER_OUTPUT_RATE 60
+ENDIF
+
+; Time in milliseconds to wait after startup before the neutral positions
+; are set and normal operation resumes
+IFNDEF STARTUP_WAIT_TIME
+#define STARTUP_WAIT_TIME 3000
+ENDIF
 
 ;******************************************************************************
 ;* VARIABLE DEFINITIONS
@@ -94,6 +117,9 @@ ch3_ep1             res 1
 
 reversing_mode      res 1
 
+init_prescaler      res 1
+init_counter        res 1
+
 wl                  res 1
 wh                  res 1
 
@@ -102,6 +128,7 @@ d1                  res 1
 d2                  res 1
 d3                  res 1
 temp                res 1
+
 
 ;******************************************************************************
 ;* MACROS
@@ -116,7 +143,6 @@ swap_x_y    macro   x, y
             endm
 
 
-
 ;******************************************************************************
 ; Relocatable code section
 ;******************************************************************************
@@ -126,7 +152,6 @@ swap_x_y    macro   x, y
 ; Initialization
 ;******************************************************************************
 Init_reader
-
     ; Load defaults for end points for position 0 and 1 of CH3; discard lower
     ; 4 bits so our math can use bytes only
     movlw   1000 >> 4
@@ -135,112 +160,15 @@ Init_reader
     movlw   2000 >> 4
     movwf   ch3_ep1
 
-    
-    
-;   goto Init_neutral
-
-
-;**********************************************************************
-; Initialize neutral for steering and throttle 5 seconds after power up
-; During this time we use all local LED outputs as running lights.
-;**********************************************************************
-Init_neutral
-    movlw   STARTUP_MODE_NEUTRAL
+    movlw   1 << STARTUP_MODE_NEUTRAL
     movwf   startup_mode    
-
-    clrf    xl
-    setc
-
-	movlw   50              ; Execute 100 ms delay loop 50 times    
-	movwf   d3
-
-init_delay1                 ; Delay loop of 100 ms
-	movlw   0x1f
-	movwf   d1
-	movlw   0x4f
-	movwf   d2
-init_delay2
-	decfsz	d1, f
-	goto	$+2
-	decfsz	d2, f
-	goto	init_delay2
-
-    rlf     xl, f
-    movf    xl, w
-    movwf   temp
-    movf    STATUS, w
-    movwf   xh
-
-    ;call    Output_slave
     
-    movf    xh, w
-    movwf   STATUS
-	decfsz	d3, f
-	goto	init_delay1
-
-    ;------------------------------------
-    call    Read_throttle
-    movf    throttle_h, w
-    movwf   throttle_centre_h
-    movf    throttle_l, w
-    movwf   throttle_centre_l
-
-    call    Read_steering
-    movf    steering_h, w
-    movwf   steering_centre_h
-    movwf   xh
-    movf    steering_l, w
-    movwf   steering_centre_l
-    movwf   xl
-
-    ; Now that we have determined the center for steering and throttle, 
-    ; we need to set initial endpoints around them. We use a value of +/- 100ms
-    ; for that. 
-    ; If we would use a fixed initial endpoint value we may get into trouble
-    ; due to steering trim/sub-trim.
-
-    movlw   HIGH(100)
-    movwf   yh
-    movlw   LOW(100)
-    movwf   yl
-
-    call    Add_y_to_x
-    movf    xh, w
-    movwf   steering_epr_h    
-    movf    xl, w
-    movwf   steering_epr_l    
-
-    movf    steering_centre_h, w
-    movwf   xh
-    movf    steering_centre_l, w
-    movwf   xl
-    call    Sub_y_from_x
-    movf    xh, w
-    movwf   steering_epl_h    
-    movf    xl, w
-    movwf   steering_epl_l    
-
-    movf    throttle_centre_h, w
-    movwf   xh
-    movf    throttle_centre_l, w
-    movwf   xl
-    call    Add_y_to_x
-    movf    xh, w
-    movwf   throttle_epr_h    
-    movf    xl, w
-    movwf   throttle_epr_l    
-
-    movf    throttle_centre_h, w
-    movwf   xh
-    movf    throttle_centre_l, w
-    movwf   xl
-    call    Sub_y_from_x
-    movf    xh, w
-    movwf   throttle_epl_h    
-    movf    xl, w
-    movwf   throttle_epl_l    
-
-;   goto    Init_reversing
+    movlw   RECEIVER_OUTPUT_RATE / 10
+    movwf   init_prescaler
+    movlw   STARTUP_WAIT_TIME / 100
+    movwf   init_counter
+    
+    return
 
 
 ;**********************************************************************
@@ -252,8 +180,8 @@ init_delay2
 ; whether we have to reverse throttle and steering channels or not.
 ;**********************************************************************
 Init_reversing
-    movlw   STARTUP_MODE_REVERSING
-    movwf   startup_mode    
+;    movlw   STARTUP_MODE_REVERSING
+;    movwf   startup_mode    
     clrf    reversing_mode
 
 init_reversing_loop
@@ -307,13 +235,106 @@ Read_all_channels
     call    Read_throttle
     call    Read_ch3
     ENDIF                               ; } SEQUENTIAL_CHANNEL_READING
+
+    movf    startup_mode, f
+    bnz     read_neutral
     
-    call    Normalize_ch3
-    call    Normalize_throttle
     call    Normalize_steering
+    call    Normalize_throttle
+    call    Normalize_ch3
+    return
+
+read_neutral
+    ; We are initializing so pretend steering and throttle are neutral
+    clrf    steering            
+    clrf    steering_abs
+    clrf    throttle
+    clrf    throttle_abs
+
+    call    Normalize_ch3       ; Process CH3 normally even during startup
+
+
+    ; Wait for a certain time after startup before reading neutral
+    ; values of steering and throttle so that the signals have time
+    ; to stabilize.
+    ;
+    ; The time can be set in STARTUP_WAIT_TIME with a resolution of 100ms.
+    ; We use the repetition rate of the servo signals for timing. The
+    ; repetition frequency is divided by 10 and used as prescaler to achieve
+    ; a 100ms interval for decreasing init_counter.
+    decfsz  init_prescaler
+    return
+    movlw   RECEIVER_OUTPUT_RATE / 10
+    movwf   init_prescaler
+    decfsz  init_counter
     return
 
 
+    ; Use the current steering and throttle values as "neutral"
+
+    movf    throttle_h, w
+    movwf   throttle_centre_h
+    movf    throttle_l, w
+    movwf   throttle_centre_l
+
+    movf    steering_h, w
+    movwf   steering_centre_h
+    movwf   xh
+    movf    steering_l, w
+    movwf   steering_centre_l
+    movwf   xl
+
+    ; Now that we have determined the center for steering and throttle, 
+    ; we need to set initial endpoints around them. We use a value of +/- 
+    ; INITIAL_ENDPOINT_DELTA for that. 
+    ; If we would use a fixed initial endpoint value we may get into trouble
+    ; due to steering trim/sub-trim.
+
+    movlw   HIGH(INITIAL_ENDPOINT_DELTA)
+    movwf   yh
+    movlw   LOW(INITIAL_ENDPOINT_DELTA)
+    movwf   yl
+
+    call    Add_y_to_x
+    movf    xh, w
+    movwf   steering_epr_h    
+    movf    xl, w
+    movwf   steering_epr_l    
+
+    movf    steering_centre_h, w
+    movwf   xh
+    movf    steering_centre_l, w
+    movwf   xl
+    call    Sub_y_from_x
+    movf    xh, w
+    movwf   steering_epl_h    
+    movf    xl, w
+    movwf   steering_epl_l    
+
+    movf    throttle_centre_h, w
+    movwf   xh
+    movf    throttle_centre_l, w
+    movwf   xl
+    call    Add_y_to_x
+    movf    xh, w
+    movwf   throttle_epr_h    
+    movf    xl, w
+    movwf   throttle_epr_l    
+
+    movf    throttle_centre_h, w
+    movwf   xh
+    movf    throttle_centre_l, w
+    movwf   xl
+    call    Sub_y_from_x
+    movf    xh, w
+    movwf   throttle_epl_h    
+    movf    xl, w
+    movwf   throttle_epl_l    
+    
+    clrf    startup_mode
+    return
+    
+    
 ;******************************************************************************
 ; Read_all
 ; 
