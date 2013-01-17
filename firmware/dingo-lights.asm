@@ -210,7 +210,7 @@ slave_setup_light_table
 ; Init_lights
 ;******************************************************************************
 Init_lights
-    clrf    temp
+    clrf    light_data
     call    TLC5916_send
     return
     
@@ -285,14 +285,14 @@ output_slave_setup
 ; Resulting lights are stored in temp.
 ;******************************************************************************
 Output_get_state
-    clrf    temp
+    clrf    light_data
 
     ; Parking lights
     btfss   light_mode, LIGHT_MODE_PARKING
     goto    output_local_get_state_low_beam
     movlw   0
     call    light_table
-    iorwf   temp, f
+    iorwf   light_data, f
 
     ; Low beam
 output_local_get_state_low_beam
@@ -300,7 +300,7 @@ output_local_get_state_low_beam
     goto    output_local_get_state_fog
     movlw   1
     call    light_table
-    iorwf   temp, f
+    iorwf   light_data, f
 
     ; Fog lamps    
 output_local_get_state_fog
@@ -308,7 +308,7 @@ output_local_get_state_fog
     goto    output_local_get_state_high_beam
     movlw   2
     call    light_table
-    iorwf   temp, f
+    iorwf   light_data, f
 
     ; High beam    
 output_local_get_state_high_beam
@@ -316,7 +316,7 @@ output_local_get_state_high_beam
     goto    output_local_get_state_brake
     movlw   3
     call    light_table
-    iorwf   temp, f
+    iorwf   light_data, f
 
     ; Brake lights    
 output_local_get_state_brake
@@ -324,7 +324,7 @@ output_local_get_state_brake
     goto    output_local_get_state_reverse
     movlw   4
     call    light_table
-    iorwf   temp, f
+    iorwf   light_data, f
 
     ; Reverse lights        
 output_local_get_state_reverse
@@ -332,7 +332,7 @@ output_local_get_state_reverse
     goto    output_local_get_state_indicator_left
     movlw   5
     call    light_table
-    iorwf   temp, f
+    iorwf   light_data, f
 
     ; Indicator left    
 output_local_get_state_indicator_left
@@ -344,7 +344,7 @@ output_local_get_state_indicator_left
     goto    output_local_get_state_indicator_right
     movlw   6
     call    light_table
-    iorwf   temp, f
+    iorwf   light_data, f
     
     ; Indicator right
 output_local_get_state_indicator_right
@@ -352,7 +352,7 @@ output_local_get_state_indicator_right
     goto    output_local_get_state_hazard
     movlw   7
     call    light_table
-    iorwf   temp, f
+    iorwf   light_data, f
    
     ; Hazard lights 
 output_local_get_state_hazard
@@ -360,7 +360,7 @@ output_local_get_state_hazard
     goto    output_local_get_state_end
     movlw   8
     call    light_table
-    iorwf   temp, f
+    iorwf   light_data, f
 
 output_local_get_state_end
     return
@@ -379,7 +379,7 @@ Output_get_setup_state
     btfsc   setup_mode, 3
     addlw   1
     call    light_table
-    movwf   temp
+    movwf   light_data
     return
 
 

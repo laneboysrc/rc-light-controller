@@ -21,4 +21,3 @@ TO DO LIST for the RC Light Controller
   
 * Move UART functions into utils
 
-* Fix Dingo using TLC5916_send not using temp anymore!
