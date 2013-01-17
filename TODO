@@ -12,17 +12,11 @@ TO DO LIST for the RC Light Controller
 * Switch to a more modern and faster PIC chip
     * Have the code independent of the PIC chip?
 
-* Make servo_reader initialization work properly
-
-* Reconsider startup of the servo reader: we should only wait 3 seconds
-  for neutral but do not require the user to do left/forward.
-  Instead we should just assume a steering direction and have the user
-  swap LEDs. As for throttle we can assume that the first throttle
-  signal will be forward anyway, so we can wait for that silently with
-  the light controller already being in normal operation -- instead of
-  waiting until the user gives forward.
+* Make steering_reverse user configurable through CH3
   
 * rename Output_local_lights
 
 * Sort out duplicate of temp, d0 ...; Specify and enforce usage rules. Think about
   parameter passing. 
+  
+* Move UART functions into utils

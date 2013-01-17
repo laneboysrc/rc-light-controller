@@ -23,7 +23,6 @@
     GLOBAL steering_reverse
     GLOBAL throttle            
     GLOBAL throttle_abs       
-    GLOBAL throttle_reverse
     GLOBAL ch3  
 
 
@@ -57,6 +56,9 @@
 ; Note: the higher 4 bits are used so we can simply "or" it with ch3
 ; and send it to the slave
 #define STARTUP_MODE_NEUTRAL 4      ; Waiting before reading ST/TH neutral
+
+; Bitfields in variable flags
+#define TH_FLAG_REVERSING_INITIALZED 3
 
 
 ; The initial endpoint delta that is used right after initialization of the
@@ -115,7 +117,7 @@ ch3_value           res 1
 ch3_ep0             res 1
 ch3_ep1             res 1
 
-reversing_mode      res 1
+flags               res 1
 
 init_prescaler      res 1
 init_counter        res 1
@@ -171,60 +173,6 @@ Init_reader
     return
 
 
-;**********************************************************************
-; Automatic steering and throttle reversing detection
-;
-; Wait until we received a 100% value for both steering and throttle.
-; We use that 100% value to determine the direction. We assume
-; that the user did Foward/Left as first TH/ST movements, so we know
-; whether we have to reverse throttle and steering channels or not.
-;**********************************************************************
-Init_reversing
-;    movlw   STARTUP_MODE_REVERSING
-;    movwf   startup_mode    
-    clrf    reversing_mode
-
-init_reversing_loop
-    call    Read_steering
-    call    Read_throttle
-
-    call    Normalize_steering
-    call    Normalize_throttle
-
-    btfsc   reversing_mode, 0
-    goto    init_reversing_throttle
-    movfw   steering_abs
-    sublw   100
-    bnz     init_reversing_throttle
-    bsf     reversing_mode, 0
-    clrf    steering_reverse
-    btfss   steering, 7
-    incf    steering_reverse, f
-
-init_reversing_throttle    
-    btfsc   reversing_mode, 1
-    goto    init_reversing_check_done
-    movfw   throttle_abs
-    sublw   100
-    bnz     init_reversing_check_done
-    bsf     reversing_mode, 1
-    clrf    throttle_reverse
-    btfsc   throttle, 7
-    incf    throttle_reverse, f
-
-init_reversing_check_done
-    ;call    Output_slave
-
-    btfss   reversing_mode, 0
-    goto    init_reversing_loop
-    btfss   reversing_mode, 1
-    goto    init_reversing_loop
-
-    clrf    startup_mode    
-
-;   goto    Main_loop    
-
-
 ;******************************************************************************
 ;******************************************************************************
 Read_all_channels
@@ -242,6 +190,35 @@ Read_all_channels
     call    Normalize_steering
     call    Normalize_throttle
     call    Normalize_ch3
+    
+    btfsc   flags, TH_FLAG_REVERSING_INITIALZED
+    return
+
+    ; Throttle reversing initialization starts once neutral initialization has
+    ; finished.
+    ;
+    ; We wait until the throttle_abs signal goes >50. If it does we set 
+    ; throttle_reverse if throttle is negative, as we assume that the first
+    ; throttle input a user will give is "forward".
+    ;
+    ; The value of 50% may seem high, but don't forget that at this point
+    ; the end points are still set very low as this code is execute right
+    ; after initialization!
+
+    movlw   50
+    subwf   throttle_abs, w
+    bnc     read_waiting_for_throttle_direction
+
+    ; Reverse the throttle if it is currently negative    
+    btfsc   throttle, 7
+    comf    throttle_reverse
+    bsf     flags, TH_FLAG_REVERSING_INITIALZED
+    return
+
+read_waiting_for_throttle_direction
+    ; Clear throttle data until we have determined the direction
+    clrf    throttle
+    clrf    throttle_abs
     return
 
 read_neutral

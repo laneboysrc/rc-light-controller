@@ -20,6 +20,7 @@
 
     GLOBAL steering            
     GLOBAL steering_abs       
+    GLOBAL steering_reverse
     GLOBAL throttle            
     GLOBAL throttle_abs       
     GLOBAL ch3  
@@ -64,6 +65,7 @@ throttle_abs        res 1
 
 steering            res 1
 steering_abs        res 1
+steering_reverse    res 1
 
 ch3                 res 1
 
@@ -130,7 +132,16 @@ read_UART_byte_4
     decf    steering_abs, f
     btfsc   steering_abs, 7
     comf    steering_abs, f
+
+    ; The system allows user-configurable reversing of the steering channel
+    ; through seven CH3 clicks. If the reversing flag is set we negate
+    ; the steering signal coming from the preprocessor.
+    movf    steering_reverse, f
+    skpnz
+    return
     
+    comf    steering, f
+    incf    steering, f
     return
 
 

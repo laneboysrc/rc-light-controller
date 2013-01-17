@@ -62,7 +62,6 @@
     EXTERN steering_reverse
     EXTERN throttle            
     EXTERN throttle_abs       
-    EXTERN throttle_reverse
     EXTERN ch3                 
      
     
@@ -73,10 +72,10 @@
 #define INDICATOR_STATE_COUNTER_VALUE 8      ; 8 * 65.536 ms = ~0.5 s
 #define INDICATOR_STATE_COUNTER_VALUE_OFF 30 ; ~2 s
 
-; Bitfields in variable ch3_flags
-#define CH3_FLAG_LAST_STATE 0
+; Bitfields in variable flags
+#define CH3_FLAG_LAST_STATE 0           ; Must be bit 0!
 #define CH3_FLAG_TOGGLED 1
-#define CH3_FLAG_INITIALIZED 7
+#define CH3_FLAG_INITIALIZED 2
 
 ; Bitfields in variable blink_mode
 #define BLINK_MODE_BLINKFLAG 0          ; Toggles with 1.5 Hz
@@ -134,7 +133,8 @@ drive_mode_brake_disarm_counter res 1
 indicator_state_counter res 1
 blink_counter       res 1
 
-ch3_flags           res 1
+flags               res 1
+
 ch3_click_counter   res 1
 ch3_clicks          res 1
 
@@ -153,7 +153,6 @@ servo_epr           res 1
 servo_setup_epl     res 1
 servo_setup_centre  res 1
 servo_setup_epr     res 1
-
 
 d0                  res 1 ; Delay and temp registers
 d1                  res 1
@@ -360,26 +359,28 @@ Process_ch3_double_click
     return
 
 process_ch3_no_startup
-    btfsc   ch3_flags, CH3_FLAG_INITIALIZED
+    btfsc   flags, CH3_FLAG_INITIALIZED
     goto    process_ch3_initialized
 
     ; Ignore the potential "toggle" after power on
-    bsf     ch3_flags, CH3_FLAG_INITIALIZED
-    bcf     ch3_flags, CH3_FLAG_LAST_STATE
+    bsf     flags, CH3_FLAG_INITIALIZED
+    bcf     flags, CH3_FLAG_LAST_STATE
     btfsc   ch3, CH3_FLAG_LAST_STATE
-    bsf     ch3_flags, CH3_FLAG_LAST_STATE
+    bsf     flags, CH3_FLAG_LAST_STATE
     return
 
 process_ch3_initialized
-    movfw   ch3
-    xorwf   ch3_flags, w
+    ; ch3 is only using bit 0, the same bit as CH3_FLAG_LAST_STATE.
+    ; We can therefore use XOR to determine whether ch3 has changed.
+    movfw   ch3                 
+    xorwf   flags, w        
     movwf   temp
     btfss   temp, CH3_FLAG_LAST_STATE
     goto    process_ch3_click_timeout
 
-    bcf     ch3_flags, CH3_FLAG_LAST_STATE
+    bcf     flags, CH3_FLAG_LAST_STATE
     btfsc   ch3, CH3_FLAG_LAST_STATE
-    bsf     ch3_flags, CH3_FLAG_LAST_STATE
+    bsf     flags, CH3_FLAG_LAST_STATE
     incf    ch3_clicks, f
     movlw   CH3_BUTTON_TIMEOUT
     movwf   ch3_click_counter
