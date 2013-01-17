@@ -122,6 +122,7 @@
 #define SETUP_MODE_CENTRE 1
 #define SETUP_MODE_LEFT 2
 #define SETUP_MODE_RIGHT 3
+#define SETUP_MODE_STEERING_REVERSE 4
 #define SETUP_MODE_NEXT 6
 #define SETUP_MODE_CANCEL 7
 
@@ -226,6 +227,7 @@ Main_loop
     call    Process_ch3_double_click
     call    Process_drive_mode
     call    Process_indicators
+    call    Process_steering_reversing
     call    Process_steering_wheel_servo
     call    Service_timer0
 
@@ -438,7 +440,7 @@ process_ch3_triple_click
 
 process_ch3_quad_click
     decfsz  ch3_clicks, f              
-    goto    process_ch3_8_click
+    goto    process_ch3_7_click
 
     ; --------------------------
     ; Quad click: Hazard lights on/off  
@@ -452,11 +454,26 @@ process_ch3_quad_click
     ENDIF
     return
 
-process_ch3_8_click
-    movlw   4
+process_ch3_7_click
+    movlw   3
     subwf   ch3_clicks, w
-    bnz     process_ch3_click_end
+    bnz     process_ch3_8_click
 
+    ; --------------------------
+    ; 7 clicks: Enter steering channel reverse setup mode
+    movlw   1 << SETUP_MODE_STEERING_REVERSE
+    movwf   setup_mode    
+    IFDEF   DEBUG
+    movlw   0x37                    ; send '7'
+    call    UART_send_w        
+    ENDIF
+
+process_ch3_8_click
+    decfsz  ch3_clicks, f
+    goto    process_ch3_click_end
+
+    ; --------------------------
+    ; 8 clicks: Enter steering wheel servo setup mode
     movlw   1 << SETUP_MODE_INIT
     movwf   setup_mode    
     IFDEF   DEBUG
@@ -805,6 +822,38 @@ process_indicators_blink_right_wait_centre
 
 
 ;******************************************************************************
+; Process_steering_reversing
+;******************************************************************************
+Process_steering_reversing
+    btfss   setup_mode, SETUP_MODE_STEERING_REVERSE
+    return
+
+    ; Steering reversing setup only has one step so either NEXT or CANCEL
+    ; terminate the setup
+    btfsc   setup_mode, SETUP_MODE_NEXT
+    clrf    setup_mode
+    btfsc   setup_mode, SETUP_MODE_CANCEL
+    clrf    setup_mode
+
+    ; Save the direction only when the steering is excerted to 50% or more
+    movlw   50
+    subwf   steering_abs, w
+    skpc    
+    return
+
+    ; 50% or more steering input: terminate the steering reversing setup and
+    ; set the reversing flag to 1 if the current sign flag on the steering
+    ; channel is positive (left = -100..0, right = 0..+100)
+    ; steering input.
+    clrf    setup_mode
+    movlw   0
+    btfss   steering, 7
+    movlw   1
+    movwf   steering_reverse    
+    return
+    
+
+;******************************************************************************
 ; Process_steering_wheel_servo
 ;
 ; This function calculates:
@@ -831,6 +880,8 @@ Process_steering_wheel_servo
     goto    process_steering_servo_setup_left
     btfsc   setup_mode, SETUP_MODE_CENTRE
     goto    process_steering_servo_setup_centre
+    btfss   setup_mode, SETUP_MODE_INIT
+    return
 
 process_steering_servo_setup_init
     movlw   -120

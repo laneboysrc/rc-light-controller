@@ -40,7 +40,15 @@
 #define DRIVE_MODE_REVERSE_BRAKE 4
 #define DRIVE_MODE_BRAKE_DISARM 5
 
-  
+; Bitfields in variable setup_mode
+#define SETUP_MODE_INIT 0
+#define SETUP_MODE_CENTRE 1
+#define SETUP_MODE_LEFT 2
+#define SETUP_MODE_RIGHT 3
+#define SETUP_MODE_STEERING_REVERSE 4
+#define SETUP_MODE_NEXT 6
+#define SETUP_MODE_CANCEL 7
+
 
 #define LIGHT_TABLE 0
 #define LIGHT_TABLE_HALF 1

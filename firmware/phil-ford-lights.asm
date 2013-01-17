@@ -39,6 +39,7 @@
 #define SETUP_MODE_CENTRE 1
 #define SETUP_MODE_LEFT 2
 #define SETUP_MODE_RIGHT 3
+#define SETUP_MODE_STEERING_REVERSE 4
 #define SETUP_MODE_NEXT 6
 #define SETUP_MODE_CANCEL 7
 
@@ -142,9 +143,22 @@ _output_lights_indicators_off
 _output_lights_blinking_end
     return
 
-
 _output_lights_setup
-    ; No steering wheel servo in this car so don't bother ...
+    ; This car does not have a steering wheel servo so we only have to handle
+    ; the steering channel reversing setup. 
+    ; We light up the left indicator during steering channel reversing.
+    btfss   setup_mode, SETUP_MODE_STEERING_REVERSE
+    return
+    
+    call    light_parking_off
+    call    light_main_beam_on
+    call    light_roof_off
+    call    light_tail_off
+    call    light_brake_off
+    call    light_reverse_off
+    call    light_indicator_right_off
+    
+    call    light_indicator_left_on
     return    
 
 _output_lights_startup
