@@ -23,3 +23,6 @@ TO DO LIST for the RC Light Controller
   waiting until the user gives forward.
   
 * rename Output_local_lights
+
+* Sort out duplicate of temp, d0 ...; Specify and enforce usage rules. Think about
+  parameter passing. 
