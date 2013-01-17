@@ -108,14 +108,15 @@
 #define STEERING_BLINK_THRESHOLD 50
 #define STEERING_BLINK_OFF_THRESHOLD 30
 
-#define EEPROM_MAGIC1 0x55
-#define EEPROM_MAGIC2 0xAA
+#define EEPROM_MAGIC1 0x47
+#define EEPROM_MAGIC2 0x11
 
 #define EEPROM_ADR_MAGIC1 0      
 #define EEPROM_ADR_MAGIC2 4
 #define EEPROM_ADR_SERVO_EPL 1
 #define EEPROM_ADR_SERVO_CENTRE 2
 #define EEPROM_ADR_SERVO_EPR 3
+#define EEPROM_ADR_STEERING_REVERSE 4
 
 ; Bitfields in variable setup_mode
 #define SETUP_MODE_INIT 0
@@ -823,6 +824,10 @@ process_indicators_blink_right_wait_centre
 
 ;******************************************************************************
 ; Process_steering_reversing
+;
+; When the user performs 7 clicks on CH3, the left indicator lights up.
+; The user should then turn the steering wheel to left so that the light
+; controller knows the direction of the steering channel.
 ;******************************************************************************
 Process_steering_reversing
     btfss   setup_mode, SETUP_MODE_STEERING_REVERSE
@@ -842,14 +847,12 @@ Process_steering_reversing
     return
 
     ; 50% or more steering input: terminate the steering reversing setup and
-    ; set the reversing flag to 1 if the current sign flag on the steering
+    ; toggle the reversing flag if the current sign flag on the steering
     ; channel is positive (left = -100..0, right = 0..+100)
-    ; steering input.
-    clrf    setup_mode
-    movlw   0
     btfss   steering, 7
-    movlw   1
-    movwf   steering_reverse    
+    comf    steering_reverse, f
+    call    EEPROM_save_persistent_data    
+    clrf    setup_mode
     return
     
 
@@ -1014,6 +1017,10 @@ EEPROM_load_persistent_data
     movlw   EEPROM_ADR_SERVO_EPR
     call    EEPROM_read_byte
     movwf   servo_epr
+
+    movlw   EEPROM_ADR_STEERING_REVERSE
+    call    EEPROM_read_byte
+    movwf   steering_reverse
     return
 
 
@@ -1036,6 +1043,11 @@ EEPROM_save_persistent_data
     movwf   temp
     movlw   EEPROM_ADR_SERVO_EPR
     call    EEPROM_write_byte
+
+    movf    steering_reverse, w
+    movwf   temp
+    movlw   EEPROM_ADR_STEERING_REVERSE
+    call    EEPROM_write_byte
     return
 
 
@@ -1051,6 +1063,7 @@ EEPROM_load_defaults
     clrf    servo_centre
     movlw   100
     movwf   servo_epr
+    clrf    steering_reverse
 
     call    EEPROM_save_persistent_data
 

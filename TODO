@@ -10,4 +10,6 @@ TO DO LIST for the RC Light Controller
     * Have the code independent of the PIC chip?
   
 * Replace XR311 light table with bare code for simplicity
+
+* Save and restore steering_reverse in EEPROM
   
