@@ -52,7 +52,8 @@
 ; Relocatable variables section
 ;******************************************************************************
 .data_lights UDATA
-
+d0 res 1
+d1 res 1
 
 ;============================================================================
 ;============================================================================
@@ -63,8 +64,6 @@
 ; Init_lights
 ;******************************************************************************
 Init_lights
-    clrf    PORTA
-    clrf    PORTB
     call    light_parking_on
     return
 
@@ -200,14 +199,14 @@ light_main_beam_off
     return
 
 light_roof_on
-    BANKSEL TRISA
-    bcf     PORT_LED_ROOF
+    BANKSEL PORTA
+    bsf     PORT_LED_ROOF
     BANKSEL 0
     return
 
 light_roof_off
-    BANKSEL TRISA
-    bsf     PORT_LED_ROOF
+    BANKSEL PORTA
+    bcf     PORT_LED_ROOF
     BANKSEL 0
     return
 
