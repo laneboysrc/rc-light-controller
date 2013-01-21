@@ -8,5 +8,9 @@ TO DO LIST for the RC Light Controller
 
 * Switch to a more modern and faster PIC chip
     * Have the code independent of the PIC chip?
+    
+* Disable steering wheel configuration when not used in a vehicle
+    Note: must be separate from ENABLE_SERVO_OUTPUT as the servo may
+    be connected to a slave!  
   
   
