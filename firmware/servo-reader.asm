@@ -323,8 +323,8 @@ read_neutral
 ; increasing response speed of the light controller.
 ;******************************************************************************
 Read_all
-    clrf    T1CON       ; Stop timer 1, runs at 1us per tick, internal osc
-    clrf    TMR1H       ; Reset the timer to 0
+    bcf     T1CON, TMR1ON   ; Stop timer 1
+    clrf    TMR1H           ; Reset the timer to 0
     clrf    TMR1L
 
     ; Wait until servo signal is LOW 
@@ -337,15 +337,15 @@ all_st_wait_for_high
     btfss   PORT_STEERING   ; Wait until servo signal is high
     goto    all_st_wait_for_high
 
-    bsf     T1CON, 0    ; Start timer 1
+    bsf     T1CON, TMR1ON   ; Start timer 1
 
 all_st_wait_for_low2
     btfsc   PORT_STEERING   ; Wait until servo signal is LOW again
     goto    all_st_wait_for_low2
 
-    clrf    T1CON       ; Stop timer 1
+    bcf     T1CON, TMR1ON   ; Stop timer 1
 
-    movf    TMR1H, w    ; Store read values temporarily; validate later
+    movf    TMR1H, w        ; Store read values temporarily; validate later
     movwf   steering_h
     movf    TMR1L, w
     movwf   steering_l
@@ -358,13 +358,13 @@ all_st_wait_for_low2
     clrf    TMR1H       ; Reset the timer to 0 ... 
     movlw   10          ;  but prime it with the no of instructions until here
     movwf   TMR1L
-    bsf     T1CON, 0    ; Start timer 1
+    bsf     T1CON, TMR1ON   ; Start timer 1
 
 all_th_wait_for_low2
     btfsc   PORT_THROTTLE   ; Wait until servo signal is LOW
     goto    all_th_wait_for_low2
 
-    clrf    T1CON       ; Stop timer 1
+    bcf     T1CON, TMR1ON   ; Stop timer 1
 
     movf    TMR1H, w    ; Store read values temporarily; validate later
     movwf   throttle_h
@@ -374,13 +374,13 @@ all_th_wait_for_low2
     clrf    TMR1H       ; Reset the timer to 0 ... 
     movlw   10          ;  but prime it with the no of instructions until here
     movwf   TMR1L
-    bsf     T1CON, 0    ; Start timer 1
+    bsf     T1CON, TMR1ON   ; Start timer 1
 
 all_ch3_wait_for_low2
     btfsc   PORT_CH3    ; Wait until servo signal is LOW
     goto    all_ch3_wait_for_low2
 
-    clrf    T1CON       ; Stop timer 1
+    bcf     T1CON, TMR1ON   ; Stop timer 1
 
     call    Validate_servo_measurement
   
@@ -430,7 +430,7 @@ all_ch3_wait_for_low2
 ; Read servo channel 3 and write the result in ch3_h/ch3_l
 ;******************************************************************************
 Read_ch3
-    clrf    T1CON       ; Stop timer 1, runs at 1us per tick, internal osc
+    bcf     T1CON, TMR1ON   ; Stop timer 1
     clrf    TMR1H       ; Reset the timer to 0
     clrf    TMR1L
     clrf    ch3_value   ; Prime the result with "timing measurement failed"
@@ -445,13 +445,13 @@ ch3_wait_for_high
     btfss   PORT_CH3    ; Wait until servo signal is high
     goto    ch3_wait_for_high
 
-    bsf     T1CON, 0    ; Start timer 1
+    bsf     T1CON, TMR1ON   ; Start timer 1
 
 ch3_wait_for_low2
     btfsc   PORT_CH3    ; Wait until servo signal is LOW
     goto    ch3_wait_for_low2
 
-    clrf    T1CON       ; Stop timer 1
+    bcf     T1CON, TMR1ON   ; Stop timer 1
 
     call    Validate_servo_measurement
   
@@ -592,7 +592,7 @@ process_ch3_toggle
 ; Read the throttle servo channel and write the result in throttle_h/throttle_l
 ;******************************************************************************
 Read_throttle
-    clrf    T1CON       ; Stop timer 1, runs at 1us per tick, internal osc
+    bcf     T1CON, TMR1ON   ; Stop timer 1
     clrf    TMR1H       ; Reset the timer to 0
     clrf    TMR1L
     clrf    throttle_h  ; Prime the result with "timing measurement failed"
@@ -608,13 +608,13 @@ th_wait_for_high
     btfss   PORT_THROTTLE   ; Wait until servo signal is high
     goto    th_wait_for_high
 
-    bsf     T1CON, 0    ; Start timer 1
+    bsf     T1CON, TMR1ON   ; Start timer 1
 
 th_wait_for_low2
     btfsc   PORT_THROTTLE   ; Wait until servo signal is LOW
     goto    th_wait_for_low2
 
-    clrf    T1CON       ; Stop timer 1
+    bcf     T1CON, TMR1ON   ; Stop timer 1
 
     call    Validate_servo_measurement
     movf    xh, w    
@@ -730,7 +730,7 @@ throttle_set
 ; Read the steering servo channel and write the result in steering_h/steering_l
 ;******************************************************************************
 Read_steering
-    clrf    T1CON       ; Stop timer 1, runs at 1us per tick, internal osc
+    bcf     T1CON, TMR1ON   ; Stop timer 1
     clrf    TMR1H       ; Reset the timer to 0
     clrf    TMR1L
     clrf    steering_h  ; Prime the result with "timing measurement failed"
@@ -746,13 +746,13 @@ st_wait_for_high
     btfss   PORT_STEERING   ; Wait until servo signal is high
     goto    st_wait_for_high
 
-    bsf     T1CON, 0    ; Start timer 1
+    bsf     T1CON, TMR1ON   ; Start timer 1
 
 st_wait_for_low2
     btfsc   PORT_STEERING   ; Wait until servo signal is LOW
     goto    st_wait_for_low2
 
-    clrf    T1CON       ; Stop timer 1
+    bcf     T1CON, TMR1ON   ; Stop timer 1
 
     call    Validate_servo_measurement
     movf    xh, w    

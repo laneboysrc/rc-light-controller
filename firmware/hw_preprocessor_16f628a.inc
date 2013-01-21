@@ -90,6 +90,10 @@ IO_INIT_PREPROCESSOR macro
     movlw   b'00000000' ; Make all ports B outputs
     movwf   TRISB
 
+    ;-----------------------------
+    ; Initialize Timer1
+    BANKSEL T1CON
+    clrf    T1CON       ; Stop timer 1, runs at 1us per tick, internal osc
 
     BANKSEL 0
     ;-----------------------------
@@ -151,5 +155,7 @@ SPBRG_VALUE = (((d'10'*OSC/((d'64'-(d'48'*BRGH_VALUE))*BAUDRATE))+d'5')/d'10')-1
 
     movlw	0           ; Send dummy character to get a valid transmit flag
     movwf	TXREG
+
+    BANKSEL 0
     endm
     
