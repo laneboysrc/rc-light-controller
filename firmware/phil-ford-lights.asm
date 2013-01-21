@@ -52,8 +52,8 @@
 ; Relocatable variables section
 ;******************************************************************************
 .data_lights UDATA
-d0 res 1
-d1 res 1
+
+
 
 ;============================================================================
 ;============================================================================
@@ -92,32 +92,32 @@ Output_lights
     call    light_roof_on
     btfss   light_mode, LIGHT_MODE_ROOF
     call    light_roof_off
-
-    ; The brake light and tail light is combined, so turn the low brightness
-    ; tail light off when braking is engaged
     btfsc   drive_mode, DRIVE_MODE_BRAKE    
-    goto    _output_lights_tail_off    
+    goto    _output_lights_brake  
     btfsc   light_mode, LIGHT_MODE_PARKING
     call    light_tail_on
     btfss   light_mode, LIGHT_MODE_PARKING
-_output_lights_tail_off    
     call    light_tail_off
 
-    btfsc   drive_mode, DRIVE_MODE_BRAKE
-    call    light_brake_on
+_output_lights_brake    
     btfss   drive_mode, DRIVE_MODE_BRAKE
     call    light_brake_off
+    ; The brake light and tail light is combined, so turn the low brightness
+    ; tail light off when braking is engaged
+    btfsc   drive_mode, DRIVE_MODE_BRAKE
+    call    light_brake_on
+    btfsc   drive_mode, DRIVE_MODE_BRAKE
+    call    light_tail_off
 
     btfsc   drive_mode, DRIVE_MODE_REVERSE
     call    light_reverse_on
     btfss   drive_mode, DRIVE_MODE_REVERSE
     call    light_reverse_off
 
-
     btfss   blink_mode, BLINK_MODE_BLINKFLAG
     goto    _output_lights_indicators_off
 
-    btfsc   blink_mode, BLINK_MODE_HAZARD
+    btfss   blink_mode, BLINK_MODE_HAZARD
     goto    _output_lights_check_indicator
     
     call    light_indicator_left_on
@@ -150,7 +150,7 @@ _output_lights_setup
     return
     
     call    light_parking_off
-    call    light_main_beam_on
+    call    light_main_beam_off
     call    light_roof_off
     call    light_tail_off
     call    light_brake_off
@@ -200,12 +200,14 @@ light_main_beam_off
 
 light_roof_on
     BANKSEL PORTA
+    clrf    PORTA
     bsf     PORT_LED_ROOF
     BANKSEL 0
     return
 
 light_roof_off
     BANKSEL PORTA
+    clrf    PORTA
     bcf     PORT_LED_ROOF
     BANKSEL 0
     return

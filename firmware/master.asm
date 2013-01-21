@@ -441,7 +441,7 @@ process_ch3_triple_click
 
 process_ch3_quad_click
     decfsz  ch3_clicks, f              
-    goto    process_ch3_7_click
+    goto    process_ch3_5_click
 
     ; --------------------------
     ; Quad click: Hazard lights on/off  
@@ -455,19 +455,30 @@ process_ch3_quad_click
     ENDIF
     return
 
+process_ch3_5_click
+    decfsz  ch3_clicks, f              
+    goto    process_ch3_6_click
+    goto    process_ch3_click_end
+
+process_ch3_6_click
+    decfsz  ch3_clicks, f              
+    goto    process_ch3_7_click
+    goto    process_ch3_click_end
+
 process_ch3_7_click
-    movlw   3
-    subwf   ch3_clicks, w
-    bnz     process_ch3_8_click
+    decfsz  ch3_clicks, f
+    goto    process_ch3_8_click
 
     ; --------------------------
     ; 7 clicks: Enter steering channel reverse setup mode
+    clrf    ch3_clicks
     movlw   1 << SETUP_MODE_STEERING_REVERSE
     movwf   setup_mode    
     IFDEF   DEBUG
     movlw   0x37                    ; send '7'
     call    UART_send_w        
     ENDIF
+    return
 
 process_ch3_8_click
     decfsz  ch3_clicks, f
