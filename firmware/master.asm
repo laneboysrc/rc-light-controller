@@ -137,6 +137,13 @@ IFNDEF LIGHT_MODE_MASK
 #define LIGHT_MODE_MASK b'00001111'
 ENDIF
 
+; If the master has a servo output we must for sure enable its configuration
+; even if the user forgot to set the flag in the makefile
+IFDEF ENABLE_SERVO_OUTPUT
+IFNDEF ENABLE_STEERING_WHEEL_SERVO_SETUP
+#define ENABLE_STEERING_WHEEL_SERVO_SETUP
+ENDIF
+ENDIF
 
 ;******************************************************************************
 ;* VARIABLE DEFINITIONS
@@ -349,11 +356,6 @@ process_ch3_initialized
     incf    ch3_clicks, f
     movlw   CH3_BUTTON_TIMEOUT
     movwf   ch3_click_counter
-
-    IFDEF   DEBUG
-    movlw   0x43                    ; send 'C'
-    call    UART_send_w        
-    ENDIF
     return
     
 process_ch3_click_timeout
@@ -385,11 +387,6 @@ process_ch3_setup_cancel
     ;====================================
     ; Normal operation; setup is not active
 process_ch3_click_no_setup
-    IFDEF   DEBUG
-    movlw   0x50                    ; send 'P'
-    call    UART_send_w        
-    ENDIF
-
     decfsz  ch3_clicks, f                
     goto    process_ch3_double_click
 
@@ -399,10 +396,6 @@ process_ch3_click_no_setup
     bsf     light_mode, 0
     movlw   LIGHT_MODE_MASK
     andwf   light_mode, f
-    IFDEF   DEBUG
-    movlw   0x31                    ; send '1'
-    call    UART_send_w        
-    ENDIF
     return
 
 process_ch3_double_click
@@ -414,10 +407,6 @@ process_ch3_double_click
     rrf     light_mode, f
     movlw   LIGHT_MODE_MASK
     andwf   light_mode, f
-    IFDEF   DEBUG
-    movlw   0x32                    ; send '2'
-    call    UART_send_w        
-    ENDIF
     return
 
 process_ch3_triple_click
@@ -433,10 +422,6 @@ process_ch3_triple_click
     skpnz
     movlw   0x00     
     movwf   light_mode
-    IFDEF   DEBUG
-    movlw   0x33                    ; send '3'
-    call    UART_send_w        
-    ENDIF
     return
 
 process_ch3_quad_click
@@ -449,10 +434,6 @@ process_ch3_quad_click
     call    Synchronize_blinking
     movlw   1 << BLINK_MODE_HAZARD
     xorwf   blink_mode, f
-    IFDEF   DEBUG
-    movlw   0x34                    ; send '4'
-    call    UART_send_w        
-    ENDIF
     return
 
 process_ch3_5_click
@@ -474,10 +455,6 @@ process_ch3_7_click
     clrf    ch3_clicks
     movlw   1 << SETUP_MODE_STEERING_REVERSE
     movwf   setup_mode    
-    IFDEF   DEBUG
-    movlw   0x37                    ; send '7'
-    call    UART_send_w        
-    ENDIF
     return
 
 process_ch3_8_click
@@ -486,12 +463,12 @@ process_ch3_8_click
 
     ; --------------------------
     ; 8 clicks: Enter steering wheel servo setup mode
+    clrf    ch3_clicks
+    IFDEF ENABLE_STEERING_WHEEL_SERVO_SETUP    
     movlw   1 << SETUP_MODE_INIT
     movwf   setup_mode    
-    IFDEF   DEBUG
-    movlw   0x38                    ; send '8'
-    call    UART_send_w        
     ENDIF
+    return
 
 process_ch3_click_end
     clrf    ch3_clicks
