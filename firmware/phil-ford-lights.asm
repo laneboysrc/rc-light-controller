@@ -200,15 +200,16 @@ light_main_beam_off
 
 light_roof_on
     BANKSEL PORTA
-    clrf    PORTA
-    bsf     PORT_LED_ROOF
+    ; Set only the Roof light bit in the PORTA register without modifying
+    ; any other bits through read-modify-write instructions!
+    movlw   1<<PORT_LED_ROOF_BIT
+    movwf   PORTA
     BANKSEL 0
     return
 
 light_roof_off
     BANKSEL PORTA
-    clrf    PORTA
-    bcf     PORT_LED_ROOF
+    clrf    PORTA           ; Automatically clears PORT_LED_ROOF
     BANKSEL 0
     return
 
