@@ -26,22 +26,9 @@ IFDEF INCLUDE_CONFIG
     
     ; Due to a bug in GPUtils 1.0.0 we have to specify the configuration
     ; registers via the old method. The new method causes a core dump during
-    ; linking...
+    ; linking as well as faulty hex files...
     __CONFIG     _CONFIG1, _FOSC_INTOSC & _WDTE_OFF & _PWRTE_ON & _MCLRE_OFF & _CP_OFF & _CPD_OFF & _BOREN_OFF & _CLKOUTEN_OFF & _IESO_OFF & _FCMEN_OFF
     __CONFIG     _CONFIG2, _WRT_OFF & _PLLEN_OFF & _STVREN_OFF & _LVP_OFF 
-
-;    CONFIG      FOSC = INTOSC
-;    CONFIG      PWRTE = ON
-;    CONFIG      WDTE = OFF 
-;    CONFIG      MCLRE = OFF
-;    CONFIG      CP = OFF, CPD = OFF
-;    CONFIG      BOREN = OFF
-;    CONFIG      CLKOUTEN = OFF
-;    CONFIG      IESO = OFF
-;    CONFIG      FCMEN = OFF
-;    CONFIG      WRT = OFF
-;    CONFIG      STVREN = OFF
-;    CONFIG      LVP = OFF
 ENDIF
 
 
