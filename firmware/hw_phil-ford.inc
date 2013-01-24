@@ -19,13 +19,7 @@
     #include    <p16f628a.inc>
 
 IFDEF INCLUDE_CONFIG
-    CONFIG      FOSC = INTOSCIO
-    CONFIG      WDTE = OFF
-    CONFIG      PWRTE = ON
-    CONFIG      MCLRE = OFF
-    CONFIG      BOREN = OFF
-    CONFIG      LVP = OFF
-    CONFIG      CP = OFF, CPD = OFF
+    __CONFIG    _INTOSC_OSC_NOCLKOUT & _WDT_OFF & _PWRTE_ON & _MCLRE_OFF & _CP_OFF & _CPD_OFF & _BOREN_OFF & _LVP_OFF
 ENDIF
 
 

@@ -209,7 +209,7 @@ Read_all_channels
 
     ; Reverse the throttle if it is currently negative    
     btfsc   throttle, 7
-    comf    throttle_reverse
+    comf    throttle_reverse, f
     bsf     flags, TH_FLAG_REVERSING_INITIALZED
     return
 
@@ -237,11 +237,11 @@ read_neutral
     ; We use the repetition rate of the servo signals for timing. The
     ; repetition frequency is divided by 10 and used as prescaler to achieve
     ; a 100ms interval for decreasing init_counter.
-    decfsz  init_prescaler
+    decfsz  init_prescaler, f
     return
     movlw   RECEIVER_OUTPUT_RATE / 10
     movwf   init_prescaler
-    decfsz  init_counter
+    decfsz  init_counter, f
     return
 
 
