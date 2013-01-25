@@ -496,7 +496,9 @@ UART_send_w
     btfss   PIR1, TXIF
     goto    $-1         ; Wait for transmitter interrupt flag
 
+    BANKSEL TXREG
     movwf   TXREG	    ; Send data stored in W
+    BANKSEL 0
     return    
 
 
@@ -523,20 +525,25 @@ UART_send_w
 .utils_UART_read_byte CODE
     GLOBAL UART_read_byte
 UART_read_byte
+    BANKSEL RCSTA
 	btfsc   RCSTA, OERR
 	goto    overerror       ; if overflow error...
 	btfsc   RCSTA, FERR
 	goto	frameerror      ; if framing error...
 uart_ready
+    BANKSEL PIR1
 	btfss	PIR1, RCIF
 	goto	UART_read_byte  ; if not ready, wait...	
 
 uart_gotit
+    BANKSEL INTCON
 	bcf     INTCON, GIE     ; Turn GIE off. This is IMPORTANT!
 	btfsc	INTCON, GIE     ; MicroChip recommends this check!
 	goto 	uart_gotit      ; !!! GOTCHA !!! without this check
                             ;   you are not sure gie is cleared!
+    BANKSEL RCREG
 	movf	RCREG, w        ; Read UART data
+    BANKSEL INTCON
 	bsf     INTCON, GIE     ; Re-enable interrupts
 	return
 
@@ -547,26 +554,32 @@ overerror
     ; Note that flushing the FIFO also automatically clears the FERR flag.
     ; Pulsing CREN resets the OERR flag.
 
+    BANKSEL INTCON
 	bcf     INTCON, GIE
 	btfsc	INTCON, GIE
 	goto 	overerror
 
+    BANKSEL RCSTA
 	bcf     RCSTA, CREN     ; Pulse CREN off...
 	movf	RCREG, w        ; Flush the FIFO, all 3 elements
 	movf	RCREG, w		
 	movf	RCREG, w
 	bsf     RCSTA, CREN     ; Turn CREN back on. This pulsing clears OERR
+    BANKSEL INTCON
 	bsf     INTCON, GIE
 	goto	UART_read_byte  ; Try again...
 
 frameerror			
     ; Framing errors are usually due to wrong baud rate coming in.
 
+    BANKSEL INTCON
 	bcf     INTCON, GIE
 	btfsc	INTCON, GIE
 	goto 	frameerror
 
+    BANKSEL RCREG
 	movf	RCREG,w		;reading rcreg clears ferr flag.
+    BANKSEL INTCON
 	bsf     INTCON, GIE
 	goto	UART_read_byte  ; Try again...
 

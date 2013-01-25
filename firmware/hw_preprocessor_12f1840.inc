@@ -69,7 +69,10 @@ IO_INIT_PREPROCESSOR macro
     BANKSEL TRISA
     movlw   b'11111111' ; Make all ports A input
     movwf   TRISA
-
+    BANKSEL APFCON
+    movlw   b'00000000' ; Use RA0/RA1 for UART TX/RX
+    movwf   APFCON
+    
     ;-----------------------------
     ; Initialize Timer1 for 1 MHz operation
     BANKSEL T1CON
@@ -115,20 +118,31 @@ SPBRG_VALUE = (((d'10'*OSC/((d'64'-(d'48'*BRGH_VALUE))*BAUDRATE))+d'5')/d'10')-1
     ELSE
         bcf TXSTA, BRGH
     ENDIF
+    
     movlw	SPBRG_VALUE
-    movwf	SPBRG
+    movwf	SPBRGL
 
-    BANKSEL RCSTA
     movlw   b'10000000'
             ; |||||||+ RX9D (not used)
             ; ||||||+- OERR (overrun error, read only)
             ; |||||+-- FERR (framing error)
-            ; ||||+---      (not implemented)
+            ; ||||+--- ADDEN(not used in 8 bit mode)
             ; |||+---- CREN (disable reception for MASTER)
             ; ||+----- SREN (not used in async mode)
             ; |+------ RX9  (cleared to use 8 bit mode = no parity)
             ; +------- SPEN (set to enable USART)
     movwf   RCSTA
+
+    movlw   b'00000000'
+            ; |||||||+ ABDEN  (Auto-Baud Detect mode is disabled)
+            ; ||||||+- WUE    (Receiver is operating normally)
+            ; |||||+--        (not implemented)
+            ; ||||+--- BRG16  (8-bit Baud Rate Generator is used)
+            ; |||+---- SCKP   (Transmit non-inverted data to the TX/CK pin)
+            ; ||+-----        (not implemented)
+            ; |+------ RCIDL  (read only)
+            ; +------- ABDOVF (read only)
+    movwf   BAUDCON
 
     movf	RCREG, w    ; Clear uart receiver including FIFO
     movf	RCREG, w
