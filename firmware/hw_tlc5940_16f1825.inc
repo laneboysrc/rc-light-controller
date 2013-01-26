@@ -71,6 +71,7 @@ _IO_INIT_COMMON macro   master
     BANKSEL OSCCON
     movlw   b'11110010' ; 4x PLL enabled, 8 MHz HF, Internal oscillator
     movwf   OSCCON
+
     
     ;-----------------------------
     ; IO Port initialization
@@ -129,9 +130,9 @@ _IO_INIT_COMMON macro   master
     clrf    INTCON      ; Clear all interrupts and disable them
 
 
-    BANKSEL TXSTA
     ;-----------------------------
     ; UART specific initialization
+    BANKSEL TXSTA
 BAUDRATE = 38400        ; Desired baudrate
 BRGH_VALUE = 1          ; Either 0 or 1
 SPBRG_VALUE = (((d'10'*FOSC*d'1000000'/((d'64'-(d'48'*BRGH_VALUE))*BAUDRATE))+d'5')/d'10')-1
@@ -184,6 +185,33 @@ SPBRG_VALUE = (((d'10'*FOSC*d'1000000'/((d'64'-(d'48'*BRGH_VALUE))*BAUDRATE))+d'
 
     movlw	0           ; Send dummy character to get a valid transmit flag
     movwf	TXREG
+
+
+    ;-----------------------------
+    ; MSSP1 initialization for the TLC5940
+    BANKSEL SSP1CON1
+    movlw   b'00100000'
+            ; |||||||+ SSPM0  (b'0000' = SPI Master mode, clock = FOSC/4)
+            ; ||||||+- SSPM1
+            ; |||||+-- SSPM2
+            ; ||||+--- SSPM3
+            ; |||+---- CKP    (Idle state for clock is a low level)
+            ; ||+----- SSPEN  (Enables serial port and configures SCKx, SDOx, SDIx and SSx as the source of the serial port pins)
+            ; |+------ SSPOV  (Clear overflow)
+            ; +------- WCOL   (Clear collision)
+    movwf   SSP1CON1
+
+    movlw   b'00000000'
+            ; |||||||+ 
+            ; ||||||+- 
+            ; |||||+-- 
+            ; ||||+--- 
+            ; |||+---- 
+            ; ||+----- 
+            ; |+------ CKE   (Transmit occurs on transition from Idle to active clock state)
+            ; +------- SMP   (Input data sampled at middle of data output time)
+    movwf   SSP1STAT
+
 
     BANKSEL 0
     endm

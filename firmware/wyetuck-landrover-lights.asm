@@ -71,6 +71,17 @@
 ; Init_lights
 ;******************************************************************************
 Init_lights
+
+    BANKSEL SSP1BUF
+    movlw   0x42
+    movwf   SSP1BUF
+    
+    btfss   SSP1STAT, BF    ; Wait for transmit done flag
+    goto    $-1
+
+    movf    SSP1BUF, w      ; Clears BF flag
+    BANKSEL 0
+
     return
 
 ;******************************************************************************
