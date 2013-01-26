@@ -23,7 +23,6 @@
     #include    <p12f1840.inc>
 
 IFDEF INCLUDE_CONFIG
-    
     ; Due to a bug in GPUtils 1.0.0 we have to specify the configuration
     ; registers via the old method. The new method causes a core dump during
     ; linking as well as faulty hex files...
@@ -33,17 +32,21 @@ ENDIF
 
 
 ;******************************************************************************
+FOSC = 16   ; Osc frequency in MHz
+
+
+;******************************************************************************
 ;   Port usage:
 ;   ===========                                             
-;   RA3:        IN   Pin 4   Servo input ST
+;   RA2:        IN   Pin 5   Servo input ST
 ;   RA4:        IN   Pin 3   Servo input TH
 ;   RA5:        IN   Pin 2   Servo input CH3
 ;   RA0:        OUT  Pin 7   Slave out (UART TX), ICSPDAT (in circuit programming)
 ;
 ;   RA1:        NA   Pin 6   used internally for UART RX, ICSPCLK (in circuit programming)
-;   RA2:        NA   Pin 5   not used
+;   RA3:        NA   Pin 4   Vpp (in circuit programming)
 
-#define PORT_STEERING   PORTA, 3
+#define PORT_STEERING   PORTA, 2
 #define PORT_THROTTLE   PORTA, 4
 #define PORT_CH3        PORTA, 5
 
@@ -97,10 +100,9 @@ clear_ram
     BANKSEL TXSTA
     ;-----------------------------
     ; UART specific initialization
-OSC = d'16000000'       ; Osc frequency in Hz
-BAUDRATE = d'38400'     ; Desired baudrate
+BAUDRATE = 38400        ; Desired baudrate
 BRGH_VALUE = 1          ; Either 0 or 1
-SPBRG_VALUE = (((d'10'*OSC/((d'64'-(d'48'*BRGH_VALUE))*BAUDRATE))+d'5')/d'10')-1
+SPBRG_VALUE = (((d'10'*FOSC*d'1000000'/((d'64'-(d'48'*BRGH_VALUE))*BAUDRATE))+d'5')/d'10')-1
 
     movlw   b'00100000'
             ; |||||||+ TX9D (not used)
