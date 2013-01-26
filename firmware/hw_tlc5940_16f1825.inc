@@ -66,11 +66,53 @@ FOSC = 32   ; Osc frequency in MHz
 ;* MACROS
 ;******************************************************************************
 _IO_INIT_COMMON macro   master
+    ;-----------------------------
+    ; Oscillator Control 
+    BANKSEL OSCCON
+    movlw   b'11110010' ; 4x PLL enabled, 8 MHz HF, Internal oscillator
+    movwf   OSCCON
+    
+    ;-----------------------------
+    ; IO Port initialization
     BANKSEL PORTA
-    clrf    PORTA       ; Set all (output) ports to GND
-    clrf    PORTC
+    clrf    PORTA
+    BANKSEL LATA
+    clrf    LATA
+    BANKSEL ANSELA
+    clrf    ANSELA
+    BANKSEL APFCON0
+    movlw   b'10000100' ; Use RA1/RA0 for UART TX/RX
+    movwf   APFCON0
+    clrf    APFCON1
+    BANKSEL TRISA
+    if (master == 1)    
+        movlw   b'00001011' ; Make all ports A except RA0, RA1 and RA3 output
+        movwf   TRISA
+
+        movlw   b'00000010' ; Make all ports C except RC1 output
+        movwf   TRISC
+    else
+        movlw   b'00001010' ; Make all ports A except RA1 and RA3 output (Slave!)
+        movwf   TRISA
+
+        movlw   b'00000010' ; Make all ports C except RC1 output
+        movwf   TRISC
+    endif
+
+    
+    ;-----------------------------
+    ; Initialize Timer1 for 1 MHz operation
+    BANKSEL T1CON
+    movlw   b'00110000' ; 
+    movwf   T1CON
 
 
+    ; ####################
+    ; FIXME: Timer 0 runs at 4 times the speed, which means it overflows every 
+    ; 16.384ms instead of 65.536ms
+    ; The solution may be to use TIMER2/4/6 which have a pre and post scaler,
+    ; allowing for 65ms overflows
+    ; ####################
     BANKSEL OPTION_REG
     movlw   b'10000111'
             ; |||||||+ PS0  (Set pre-scaler to 1:256)
@@ -83,49 +125,16 @@ _IO_INIT_COMMON macro   master
             ; +------- RBPU (Disable Port B pull-ups)
     movwf   OPTION_REG
 
-    bcf     INTCON, T0IF    ; Clear Timer 0 Interrupt Flag    
 
-
-    BANKSEL TRISA
-    ;-----------------------------
-    ; Port direction
-    if (master == 1)    
-        movlw   b'10110000' ; Make all ports A exceot RA7, RA5 and RA4 output
-        movwf   TRISA
-
-        movlw   b'11101110' ; Make RB7, RB6, RB5, RB3, RB2 and RB1 inputs
-        movwf   TRISB
-    else
-        movlw   b'10110000' ; Make all ports A exceot RA7, RA5 and RA4 output
-        movwf   TRISA
-
-        movlw   b'01101110' ; Make RB6, RB5, RB3, RB2 and RB1 inputs (for SLAVE!)
-        movwf   TRISB
-    endif
-
-
-    BANKSEL 0
-    ;-----------------------------
-    ; Clear all memory locations between 0x20 and 0x7f
-    movlw   0x7f
-	movwf	FSR
-	movwf	0x20		; Store a non-zero value in the last RAM address we
-                        ;  like to clear
-clear_ram	
-    decf	FSR, f		
-	clrf	INDF		; Clear Indirect memory location
-	movfw	0x20		; If we reached the first RAM location it will be 0 now,
-    skpz                ;  so we are done!
-	goto	clear_ram   
+    clrf    INTCON      ; Clear all interrupts and disable them
 
 
     BANKSEL TXSTA
     ;-----------------------------
     ; UART specific initialization
-OSC = d'4000000'        ; Osc frequency in Hz
-BAUDRATE = d'38400'     ; Desired baudrate
+BAUDRATE = 38400        ; Desired baudrate
 BRGH_VALUE = 1          ; Either 0 or 1
-SPBRG_VALUE = (((d'10'*OSC/((d'64'-(d'48'*BRGH_VALUE))*BAUDRATE))+d'5')/d'10')-1
+SPBRG_VALUE = (((d'10'*FOSC*d'1000000'/((d'64'-(d'48'*BRGH_VALUE))*BAUDRATE))+d'5')/d'10')-1
 
     movlw   b'00100000'
             ; |||||||+ TX9D (not used)
@@ -143,20 +152,31 @@ SPBRG_VALUE = (((d'10'*OSC/((d'64'-(d'48'*BRGH_VALUE))*BAUDRATE))+d'5')/d'10')-1
     ELSE
         bcf TXSTA, BRGH
     ENDIF
+    
     movlw	SPBRG_VALUE
-    movwf	SPBRG
+    movwf	SPBRGL
 
-    BANKSEL RCSTA
     movlw   b'10000000'
             ; |||||||+ RX9D (not used)
             ; ||||||+- OERR (overrun error, read only)
             ; |||||+-- FERR (framing error)
-            ; ||||+---      (not implemented)
+            ; ||||+--- ADDEN(not used in 8 bit mode)
             ; |||+---- CREN (disable reception for MASTER)
             ; ||+----- SREN (not used in async mode)
             ; |+------ RX9  (cleared to use 8 bit mode = no parity)
             ; +------- SPEN (set to enable USART)
     movwf   RCSTA
+
+    movlw   b'00000000'
+            ; |||||||+ ABDEN  (Auto-Baud Detect mode is disabled)
+            ; ||||||+- WUE    (Receiver is operating normally)
+            ; |||||+--        (not implemented)
+            ; ||||+--- BRG16  (8-bit Baud Rate Generator is used)
+            ; |||+---- SCKP   (Transmit non-inverted data to the TX/CK pin)
+            ; ||+-----        (not implemented)
+            ; |+------ RCIDL  (read only)
+            ; +------- ABDOVF (read only)
+    movwf   BAUDCON
 
     movf	RCREG, w    ; Clear uart receiver including FIFO
     movf	RCREG, w
@@ -164,13 +184,21 @@ SPBRG_VALUE = (((d'10'*OSC/((d'64'-(d'48'*BRGH_VALUE))*BAUDRATE))+d'5')/d'10')-1
 
     movlw	0           ; Send dummy character to get a valid transmit flag
     movwf	TXREG
+
+    BANKSEL 0
     endm
+
 
 IO_INIT_MASTER macro
     _IO_INIT_COMMON 1
     endm
+
     
 IO_INIT_SLAVE macro
     _IO_INIT_COMMON 0
     endm
+
+
+#define EEDATA EEDATL   ; New chips have EEDATL/H, we map it to the old EEDATA
+
     

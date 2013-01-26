@@ -1,5 +1,23 @@
 .PHONY: all
-all: phil-ford xr311 dingo
+all: wyetuck-landrover phil-ford xr311 dingo
+
+
+##############################################################################
+# Wye Tuck's Land Rover Defender S2 SWB (all metal Landy)
+##############################################################################
+.PHONY: wyetuck-landrover
+wyetuck-landrover: wyetuck-landrover-preprocessor wyetuck-landrover-master
+
+.PHONY: wyetuck-landrover-preprocessor
+wyetuck-landrover-preprocessor : hw_preprocessor_12f1840.inc
+	$(eval CFLAGS = -D SEQUENTIAL_CHANNEL_READING )
+	$(eval files = preprocessor servo-reader utils)
+	$(build)
+
+wyetuck-landrover-master: hw_tlc5940_16f1825.inc
+	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x03)
+	$(eval files = master uart-reader utils wyetuck-landrover-lights)
+	$(build)
 
 
 ##############################################################################
