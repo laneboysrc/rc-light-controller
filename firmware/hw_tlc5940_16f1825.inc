@@ -18,14 +18,14 @@
     #include    <p16f1825.inc>
 
 IFDEF INCLUDE_CONFIG
-    CONFIG      FOSC = INTOSCIO
-    CONFIG      WDTE = OFF
-    CONFIG      PWRTE = ON
-    CONFIG      MCLRE = OFF
-    CONFIG      BOREN = OFF
-    CONFIG      LVP = OFF
-    CONFIG      CP = OFF, CPD = OFF
+    __CONFIG     _CONFIG1, _FOSC_INTOSC & _WDTE_OFF & _PWRTE_ON & _MCLRE_OFF & _CP_OFF & _CPD_OFF & _BOREN_OFF & _CLKOUTEN_OFF & _IESO_OFF & _FCMEN_OFF
+    __CONFIG     _CONFIG2, _WRT_OFF & _PLLEN_OFF & _STVREN_OFF & _LVP_OFF 
 ENDIF
+
+
+;******************************************************************************
+FOSC = 32   ; Osc frequency in MHz
+
 
 ;******************************************************************************
 ;   Port usage:

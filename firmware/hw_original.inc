@@ -12,19 +12,18 @@
 ;
 ;******************************************************************************
 
-    PROCESSOR   PIC16F628A
+    PROCESSOR   PIC16F628
 
-    #include    <p16f628a.inc>
+    #include    <p16f628.inc>
 
 IFDEF INCLUDE_CONFIG
-    CONFIG      FOSC = INTOSCIO
-    CONFIG      WDTE = OFF
-    CONFIG      PWRTE = ON
-    CONFIG      MCLRE = OFF
-    CONFIG      BOREN = OFF
-    CONFIG      LVP = OFF
-    CONFIG      CP = OFF, CPD = OFF
+    __CONFIG    _INTRC_OSC_NOCLKOUT & _WDT_OFF & _PWRTE_ON & _MCLRE_OFF & _CP_OFF & _CPD_OFF & _BOREN_OFF & _LVP_OFF
 ENDIF
+
+
+;******************************************************************************
+FOSC = 4    ; Osc frequency in MHz
+
 
 ;******************************************************************************
 ;   Port usage:
@@ -124,10 +123,9 @@ clear_ram
     BANKSEL TXSTA
     ;-----------------------------
     ; UART specific initialization
-OSC = d'4000000'        ; Osc frequency in Hz
 BAUDRATE = d'38400'     ; Desired baudrate
 BRGH_VALUE = 1          ; Either 0 or 1
-SPBRG_VALUE = (((d'10'*OSC/((d'64'-(d'48'*BRGH_VALUE))*BAUDRATE))+d'5')/d'10')-1
+SPBRG_VALUE = (((d'10'*FOSC*d'1000000'/((d'64'-(d'48'*BRGH_VALUE))*BAUDRATE))+d'5')/d'10')-1
 
     movlw   b'00100000'
             ; |||||||+ TX9D (not used)

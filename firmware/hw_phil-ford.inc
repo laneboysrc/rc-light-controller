@@ -1,6 +1,6 @@
 ;******************************************************************************
 ;
-;   io_original.inc
+;   hw_phil-ford.inc
 ;
 ;   This file contains IO port definitions for the RC light controller
 ;   for Phil's (RCGolf) Ford. 
@@ -14,13 +14,17 @@
 ;
 ;******************************************************************************
 
-    PROCESSOR   PIC16F628A
+    PROCESSOR   PIC16F628
 
-    #include    <p16f628a.inc>
+    #include    <p16f628.inc>
 
 IFDEF INCLUDE_CONFIG
-    __CONFIG    _INTOSC_OSC_NOCLKOUT & _WDT_OFF & _PWRTE_ON & _MCLRE_OFF & _CP_OFF & _CPD_OFF & _BOREN_OFF & _LVP_OFF
+    __CONFIG    _INTRC_OSC_NOCLKOUT & _WDT_OFF & _PWRTE_ON & _MCLRE_OFF & _CP_OFF & _CPD_OFF & _BOREN_OFF & _LVP_OFF
 ENDIF
+
+
+;******************************************************************************
+FOSC = 4    ; Osc frequency in MHz
 
 
 ;******************************************************************************
@@ -96,7 +100,8 @@ IO_INIT_MASTER macro
             ; +------- RBPU (Disable Port B pull-ups)
     movwf   OPTION_REG
 
-    bcf     INTCON, T0IF    ; Clear Timer 0 Interrupt Flag    
+
+    clrf    INTCON          ; Disable all interrupts
 
 
     BANKSEL 0
@@ -117,12 +122,10 @@ clear_ram
     BANKSEL TXSTA
     ;-----------------------------
     ; UART specific initialization
-OSC = d'4000000'        ; Osc frequency in Hz
 BAUDRATE = d'38400'     ; Desired baudrate
 BRGH_VALUE = 1          ; Either 0 or 1
-SPBRG_VALUE = (((d'10'*OSC/((d'64'-(d'48'*BRGH_VALUE))*BAUDRATE))+d'5')/d'10')-1
-
-    movlw   b'00000000'
+SPBRG_VALUE = (((d'10'*FOSC*d'1000000'/((d'64'-(d'48'*BRGH_VALUE))*BAUDRATE))+d'5')/d'10')-1
+    movlw   b'00100000'
             ; |||||||+ TX9D (not used)
             ; ||||||+- TRMT (read only)
             ; |||||+-- BRGH (high baud rate generator)
@@ -139,7 +142,7 @@ SPBRG_VALUE = (((d'10'*OSC/((d'64'-(d'48'*BRGH_VALUE))*BAUDRATE))+d'5')/d'10')-1
         bcf TXSTA, BRGH
     ENDIF
     movlw	SPBRG_VALUE
-    movwf	SPBRG
+    movwf   SPBRG
 
     BANKSEL RCSTA
     movlw   b'10010000'
@@ -159,5 +162,7 @@ SPBRG_VALUE = (((d'10'*OSC/((d'64'-(d'48'*BRGH_VALUE))*BAUDRATE))+d'5')/d'10')-1
 
     movlw	0           ; Send dummy character to get a valid transmit flag
     movwf	TXREG
+    
+    BANKSEL 0
     endm
     
