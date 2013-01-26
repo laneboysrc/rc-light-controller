@@ -112,11 +112,11 @@
 #define EEPROM_MAGIC2 0x11
 
 #define EEPROM_ADR_MAGIC1 0      
-#define EEPROM_ADR_MAGIC2 4
 #define EEPROM_ADR_SERVO_EPL 1
 #define EEPROM_ADR_SERVO_CENTRE 2
 #define EEPROM_ADR_SERVO_EPR 3
 #define EEPROM_ADR_STEERING_REVERSE 4
+#define EEPROM_ADR_MAGIC2 5
 
 ; Bitfields in variable setup_mode
 #define SETUP_MODE_INIT 0
@@ -1075,17 +1075,22 @@ EEPROM_load_defaults
 EEPROM_write_byte
 	BANKSEL EEADR
 	movwf   EEADR
-	BANKSEL temp
+	; Gotcha: don't use "BANKSEL temp" as temp is "EXTERN" and the compiler
+	; does not insert useful code in that case!
+	BANKSEL 0               
 	movf    temp, w
 	BANKSEL EEDATA
 	movwf   EEDATA		    ; Setup byte to write
 	bsf	    EECON1, WREN    ; Enable writes
-	
-	movlw   H'55'           ; Required sequence!
+
+    bcf     INTCON, GIE	
+	movlw   0x55            ; Required sequence!
 	movwf   EECON2
-    movlw   H'AA'
+    movlw   0xaa
 	movwf   EECON2
 	bsf     EECON1, WR      ; Begin write procedure
+    bsf     INTCON, GIE	
+
 	bcf     EECON1, WREN	; Disable writes 
                             ;  Note: does not affect current write cycle
 	
@@ -1107,7 +1112,7 @@ EEPROM_read_byte
 	movwf   EEADR
 	bsf     EECON1, RD      
 	movf    EEDATA, w
-	BANKSEL PIR1
+	BANKSEL 0
 	return
 
 
