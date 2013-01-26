@@ -493,9 +493,30 @@ ENDIF ; PORT_SDI
 .utils_UART_send_w CODE
     GLOBAL UART_send_w
 UART_send_w
-    btfss   PIR1, TXIF
-    goto    $-1         ; Wait for transmitter interrupt flag
+    BANKSEL TXSTA
+    btfss   TXSTA, TRMT
+    goto    $-1         ; Wait for TSR register being empty
 
+    ; Due to the large error in baudrate on slower PIC chips it is
+    ; necessary to add a delay of one bit (~30us) between characters.
+    ; To achieve this in the most efficient way we wait until the transmit
+    ; register is empty. We then add a 30us delay for the extra bit. Finally
+    ; we send the next character.
+    ; This way the communication is reliable, and sending a pack of 4 bytes
+    ; at 38400 baud takes approximately 1.1ms.
+
+    BANKSEL 0
+    movwf   d0          ; Save W
+    
+    ; For 32 MHz we need 80 loop runs; scale down according to FOSC 
+    ; given in hw_*.inc
+	movlw	80 * FOSC / 32      
+	movwf	d1
+UART_send_w_delay
+	decfsz	d1, f
+	goto	UART_send_w_delay
+	
+    movfw   d0          ; Restore W
     BANKSEL TXREG
     movwf   TXREG	    ; Send data stored in W
     BANKSEL 0
@@ -536,51 +557,48 @@ uart_ready
 	goto	UART_read_byte  ; if not ready, wait...	
 
 uart_gotit
-    BANKSEL INTCON
 	bcf     INTCON, GIE     ; Turn GIE off. This is IMPORTANT!
 	btfsc	INTCON, GIE     ; MicroChip recommends this check!
 	goto 	uart_gotit      ; !!! GOTCHA !!! without this check
                             ;   you are not sure gie is cleared!
     BANKSEL RCREG
 	movf	RCREG, w        ; Read UART data
-    BANKSEL INTCON
 	bsf     INTCON, GIE     ; Re-enable interrupts
+
+    BANKSEL 0
 	return
 
-overerror	   		
+    ; The code below is working in the bank where the UART registers are.
+    ; The INTCON register is accessible in any bank so we don't need to
+    ; switch back and forth!
+
+overerror
     ; Over-run errors are usually caused by the incoming data building up in 
     ; the fifo. This is often the case when the program has not read the UART
     ; in a while. Flushing the FIFO will allow normal input to resume.
     ; Note that flushing the FIFO also automatically clears the FERR flag.
     ; Pulsing CREN resets the OERR flag.
-
-    BANKSEL INTCON
 	bcf     INTCON, GIE
 	btfsc	INTCON, GIE
 	goto 	overerror
 
-    BANKSEL RCSTA
 	bcf     RCSTA, CREN     ; Pulse CREN off...
 	movf	RCREG, w        ; Flush the FIFO, all 3 elements
 	movf	RCREG, w		
 	movf	RCREG, w
 	bsf     RCSTA, CREN     ; Turn CREN back on. This pulsing clears OERR
-    BANKSEL INTCON
 	bsf     INTCON, GIE
 	goto	UART_read_byte  ; Try again...
 
 frameerror			
     ; Framing errors are usually due to wrong baud rate coming in.
-
-    BANKSEL INTCON
 	bcf     INTCON, GIE
 	btfsc	INTCON, GIE
 	goto 	frameerror
 
-    BANKSEL RCREG
 	movf	RCREG,w		;reading rcreg clears ferr flag.
-    BANKSEL INTCON
 	bsf     INTCON, GIE
+
 	goto	UART_read_byte  ; Try again...
 
 
