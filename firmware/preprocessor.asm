@@ -39,6 +39,7 @@
 ; and send it to the slave
 #define STARTUP_MODE_NEUTRAL 4      ; Waiting before reading ST/TH neutral
 
+#define SLAVE_MAGIC_BYTE    0x87
 
 ;******************************************************************************
 ;* VARIABLE DEFINITIONS
@@ -87,9 +88,9 @@ Main_loop
 ;
 ;******************************************************************************
 Output_preprocessed_channels
-    movlw   0x87            ; Magic byte for synchronization
+    movlw   SLAVE_MAGIC_BYTE    ; Magic byte for synchronization
     call    UART_send_w        
-
+    
     movf    steering, w
     call    UART_send_w        
     
