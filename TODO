@@ -7,7 +7,6 @@ TO DO LIST for the RC Light Controller
 * Add documentation how to build a new "car"
 
 * Switch to a more modern and faster PIC chip
-    * 12F1840 for the preprocessor
     * 16F1825 for the master/slave
 
 * Switch to the TLC5940 light controller
