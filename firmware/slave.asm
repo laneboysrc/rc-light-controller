@@ -40,12 +40,12 @@
 ;******************************************************************************
 ;* VARIABLE DEFINITIONS
 ;******************************************************************************
-.data_slave_int UDATA 0x70  ; 16 Bytes that are accessible via any bank!
+.data_slave_int UDATA_SHR   ; 16 Bytes that are accessible via any bank!
 
 savew               res 1   ; Interrupt save registers
 savestatus	        res 1
-savepclath          res 1
-savefsr             res 1
+;savepclath          res 1
+;savefsr             res 1
 
 
 .data_slave UDATA           
@@ -237,7 +237,7 @@ IFDEF ENABLE_SERVO_OUTPUT
     btfsc   servo_sync_flag, 0
     goto    $ - 1
 
-    movf    uart_servo
+    movf    uart_servo, w
     movwf   servo    
     
     call    Make_steering_wheel_servo_pulse
