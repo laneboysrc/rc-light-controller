@@ -24,7 +24,8 @@ ENDIF
 
 
 ;******************************************************************************
-FOSC = 32   ; Osc frequency in MHz
+FOSC = 32           ; Osc frequency in MHz
+#define TLC5940     ; Let the code know we are using the TLC5940 LED driver
 
 
 ;******************************************************************************
@@ -69,7 +70,7 @@ _IO_INIT_COMMON macro   master
     ;-----------------------------
     ; Oscillator Control 
     BANKSEL OSCCON
-    movlw   b'11110010' ; 4x PLL enabled, 8 MHz HF, Internal oscillator
+    movlw   b'11110000' ; 32MHz: 4x PLL enabled, 8 MHz HF, Clock determined by FOSC<2:0>
     movwf   OSCCON
 
     
