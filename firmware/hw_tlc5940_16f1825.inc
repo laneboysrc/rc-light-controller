@@ -35,8 +35,8 @@ FOSC = 32   ; Osc frequency in MHz
 ;   RA3:        IN  ( 4) Servo input CH3; Vpp
 ;   RC4:        OUT ( 6) Slave out (UART TX); Master steering wheel servo
 ;
-;   RC0:        OUT (10) SCK TLC5940
-;   RC2         OUT ( 8) SDI TLC5940 (SDO on 16F1825)
+;   RC0:        OUT (10) SCLK TLC5940
+;   RC2         OUT ( 8) SIN TLC5940 (SDO on 16F1825)
 ;   RC1:        IN  ( 9) Reserved for SPI EEPROM (SDI on 16F1825)
 ;   RC3:        OUT ( 7) XLAT TLC5940
 ;   RC5:        OUT ( 5) VPROG TLC5940

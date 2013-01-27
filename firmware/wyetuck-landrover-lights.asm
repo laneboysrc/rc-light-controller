@@ -10,6 +10,8 @@
     
     ; Functions and variables imported from utils.asm
     EXTERN d0
+    EXTERN d1
+    EXTERN d2
     EXTERN temp
     EXTERN light_data
 
@@ -71,18 +73,45 @@
 ; Init_lights
 ;******************************************************************************
 Init_lights
-
+    incf    d2, f
+    movf    d2, w
+        
     BANKSEL SSP1BUF
-    movlw   0x42
     movwf   SSP1BUF
     
     btfss   SSP1STAT, BF    ; Wait for transmit done flag
     goto    $-1
 
     movf    SSP1BUF, w      ; Clears BF flag
+
     BANKSEL 0
+    call    Delay_1ms
+
+    goto    Init_lights
 
     return
+
+
+;******************************************************************************
+; Delay_1ms
+;
+; Delays for exactly 1ms at 32 MHz FOSC
+;******************************************************************************
+Delay_1ms
+	movlw	0x3E
+	movwf	d0
+	movlw	0x07
+	movwf	d1
+delay_1ms_0
+	decfsz	d0, f
+	goto	$+2
+	decfsz	d1, f
+	goto	delay_1ms_0
+
+	goto	$+1
+	nop
+	return
+
 
 ;******************************************************************************
 ; Output_lights
