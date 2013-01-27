@@ -214,6 +214,7 @@ slave_setup_light_table
 ; Init_lights
 ;******************************************************************************
 Init_lights
+    BANKSEL light_data
     clrf    light_data
     call    TLC5916_send
     return
@@ -223,7 +224,9 @@ Init_lights
 ; Output_lights
 ;******************************************************************************
 Output_lights
+    BANKSEL setup_mode
     movf    setup_mode, f
+    BANKSEL d0
     bnz     output_local_lights_setup
 
     movlw   1 << LIGHT_TABLE_LOCAL
@@ -250,15 +253,18 @@ Output_slave
     movlw   0x87            ; Magic byte for synchronization
     call    UART_send_w        
 
+    BANKSEL setup_mode
     movf    setup_mode, f
     bnz     output_slave_setup
 
+    BANKSEL d0
     movlw   1 << LIGHT_TABLE_SLAVE
     movwf   d0
     call    Output_get_state
     movf    temp, w         ; LED data for full brightness
     call    UART_send_w        
 
+    BANKSEL d0
     movlw   1 << LIGHT_TABLE_SLAVE_HALF
     movwf   d0
     call    Output_get_state
@@ -266,11 +272,13 @@ Output_slave
     call    UART_send_w        
 
 output_slave_servo
+    BANKSEL servo
     movf    servo, w        ; Steering wheel servo data
     call    UART_send_w        
     return
 
 output_slave_setup
+    BANKSEL d0
     movlw   1 << LIGHT_TABLE_SLAVE_SETUP
     movwf   d0
     call    Output_get_setup_state
@@ -289,58 +297,72 @@ output_slave_setup
 ; Resulting lights are stored in temp.
 ;******************************************************************************
 Output_get_state
+    BANKSEL light_data
     clrf    light_data
 
     ; Parking lights
+    BANKSEL light_mode
     btfss   light_mode, LIGHT_MODE_PARKING
     goto    output_local_get_state_low_beam
     movlw   0
     call    light_table
+    BANKSEL light_data
     iorwf   light_data, f
 
     ; Low beam
 output_local_get_state_low_beam
+    BANKSEL light_mode
     btfss   light_mode, LIGHT_MODE_LOW_BEAM
     goto    output_local_get_state_fog
     movlw   1
     call    light_table
+    BANKSEL light_data
     iorwf   light_data, f
 
     ; Fog lamps    
 output_local_get_state_fog
+    BANKSEL light_mode
     btfss   light_mode, LIGHT_MODE_FOG
     goto    output_local_get_state_high_beam
     movlw   2
     call    light_table
+    BANKSEL light_data
     iorwf   light_data, f
 
     ; High beam    
 output_local_get_state_high_beam
+    BANKSEL light_mode
     btfss   light_mode, LIGHT_MODE_HIGH_BEAM
     goto    output_local_get_state_brake
     movlw   3
     call    light_table
+    BANKSEL light_data
     iorwf   light_data, f
 
     ; Brake lights    
 output_local_get_state_brake
+    BANKSEL drive_mode
     btfss   drive_mode, DRIVE_MODE_BRAKE
     goto    output_local_get_state_reverse
     movlw   4
     call    light_table
+    BANKSEL light_data
     iorwf   light_data, f
 
     ; Reverse lights        
 output_local_get_state_reverse
+    BANKSEL drive_mode
     btfss   drive_mode, DRIVE_MODE_REVERSE
     goto    output_local_get_state_indicator_left
     movlw   5
     call    light_table
+    BANKSEL light_data
     iorwf   light_data, f
 
     ; Indicator left    
 output_local_get_state_indicator_left
     ; Skip all indicators and hazard lights if blink flag is in off period
+    BANKSEL blink_mode
     btfss   blink_mode, BLINK_MODE_BLINKFLAG
     goto    output_local_get_state_end
 
@@ -348,22 +370,27 @@ output_local_get_state_indicator_left
     goto    output_local_get_state_indicator_right
     movlw   6
     call    light_table
+    BANKSEL light_data
     iorwf   light_data, f
     
     ; Indicator right
 output_local_get_state_indicator_right
+    BANKSEL blink_mode
     btfss   blink_mode, BLINK_MODE_INDICATOR_RIGHT
     goto    output_local_get_state_hazard
     movlw   7
     call    light_table
+    BANKSEL light_data
     iorwf   light_data, f
    
     ; Hazard lights 
 output_local_get_state_hazard
+    BANKSEL blink_mode
     btfss   blink_mode, BLINK_MODE_HAZARD
     goto    output_local_get_state_end
     movlw   8
     call    light_table
+    BANKSEL light_data
     iorwf   light_data, f
 
 output_local_get_state_end
@@ -377,12 +404,14 @@ output_local_get_state_end
 ; Resulting lights are stored in temp.
 ;******************************************************************************
 Output_get_setup_state
+    BANKSEL setup_mode
     movlw   0    
     btfsc   setup_mode, 2
     addlw   1
     btfsc   setup_mode, 3
     addlw   1
     call    light_table
+    BANKSEL light_data
     movwf   light_data
     return
 
@@ -402,6 +431,7 @@ Output_get_setup_state
 ; Resulting light pattern is in w
 ;******************************************************************************
 light_table
+    BANKSEL d0
     btfsc   d0, LIGHT_TABLE_LOCAL
     goto    local_light_table
     btfsc   d0, LIGHT_TABLE_SLAVE

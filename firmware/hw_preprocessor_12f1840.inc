@@ -81,29 +81,14 @@ IO_INIT_PREPROCESSOR macro
     BANKSEL T1CON
     movlw   b'00100000' ; 
     movwf   T1CON
-
-    ;-----------------------------
-    ; Clear all memory locations between 0x20 and 0x7f
-    BANKSEL 0
-	clrf    FSR0H
-    movlw   0x7f
-	movwf	FSR0L
-	movwf	0x20		; Store a non-zero value in the last RAM address we
-                        ;  like to clear
-clear_ram	
-    decf	FSR0L, f		
-	clrf	INDF0		; Clear Indirect memory location
-	movfw	0x20		; If we reached the first RAM location it will be 0 now,
-                        ;  so we are done!
-	bnz	clear_ram       
 	
-    BANKSEL TXSTA
     ;-----------------------------
     ; UART specific initialization
 BAUDRATE = 38400        ; Desired baudrate
 BRGH_VALUE = 1          ; Either 0 or 1
 SPBRG_VALUE = (((d'10'*FOSC*d'1000000'/((d'64'-(d'48'*BRGH_VALUE))*BAUDRATE))+d'5')/d'10')-1
 
+    BANKSEL TXSTA
     movlw   b'00100000'
             ; |||||||+ TX9D (not used)
             ; ||||||+- TRMT (read only)

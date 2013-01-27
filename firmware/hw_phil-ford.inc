@@ -74,13 +74,15 @@ IO_INIT_MASTER macro
     movlw   0x07
     movwf   CMCON       ; Disable the comparators
 
+
+    BANKSEL PORTA
     clrf    PORTA       ; Set all (output) ports to GND
     clrf    PORTB
 
 
-    BANKSEL TRISA
     ;-----------------------------
     ; Port direction
+    BANKSEL TRISA
     movlw   b'11111110' ; Make all port A pins input except RA0 which drives the roof light
     movwf   TRISA
 
@@ -101,30 +103,17 @@ IO_INIT_MASTER macro
     movwf   OPTION_REG
 
 
+    BANKSEL INTCON
     clrf    INTCON          ; Disable all interrupts
 
 
-    BANKSEL 0
-    ;-----------------------------
-    ; Clear all memory locations between 0x20 and 0x7f
-    movlw   0x7f
-	movwf	FSR
-	movwf	0x20		; Store a non-zero value in the last RAM address we
-                        ;  like to clear
-clear_ram	
-    decf	FSR, f		
-	clrf	INDF		; Clear Indirect memory location
-	movfw	0x20		; If we reached the first RAM location it will be 0 now,
-    skpz                ;  so we are done!
-	goto	clear_ram   
-
-
-    BANKSEL TXSTA
     ;-----------------------------
     ; UART specific initialization
 BAUDRATE = d'38400'     ; Desired baudrate
 BRGH_VALUE = 1          ; Either 0 or 1
 SPBRG_VALUE = (((d'10'*FOSC*d'1000000'/((d'64'-(d'48'*BRGH_VALUE))*BAUDRATE))+d'5')/d'10')-1
+
+    BANKSEL TXSTA
     movlw   b'00100000'
             ; |||||||+ TX9D (not used)
             ; ||||||+- TRMT (read only)

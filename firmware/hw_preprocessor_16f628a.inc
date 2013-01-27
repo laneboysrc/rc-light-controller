@@ -60,6 +60,8 @@ IO_INIT_PREPROCESSOR macro
     movlw   0x07
     movwf   CMCON       ; Disable the comparators
 
+
+    BANKSEL PORTA
     clrf    PORTA       ; Set all (output) ports to GND
     clrf    PORTB
 
@@ -76,7 +78,9 @@ IO_INIT_PREPROCESSOR macro
             ; +------- RBPU (Disable Port B pull-ups)
     movwf   OPTION_REG
 
-    bcf     INTCON, T0IF    ; Clear Timer 0 Interrupt Flag    
+
+    BANKSEL INTCON
+    clrf     INTCON          ; Disable all interrupts
 
 
     BANKSEL TRISA
@@ -88,33 +92,20 @@ IO_INIT_PREPROCESSOR macro
     movlw   b'00000000' ; Make all ports B outputs
     movwf   TRISB
 
+
     ;-----------------------------
     ; Initialize Timer1
     BANKSEL T1CON
     clrf    T1CON       ; Stop timer 1, runs at 1us per tick, internal osc
 
-    BANKSEL 0
-    ;-----------------------------
-    ; Clear all memory locations between 0x20 and 0x7f
-    movlw   0x7f
-	movwf	FSR
-	movwf	0x20		; Store a non-zero value in the last RAM address we
-                        ;  like to clear
-clear_ram	
-    decf	FSR, f		
-	clrf	INDF		; Clear Indirect memory location
-	movfw	0x20		; If we reached the first RAM location it will be 0 now,
-    skpz                ;  so we are done!
-	goto	clear_ram   
 
-
-    BANKSEL TXSTA
     ;-----------------------------
     ; UART specific initialization
 BAUDRATE = d'38400'     ; Desired baudrate
 BRGH_VALUE = 1          ; Either 0 or 1
 SPBRG_VALUE = (((d'10'*FOSC*d'1000000'/((d'64'-(d'48'*BRGH_VALUE))*BAUDRATE))+d'5')/d'10')-1
 
+    BANKSEL TXSTA
     movlw   b'00100000'
             ; |||||||+ TX9D (not used)
             ; ||||||+- TRMT (read only)

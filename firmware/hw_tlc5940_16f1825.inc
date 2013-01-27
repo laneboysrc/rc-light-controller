@@ -128,16 +128,17 @@ _IO_INIT_COMMON macro   master
     movwf   OPTION_REG
 
 
+    BANKSEL INTCON
     clrf    INTCON      ; Clear all interrupts and disable them
 
 
     ;-----------------------------
     ; UART specific initialization
-    BANKSEL TXSTA
 BAUDRATE = 38400        ; Desired baudrate
 BRGH_VALUE = 1          ; Either 0 or 1
 SPBRG_VALUE = (((d'10'*FOSC*d'1000000'/((d'64'-(d'48'*BRGH_VALUE))*BAUDRATE))+d'5')/d'10')-1
 
+    BANKSEL TXSTA
     movlw   b'00100000'
             ; |||||||+ TX9D (not used)
             ; ||||||+- TRMT (read only)
