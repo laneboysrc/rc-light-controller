@@ -73,17 +73,15 @@ d1  res 1
 Init_lights
     BANKSEL light_data
     incf    light_data, f
+    
     movf    light_data, w
-        
     BANKSEL SSP1BUF
     movwf   SSP1BUF
     
-    btfss   SSP1STAT, BF    ; Wait for transmit done flag
+    btfss   SSP1STAT, BF    ; Wait for transmit done flag BF being set
     goto    $-1
-
     movf    SSP1BUF, w      ; Clears BF flag
 
-    BANKSEL 0
     call    Delay_1ms
 
     goto    Init_lights
@@ -97,6 +95,7 @@ Init_lights
 ; Delays for exactly 1ms at 32 MHz FOSC
 ;******************************************************************************
 Delay_1ms
+    BANKSEL d0
 	movlw	0x3E
 	movwf	d0
 	movlw	0x07
@@ -116,6 +115,7 @@ delay_1ms_0
 ; Output_lights
 ;******************************************************************************
 Output_lights
+    BANKSEL startup_mode
     movf    startup_mode, f
     bnz     output_lights_startup
 

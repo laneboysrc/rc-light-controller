@@ -83,6 +83,7 @@
 ;******************************************************************************
 Init_lights
     ; Front indicators half brightness until we receive the first command via the UART
+    BANKSEL light_data
     clrf    light_data
     clrf    light_data+1
     bsf     light_data, LED_INDICATOR_LEFT    
@@ -94,33 +95,43 @@ Init_lights
 ; Output_lights
 ;******************************************************************************
 Output_lights
+    BANKSEL light_data
     clrf    light_data          ; Clear low brightness data
     clrf    light_data+1        ; Clear full brightness data
 
+    BANKSEL startup_mode
     movf    startup_mode, f
     bnz     output_lights_startup
 
     movf    setup_mode, f
     bnz     output_lights_setup
 
-    btfsc   light_mode, LIGHT_MODE_PARKING
+    BANKSEL light_mode
+    movfw   light_mode
+    movwf   temp
+    BANKSEL light_data
+    btfsc   temp, LIGHT_MODE_PARKING
     bsf     light_data, LED_PARKING
-    btfsc   light_mode, LIGHT_MODE_PARKING
+    btfsc   temp, LIGHT_MODE_PARKING
     bsf     light_data, LED_TAIL_BRAKE_INDICATOR_LEFT
-    btfsc   light_mode, LIGHT_MODE_PARKING
+    btfsc   temp, LIGHT_MODE_PARKING
     bsf     light_data, LED_TAIL_BRAKE_INDICATOR_RIGHT
 
-    btfsc   light_mode, LIGHT_MODE_LOW_BEAM
+    btfsc   temp, LIGHT_MODE_LOW_BEAM
     bsf     light_data+1, LED_LOW_BEAM_LEFT
-    btfsc   light_mode, LIGHT_MODE_LOW_BEAM
+    btfsc   temp, LIGHT_MODE_LOW_BEAM
     bsf     light_data+1, LED_LOW_BEAM_RIGHT
 
-    btfsc   drive_mode, DRIVE_MODE_BRAKE
+    BANKSEL drive_mode
+    movfw   drive_mode
+    movwf   temp
+    BANKSEL light_data
+    btfsc   temp, DRIVE_MODE_BRAKE
     bsf     light_data+1, LED_TAIL_BRAKE_INDICATOR_LEFT
-    btfsc   drive_mode, DRIVE_MODE_BRAKE
+    btfsc   temp, DRIVE_MODE_BRAKE
     bsf     light_data+1, LED_TAIL_BRAKE_INDICATOR_RIGHT
 
-    btfsc   drive_mode, DRIVE_MODE_REVERSE
+    btfsc   temp, DRIVE_MODE_REVERSE
     bsf     light_data+1, LED_REVERSING
 
     ; Blinking the XR311 is very complicated due to combined tail, brake and
@@ -136,6 +147,7 @@ Output_lights
     ;  Brake                full        off
     ;  Tail + Brake         full        half
 
+    BANKSEL blink_mode
     btfsc   blink_mode, BLINK_MODE_HAZARD
     goto    _output_lights_blinking_is_active
     btfsc   blink_mode, BLINK_MODE_INDICATOR_LEFT
@@ -144,56 +156,70 @@ Output_lights
     goto    _output_lights_blinking_end
 
 _output_lights_blinking_is_active
+    BANKSEL light_data
     bcf     light_data, LED_TAIL_BRAKE_INDICATOR_LEFT
     bcf     light_data, LED_TAIL_BRAKE_INDICATOR_RIGHT
     bcf     light_data+1, LED_TAIL_BRAKE_INDICATOR_LEFT
     bcf     light_data+1, LED_TAIL_BRAKE_INDICATOR_RIGHT
 
+    BANKSEL blink_mode
     btfss   blink_mode, BLINK_MODE_BLINKFLAG
     goto    _output_lights_indicators_off
 
 _output_lights_indicators_on
-    btfsc   blink_mode, BLINK_MODE_HAZARD
+    BANKSEL blink_mode
+    movfw   blink_mode
+    movwf   temp
+    BANKSEL light_data
+    btfsc   temp, BLINK_MODE_HAZARD
     bsf     light_data+1, LED_INDICATOR_LEFT
-    btfsc   blink_mode, BLINK_MODE_HAZARD
+    btfsc   temp, BLINK_MODE_HAZARD
     bsf     light_data+1, LED_INDICATOR_RIGHT
-    btfsc   blink_mode, BLINK_MODE_INDICATOR_LEFT
+    btfsc   temp, BLINK_MODE_INDICATOR_LEFT
     bsf     light_data+1, LED_INDICATOR_LEFT
-    btfsc   blink_mode, BLINK_MODE_INDICATOR_RIGHT
+    btfsc   temp, BLINK_MODE_INDICATOR_RIGHT
     bsf     light_data+1, LED_INDICATOR_RIGHT
 
+    BANKSEL drive_mode
     btfss   drive_mode, DRIVE_MODE_BRAKE
     goto    _output_lights_combined_indicators_half
 
-    btfsc   blink_mode, BLINK_MODE_HAZARD
+    BANKSEL light_data
+    btfsc   temp, BLINK_MODE_HAZARD
     bsf     light_data+1, LED_TAIL_BRAKE_INDICATOR_LEFT
-    btfsc   blink_mode, BLINK_MODE_HAZARD
+    btfsc   temp, BLINK_MODE_HAZARD
     bsf     light_data+1, LED_TAIL_BRAKE_INDICATOR_RIGHT
-    btfsc   blink_mode, BLINK_MODE_INDICATOR_LEFT
+    btfsc   temp, BLINK_MODE_INDICATOR_LEFT
     bsf     light_data+1, LED_TAIL_BRAKE_INDICATOR_LEFT
-    btfsc   blink_mode, BLINK_MODE_INDICATOR_RIGHT
+    btfsc   temp, BLINK_MODE_INDICATOR_RIGHT
     bsf     light_data+1, LED_TAIL_BRAKE_INDICATOR_RIGHT
     goto    _output_lights_blinking_end    
 
 _output_lights_indicators_off
+    BANKSEL drive_mode
     btfss   drive_mode, DRIVE_MODE_BRAKE
     goto    _output_lights_blinking_end
     btfss   light_mode, LIGHT_MODE_PARKING
     goto    _output_lights_blinking_end
 
 _output_lights_combined_indicators_half
-    btfsc   blink_mode, BLINK_MODE_HAZARD
+    BANKSEL blink_mode
+    movfw   blink_mode
+    movwf   temp
+    BANKSEL light_data
+    btfsc   temp, BLINK_MODE_HAZARD
     bsf     light_data, LED_TAIL_BRAKE_INDICATOR_LEFT
-    btfsc   blink_mode, BLINK_MODE_HAZARD
+    btfsc   temp, BLINK_MODE_HAZARD
     bsf     light_data, LED_TAIL_BRAKE_INDICATOR_RIGHT
-    btfsc   blink_mode, BLINK_MODE_INDICATOR_LEFT
+    btfsc   temp, BLINK_MODE_INDICATOR_LEFT
     bsf     light_data, LED_TAIL_BRAKE_INDICATOR_LEFT
-    btfsc   blink_mode, BLINK_MODE_INDICATOR_RIGHT
+    btfsc   temp, BLINK_MODE_INDICATOR_RIGHT
     bsf     light_data, LED_TAIL_BRAKE_INDICATOR_RIGHT
 ;   goto    _output_lights_blinking_end
 
 _output_lights_blinking_end
     ; Turn off half brightness if full brightness is requested
+    BANKSEL light_data
     btfsc   light_data+1, LED_TAIL_BRAKE_INDICATOR_LEFT
     bcf     light_data, LED_TAIL_BRAKE_INDICATOR_LEFT
     btfsc   light_data+1, LED_TAIL_BRAKE_INDICATOR_RIGHT
@@ -203,15 +229,18 @@ _output_lights_blinking_end
 
 
 output_lights_startup
+    BANKSEL startup_mode
     btfss   startup_mode, STARTUP_MODE_NEUTRAL
     return
 
+    BANKSEL light_data
     bsf     light_data, LED_LOW_BEAM_LEFT
     bsf     light_data, LED_LOW_BEAM_RIGHT
     goto    output_lights_execute
 
 
 output_lights_setup
+    BANKSEL setup_mode
     btfsc   setup_mode, SETUP_MODE_CENTRE
     goto    output_lights_setup_centre
     btfsc   setup_mode, SETUP_MODE_LEFT
@@ -221,6 +250,7 @@ output_lights_setup
     btfss   setup_mode, SETUP_MODE_STEERING_REVERSE 
     return
 
+    BANKSEL light_data
     bsf     light_data, LED_LOW_BEAM_LEFT
     goto    output_lights_execute
     
@@ -230,10 +260,12 @@ output_lights_setup_centre
 ;   goto    output_lights_setup_execute
 
 output_lights_setup_left
+    BANKSEL light_data
     bsf     light_data+1, LED_INDICATOR_LEFT
     goto    output_lights_execute
     
 output_lights_setup_right
+    BANKSEL light_data
     bsf     light_data+1, LED_INDICATOR_RIGHT
 
 output_lights_execute    

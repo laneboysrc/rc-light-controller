@@ -46,8 +46,10 @@ ENDIF
 .code_steering_wheel_servo CODE
 
 ;******************************************************************************
+; Steering servo related initalization
+;******************************************************************************
 Init_steering_wheel_servo
-    ; Steering servo related initalization
+    BANKSEL CCP1CON
     movlw   b'00001010'
             ; |||||||+ CCPM0 (Compare mode, generate software interrupt on 
             ; ||||||+- CCPM1  match (CCP1IF bit is set, CCP1 pin is unaffected)
@@ -62,7 +64,8 @@ Init_steering_wheel_servo
 
     
 ;******************************************************************************
-Make_steering_wheel_servo_pulse    
+Make_steering_wheel_servo_pulse  
+    BANKSEL servo  
     movf    servo, w
     addlw   120
     movwf   xl
@@ -70,6 +73,7 @@ Make_steering_wheel_servo_pulse
     call    Mul_x_by_6
     call    Add_x_and_780
 
+    BANKSEL T1CON
     clrf    T1CON           ; Stop timer 1, runs at 1us per tick, internal osc
     clrf    TMR1H           ; Reset the timer to 0
     clrf    TMR1L

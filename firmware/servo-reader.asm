@@ -152,6 +152,7 @@ swap_x_y    macro   x, y
 ; Initialization
 ;******************************************************************************
 Init_reader
+    BANKSEL ch3_ep0
     ; Load defaults for end points for position 0 and 1 of CH3; discard lower
     ; 4 bits so our math can use bytes only
     movlw   1000 >> 4
@@ -160,9 +161,11 @@ Init_reader
     movlw   2000 >> 4
     movwf   ch3_ep1
 
+    BANKSEL startup_mode
     movlw   1 << STARTUP_MODE_NEUTRAL
     movwf   startup_mode    
     
+    BANKSEL init_prescaler
     movlw   RECEIVER_OUTPUT_RATE / 10
     movwf   init_prescaler
     movlw   STARTUP_WAIT_TIME / 100
@@ -182,6 +185,7 @@ Read_all_channels
     call    Read_ch3
     ENDIF                               ; } SEQUENTIAL_CHANNEL_READING
 
+    BANKSEL startup_mode
     movf    startup_mode, f
     bnz     read_neutral
     
@@ -189,6 +193,7 @@ Read_all_channels
     call    Normalize_throttle
     call    Normalize_ch3
     
+    BANKSEL flags
     btfsc   flags, TH_FLAG_REVERSING_INITIALZED
     return
 
@@ -203,6 +208,7 @@ Read_all_channels
     ; the end points are still set very low as this code is execute right
     ; after initialization!
 
+    BANKSEL throttle_abs
     movlw   50
     subwf   throttle_abs, w
     bnc     read_waiting_for_throttle_direction
@@ -210,16 +216,19 @@ Read_all_channels
     ; Reverse the throttle if it is currently negative    
     btfsc   throttle, 7
     comf    throttle_reverse, f
+    BANKSEL flags
     bsf     flags, TH_FLAG_REVERSING_INITIALZED
     return
 
 read_waiting_for_throttle_direction
+    BANKSEL throttle
     ; Clear throttle data until we have determined the direction
     clrf    throttle
     clrf    throttle_abs
     return
 
 read_neutral
+    BANKSEL steering
     ; We are initializing so pretend steering and throttle are neutral
     clrf    steering            
     clrf    steering_abs
@@ -237,6 +246,7 @@ read_neutral
     ; We use the repetition rate of the servo signals for timing. The
     ; repetition frequency is divided by 10 and used as prescaler to achieve
     ; a 100ms interval for decreasing init_counter.
+    BANKSEL init_prescaler
     decfsz  init_prescaler, f
     return
     movlw   RECEIVER_OUTPUT_RATE / 10
@@ -246,7 +256,7 @@ read_neutral
 
 
     ; Use the current steering and throttle values as "neutral"
-
+    BANKSEL throttle_h
     movf    throttle_h, w
     movwf   throttle_centre_h
     movf    throttle_l, w
@@ -271,6 +281,7 @@ read_neutral
     movwf   yl
 
     call    Add_y_to_x
+    BANKSEL steering_epr_h
     movf    xh, w
     movwf   steering_epr_h    
     movf    xl, w
@@ -281,6 +292,7 @@ read_neutral
     movf    steering_centre_l, w
     movwf   xl
     call    Sub_y_from_x
+    BANKSEL steering_epr_h
     movf    xh, w
     movwf   steering_epl_h    
     movf    xl, w
@@ -291,6 +303,7 @@ read_neutral
     movf    throttle_centre_l, w
     movwf   xl
     call    Add_y_to_x
+    BANKSEL throttle_epr_h
     movf    xh, w
     movwf   throttle_epr_h    
     movf    xl, w
@@ -301,11 +314,13 @@ read_neutral
     movf    throttle_centre_l, w
     movwf   xl
     call    Sub_y_from_x
+    BANKSEL throttle_epr_h
     movf    xh, w
     movwf   throttle_epl_h    
     movf    xl, w
     movwf   throttle_epl_l    
-    
+
+    BANKSEL startup_mode    
     clrf    startup_mode
     return
     
@@ -323,6 +338,11 @@ read_neutral
 ; increasing response speed of the light controller.
 ;******************************************************************************
 Read_all
+    ; ***************
+    ; ASSUMPTION: the PORT registers and TIMER1 registers are in the same bank.
+    ; ***************
+    
+    BANKSEL T1CON
     bcf     T1CON, TMR1ON   ; Stop timer 1
     clrf    TMR1H           ; Reset the timer to 0
     clrf    TMR1L
@@ -346,8 +366,11 @@ all_st_wait_for_low2
     bcf     T1CON, TMR1ON   ; Stop timer 1
 
     movf    TMR1H, w        ; Store read values temporarily; validate later
+    BANKSEL steering_h
     movwf   steering_h
+    BANKSEL TMR1L
     movf    TMR1L, w
+    BANKSEL steering_l
     movwf   steering_l
 
     ; At this point the throttle signal is already being output
@@ -355,8 +378,9 @@ all_st_wait_for_low2
     ; low for the throttle to be high. So we can directly wait for the
     ; throttle to be low again to read the measured value.
 
+    BANKSEL TMR1H
     clrf    TMR1H       ; Reset the timer to 0 ... 
-    movlw   10          ;  but prime it with the no of instructions until here
+    movlw   14          ;  but prime it with the no of instructions until here
     movwf   TMR1L
     bsf     T1CON, TMR1ON   ; Start timer 1
 
@@ -367,12 +391,16 @@ all_th_wait_for_low2
     bcf     T1CON, TMR1ON   ; Stop timer 1
 
     movf    TMR1H, w    ; Store read values temporarily; validate later
+    BANKSEL throttle_h
     movwf   throttle_h
+    BANKSEL TMR1L
     movf    TMR1L, w
+    BANKSEL throttle_l
     movwf   throttle_l
 
+    BANKSEL TMR1H
     clrf    TMR1H       ; Reset the timer to 0 ... 
-    movlw   10          ;  but prime it with the no of instructions until here
+    movlw   14          ;  but prime it with the no of instructions until here
     movwf   TMR1L
     bsf     T1CON, TMR1ON   ; Start timer 1
 
@@ -395,27 +423,37 @@ all_ch3_wait_for_low2
     rlf     xl, f
     rlf     xh, f
 
-    movf    xh, w    
+    movf    xh, w   
+    BANKSEL ch3_value 
     movwf   ch3_value
 
     ; We are done now measuring all 3 channels, so do throttle and steering 
-    ; validation
+    ; validation. We cheekily use the Timer 1 registers to do this
     
+    BANKSEL steering_h
     movf    steering_h, w    
+    BANKSEL TMR1H
     movwf   TMR1H
+    BANKSEL steering_l
     movf    steering_l, w
+    BANKSEL TMR1L
     movwf   TMR1L
     call    Validate_servo_measurement
+    BANKSEL steering_h
     movf    xh, w    
     movwf   steering_h
     movf    xl, w
     movwf   steering_l
 
     movf    throttle_h, w    
+    BANKSEL TMR1H
     movwf   TMR1H
+    BANKSEL throttle_l
     movf    throttle_l, w
+    BANKSEL TMR1L
     movwf   TMR1L
     call    Validate_servo_measurement
+    BANKSEL throttle_h
     movf    xh, w    
     movwf   throttle_h
     movf    xl, w
@@ -430,10 +468,13 @@ all_ch3_wait_for_low2
 ; Read servo channel 3 and write the result in ch3_h/ch3_l
 ;******************************************************************************
 Read_ch3
+    BANKSEL ch3_value
+    clrf    ch3_value       ; Prime the result with "timing measurement failed"
+
+    BANKSEL T1CON
     bcf     T1CON, TMR1ON   ; Stop timer 1
-    clrf    TMR1H       ; Reset the timer to 0
+    clrf    TMR1H           ; Reset the timer to 0
     clrf    TMR1L
-    clrf    ch3_value   ; Prime the result with "timing measurement failed"
 
     ; Wait until servo signal is LOW 
     ; This ensures that we do not start in the middle of a pulse
@@ -467,6 +508,7 @@ ch3_wait_for_low2
     rlf     xh, f
 
     movf    xh, w    
+    BANKSEL ch3_value
     movwf   ch3_value
 
     return
@@ -496,6 +538,7 @@ ch3_wait_for_low2
 ; have a larger or smaller time value than pos 1.
 ;******************************************************************************
 Normalize_ch3
+    BANKSEL ch3_ep0
     ; Step 1: calculate the centre: (ep0 + ep1) / 2
     ; To avoid potential overflow we actually calculate (ep0 / 2) + (ep1 / 2)
     movf    ch3_ep0, w
@@ -514,12 +557,14 @@ Normalize_ch3
     movwf   temp
     movf    ch3_ep1, w
     call    Max
+    BANKSEL ch3_hysteresis
     movwf   ch3_hysteresis
 
     movf    ch3_ep0, w
     movwf   temp
     movf    ch3_ep1, w
     call    Min
+    BANKSEL ch3_hysteresis
     subwf   ch3_hysteresis, f
     clrc
     rrf     ch3_hysteresis, f
@@ -589,11 +634,14 @@ process_ch3_toggle
 ; Read the throttle servo channel and write the result in throttle_h/throttle_l
 ;******************************************************************************
 Read_throttle
-    bcf     T1CON, TMR1ON   ; Stop timer 1
-    clrf    TMR1H       ; Reset the timer to 0
-    clrf    TMR1L
-    clrf    throttle_h  ; Prime the result with "timing measurement failed"
+    BANKSEL throttle_h
+    clrf    throttle_h      ; Prime the result with "timing measurement failed"
     clrf    throttle_l
+
+    BANKSEL T1CON
+    bcf     T1CON, TMR1ON   ; Stop timer 1
+    clrf    TMR1H           ; Reset the timer to 0
+    clrf    TMR1L
 
     ; Wait until servo signal is LOW 
     ; This ensures that we do not start in the middle of a pulse
@@ -614,6 +662,7 @@ th_wait_for_low2
     bcf     T1CON, TMR1ON   ; Stop timer 1
 
     call    Validate_servo_measurement
+    BANKSEL throttle_h
     movf    xh, w    
     movwf   throttle_h
     movf    xl, w
@@ -637,6 +686,7 @@ th_wait_for_low2
 ;
 ;******************************************************************************
 Normalize_throttle
+    BANKSEL throttle_h
     movf    throttle_h, w
     movwf   xh
     movf    throttle_l, w
@@ -653,6 +703,7 @@ Normalize_throttle
     goto    throttle_set
 
 throttle_is_valid
+    BANKSEL throttle_centre_h
     ; Throttle in centre? (note that we preloaded xh/xl just before this)
     ; If yes then set throttle output variable to '0'
     movf    throttle_centre_h, w
@@ -666,6 +717,7 @@ throttle_is_valid
     goto    throttle_set
 
 throttle_off_centre
+    BANKSEL throttle_h
     movf    throttle_h, w
     movwf   xh
     movf    throttle_l, w
@@ -674,41 +726,48 @@ throttle_off_centre
     bnc     throttle_right
 
 throttle_left
+    BANKSEL throttle_epl_h
     movf    throttle_epl_h, w
     movwf   zh
     movf    throttle_epl_l, w
     movwf   zl
 
     call    Min_x_z     ; Adjust endpoint if POS is less than EPL
+    BANKSEL throttle_epl_h
     movf    zh, w
     movwf   throttle_epl_h
     movf    zl, w
     movwf   throttle_epl_l
 
     call    Calculate_normalized_servo_position
+    BANKSEL throttle_reverse
     movf    throttle_reverse, f
     skpnz   
     sublw   0
     goto    throttle_set
 
 throttle_right
+    BANKSEL throttle_epr_h
     movf    throttle_epr_h, w
     movwf   zh
     movf    throttle_epr_l, w
     movwf   zl
 
     call    Max_x_z     ; Adjust endpoint if POS is larger than EPR
+    BANKSEL throttle_epr_h
     movf    zh, w
     movwf   throttle_epr_h
     movf    zl, w
     movwf   throttle_epr_l
 
     call    Calculate_normalized_servo_position
+    BANKSEL throttle_reverse
     movf    throttle_reverse, f
     skpz   
     sublw   0
 
 throttle_set
+    BANKSEL throttle
     movwf   throttle
 
     ; Calculate abs(throttle) for easier math. We can use the highest bit 
@@ -727,11 +786,14 @@ throttle_set
 ; Read the steering servo channel and write the result in steering_h/steering_l
 ;******************************************************************************
 Read_steering
+    BANKSEL steering_h
+    clrf    steering_h  ; Prime the result with "timing measurement failed"
+    clrf    steering_l
+
+    BANKSEL T1CON
     bcf     T1CON, TMR1ON   ; Stop timer 1
     clrf    TMR1H       ; Reset the timer to 0
     clrf    TMR1L
-    clrf    steering_h  ; Prime the result with "timing measurement failed"
-    clrf    steering_l
 
     ; Wait until servo signal is LOW 
     ; This ensures that we do not start in the middle of a pulse
@@ -752,6 +814,7 @@ st_wait_for_low2
     bcf     T1CON, TMR1ON   ; Stop timer 1
 
     call    Validate_servo_measurement
+    BANKSEL steering_h
     movf    xh, w    
     movwf   steering_h
     movf    xl, w
@@ -775,6 +838,7 @@ st_wait_for_low2
 ;
 ;******************************************************************************
 Normalize_steering
+    BANKSEL steering_h
     movf    steering_h, w
     movwf   xh
     movf    steering_l, w
@@ -791,6 +855,7 @@ Normalize_steering
     goto    steering_set
 
 steering_is_valid
+    BANKSEL steering_centre_h
     ; Steering in centre? (note that we preloaded xh/xl just before this)
     ; If yes then set steering output variable to '0'
     movf    steering_centre_h, w
@@ -804,6 +869,7 @@ steering_is_valid
     goto    steering_set
 
 steering_off_centre
+    BANKSEL steering_h
     movf    steering_h, w
     movwf   xh
     movf    steering_l, w
@@ -812,41 +878,48 @@ steering_off_centre
     bnc      steering_right
 
 steering_left
+    BANKSEL steering_epl_h
     movf    steering_epl_h, w
     movwf   zh
     movf    steering_epl_l, w
     movwf   zl
 
     call    Min_x_z     ; Adjust endpoint if POS is smaller than EPR
+    BANKSEL steering_epl_h
     movf    zh, w
     movwf   steering_epl_h
     movf    zl, w
     movwf   steering_epl_l
 
     call    Calculate_normalized_servo_position
+    BANKSEL steering_reverse
     movf    steering_reverse, f
     skpnz   
     sublw   0
     goto    steering_set
 
 steering_right
+    BANKSEL steering_epr_h
     movf    steering_epr_h, w
     movwf   zh
     movf    steering_epr_l, w
     movwf   zl
 
     call    Max_x_z     ; Adjust endpoint if POS is larger than EPR
+    BANKSEL steering_epr_h
     movf    zh, w
     movwf   steering_epr_h
     movf    zl, w
     movwf   steering_epr_l
 
     call    Calculate_normalized_servo_position
+    BANKSEL steering_reverse
     movf    steering_reverse, f
     skpz   
     sublw   0
 
 steering_set
+    BANKSEL steering
     movwf   steering
 
     ; Calculate abs(steering) for easier math. We can use the highest bit 
@@ -873,6 +946,7 @@ steering_set
 ; in xh/xl
 ;******************************************************************************
 Validate_servo_measurement
+    BANKSEL TMR1H
     movf    TMR1H, w
     movwf   xh
     movf    TMR1L, w

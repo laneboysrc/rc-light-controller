@@ -455,11 +455,12 @@ TLC5916_send
     movwf   temp
 
 tlc5916_send_loop
-
+    BANKSEL light_data
     IFDEF DUAL_TLC5916
     rlf     light_data+1, f
     ENDIF
     rlf     light_data, f
+    BANKSEL PORTA
     skpc    
     bcf     PORT_SDI
     skpnc    
@@ -498,7 +499,6 @@ UART_send_w
     ; This way the communication is reliable, and sending a pack of 4 bytes
     ; at 38400 baud takes approximately 1.1ms.
 
-    BANKSEL 0
     movwf   temp        ; Save W
     
     ; For 32 MHz we need 80 loop runs; scale down according to FOSC 
@@ -510,9 +510,7 @@ UART_send_w_delay
 	goto	UART_send_w_delay
 	
     movfw   temp        ; Restore W
-    BANKSEL TXREG
     movwf   TXREG	    ; Send data stored in W
-    BANKSEL 0
     return    
 
 
@@ -557,8 +555,6 @@ uart_gotit
     BANKSEL RCREG
 	movf	RCREG, w        ; Read UART data
 	bsf     INTCON, GIE     ; Re-enable interrupts
-
-    BANKSEL 0
 	return
 
     ; The code below is working in the bank where the UART registers are.

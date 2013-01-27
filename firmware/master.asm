@@ -214,6 +214,7 @@ Init
     call    EEPROM_load_persistent_data
     call    Init_reader
 
+    BANKSEL blink_counter
     movlw   BLINK_COUNTER_VALUE
     movwf   blink_counter
     
@@ -248,11 +249,13 @@ Main_loop
 ; Soft-timer with a resolution of 65.536 ms
 ;******************************************************************************
 Service_timer0
+    BANKSEL INTCON
     btfss   INTCON, T0IF
     return
 
     bcf     INTCON, T0IF
 
+    BANKSEL ch3_click_counter
     movf    ch3_click_counter, f
     skpz     
     decf    ch3_click_counter, f    
@@ -260,7 +263,6 @@ Service_timer0
     movf    indicator_state_counter, f
     skpz     
     decf    indicator_state_counter, f    
-
 
     decfsz  drive_mode_brake_disarm_counter, f
     goto    service_timer0_drive_mode
@@ -303,6 +305,7 @@ service_timer0_blink
 ; of hazard and indicator are already on (= blinking)
 ;******************************************************************************
 Synchronize_blinking
+    BANKSEL blink_mode
     btfsc   blink_mode, BLINK_MODE_HAZARD
     return
     btfsc   blink_mode, BLINK_MODE_INDICATOR_LEFT
@@ -320,6 +323,7 @@ Synchronize_blinking
 ; Process_ch3_double_click
 ;******************************************************************************
 Process_ch3_double_click
+    BANKSEL startup_mode
     movf    startup_mode, f
     bz      process_ch3_no_startup
     return
@@ -331,21 +335,27 @@ process_ch3_no_startup
     ; Ignore the potential "toggle" after power on
     bsf     flags, CH3_FLAG_INITIALIZED
     bcf     flags, CH3_FLAG_LAST_STATE
-    btfsc   ch3, CH3_FLAG_LAST_STATE
+    BANKSEL ch3
+    btfss   ch3, CH3_FLAG_LAST_STATE
+    return
+    BANKSEL flags               
     bsf     flags, CH3_FLAG_LAST_STATE
     return
 
 process_ch3_initialized
     ; ch3 is only using bit 0, the same bit as CH3_FLAG_LAST_STATE.
     ; We can therefore use XOR to determine whether ch3 has changed.
-    movfw   ch3                 
+    BANKSEL ch3
+    movfw   ch3
+    movwf   temp+1  
+    BANKSEL flags               
     xorwf   flags, w        
     movwf   temp
     btfss   temp, CH3_FLAG_LAST_STATE
     goto    process_ch3_click_timeout
 
     bcf     flags, CH3_FLAG_LAST_STATE
-    btfsc   ch3, CH3_FLAG_LAST_STATE
+    btfsc   temp+1, CH3_FLAG_LAST_STATE     ; temp+1 contains ch3
     bsf     flags, CH3_FLAG_LAST_STATE
     incf    ch3_clicks, f
     movlw   CH3_BUTTON_TIMEOUT
@@ -426,6 +436,7 @@ process_ch3_quad_click
     ; Quad click: Hazard lights on/off  
     clrf    ch3_clicks
     call    Synchronize_blinking
+    BANKSEL blink_mode
     movlw   1 << BLINK_MODE_HAZARD
     xorwf   blink_mode, f
     return
@@ -493,10 +504,12 @@ process_ch3_click_end
 ;#define DRIVE_MODE_BRAKE_ARMED 3
 ;******************************************************************************
 Process_drive_mode
+    BANKSEL throttle_abs
     movlw   CENTRE_THRESHOLD
     subwf   throttle_abs, w
     bc      process_drive_mode_not_neutral
 
+    BANKSEL drive_mode
     btfsc   drive_mode, DRIVE_MODE_REVERSE_BRAKE
     return
     btfsc   drive_mode, DRIVE_MODE_BRAKE_DISARM
@@ -514,6 +527,7 @@ Process_drive_mode
     return
 
 process_drive_mode_not_neutral_after_reverse
+    BANKSEL drive_mode
     bsf     drive_mode, DRIVE_MODE_BRAKE_DISARM
     movlw   BRAKE_DISARM_COUNTER_VALUE
     movwf   drive_mode_brake_disarm_counter   
@@ -527,9 +541,11 @@ process_drive_mode_not_neutral
     bcf     drive_mode, DRIVE_MODE_REVERSE_BRAKE
     bcf     drive_mode, DRIVE_MODE_BRAKE_DISARM
 
+    BANKSEL throttle
     btfsc   throttle, 7
     goto    process_drive_mode_brake_or_reverse
 
+    BANKSEL drive_mode
     bsf     drive_mode, DRIVE_MODE_FORWARD
     bsf     drive_mode, DRIVE_MODE_BRAKE_ARMED
     bcf     drive_mode, DRIVE_MODE_REVERSE
@@ -537,6 +553,7 @@ process_drive_mode_not_neutral
     return
 
 process_drive_mode_brake_or_reverse
+    BANKSEL drive_mode
     btfsc   drive_mode, DRIVE_MODE_BRAKE_ARMED
     goto    process_drive_mode_brake
 
@@ -575,25 +592,7 @@ process_drive_mode_brake
 #define STATE_INDICATOR_BLINK_RIGHT_WAIT 8
 
 Process_indicators
-    IF 0
-    movf    indicator_state, w
-    addwf   PCL, f
-
-Process_indicators_table
-    goto    process_indicators_not_neutral
-    goto    process_indicators_neutral_wait
-    goto    process_indicators_blink_armed
-    goto    process_indicators_blink_armed_left
-    goto    process_indicators_blink_armed_right
-    goto    process_indicators_blink_left
-    goto    process_indicators_blink_left_wait
-    goto    process_indicators_blink_right
-    goto    process_indicators_blink_right_wait
-    IF ((HIGH ($)) != (HIGH (Process_indicators_table)))
-        ERROR "Process_indicators_table CROSSES PAGE BOUNDARY!"
-    ENDIF
-    ENDIF
-
+    BANKSEL indicator_state
     movf    indicator_state, w
     movwf   temp
     skpnz   
@@ -623,6 +622,7 @@ Process_indicators_table
 
 process_indicators_not_neutral
     movlw   CENTRE_THRESHOLD
+    BANKSEL throttle_abs
     subwf   throttle_abs, w
     skpnc
     return
@@ -632,6 +632,7 @@ process_indicators_not_neutral
     skpnc
     return
 
+    BANKSEL indicator_state_counter
     movlw   INDICATOR_STATE_COUNTER_VALUE
     movwf   indicator_state_counter
     movlw   STATE_INDICATOR_NEUTRAL_WAIT
@@ -639,6 +640,7 @@ process_indicators_not_neutral
     return
 
 process_indicators_neutral_wait
+    BANKSEL throttle_abs
     movlw   CENTRE_THRESHOLD
     subwf   throttle_abs, w
     bc      process_indicators_set_not_neutral
@@ -647,16 +649,19 @@ process_indicators_neutral_wait
     subwf   steering_abs, w
     bc      process_indicators_set_not_neutral
 
+    BANKSEL indicator_state_counter
     movf    indicator_state_counter, f
     skpz    
     return
 
 process_indicators_set_blink_armed
+    BANKSEL indicator_state
     movlw   STATE_INDICATOR_BLINK_ARMED
     movwf   indicator_state
     return
 
 process_indicators_set_not_neutral
+    BANKSEL indicator_state
     movlw   STATE_INDICATOR_NOT_NEUTRAL
     movwf   indicator_state
     bcf     blink_mode, BLINK_MODE_INDICATOR_RIGHT
@@ -664,6 +669,7 @@ process_indicators_set_not_neutral
     return
 
 process_indicators_blink_armed
+    BANKSEL throttle_abs
     movlw   CENTRE_THRESHOLD
     subwf   throttle_abs, w
     bc      process_indicators_set_not_neutral
@@ -673,15 +679,19 @@ process_indicators_blink_armed
     skpc
     return    
 
+    movfw   steering
+    movwf   temp
+    BANKSEL indicator_state_counter
     movlw   INDICATOR_STATE_COUNTER_VALUE
     movwf   indicator_state_counter    
     movlw   STATE_INDICATOR_BLINK_ARMED_LEFT
-    btfss   steering, 7 
+    btfss   temp, 7                 ; temp = steering
     movlw   STATE_INDICATOR_BLINK_ARMED_RIGHT
     movwf   indicator_state
     return
   
 process_indicators_blink_armed_left  
+    BANKSEL throttle_abs
     movlw   CENTRE_THRESHOLD
     subwf   throttle_abs, w
     bc      process_indicators_set_not_neutral
@@ -693,11 +703,13 @@ process_indicators_blink_armed_left
     btfss   steering, 7 
     goto    process_indicators_set_blink_armed
 
+    BANKSEL indicator_state_counter
     movf    indicator_state_counter, f
     skpz    
     return
 
 process_indicators_set_blink_left  
+    BANKSEL indicator_state
     movlw   STATE_INDICATOR_BLINK_LEFT
     movwf   indicator_state
     call    Synchronize_blinking
@@ -705,6 +717,7 @@ process_indicators_set_blink_left
     return
 
 process_indicators_blink_armed_right  
+    BANKSEL throttle_abs
     movlw   CENTRE_THRESHOLD
     subwf   throttle_abs, w
     bc      process_indicators_set_not_neutral
@@ -716,18 +729,22 @@ process_indicators_blink_armed_right
     btfsc   steering, 7 
     goto    process_indicators_set_blink_armed
 
+    BANKSEL indicator_state_counter
     movf    indicator_state_counter, f
     skpz    
     return
 
 process_indicators_set_blink_right
+    BANKSEL indicator_state
     movlw   STATE_INDICATOR_BLINK_RIGHT
     movwf   indicator_state
     call    Synchronize_blinking
+    BANKSEL blink_mode
     bsf     blink_mode, BLINK_MODE_INDICATOR_RIGHT
     return
 
 process_indicators_blink_left
+    BANKSEL steering
     btfsc   steering, 7 
     goto    process_indicators_blink_left_centre
 
@@ -736,11 +753,13 @@ process_indicators_blink_left
     bc      process_indicators_set_not_neutral
 
 process_indicators_blink_left_centre
+    BANKSEL steering_abs
     movlw   CENTRE_THRESHOLD
     subwf   steering_abs, w
     skpnc
     return
 
+    BANKSEL indicator_state_counter
     movlw   INDICATOR_STATE_COUNTER_VALUE_OFF
     movwf   indicator_state_counter             
     movlw   STATE_INDICATOR_BLINK_LEFT_WAIT
@@ -748,6 +767,7 @@ process_indicators_blink_left_centre
     return
 
 process_indicators_blink_left_wait
+    BANKSEL steering
     btfsc   steering, 7 
     goto    process_indicators_blink_left_wait_centre
 
@@ -756,16 +776,19 @@ process_indicators_blink_left_wait
     bc      process_indicators_set_not_neutral
 
 process_indicators_blink_left_wait_centre
+    BANKSEL steering_abs
     movlw   CENTRE_THRESHOLD
     subwf   steering_abs, w
     bc      process_indicators_set_blink_left
 
+    BANKSEL indicator_state_counter
     movf    indicator_state_counter, f
     skpz    
     return
     goto    process_indicators_set_not_neutral
 
 process_indicators_blink_right
+    BANKSEL steering
     btfss   steering, 7 
     goto    process_indicators_blink_right_centre
 
@@ -774,11 +797,13 @@ process_indicators_blink_right
     bnc     process_indicators_set_not_neutral
 
 process_indicators_blink_right_centre
+    BANKSEL steering_abs
     movlw   CENTRE_THRESHOLD
     subwf   steering_abs, w
     skpnc
     return
 
+    BANKSEL indicator_state_counter
     movlw   INDICATOR_STATE_COUNTER_VALUE_OFF
     movwf   indicator_state_counter             
     movlw   STATE_INDICATOR_BLINK_RIGHT_WAIT
@@ -786,6 +811,7 @@ process_indicators_blink_right_centre
     return
 
 process_indicators_blink_right_wait
+    BANKSEL steering
     btfss   steering, 7 
     goto    process_indicators_blink_right_wait_centre
 
@@ -794,10 +820,12 @@ process_indicators_blink_right_wait
     bc      process_indicators_set_not_neutral
 
 process_indicators_blink_right_wait_centre
+    BANKSEL steering_abs
     movlw   CENTRE_THRESHOLD
     subwf   steering_abs, w
     bc      process_indicators_set_blink_right
 
+    BANKSEL indicator_state_counter
     movf    indicator_state_counter, f
     skpz    
     return
@@ -812,6 +840,7 @@ process_indicators_blink_right_wait_centre
 ; controller knows the direction of the steering channel.
 ;******************************************************************************
 Process_steering_reversing
+    BANKSEL setup_mode
     btfss   setup_mode, SETUP_MODE_STEERING_REVERSE
     return
 
@@ -823,6 +852,7 @@ Process_steering_reversing
     clrf    setup_mode
 
     ; Save the direction only when the steering is excerted to 50% or more
+    BANKSEL steering_abs
     movlw   50
     subwf   steering_abs, w
     skpc    
@@ -834,6 +864,7 @@ Process_steering_reversing
     btfss   steering, 7
     comf    steering_reverse, f
     call    EEPROM_save_persistent_data    
+    BANKSEL setup_mode
     clrf    setup_mode
     return
     
@@ -854,6 +885,7 @@ Process_steering_reversing
 #define SIGN_FLAG temp+1
 
 Process_steering_wheel_servo
+    BANKSEL setup_mode
     movf    setup_mode, f
     bz      process_steering_servo_no_setup
 
@@ -883,53 +915,69 @@ process_steering_servo_setup_centre
     goto    process_steering_servo_no_setup
 
     call    process_steering_servo_no_setup
+    BANKSEL servo
     movf    servo, w
+    BANKSEL servo_setup_centre
     movwf   servo_setup_centre         
     movlw   1 << SETUP_MODE_LEFT
     movwf   setup_mode
     return
 
 process_steering_servo_setup_left
+    BANKSEL setup_mode
     btfss   setup_mode, SETUP_MODE_NEXT
     goto    process_steering_servo_no_setup
 
     call    process_steering_servo_no_setup
+    BANKSEL servo
     movf    servo, w
+    BANKSEL servo_setup_epl         
     movwf   servo_setup_epl         
     movlw   1 << SETUP_MODE_RIGHT
     movwf   setup_mode
     return
 
 process_steering_servo_setup_right
+    BANKSEL setup_mode
     btfss   setup_mode, SETUP_MODE_NEXT
     goto    process_steering_servo_no_setup
 
     call    process_steering_servo_no_setup
+    BANKSEL servo
     movf    servo, w
+    BANKSEL servo_epr
     movwf   servo_epr         
     movf    servo_setup_epl, w         
     movwf   servo_epl         
     movf    servo_setup_centre, w         
     movwf   servo_centre
-    call    EEPROM_save_persistent_data
     clrf    setup_mode
+    call    EEPROM_save_persistent_data
     return
 
 process_steering_servo_setup_cancel
+    BANKSEL setup_mode
     clrf    setup_mode
     call    EEPROM_load_persistent_data
     return
 
 process_steering_servo_no_setup
+    BANKSEL steering_abs
     movf    steering_abs, f
     bnz     process_steering_servo_not_centre
+    BANKSEL servo_centre
     movf    servo_centre, w
+    BANKSEL servo
     movwf   servo    
     return
 
 process_steering_servo_not_centre
+    BANKSEL steering
+    movfw   steering
+    movwf   temp
+    BANKSEL servo_epr
     movf    servo_epr, w
-    btfsc   steering, 7
+    btfsc   temp, 7             ; temp = steering
     movf    servo_epl, w
     movwf   temp
 
@@ -948,6 +996,7 @@ process_steering_servo_not_centre
     ; temp contains now     abs(right - centre)
     movf    temp, w
     movwf   xl
+    BANKSEL steering_abs
     movf    steering_abs, w
     call    Mul_xl_by_w
     movlw   100
@@ -955,6 +1004,7 @@ process_steering_servo_not_centre
     clrf    yh
     call    Div_x_by_y
 
+    BANKSEL SIGN_FLAG
     movf    SIGN_FLAG, f
     bz      process_servo_not_negative
 
@@ -964,6 +1014,7 @@ process_steering_servo_not_centre
     subwf   xl, f   
 
 process_servo_not_negative
+    BANKSEL servo_centre
     movf    servo_centre, w
     addwf   xl, w
     movwf   servo
@@ -1011,21 +1062,25 @@ EEPROM_load_persistent_data
 ; 
 ;******************************************************************************
 EEPROM_save_persistent_data
+    BANKSEL servo_epl
     movf    servo_epl, w
     movwf   temp
     movlw   EEPROM_ADR_SERVO_EPL
     call    EEPROM_write_byte
 
+    BANKSEL servo_centre
     movf    servo_centre, w
     movwf   temp
     movlw   EEPROM_ADR_SERVO_CENTRE
     call    EEPROM_write_byte
 
+    BANKSEL servo_epr
     movf    servo_epr, w
     movwf   temp
     movlw   EEPROM_ADR_SERVO_EPR
     call    EEPROM_write_byte
 
+    BANKSEL steering_reverse
     movf    steering_reverse, w
     movwf   temp
     movlw   EEPROM_ADR_STEERING_REVERSE
@@ -1040,6 +1095,7 @@ EEPROM_save_persistent_data
 ; back to the EEPROM and write the 2 magic variables. 
 ;******************************************************************************
 EEPROM_load_defaults
+    BANKSEL servo_epl
     movlw   -100
     movwf   servo_epl
     clrf    servo_centre
@@ -1069,11 +1125,7 @@ EEPROM_load_defaults
 EEPROM_write_byte
 	BANKSEL EEADR
 	movwf   EEADR
-	; Gotcha: don't use "BANKSEL temp" as temp is "EXTERN" and the compiler
-	; does not insert useful code in that case!
-	BANKSEL 0               
 	movf    temp, w
-	BANKSEL EEDATA
 	movwf   EEDATA		    ; Setup byte to write
 	bsf	    EECON1, WREN    ; Enable writes
 
@@ -1106,7 +1158,6 @@ EEPROM_read_byte
 	movwf   EEADR
 	bsf     EECON1, RD      
 	movf    EEDATA, w
-	BANKSEL 0
 	return
 
 

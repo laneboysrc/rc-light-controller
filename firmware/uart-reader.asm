@@ -97,29 +97,36 @@ Read_UART
 
 read_UART_byte_2
     call    UART_read_byte
+    BANKSEL steering
     movwf   steering                ; Store 2nd byte
     sublw   SLAVE_MAGIC_BYTE        ; Is it the magic byte?
     bz      read_UART_byte_2        ; Yes: we must be out of sync...
 
 read_UART_byte_3
     call    UART_read_byte
+    BANKSEL throttle
     movwf   throttle
     sublw   SLAVE_MAGIC_BYTE
     bz      read_UART_byte_2
 
 read_UART_byte_4
     call    UART_read_byte
+    BANKSEL ch3
     movwf   ch3                     ; The 3rd byte contains information for
+    BANKSEL startup_mode
     movwf   startup_mode            ;  CH3 as well as startup_mode
     sublw   SLAVE_MAGIC_BYTE
     bz      read_UART_byte_2
     
+    BANKSEL ch3
     movlw   0x01                    ; Remove startup_mode bits from CH3
     andwf   ch3, f   
+    BANKSEL startup_mode
     movlw   0xf0                    ; Remove CH3 bits from startup_mode
     andwf   startup_mode, f   
 
     ; Calculate abs(throttle) and abs(steering) for easier math.
+    BANKSEL throttle
     movfw   throttle
     movwf   throttle_abs
     btfsc   throttle_abs, 7

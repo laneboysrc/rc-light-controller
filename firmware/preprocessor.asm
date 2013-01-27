@@ -91,17 +91,21 @@ Output_preprocessed_channels
     movlw   SLAVE_MAGIC_BYTE    ; Magic byte for synchronization
     call    UART_send_w        
     
+    BANKSEL steering
     movf    steering, w
     call    UART_send_w        
     
+    BANKSEL throttle
     movf    throttle, w
     call    UART_send_w        
 
     ; Mask out other bits used in ch3 for toggle and intialization
     ; Add startup mode to the transmitted byte. Since we are using bits 4, 5 
     ; of startup_mode only this works fine.
+    BANKSEL throttle
     movf    ch3, w                       
     andlw   0x01                        
+    BANKSEL startup_mode
     iorwf   startup_mode, w              
     call    UART_send_w        
     

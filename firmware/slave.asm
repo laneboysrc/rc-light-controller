@@ -80,7 +80,6 @@ servo               res 1
 Interrupt_handler
 	movwf	savew           ; Save W register                               (1)
 	movf	STATUS, w       ; W now has copy of status                      (1)
-	clrf	STATUS          ; Ensure we are in bank 0 now!                  (1)
 	movwf	savestatus	    ; Save status                                   (1)
 
 ;	movf	PCLATH, w       ; Save pclath
@@ -92,6 +91,7 @@ Interrupt_handler
 ;	btfss	INTCON, T0IF
 ;	goto	int_clean   
 
+	BANKSEL pwm_counter                                                    ;(1)
     comf    pwm_counter, f                                                 ;(1)
     btfss   pwm_counter, 0                                                 ;(1)
     goto    int_full_brightness                                            ;(2)
@@ -168,6 +168,7 @@ Init
 
     call    Init_steering_wheel_servo
 
+    BANKSEL INTCON
     bcf     INTCON, T0IF    ; Clear Timer0 Interrupt Flag    
     bcf     PIR1, CCP1IF    ; Clear Timer1 Compare Interrupt Flag
 
@@ -200,18 +201,21 @@ Read_UART
 
 read_UART_byte_2
     call    UART_read_byte
+    BANKSEL uart_light_mode
     movwf   uart_light_mode         ; Store 2nd byte
     sublw   SLAVE_MAGIC_BYTE        ; Is it the magic byte?
     bz      read_UART_byte_2        ; Yes: we must be out of sync...
 
 read_UART_byte_3
     call    UART_read_byte
+    BANKSEL uart_light_mode_half
     movwf   uart_light_mode_half
     sublw   SLAVE_MAGIC_BYTE
     bz      read_UART_byte_2
 
 read_UART_byte_4
     call    UART_read_byte
+    BANKSEL uart_servo
     movwf   uart_servo
     sublw   SLAVE_MAGIC_BYTE
     bz      read_UART_byte_2
@@ -220,6 +224,7 @@ read_UART_byte_4
 
 ;******************************************************************************
 Set_light_mode
+    BANKSEL uart_light_mode
     movf    uart_light_mode, w
     movwf   light_mode
     movf    uart_light_mode_half, w
@@ -233,6 +238,7 @@ Process_steering_wheel_servo
 IFDEF ENABLE_SERVO_OUTPUT    
     ; Synchronize with the interrupt to ensure the servo pulse is not
     ; interrupted and stays precise (i.e. no servo chatter)
+    BANKSEL servo_sync_flag
     bsf     servo_sync_flag, 0
     btfsc   servo_sync_flag, 0
     goto    $ - 1

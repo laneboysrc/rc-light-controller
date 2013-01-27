@@ -72,6 +72,7 @@ Init_lights
 ; Output_lights
 ;******************************************************************************
 Output_lights
+    BANKSEL startup_mode
     movf    startup_mode, f
     bnz     _output_lights_startup
 
@@ -80,40 +81,53 @@ Output_lights
 
     btfsc   light_mode, LIGHT_MODE_PARKING
     call    light_parking_on
+    BANKSEL light_mode
     btfss   light_mode, LIGHT_MODE_PARKING
     call    light_parking_off
 
+    BANKSEL light_mode
     btfsc   light_mode, LIGHT_MODE_LOW_BEAM
     call    light_main_beam_on
+    BANKSEL light_mode
     btfss   light_mode, LIGHT_MODE_LOW_BEAM
     call    light_main_beam_off
 
+    BANKSEL light_mode
     btfsc   light_mode, LIGHT_MODE_ROOF
     call    light_roof_on
+    BANKSEL light_mode
     btfss   light_mode, LIGHT_MODE_ROOF
     call    light_roof_off
+    BANKSEL drive_mode
     btfsc   drive_mode, DRIVE_MODE_BRAKE    
     goto    _output_lights_brake  
     btfsc   light_mode, LIGHT_MODE_PARKING
     call    light_tail_on
+    BANKSEL light_mode
     btfss   light_mode, LIGHT_MODE_PARKING
     call    light_tail_off
 
 _output_lights_brake    
+    BANKSEL drive_mode
     btfss   drive_mode, DRIVE_MODE_BRAKE
     call    light_brake_off
     ; The brake light and tail light is combined, so turn the low brightness
     ; tail light off when braking is engaged
+    BANKSEL drive_mode
     btfsc   drive_mode, DRIVE_MODE_BRAKE
     call    light_brake_on
+    BANKSEL drive_mode
     btfsc   drive_mode, DRIVE_MODE_BRAKE
     call    light_tail_off
 
+    BANKSEL drive_mode
     btfsc   drive_mode, DRIVE_MODE_REVERSE
     call    light_reverse_on
+    BANKSEL drive_mode
     btfss   drive_mode, DRIVE_MODE_REVERSE
     call    light_reverse_off
 
+    BANKSEL blink_mode
     btfss   blink_mode, BLINK_MODE_BLINKFLAG
     goto    _output_lights_indicators_off
 
@@ -125,12 +139,16 @@ _output_lights_brake
     goto    _output_lights_blinking_end
 
 _output_lights_check_indicator
+    BANKSEL blink_mode
     btfsc   blink_mode, BLINK_MODE_INDICATOR_LEFT
     call    light_indicator_left_on
+    BANKSEL blink_mode
     btfss   blink_mode, BLINK_MODE_INDICATOR_LEFT
     call    light_indicator_left_off
+    BANKSEL blink_mode
     btfsc   blink_mode, BLINK_MODE_INDICATOR_RIGHT
     call    light_indicator_right_on
+    BANKSEL blink_mode
     btfss   blink_mode, BLINK_MODE_INDICATOR_RIGHT
     call    light_indicator_right_off
     goto    _output_lights_blinking_end
@@ -146,6 +164,7 @@ _output_lights_setup
     ; This car does not have a steering wheel servo so we only have to handle
     ; the steering channel reversing setup. 
     ; We light up the left indicator during steering channel reversing.
+    BANKSEL setup_mode
     btfss   setup_mode, SETUP_MODE_STEERING_REVERSE
     return
     
@@ -177,25 +196,21 @@ _output_lights_startup
 light_parking_on
     BANKSEL TRISA
     bcf     PORT_LED_PARKING
-    BANKSEL 0
     return
 
 light_parking_off
     BANKSEL TRISA
     bsf     PORT_LED_PARKING
-    BANKSEL 0
     return
 
 light_main_beam_on
     BANKSEL TRISA
     bcf     PORT_LED_MAIN_BEAM
-    BANKSEL 0
     return
 
 light_main_beam_off
     BANKSEL TRISA
     bsf     PORT_LED_MAIN_BEAM
-    BANKSEL 0
     return
 
 light_roof_on
@@ -204,75 +219,63 @@ light_roof_on
     ; any other bits through read-modify-write instructions!
     movlw   1<<PORT_LED_ROOF_BIT
     movwf   PORTA
-    BANKSEL 0
     return
 
 light_roof_off
     BANKSEL PORTA
     clrf    PORTA           ; Automatically clears PORT_LED_ROOF
-    BANKSEL 0
     return
 
 light_tail_on
     BANKSEL TRISA
     bcf     PORT_LED_TAIL
-    BANKSEL 0
     return
 
 light_tail_off
     BANKSEL TRISA
     bsf     PORT_LED_TAIL
-    BANKSEL 0
     return
 
 light_brake_on
     BANKSEL TRISA
     bcf     PORT_LED_BRAKE
     bcf     PORT_LED_BRAKE3
-    BANKSEL 0
     return
 
 light_brake_off
     BANKSEL TRISA
     bsf     PORT_LED_BRAKE
     bsf     PORT_LED_BRAKE3
-    BANKSEL 0
     return
 
 light_indicator_left_on
     BANKSEL TRISA
     bcf     PORT_LED_INDICATOR_LEFT
-    BANKSEL 0
     return
 
 light_indicator_left_off
     BANKSEL TRISA
     bsf     PORT_LED_INDICATOR_LEFT
-    BANKSEL 0
     return
 
 light_indicator_right_on
     BANKSEL TRISA
     bcf     PORT_LED_INDICATOR_RIGHT
-    BANKSEL 0
     return
 
 light_indicator_right_off
     BANKSEL TRISA
     bsf     PORT_LED_INDICATOR_RIGHT
-    BANKSEL 0
     return
 
 light_reverse_on
     BANKSEL TRISA
     bcf     PORT_LED_REVERSE
-    BANKSEL 0
     return
 
 light_reverse_off
     BANKSEL TRISA
     bsf     PORT_LED_REVERSE
-    BANKSEL 0
     return   
 
 
