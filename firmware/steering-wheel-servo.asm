@@ -30,10 +30,6 @@
     EXTERN zh
 
 
-    ; Functions and variables imported from master.asm or slave.asm
-    EXTERN servo
-
-
 IFNDEF ENABLE_SERVO_OUTPUT
     ERROR "########################"
     ERROR "To use the steering wheel servo you must add '-D ENABLE_SERVO_OUTPUT' to the CFLAGS in the makefile!"
@@ -64,16 +60,18 @@ Init_steering_wheel_servo
 
     
 ;******************************************************************************
+; Make_steering_wheel_servo_pulse  
+;
+; The percentage is given from -120 .. 0 .. 120% in the W register.
+;******************************************************************************
 Make_steering_wheel_servo_pulse  
-    BANKSEL servo  
-    movf    servo, w
+    BANKSEL T1CON
     addlw   120
     movwf   xl
     clrf    xh
     call    Mul_x_by_6
     call    Add_x_and_780
 
-    BANKSEL T1CON
     clrf    T1CON           ; Stop timer 1, runs at 1us per tick, internal osc
     clrf    TMR1H           ; Reset the timer to 0
     clrf    TMR1L

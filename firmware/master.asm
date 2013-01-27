@@ -214,10 +214,25 @@ Init
     call    EEPROM_load_persistent_data
     call    Init_reader
 
-    BANKSEL blink_counter
+    ; Initialize local variables
+    BANKSEL flags
+    clrf    flags
+    clrf    blink_mode
+    clrf    light_mode
+    clrf    drive_mode
+    clrf    setup_mode
+    clrf    startup_mode
+    clrf    drive_mode_counter
+    clrf    drive_mode_brake_disarm_counter
+    clrf    indicator_state_counter
+    clrf    ch3_click_counter
+    clrf    ch3_clicks
+    clrf    indicator_state
+    clrf    servo
+
     movlw   BLINK_COUNTER_VALUE
     movwf   blink_counter
-    
+
 ;   goto    Main_loop    
 
 
@@ -237,6 +252,8 @@ Main_loop
     call    Output_lights
     
     IFDEF   ENABLE_SERVO_OUTPUT
+    BANKSEL servo
+    movfw   servo
     call    Make_steering_wheel_servo_pulse
     ENDIF
 
@@ -1041,18 +1058,22 @@ EEPROM_load_persistent_data
 
     movlw   EEPROM_ADR_SERVO_EPL
     call    EEPROM_read_byte
+    BANKSEL servo_epl
     movwf   servo_epl
 
     movlw   EEPROM_ADR_SERVO_CENTRE
     call    EEPROM_read_byte
+    BANKSEL servo_centre
     movwf   servo_centre
 
     movlw   EEPROM_ADR_SERVO_EPR
     call    EEPROM_read_byte
+    BANKSEL servo_epr
     movwf   servo_epr
 
     movlw   EEPROM_ADR_STEERING_REVERSE
     call    EEPROM_read_byte
+    BANKSEL steering_reverse
     movwf   steering_reverse
     return
 

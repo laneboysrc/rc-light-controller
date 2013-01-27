@@ -184,7 +184,11 @@ Init
 Main_loop
     call    Read_UART
     call    Set_light_mode
+
+    BANKSEL servo
+    movfw   servo
     call    Make_steering_wheel_servo_pulse   
+
     goto    Main_loop
 
 

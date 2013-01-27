@@ -161,15 +161,20 @@ Init_reader
     movlw   2000 >> 4
     movwf   ch3_ep1
 
-    BANKSEL startup_mode
-    movlw   1 << STARTUP_MODE_NEUTRAL
-    movwf   startup_mode    
+    clrf    flags
+    clrf    throttle_reverse
     
-    BANKSEL init_prescaler
+;   xxxx    steering_reverse    ; Do NOT initialize steering_reverse, it is
+                                ; done by EEPROM_load_persistent_data!
+    
     movlw   RECEIVER_OUTPUT_RATE / 10
     movwf   init_prescaler
     movlw   STARTUP_WAIT_TIME / 100
     movwf   init_counter
+
+    BANKSEL startup_mode
+    movlw   1 << STARTUP_MODE_NEUTRAL
+    movwf   startup_mode    
     
     return
 
