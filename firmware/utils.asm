@@ -23,11 +23,9 @@
     GLOBAL yh
     GLOBAL zl
     GLOBAL zh
-
     GLOBAL d0
     GLOBAL d1
     GLOBAL d2
-    GLOBAL d3
     GLOBAL temp
 
     GLOBAL light_data
@@ -49,7 +47,6 @@ zh                  res 1
 d0                  res 1
 d1                  res 1
 d2                  res 1
-d3                  res 1
 temp                res 1
 
 

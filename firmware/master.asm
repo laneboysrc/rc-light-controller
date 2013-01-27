@@ -57,7 +57,6 @@
     EXTERN d0
     EXTERN d1
     EXTERN d2
-    EXTERN d3
     EXTERN temp
 
 
