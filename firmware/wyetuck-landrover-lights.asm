@@ -9,9 +9,6 @@
 
     
     ; Functions and variables imported from utils.asm
-    EXTERN d0
-    EXTERN d1
-    EXTERN d2
     EXTERN temp
     EXTERN light_data
 
@@ -62,7 +59,8 @@
 ; Relocatable variables section
 ;******************************************************************************
 .data_lights UDATA
-
+d0  res 1
+d1  res 1
 
 ;============================================================================
 ;============================================================================
@@ -73,8 +71,9 @@
 ; Init_lights
 ;******************************************************************************
 Init_lights
-    incf    d2, f
-    movf    d2, w
+    BANKSEL light_data
+    incf    light_data, f
+    movf    light_data, w
         
     BANKSEL SSP1BUF
     movwf   SSP1BUF

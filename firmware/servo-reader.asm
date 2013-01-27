@@ -42,16 +42,12 @@
     EXTERN Mul_x_by_6
     EXTERN Add_x_and_780    
     
-    EXTERN wl
-    EXTERN wh
     EXTERN xl
     EXTERN xh
     EXTERN yl
     EXTERN yh
     EXTERN zl
     EXTERN zh
-    EXTERN d1
-    EXTERN d2
     EXTERN temp
 
 
@@ -123,12 +119,16 @@ ch3                 res 1
 ch3_value           res 1
 ch3_ep0             res 1
 ch3_ep1             res 1
+ch3_centre          res 1
+ch3_hysteresis      res 1  
 
 flags               res 1
 
 init_prescaler      res 1
 init_counter        res 1
 
+wl                  res 1
+wh                  res 1
 
 ;******************************************************************************
 ;* MACROS
@@ -495,9 +495,6 @@ ch3_wait_for_low2
 ; Note: calculation must ensure that due to servo reversing pos 0 may
 ; have a larger or smaller time value than pos 1.
 ;******************************************************************************
-#define ch3_centre d1
-#define ch3_hysteresis d2   
-
 Normalize_ch3
     ; Step 1: calculate the centre: (ep0 + ep1) / 2
     ; To avoid potential overflow we actually calculate (ep0 / 2) + (ep1 / 2)

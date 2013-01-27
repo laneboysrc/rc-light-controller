@@ -11,7 +11,6 @@
     ; Functions and variables imported from utils.asm
     EXTERN TLC5916_send
 
-    EXTERN d0
     EXTERN temp
     EXTERN light_data
 

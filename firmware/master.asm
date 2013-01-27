@@ -46,17 +46,12 @@
     EXTERN Add_x_and_780    
     EXTERN UART_send_w
 
-    EXTERN wl
-    EXTERN wh
     EXTERN xl
     EXTERN xh
     EXTERN yl
     EXTERN yh
     EXTERN zl
     EXTERN zh
-    EXTERN d0
-    EXTERN d1
-    EXTERN d2
     EXTERN temp
 
 
@@ -856,7 +851,7 @@ Process_steering_reversing
 ; value but store the sign. After multiplication and division using the
 ; absolute value we re-apply the sign, then add centre.
 ;******************************************************************************
-#define SIGN_FLAG wl
+#define SIGN_FLAG temp+1
 
 Process_steering_wheel_servo
     movf    setup_mode, f

@@ -15,17 +15,12 @@
     #include    hw.tmp
 
 
-    GLOBAL wl
-    GLOBAL wh
     GLOBAL xl
     GLOBAL xh
     GLOBAL yl
     GLOBAL yh
     GLOBAL zl
     GLOBAL zh
-    GLOBAL d0
-    GLOBAL d1
-    GLOBAL d2
     GLOBAL temp
 
     GLOBAL light_data
@@ -36,18 +31,13 @@
 ;******************************************************************************
 .data_all_banks UDATA_SHR
 
-wl                  res 1
-wh                  res 1
 xl                  res 1
 xh                  res 1
 yl                  res 1
 yh                  res 1
 zl                  res 1
 zh                  res 1
-d0                  res 1
-d1                  res 1
-d2                  res 1
-temp                res 1
+temp                res 2
 
 
 .data_utils UDATA
@@ -164,7 +154,7 @@ Div_x_by_y
     clrf    zh
     clrf    temp    ; Clear remainder extension
     movlw   16
-    movwf   d0
+    movwf   temp+1
     setc            ; First iteration will be subtraction
 
 div16by16loop
@@ -203,7 +193,7 @@ div16by16add
 
 div16by16next
     ; Carry is next result bit
-    decfsz  d0, f
+    decfsz  temp+1, f
     goto    div16by16loop
 
 ; Shift in last bit
@@ -221,8 +211,8 @@ div16by16next
     GLOBAL Mul_xl_by_w
 Mul_xl_by_w
     clrf    xh
-	clrf    d0
-    bsf     d0, 3
+	clrf    temp
+    bsf     temp, 3
     rrf     xl, f
 
 mul_xl_by_w_loop
@@ -230,7 +220,7 @@ mul_xl_by_w_loop
 	addwf   xh, f
     rrf     xh, f
     rrf     xl, f
-	decfsz  d0, f
+	decfsz  temp, f
     goto    mul_xl_by_w_loop
     return
 
@@ -253,38 +243,38 @@ Mul_x_by_100
 
     ; Copy accumulator to temporary location
 	movf	xh, w
-	movwf	d1
+	movwf	temp+1
 	movf	xl, w
-	movwf	d0
+	movwf	temp
 
-    ; Shift temporary value left 3 times: d1/d0 = xh/xl * 4 * 8   = xh/xl * 32
+    ; Shift temporary value left 3 times: temp+1/temp = xh/xl * 4 * 8   = xh/xl * 32
 	clrc
-	rlf	    d0, f
-	rlf	    d1, f
-	rlf	    d0, f
-	rlf	    d1, f
-	rlf	    d0, f
-	rlf	    d1, f
+	rlf	    temp, f
+	rlf	    temp+1, f
+	rlf	    temp, f
+	rlf	    temp+1, f
+	rlf	    temp, f
+	rlf	    temp+1, f
 
     ; xh/xl = xh/xl * 32  +  xh/xl * 4   = xh/xl * 36
-	movf	d0, w
+	movf	temp, w
 	addwf	xl, f
-	movf	d1, w
+	movf	temp+1, w
 	skpnc
-	incfsz	d1, w
+	incfsz	temp+1, w
 	addwf	xh, f
 
-    ; Shift temporary value left by 1: d1/d0 = xh/xl * 32 * 2   = xh/xl * 64
+    ; Shift temporary value left by 1: temp+1/temp = xh/xl * 32 * 2   = xh/xl * 64
 	clrc
-	rlf	    d0, f
-	rlf	    d1, f
+	rlf	    temp, f
+	rlf	    temp+1, f
 
     ; xh/xl = xh/xl * 36  +  xh/xl * 64   = xh/xl * 100 
-	movf	d0, w
+	movf	temp, w
 	addwf	xl, f
-	movf	d1, w
+	movf	temp+1, w
 	skpnc
-	incfsz	d1, w
+	incfsz	temp+1, w
 	addwf	xh, f
     return
 
@@ -446,9 +436,9 @@ Add_x_and_780
 ;******************************************************************************
 ; TLC5916_send
 ;
-; Sends the value in the temp register to the TLC5916 LED driver.
-; In case DUAL_TLC5916 is defined then 16 bits temp, temp+1 are sent. This 
-; is used if two TLC5916 are wired up in series for 16 output channels.
+; Sends the value in the light_data register to the TLC5916 LED driver.
+; In case DUAL_TLC5916 is defined then 16 bits light_data, light_data+1 are sent. 
+; This is used if two TLC5916 are wired up in series for 16 output channels.
 ;******************************************************************************
 IFDEF PORT_SDI              ; Only enable this function when the ports are defined
 IFDEF PORT_CLK
@@ -462,7 +452,7 @@ TLC5916_send
     ELSE                    ; } {
     movlw   8
     ENDIF                   ; } DUAL_TLC5916
-    movwf   d0
+    movwf   temp
 
 tlc5916_send_loop
 
@@ -476,7 +466,7 @@ tlc5916_send_loop
     bsf     PORT_SDI
     bsf     PORT_CLK
     bcf     PORT_CLK
-    decfsz  d0, f
+    decfsz  temp, f
     goto    tlc5916_send_loop
 
     bsf     PORT_LE
@@ -509,17 +499,17 @@ UART_send_w
     ; at 38400 baud takes approximately 1.1ms.
 
     BANKSEL 0
-    movwf   d0          ; Save W
+    movwf   temp        ; Save W
     
     ; For 32 MHz we need 80 loop runs; scale down according to FOSC 
     ; given in hw_*.inc
 	movlw	80 * FOSC / 32      
-	movwf	d1
+	movwf	temp+1
 UART_send_w_delay
-	decfsz	d1, f
+	decfsz	temp+1, f
 	goto	UART_send_w_delay
 	
-    movfw   d0          ; Restore W
+    movfw   temp        ; Restore W
     BANKSEL TXREG
     movwf   TXREG	    ; Send data stored in W
     BANKSEL 0
