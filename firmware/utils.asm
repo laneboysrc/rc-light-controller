@@ -36,7 +36,7 @@
 ;******************************************************************************
 ; Relocatable variables section
 ;******************************************************************************
-.data_utils UDATA
+.data_all_banks UDATA_SHR
 
 wl                  res 1
 wh                  res 1
@@ -46,18 +46,24 @@ yl                  res 1
 yh                  res 1
 zl                  res 1
 zh                  res 1
-
 d0                  res 1
 d1                  res 1
 d2                  res 1
 d3                  res 1
 temp                res 1
 
+
+.data_utils UDATA
+
+IFDEF TLC5940
+light_data          res 16      ; TLC5940
+ELSE                            
 IFDEF DUAL_TLC5916
-light_data          res 2
-ELSE
-light_data          res 1
-ENDIF
+light_data          res 2       ; DUAL_TLC5917
+ELSE  
+light_data          res 1       ; Single TLC5917
+ENDIF 
+ENDIF 
  
 
 ;******************************************************************************
