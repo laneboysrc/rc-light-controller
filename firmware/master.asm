@@ -83,6 +83,7 @@
 #define CH3_FLAG_LAST_STATE 0           ; Must be bit 0!
 #define CH3_FLAG_TOGGLED 1
 #define CH3_FLAG_INITIALIZED 2
+#define SOFT_TIMER_POSTSCALER 0
 
 ; Bitfields in variable blink_mode
 #define BLINK_MODE_BLINKFLAG 0          ; Toggles with 1.5 Hz
@@ -266,11 +267,30 @@ Main_loop
 ; Soft-timer with a resolution of 65.536 ms
 ;******************************************************************************
 Service_soft_timer
+IFDEF TIMER2_SOFT_TIMER
+    BANKSEL PIR1
+    btfss   PIR1, TMR2IF
+    return
+
+    bcf     PIR1, TMR2IF
+
+    ; In case our oscillator runs at more than 16 MHz we can not set Timer2
+    ; to overflow every 65.536ms. Instead we set it to 32.768ms and do a 
+    ; 1/2 post scaler using a flag.
+    IF (FOSC > 16)
+    BANKSEL flags
+    movlw   1<<SOFT_TIMER_POSTSCALER
+    xorwf   flags, f
+    btfss   flags, SOFT_TIMER_POSTSCALER
+    return
+    ENDIF ; FOSC > 16
+ELSE   
     BANKSEL INTCON
     btfss   INTCON, T0IF
     return
 
     bcf     INTCON, T0IF
+ENDIF
 
     BANKSEL ch3_click_counter
     movf    ch3_click_counter, f

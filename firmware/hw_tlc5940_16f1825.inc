@@ -26,7 +26,7 @@ ENDIF
 ;******************************************************************************
 FOSC = 32           ; Osc frequency in MHz
 #define TLC5940     ; Let the code know we are using the TLC5940 LED driver
-
+#define TIMER2_SOFT_TIMER ; Let the code know we are using Timer2 as soft timer
 
 ;******************************************************************************
 ;   Port usage:
@@ -107,6 +107,17 @@ _IO_INIT_COMMON macro   master
     BANKSEL T1CON
     movlw   b'00110000' ; 
     movwf   T1CON
+
+    
+    ;-----------------------------
+    ; Use Timer2 as soft timer with an interval of 32.768ms. This is half
+    ; of what we would like to have, so software has to adjust for it.
+    BANKSEL PR2
+    movlw   0xff
+    movwf   PR2
+    BANKSEL T2CON
+    movlw   b'01111111' ; 1:16 post scaler; timer on; Prescaler is 64
+    movwf   T2CON
 
 
     ; ####################
