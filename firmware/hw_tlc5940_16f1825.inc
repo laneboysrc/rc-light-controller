@@ -51,16 +51,16 @@ FOSC = 32           ; Osc frequency in MHz
 #define PORT_THROTTLE   PORTA, 0        
 #define PORT_CH3        PORTA, 3        
 
-#define PORT_SERVO_SLAVE PORTA, 0        
+#define PORT_SERVO_SLAVE LATA, 0        
 
 ; TLC5940 LED driver serial communication ports, for both master and slave
 #define PORT_SCK        PORTC, 0
 #define PORT_SDI        PORTC, 2
 #define PORT_SDO        PORTC, 1
-#define PORT_XLAT       PORTC, 3
-#define PORT_VPROG      PORTC, 5
-#define PORT_BLANK      PORTA, 4
-#define PORT_GSCLK      PORTA, 5
+#define PORT_XLAT       LATC, 3
+#define PORT_VPROG      LATC, 5
+#define PORT_BLANK      LATA, 4
+#define PORT_GSCLK      LATA, 5
 
 
 ;******************************************************************************
@@ -203,14 +203,14 @@ SPBRG_VALUE = (((d'10'*FOSC*d'1000000'/((d'64'-(d'48'*BRGH_VALUE))*BAUDRATE))+d'
             ; +------- WCOL   (Clear collision)
     movwf   SSP1CON1
 
-    movlw   b'00000000'
+    movlw   b'01000000'
             ; |||||||+ 
             ; ||||||+- 
             ; |||||+-- 
             ; ||||+--- 
             ; |||+---- 
             ; ||+----- 
-            ; |+------ CKE   (Transmit occurs on transition from Idle to active clock state)
+            ; |+------ CKE   (Transmit occurs on transition from active to idle clock state)
             ; +------- SMP   (Input data sampled at middle of data output time)
     movwf   SSP1STAT
 
