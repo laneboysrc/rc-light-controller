@@ -133,12 +133,13 @@ light_loop
 
     BANKSEL d0
     movlw   12              ; Dot correction data is 12 bytes
+    movwf   d0
 
 send_dc_loop
     BANKSEL light_data
     movfw   light_data
     BANKSEL SSP1BUF
-    clrf    SSP1BUF
+    movwf   SSP1BUF
     btfss   SSP1STAT, BF    ; Wait for transmit done flag BF being set
     goto    $-1
     movf    SSP1BUF, w      ; Clears BF flag

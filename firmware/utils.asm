@@ -479,7 +479,124 @@ ENDIF ; PORT_LE
 ENDIF ; PORT_CLK
 ENDIF ; PORT_SDI
 
+
+;******************************************************************************
+; TLC5940_send
+;
+; Sends the value in the 16 light_data registers to the TLC5940 LED driver.
+; The data is sent as 6 bit "dot correction" value as we are using the TLC5940s
+; capability to programmatically change the constant current source that drives
+; each individual LED.
+;
+; Note: The 16 bytes of light_data are being destroyed!
+;******************************************************************************
+IFDEF TLC5940
+.utils_TLC5940_send
+    GLOBAL TLC5940_send
+TLC5940_send
+
+    ; =============================
+    ; First we pack the data from the 16 bytes into 12 bytes (6 bit x 16) as 
+    ; needed by the TLC5940 Dot Correction register.
+    ;
+    ; We do that by using indirect addressing. We perform a loop 4 times where
+    ; each loop run packs 4 bytes into 3.
+    ;
+    ; A single loop reads from FSR0 and writes to FSR1. The pointers are 
+    ; decremented when the respective byte is full.
+    ; The packing loop transforms the following input into output:
+    ;
+    ;      Byte N-3                   Byte N-2                   Byte N-1                   Byte N
+    ; IN:  xx xx 15 14 13 12 11 10    xx xx 25 24 23 22 21 20    xx xx 35 34 33 32 31 30    xx xx 45 44 43 42 41 40    
+    ; OUT:                            21 20 15 14 13 12 11 10    33 32 31 30 25 24 23 22    45 44 43 42 41 40 35 34
+    ;
+    ; Note that the algorithm starts at the top (MSB), as the data that goes
+    ; on the bus to the TLC5940 is MSB first.
+    ; This way on input light_data corresponds to OUT0 and light_data+15 
+    ; corresponds to OUT15 on the TLC5940.
+    movlw   HIGH light_data+15
+    movwf   FSR0H
+    movwf   FSR1H
+    movlw   LOW light_data+15
+    movwf   FSR0L
+    movwf   FSR1L
+
+TLC5940_send_pack_loop
+    ; Bits 45..40 --> temp[7..2]
+    moviw   FSR0--
+    lslf    WREG, f
+    lslf    WREG, f
+    movwf   temp
     
+    ; Bits 35..34 --> temp[1..0]; temp -> *FSR1--
+    moviw   0[FSR0]
+    swapf   WREG, f 
+    andlw   b'00000011'
+    iorwf   temp, w
+    movwi   FSR1--
+
+    ; Bits 33..30 --> temp[7..4]
+    moviw   FSR0--
+    swapf   WREG, f 
+    andlw   b'11110000'
+    movwf   temp
+
+    ; Bits 25..22 --> temp[3..0]; temp -> *FSR1--
+    moviw   0[FSR0]
+    lsrf    WREG, f
+    lsrf    WREG, f
+    andlw   b'00001111'
+    iorwf   temp, w
+    movwi   FSR1--
+
+    ; Bits 21..20 --> temp[7..6]
+    moviw   FSR0--
+    swapf   WREG, f 
+    lslf    WREG, f
+    lslf    WREG, f
+    andlw   b'11000000'
+    movwf   temp
+
+    ; Bits 15..10 --> temp[5..0]; temp -> *FSR1--
+    moviw   FSR0--
+    andlw   b'00111111'
+    iorwf   temp, w
+    movwi   FSR1--
+
+    ; Check if we reached light_data+3 in the output; If yes we are done!
+    movfw   FSR1L
+    sublw   LOW light_data+3
+    bnz     TLC5940_send_pack_loop
+
+
+    ; =============================
+    ; Now we send 12 bytes in light_data+15..light_data+4 to the TLC5940
+    movlw   12
+    movwf   temp              
+    movlw   HIGH light_data+15
+    movwf   FSR0H
+    movlw   LOW light_data+15
+    movwf   FSR0L
+
+    BANKSEL SSP1BUF         ; Note: temp is accessible in all banks!
+TLC5940_send_loop
+    moviw   FSR0--
+    movwf   SSP1BUF
+    btfss   SSP1STAT, BF    ; Wait for transmit done flag BF being set
+    goto    $-1
+    movf    SSP1BUF, w      ; Clears BF flag
+    decfsz  temp, f
+    goto    TLC5940_send_loop
+
+    BANKSEL LATA
+    bsf     PORT_XLAT
+    nop
+    bcf     PORT_XLAT 
+
+       
+    return
+ENDIF ; TLC5940    
+
 
 ;******************************************************************************
 ; Send W out via the UART
