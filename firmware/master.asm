@@ -247,7 +247,7 @@ Main_loop
     call    Process_indicators
     call    Process_steering_reversing
     call    Process_steering_wheel_servo
-    call    Service_timer0
+    call    Service_soft_timer
 
     call    Output_lights
     
@@ -261,11 +261,11 @@ Main_loop
 
     
 ;******************************************************************************
-; Service_timer0
+; Service_soft_timer
 ;
 ; Soft-timer with a resolution of 65.536 ms
 ;******************************************************************************
-Service_timer0
+Service_soft_timer
     BANKSEL INTCON
     btfss   INTCON, T0IF
     return
@@ -282,27 +282,27 @@ Service_timer0
     decf    indicator_state_counter, f    
 
     decfsz  drive_mode_brake_disarm_counter, f
-    goto    service_timer0_drive_mode
+    goto    service_soft_timer_drive_mode
 
     btfss   drive_mode, DRIVE_MODE_BRAKE_DISARM
-    goto    service_timer0_drive_mode
+    goto    service_soft_timer_drive_mode
 
     bcf     drive_mode, DRIVE_MODE_BRAKE_DISARM
     bcf     drive_mode, DRIVE_MODE_BRAKE_ARMED
 
 
-service_timer0_drive_mode
+service_soft_timer_drive_mode
     decfsz  drive_mode_counter, f
-    goto    service_timer0_blink
+    goto    service_soft_timer_blink
 
     btfss   drive_mode, DRIVE_MODE_REVERSE_BRAKE
-    goto    service_timer0_blink
+    goto    service_soft_timer_blink
 
     bcf     drive_mode, DRIVE_MODE_REVERSE_BRAKE
     bcf     drive_mode, DRIVE_MODE_BRAKE
 
 
-service_timer0_blink
+service_soft_timer_blink
     decfsz  blink_counter, f
     return
 
