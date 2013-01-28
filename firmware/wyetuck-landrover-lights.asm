@@ -9,6 +9,8 @@
 
     
     ; Functions and variables imported from utils.asm
+    EXTERN TLC5940_send
+    
     EXTERN temp
     EXTERN light_data
 
@@ -61,6 +63,7 @@
 .data_lights UDATA
 d0  res 1
 d1  res 1
+dummy   res 2
 
 ;============================================================================
 ;============================================================================
@@ -80,6 +83,7 @@ Init_lights
 
     BANKSEL d0
     movlw   12              ; Dot correction data is 12 bytes
+    movwf   d0
 
 clear_dc_loop
     BANKSEL SSP1BUF
@@ -96,12 +100,11 @@ clear_dc_loop
     nop
     bcf     PORT_XLAT
 
-    nop
-    bcf     PORT_VPROG      ; Enter greyscale input mode
 
     BANKSEL d0
     movlw   16              ; Greyscale data is 16 bytes
-
+    movwf   d0
+    
 set_gs_loop
     BANKSEL SSP1BUF
     movlw   0xff
@@ -118,43 +121,64 @@ set_gs_loop
     nop
     bcf     PORT_XLAT
 
-    bsf     PORT_BLANK      ; Enable the outputs
+    bcf     PORT_BLANK      ; Enable the outputs
+    nop
     bsf     PORT_VPROG      ; Back into dot correction input mode
+    nop
     ; Make one rising clock edge to shift the greyscale data into the
     ; greyscale register.
     bsf     PORT_GSCLK      
 
-
-
+    BANKSEL dummy
+    clrf    dummy
+    bsf     dummy+1, 0
 
 light_loop
+    BANKSEL dummy
+    btfsc   dummy+1, 0
+    goto    do_up
+
+    decf    dummy, f
+    movfw   dummy
+    sublw   0
+    bnz     do1 
+
+    bsf     dummy+1, 0
+    goto    do1    
+
+do_up
+    incf    dummy, f
+    movfw   dummy
+    sublw   0x3f
+    bnz     do1 
+
+    bcf     dummy+1, 0
+    goto    do1    
+
+do1
+    movfw   dummy
     BANKSEL light_data
-    incf    light_data, f   ; For test purpose: increasing light output each step
+    movwf   light_data
+    movwf   light_data+1
+    movwf   light_data+2
+    movwf   light_data+3
+    movwf   light_data+4
+    movwf   light_data+5
+    movwf   light_data+6
+    movwf   light_data+7
+    movwf   light_data+8
+    movwf   light_data+9
+    movwf   light_data+10
+    movwf   light_data+11
+    movwf   light_data+12
+    movwf   light_data+13
+    movwf   light_data+14
+    movwf   light_data+15
 
-    BANKSEL d0
-    movlw   12              ; Dot correction data is 12 bytes
-    movwf   d0
+    call    TLC5940_send
 
-send_dc_loop
-    BANKSEL light_data
-    movfw   light_data
-    BANKSEL SSP1BUF
-    movwf   SSP1BUF
-    btfss   SSP1STAT, BF    ; Wait for transmit done flag BF being set
-    goto    $-1
-    movf    SSP1BUF, w      ; Clears BF flag
-    BANKSEL d0
-    decfsz  d0, f
-    goto    send_dc_loop
-
-    BANKSEL LATA
-    bsf     PORT_XLAT
-    nop
-    bcf     PORT_XLAT
-
-
-    ; Wait 100ms between light outputs
-    movlw   100
+    ; Wait 10ms between light outputs
+    movlw   10
     movwf   temp
     call    Delay_1ms
     decfsz  temp, f
@@ -182,8 +206,6 @@ delay_1ms_0
 	decfsz	d1, f
 	goto	delay_1ms_0
 
-	goto	$+1
-	nop
 	return
 
 
