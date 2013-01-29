@@ -12,6 +12,8 @@
     EXTERN Init_TLC5940    
     EXTERN TLC5940_send
     
+    EXTERN xl
+    EXTERN xh
     EXTERN temp
     EXTERN light_data
 
@@ -62,8 +64,6 @@
 ; Relocatable variables section
 ;******************************************************************************
 .data_lights UDATA
-d0  res 1
-d1  res 1
 dummy   res 2
 
 ;============================================================================
@@ -143,15 +143,14 @@ do1
 ; Delays for exactly 1ms at 32 MHz FOSC
 ;******************************************************************************
 Delay_1ms
-    BANKSEL d0
 	movlw	0x3E
-	movwf	d0
+	movwf	xl
 	movlw	0x07
-	movwf	d1
+	movwf	xh
 delay_1ms_0
-	decfsz	d0, f
+	decfsz	xl, f
 	goto	$+2
-	decfsz	d1, f
+	decfsz	xh, f
 	goto	delay_1ms_0
 
 	return
@@ -161,6 +160,21 @@ delay_1ms_0
 ; Output_lights
 ;******************************************************************************
 Output_lights
+
+    ; Clear light_data, i.e. by default all lights are off.
+    movlw   HIGH light_data
+    movwf   FSR0H
+    movlw   LOW light_data
+    movwf   FSR0L
+    movlw   16          ; There are 16 bytes in light_data
+    movwf   temp
+    clrw   
+Output_lights_clear_loop
+    movwi   FSR0++    
+    decfsz  temp, f
+    bnz     Output_lights_clear_loop
+
+
     BANKSEL startup_mode
     movf    startup_mode, f
     bnz     output_lights_startup
