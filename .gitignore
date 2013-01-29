@@ -6,6 +6,7 @@ firmware/*.cod
 firmware/*.o
 firmware/*.a
 firmware/*.map
+electronics/rc-light-controller/*.?#*
 electronics/rc-light-controller/*.b#*
 electronics/rc-light-controller/*.s#*
 arduino-open-source-lights/
