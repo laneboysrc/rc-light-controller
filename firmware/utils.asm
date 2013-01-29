@@ -43,12 +43,12 @@ temp                res 2
 .data_utils UDATA
 
 IFDEF TLC5940
-light_data          res 16      ; TLC5940
+light_data          res 16      ; TLC5940, one byte per LED
 ELSE                            
 IFDEF DUAL_TLC5916
-light_data          res 2       ; DUAL_TLC5917
+light_data          res 2       ; DUAL_TLC5917, one byte per chip
 ELSE  
-light_data          res 1       ; Single TLC5917
+light_data          res 1       ; Single TLC5917, 8 LEDs on/off
 ENDIF 
 ENDIF 
  
@@ -478,6 +478,105 @@ ENDIF ; PORT_OE
 ENDIF ; PORT_LE
 ENDIF ; PORT_CLK
 ENDIF ; PORT_SDI
+
+
+;******************************************************************************
+; Init_TLC5940
+;
+; Initializes the operation of the TLC5940 LED driver chip and sets all LED
+; outputs to Off.
+;
+; We are not using the PWM capabilities of the chip but rather it's dot
+; correction feature to adjust brightness to alter the constant current for
+; each LED individually.
+;******************************************************************************
+IFDEF TLC5940
+.utils_Init_TLC5940
+    GLOBAL Init_TLC5940
+Init_TLC5940
+    ; =============================
+    ; Initialize the TLC5940 ports, blank the output
+    BANKSEL LATA
+    bsf     PORT_BLANK
+    bcf     PORT_GSCLK
+    bcf     PORT_XLAT
+
+
+    ; =============================
+    ; Clear the dot correction register by clocking out 96 bits (12 bytes) of
+    ; zeros.
+    BANKSEL LATA
+    bsf     PORT_VPROG      ; Enter dot correction input mode
+    movlw   12              ; Dot correction data is 96 bits (12 bytes)
+    movwf   temp
+
+    BANKSEL SSP1BUF
+clear_dc_loop
+    clrf    SSP1BUF
+    btfss   SSP1STAT, BF    ; Wait for transmit done flag BF being set
+    goto    $-1
+    movf    SSP1BUF, w      ; Clears BF flag
+    decfsz  temp, f
+    goto    clear_dc_loop
+
+    BANKSEL LATA
+    bsf     PORT_XLAT       ; Create latch pulse to process the data
+    nop
+    bcf     PORT_XLAT
+
+
+    ; =============================
+    ; Set the greyscale register to all 1's (= all LEDs fully on)
+    ; It is not clear if this is actually needed. The document SLVA259 from TI
+    ; hints that the greyscale register is all set after power up, but I could
+    ; not find this information in the datasheet. 
+    ; Better to be safe than sorry...
+    BANKSEL LATA
+    bcf     PORT_VPROG      ; Enter greyscale data input mode
+    movlw   24              ; Greyscale data is 24 bytes (192 bits)
+    movwf   temp
+    
+    BANKSEL SSP1BUF
+set_gs_loop
+    movlw   0xff
+    movwf   SSP1BUF
+    btfss   SSP1STAT, BF    ; Wait for transmit done flag BF being set
+    goto    $-1
+    movf    SSP1BUF, w      ; Clears BF flag
+    decfsz  temp, f
+    goto    set_gs_loop
+
+    BANKSEL LATA
+    bsf     PORT_XLAT       ; Create latch pulse to process the data
+    nop
+    bcf     PORT_XLAT
+
+    ; According to the datasheet we need to apply one extra SCLK clock pulse
+    ; after the first greyscale data input cycle that happens after a dot
+    ; correction input cycle, which is exactly what we went through just now.
+    ; Since we are using the hardware SPI we can't just create a single clock
+    ; pulse, so we rather shift a whole byte out. Since we won't latch
+    ; the data it should not affect anything.
+    BANKSEL SSP1BUF
+    movlw   0xff
+    movwf   SSP1BUF
+    btfss   SSP1STAT, BF    ; Wait for transmit done flag BF being set
+    goto    $-1
+    movf    SSP1BUF, w      ; Clears BF flag
+
+
+    ; =============================
+    ; Enable the outputs
+    ; Make one GSCLK clock pulse to shift the greyscale data into the
+    ; greyscale register.
+    ; Finally set VPROG to go back to dot correction input mode for the 
+    ; rest of the application's lifetime.
+    BANKSEL LATA
+    bcf     PORT_BLANK  
+    bsf     PORT_GSCLK      
+    bsf     PORT_VPROG      
+    return
+ENDIF ; TLC5940    
 
 
 ;******************************************************************************

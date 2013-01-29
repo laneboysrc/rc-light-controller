@@ -9,6 +9,7 @@
 
     
     ; Functions and variables imported from utils.asm
+    EXTERN Init_TLC5940    
     EXTERN TLC5940_send
     
     EXTERN temp
@@ -74,60 +75,7 @@ dummy   res 2
 ; Init_lights
 ;******************************************************************************
 Init_lights
-
-    BANKSEL LATA
-    bsf     PORT_BLANK
-    bcf     PORT_GSCLK
-    bcf     PORT_XLAT
-    bsf     PORT_VPROG      ; Enter dot correction input mode
-
-    BANKSEL d0
-    movlw   12              ; Dot correction data is 12 bytes
-    movwf   d0
-
-clear_dc_loop
-    BANKSEL SSP1BUF
-    clrf    SSP1BUF
-    btfss   SSP1STAT, BF    ; Wait for transmit done flag BF being set
-    goto    $-1
-    movf    SSP1BUF, w      ; Clears BF flag
-    BANKSEL d0
-    decfsz  d0, f
-    goto    clear_dc_loop
-
-    BANKSEL LATA
-    bsf     PORT_XLAT
-    nop
-    bcf     PORT_XLAT
-
-
-    BANKSEL d0
-    movlw   16              ; Greyscale data is 16 bytes
-    movwf   d0
-    
-set_gs_loop
-    BANKSEL SSP1BUF
-    movlw   0xff
-    movwf   SSP1BUF
-    btfss   SSP1STAT, BF    ; Wait for transmit done flag BF being set
-    goto    $-1
-    movf    SSP1BUF, w      ; Clears BF flag
-    BANKSEL d0
-    decfsz  d0, f
-    goto    set_gs_loop
-
-    BANKSEL LATA
-    bsf     PORT_XLAT
-    nop
-    bcf     PORT_XLAT
-
-    bcf     PORT_BLANK      ; Enable the outputs
-    nop
-    bsf     PORT_VPROG      ; Back into dot correction input mode
-    nop
-    ; Make one rising clock edge to shift the greyscale data into the
-    ; greyscale register.
-    bsf     PORT_GSCLK      
+    call    Init_TLC5940
 
     BANKSEL dummy
     clrf    dummy
