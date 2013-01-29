@@ -120,12 +120,8 @@ _IO_INIT_COMMON macro   master
     movwf   T2CON
 
 
-    ; ####################
-    ; FIXME: Timer 0 runs at 4 times the speed, which means it overflows every 
-    ; 16.384ms instead of 65.536ms
-    ; The solution may be to use TIMER2/4/6 which have a pre and post scaler,
-    ; allowing for 65ms overflows
-    ; ####################
+    ;-----------------------------
+    ; OPTION_REG configuration
     BANKSEL OPTION_REG
     movlw   b'10000111'
             ; |||||||+ PS0  (Set pre-scaler to 1:256)
@@ -226,7 +222,6 @@ SPBRG_VALUE = (((d'10'*FOSC*d'1000000'/((d'64'-(d'48'*BRGH_VALUE))*BAUDRATE))+d'
     movwf   SSP1STAT
 
 
-    BANKSEL 0
     endm
 
 
