@@ -338,6 +338,8 @@ read_neutral
 ; is indeed outputting all channels in sequence Steering / Throttle / CH3, one 
 ; after each other.
 ; This is true for the HK-3000 receiver. 
+; The Flyksy/Turnigy/Eugle GT3B receiver also outputs the channels in 
+; sequence, but has reversed order: Throttle / Steering / CH3.
 ;
 ; By using this function we can read all channels in one "loop", and therefore
 ; increasing response speed of the light controller.
@@ -355,21 +357,42 @@ Read_all
     ; Wait until servo signal is LOW 
     ; This ensures that we do not start in the middle of a pulse
 all_st_wait_for_low1
+IFDEF CHANNEL_SEQUENCE_TH_ST_CH3
+    btfsc   PORT_THROTTLE
+ELSE
     btfsc   PORT_STEERING
+ENDIF    
     goto    all_st_wait_for_low1
 
 all_st_wait_for_high
+IFDEF CHANNEL_SEQUENCE_TH_ST_CH3
+    btfss   PORT_THROTTLE
+ELSE
     btfss   PORT_STEERING   ; Wait until servo signal is high
+ENDIF    
     goto    all_st_wait_for_high
 
     bsf     T1CON, TMR1ON   ; Start timer 1
 
 all_st_wait_for_low2
+IFDEF CHANNEL_SEQUENCE_TH_ST_CH3
+    btfsc   PORT_THROTTLE
+ELSE
     btfsc   PORT_STEERING   ; Wait until servo signal is LOW again
+ENDIF    
     goto    all_st_wait_for_low2
 
     bcf     T1CON, TMR1ON   ; Stop timer 1
 
+IFDEF CHANNEL_SEQUENCE_TH_ST_CH3
+    movf    TMR1H, w    ; Store read values temporarily; validate later
+    BANKSEL throttle_h
+    movwf   throttle_h
+    BANKSEL TMR1L
+    movf    TMR1L, w
+    BANKSEL throttle_l
+    movwf   throttle_l
+ELSE
     movf    TMR1H, w        ; Store read values temporarily; validate later
     BANKSEL steering_h
     movwf   steering_h
@@ -377,6 +400,7 @@ all_st_wait_for_low2
     movf    TMR1L, w
     BANKSEL steering_l
     movwf   steering_l
+ENDIF    
 
     ; At this point the throttle signal is already being output
     ; from the receiver -- it takes 100ns after the steering pulse goes
@@ -390,11 +414,24 @@ all_st_wait_for_low2
     bsf     T1CON, TMR1ON   ; Start timer 1
 
 all_th_wait_for_low2
+IFDEF CHANNEL_SEQUENCE_TH_ST_CH3
+    btfsc   PORT_STEERING
+ELSE
     btfsc   PORT_THROTTLE   ; Wait until servo signal is LOW
+ENDIF    
     goto    all_th_wait_for_low2
 
     bcf     T1CON, TMR1ON   ; Stop timer 1
 
+IFDEF CHANNEL_SEQUENCE_TH_ST_CH3
+    movf    TMR1H, w        ; Store read values temporarily; validate later
+    BANKSEL steering_h
+    movwf   steering_h
+    BANKSEL TMR1L
+    movf    TMR1L, w
+    BANKSEL steering_l
+    movwf   steering_l
+ELSE
     movf    TMR1H, w    ; Store read values temporarily; validate later
     BANKSEL throttle_h
     movwf   throttle_h
@@ -402,6 +439,7 @@ all_th_wait_for_low2
     movf    TMR1L, w
     BANKSEL throttle_l
     movwf   throttle_l
+ENDIF    
 
     BANKSEL TMR1H
     clrf    TMR1H       ; Reset the timer to 0 ... 

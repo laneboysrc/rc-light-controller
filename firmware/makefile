@@ -28,7 +28,7 @@ phil-ford: phil-ford-preprocessor phil-ford-master
 
 .PHONY: phil-ford-preprocessor
 phil-ford-preprocessor : hw_preprocessor_12f1840.inc
-	$(eval CFLAGS = -D SEQUENTIAL_CHANNEL_READING )
+	$(eval CFLAGS = -D SEQUENTIAL_CHANNEL_READING -D CHANNEL_SEQUENCE_TH_ST_CH3 )
 	$(eval files = preprocessor servo-reader utils)
 	$(build)
 
