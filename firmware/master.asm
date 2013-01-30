@@ -83,7 +83,7 @@
 #define CH3_FLAG_LAST_STATE 0           ; Must be bit 0!
 #define CH3_FLAG_TOGGLED 1
 #define CH3_FLAG_INITIALIZED 2
-#define SOFT_TIMER_POSTSCALER 0
+#define SOFT_TIMER_POSTSCALER 3
 
 ; Bitfields in variable blink_mode
 #define BLINK_MODE_BLINKFLAG 0          ; Toggles with 1.5 Hz
@@ -206,15 +206,6 @@ Init
     ; Initialise the chip (macro included from hw_*.tmp)
     IO_INIT_MASTER
 
-    call    Init_lights
-
-    IFDEF   ENABLE_SERVO_OUTPUT
-    call    Init_steering_wheel_servo
-    ENDIF
-
-    call    EEPROM_load_persistent_data
-    call    Init_reader
-
     ; Initialize local variables
     BANKSEL flags
     clrf    flags
@@ -234,6 +225,15 @@ Init
     movlw   BLINK_COUNTER_VALUE
     movwf   blink_counter
 
+    call    Init_lights
+
+    IFDEF   ENABLE_SERVO_OUTPUT
+    call    Init_steering_wheel_servo
+    ENDIF
+
+    call    EEPROM_load_persistent_data
+    call    Init_reader
+
 ;   goto    Main_loop    
 
 
@@ -242,7 +242,7 @@ Init
 ;**********************************************************************
 Main_loop
     call    Read_all_channels
-    
+
     call    Process_ch3_double_click
     call    Process_drive_mode
     call    Process_indicators
@@ -546,6 +546,7 @@ Process_drive_mode
     subwf   throttle_abs, w
     bc      process_drive_mode_not_neutral
 
+process_drive_mode_neutral
     BANKSEL drive_mode
     btfsc   drive_mode, DRIVE_MODE_REVERSE_BRAKE
     return
@@ -575,6 +576,7 @@ process_drive_mode_not_neutral_after_reverse
     return
 
 process_drive_mode_not_neutral
+    BANKSEL drive_mode
     bcf     drive_mode, DRIVE_MODE_REVERSE_BRAKE
     bcf     drive_mode, DRIVE_MODE_BRAKE_DISARM
 
