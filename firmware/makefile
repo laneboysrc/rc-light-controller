@@ -10,7 +10,7 @@ subaru: subaru-master
 
 .PHONY: subaru-master
 subaru-master : hw_original.inc
-	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x07)
+	$(eval CFLAGS = -D RECEIVER_OUTPUT_RATE=20 -D LIGHT_MODE_MASK=0x07)
 	$(eval files = master servo-reader utils subaru-lights)
 	$(build)
 

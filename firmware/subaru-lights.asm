@@ -167,14 +167,21 @@ Output_lights
     btfsc   temp, DRIVE_MODE_REVERSE
     bsf     light_data, LED_REVERSING
 
+
     BANKSEL blink_mode
-    btfsc   blink_mode, BLINK_MODE_HAZARD
+    btfss   blink_mode, BLINK_MODE_BLINKFLAG
+    goto    output_lights_execute
+    
+    movfw   blink_mode
+    movwf   temp
+    BANKSEL light_data
+    btfsc   temp, BLINK_MODE_HAZARD
     bsf     light_data, LED_INDICATOR_LEFT
-    btfsc   blink_mode, BLINK_MODE_HAZARD
+    btfsc   temp, BLINK_MODE_HAZARD
     bsf     light_data, LED_INDICATOR_RIGHT
-    btfsc   blink_mode, BLINK_MODE_INDICATOR_LEFT
+    btfsc   temp, BLINK_MODE_INDICATOR_LEFT
     bsf     light_data, LED_INDICATOR_LEFT
-    btfss   blink_mode, BLINK_MODE_INDICATOR_RIGHT
+    btfsc   temp, BLINK_MODE_INDICATOR_RIGHT
     bsf     light_data, LED_INDICATOR_RIGHT
 
     goto    output_lights_execute
