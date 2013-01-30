@@ -46,9 +46,9 @@ IFDEF TLC5940
 light_data          res 16      ; TLC5940, one byte per LED
 ELSE                            
 IFDEF DUAL_TLC5916
-light_data          res 2       ; DUAL_TLC5917, one byte per chip
+light_data          res 2       ; DUAL_TLC5916, one byte per chip
 ELSE  
-light_data          res 1       ; Single TLC5917, 8 LEDs on/off
+light_data          res 1       ; Single TLC5916, 8 LEDs on/off
 ENDIF 
 ENDIF 
  
