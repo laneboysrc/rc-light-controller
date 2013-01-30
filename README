@@ -1,4 +1,16 @@
 This project is for a light controller for Radio Controlled cars. 
+
+See http://laneboysrc.blogspot.sg/2012/07/diy-car-light-controller-for-3-channel.html
+for details.
+
 It makes uses of a PIC 16F628A microcontroller. Firmware and schematics in
 Eagle format are included.
+
+To compile you need:
+- GNU Make
+- gputils (Version 1.0.0; http://gputils.sourceforge.net/)
+
+
+
+Also heck out http://laneboysrc.blogspot.sg/2012/12/pre-processor-for-diy-rc-light.html
 

@@ -7,12 +7,10 @@ TO DO LIST for the RC Light Controller
 * Add documentation how to build a new "car"
 
 * Switch to a more modern and faster PIC chip
-    * 16F1825 for the master/slave
+    * 16F1825 for the master/slave, not done yet.
 
 * Switch to the TLC5940 light controller
-    * How to solve the "clock after blank" signal problem without wasting IOs?
-        * Transistor?
-        * Single gate inverter 74AHC1G14?
+    * Currently we have some rudimentary test code that needs debugging.
 
 * Add a "horn" sound
     * Store in serial Flash or EEPROM
