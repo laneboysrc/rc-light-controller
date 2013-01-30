@@ -1,9 +1,22 @@
 .PHONY: all
-all: wyetuck-landrover phil-ford xr311 dingo
+all: subaru wyetuck-landrover phil-ford xr311 dingo
 
 
 ##############################################################################
-# Wye Tuck's Land Rover Defender S2 SWB (all metal Landy)
+# Subaru of a GMail user (request from 2013-01-30)
+##############################################################################
+.PHONY: subaru
+subaru: subaru-master
+
+.PHONY: subaru-master
+subaru-master : hw_original.inc
+	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x07)
+	$(eval files = master servo-reader utils subaru-lights)
+	$(build)
+
+
+##############################################################################
+# Wyetuck's Land Rover Defender S2 SWB (all metal Landy)
 ##############################################################################
 .PHONY: wyetuck-landrover
 wyetuck-landrover: wyetuck-landrover-preprocessor wyetuck-landrover-master
