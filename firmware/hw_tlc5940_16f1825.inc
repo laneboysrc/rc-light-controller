@@ -39,10 +39,10 @@ FOSC = 32           ; Osc frequency in MHz
 ;   RC0:        OUT (10) SCLK TLC5940
 ;   RC2         OUT ( 8) SIN TLC5940 (SDO on 16F1825)
 ;   RC1:        IN  ( 9) Reserved for SPI EEPROM (SDI on 16F1825)
-;   RC3:        OUT ( 7) XLAT TLC5940
-;   RC5:        OUT ( 5) VPROG TLC5940
-;   RA4:        OUT ( 3) BLANK TLC5940
-;   RA5:        OUT ( 2) GSCLK TLC5940
+;   RA4:        OUT ( 3) XLAT TLC5940
+;   RC3:        OUT ( 7) VPROG TLC5940
+;   RA5:        OUT ( 2) BLANK TLC5940
+;   RC5:        OUT ( 5) GSCLK TLC5940
 ;
 ;   RA2:        OUT (11) Reserved for audio out (PWM using CCP3) 
 
@@ -57,10 +57,10 @@ FOSC = 32           ; Osc frequency in MHz
 #define PORT_SCK        PORTC, 0
 #define PORT_SDI        PORTC, 2
 #define PORT_SDO        PORTC, 1
-#define PORT_XLAT       LATC, 3
-#define PORT_VPROG      LATC, 5
-#define PORT_BLANK      LATA, 4
-#define PORT_GSCLK      LATA, 5
+#define PORT_XLAT       LATA, 4
+#define PORT_VPROG      LATC, 3
+#define PORT_BLANK      LATA, 5
+#define PORT_GSCLK      LATC, 5
 
 
 ;******************************************************************************
