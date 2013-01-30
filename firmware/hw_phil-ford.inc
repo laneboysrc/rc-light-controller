@@ -30,18 +30,18 @@ FOSC = 4    ; Osc frequency in MHz
 ;******************************************************************************
 ;   Port usage:
 ;   ===========                                             
-;   RB1 ( 7):       IN  Slave in (UART RX)
-;   RB2 ( 8)        OUT TX pin, can not be used as we need the UART
+;   RB1:  IN  ( 7) Slave in (UART RX)
+;   RB2:  OUT ( 8) TX pin, can not be used as we need the UART
 ;
-;   RB3 ( 9):       OUT LED Tail/Brake light, brake function
-;   RA4 ( 3):       OUT LED Tail/Brake light, tail light function
-;   RA1 (18):       OUT LED 3rd Brake light
-;   RA0 (17):       OUT LED roof light bar
-;   RA2 ( 1):       OUT LED Main beam front
-;   RA7 (16):       OUT LED Parking lights front
-;   RA3 ( 2):       OUT LED Indicators right
-;   RA6 (15):       OUT LED Indicators left
-;   RB0 ( 6):       OUT LED Reversing lights
+;   RB3:  OUT ( 9) LED Tail/Brake light, brake function
+;   RA4:  OUT ( 3) LED Tail/Brake light, tail light function
+;   RA1:  OUT (18) LED 3rd Brake light
+;   RA0:  OUT (17) LED roof light bar
+;   RA2:  OUT ( 1) LED Main beam front
+;   RA7:  OUT (16) LED Parking lights front
+;   RA3:  OUT ( 2) LED Indicators right
+;   RA6:  OUT (15) LED Indicators left
+;   RB0:  OUT ( 6) LED Reversing lights
 ;
 ;   ICSP pins (not connected to other functions)
 ;   RA5 ( 4)        Vpp
@@ -63,7 +63,6 @@ FOSC = 4    ; Osc frequency in MHz
 #define PORT_LED_INDICATOR_LEFT     TRISA, 6
 #define PORT_LED_INDICATOR_RIGHT    TRISA, 3
 #define PORT_LED_REVERSE            TRISB, 0
-
 
 
 ;******************************************************************************

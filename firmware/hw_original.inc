@@ -28,21 +28,23 @@ FOSC = 4    ; Osc frequency in MHz
 ;******************************************************************************
 ;   Port usage:
 ;   ===========                                             
-;   RB6         IN  Servo input ST (PGC double-usage)
-;   RB7:        IN  Servo input TH (PGD double-usage)
-;   RA5:        IN  Servo input CH3 (Vpp double-usage)
-;   RB2:        OUT Slave out (UART TX)
-;   RB1:        IN  Slave in (UART RX), connected to RB6 to share HW
+;   RB6:  IN  (12) Servo input ST (PGC double-usage)
+;   RB7:  IN  (13) Servo input TH (PGD double-usage)
+;   RA5:  IN  ( 4) Servo input CH3 (Vpp double-usage)
+;   RB2:  OUT ( 8) Slave out (UART TX)
+;   RB1:  IN  ( 7) Slave in (UART RX), connected to RB6 to share HW
 ;
-;   RA3:        OUT CLK TLC5916
-;   RA0         OUT SDI TLC5916
-;   RA2:        OUT LE TLC5916
-;   RB0:        OUT OE TLC5916
+;   RA3:  OUT ( 2) CLK TLC5916
+;   RA0:  OUT (17) SDI TLC5916
+;   RA2:  OUT ( 1) LE TLC5916
+;   RB0:  OUT ( 6) OE TLC5916
 ;
-;   RA4         IN  Tied to RA0 for routing convenience. Note that RA4 is open
-;                   drain so not good to use as SDI!
-;   RA7, RB3:   IN  Tied to +Vdd for routing convenience!
-;   RB5         IN  Tied to RB2 for routing convenience!
+;   RA4:  IN  ( 3) Tied to RA0 for routing convenience. Note that RA4
+;                  is open drain so not good to use as SDI!
+;   RA7:  IN  (16) Tied to +Vdd for routing convenience!
+;   RB3:  IN  ( 9) Tied to +Vdd for routing convenience!
+;   RB5:  IN  (11) Tied to RB2 for routing convenience!
+;
 ;   RA6, RA0, RA1, RB4:     OUT NC pins, switch to output
 
 
@@ -57,7 +59,6 @@ FOSC = 4    ; Osc frequency in MHz
 #define PORT_SDI        PORTA, 0
 #define PORT_LE         PORTA, 2
 #define PORT_OE         PORTB, 0
-
 
 
 ;******************************************************************************

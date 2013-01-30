@@ -37,19 +37,19 @@ FOSC = 4    ; Osc frequency in MHz
 ;******************************************************************************
 ;   Port usage:
 ;   ===========                                             
-;   RA7:        IN   Pin 16  Servo input ST
-;   RA0:        IN   Pin 17  Servo input TH
-;   RA1:        IN   Pin 18  Servo input CH3
-;   RB2:        OUT  Pin 8   Slave out (UART TX)
+;   RA7:  IN  (16) Servo input ST
+;   RA0:  IN  (17) Servo input TH
+;   RA1:  IN  (18) Servo input CH3
+;   RB2:  OUT ( 8) Slave out (UART TX)
 ;
-;   RB7:        NA   Pin 13  PGD (in circuit programming)
-;   RB6:        NA   Pin 12  PGC (in circuit programming)
-;   RA5:        NA   Pin 4   Vpp (in circuit programming)
+;   RB7:  NA  (13) PGD (in circuit programming)
+;   RB6:  NA  (12) PGC (in circuit programming)
+;   RA5:  NA  ( 4) Vpp (in circuit programming)
+
 
 #define PORT_STEERING   PORTA, 7
 #define PORT_THROTTLE   PORTA, 0
 #define PORT_CH3        PORTA, 1
-
 
 
 ;******************************************************************************

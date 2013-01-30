@@ -31,20 +31,20 @@ FOSC = 32           ; Osc frequency in MHz
 ;******************************************************************************
 ;   Port usage:
 ;   ===========                                             
-;   RA1         IN  (12) Servo input ST; Slave in (UART RX); ICSPCLK
-;   RA0:        IN  (13) Servo input TH; Slave steering wheel servo; ICSPDAT
-;   RA3:        IN  ( 4) Servo input CH3; Vpp
-;   RC4:        OUT ( 6) Slave out (UART TX); Master steering wheel servo
+;   RA1:  IN  (12) Servo input ST; Slave in (UART RX); ICSPCLK
+;   RA0:  IN  (13) Servo input TH; Slave steering wheel servo; ICSPDAT
+;   RA3:  IN  ( 4) Servo input CH3; Vpp
+;   RC4:  OUT ( 6) Slave out (UART TX); Master steering wheel servo
 ;
-;   RC0:        OUT (10) SCLK TLC5940
-;   RC2         OUT ( 8) SIN TLC5940 (SDO on 16F1825)
-;   RC1:        IN  ( 9) Reserved for SPI EEPROM (SDI on 16F1825)
-;   RA4:        OUT ( 3) XLAT TLC5940
-;   RC3:        OUT ( 7) VPROG TLC5940
-;   RA5:        OUT ( 2) BLANK TLC5940
-;   RC5:        OUT ( 5) GSCLK TLC5940
+;   RC0:  OUT (10) SCLK TLC5940
+;   RC2   OUT ( 8) SIN TLC5940 (SDO on 16F1825)
+;   RC1:  IN  ( 9) Reserved for SPI EEPROM (SDI on 16F1825)
+;   RA4:  OUT ( 3) XLAT TLC5940
+;   RC3:  OUT ( 7) VPROG TLC5940
+;   RA5:  OUT ( 2) BLANK TLC5940
+;   RC5:  OUT ( 5) GSCLK TLC5940
 ;
-;   RA2:        OUT (11) Reserved for audio out (PWM using CCP3) 
+;   RA2:  OUT (11) Reserved for audio out (PWM using CCP3) 
 
 
 #define PORT_STEERING   PORTA, 1        
