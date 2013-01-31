@@ -1,0 +1,88 @@
+# Created by Ultra Librarian Lite 3.0.987 Copyright © 1999-2008
+# Demo Software, Accelerated Designs Free Demo Software!
+
+Grid mil;
+Set Wire_Bend 2;
+
+
+Edit 'SOT-23A_MC.pac';
+Layer 1;
+Smd '1' 22 52 -0 R0 (-37 -47);
+Layer 1;
+Smd '2' 22 52 -0 R0 (37 -47);
+Layer 1;
+Smd '3' 22 52 -0 R0 (0 47);
+Layer 21;
+Wire 0 (-27 -35) (-47 -35);
+Wire 0 (-47 -35) (-47 -59);
+Wire 0 (-47 -59) (-27 -59);
+Wire 0 (-27 -59) (-27 -35);
+Wire 0 (47 -35) (27 -35);
+Wire 0 (27 -35) (27 -59);
+Wire 0 (27 -59) (47 -59);
+Wire 0 (47 -59) (47 -35);
+Wire 0 (-10 35) (10 35);
+Wire 0 (10 35) (10 59);
+Wire 0 (10 59) (-10 59);
+Wire 0 (-10 59) (-10 35);
+Wire 0 (-61 -35) (61 -35);
+Wire 0 (61 -35) (61 35);
+Wire 0 (61 35) (-61 35);
+Wire 0 (-61 35) (-61 -35);
+Change Size 50;
+Change Ratio 6;
+Text 'RefDes2' SR0 (-151 -25);
+Layer 51;
+Wire 6 (-13 -35) (13 -35);
+Wire 6 (61 -18) (61 35);
+Wire 6 (61 35) (24 35);
+Wire 6 (-61 35) (-61 -18);
+Wire 6 (-24 35) (-61 35);
+Change Size 50;
+Change Ratio 6;
+Text 'RefDes' SR0 (-129 -25);
+Change Size 50;
+Change Ratio 6;
+Text 'DEV' SR0 (-68 -25);
+Change Size 50;
+Change Ratio 6;
+Text 'PN' SR0 (-45 -25);
+Change Size 50;
+Change Ratio 6;
+Text 'DEV' SR0 (-68 -25);
+Change Size 50;
+Change Ratio 6;
+Text 'VAL' SR0 (-68 -25);
+Change Size 50;
+Change Ratio 6;
+Text 'TOL' SR0 (-68 -25);
+
+Edit 'MCP1754X-XXXXX/C.sym';
+Layer 94;
+Pin 'GND' Pas None Long R0 Both 0 (0 0);
+Pin 'VOUT' Pas None Long R180 Both 0 (1600 -100);
+Pin 'VIN' Pas None Long R180 Both 0 (1600 0);
+Wire 5 (300 200) (300 -300);
+Wire 5 (300 -300) (1300 -300);
+Wire 5 (1300 -300) (1300 200);
+Wire 5 (1300 200) (300 200);
+Layer 97;
+Layer 95;
+Change Size 82;
+Change Ratio 6;
+Text 'REFDES' SR0 (589 359);
+Layer 96;
+Change Size 82;
+Change Ratio 6;
+Text 'TYPE' SR0 (651 259);
+
+Edit 'MCP1754X-XXXXX/C.dev';
+Prefix '';
+Description '';
+Value Off;
+Add MCP1754X-XXXXX/C 'A' Next  0 (0 0);
+Package 'SOT-23A_MC';
+Technology '';
+Connect 'A.GND' '1';
+Connect 'A.VOUT' '2';
+Connect 'A.VIN' '3';

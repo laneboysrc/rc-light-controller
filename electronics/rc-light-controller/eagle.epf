@@ -331,6 +331,8 @@ UsedLibrary="/home/laneboysrc/.eagle/lbr/xilinx-xcv.lbr"
 UsedLibrary="/home/laneboysrc/.eagle/lbr/zetex.lbr"
 UsedLibrary="/home/laneboysrc/.eagle/lbr/zilog.lbr"
 UsedLibrary="/home/laneboysrc/projects/rc-light-controller/electronics/TI-TLC5916IN.lbr"
+UsedLibrary="/home/laneboysrc/projects/rc-light-controller/electronics/MCP1754.lbr"
+UsedLibrary="/home/laneboysrc/projects/rc-light-controller/electronics/TLC5940.lbr"
 
 [Win_1]
 Type="Control Panel"
