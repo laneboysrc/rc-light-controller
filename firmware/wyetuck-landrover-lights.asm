@@ -35,7 +35,7 @@
 
 ; Bitfields in variable light_mode
 #define LIGHT_MODE_PARKING 0        ; Parking lights
-#define LIGHT_MODE_LOW_BEAM 1       ; Low beam
+#define LIGHT_MODE_MAIN_BEAM 1      ; Low beam
 
 ; Bitfields in variable drive_mode
 #define DRIVE_MODE_FORWARD 0 
@@ -59,6 +59,21 @@
 ; and send it to the slave
 #define STARTUP_MODE_NEUTRAL 4      ; Waiting before reading ST/TH neutral
 
+#define LED_PARKING 1    
+#define LED_MAIN_BEAM 2
+#define LED_TAIL 3    
+#define LED_BRAKE 4    
+#define LED_REVERSING 5    
+#define LED_INDICATOR_LEFT 8    
+#define LED_INDICATOR_RIGHT 9 
+
+#define VAL_PARKING 0x0f    
+#define VAL_MAIN_BEAM 0x3f
+#define VAL_TAIL 0x07    
+#define VAL_BRAKE 0x3f    
+#define VAL_REVERSING 0x1f    
+#define VAL_INDICATOR_LEFT 0x0f    
+#define VAL_INDICATOR_RIGHT 0x0f 
   
 ;******************************************************************************
 ; Relocatable variables section
@@ -76,7 +91,12 @@ dummy   res 2
 ;******************************************************************************
 Init_lights
     call    Init_TLC5940
-
+    call    Clear_light_data
+    call    output_lights_parking
+    call    TLC5940_send
+    return
+    
+fade_test
     BANKSEL dummy
     clrf    dummy
     bsf     dummy+1, 0
@@ -122,7 +142,6 @@ do1
     movwf   light_data+13
     movwf   light_data+14
     movwf   light_data+15
-
     call    TLC5940_send
 
     ; Wait 10ms between light outputs
@@ -157,11 +176,11 @@ delay_1ms_0
 
 
 ;******************************************************************************
-; Output_lights
+; Clear_light_data
+;
+; Clear all light_data variables, i.e. by default all lights are off.
 ;******************************************************************************
-Output_lights
-
-    ; Clear light_data, i.e. by default all lights are off.
+Clear_light_data
     movlw   HIGH light_data
     movwf   FSR0H
     movlw   LOW light_data
@@ -169,11 +188,18 @@ Output_lights
     movlw   16          ; There are 16 bytes in light_data
     movwf   temp
     clrw   
-Output_lights_clear_loop
+clear_light_data_loop
     movwi   FSR0++    
     decfsz  temp, f
-    bnz     Output_lights_clear_loop
+    goto    clear_light_data_loop
+    return
 
+
+;******************************************************************************
+; Output_lights
+;******************************************************************************
+Output_lights
+    call    Clear_light_data
 
     BANKSEL startup_mode
     movf    startup_mode, f
@@ -183,15 +209,49 @@ Output_lights_clear_loop
     bnz     output_lights_setup
 
     ; Normal mode here
-    return
+    BANKSEL light_mode
+    movfw   light_mode
+    movwf   temp
+    btfsc   temp, LIGHT_MODE_PARKING
+    call    output_lights_parking
+    btfsc   temp, LIGHT_MODE_PARKING
+    call    output_lights_tail
+    btfsc   temp, LIGHT_MODE_MAIN_BEAM
+    call    output_lights_main_beam
+
+    BANKSEL drive_mode
+    movfw   drive_mode
+    movwf   temp
+    btfsc   temp, DRIVE_MODE_BRAKE
+    call    output_lights_brake
+    btfsc   temp, DRIVE_MODE_REVERSE
+    call    output_lights_reversing
+
+    BANKSEL blink_mode
+    btfss   blink_mode, BLINK_MODE_BLINKFLAG
+    goto    output_lights_end
+    
+    movfw   blink_mode
+    movwf   temp
+    btfsc   temp, BLINK_MODE_HAZARD
+    call    output_lights_indicator_left
+    btfsc   temp, BLINK_MODE_HAZARD
+    call    output_lights_indicator_right
+    btfsc   temp, BLINK_MODE_INDICATOR_LEFT
+    call    output_lights_indicator_left
+    btfsc   temp, BLINK_MODE_INDICATOR_RIGHT
+    call    output_lights_indicator_right
+    
+output_lights_end
+    goto    output_lights_execute    
 
 
 output_lights_startup
     btfss   startup_mode, STARTUP_MODE_NEUTRAL
     return
     
-    ; do something...
-    return
+    call    output_lights_main_beam
+    goto    output_lights_execute    
 
 
 output_lights_setup
@@ -202,10 +262,11 @@ output_lights_setup
     btfsc   setup_mode, SETUP_MODE_RIGHT
     goto    output_lights_setup_right
     btfss   setup_mode, SETUP_MODE_STEERING_REVERSE 
-    return
+    goto    output_lights_execute    
 
     ; do something for steering reverse
-    return
+    call    output_lights_indicator_left
+    goto    output_lights_execute    
 
 output_lights_setup_centre
     return
@@ -217,8 +278,52 @@ output_lights_setup_right
     return
 
 output_lights_execute    
-;    call    TLC5916_send
+    call    TLC5940_send
     return
+
+output_lights_parking
+    BANKSEL light_data
+    movlw   VAL_PARKING
+    movwf   LED_PARKING+light_data
+    return
+    
+output_lights_main_beam
+    BANKSEL light_data
+    movlw   VAL_MAIN_BEAM
+    movwf   LED_MAIN_BEAM+light_data
+    return
+    
+output_lights_tail
+    BANKSEL light_data
+    movlw   VAL_TAIL
+    movwf   LED_TAIL+light_data
+    movwf   LED_BRAKE+light_data
+    return
+    
+output_lights_brake
+    BANKSEL light_data
+    movlw   VAL_BRAKE
+    movwf   LED_BRAKE+light_data
+    return
+    
+output_lights_reversing
+    BANKSEL light_data
+    movlw   VAL_REVERSING
+    movwf   LED_REVERSING+light_data
+    return
+    
+output_lights_indicator_left
+    BANKSEL light_data
+    movlw   VAL_INDICATOR_LEFT
+    movwf   LED_INDICATOR_LEFT+light_data
+    return
+    
+output_lights_indicator_right
+    BANKSEL light_data
+    movlw   VAL_INDICATOR_RIGHT
+    movwf   LED_INDICATOR_RIGHT+light_data
+    return
+    
 
 
     END
