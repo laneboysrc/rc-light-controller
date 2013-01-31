@@ -12,6 +12,13 @@ TO DO LIST for the RC Light Controller
 * Switch to the TLC5940 light controller
     * Currently we have some rudimentary test code that needs debugging.
 
+* Investigate whether we can detect the order of the incoming channels
+  automatically.
+  HK-310 and GT3B both send the servo signals in sequence (the GT3B has a 2us
+  gap though), but the order is difference:
+  - HK-310: ST - TH - CH3
+  - GT3B: TH - ST - CH3
+
 * Add a "horn" sound
     * Store in serial Flash or EEPROM
     * Invoke by toggling CH3 while steering is left/right
