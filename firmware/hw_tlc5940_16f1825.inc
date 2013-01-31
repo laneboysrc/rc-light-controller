@@ -18,7 +18,7 @@
     #include    <p16f1825.inc>
 
 IFDEF INCLUDE_CONFIG
-    __CONFIG     _CONFIG1, _FOSC_INTOSC & _WDTE_OFF & _PWRTE_ON & _MCLRE_OFF & _CP_OFF & _CPD_OFF & _BOREN_OFF & _CLKOUTEN_OFF & _IESO_OFF & _FCMEN_OFF
+    __CONFIG     _CONFIG1, _FOSC_INTOSC & _WDTE_OFF & _PWRTE_OFF & _MCLRE_OFF & _CP_OFF & _CPD_OFF & _BOREN_OFF & _CLKOUTEN_OFF & _IESO_OFF & _FCMEN_OFF
     __CONFIG     _CONFIG2, _WRT_OFF & _PLLEN_OFF & _STVREN_OFF & _LVP_OFF 
 ENDIF
 
@@ -67,6 +67,7 @@ FOSC = 32           ; Osc frequency in MHz
 ;* MACROS
 ;******************************************************************************
 _IO_INIT_COMMON macro   master
+
     ;-----------------------------
     ; Oscillator Control 
     BANKSEL OSCCON
@@ -76,10 +77,10 @@ _IO_INIT_COMMON macro   master
     
     ;-----------------------------
     ; IO Port initialization
-    BANKSEL PORTA
-    clrf    PORTA
     BANKSEL LATA
     clrf    LATA
+    clrf    LATC
+    bsf     PORT_BLANK  ; Blank the LED output as quickly as possible
     BANKSEL ANSELA
     clrf    ANSELA
     BANKSEL APFCON0
@@ -100,12 +101,12 @@ _IO_INIT_COMMON macro   master
         movlw   b'00000010' ; Make all ports C except RC1 output
         movwf   TRISC
     endif
-
-    
+        
+        
     ;-----------------------------
     ; Initialize Timer1 for 1 MHz operation
     BANKSEL T1CON
-    movlw   b'00110000' ; 
+    movlw   b'00110000' 
     movwf   T1CON
 
     

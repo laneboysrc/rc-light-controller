@@ -574,7 +574,8 @@ set_gs_loop
     BANKSEL LATA
     bcf     PORT_BLANK  
     bsf     PORT_GSCLK      
-    bsf     PORT_VPROG      
+    bsf     PORT_VPROG 
+         
     return
 ENDIF ; TLC5940    
 
