@@ -1144,6 +1144,7 @@ EEPROM_load_defaults
     clrf    servo_centre
     movlw   100
     movwf   servo_epr
+    BANKSEL steering_reverse
     clrf    steering_reverse
 
     call    EEPROM_save_persistent_data
@@ -1183,11 +1184,8 @@ EEPROM_write_byte
 	bcf     EECON1, WREN	; Disable writes 
                             ;  Note: does not affect current write cycle
 	
-	; Wait for the write to complete before we return
-	BANKSEL PIR1
-    btfss   PIR1, EEIF
+    btfsc   EECON1, WR      ; Wait for the write to complete before we return
 	goto    $-1		 
-	bcf     PIR1, EEIF      ; Clear EEPROM Write Operation IRQ flag
     return
 
 
