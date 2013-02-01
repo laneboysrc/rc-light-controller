@@ -524,7 +524,9 @@ clear_dc_loop
     nop
     bcf     PORT_XLAT
 
-
+IF 0
+;TEMPORARILY DISABLE INITIALIZING THE GS REGISTER TO SEE IF
+;IT IS NEEDED (would save VPROG IO pin!)
     ; =============================
     ; Set the greyscale register to all 1's (= all LEDs fully on)
     ; It is not clear if this is actually needed. The document SLVA259 from TI
@@ -563,7 +565,7 @@ set_gs_loop
     btfss   SSP1STAT, BF    ; Wait for transmit done flag BF being set
     goto    $-1
     movf    SSP1BUF, w      ; Clears BF flag
-
+ENDIF
 
     ; =============================
     ; Enable the outputs
