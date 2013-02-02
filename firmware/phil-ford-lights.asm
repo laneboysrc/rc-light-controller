@@ -121,6 +121,15 @@ _output_lights_brake
     call    light_tail_off
 
     BANKSEL drive_mode
+    btfsc   drive_mode, DRIVE_MODE_FORWARD
+    goto    _output_lights_reverse
+    btfsc   drive_mode, DRIVE_MODE_REVERSE
+    goto    _output_lights_reverse
+    call    light_brake_on
+    call    light_tail_off
+
+_output_lights_reverse
+    BANKSEL drive_mode
     btfsc   drive_mode, DRIVE_MODE_REVERSE
     call    light_reverse_on
     BANKSEL drive_mode
