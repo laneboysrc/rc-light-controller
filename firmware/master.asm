@@ -533,12 +533,6 @@ process_ch3_click_end
 ; 2 seconds in Neutral: brake_armed = 0
 ; Brake -> Neutral: brake = 0, brake_armed = 0
 ; Reverse -> Neutral: brake = 1 for 2 seconds
-
-; Bitfields in variable drive_mode
-;#define DRIVE_MODE_FORWARD 0 
-;#define DRIVE_MODE_BRAKE 1 
-;#define DRIVE_MODE_REVERSE 2
-;#define DRIVE_MODE_BRAKE_ARMED 3
 ;******************************************************************************
 Process_drive_mode
     BANKSEL throttle_abs
@@ -554,18 +548,10 @@ process_drive_mode_neutral
     return
 
     bcf     drive_mode, DRIVE_MODE_FORWARD
-    btfss   drive_mode, DRIVE_MODE_REVERSE
-    goto    process_drive_mode_not_neutral_after_reverse
+    btfsc   drive_mode, DRIVE_MODE_REVERSE
+    goto    process_drive_mode_neutral_after_reverse
 
-    bcf     drive_mode, DRIVE_MODE_REVERSE
-    bsf     drive_mode, DRIVE_MODE_REVERSE_BRAKE
-    bsf     drive_mode, DRIVE_MODE_BRAKE
-    movlw   BRAKE_AFTER_REVERSE_COUNTER_VALUE
-    movwf   drive_mode_counter   
-    return
-
-process_drive_mode_not_neutral_after_reverse
-    BANKSEL drive_mode
+process_drive_mode_neutral_after_forward_or_brake
     bsf     drive_mode, DRIVE_MODE_BRAKE_DISARM
     movlw   BRAKE_DISARM_COUNTER_VALUE
     movwf   drive_mode_brake_disarm_counter   
@@ -573,6 +559,14 @@ process_drive_mode_not_neutral_after_reverse
     btfsc   drive_mode, DRIVE_MODE_BRAKE
     bcf     drive_mode, DRIVE_MODE_BRAKE_ARMED
     bcf     drive_mode, DRIVE_MODE_BRAKE
+    return
+
+process_drive_mode_neutral_after_reverse
+    bcf     drive_mode, DRIVE_MODE_REVERSE
+    bsf     drive_mode, DRIVE_MODE_REVERSE_BRAKE
+    bsf     drive_mode, DRIVE_MODE_BRAKE
+    movlw   BRAKE_AFTER_REVERSE_COUNTER_VALUE
+    movwf   drive_mode_counter   
     return
 
 process_drive_mode_not_neutral
