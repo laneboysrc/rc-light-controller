@@ -74,7 +74,8 @@
     
 #define CH3_BUTTON_TIMEOUT 6    ; Time in which we accept double-click of CH3
 #define BLINK_COUNTER_VALUE 5   ; 5 * 65.536 ms = ~333 ms = ~1.5 Hz
-#define BRAKE_AFTER_REVERSE_COUNTER_VALUE 15 ; 15 * 65.536 ms = ~1 s
+#define AUTO_BRAKE_COUNTER_VALUE_REVERSE 15          ; 15 * 65.536 ms = ~1 s
+#define AUTO_BRAKE_COUNTER_VALUE_FORWARD 38          ; ~2.5 s
 #define BRAKE_DISARM_COUNTER_VALUE 15        ; 15 * 65.536 ms = ~1 s
 #define INDICATOR_STATE_COUNTER_VALUE 8      ; 8 * 65.536 ms = ~0.5 s
 #define INDICATOR_STATE_COUNTER_VALUE_OFF 30 ; ~2 s
@@ -96,7 +97,7 @@
 #define DRIVE_MODE_BRAKE 1 
 #define DRIVE_MODE_REVERSE 2
 #define DRIVE_MODE_BRAKE_ARMED 3
-#define DRIVE_MODE_REVERSE_BRAKE 4
+#define DRIVE_MODE_AUTO_BRAKE 4
 #define DRIVE_MODE_BRAKE_DISARM 5
 
 #define CENTRE_THRESHOLD 10
@@ -315,10 +316,10 @@ service_soft_timer_drive_mode
     decfsz  drive_mode_counter, f
     goto    service_soft_timer_blink
 
-    btfss   drive_mode, DRIVE_MODE_REVERSE_BRAKE
+    btfss   drive_mode, DRIVE_MODE_AUTO_BRAKE
     goto    service_soft_timer_blink
 
-    bcf     drive_mode, DRIVE_MODE_REVERSE_BRAKE
+    bcf     drive_mode, DRIVE_MODE_AUTO_BRAKE
     bcf     drive_mode, DRIVE_MODE_BRAKE
 
 
@@ -542,36 +543,47 @@ Process_drive_mode
 
 process_drive_mode_neutral
     BANKSEL drive_mode
-    btfsc   drive_mode, DRIVE_MODE_REVERSE_BRAKE
-    return
-    btfsc   drive_mode, DRIVE_MODE_BRAKE_DISARM
-    return
-
-    bcf     drive_mode, DRIVE_MODE_FORWARD
+    btfsc   drive_mode, DRIVE_MODE_FORWARD
+    goto    process_drive_mode_neutral_after_forward    
     btfsc   drive_mode, DRIVE_MODE_REVERSE
     goto    process_drive_mode_neutral_after_reverse
+    btfsc   drive_mode, DRIVE_MODE_BRAKE
+    goto    process_drive_mode_neutral_after_brake
+    return    
 
-process_drive_mode_neutral_after_forward_or_brake
+process_drive_mode_neutral_after_forward
+    bcf     drive_mode, DRIVE_MODE_FORWARD
     bsf     drive_mode, DRIVE_MODE_BRAKE_DISARM
     movlw   BRAKE_DISARM_COUNTER_VALUE
     movwf   drive_mode_brake_disarm_counter   
-
-    btfsc   drive_mode, DRIVE_MODE_BRAKE
-    bcf     drive_mode, DRIVE_MODE_BRAKE_ARMED
-    bcf     drive_mode, DRIVE_MODE_BRAKE
+IFNDEF DISABLE_AUTO_BRAKE_LIGHTS_FORWARD    
+    bsf     drive_mode, DRIVE_MODE_BRAKE
+    bsf     drive_mode, DRIVE_MODE_AUTO_BRAKE
+    movlw   AUTO_BRAKE_COUNTER_VALUE_FORWARD
+    movwf   drive_mode_counter   
+ENDIF    
     return
 
 process_drive_mode_neutral_after_reverse
     bcf     drive_mode, DRIVE_MODE_REVERSE
-    bsf     drive_mode, DRIVE_MODE_REVERSE_BRAKE
+IFNDEF DISABLE_AUTO_BRAKE_LIGHTS_FORWARD    
     bsf     drive_mode, DRIVE_MODE_BRAKE
-    movlw   BRAKE_AFTER_REVERSE_COUNTER_VALUE
+    bsf     drive_mode, DRIVE_MODE_AUTO_BRAKE
+    movlw   AUTO_BRAKE_COUNTER_VALUE_REVERSE
     movwf   drive_mode_counter   
+ENDIF    
+    return
+
+process_drive_mode_neutral_after_brake
+    btfsc   drive_mode, DRIVE_MODE_AUTO_BRAKE
+    return
+    bcf     drive_mode, DRIVE_MODE_BRAKE
+    bcf     drive_mode, DRIVE_MODE_BRAKE_ARMED
     return
 
 process_drive_mode_not_neutral
     BANKSEL drive_mode
-    bcf     drive_mode, DRIVE_MODE_REVERSE_BRAKE
+    bcf     drive_mode, DRIVE_MODE_AUTO_BRAKE
     bcf     drive_mode, DRIVE_MODE_BRAKE_DISARM
 
     BANKSEL throttle
