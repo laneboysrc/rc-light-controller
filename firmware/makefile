@@ -59,7 +59,7 @@ phil-ford-preprocessor : hw_preprocessor_12f1840.inc
 	$(build)
 
 phil-ford-master: hw_phil-ford.inc
-	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x07)
+	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x07 -D ESC_FORWARD_REVERSE)
 	$(eval files = master uart-reader utils phil-ford-lights)
 	$(build)
 

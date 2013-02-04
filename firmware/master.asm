@@ -592,7 +592,9 @@ process_drive_mode_not_neutral
 
     BANKSEL drive_mode
     bsf     drive_mode, DRIVE_MODE_FORWARD
+IFNDEF ESC_FORWARD_REVERSE    
     bsf     drive_mode, DRIVE_MODE_BRAKE_ARMED
+ENDIF    
     bcf     drive_mode, DRIVE_MODE_REVERSE
     bcf     drive_mode, DRIVE_MODE_BRAKE
     return
