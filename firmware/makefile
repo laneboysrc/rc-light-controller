@@ -1,5 +1,18 @@
 .PHONY: all
-all: subaru wyetuck-landrover phil-ford xr311 dingo
+all: pajero subaru wyetuck-landrover phil-ford xr311 dingo
+
+
+##############################################################################
+# Pajero of a GMail user (request from 2013-02-04)
+##############################################################################
+.PHONY: pajero
+pajero: pajero-master
+
+.PHONY: pajero-master
+pajero-master : hw_original.inc
+	$(eval CFLAGS = -D RECEIVER_OUTPUT_RATE=20 -D LIGHT_MODE_MASK=0x0f)
+	$(eval files = master servo-reader utils pajero-lights)
+	$(build)
 
 
 ##############################################################################
