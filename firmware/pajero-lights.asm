@@ -70,7 +70,7 @@
 #define DRIVE_MODE_BRAKE 1 
 #define DRIVE_MODE_REVERSE 2
 #define DRIVE_MODE_BRAKE_ARMED 3
-#define DRIVE_MODE_REVERSE_BRAKE 4
+#define DRIVE_MODE_AUTO_BRAKE 4
 #define DRIVE_MODE_BRAKE_DISARM 5
 
 ; Bitfields in variable setup_mode

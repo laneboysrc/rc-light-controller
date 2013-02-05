@@ -31,7 +31,7 @@
 #define DRIVE_MODE_BRAKE 1 
 #define DRIVE_MODE_REVERSE 2
 #define DRIVE_MODE_BRAKE_ARMED 3
-#define DRIVE_MODE_REVERSE_BRAKE 4
+#define DRIVE_MODE_AUTO_BRAKE 4
 #define DRIVE_MODE_BRAKE_DISARM 5
 
 ; Bitfields in variable setup_mode
@@ -118,14 +118,6 @@ _output_lights_brake
     call    light_brake_on
     BANKSEL drive_mode
     btfsc   drive_mode, DRIVE_MODE_BRAKE
-    call    light_tail_off
-
-    BANKSEL drive_mode
-    btfsc   drive_mode, DRIVE_MODE_FORWARD
-    goto    _output_lights_reverse
-    btfsc   drive_mode, DRIVE_MODE_REVERSE
-    goto    _output_lights_reverse
-    call    light_brake_on
     call    light_tail_off
 
 _output_lights_reverse
