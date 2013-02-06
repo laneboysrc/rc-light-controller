@@ -6,12 +6,6 @@ TO DO LIST for the RC Light Controller
 
 * Add documentation how to build a new "car"
 
-* Switch to a more modern and faster PIC chip
-    * 16F1825 for the master/slave, not done yet.
-
-* Switch to the TLC5940 light controller
-    * Currently we have some rudimentary test code that needs debugging.
-
 * Investigate whether we can detect the order of the incoming channels
   automatically.
   HK-310 and GT3B both send the servo signals in sequence (the GT3B has a 2us
