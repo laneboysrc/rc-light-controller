@@ -36,7 +36,7 @@ wyetuck-landrover: wyetuck-landrover-preprocessor wyetuck-landrover-master
 
 .PHONY: wyetuck-landrover-preprocessor
 wyetuck-landrover-preprocessor : hw_preprocessor_12f1840.inc
-	$(eval CFLAGS = -D SEQUENTIAL_CHANNEL_READING )
+	$(eval CFLAGS = -D SEQUENTIAL_CHANNEL_READING -D CHANNEL_SEQUENCE_TH_ST_CH3 )
 	$(eval files = preprocessor servo-reader utils)
 	$(build)
 
