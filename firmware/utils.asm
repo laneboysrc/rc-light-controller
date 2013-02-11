@@ -679,6 +679,7 @@ UART_send_w_delay
 	decfsz	temp+1, f
 	goto	UART_send_w_delay
 	
+    BANKSEL TXREG
     movfw   temp        ; Restore W
     movwf   TXREG	    ; Send data stored in W
     return    
@@ -703,6 +704,8 @@ UART_send_w_delay
 ; read, so errors must be tested for *before* RCREG is read. It is *NOT* 
 ; recommended that you ignore the error flags. Eventually an error will cause 
 ; the receiver to hang up if you don't clear the error condition.
+;
+; ASSUMPTION: RCREG and RCSTA are in the same bank.
 ;******************************************************************************
 .utils_UART_read_byte CODE
     GLOBAL UART_read_byte
