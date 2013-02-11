@@ -9,7 +9,7 @@ all: pajero subaru wyetuck-landrover phil-ford xr311 dingo
 pajero: pajero-master
 
 .PHONY: pajero-master
-pajero-master : hw_original.inc
+pajero-master : hw_original_servo_reader.inc
 	$(eval CFLAGS = -D RECEIVER_OUTPUT_RATE=20 -D LIGHT_MODE_MASK=0x0f)
 	$(eval files = master servo-reader utils pajero-lights)
 	$(build)
@@ -22,7 +22,7 @@ pajero-master : hw_original.inc
 subaru: subaru-master
 
 .PHONY: subaru-master
-subaru-master : hw_original.inc
+subaru-master : hw_original_servo_reader.inc
 	$(eval CFLAGS = -D RECEIVER_OUTPUT_RATE=20 -D LIGHT_MODE_MASK=0x07)
 	$(eval files = master servo-reader utils subaru-lights)
 	$(build)
@@ -71,13 +71,13 @@ phil-ford-master: hw_phil-ford.inc
 dingo: dingo-master dingo-slave
 
 .PHONY: dingo-master
-dingo-master: hw_original.inc
+dingo-master: hw_original_servo_reader.inc
 	$(eval CFLAGS = -D ENABLE_STEERING_WHEEL_SERVO_SETUP)
 	$(eval files = master servo-reader utils dingo-lights)
 	$(build)
 
 .PHONY: dingo-slave
-dingo-slave : hw_original.inc
+dingo-slave : hw_original_uart_reader.inc
 	$(eval CFLAGS = -D ENABLE_SERVO_OUTPUT)
 	$(eval files = slave steering-wheel-servo utils)
 	$(build)
@@ -96,7 +96,7 @@ xr311-preprocessor : hw_preprocessor_16f628a.inc
 	$(build)
 
 .PHONY: xr311-master
-xr311-master : hw_original.inc
+xr311-master : hw_original_uart_reader.inc
 	$(eval CFLAGS = -D DUAL_TLC5916 -D ENABLE_SERVO_OUTPUT -D ENABLE_STEERING_WHEEL_SERVO_SETUP -D LIGHT_MODE_MASK=0x03)
 	$(eval files = master uart-reader steering-wheel-servo utils xr311-lights)
 	$(build)

@@ -4,6 +4,8 @@
 ;
 ;   This file contains IO port definitions for the original schematics
 ;   of the RC light controller. 
+;   Specifically it initializes the hardware to read servo signals, which
+;   is used for masters.
 ;
 ;******************************************************************************
 ;
@@ -64,7 +66,7 @@ FOSC = 4    ; Osc frequency in MHz
 ;******************************************************************************
 ;* MACROS
 ;******************************************************************************
-_IO_INIT_COMMON macro   master
+IO_INIT_MASTER macro
     BANKSEL CMCON
     movlw   0x07
     movwf   CMCON       ; Disable the comparators
@@ -95,19 +97,11 @@ _IO_INIT_COMMON macro   master
     ;-----------------------------
     ; Port direction
     BANKSEL TRISA
-    if (master == 1)    
-        movlw   b'10110000' ; Make all ports A exceot RA7, RA5 and RA4 output
-        movwf   TRISA
+    movlw   b'10110000' ; Make all ports A exceot RA7, RA5 and RA4 output
+    movwf   TRISA
 
-        movlw   b'11101110' ; Make RB7, RB6, RB5, RB3, RB2 and RB1 inputs
-        movwf   TRISB
-    else
-        movlw   b'10110000' ; Make all ports A exceot RA7, RA5 and RA4 output
-        movwf   TRISA
-
-        movlw   b'01101110' ; Make RB6, RB5, RB3, RB2 and RB1 inputs (for SLAVE!)
-        movwf   TRISB
-    endif
+    movlw   b'11101110' ; Make RB7, RB6, RB5, RB3, RB2 and RB1 inputs
+    movwf   TRISB
 
 
     ;-----------------------------
@@ -156,11 +150,3 @@ SPBRG_VALUE = (((d'10'*FOSC*d'1000000'/((d'64'-(d'48'*BRGH_VALUE))*BAUDRATE))+d'
     movwf	TXREG
     endm
 
-IO_INIT_MASTER macro
-    _IO_INIT_COMMON 1
-    endm
-    
-IO_INIT_SLAVE macro
-    _IO_INIT_COMMON 0
-    endm
-    
