@@ -146,25 +146,50 @@ Output_lights
     ;  Tail                 half        off
     ;  Brake                full        off
     ;  Tail + Brake         full        half
+    ;
+    ; Note that an added complication is that for indicators we only want to
+    ; affect one side!
 
     BANKSEL blink_mode
     btfsc   blink_mode, BLINK_MODE_HAZARD
-    goto    _output_lights_blinking_is_active
+    goto    _output_lights_blinking_hazard_is_active
     btfsc   blink_mode, BLINK_MODE_INDICATOR_LEFT
-    goto    _output_lights_blinking_is_active
-    btfss   blink_mode, BLINK_MODE_INDICATOR_RIGHT
+    goto    _output_lights_blinking_left_is_active
+    btfsc   blink_mode, BLINK_MODE_INDICATOR_RIGHT
+    goto    _output_lights_blinking_right_is_active
     goto    _output_lights_blinking_end
 
-_output_lights_blinking_is_active
+_output_lights_blinking_hazard_is_active
     BANKSEL light_data
     bcf     light_data, LED_TAIL_BRAKE_INDICATOR_LEFT
-    bcf     light_data, LED_TAIL_BRAKE_INDICATOR_RIGHT
     bcf     light_data+1, LED_TAIL_BRAKE_INDICATOR_LEFT
+    bcf     light_data, LED_TAIL_BRAKE_INDICATOR_RIGHT
     bcf     light_data+1, LED_TAIL_BRAKE_INDICATOR_RIGHT
 
     BANKSEL blink_mode
     btfss   blink_mode, BLINK_MODE_BLINKFLAG
     goto    _output_lights_indicators_off
+    goto    _output_lights_indicators_on
+
+_output_lights_blinking_left_is_active
+    BANKSEL light_data
+    bcf     light_data, LED_TAIL_BRAKE_INDICATOR_LEFT
+    bcf     light_data+1, LED_TAIL_BRAKE_INDICATOR_LEFT
+
+    BANKSEL blink_mode
+    btfss   blink_mode, BLINK_MODE_BLINKFLAG
+    goto    _output_lights_indicators_off
+    goto    _output_lights_indicators_on
+
+_output_lights_blinking_right_is_active
+    BANKSEL light_data
+    bcf     light_data, LED_TAIL_BRAKE_INDICATOR_RIGHT
+    bcf     light_data+1, LED_TAIL_BRAKE_INDICATOR_RIGHT
+
+    BANKSEL blink_mode
+    btfss   blink_mode, BLINK_MODE_BLINKFLAG
+    goto    _output_lights_indicators_off
+;   goto    _output_lights_indicators_on
 
 _output_lights_indicators_on
     BANKSEL blink_mode
@@ -244,17 +269,18 @@ output_lights_setup
     btfsc   setup_mode, SETUP_MODE_CENTRE
     goto    output_lights_setup_centre
     btfsc   setup_mode, SETUP_MODE_LEFT
-    goto    output_lights_setup_right
+    goto    output_lights_setup_left
     btfsc   setup_mode, SETUP_MODE_RIGHT
     goto    output_lights_setup_right
     btfss   setup_mode, SETUP_MODE_STEERING_REVERSE 
     return
 
     BANKSEL light_data
-    bsf     light_data, LED_LOW_BEAM_LEFT
+    bsf     light_data, LED_INDICATOR_LEFT
     goto    output_lights_execute
     
 output_lights_setup_centre
+    BANKSEL light_data
     bsf     light_data+1, LED_INDICATOR_RIGHT
 ;   bsf     light_data+1, LED_INDICATOR_LEFT
 ;   goto    output_lights_setup_execute
