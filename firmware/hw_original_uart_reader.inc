@@ -96,6 +96,7 @@ _IO_INIT_COMMON macro
 
     ;-----------------------------
     ; Port direction
+    BANKSEL TRISA
     movlw   b'10110000' ; Make all ports A exceot RA7, RA5 and RA4 output
     movwf   TRISA
 
