@@ -174,7 +174,7 @@ servo_centre        res 1
 servo_epr           res 1
 servo_setup_epl     res 1
 servo_setup_centre  res 1
-servo_setup_epr     res 1
+servo_ep_sign_flag  res 1
 
 
 ;******************************************************************************
@@ -933,8 +933,6 @@ Process_steering_reversing
 ; value but store the sign. After multiplication and division using the
 ; absolute value we re-apply the sign, then add centre.
 ;******************************************************************************
-#define SIGN_FLAG temp+1
-
 Process_steering_wheel_servo
     BANKSEL setup_mode
     movf    setup_mode, f
@@ -1026,38 +1024,39 @@ process_steering_servo_not_centre
     BANKSEL steering
     movfw   steering
     movwf   temp
+    
     BANKSEL servo_epr
     movf    servo_epr, w
-    btfsc   temp, 7             ; temp = steering
+    btfsc   temp, 7             ; temp.7: steering sign flag
     movf    servo_epl, w
     movwf   temp
 
+    clrf    servo_ep_sign_flag
+    btfsc   temp, 7
+    bsf     servo_ep_sign_flag, 7 ; Save the sign flag of the endpoint
+
     movf    servo_centre, w
     subwf   temp, f
-
-    clrf    SIGN_FLAG
-    btfsc   temp, 7
-    incf    SIGN_FLAG, f
-        
+       
     btfsc   temp, 7
     decf    temp, f
     btfsc   temp, 7
     comf    temp, f
 
-    ; temp contains now     abs(right - centre)
+    ; temp contains now     abs(left/right - centre)
     movf    temp, w
     movwf   xl
     BANKSEL steering_abs
     movf    steering_abs, w
-    call    Mul_xl_by_w
+    call    Mul_xl_by_w     
     movlw   100
     movwf   yl
     clrf    yh
     call    Div_x_by_y
 
-    BANKSEL SIGN_FLAG
-    movf    SIGN_FLAG, f
-    bz      process_servo_not_negative
+    BANKSEL servo_ep_sign_flag
+    btfss   servo_ep_sign_flag, 7
+    goto    process_servo_not_negative
 
     ; Re-apply the sign bit
     movf    xl, w
