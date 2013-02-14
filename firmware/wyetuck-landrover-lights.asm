@@ -1,3 +1,46 @@
+;******************************************************************************
+;
+;   wyetuck-landrover-lights.asm
+;
+;   This file contains the business logic to drive the LEDs for Wyetuck's
+;   metal Land Rover.
+;
+;   The hardware is based on PIC16F1825 and TLC5940. No DC/DC converter is used.
+;
+;   The TLC5940 IREF is programmed with a 1200 Ohms resistor, which means
+;   the maximum LED current is 32.55 mA; each adjustment step is 0.517 mA.
+;
+;   The main beam lights are bicycle lights with 5 LEDs per lamp. Each main 
+;   beam light uses two outputs on the TLC5940, one driving 3 LEDs in parallel,
+;   the other driving 2 LEDs in parallel. The idea is that the 3 LEDs are 
+;   driven with 30 mA and the 2 LEDs with 20 mA, so in effect each LED receives
+;   10 mA.
+;
+;   The following lights are available:
+;
+;       OUT0    (not used)
+;       OUT1    Parking lights left
+;       OUT2    Parking lights right
+;       OUT3    Main beam 3 LEDs left
+;       OUT4    Main beam 2 LEDs left
+;       OUT5    Main beam 3 LEDs right
+;       OUT6    Main beam 2 LEDs right
+;       OUT7    Indicators front left
+;       OUT8    Indicators front right   
+;       OUT9    (not used)
+;       OUT10   (not used)
+;       OUT11   Tail/Brake left
+;       OUT12   Tail/Brake right   
+;       OUT13   Indicators rear left
+;       OUT14   Indicators rear right   
+;       OUT15   (not used)
+;
+;******************************************************************************
+;
+;   Author:         Werner Lane
+;   E-mail:         laneboysrc@gmail.com
+;
+;******************************************************************************
     TITLE       Light tables for Wye Tuck's Land Rover Defender S2 SWB
     RADIX       dec
 
@@ -59,21 +102,30 @@
 ; and send it to the slave
 #define STARTUP_MODE_NEUTRAL 4      ; Waiting before reading ST/TH neutral
 
-#define LED_PARKING 1    
-#define LED_MAIN_BEAM 2
-#define LED_TAIL 3    
-#define LED_BRAKE 4    
-#define LED_REVERSING 5    
-#define LED_INDICATOR_LEFT 8    
-#define LED_INDICATOR_RIGHT 9 
+#define LED_PARKING_L 1    
+#define LED_PARKING_R 2    
+#define LED_MAIN_BEAM_3_L 3
+#define LED_MAIN_BEAM_2_L 4
+#define LED_MAIN_BEAM_3_R 5
+#define LED_MAIN_BEAM_2_R 6
+#define LED_INDICATOR_F_L 7    
+#define LED_INDICATOR_F_R 8 
+#define LED_TAIL_BRAKE_L 11    
+#define LED_TAIL_BRAKE_R 12    
+#define LED_INDICATOR_R_L 13    
+#define LED_INDICATOR_R_R 14
 
-#define VAL_PARKING 0x0f    
-#define VAL_MAIN_BEAM 0x3f
-#define VAL_TAIL 0x07    
-#define VAL_BRAKE 0x3f    
-#define VAL_REVERSING 0x1f    
-#define VAL_INDICATOR_LEFT 0x0f    
-#define VAL_INDICATOR_RIGHT 0x0f 
+; Since gpasm is not able to use 0.517 we need to calculate with micro-Amps
+#define uA_PER_STEP 517
+
+#define VAL_PARKING (20 * 1000 / uA_PER_STEP)
+#define VAL_MAIN_BEAM_3 (30 * 1000 / uA_PER_STEP)
+#define VAL_MAIN_BEAM_2 (20 * 1000 / uA_PER_STEP)
+#define VAL_TAIL (5 * 1000 / uA_PER_STEP)
+#define VAL_BRAKE (20 * 1000 / uA_PER_STEP)
+#define VAL_INDICATOR_FRONT (20 * 1000 / uA_PER_STEP)
+#define VAL_INDICATOR_REAR (20 * 1000 / uA_PER_STEP)
+
   
 ;******************************************************************************
 ; Relocatable variables section
@@ -86,112 +138,21 @@ dummy   res 2
 ;============================================================================
 .lights CODE
 
+
 ;******************************************************************************
 ; Init_lights
 ;******************************************************************************
 Init_lights
     call    Init_TLC5940
     call    Clear_light_data
-    call    output_lights_parking
-    call    TLC5940_send
-    return
-    
-fade_test
-    BANKSEL dummy
-    clrf    dummy
-    bsf     dummy+1, 0
 
-light_loop
-    BANKSEL dummy
-    btfsc   dummy+1, 0
-    goto    do_up
-
-    decf    dummy, f
-    movfw   dummy
-    sublw   0
-    bnz     do1 
-
-    bsf     dummy+1, 0
-    goto    do1    
-
-do_up
-    incf    dummy, f
-    movfw   dummy
-    sublw   0x3f
-    bnz     do1 
-
-    bcf     dummy+1, 0
-    goto    do1    
-
-do1
-    movfw   dummy
+    ; Light up both front indicators until we receive the first command 
+    ; from the UART
     BANKSEL light_data
-    movwf   light_data
-    movwf   light_data+1
-    movwf   light_data+2
-    movwf   light_data+3
-    movwf   light_data+4
-    movwf   light_data+5
-    movwf   light_data+6
-    movwf   light_data+7
-    movwf   light_data+8
-    movwf   light_data+9
-    movwf   light_data+10
-    movwf   light_data+11
-    movwf   light_data+12
-    movwf   light_data+13
-    movwf   light_data+14
-    movwf   light_data+15
+    movlw   VAL_INDICATOR_FRONT
+    movwf   light_data + LED_INDICATOR_F_R
+    movwf   light_data + LED_INDICATOR_F_L
     call    TLC5940_send
-
-    ; Wait 10ms between light outputs
-    movlw   10
-    movwf   temp
-    call    Delay_1ms
-    decfsz  temp, f
-    goto    $-2
-
-    goto    light_loop
-
-    return
-
-
-;******************************************************************************
-; Delay_1ms
-;
-; Delays for exactly 1ms at 32 MHz FOSC
-;******************************************************************************
-Delay_1ms
-	movlw	0x3E
-	movwf	xl
-	movlw	0x07
-	movwf	xh
-delay_1ms_0
-	decfsz	xl, f
-	goto	$+2
-	decfsz	xh, f
-	goto	delay_1ms_0
-
-	return
-
-
-;******************************************************************************
-; Clear_light_data
-;
-; Clear all light_data variables, i.e. by default all lights are off.
-;******************************************************************************
-Clear_light_data
-    movlw   HIGH light_data
-    movwf   FSR0H
-    movlw   LOW light_data
-    movwf   FSR0L
-    movlw   16          ; There are 16 bytes in light_data
-    movwf   temp
-    clrw   
-clear_light_data_loop
-    movwi   FSR0++    
-    decfsz  temp, f
-    goto    clear_light_data_loop
     return
 
 
@@ -224,8 +185,7 @@ Output_lights
     movwf   temp
     btfsc   temp, DRIVE_MODE_BRAKE
     call    output_lights_brake
-    btfsc   temp, DRIVE_MODE_REVERSE
-    call    output_lights_reversing
+
 
     BANKSEL blink_mode
     btfss   blink_mode, BLINK_MODE_BLINKFLAG
@@ -250,7 +210,9 @@ output_lights_startup
     btfss   startup_mode, STARTUP_MODE_NEUTRAL
     return
     
-    call    output_lights_main_beam
+    movlw   VAL_MAIN_BEAM_2
+    movwf   light_data + LED_MAIN_BEAM_2_L
+    movwf   light_data + LED_MAIN_BEAM_2_R
     goto    output_lights_execute    
 
 
@@ -264,7 +226,7 @@ output_lights_setup
     btfss   setup_mode, SETUP_MODE_STEERING_REVERSE 
     goto    output_lights_execute    
 
-    ; do something for steering reverse
+    ; Do something for steering reverse
     call    output_lights_indicator_left
     goto    output_lights_execute    
 
@@ -281,49 +243,72 @@ output_lights_execute
     call    TLC5940_send
     return
 
+
 output_lights_parking
     BANKSEL light_data
     movlw   VAL_PARKING
-    movwf   LED_PARKING+light_data
+    movwf   light_data + LED_PARKING_L
+    movwf   light_data + LED_PARKING_R
     return
     
 output_lights_main_beam
     BANKSEL light_data
-    movlw   VAL_MAIN_BEAM
-    movwf   LED_MAIN_BEAM+light_data
+    movlw   VAL_MAIN_BEAM_2
+    movwf   light_data + LED_MAIN_BEAM_2_L
+    movwf   light_data + LED_MAIN_BEAM_2_R
+    movlw   VAL_MAIN_BEAM_3
+    movwf   light_data + LED_MAIN_BEAM_3_L
+    movwf   light_data + LED_MAIN_BEAM_3_R
     return
     
 output_lights_tail
     BANKSEL light_data
     movlw   VAL_TAIL
-    movwf   LED_TAIL+light_data
-    movwf   LED_BRAKE+light_data
+    movwf   light_data + LED_TAIL_BRAKE_L
+    movwf   light_data + LED_TAIL_BRAKE_R
     return
     
 output_lights_brake
     BANKSEL light_data
     movlw   VAL_BRAKE
-    movwf   LED_BRAKE+light_data
-    return
-    
-output_lights_reversing
-    BANKSEL light_data
-    movlw   VAL_REVERSING
-    movwf   LED_REVERSING+light_data
+    movwf   light_data + LED_TAIL_BRAKE_L
+    movwf   light_data + LED_TAIL_BRAKE_R
     return
     
 output_lights_indicator_left
     BANKSEL light_data
-    movlw   VAL_INDICATOR_LEFT
-    movwf   LED_INDICATOR_LEFT+light_data
+    movlw   VAL_INDICATOR_FRONT
+    movwf   light_data + LED_INDICATOR_F_L
+    movlw   VAL_INDICATOR_REAR
+    movwf   light_data + LED_INDICATOR_R_L
     return
     
 output_lights_indicator_right
     BANKSEL light_data
-    movlw   VAL_INDICATOR_RIGHT
-    movwf   LED_INDICATOR_RIGHT+light_data
+    movlw   VAL_INDICATOR_FRONT
+    movwf   light_data + LED_INDICATOR_F_R
+    movlw   VAL_INDICATOR_REAR
+    movwf   light_data + LED_INDICATOR_R_R
+    return
+
+
+;******************************************************************************
+; Clear_light_data
+;
+; Clear all light_data variables, i.e. by default all lights are off.
+;******************************************************************************
+Clear_light_data
+    movlw   HIGH light_data
+    movwf   FSR0H
+    movlw   LOW light_data
+    movwf   FSR0L
+    movlw   16          ; There are 16 bytes in light_data
+    movwf   temp
+    clrw   
+clear_light_data_loop
+    movwi   FSR0++    
+    decfsz  temp, f
+    goto    clear_light_data_loop
     return
     
-
-
     END
