@@ -83,23 +83,14 @@ _IO_INIT_COMMON macro   master
     BANKSEL ANSELA
     clrf    ANSELA
     BANKSEL APFCON0
-    movlw   b'00000000' ; Use RC4/RC5 for UART TX/RX
+    movlw   b'10000000' ; Use RC4/RA1 for UART TX/RX
     movwf   APFCON0
     clrf    APFCON1
     BANKSEL TRISA
-    if (master == 1)    
-        movlw   b'00001011' ; Make all ports A except RA0, RA1 and RA3 output
-        movwf   TRISA
-
-        movlw   b'00000010' ; Make all ports C except RC1 output
-        movwf   TRISC
-    else
-        movlw   b'00001010' ; Make all ports A except RA1 and RA3 output (Slave!)
-        movwf   TRISA
-
-        movlw   b'00000010' ; Make all ports C except RC1 output
-        movwf   TRISC
-    endif
+    movlw   b'00001011' ; Make all ports A except RA0, RA1 and RA3 output
+    movwf   TRISA
+    movlw   b'00000010' ; Make all ports C except RC1 output
+    movwf   TRISC
         
         
     ;-----------------------------
@@ -166,12 +157,12 @@ SPBRG_VALUE = (((d'10'*FOSC*d'1000000'/((d'64'-(d'48'*BRGH_VALUE))*BAUDRATE))+d'
     movlw	SPBRG_VALUE
     movwf	SPBRGL
 
-    movlw   b'10000000'
+    movlw   b'10010000'
             ; |||||||+ RX9D (not used)
             ; ||||||+- OERR (overrun error, read only)
             ; |||||+-- FERR (framing error)
             ; ||||+--- ADDEN(not used in 8 bit mode)
-            ; |||+---- CREN (disable reception for MASTER)
+            ; |||+---- CREN (enable reception for MASTER)
             ; ||+----- SREN (not used in async mode)
             ; |+------ RX9  (cleared to use 8 bit mode = no parity)
             ; +------- SPEN (set to enable USART)
@@ -226,7 +217,7 @@ SPBRG_VALUE = (((d'10'*FOSC*d'1000000'/((d'64'-(d'48'*BRGH_VALUE))*BAUDRATE))+d'
 
 
 IO_INIT_MASTER macro
-    _IO_INIT_COMMON 1
+    _IO_INIT_COMMON 0
     endm
 
     

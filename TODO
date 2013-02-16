@@ -21,5 +21,6 @@ TO DO LIST for the RC Light Controller
     * Sound generation via PWM or DAC?
     * What output hardware / amplifier is needed?
 
-  
+Fix the issue with master and slave regarding UART RX usage in master for
+the preprocessor use case.  
   
