@@ -58,6 +58,7 @@ phil-ford-preprocessor : hw_preprocessor_12f1840.inc
 	$(eval files = preprocessor servo-reader utils)
 	$(build)
 
+.PHONY: phil-ford-master
 phil-ford-master: hw_tlc5940_16f1825.inc
 	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x07 -D ESC_FORWARD_REVERSE)
 	$(eval files = master uart-reader utils phil-ford-lights)
@@ -101,6 +102,18 @@ xr311-master : hw_original_uart_reader.inc
 	$(eval files = master uart-reader steering-wheel-servo utils xr311-lights)
 	$(build)
 	
+
+##############################################################################
+# Test code for hardware validation and debugging
+##############################################################################
+.PHONY: test
+test: test-tlc5940-16f1825
+
+.PHONY: test-tlc5940-16f1825
+test-tlc5940-16f1825: hw_tlc5940_16f1825.inc
+#	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x07)
+	$(eval files = master uart-reader utils test-tlc5940-16f1825-lights)
+	$(build)
 
 
 	
