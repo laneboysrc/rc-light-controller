@@ -58,7 +58,7 @@ phil-ford-preprocessor : hw_preprocessor_12f1840.inc
 	$(eval files = preprocessor servo-reader utils)
 	$(build)
 
-phil-ford-master: hw_phil-ford.inc
+phil-ford-master: hw_tlc5940_16f1825.inc
 	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x07 -D ESC_FORWARD_REVERSE)
 	$(eval files = master uart-reader utils phil-ford-lights)
 	$(build)
