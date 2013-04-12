@@ -1,3 +1,42 @@
+;******************************************************************************
+;
+;   phil-ford-lights.asm
+;
+;   This file contains the business logic to drive the LEDs for Phil's
+;   Ford F150 body.
+;
+;   The hardware is based on PIC16F1825 and TLC5940. No DC/DC converter is used.
+;
+;   The TLC5940 IREF is programmed with a 2000 Ohms resistor, which means
+;   the maximum LED current is 20 mA; each adjustment step is 0.312 mA.
+;
+;   The following lights are available:
+;
+;       OUT0    3rd brake light
+;       OUT1    Main beam left 
+;       OUT2    Main beam right
+;       OUT3    Indicators front left
+;       OUT4    Indicators rear left
+;       OUT5    Parking lights right
+;       OUT6    Indicators front right   
+;       OUT7    Indicators rear right   
+;       OUT8    Parking lights left
+;       OUT9    Tail/Brake left
+;       OUT10   Tail/Brake right
+;       OUT11   (not used)
+;       OUT12   Reversing light left
+;       OUT13   Reversing light right
+;       OUT14   Indicators mirror right
+;       OUT15   Indicators mirror left
+;
+;       PORTA.2 Roof light bar (switched through a transitor; H = on)
+;
+;******************************************************************************
+;
+;   Author:         Werner Lane
+;   E-mail:         laneboysrc@gmail.com
+;
+;******************************************************************************
     TITLE       Light output logic for Phil's Ford
     RADIX       dec
 
@@ -5,7 +44,15 @@
 
     GLOBAL Init_lights
     GLOBAL Output_lights
-
+    
+    
+    ; Functions and variables imported from utils.asm
+    EXTERN Init_TLC5940    
+    EXTERN TLC5940_send
+    
+    EXTERN temp
+    EXTERN light_data
+    
     
     ; Functions and variables imported from master.asm
     EXTERN blink_mode
@@ -45,7 +92,37 @@
 
 ; Bitfields in variable startup_mode
 #define STARTUP_MODE_NEUTRAL 4      ; Waiting before reading ST/TH neutral
-#define STARTUP_MODE_REVERSING 5    ; Waiting for Forward/Left to obtain direction
+
+
+#define LED_PARKING_L 8    
+#define LED_PARKING_R 5    
+#define LED_MAIN_BEAM_L 1
+#define LED_MAIN_BEAM_R 2
+#define LED_INDICATOR_F_L 7    
+#define LED_INDICATOR_F_R 6 
+#define LED_INDICATOR_R_L 4    
+#define LED_INDICATOR_R_R 7
+#define LED_INDICATOR_M_L 15    
+#define LED_INDICATOR_M_R 14
+#define LED_TAIL_BRAKE_L 9    
+#define LED_TAIL_BRAKE_R 10    
+#define LED_REVERSE_L 12    
+#define LED_REVERSE_R 13    
+
+#define PORT_LED_ROOF_BIT 2
+
+; Since gpasm is not able to use 0.312 we need to calculate with micro-Amps
+#define uA_PER_STEP 312
+
+#define VAL_PARKING (20 * 1000 / uA_PER_STEP)
+#define VAL_MAIN_BEAM (20 * 1000 / uA_PER_STEP)
+#define VAL_TAIL (4 * 1000 / uA_PER_STEP)
+#define VAL_BRAKE (20 * 1000 / uA_PER_STEP)
+#define VAL_INDICATOR_FRONT (20 * 1000 / uA_PER_STEP)
+#define VAL_INDICATOR_REAR (20 * 1000 / uA_PER_STEP)
+#define VAL_INDICATOR_MIRROR (20 * 1000 / uA_PER_STEP)
+#define VAL_REVERSE (20 * 1000 / uA_PER_STEP)
+
 
     
 ;******************************************************************************
@@ -64,7 +141,9 @@
 ; Init_lights
 ;******************************************************************************
 Init_lights
-    call    light_parking_on
+    call    Init_TLC5940
+    call    Clear_light_data
+    
     return
 
 
@@ -72,6 +151,8 @@ Init_lights
 ; Output_lights
 ;******************************************************************************
 Output_lights
+    call    Clear_light_data
+
     BANKSEL startup_mode
     movf    startup_mode, f
     bnz     _output_lights_startup
@@ -79,18 +160,17 @@ Output_lights
     movf    setup_mode, f
     bnz     _output_lights_setup
 
+    BANKSEL light_mode
     btfsc   light_mode, LIGHT_MODE_PARKING
     call    light_parking_on
+
     BANKSEL light_mode
-    btfss   light_mode, LIGHT_MODE_PARKING
-    call    light_parking_off
+    btfsc   light_mode, LIGHT_MODE_PARKING
+    call    light_tail_on
 
     BANKSEL light_mode
     btfsc   light_mode, LIGHT_MODE_LOW_BEAM
     call    light_main_beam_on
-    BANKSEL light_mode
-    btfss   light_mode, LIGHT_MODE_LOW_BEAM
-    call    light_main_beam_off
 
     BANKSEL light_mode
     btfsc   light_mode, LIGHT_MODE_ROOF
@@ -98,35 +178,14 @@ Output_lights
     BANKSEL light_mode
     btfss   light_mode, LIGHT_MODE_ROOF
     call    light_roof_off
-    BANKSEL drive_mode
-    btfsc   drive_mode, DRIVE_MODE_BRAKE    
-    goto    _output_lights_brake  
-    btfsc   light_mode, LIGHT_MODE_PARKING
-    call    light_tail_on
-    BANKSEL light_mode
-    btfss   light_mode, LIGHT_MODE_PARKING
-    call    light_tail_off
 
-_output_lights_brake    
-    BANKSEL drive_mode
-    btfss   drive_mode, DRIVE_MODE_BRAKE
-    call    light_brake_off
-    ; The brake light and tail light is combined, so turn the low brightness
-    ; tail light off when braking is engaged
     BANKSEL drive_mode
     btfsc   drive_mode, DRIVE_MODE_BRAKE
     call    light_brake_on
-    BANKSEL drive_mode
-    btfsc   drive_mode, DRIVE_MODE_BRAKE
-    call    light_tail_off
 
-_output_lights_reverse
     BANKSEL drive_mode
     btfsc   drive_mode, DRIVE_MODE_REVERSE
     call    light_reverse_on
-    BANKSEL drive_mode
-    btfss   drive_mode, DRIVE_MODE_REVERSE
-    call    light_reverse_off
 
     BANKSEL blink_mode
     btfss   blink_mode, BLINK_MODE_BLINKFLAG
@@ -144,22 +203,15 @@ _output_lights_check_indicator
     btfsc   blink_mode, BLINK_MODE_INDICATOR_LEFT
     call    light_indicator_left_on
     BANKSEL blink_mode
-    btfss   blink_mode, BLINK_MODE_INDICATOR_LEFT
-    call    light_indicator_left_off
-    BANKSEL blink_mode
     btfsc   blink_mode, BLINK_MODE_INDICATOR_RIGHT
     call    light_indicator_right_on
-    BANKSEL blink_mode
-    btfss   blink_mode, BLINK_MODE_INDICATOR_RIGHT
-    call    light_indicator_right_off
-    goto    _output_lights_blinking_end
 
 _output_lights_indicators_off
-    call    light_indicator_left_off
-    call    light_indicator_right_off
-
 _output_lights_blinking_end
+_output_lights_execute    
+    call    TLC5940_send
     return
+
 
 _output_lights_setup
     ; This car does not have a steering wheel servo so we only have to handle
@@ -169,115 +221,99 @@ _output_lights_setup
     btfss   setup_mode, SETUP_MODE_STEERING_REVERSE
     return
     
-    call    light_parking_off
-    call    light_main_beam_off
-    call    light_roof_off
-    call    light_tail_off
-    call    light_brake_off
-    call    light_reverse_off
-    call    light_indicator_right_off
-    
     call    light_indicator_left_on
-    return    
+    goto    _output_lights_execute
+
 
 _output_lights_startup
-    call    light_parking_off
-    call    light_roof_off
-    call    light_tail_off
-    call    light_brake_off
-    call    light_reverse_off
-    call    light_indicator_left_off
-    call    light_indicator_right_off
-    
     call    light_main_beam_on
-    return    
+    goto    _output_lights_execute
 
 
 ;******************************************************************************
 light_parking_on
-    BANKSEL TRISA
-    bcf     PORT_LED_PARKING
-    return
-
-light_parking_off
-    BANKSEL TRISA
-    bsf     PORT_LED_PARKING
+    BANKSEL light_data
+    movlw   VAL_PARKING
+    movwf   light_data + LED_PARKING_L
+    movwf   light_data + LED_PARKING_R
     return
 
 light_main_beam_on
-    BANKSEL TRISA
-    bcf     PORT_LED_MAIN_BEAM
-    return
-
-light_main_beam_off
-    BANKSEL TRISA
-    bsf     PORT_LED_MAIN_BEAM
+    BANKSEL light_data
+    movlw   VAL_MAIN_BEAM
+    movwf   light_data + LED_MAIN_BEAM_L
+    movwf   light_data + LED_MAIN_BEAM_R
     return
 
 light_roof_on
     BANKSEL PORTA
-    ; Set only the Roof light bit in the PORTA register without modifying
-    ; any other bits through read-modify-write instructions!
-    movlw   1<<PORT_LED_ROOF_BIT
-    movwf   PORTA
+    bsf     PORTA, PORT_LED_ROOF_BIT
     return
 
 light_roof_off
     BANKSEL PORTA
-    clrf    PORTA           ; Automatically clears PORT_LED_ROOF
+    bcf     PORTA, PORT_LED_ROOF_BIT
     return
 
 light_tail_on
-    BANKSEL TRISA
-    bcf     PORT_LED_TAIL
-    return
-
-light_tail_off
-    BANKSEL TRISA
-    bsf     PORT_LED_TAIL
+    BANKSEL light_data
+    movlw   VAL_TAIL
+    movwf   light_data + LED_TAIL_BRAKE_L
+    movwf   light_data + LED_TAIL_BRAKE_R
     return
 
 light_brake_on
-    BANKSEL TRISA
-    bcf     PORT_LED_BRAKE
-    bcf     PORT_LED_BRAKE3
-    return
-
-light_brake_off
-    BANKSEL TRISA
-    bsf     PORT_LED_BRAKE
-    bsf     PORT_LED_BRAKE3
+    BANKSEL light_data
+    movlw   VAL_BRAKE
+    movwf   light_data + LED_TAIL_BRAKE_L
+    movwf   light_data + LED_TAIL_BRAKE_R
     return
 
 light_indicator_left_on
-    BANKSEL TRISA
-    bcf     PORT_LED_INDICATOR_LEFT
-    return
-
-light_indicator_left_off
-    BANKSEL TRISA
-    bsf     PORT_LED_INDICATOR_LEFT
+    BANKSEL light_data
+    movlw   VAL_INDICATOR_FRONT
+    movwf   light_data + LED_INDICATOR_F_L
+    movlw   VAL_INDICATOR_REAR
+    movwf   light_data + LED_INDICATOR_R_L
+    movlw   VAL_INDICATOR_MIRROR
+    movwf   light_data + LED_INDICATOR_M_L
     return
 
 light_indicator_right_on
-    BANKSEL TRISA
-    bcf     PORT_LED_INDICATOR_RIGHT
-    return
-
-light_indicator_right_off
-    BANKSEL TRISA
-    bsf     PORT_LED_INDICATOR_RIGHT
+    BANKSEL light_data
+    movlw   VAL_INDICATOR_FRONT
+    movwf   light_data + LED_INDICATOR_F_R
+    movlw   VAL_INDICATOR_REAR
+    movwf   light_data + LED_INDICATOR_R_R
+    movlw   VAL_INDICATOR_MIRROR
+    movwf   light_data + LED_INDICATOR_M_R
     return
 
 light_reverse_on
-    BANKSEL TRISA
-    bcf     PORT_LED_REVERSE
+    BANKSEL light_data
+    movlw   VAL_REVERSE
+    movwf   light_data + LED_REVERSE_L
+    movwf   light_data + LED_REVERSE_R
     return
 
-light_reverse_off
-    BANKSEL TRISA
-    bsf     PORT_LED_REVERSE
-    return   
 
+;******************************************************************************
+; Clear_light_data
+;
+; Clear all light_data variables, i.e. by default all lights are off.
+;******************************************************************************
+Clear_light_data
+    movlw   HIGH light_data
+    movwf   FSR0H
+    movlw   LOW light_data
+    movwf   FSR0L
+    movlw   16          ; There are 16 bytes in light_data
+    movwf   temp
+    clrw   
+clear_light_data_loop
+    movwi   FSR0++    
+    decfsz  temp, f
+    goto    clear_light_data_loop
+    return
 
     END
