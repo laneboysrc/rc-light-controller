@@ -142,8 +142,13 @@
 ;******************************************************************************
 Init_lights
     call    Init_TLC5940
+
+    BANKSEL TRISA
+    bcf     TRISA, PORT_LED_ROOF_BIT
+
     call    Clear_light_data
-    
+    call    light_parking_on
+    call    TLC5940_send
     return
 
 
@@ -246,13 +251,13 @@ light_main_beam_on
     return
 
 light_roof_on
-    BANKSEL PORTA
-    bsf     PORTA, PORT_LED_ROOF_BIT
+    BANKSEL LATA
+    bsf     LATA, PORT_LED_ROOF_BIT
     return
 
 light_roof_off
-    BANKSEL PORTA
-    bcf     PORTA, PORT_LED_ROOF_BIT
+    BANKSEL LATA
+    bcf     LATA, PORT_LED_ROOF_BIT
     return
 
 light_tail_on
