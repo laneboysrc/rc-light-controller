@@ -1,5 +1,24 @@
 .PHONY: all
-all: pajero subaru wyetuck-landrover phil-ford xr311 dingo
+all: ben-landrover pajero subaru wyetuck-landrover phil-ford xr311 dingo
+
+
+##############################################################################
+# Ben's Land Rover D90
+##############################################################################
+.PHONY: ben-landrover
+ben-landrover: ben-landrover-preprocessor ben-landrover-master
+
+.PHONY: ben-landrover-preprocessor
+ben-landrover-preprocessor : hw_preprocessor_12f1840.inc
+	$(eval CFLAGS = -D SEQUENTIAL_CHANNEL_READING )
+	$(eval files = preprocessor servo-reader utils)
+	$(build)
+
+.PHONY: ben-landrover-master
+ben-landrover-master: hw_tlc5940_16f1825.inc
+	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x07)
+	$(eval files = master uart-reader utils ben-landrover-lights)
+	$(build)
 
 
 ##############################################################################
@@ -40,6 +59,7 @@ wyetuck-landrover-preprocessor : hw_preprocessor_12f1840.inc
 	$(eval files = preprocessor servo-reader utils)
 	$(build)
 
+.PHONY: wyetuck-landrover-master
 wyetuck-landrover-master: hw_tlc5940_16f1825.inc
 	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x03)
 	$(eval files = master uart-reader utils wyetuck-landrover-lights)
