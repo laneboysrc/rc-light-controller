@@ -10,7 +10,7 @@ ben-landrover: ben-landrover-preprocessor ben-landrover-master
 
 .PHONY: ben-landrover-preprocessor
 ben-landrover-preprocessor : hw_preprocessor_12f1840.inc
-	$(eval CFLAGS = -D SEQUENTIAL_CHANNEL_READING )
+	$(eval CFLAGS = )
 	$(eval files = preprocessor servo-reader utils)
 	$(build)
 
