@@ -290,7 +290,19 @@ HK-310:
     The receiver internally operates at 3.3V and 2.5V. The servo outputs 
     are 3.3V.
     
+Futaba R2104GF:
+    EPA can be +/- 120 %
+    Normal range (sub-trim and trim zero, 100% EPA): 1000 .. 1500 .. 2000
 
+    The repeat frequency of servo pulses is 6.8 ms = 147 Hz!
+    CH1 and CH2 start their pulse at exactly the same time. CH3 and CH4 start
+    together 300 ns after CH1 and CH2. 
+
+    The receiver internally operates at 3V and 1.8V. It uses TI CC2500 RF chip
+    and a MSP430 microprocessor with a 26 MHz crystal.
+    
+    The battery connector signal pin has a wire to it, but there is no signal.
+    
 
 Servo processing:
 =================
