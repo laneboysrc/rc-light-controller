@@ -56,7 +56,7 @@ if __name__ == '__main__':
     try:
         port = sys.argv[1]
     except IndexError:
-        port = "'/dev/ttyUSB0'"
+        port = '/dev/ttyUSB0'
 
     try:
         preprocessor_reader(port)
