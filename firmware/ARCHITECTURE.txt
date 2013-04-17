@@ -294,7 +294,9 @@ Futaba R2104GF:
     EPA can be +/- 120 %
     Normal range (sub-trim and trim zero, 100% EPA): 1000 .. 1500 .. 2000
 
-    The repeat frequency of servo pulses is 6.8 ms = 147 Hz!
+    The repeat frequency of servo pulses is 6.8 ms = 147 Hz! This is
+    "fast mode". The normal mode is 13.63 ms according to documentation.
+    
     CH1 and CH2 start their pulse at exactly the same time. CH3 and CH4 start
     together 300 ns after CH1 and CH2. 
 
@@ -302,6 +304,8 @@ Futaba R2104GF:
     and a MSP430 microprocessor with a 26 MHz crystal.
     
     The battery connector signal pin has a wire to it, but there is no signal.
+    Voltage range is specified to being 3.5V - 8.4V.
+    Size: 39 x 26 x 10 mm
     
 
 Servo processing:
