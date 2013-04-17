@@ -16,7 +16,7 @@ ben-landrover-preprocessor : hw_preprocessor_12f1840.inc
 
 .PHONY: ben-landrover-master
 ben-landrover-master: hw_tlc5940_16f1825.inc
-	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x07)
+	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x07 -D CH3_MOMENTARY)
 	$(eval files = master uart-reader utils ben-landrover-lights)
 	$(build)
 

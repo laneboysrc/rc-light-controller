@@ -86,7 +86,7 @@ ENDIF
 
 ; Bitfields in variable flags
 #define CH3_FLAG_LAST_STATE 0           ; Must be bit 0!
-#define CH3_FLAG_TOGGLED 1
+#define CH3_FLAG_TANSITIONED 1
 #define CH3_FLAG_INITIALIZED 2
 #define SOFT_TIMER_POSTSCALER 3
 
@@ -385,20 +385,60 @@ process_ch3_no_startup
     return
 
 process_ch3_initialized
-    ; ch3 is only using bit 0, the same bit as CH3_FLAG_LAST_STATE.
-    ; We can therefore use XOR to determine whether ch3 has changed.
     BANKSEL ch3
     movfw   ch3
     movwf   temp+1  
+
+    ; ch3 is only using bit 0, the same bit as CH3_FLAG_LAST_STATE.
+    ; We can therefore use XOR to determine whether ch3 has changed.
+   
     BANKSEL flags               
     xorwf   flags, w        
     movwf   temp
+
+    IFDEF CH3_MOMENTARY
+    ; -------------------------------------------------------    
+    ; Code for CH3 having a momentory signal when pressed (Futaba 4PL)
+
+    ; We only care about the switch transition from CH3_FLAG_LAST_STATE 
+    ; (set upon initialization) to the opposite position, which is when 
+    ; we add a click.
+    btfsc   temp, CH3_FLAG_LAST_STATE
+    goto    process_ch3_potential_click
+
+    ; ch3 is the same as CH3_FLAG_LAST_STATE (idle position), therefore reset 
+    ; our "transitioned" flag to detect the next transition.
+    bcf     flags, CH3_FLAG_TANSITIONED        
+    goto    process_ch3_click_timeout
+
+process_ch3_potential_click
+    ; Did we register this transition already?    
+    ;   Yes: check for click timeout.
+    ;   No: Register transition and add click
+    btfsc   flags, CH3_FLAG_TANSITIONED
+    goto    process_ch3_click_timeout
+
+    bsf     flags, CH3_FLAG_TANSITIONED
+    ;goto   process_ch3_add_click    
+
+    ELSE
+    ; -------------------------------------------------------    
+    ; Code for CH3 being a two position switch (HK-310, GT3B)
+
+    ; Check whether ch3 has changed with respect to LAST_STATE
     btfss   temp, CH3_FLAG_LAST_STATE
     goto    process_ch3_click_timeout
 
-    bcf     flags, CH3_FLAG_LAST_STATE
+    bcf     flags, CH3_FLAG_LAST_STATE      ; Store the new ch3 state
     btfsc   temp+1, CH3_FLAG_LAST_STATE     ; temp+1 contains ch3
     bsf     flags, CH3_FLAG_LAST_STATE
+    ;goto   process_ch3_add_click    
+
+    ; -------------------------------------------------------    
+    ENDIF
+
+process_ch3_add_click
+    BANKSEL ch3_clicks               
     incf    ch3_clicks, f
     movlw   CH3_BUTTON_TIMEOUT
     movwf   ch3_click_counter
