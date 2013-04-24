@@ -72,7 +72,7 @@ Make_steering_wheel_servo_pulse
     call    Mul_x_by_6
     call    Add_x_and_780
 
-    clrf    T1CON           ; Stop timer 1, runs at 1us per tick, internal osc
+    bcf     T1CON, TMR1ON   ; Stop timer 1
     clrf    TMR1H           ; Reset the timer to 0
     clrf    TMR1L
     movf    xl, w           ; Load Timer1 compare register with the servo time
@@ -81,14 +81,14 @@ Make_steering_wheel_servo_pulse
     movwf   CCPR1H
     bcf     PIR1, CCP1IF    ; Clear Timer1 compare interrupt flag
   
-    bsf     T1CON, 0        ; Start timer 1
+    bsf     T1CON, TMR1ON   ; Start timer 1
     bsf     PORT_SERVO      ; Set servo port to high pulse
 
     btfss   PIR1, CCP1IF    ; Wait for compare value reached
     goto    $ - 1
 
     bcf     PORT_SERVO      ; Turn off servo pulse
-    clrf    T1CON           ; Stop timer 1
+    bcf     T1CON, TMR1ON   ; Stop timer 1
     bcf     PIR1, CCP1IF
 
     return
