@@ -3,6 +3,16 @@ all: ben-landrover pajero subaru wyetuck-landrover phil-ford xr311 dingo
 
 
 ##############################################################################
+# Pre-processor for the HobbyKing HKR3000 receiver
+##############################################################################
+.PHONY: hkr3000-preprocessor
+hkr3000-preprocessor : hw_preprocessor_12f1840.inc
+	$(eval CFLAGS = -D SEQUENTIAL_CHANNEL_READING )
+	$(eval files = preprocessor servo-reader utils)
+	$(build)
+	
+	
+##############################################################################
 # Ben's Land Rover D90
 ##############################################################################
 .PHONY: ben-landrover
