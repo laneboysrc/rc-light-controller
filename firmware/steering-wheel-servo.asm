@@ -75,10 +75,12 @@ Make_steering_wheel_servo_pulse
     bcf     T1CON, TMR1ON   ; Stop timer 1
     clrf    TMR1H           ; Reset the timer to 0
     clrf    TMR1L
+    BANKSEL CCPR1L
     movf    xl, w           ; Load Timer1 compare register with the servo time
     movwf   CCPR1L
     movf    xh, w
     movwf   CCPR1H
+    BANKSEL PIR1
     bcf     PIR1, CCP1IF    ; Clear Timer1 compare interrupt flag
   
     bsf     T1CON, TMR1ON   ; Start timer 1
