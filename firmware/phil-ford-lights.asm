@@ -8,7 +8,7 @@
 ;   The hardware is based on PIC16F1825 and TLC5940. No DC/DC converter is used.
 ;
 ;   The TLC5940 IREF is programmed with a 2000 Ohms resistor, which means
-;   the maximum LED current is 20 mA; each adjustment step is 0.312 mA.
+;   the maximum LED current is 19.53 mA; each adjustment step is 0.317 mA.
 ;
 ;   The following lights are available:
 ;
@@ -98,7 +98,7 @@
 #define LED_PARKING_R 5    
 #define LED_MAIN_BEAM_L 1
 #define LED_MAIN_BEAM_R 2
-#define LED_INDICATOR_F_L 7    
+#define LED_INDICATOR_F_L 3    
 #define LED_INDICATOR_F_R 6 
 #define LED_INDICATOR_R_L 4    
 #define LED_INDICATOR_R_R 7
@@ -108,11 +108,12 @@
 #define LED_TAIL_BRAKE_R 10    
 #define LED_REVERSE_L 12    
 #define LED_REVERSE_R 13    
+#define LED_3RD_BRAKE 0    
 
 #define PORT_LED_ROOF_BIT 2
 
-; Since gpasm is not able to use 0.312 we need to calculate with micro-Amps
-#define uA_PER_STEP 312
+; Since gpasm is not able to use 0.317 we need to calculate with micro-Amps
+#define uA_PER_STEP 317
 
 #define VAL_PARKING (20 * 1000 / uA_PER_STEP)
 #define VAL_MAIN_BEAM (20 * 1000 / uA_PER_STEP)
@@ -272,6 +273,7 @@ light_brake_on
     movlw   VAL_BRAKE
     movwf   light_data + LED_TAIL_BRAKE_L
     movwf   light_data + LED_TAIL_BRAKE_R
+    movwf   light_data + LED_3RD_BRAKE
     return
 
 light_indicator_left_on
