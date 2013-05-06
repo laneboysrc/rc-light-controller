@@ -87,6 +87,7 @@
 #define SETUP_MODE_LEFT 2
 #define SETUP_MODE_RIGHT 3
 #define SETUP_MODE_STEERING_REVERSE 4
+#define SETUP_MODE_THROTTLE_REVERSE 5
 #define SETUP_MODE_NEXT 6
 #define SETUP_MODE_CANCEL 7
 
@@ -221,13 +222,15 @@ _output_lights_execute
 
 _output_lights_setup
     ; This car does not have a steering wheel servo so we only have to handle
-    ; the steering channel reversing setup. 
-    ; We light up the left indicator during steering channel reversing.
+    ; the steering and throttle channel reversing setup. 
+    ; We light up the left indicator during steering channel reversing and the 
+    ; main beam during throttle reversing.
     BANKSEL setup_mode
-    btfss   setup_mode, SETUP_MODE_STEERING_REVERSE
-    return
-    
+    btfsc   setup_mode, SETUP_MODE_STEERING_REVERSE
     call    light_indicator_left_on
+    BANKSEL setup_mode
+    btfsc   setup_mode, SETUP_MODE_THROTTLE_REVERSE
+    call    light_main_beam_on
     goto    _output_lights_execute
 
 

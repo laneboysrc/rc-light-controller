@@ -64,6 +64,7 @@
     EXTERN steering_reverse
     EXTERN throttle            
     EXTERN throttle_abs       
+    EXTERN throttle_reverse
     EXTERN ch3                 
      
      
@@ -108,15 +109,16 @@ ENDIF
 #define STEERING_BLINK_THRESHOLD 50
 #define STEERING_BLINK_OFF_THRESHOLD 30
 
-#define EEPROM_MAGIC1 0x47
-#define EEPROM_MAGIC2 0x11
+#define EEPROM_MAGIC1 0x13
+#define EEPROM_MAGIC2 0x42
 
 #define EEPROM_ADR_MAGIC1 0      
 #define EEPROM_ADR_SERVO_EPL 1
 #define EEPROM_ADR_SERVO_CENTRE 2
 #define EEPROM_ADR_SERVO_EPR 3
 #define EEPROM_ADR_STEERING_REVERSE 4
-#define EEPROM_ADR_MAGIC2 5
+#define EEPROM_ADR_THROTTLE_REVERSE 5
+#define EEPROM_ADR_MAGIC2 6
 
 ; Bitfields in variable setup_mode
 #define SETUP_MODE_INIT 0
@@ -124,6 +126,7 @@ ENDIF
 #define SETUP_MODE_LEFT 2
 #define SETUP_MODE_RIGHT 3
 #define SETUP_MODE_STEERING_REVERSE 4
+#define SETUP_MODE_THROTTLE_REVERSE 5
 #define SETUP_MODE_NEXT 6
 #define SETUP_MODE_CANCEL 7
 
@@ -251,7 +254,7 @@ Main_loop
     call    Process_ch3_double_click
     call    Process_drive_mode
     call    Process_indicators
-    call    Process_steering_reversing
+    call    Process_channel_reversing
     call    Process_steering_wheel_servo
     call    Service_soft_timer
 
@@ -924,30 +927,40 @@ process_indicators_blink_right_wait_centre
 
 
 ;******************************************************************************
-; Process_steering_reversing
+; Process_channel_reversing
 ;
-; When the user performs 7 clicks on CH3, the left indicator lights up.
+; When the user performs 7 clicks on CH3, the left indicator and front 
+; head lights light up.
 ; The user should then turn the steering wheel to left so that the light
 ; controller knows the direction of the steering channel.
+; The user should then also push the throttle in forward direction so that the
+; light controller knows the direction of the throttle channel.
 ;******************************************************************************
-Process_steering_reversing
+Process_channel_reversing
     BANKSEL setup_mode
-    btfss   setup_mode, SETUP_MODE_STEERING_REVERSE
+    btfsc   setup_mode, SETUP_MODE_STEERING_REVERSE
+    goto    process_channel_reversing_active
+    btfss   setup_mode, SETUP_MODE_THROTTLE_REVERSE
     return
 
-    ; Steering reversing setup only has one step so either NEXT or CANCEL
+process_channel_reversing_active
+    ; Channel reversing setup only has one step so either NEXT or CANCEL
     ; terminate the setup
     btfsc   setup_mode, SETUP_MODE_NEXT
     clrf    setup_mode
     btfsc   setup_mode, SETUP_MODE_CANCEL
     clrf    setup_mode
 
+process_channel_reversing_steering
+    btfss   setup_mode, SETUP_MODE_STEERING_REVERSE
+    goto    process_channel_reversing_throttle
+
     ; Save the direction only when the steering is excerted to 50% or more
     BANKSEL steering_abs
     movlw   50
     subwf   steering_abs, w
     skpc    
-    return
+    goto    process_channel_reversing_throttle
 
     ; 50% or more steering input: terminate the steering reversing setup and
     ; toggle the reversing flag if the current sign flag on the steering
@@ -956,7 +969,10 @@ Process_steering_reversing
     comf    steering_reverse, f
     call    EEPROM_save_persistent_data    
     BANKSEL setup_mode
-    clrf    setup_mode
+    movlw   ~SETUP_MODE_STEERING_REVERSE
+    andwf   setup_mode, f
+
+process_channel_reversing_throttle
     return
     
 
@@ -1148,11 +1164,16 @@ EEPROM_load_persistent_data
     call    EEPROM_read_byte
     BANKSEL steering_reverse
     movwf   steering_reverse
+
+    movlw   EEPROM_ADR_THROTTLE_REVERSE
+    call    EEPROM_read_byte
+    BANKSEL throttle_reverse
+    movwf   throttle_reverse
     return
 
 
 ;******************************************************************************
-; Servo_store_values
+; EEPROM_save_persistent_data
 ; 
 ;******************************************************************************
 EEPROM_save_persistent_data
@@ -1179,11 +1200,17 @@ EEPROM_save_persistent_data
     movwf   temp
     movlw   EEPROM_ADR_STEERING_REVERSE
     call    EEPROM_write_byte
+
+    BANKSEL throttle_reverse
+    movf    throttle_reverse, w
+    movwf   temp
+    movlw   EEPROM_ADR_THROTTLE_REVERSE
+    call    EEPROM_write_byte
     return
 
 
 ;******************************************************************************
-; Servo_load_defaults
+; EEPROM_load_defaults
 ;
 ; Load default values of -100..0..100 for the steering servo, write them 
 ; back to the EEPROM and write the 2 magic variables. 
@@ -1197,6 +1224,8 @@ EEPROM_load_defaults
     movwf   servo_epr
     BANKSEL steering_reverse
     clrf    steering_reverse
+    BANKSEL throttle_reverse
+    clrf    throttle_reverse
 
     call    EEPROM_save_persistent_data
 

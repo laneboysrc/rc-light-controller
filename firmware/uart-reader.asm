@@ -23,6 +23,7 @@
     GLOBAL steering_reverse
     GLOBAL throttle            
     GLOBAL throttle_abs       
+    GLOBAL throttle_reverse
     GLOBAL ch3  
 
 
@@ -62,7 +63,8 @@
 .data_uart_reader UDATA
 
 throttle            res 1
-throttle_abs        res 1    
+throttle_abs        res 1  
+throttle_reverse    res 1  
 
 steering            res 1
 steering_abs        res 1
@@ -146,10 +148,20 @@ read_UART_byte_4
     ; the steering signal coming from the preprocessor.
     movf    steering_reverse, f
     skpnz
-    return
-    
+    goto    read_UART_throttle_reversing
     comf    steering, f
     incf    steering, f
+
+    ; The system allows user-configurable reversing of the throttle channel
+    ; through seven CH3 clicks. If the reversing flag is set we negate
+    ; the throttle signal coming from the preprocessor.
+read_UART_throttle_reversing
+    movf    throttle_reverse, f
+    skpnz
+    return
+    comf    throttle, f
+    incf    throttle, f
+
     return
 
 

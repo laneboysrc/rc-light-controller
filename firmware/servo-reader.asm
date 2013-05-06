@@ -23,6 +23,7 @@
     GLOBAL steering_reverse
     GLOBAL throttle            
     GLOBAL throttle_abs       
+    GLOBAL throttle_reverse
     GLOBAL ch3  
 
 
@@ -59,10 +60,6 @@
 ; Note: the higher 4 bits are used so we can simply "or" it with ch3
 ; and send it to the slave
 #define STARTUP_MODE_NEUTRAL 4      ; Waiting before reading ST/TH neutral
-
-; Bitfields in variable flags
-#define TH_FLAG_REVERSING_INITIALZED 3
-
 
 ; The initial endpoint delta that is used right after initialization of the
 ; neutrals. 
@@ -122,8 +119,6 @@ ch3_ep1             res 1
 ch3_centre          res 1
 ch3_hysteresis      res 1  
 
-flags               res 1
-
 init_prescaler      res 1
 init_counter        res 1
 
@@ -161,11 +156,10 @@ Init_reader
     movlw   2000 >> 4
     movwf   ch3_ep1
 
-    clrf    flags
-    clrf    throttle_reverse
-    
-;   xxxx    steering_reverse    ; Do NOT initialize steering_reverse, it is
-                                ; done by EEPROM_load_persistent_data!
+    ; Do NOT initialize channel reverse flags as it is done by
+    ; EEPROM_load_persistent_data!
+;   xxxx    throttle_reverse
+;   xxxx    steering_reverse    
     
     movlw   RECEIVER_OUTPUT_RATE / 10
     movwf   init_prescaler
@@ -197,32 +191,6 @@ Read_all_channels
     call    Normalize_steering
     call    Normalize_throttle
     call    Normalize_ch3
-    
-    BANKSEL flags
-    btfsc   flags, TH_FLAG_REVERSING_INITIALZED
-    return
-
-    ; Throttle reversing initialization starts once neutral initialization has
-    ; finished.
-    ;
-    ; We wait until the throttle_abs signal goes >50. If it does we set 
-    ; throttle_reverse if throttle is negative, as we assume that the first
-    ; throttle input a user will give is "forward".
-    ;
-    ; The value of 50% may seem high, but don't forget that at this point
-    ; the end points are still set very low as this code is execute right
-    ; after initialization!
-
-    BANKSEL throttle_abs
-    movlw   50
-    subwf   throttle_abs, w
-    bnc     read_waiting_for_throttle_direction
-
-    ; Reverse the throttle if it is currently negative    
-    btfsc   throttle, 7
-    comf    throttle_reverse, f
-    BANKSEL flags
-    bsf     flags, TH_FLAG_REVERSING_INITIALZED
     return
 
 read_waiting_for_throttle_direction
