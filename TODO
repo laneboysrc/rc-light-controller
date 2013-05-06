@@ -25,8 +25,4 @@ TO DO LIST for the RC Light Controller
 Fix the issue with master and slave regarding UART RX usage in master for
 the preprocessor use case.  
 
-Turn off brake lights at neutral for a random time.
-
-Turn off reversing lights only after a short delay when going to neutral.
-
   
