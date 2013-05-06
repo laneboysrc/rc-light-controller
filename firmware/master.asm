@@ -76,10 +76,13 @@
 #define CH3_BUTTON_TIMEOUT 6    ; Time in which we accept double-click of CH3
 #define BLINK_COUNTER_VALUE 5   ; 5 * 65.536 ms = ~333 ms = ~1.5 Hz
 IFNDEF AUTO_BRAKE_COUNTER_VALUE_REVERSE
-#define AUTO_BRAKE_COUNTER_VALUE_REVERSE 15          ; 15 * 65.536 ms = ~1 s
+#define AUTO_BRAKE_COUNTER_VALUE_REVERSE 20          ; 20 * 65.536 ms = ~1.3 s
 ENDIF
 IFNDEF AUTO_BRAKE_COUNTER_VALUE_FORWARD
 #define AUTO_BRAKE_COUNTER_VALUE_FORWARD 38          ; ~2.5 s
+ENDIF
+IFNDEF AUTO_REVERSE_COUNTER_VALUE
+#define AUTO_REVERSE_COUNTER_VALUE 15          ; ~1s s
 ENDIF
 #define BRAKE_DISARM_COUNTER_VALUE 15        ; 15 * 65.536 ms = ~1 s
 #define INDICATOR_STATE_COUNTER_VALUE 8      ; 8 * 65.536 ms = ~0.5 s
@@ -104,6 +107,7 @@ ENDIF
 #define DRIVE_MODE_BRAKE_ARMED 3
 #define DRIVE_MODE_AUTO_BRAKE 4
 #define DRIVE_MODE_BRAKE_DISARM 5
+#define DRIVE_MODE_AUTO_REVERSE 6
 
 #define CENTRE_THRESHOLD 10
 #define STEERING_BLINK_THRESHOLD 50
@@ -153,7 +157,8 @@ ENDIF
 ;******************************************************************************
 .data_master UDATA
 
-drive_mode_counter  res 1
+auto_brake_counter  res 1
+auto_reverse_counter res 1
 drive_mode_brake_disarm_counter res 1
 indicator_state_counter res 1
 blink_counter       res 1
@@ -222,7 +227,7 @@ Init
     clrf    drive_mode
     clrf    setup_mode
     clrf    startup_mode
-    clrf    drive_mode_counter
+    clrf    auto_brake_counter
     clrf    drive_mode_brake_disarm_counter
     clrf    indicator_state_counter
     clrf    ch3_click_counter
@@ -310,25 +315,33 @@ ENDIF
     decf    indicator_state_counter, f    
 
     decfsz  drive_mode_brake_disarm_counter, f
-    goto    service_soft_timer_drive_mode
+    goto    service_soft_timer_auto_brake
 
     btfss   drive_mode, DRIVE_MODE_BRAKE_DISARM
-    goto    service_soft_timer_drive_mode
+    goto    service_soft_timer_auto_brake
 
     bcf     drive_mode, DRIVE_MODE_BRAKE_DISARM
     bcf     drive_mode, DRIVE_MODE_BRAKE_ARMED
 
-
-service_soft_timer_drive_mode
-    decfsz  drive_mode_counter, f
-    goto    service_soft_timer_blink
+service_soft_timer_auto_brake
+    decfsz  auto_brake_counter, f
+    goto    service_soft_timer_auto_reverse
 
     btfss   drive_mode, DRIVE_MODE_AUTO_BRAKE
-    goto    service_soft_timer_blink
+    goto    service_soft_timer_auto_reverse
 
     bcf     drive_mode, DRIVE_MODE_AUTO_BRAKE
     bcf     drive_mode, DRIVE_MODE_BRAKE
 
+service_soft_timer_auto_reverse
+    decfsz  auto_reverse_counter, f
+    goto    service_soft_timer_blink
+
+    btfss   drive_mode, DRIVE_MODE_AUTO_REVERSE
+    goto    service_soft_timer_blink
+
+    bcf     drive_mode, DRIVE_MODE_AUTO_REVERSE
+    bcf     drive_mode, DRIVE_MODE_REVERSE
 
 service_soft_timer_blink
     decfsz  blink_counter, f
@@ -607,17 +620,19 @@ IFNDEF DISABLE_AUTO_BRAKE_LIGHTS_FORWARD
     bsf     drive_mode, DRIVE_MODE_BRAKE
     bsf     drive_mode, DRIVE_MODE_AUTO_BRAKE
     movlw   AUTO_BRAKE_COUNTER_VALUE_FORWARD
-    movwf   drive_mode_counter   
+    movwf   auto_brake_counter   
 ENDIF    
     return
 
 process_drive_mode_neutral_after_reverse
-    bcf     drive_mode, DRIVE_MODE_REVERSE
+    bsf     drive_mode, DRIVE_MODE_AUTO_REVERSE
+    movlw   AUTO_REVERSE_COUNTER_VALUE
+    movwf   auto_reverse_counter   
 IFNDEF DISABLE_AUTO_BRAKE_LIGHTS_FORWARD    
     bsf     drive_mode, DRIVE_MODE_BRAKE
     bsf     drive_mode, DRIVE_MODE_AUTO_BRAKE
     movlw   AUTO_BRAKE_COUNTER_VALUE_REVERSE
-    movwf   drive_mode_counter   
+    movwf   auto_brake_counter   
 ENDIF    
     return
 
