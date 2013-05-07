@@ -632,12 +632,12 @@ process_drive_mode_neutral_after_forward
     movwf   drive_mode_brake_disarm_counter   
 IFNDEF DISABLE_AUTO_BRAKE_LIGHTS_FORWARD    
     bsf     drive_mode, DRIVE_MODE_BRAKE
-    bsf     drive_mode, DRIVE_MODE_AUTO_BRAKE
     
     ; The time the brake lights stay on after going back to neutral is random
     ; from 0.5s (AUTO_BRAKE_COUNTER_VALUE_FORWARD) to approx 2.5s 
     ; (AUTO_BRAKE_COUNTER_VALUE_FORWARD + 0..31 random value).
     ; This is achieved by reading our "random" and calculating modulo 31 (0x1f)
+    bsf     drive_mode, DRIVE_MODE_AUTO_BRAKE
     movlw   AUTO_BRAKE_COUNTER_VALUE_FORWARD
     movwf   auto_brake_counter
     movlw   random
@@ -647,21 +647,25 @@ ENDIF
     return
 
 process_drive_mode_neutral_after_reverse
+    ; The time the reverse lights stay on after going back to neutral is random
+    ; from 0.5s (AUTO_REVERSE_COUNTER_VALUE) to approx 1.5s 
+    ; (AUTO_REVERSE_COUNTER_VALUE + 0..15 random value).
+    ; This is achieved by reading our "random" and calculating modulo 15 (0x0f)
     bsf     drive_mode, DRIVE_MODE_AUTO_REVERSE
     movlw   AUTO_REVERSE_COUNTER_VALUE
     movwf   auto_reverse_counter   
     movlw   random
-    andlw   0x1f        
+    andlw   0x0f        
     addwf   auto_reverse_counter, f   
 
 IFNDEF DISABLE_AUTO_BRAKE_LIGHTS_FORWARD    
     bsf     drive_mode, DRIVE_MODE_BRAKE
-    bsf     drive_mode, DRIVE_MODE_AUTO_BRAKE
     
     ; The time the brake lights stay on after going back to neutral is random
     ; from 0.5s (AUTO_BRAKE_COUNTER_VALUE_REVERSE) to approx 2.5s 
     ; (AUTO_BRAKE_COUNTER_VALUE_REVERSE + 0..31 random value).
     ; This is achieved by reading our "random" and calculating modulo 31 (0x1f)
+    bsf     drive_mode, DRIVE_MODE_AUTO_BRAKE
     movlw   AUTO_BRAKE_COUNTER_VALUE_REVERSE
     movwf   auto_brake_counter
     movlw   random
