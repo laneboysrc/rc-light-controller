@@ -1,6 +1,16 @@
 .PHONY: all
 all: ben-landrover pajero subaru wyetuck-landrover phil-ford xr311 dingo
 
+
+##############################################################################
+# HPI Datsun 510 (M-chassis using a pre-processor in the Rx)
+##############################################################################
+.PHONY: datsun-510-master
+datsun-510-master: hw_tlc5940_16f1825.inc
+	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x07 -D DISABLE_BRAKE_DISARM_TIMEOUT)
+	$(eval files = master uart-reader utils datsun-510-lights)
+	$(build)
+
 	
 ##############################################################################
 # Ben's Land Rover D90
