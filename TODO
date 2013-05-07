@@ -25,4 +25,5 @@ TO DO LIST for the RC Light Controller
 Fix the issue with master and slave regarding UART RX usage in master for
 the preprocessor use case.  
 
-  
+Add support for Tamiya ESC where you must brake before it engages reverse,
+without timeout like other ESC.
