@@ -1,16 +1,6 @@
 .PHONY: all
 all: ben-landrover pajero subaru wyetuck-landrover phil-ford xr311 dingo
 
-
-##############################################################################
-# Pre-processor for the HobbyKing HKR3000 receiver
-##############################################################################
-.PHONY: hkr3000-preprocessor
-hkr3000-preprocessor : hw_preprocessor_12f1840.inc
-	$(eval CFLAGS = -D SEQUENTIAL_CHANNEL_READING )
-	$(eval files = preprocessor servo-reader utils)
-	$(build)
-	
 	
 ##############################################################################
 # Ben's Land Rover D90
@@ -61,13 +51,7 @@ subaru-master : hw_original_servo_reader.inc
 # Wyetuck's Land Rover Defender S2 SWB (all metal Landy)
 ##############################################################################
 .PHONY: wyetuck-landrover
-wyetuck-landrover: wyetuck-landrover-preprocessor wyetuck-landrover-master
-
-.PHONY: wyetuck-landrover-preprocessor
-wyetuck-landrover-preprocessor : hw_preprocessor_12f1840.inc
-	$(eval CFLAGS = -D SEQUENTIAL_CHANNEL_READING -D CHANNEL_SEQUENCE_TH_ST_CH3 )
-	$(eval files = preprocessor servo-reader utils)
-	$(build)
+wyetuck-landrover: gt3b-preprocessor wyetuck-landrover-master
 
 .PHONY: wyetuck-landrover-master
 wyetuck-landrover-master: hw_tlc5940_16f1825.inc
@@ -80,13 +64,7 @@ wyetuck-landrover-master: hw_tlc5940_16f1825.inc
 # Phil's FORD trailing truck
 ##############################################################################
 .PHONY: phil-ford
-phil-ford: phil-ford-preprocessor phil-ford-master
-
-.PHONY: phil-ford-preprocessor
-phil-ford-preprocessor : hw_preprocessor_12f1840.inc
-	$(eval CFLAGS = -D SEQUENTIAL_CHANNEL_READING -D CHANNEL_SEQUENCE_TH_ST_CH3 )
-	$(eval files = preprocessor servo-reader utils)
-	$(build)
+phil-ford: gt3b-preprocessor phil-ford-master
 
 .PHONY: phil-ford-master
 phil-ford-master: hw_tlc5940_16f1825.inc
@@ -132,6 +110,26 @@ xr311-master : hw_original_uart_reader.inc
 	$(eval files = master uart-reader steering-wheel-servo utils xr311-lights)
 	$(build)
 	
+
+##############################################################################
+# Pre-processor for the HobbyKing HKR3000 receiver
+##############################################################################
+.PHONY: hkr3000-preprocessor
+hkr3000-preprocessor : hw_preprocessor_12f1840.inc
+	$(eval CFLAGS = -D SEQUENTIAL_CHANNEL_READING )
+	$(eval files = preprocessor servo-reader utils)
+	$(build)
+
+
+##############################################################################
+# Pre-processor for the GT3B receiver
+##############################################################################
+.PHONY: gt3b-preprocessor
+gt3b-preprocessor : hw_preprocessor_12f1840.inc
+	$(eval CFLAGS = -D SEQUENTIAL_CHANNEL_READING -D CHANNEL_SEQUENCE_TH_ST_CH3)
+	$(eval files = preprocessor servo-reader utils)
+	$(build)
+
 
 ##############################################################################
 # Test code for hardware validation and debugging
