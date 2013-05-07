@@ -627,9 +627,19 @@ process_drive_mode_neutral
 
 process_drive_mode_neutral_after_forward
     bcf     drive_mode, DRIVE_MODE_FORWARD
+
+    ; If DISABLE_BRAKE_DISARM_TIMEOUT is defined the user has to go for 
+    ; brake, then neutral, before reverse engages. Otherwise reverse engages
+    ; if the user stays in neutral for a few seconds.
+    ;
+    ; Tamiya ESC need this DISABLE_BRAKE_DISARM_TIMEOUT defined.
+    ; The China ESC and HPI SC-15WP need DISABLE_BRAKE_DISARM_TIMEOUT undefined.     
+IFNDEF DISABLE_BRAKE_DISARM_TIMEOUT
     bsf     drive_mode, DRIVE_MODE_BRAKE_DISARM
     movlw   BRAKE_DISARM_COUNTER_VALUE
     movwf   drive_mode_brake_disarm_counter   
+ENDIF
+    
 IFNDEF DISABLE_AUTO_BRAKE_LIGHTS_FORWARD    
     bsf     drive_mode, DRIVE_MODE_BRAKE
     
