@@ -650,13 +650,16 @@ IFNDEF DISABLE_AUTO_BRAKE_LIGHTS_FORWARD
     bsf     drive_mode, DRIVE_MODE_AUTO_BRAKE
     movlw   AUTO_BRAKE_COUNTER_VALUE_FORWARD
     movwf   auto_brake_counter
-    movlw   random
+    movfw   random
     andlw   0x1f        
     addwf   auto_brake_counter, f   
 ENDIF    
     return
 
 process_drive_mode_neutral_after_reverse
+    btfsc   drive_mode, DRIVE_MODE_AUTO_REVERSE
+    return
+
     ; The time the reverse lights stay on after going back to neutral is random
     ; from 0.5s (AUTO_REVERSE_COUNTER_VALUE) to approx 1.5s 
     ; (AUTO_REVERSE_COUNTER_VALUE + 0..15 random value).
@@ -664,11 +667,11 @@ process_drive_mode_neutral_after_reverse
     bsf     drive_mode, DRIVE_MODE_AUTO_REVERSE
     movlw   AUTO_REVERSE_COUNTER_VALUE
     movwf   auto_reverse_counter   
-    movlw   random
+    movfw   random
     andlw   0x0f        
     addwf   auto_reverse_counter, f   
 
-IFNDEF DISABLE_AUTO_BRAKE_LIGHTS_FORWARD    
+IFNDEF DISABLE_AUTO_BRAKE_LIGHTS_REVERSE    
     bsf     drive_mode, DRIVE_MODE_BRAKE
     
     ; The time the brake lights stay on after going back to neutral is random
@@ -678,7 +681,7 @@ IFNDEF DISABLE_AUTO_BRAKE_LIGHTS_FORWARD
     bsf     drive_mode, DRIVE_MODE_AUTO_BRAKE
     movlw   AUTO_BRAKE_COUNTER_VALUE_REVERSE
     movwf   auto_brake_counter
-    movlw   random
+    movfw   random
     andlw   0x1f        
     addwf   auto_brake_counter, f   
 ENDIF    
@@ -715,6 +718,7 @@ process_drive_mode_brake_or_reverse
     goto    process_drive_mode_brake
 
     bsf     drive_mode, DRIVE_MODE_REVERSE
+    bcf     drive_mode, DRIVE_MODE_AUTO_REVERSE
     bcf     drive_mode, DRIVE_MODE_BRAKE
     bcf     drive_mode, DRIVE_MODE_FORWARD
     return
