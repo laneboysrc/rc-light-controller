@@ -570,7 +570,7 @@ process_ch3_7_click
     ; --------------------------
     ; 7 clicks: Enter steering channel reverse setup mode
     clrf    ch3_clicks
-    movlw   1 << SETUP_MODE_STEERING_REVERSE
+    movlw   (1 << SETUP_MODE_STEERING_REVERSE) + (1 << SETUP_MODE_THROTTLE_REVERSE)
     movwf   setup_mode    
     return
 
@@ -1036,7 +1036,7 @@ process_channel_reversing_steering
     comf    steering_reverse, f
     call    EEPROM_save_persistent_data    
     BANKSEL setup_mode
-    movlw   ~SETUP_MODE_STEERING_REVERSE
+    movlw   ~(1 << SETUP_MODE_STEERING_REVERSE)
     andwf   setup_mode, f
 
 process_channel_reversing_throttle
