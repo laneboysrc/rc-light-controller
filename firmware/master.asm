@@ -1040,6 +1040,25 @@ process_channel_reversing_steering
     andwf   setup_mode, f
 
 process_channel_reversing_throttle
+    btfss   setup_mode, SETUP_MODE_THROTTLE_REVERSE
+    return
+
+    ; Save the direction only when the throttle is excerted to 50% or more
+    BANKSEL throttle_abs
+    movlw   50
+    subwf   throttle_abs, w
+    skpc    
+    return
+
+    ; 50% or more steering input: terminate the throttle reversing setup and
+    ; toggle the reversing flag if the current sign flag on the throttle
+    ; channel is negative (backward = -100..0, forward = 0..+100)
+    btfsc   throttle, 7
+    comf    throttle_reverse, f
+    call    EEPROM_save_persistent_data    
+    BANKSEL setup_mode
+    movlw   ~(1 << SETUP_MODE_THROTTLE_REVERSE)
+    andwf   setup_mode, f
     return
     
 
