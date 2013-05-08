@@ -73,7 +73,7 @@
 ; Bitfields in variable light_mode
 #define LIGHT_MODE_PARKING 0        ; Parking lights
 #define LIGHT_MODE_MAIN_BEAM 1      ; Main beam
-#define LIGHT_MODE_HIGH_BEAM 3      ; High beam
+#define LIGHT_MODE_HIGH_BEAM 2      ; High beam
 
 ; Bitfields in variable drive_mode
 #define DRIVE_MODE_FORWARD 0 
