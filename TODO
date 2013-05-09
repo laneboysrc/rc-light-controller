@@ -25,3 +25,25 @@ TO DO LIST for the RC Light Controller
 Fix the issue with master and slave regarding UART RX usage in master for
 the preprocessor use case.  
 
+
+Patrick's Wraith:
+* Configuration
+    * PCB mounted directly onto the receiver; no pre-processor
+    * Alternative solution: pre-processor and use TH/CH3 signals for motor driver (winch)?
+    * We do not need ST channel as no indicators
+* Lights
+    * Main lights 3-clicks on/off
+    * Roof lights
+    * Brake lights
+    * Indications for gear and winch mode?
+* Winch
+    * Activate winch with 5-clicks
+    * 2-clicks release the cable; 1-click retracts the cable
+    * When winch is moving any change to CH3 stops the winch
+    * Control from light output?
+    * Can we use servo electronics to drive the winch?
+* Gearbox control
+    * Only allow operation at low throttle
+    * Only apply servo signal for a short time, but regularly to keep servo in position
+    * 1-click: low gear; 2-clicks: high gear    
+
