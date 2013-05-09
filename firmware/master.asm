@@ -45,6 +45,7 @@
     EXTERN Mul_x_by_6
     EXTERN Add_x_and_780    
     EXTERN UART_send_w
+    EXTERN Random_min_max
 
     EXTERN xl
     EXTERN xh
@@ -76,15 +77,25 @@
     
 #define CH3_BUTTON_TIMEOUT 6    ; Time in which we accept double-click of CH3
 #define BLINK_COUNTER_VALUE 5   ; 5 * 65.536 ms = ~333 ms = ~1.5 Hz
-IFNDEF AUTO_BRAKE_COUNTER_VALUE_REVERSE
-#define AUTO_BRAKE_COUNTER_VALUE_REVERSE 8
+IFNDEF AUTO_BRAKE_COUNTER_VALUE_REVERSE_MIN
+#define AUTO_BRAKE_COUNTER_VALUE_REVERSE_MIN 12
 ENDIF
-IFNDEF AUTO_BRAKE_COUNTER_VALUE_FORWARD
-#define AUTO_BRAKE_COUNTER_VALUE_FORWARD 8
+IFNDEF AUTO_BRAKE_COUNTER_VALUE_REVERSE_MAX
+#define AUTO_BRAKE_COUNTER_VALUE_REVERSE_MAX 38
 ENDIF
-IFNDEF AUTO_REVERSE_COUNTER_VALUE
-#define AUTO_REVERSE_COUNTER_VALUE 10
+IFNDEF AUTO_BRAKE_COUNTER_VALUE_FORWARD_MIN
+#define AUTO_BRAKE_COUNTER_VALUE_FORWARD_MIN 12
 ENDIF
+IFNDEF AUTO_BRAKE_COUNTER_VALUE_FORWARD_MAX
+#define AUTO_BRAKE_COUNTER_VALUE_FORWARD_MAX 38
+ENDIF
+IFNDEF AUTO_REVERSE_COUNTER_VALUE_MIN
+#define AUTO_REVERSE_COUNTER_VALUE_MIN 12
+ENDIF
+IFNDEF AUTO_REVERSE_COUNTER_VALUE_MAX
+#define AUTO_REVERSE_COUNTER_VALUE_MAX 30
+ENDIF
+
 #define BRAKE_DISARM_COUNTER_VALUE 15        ; 15 * 65.536 ms = ~1 s
 #define INDICATOR_STATE_COUNTER_VALUE 8      ; 8 * 65.536 ms = ~0.5 s
 #define INDICATOR_STATE_COUNTER_VALUE_OFF 30 ; ~2 s
@@ -165,7 +176,6 @@ indicator_state_counter res 1
 blink_counter       res 1
 
 flags               res 1
-random              res 1
 
 ch3_click_counter   res 1
 ch3_clicks          res 1
@@ -306,12 +316,6 @@ ELSE
 
     bcf     INTCON, T0IF
 ENDIF
-
-    ; Increment our "random" variable, which we use to generate random brake
-    ; and reverse switch off timings when going from forward/reverse into
-    ; neutral.
-    BANKSEL random
-    incf    random, f
 
 
     BANKSEL ch3_click_counter
@@ -644,15 +648,14 @@ IFNDEF DISABLE_AUTO_BRAKE_LIGHTS_FORWARD
     bsf     drive_mode, DRIVE_MODE_BRAKE
     
     ; The time the brake lights stay on after going back to neutral is random
-    ; from 0.5s (AUTO_BRAKE_COUNTER_VALUE_FORWARD) to approx 2.5s 
-    ; (AUTO_BRAKE_COUNTER_VALUE_FORWARD + 0..31 random value).
-    ; This is achieved by reading our "random" and calculating modulo 31 (0x1f)
     bsf     drive_mode, DRIVE_MODE_AUTO_BRAKE
-    movlw   AUTO_BRAKE_COUNTER_VALUE_FORWARD
+    movlw   AUTO_BRAKE_COUNTER_VALUE_FORWARD_MIN
+    movwf   yl 
+    movlw   AUTO_BRAKE_COUNTER_VALUE_FORWARD_MAX
+    movwf   yh 
+    call    Random_min_max
+    BANKSEL auto_brake_counter
     movwf   auto_brake_counter
-    movfw   random
-    andlw   0x1f        
-    addwf   auto_brake_counter, f   
 ENDIF    
     return
 
@@ -661,29 +664,27 @@ process_drive_mode_neutral_after_reverse
     return
 
     ; The time the reverse lights stay on after going back to neutral is random
-    ; from 0.5s (AUTO_REVERSE_COUNTER_VALUE) to approx 1.5s 
-    ; (AUTO_REVERSE_COUNTER_VALUE + 0..15 random value).
-    ; This is achieved by reading our "random" and calculating modulo 15 (0x0f)
     bsf     drive_mode, DRIVE_MODE_AUTO_REVERSE
-    movlw   AUTO_REVERSE_COUNTER_VALUE
+    movlw   AUTO_REVERSE_COUNTER_VALUE_MIN
+    movwf   yl 
+    movlw   AUTO_REVERSE_COUNTER_VALUE_MAX
+    movwf   yh 
+    call    Random_min_max
+    BANKSEL auto_reverse_counter 
     movwf   auto_reverse_counter   
-    movfw   random
-    andlw   0x0f        
-    addwf   auto_reverse_counter, f   
 
 IFNDEF DISABLE_AUTO_BRAKE_LIGHTS_REVERSE    
     bsf     drive_mode, DRIVE_MODE_BRAKE
     
     ; The time the brake lights stay on after going back to neutral is random
-    ; from 0.5s (AUTO_BRAKE_COUNTER_VALUE_REVERSE) to approx 2.5s 
-    ; (AUTO_BRAKE_COUNTER_VALUE_REVERSE + 0..31 random value).
-    ; This is achieved by reading our "random" and calculating modulo 31 (0x1f)
     bsf     drive_mode, DRIVE_MODE_AUTO_BRAKE
-    movlw   AUTO_BRAKE_COUNTER_VALUE_REVERSE
+    movlw   AUTO_BRAKE_COUNTER_VALUE_REVERSE_MIN
+    movwf   yl 
+    movlw   AUTO_BRAKE_COUNTER_VALUE_REVERSE_MAX
+    movwf   yh 
+    call    Random_min_max
+    BANKSEL auto_brake_counter
     movwf   auto_brake_counter
-    movfw   random
-    andlw   0x1f        
-    addwf   auto_brake_counter, f   
 ENDIF    
     return
 

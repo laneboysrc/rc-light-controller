@@ -41,6 +41,7 @@ temp                res 2
 
 
 .data_utils UDATA
+random              res 1 
 
 IFDEF TLC5940
 light_data          res 16      ; TLC5940, one byte per LED
@@ -51,7 +52,7 @@ ELSE
 light_data          res 1       ; Single TLC5916, 8 LEDs on/off
 ENDIF 
 ENDIF 
- 
+
 
 ;******************************************************************************
 ; Relocatable code section
@@ -430,6 +431,73 @@ Add_x_and_780
 	skpnc
 	incfsz	yh, w
 	addwf	xh, f
+    return
+
+
+;******************************************************************************
+; Random
+;
+; Implementations of the Galois LFSR (Linear Feedback Shift Register)
+; 8-bit random generator. The prime LFSR polynom is 0xB4.
+;
+; Source: http://www.piclist.com/techref//microchip/rand8bit.htm
+;******************************************************************************
+.utils_Random CODE
+    GLOBAL Random
+Random
+    BANKSEL random
+    movf    random, f       ; Ensure random is not zero (after reset)
+    skpnz   
+    decf    random, f
+    
+    bcf     STATUS, C    
+    rrf     random, w
+    btfsc   STATUS, C
+    xorlw   0xB4
+    movwf   random
+    return
+
+
+;******************************************************************************
+; Random_min_max
+;
+; Returns a random value between min and max (both inclusive).
+;
+; Input: 
+;   yl = min (must be >= 1)
+;   yh = max (must be >= min
+; Output: 
+;   w = random value between min and max
+;
+; Note: this function is very inefficient when yl is close to yh! 
+;******************************************************************************
+.utils_Random_min_max CODE
+    GLOBAL Random_min_max
+Random_min_max
+    ; Safety procedure: ensure 1 <= yl <= yh
+    movf    yl, w
+    movwf   temp
+    movlw   1
+    call    Max
+    movwf   yl
+
+    movwf   temp
+    movf    yh, w
+    call    Max
+    movwf   yh
+
+Random_min_max_loop    
+    call    Random
+    movf    yl, w
+    subwf   random, w
+    skpc
+    goto    Random_min_max_loop
+    movf    random, w
+    subwf   yh, w
+    skpc
+    goto    Random_min_max_loop
+    
+    movf    random, w
     return
 
 
