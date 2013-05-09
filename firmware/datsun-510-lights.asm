@@ -113,14 +113,14 @@
 ; Since gpasm is not able to use 0.317 we need to calculate with micro-Amps
 #define uA_PER_STEP 317
 
-#define VAL_PARKING (20 * 1000 / uA_PER_STEP)
+#define VAL_PARKING (7 * 1000 / uA_PER_STEP)
 #define VAL_MAIN_BEAM (20 * 1000 / uA_PER_STEP)
 #define VAL_HIGH_BEAM (20 * 1000 / uA_PER_STEP)
-#define VAL_TAIL (5 * 1000 / uA_PER_STEP)
+#define VAL_TAIL (7 * 1000 / uA_PER_STEP)
 #define VAL_BRAKE (20 * 1000 / uA_PER_STEP)
 #define VAL_REVERSE (10 * 1000 / uA_PER_STEP)
-#define VAL_INDICATOR_FRONT (10 * 1000 / uA_PER_STEP)
-#define VAL_INDICATOR_REAR (10 * 1000 / uA_PER_STEP)
+#define VAL_INDICATOR_FRONT (20 * 1000 / uA_PER_STEP)
+#define VAL_INDICATOR_REAR (8 * 1000 / uA_PER_STEP)
 
 
   
