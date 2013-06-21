@@ -28,22 +28,26 @@ the preprocessor use case.
 
 Patrick's Wraith:
 * Configuration
-    * PCB mounted directly onto the receiver; no pre-processor
-    * Alternative solution: pre-processor and use TH/CH3 signals for motor driver (winch)?
-    * We do not need ST channel as no indicators
+    * Pre-processor in mini-receiver
+    * Use Steering servo output for gear box
+    * Use slave output for winch controller
 * Lights
     * Main lights 3-clicks on/off
     * Roof lights
     * Brake lights
-    * Indications for gear and winch mode?
+    * Indicators / Hazard lights
 * Winch
+    * Indications for winch mode: use indicators
     * Activate winch with 5-clicks
     * 2-clicks release the cable; 1-click retracts the cable
-    * When winch is moving any change to CH3 stops the winch
-    * Control from light output?
-    * Can we use servo electronics to drive the winch?
+    * When winch is moving any change to CH3 stops the winch (don't wait for multiple clicks!)
+    * Control from slave output
+    * Show winch active by blinking indicators left/right
+    * Beep winch when activated and de-activated
+    * Send winch commands periodically in case of communication errors or reset problems
 * Gearbox control
+    * 1-click: low gear; 2-clicks: high gear    
+    * Indications for gear mode: use flashing of roof lights
     * Only allow operation at low throttle
     * Only apply servo signal for a short time, but regularly to keep servo in position
-    * 1-click: low gear; 2-clicks: high gear    
 
