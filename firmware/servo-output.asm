@@ -1,6 +1,6 @@
 ;******************************************************************************
 ;
-;   steering_wheel_servo.asm
+;   servo-output.asm
 ;
 ;******************************************************************************
 ;
@@ -8,14 +8,14 @@
 ;   E-mail:         laneboysrc@gmail.com
 ;
 ;******************************************************************************
-    TITLE       RC Light Controller - Steering wheel servo functions
+    TITLE       RC Light Controller - Servo output functions
     LIST        r=dec
     RADIX       dec
 
     #include    hw.tmp
 
-    GLOBAL Init_steering_wheel_servo
-    GLOBAL Make_steering_wheel_servo_pulse 
+    GLOBAL Init_servo_output
+    GLOBAL Make_servo_pulse 
     
     
     ; Functions and variables imported from utils.asm
@@ -32,19 +32,19 @@
 
 IFNDEF ENABLE_SERVO_OUTPUT
     ERROR "########################"
-    ERROR "To use the steering wheel servo you must add '-D ENABLE_SERVO_OUTPUT' to the CFLAGS in the makefile!"
+    ERROR "To use the servo output you must add '-D ENABLE_SERVO_OUTPUT' to the CFLAGS in the makefile!"
     ERROR "########################"
 ENDIF
 
 ;******************************************************************************
 ; Relocatable code section
-;******************************************************************************
-.code_steering_wheel_servo CODE
+;*****************************************************************************
+.code_servo_output CODE
 
 ;******************************************************************************
-; Steering servo related initalization
+; Servo output related initalization
 ;******************************************************************************
-Init_steering_wheel_servo
+Init_servo_output
     BANKSEL CCP1CON
     movlw   b'00001010'
             ; |||||||+ CCPM0 (Compare mode, generate software interrupt on 
@@ -60,11 +60,11 @@ Init_steering_wheel_servo
 
     
 ;******************************************************************************
-; Make_steering_wheel_servo_pulse  
+; Make_servo_pulse 
 ;
 ; The percentage is given from -120 .. 0 .. 120% in the W register.
 ;******************************************************************************
-Make_steering_wheel_servo_pulse  
+Make_servo_pulse  
     BANKSEL T1CON
     addlw   120
     movwf   xl

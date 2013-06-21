@@ -24,9 +24,9 @@
     EXTERN UART_read_byte
 
      
-    ; Functions and variables imported from steering_wheel_servo.asm
-    EXTERN Init_steering_wheel_servo
-    EXTERN Make_steering_wheel_servo_pulse     
+    ; Functions and variables imported from servo-output.asm
+    EXTERN Init_servo_output
+    EXTERN Make_servo_pulse     
 
 
 #define SLAVE_MAGIC_BYTE    0x87
@@ -166,7 +166,7 @@ Init
     ; Initialise the chip (macro included from hw_*.tmp)
     IO_INIT_SLAVE
 
-    call    Init_steering_wheel_servo
+    call    Init_servo_output
 
     BANKSEL INTCON
     bcf     INTCON, T0IF    ; Clear Timer0 Interrupt Flag    
@@ -187,7 +187,7 @@ Main_loop
 
     BANKSEL servo
     movfw   servo
-    call    Make_steering_wheel_servo_pulse   
+    call    Make_servo_pulse   
 
     goto    Main_loop
 
@@ -250,7 +250,7 @@ IFDEF ENABLE_SERVO_OUTPUT
     movf    uart_servo, w
     movwf   servo    
     
-    call    Make_steering_wheel_servo_pulse
+    call    Make_servo_pulse
 ENDIF
     return
 

@@ -69,9 +69,9 @@
     EXTERN ch3                 
      
      
-    ; Functions and variables imported from steering_wheel_servo.asm
-    EXTERN Init_steering_wheel_servo
-    EXTERN Make_steering_wheel_servo_pulse     
+    ; Functions and variables imported from servo-output.asm
+    EXTERN Init_servo_output
+    EXTERN Make_servo_pulse     
 
 ; All timings below are referenced to the soft timer running at 65.536 ms
     
@@ -253,7 +253,7 @@ Init
     call    Init_lights
 
     IFDEF   ENABLE_SERVO_OUTPUT
-    call    Init_steering_wheel_servo
+    call    Init_servo_output
     ENDIF
 
     call    EEPROM_load_persistent_data
@@ -280,7 +280,7 @@ Main_loop
     IFDEF   ENABLE_SERVO_OUTPUT
     BANKSEL servo
     movfw   servo
-    call    Make_steering_wheel_servo_pulse
+    call    Make_servo_pulse
     ENDIF
 
     goto    Main_loop
