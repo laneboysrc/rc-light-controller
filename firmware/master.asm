@@ -430,7 +430,7 @@ process_ch3_initialized
     xorwf   flags, w        
     movwf   temp
 
-    IFDEF CH3_MOMENTARY
+IFDEF CH3_MOMENTARY
     ; -------------------------------------------------------    
     ; Code for CH3 having a momentory signal when pressed (Futaba 4PL)
 
@@ -455,7 +455,7 @@ process_ch3_potential_click
     bsf     flags, CH3_FLAG_TANSITIONED
     ;goto   process_ch3_add_click    
 
-    ELSE
+ELSE
     ; -------------------------------------------------------    
     ; Code for CH3 being a two position switch (HK-310, GT3B)
 
@@ -469,7 +469,7 @@ process_ch3_potential_click
     ;goto   process_ch3_add_click    
 
     ; -------------------------------------------------------    
-    ENDIF
+ENDIF
 
 process_ch3_add_click
     BANKSEL ch3_clicks               
