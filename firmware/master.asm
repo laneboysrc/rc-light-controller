@@ -159,8 +159,8 @@ ENDIF
 ; If the master has a servo output we must for sure enable its configuration
 ; even if the user forgot to set the flag in the makefile
 IFDEF ENABLE_SERVO_OUTPUT
-IFNDEF ENABLE_STEERING_WHEEL_SERVO_SETUP
-#define ENABLE_STEERING_WHEEL_SERVO_SETUP
+IFNDEF ENABLE_SERVO_SETUP
+#define ENABLE_SERVO_SETUP
 ENDIF
 ENDIF
 
@@ -272,6 +272,9 @@ Main_loop
     call    Process_drive_mode
     call    Process_indicators
     call    Process_channel_reversing
+    IFDEF   ENABLE_SERVO_SETUP    
+    call    Process_servo_setup
+    ENDIF
     call    Process_steering_wheel_servo
     call    Service_soft_timer
 
@@ -585,7 +588,7 @@ process_ch3_8_click
     ; --------------------------
     ; 8 clicks: Enter steering wheel servo setup mode
     clrf    ch3_clicks
-    IFDEF ENABLE_STEERING_WHEEL_SERVO_SETUP    
+    IFDEF   ENABLE_SERVO_SETUP    
     movlw   1 << SETUP_MODE_INIT
     movwf   setup_mode    
     ENDIF
@@ -1080,7 +1083,79 @@ Process_steering_wheel_servo
     BANKSEL setup_mode
     movf    setup_mode, f
     bz      process_steering_servo_no_setup
+    return
 
+process_steering_servo_no_setup
+    BANKSEL steering_abs
+    movf    steering_abs, f
+    bnz     process_steering_servo_not_centre
+    BANKSEL servo_centre
+    movf    servo_centre, w
+    BANKSEL servo
+    movwf   servo    
+    return
+
+process_steering_servo_not_centre
+    BANKSEL steering
+    movfw   steering
+    movwf   temp
+    
+    BANKSEL servo_epr
+    movf    servo_epr, w
+    btfsc   temp, 7             ; temp.7: steering sign flag
+    movf    servo_epl, w
+    movwf   temp
+
+    clrf    servo_ep_sign_flag
+    btfsc   temp, 7
+    bsf     servo_ep_sign_flag, 7 ; Save the sign flag of the endpoint
+
+    movf    servo_centre, w
+    subwf   temp, f
+       
+    btfsc   temp, 7
+    decf    temp, f
+    btfsc   temp, 7
+    comf    temp, f
+
+    ; temp contains now     abs(left/right - centre)
+    movf    temp, w
+    movwf   xl
+    BANKSEL steering_abs
+    movf    steering_abs, w
+    call    Mul_xl_by_w     
+    movlw   100
+    movwf   yl
+    clrf    yh
+    call    Div_x_by_y
+
+    BANKSEL servo_ep_sign_flag
+    btfss   servo_ep_sign_flag, 7
+    goto    process_servo_not_negative
+
+    ; Re-apply the sign bit
+    movf    xl, w
+    clrf    xl
+    subwf   xl, f   
+
+process_servo_not_negative
+    BANKSEL servo_centre
+    movf    servo_centre, w
+    addwf   xl, w
+    movwf   servo
+    return
+
+
+;******************************************************************************
+; Process_servo_setup
+; 
+; Handles centre point and end point configuration for the servo that is 
+; controlled by the light controller (either for steering wheel funciton
+; or for gear selection function)
+;******************************************************************************
+IFDEF ENABLE_SERVO_SETUP    
+Process_servo_setup
+    BANKSEL setup_mode
     btfsc   setup_mode, SETUP_MODE_CANCEL
     goto    process_steering_servo_setup_cancel
     btfsc   setup_mode, SETUP_MODE_RIGHT
@@ -1152,67 +1227,7 @@ process_steering_servo_setup_cancel
     clrf    setup_mode
     call    EEPROM_load_persistent_data
     return
-
-process_steering_servo_no_setup
-    BANKSEL steering_abs
-    movf    steering_abs, f
-    bnz     process_steering_servo_not_centre
-    BANKSEL servo_centre
-    movf    servo_centre, w
-    BANKSEL servo
-    movwf   servo    
-    return
-
-process_steering_servo_not_centre
-    BANKSEL steering
-    movfw   steering
-    movwf   temp
-    
-    BANKSEL servo_epr
-    movf    servo_epr, w
-    btfsc   temp, 7             ; temp.7: steering sign flag
-    movf    servo_epl, w
-    movwf   temp
-
-    clrf    servo_ep_sign_flag
-    btfsc   temp, 7
-    bsf     servo_ep_sign_flag, 7 ; Save the sign flag of the endpoint
-
-    movf    servo_centre, w
-    subwf   temp, f
-       
-    btfsc   temp, 7
-    decf    temp, f
-    btfsc   temp, 7
-    comf    temp, f
-
-    ; temp contains now     abs(left/right - centre)
-    movf    temp, w
-    movwf   xl
-    BANKSEL steering_abs
-    movf    steering_abs, w
-    call    Mul_xl_by_w     
-    movlw   100
-    movwf   yl
-    clrf    yh
-    call    Div_x_by_y
-
-    BANKSEL servo_ep_sign_flag
-    btfss   servo_ep_sign_flag, 7
-    goto    process_servo_not_negative
-
-    ; Re-apply the sign bit
-    movf    xl, w
-    clrf    xl
-    subwf   xl, f   
-
-process_servo_not_negative
-    BANKSEL servo_centre
-    movf    servo_centre, w
-    addwf   xl, w
-    movwf   servo
-    return
-
+ENDIF
 
 ;******************************************************************************
 ; EEPROM_load_persistent_data
