@@ -156,9 +156,14 @@ IFNDEF LIGHT_MODE_MASK
 #define LIGHT_MODE_MASK b'00001111'
 ENDIF
 
-; If the master has a servo output we must for sure enable its configuration
-; even if the user forgot to set the flag in the makefile
+; If the master has a servo output function (either for a steering wheel
+; or a gear shift) we must for sure enable its configuration.
 IFDEF ENABLE_SERVO_OUTPUT
+IFNDEF ENABLE_SERVO_SETUP
+#define ENABLE_SERVO_SETUP
+ENDIF
+ENDIF
+IFDEF ENABLE_STEERING_WHEEL_SERVO
 IFNDEF ENABLE_SERVO_SETUP
 #define ENABLE_SERVO_SETUP
 ENDIF
@@ -272,12 +277,16 @@ Main_loop
     call    Process_drive_mode
     call    Process_indicators
     call    Process_channel_reversing
+    
     IFDEF   ENABLE_SERVO_SETUP    
     call    Process_servo_setup
     ENDIF
+    
+    IFDEF   ENABLE_STEERING_WHEEL_SERVO
     call    Process_steering_wheel_servo
+    ENDIF
+    
     call    Service_soft_timer
-
     call    Output_lights
     
     IFDEF   ENABLE_SERVO_OUTPUT
@@ -1079,6 +1088,7 @@ process_channel_reversing_throttle
 ; value but store the sign. After multiplication and division using the
 ; absolute value we re-apply the sign, then add centre.
 ;******************************************************************************
+IFDEF ENABLE_STEERING_WHEEL_SERVO
 Process_steering_wheel_servo
     BANKSEL setup_mode
     movf    setup_mode, f
@@ -1144,6 +1154,7 @@ process_servo_not_negative
     addwf   xl, w
     movwf   servo
     return
+ENDIF
 
 
 ;******************************************************************************
