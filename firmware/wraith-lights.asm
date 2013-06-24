@@ -61,6 +61,7 @@
     EXTERN drive_mode
     EXTERN setup_mode
     EXTERN startup_mode
+    EXTERN winch_mode
     EXTERN servo
 
 
@@ -90,6 +91,12 @@
 #define SETUP_MODE_THROTTLE_REVERSE 5
 #define SETUP_MODE_NEXT 6
 #define SETUP_MODE_CANCEL 7
+
+; Values for winch_mode
+#define WINCH_MODE_DISABLED 0
+#define WINCH_MODE_IDLE 1
+#define WINCH_MODE_IN 2 
+#define WINCH_MODE_OUT 3
 
 ; Bitfields in variable startup_mode
 ; Note: the higher 4 bits are used so we can simply "or" it with ch3

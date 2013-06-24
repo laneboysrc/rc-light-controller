@@ -1426,7 +1426,11 @@ process_steering_servo_setup_init
     clrf    servo_centre
     movlw   120
     movwf   servo_epr
+IFNDEF ENABLE_GEARBOX
     movlw   1 << SETUP_MODE_CENTRE
+ELSE
+    movlw   1 << SETUP_MODE_LEFT
+ENDIF    
     movwf   setup_mode
     goto    process_steering_servo_no_setup
 
