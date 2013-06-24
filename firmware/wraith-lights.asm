@@ -62,6 +62,7 @@
     EXTERN setup_mode
     EXTERN startup_mode
     EXTERN winch_mode
+    EXTERN gear_mode
     EXTERN servo
 
 
@@ -97,6 +98,11 @@
 #define WINCH_MODE_IDLE 1
 #define WINCH_MODE_IN 2 
 #define WINCH_MODE_OUT 3
+
+; Bitfields in variable gear_mode
+#define GEAR_1 0
+#define GEAR_2 1
+#define GEAR_CHANGED_FLAG 7
 
 ; Bitfields in variable startup_mode
 ; Note: the higher 4 bits are used so we can simply "or" it with ch3
@@ -177,6 +183,21 @@ Output_lights
     btfsc   temp, LIGHT_MODE_MAIN_BEAM
     call    output_lights_tail
 
+
+    BANKSEL gear_mode
+    btfss   gear_mode, GEAR_CHANGED_FLAG
+    goto    output_lights_check_winch    
+
+    BANKSEL gear_mode
+    btfsc   gear_mode, GEAR_1
+    call    output_lights_gear_1
+    BANKSEL gear_mode
+    btfsc   gear_mode, GEAR_2
+    call    output_lights_gear_1
+    goto    output_lights_drive_mode
+
+
+output_lights_check_winch
     BANKSEL winch_mode
     movfw   winch_mode
     bnz     output_lights_winch
@@ -323,6 +344,18 @@ output_lights_winch_out
     movwf   light_data + LED_ROOF_4
     return
 
+output_lights_gear_1
+    BANKSEL light_data
+    movlw   VAL_ROOF
+    movwf   light_data + LED_ROOF_4
+    return
+
+output_lights_gear_2
+    BANKSEL light_data
+    movlw   VAL_ROOF
+    movwf   light_data + LED_ROOF_4
+    movwf   light_data + LED_ROOF_3
+    return
 
 ;******************************************************************************
 ; Clear_light_data
