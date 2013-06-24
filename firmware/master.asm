@@ -304,14 +304,12 @@ Main_loop
     IFDEF   ENABLE_STEERING_WHEEL_SERVO
     call    Process_steering_wheel_servo
     ENDIF
-    
+
     call    Service_soft_timer
     call    Output_lights
     
     IFDEF   ENABLE_SERVO_OUTPUT
-    BANKSEL servo
-    movfw   servo
-    call    Make_servo_pulse
+    call    Output_servo
     ENDIF
 
     goto    Main_loop
@@ -394,13 +392,44 @@ service_soft_timer_auto_reverse
 
 service_soft_timer_blink
     decfsz  blink_counter, f
-    return
+    goto    service_soft_timer_gearbox
 
     movlw   BLINK_COUNTER_VALUE
     movwf   blink_counter
     movlw   1 << BLINK_MODE_BLINKFLAG
     xorwf   blink_mode, f
 
+
+service_soft_timer_gearbox
+IFDEF ENABLE_GEARBOX
+    ; Business logic to first count down idle_counter and then active_counter.
+    ; When active_counter expires we reload both active_counter and idle_counter
+    ; and the game starts again.
+    ;
+    ; Note that nothing is executed when both idle_counter and active_counter
+    ; are zero on entry. We use this to prevent output after initialization
+    ;
+    movfw   gearbox_servo_idle_counter
+    bz      service_soft_timer_gearbox_active
+
+    decf    gearbox_servo_idle_counter, f
+    goto    service_soft_timer_end
+
+service_soft_timer_gearbox_active
+    movfw   gearbox_servo_active_counter
+    bz      service_soft_timer_end
+
+    decfsz  gearbox_servo_active_counter, f
+    goto    service_soft_timer_end
+    
+    movlw   GEARBOX_IDLE_TIME
+    movwf   gearbox_servo_idle_counter
+    movlw   GEARBOX_REFRESH_TIME
+    movwf   gearbox_servo_active_counter
+ENDIF
+
+
+service_soft_timer_end
     return
 
 
@@ -423,6 +452,27 @@ Synchronize_blinking
     movlw   BLINK_COUNTER_VALUE
     movwf   blink_counter
     bsf     blink_mode, BLINK_MODE_BLINKFLAG
+    return
+
+
+;******************************************************************************
+; Output_servo
+;
+; Generates the servo pulse based on the variable named servo.
+;******************************************************************************
+Output_servo
+IFDEF ENABLE_GEARBOX    
+    ; The gearbox servo is activated only when gearbox_servo_active_counter is
+    ; non-zero.
+    BANKSEL gearbox_servo_active_counter
+    movfw   gearbox_servo_active_counter
+    skpnz   
+    return
+ENDIF
+
+    BANKSEL servo
+    movfw   servo
+    call    Make_servo_pulse
     return
 
 
@@ -1133,6 +1183,9 @@ process_channel_reversing_throttle
 ; To ease calculation we first do right - centre, then calculate its absolute
 ; value but store the sign. After multiplication and division using the
 ; absolute value we re-apply the sign, then add centre.
+;
+; Note: this function is needed by Process_servo_setup, so it can't be 
+; removed e.g. if only a gearbox servo is used.
 ;******************************************************************************
 Process_steering_wheel_servo
     BANKSEL setup_mode
@@ -1199,7 +1252,7 @@ process_servo_not_negative
     addwf   xl, w
     movwf   servo
     return
-
+    
 
 ;******************************************************************************
 ; Process_servo_setup
