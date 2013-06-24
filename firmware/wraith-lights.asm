@@ -176,9 +176,34 @@ Output_lights
     call    output_lights_main_beam
     btfsc   temp, LIGHT_MODE_MAIN_BEAM
     call    output_lights_tail
+
+    BANKSEL winch_mode
+    movfw   winch_mode
+    bnz     output_lights_winch
     btfsc   temp, LIGHT_MODE_ROOF
     call    output_lights_roof
+    goto    output_lights_drive_mode
+    
+output_lights_winch  
+    BANKSEL winch_mode
+    movfw   winch_mode
+    sublw   WINCH_MODE_IDLE
+    skpnz
+    call    output_lights_winch_idle        
 
+    BANKSEL winch_mode
+    movfw   winch_mode
+    sublw   WINCH_MODE_IN
+    skpnz
+    call    output_lights_winch_in
+
+    BANKSEL winch_mode
+    movfw   winch_mode
+    sublw   WINCH_MODE_OUT
+    skpnz
+    call    output_lights_winch_out
+
+output_lights_drive_mode
     BANKSEL drive_mode
     movfw   drive_mode
     movwf   temp
@@ -276,6 +301,26 @@ output_lights_indicator_right
     BANKSEL light_data
     movlw   VAL_INDICATOR_FRONT
     movwf   light_data + LED_INDICATOR_F_R
+    return
+    
+output_lights_winch_idle
+    BANKSEL light_data
+    movlw   VAL_ROOF
+    movwf   light_data + LED_ROOF_4
+    return
+    
+output_lights_winch_in
+    BANKSEL light_data
+    movlw   VAL_ROOF
+    movwf   light_data + LED_ROOF_2
+    movwf   light_data + LED_ROOF_3
+    return
+    
+output_lights_winch_out
+    BANKSEL light_data
+    movlw   VAL_ROOF
+    movwf   light_data + LED_ROOF_1
+    movwf   light_data + LED_ROOF_4
     return
 
 
