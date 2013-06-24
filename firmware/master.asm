@@ -120,6 +120,8 @@ ENDIF
 #define BLINK_MODE_HAZARD 1             ; Hazard lights active
 #define BLINK_MODE_INDICATOR_LEFT 2     ; Left indicator active
 #define BLINK_MODE_INDICATOR_RIGHT 3    ; Right indicator active
+#define BLINK_MODE_SOFTTIMER 7          ; Is 1 for one mainloop when the soft 
+                                        ; timer triggers (every 65.536ms)
 
 ; Bitfields in variable drive_mode
 #define DRIVE_MODE_FORWARD 0 
@@ -321,6 +323,9 @@ Main_loop
 ; Soft-timer with a resolution of 65.536 ms
 ;******************************************************************************
 Service_soft_timer
+    BANKSEL blink_mode
+    bcf     blink_mode, BLINK_MODE_SOFTTIMER
+
 IFDEF TIMER2_SOFT_TIMER
     BANKSEL PIR1
     btfss   PIR1, TMR2IF
@@ -345,6 +350,11 @@ ELSE
 
     bcf     INTCON, T0IF
 ENDIF
+
+    ; Set the BLINK_MODE_SOFTTIMER flag for the current mainloop to let
+    ; other routines generate timings based on the soft timer.
+    BANKSEL blink_mode
+    bsf     blink_mode, BLINK_MODE_SOFTTIMER
 
 
     BANKSEL ch3_click_counter
@@ -460,6 +470,7 @@ Synchronize_blinking
 ;
 ; Generates the servo pulse based on the variable named servo.
 ;******************************************************************************
+IFDEF   ENABLE_SERVO_OUTPUT
 Output_servo
 IFDEF ENABLE_GEARBOX    
     ; The gearbox servo is activated only when gearbox_servo_active_counter is
@@ -474,6 +485,7 @@ ENDIF
     movfw   servo
     call    Make_servo_pulse
     return
+ENDIF
 
 
 ;******************************************************************************

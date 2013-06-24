@@ -69,6 +69,8 @@
 #define BLINK_MODE_HAZARD 1             ; Hazard lights active
 #define BLINK_MODE_INDICATOR_LEFT 2     ; Left indicator active
 #define BLINK_MODE_INDICATOR_RIGHT 3    ; Right indicator active
+#define BLINK_MODE_SOFTTIMER 7          ; Is 1 for one mainloop when the soft 
+                                        ; timer triggers (every 65.536ms)
 
 ; Bitfields in variable light_mode
 #define LIGHT_MODE_PARKING 0        ; Parking lights
