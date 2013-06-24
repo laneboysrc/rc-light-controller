@@ -22,6 +22,9 @@
     GLOBAL setup_mode
     GLOBAL startup_mode
     GLOBAL servo
+IFDEF ENABLE_GEARBOX
+    GLOBAL gear_mode
+ENDIF   
 IFDEF ENABLE_WINCH
     GLOBAL winch_mode
 ENDIF
@@ -111,7 +114,10 @@ ENDIF
 
 #define WINCH_COMMAND_REPEAT_TIME 15         ; ~1 s
 
-
+; Bitfields in variable gear_mode
+#define GEAR_1 0
+#define GEAR_2 1
+#define GEAR_CHANGED_FLAG 7
 
 ; Bitfields in variable flags
 #define CH3_FLAG_LAST_STATE 0           ; Must be bit 0!
@@ -230,6 +236,7 @@ servo_ep_sign_flag  res 1
 IFDEF ENABLE_GEARBOX
 gearbox_servo_active_counter res 1
 gearbox_servo_idle_counter res 1
+gear_mode           res 1
 ENDIF
 
 IFDEF ENABLE_WINCH
@@ -291,6 +298,7 @@ Init
 IFDEF ENABLE_GEARBOX
     clrf    gearbox_servo_active_counter
     clrf    gearbox_servo_idle_counter
+    clrf    gear_mode
 ENDIF
 
 IFDEF ENABLE_WINCH
@@ -557,6 +565,10 @@ ENDIF
 ;
 ;******************************************************************************
 Process_ch3_double_click
+IFDEF ENABLE_GEARBOX
+    BANKSEL gear_mode
+    bcf     gear_mode, GEAR_CHANGED_FLAG
+ENDIF    
     BANKSEL startup_mode
     movf    startup_mode, f
     bz      process_ch3_no_startup
@@ -743,6 +755,8 @@ process_ch3_click_no_winch
 IFDEF ENABLE_GEARBOX
     movfw   servo_epl
     movwf   servo
+    movlw   GEAR_1 | GEAR_CHANGED_FLAG
+    movwf   gear_mode
     movlw   GEARBOX_SWITCH_TIME
     movwf   gearbox_servo_active_counter
     clrf    gearbox_servo_idle_counter
@@ -764,6 +778,8 @@ process_ch3_double_click
 IFDEF ENABLE_GEARBOX    
     movfw   servo_epr
     movwf   servo
+    movlw   GEAR_2 | GEAR_CHANGED_FLAG
+    movwf   gear_mode
     movlw   GEARBOX_SWITCH_TIME
     movwf   gearbox_servo_active_counter
     clrf    gearbox_servo_idle_counter
