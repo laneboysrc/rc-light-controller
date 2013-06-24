@@ -268,6 +268,8 @@ Init
     clrf    ch3_clicks
     clrf    indicator_state
     clrf    servo
+    clrf    gearbox_servo_active_counter
+    clrf    gearbox_servo_idle_counter
 
     movlw   BLINK_COUNTER_VALUE
     movwf   blink_counter
@@ -1132,7 +1134,6 @@ process_channel_reversing_throttle
 ; value but store the sign. After multiplication and division using the
 ; absolute value we re-apply the sign, then add centre.
 ;******************************************************************************
-IFDEF ENABLE_STEERING_WHEEL_SERVO
 Process_steering_wheel_servo
     BANKSEL setup_mode
     movf    setup_mode, f
@@ -1198,7 +1199,6 @@ process_servo_not_negative
     addwf   xl, w
     movwf   servo
     return
-ENDIF
 
 
 ;******************************************************************************

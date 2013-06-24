@@ -51,7 +51,7 @@ FOSC = 32           ; Osc frequency in MHz
 #define PORT_THROTTLE   PORTA, 0        
 #define PORT_CH3        PORTA, 3        
 
-#define PORT_SERVO_SLAVE LATA, 0        
+#define PORT_SERVO      LATA, 0        
 
 ; TLC5940 LED driver serial communication ports, for both master and slave
 #define PORT_SCK        PORTC, 0
