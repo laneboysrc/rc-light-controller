@@ -10,7 +10,7 @@ wraith: hkr3000-preprocessor wraith-master
 
 .PHONY: wraith-master
 wraith-master: hw_tlc5940_16f1825.inc
-	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x03 -D ESC_FORWARD_REVERSE -D ENABLE_GEARBOX -D ENABLE_SERVO_OUTPUT)
+	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x03 -D ESC_FORWARD_REVERSE -D ENABLE_GEARBOX -D ENABLE_SERVO_OUTPUT -D ENABLE_WINCH)
 	$(eval files = master uart-reader servo-output utils wraith-lights)
 	$(build)
 

@@ -22,7 +22,9 @@
     GLOBAL setup_mode
     GLOBAL startup_mode
     GLOBAL servo
-
+IFDEF ENABLE_WINCH
+    GLOBAL winch_mode
+ENDIF
 
     ; Functions imported from <car>-lights.asm
     EXTERN Init_lights
@@ -107,6 +109,8 @@ ENDIF
 ; Time the gearbox servo is idle between refresh pulses
 #define GEARBOX_IDLE_TIME 255                ; ~16s, maximum we can get
 
+#define WINCH_COMMAND_REPEAT_TIME 15         ; ~1 s
+
 
 
 ; Bitfields in variable flags
@@ -162,6 +166,11 @@ ENDIF
 ; and send it to the slave
 #define STARTUP_MODE_NEUTRAL 4      ; Waiting before reading ST/TH neutral
 
+; Values for winch_mode
+#define WINCH_MODE_DISABLED 0
+#define WINCH_MODE_IDLE 1
+#define WINCH_MODE_IN 2 
+#define WINCH_MODE_OUT 3
 
 IFNDEF LIGHT_MODE_MASK
 #define LIGHT_MODE_MASK b'00001111'
@@ -196,8 +205,6 @@ auto_reverse_counter res 1
 drive_mode_brake_disarm_counter res 1
 indicator_state_counter res 1
 blink_counter       res 1
-gearbox_servo_active_counter res 1
-gearbox_servo_idle_counter res 1
 
 flags               res 1
 
@@ -219,6 +226,16 @@ servo_epr           res 1
 servo_setup_epl     res 1
 servo_setup_centre  res 1
 servo_ep_sign_flag  res 1
+
+IFDEF ENABLE_GEARBOX
+gearbox_servo_active_counter res 1
+gearbox_servo_idle_counter res 1
+ENDIF
+
+IFDEF ENABLE_WINCH
+winch_mode          res 1
+winch_command_repeat_counter res 1
+ENDIF
 
 
 ;******************************************************************************
@@ -270,8 +287,16 @@ Init
     clrf    ch3_clicks
     clrf    indicator_state
     clrf    servo
+
+IFDEF ENABLE_GEARBOX
     clrf    gearbox_servo_active_counter
     clrf    gearbox_servo_idle_counter
+ENDIF
+
+IFDEF ENABLE_WINCH
+    clrf    winch_mode
+    clrf    winch_command_repeat_counter
+ENDIF    
 
     movlw   BLINK_COUNTER_VALUE
     movwf   blink_counter
@@ -308,8 +333,13 @@ Main_loop
     ENDIF
 
     call    Output_lights
+
     IFDEF   ENABLE_SERVO_OUTPUT
     call    Output_servo
+    ENDIF
+
+    IFDEF   ENABLE_WINCH
+    call    Output_winch
     ENDIF
 
     call    Service_soft_timer
@@ -422,19 +452,28 @@ IFDEF ENABLE_GEARBOX
     bz      service_soft_timer_gearbox_active
 
     decf    gearbox_servo_idle_counter, f
-    goto    service_soft_timer_end
+    goto    service_soft_timer_winch
 
 service_soft_timer_gearbox_active
     movfw   gearbox_servo_active_counter
-    bz      service_soft_timer_end
+    bz      service_soft_timer_winch
 
     decfsz  gearbox_servo_active_counter, f
-    goto    service_soft_timer_end
+    goto    service_soft_timer_winch
     
     movlw   GEARBOX_IDLE_TIME
     movwf   gearbox_servo_idle_counter
     movlw   GEARBOX_REFRESH_TIME
     movwf   gearbox_servo_active_counter
+ENDIF
+
+
+service_soft_timer_winch
+IFDEF ENABLE_WINCH
+    BANKSEL winch_command_repeat_counter
+    movf    winch_command_repeat_counter, f
+    skpz     
+    decf    winch_command_repeat_counter, f    
 ENDIF
 
 
@@ -469,7 +508,7 @@ Synchronize_blinking
 ;
 ; Generates the servo pulse based on the variable named servo.
 ;******************************************************************************
-IFDEF   ENABLE_SERVO_OUTPUT
+IFDEF ENABLE_SERVO_OUTPUT
 Output_servo
 IFDEF ENABLE_GEARBOX    
     ; The gearbox servo is activated only when gearbox_servo_active_counter is
@@ -483,6 +522,28 @@ ENDIF
     BANKSEL servo
     movfw   servo
     call    Make_servo_pulse
+    return
+ENDIF
+
+
+;******************************************************************************
+; Output_winch
+;
+; Sends winch commands to the winch controller via the UART
+;******************************************************************************
+IFDEF ENABLE_WINCH
+Output_winch
+    BANKSEL winch_command_repeat_counter
+    movfw   winch_command_repeat_counter
+    skpz
+    return
+    
+    movlw   WINCH_COMMAND_REPEAT_TIME    
+    movwf   winch_command_repeat_counter
+    movfw   winch_mode
+    addlw   0x30        ; Transpose winch mode into ASCII numbers 0..4
+
+    call    UART_send_w
     return
 ENDIF
 
@@ -569,11 +630,39 @@ ELSE
 ENDIF
 
 process_ch3_add_click
+IFDEF ENABLE_WINCH
+    ; If the winch is running any movement of CH3 immediately turns off
+    ; the winch (without waiting for click timeout!)
+    BANKSEL winch_mode
+    movlw   WINCH_MODE_IN
+    subwf   winch_mode, w
+    bz      process_ch3_winch_off
+
+    movlw   WINCH_MODE_OUT
+    subwf   winch_mode, w
+    bnz     process_ch3_no_winch
+
+process_ch3_winch_off
+    movlw   WINCH_MODE_IDLE
+    movwf   winch_mode
+
+    ; Disable this series of clicks by setting the click count to an unused
+    ; high value
+    BANKSEL ch3_clicks               
+    movlw   99
+    movwf   ch3_clicks
+    movlw   CH3_BUTTON_TIMEOUT
+    movwf   ch3_click_counter
+    return
+ENDIF
+
+process_ch3_no_winch
     BANKSEL ch3_clicks               
     incf    ch3_clicks, f
     movlw   CH3_BUTTON_TIMEOUT
     movwf   ch3_click_counter
     return
+
     
 process_ch3_click_timeout
     movf    ch3_clicks, f           ; Any buttons pending?
@@ -603,11 +692,39 @@ process_ch3_click_timeout
     
 process_ch3_setup_cancel
     bsf     setup_mode, SETUP_MODE_CANCEL
-    return    
+    goto    process_ch3_click_end
+
+
+process_ch3_click_no_setup
+IFDEF ENABLE_WINCH
+    movf    winch_mode, f
+    bz      process_ch3_click_no_winch
+    
+    ;====================================
+    ; Winch control in progress:
+    ; 1 click: winch in
+    ; 2 click: winch out
+    decfsz  ch3_clicks, f                
+    goto    process_ch3_no_winch_in
+
+    movlw   WINCH_MODE_IN
+    goto    process_ch3_winch_execute
+
+process_ch3_no_winch_in
+    decfsz  ch3_clicks, f                
+    goto    process_ch3_click_end
+
+    movlw   WINCH_MODE_OUT
+process_ch3_winch_execute
+    movwf   winch_mode
+    clrf    winch_command_repeat_counter
+    return
+ENDIF
+
 
     ;====================================
-    ; Normal operation; setup is not active
-process_ch3_click_no_setup
+    ; Normal operation; neither winch nor setup is active
+process_ch3_click_no_winch
     decfsz  ch3_clicks, f                
     goto    process_ch3_double_click
 
