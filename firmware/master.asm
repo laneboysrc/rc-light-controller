@@ -100,6 +100,15 @@ ENDIF
 #define INDICATOR_STATE_COUNTER_VALUE 8      ; 8 * 65.536 ms = ~0.5 s
 #define INDICATOR_STATE_COUNTER_VALUE_OFF 30 ; ~2 s
 
+; Time the gearbox servo is activated when changing gear
+#define GEARBOX_SWITCH_TIME 76               ; 5s
+; Time the gearbox servo is activated periodically to maintain position
+#define GEARBOX_REFRESH_TIME 8               ; 0.5s
+; Time the gearbox servo is idle between refresh pulses
+#define GEARBOX_IDLE_TIME 255                ; ~16s, maximum we can get
+
+
+
 ; Bitfields in variable flags
 #define CH3_FLAG_LAST_STATE 0           ; Must be bit 0!
 #define CH3_FLAG_TANSITIONED 1
@@ -168,6 +177,12 @@ IFNDEF ENABLE_SERVO_SETUP
 #define ENABLE_SERVO_SETUP
 ENDIF
 ENDIF
+IFDEF ENABLE_GEARBOX
+IFNDEF ENABLE_SERVO_SETUP
+#define ENABLE_SERVO_SETUP
+ENDIF
+ENDIF
+
 
 ;******************************************************************************
 ;* VARIABLE DEFINITIONS
@@ -179,6 +194,8 @@ auto_reverse_counter res 1
 drive_mode_brake_disarm_counter res 1
 indicator_state_counter res 1
 blink_counter       res 1
+gearbox_servo_active_counter res 1
+gearbox_servo_idle_counter res 1
 
 flags               res 1
 
@@ -409,6 +426,11 @@ Synchronize_blinking
 
 ;******************************************************************************
 ; Process_ch3_double_click
+;
+; This function handles CH3 to determine which actions to invoke.
+; It is designed for a two-position switch on CH3 (HK-310, GT3B ...). The
+; switch can either be momentary (e.g Futaba 4PL) or static (HK-310).
+;
 ;******************************************************************************
 Process_ch3_double_click
     BANKSEL startup_mode
@@ -500,6 +522,10 @@ process_ch3_click_timeout
     return                          ; No: wait for more buttons
 
 
+    ;####################################
+    ; At this point we have detected one of more clicks and need to
+    ; perform the appropriate action.
+    ;####################################
     movf    setup_mode, f
     bz      process_ch3_click_no_setup
 
@@ -523,11 +549,20 @@ process_ch3_click_no_setup
     goto    process_ch3_double_click
 
     ; --------------------------
-    ; Single click: switch light mode up (Parking, Low Beam, Fog, High Beam) 
+    ; Single click 
+IFDEF ENABLE_GEARBOX
+    movfw   servo_epl
+    movwf   servo
+    movlw   GEARBOX_SWITCH_TIME
+    movwf   gearbox_servo_active_counter
+    clrf    gearbox_servo_idle_counter
+ELSE
+    ; Switch light mode up (Parking, Low Beam, Fog, High Beam) 
     rlf     light_mode, f
     bsf     light_mode, 0
     movlw   LIGHT_MODE_MASK
     andwf   light_mode, f
+ENDIF    
     return
 
 process_ch3_double_click
@@ -535,10 +570,19 @@ process_ch3_double_click
     goto    process_ch3_triple_click
 
     ; --------------------------
-    ; Double click: switch light mode down (Parking, Low Beam, Fog, High Beam)  
+    ; Double click
+IFDEF ENABLE_GEARBOX    
+    movfw   servo_epr
+    movwf   servo
+    movlw   GEARBOX_SWITCH_TIME
+    movwf   gearbox_servo_active_counter
+    clrf    gearbox_servo_idle_counter
+ELSE
+    ; Switch light mode down (Parking, Low Beam, Fog, High Beam)  
     rrf     light_mode, f
     movlw   LIGHT_MODE_MASK
     andwf   light_mode, f
+ENDIF    
     return
 
 process_ch3_triple_click
