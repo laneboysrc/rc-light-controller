@@ -35,7 +35,7 @@
 ;   E-mail:         laneboysrc@gmail.com
 ;
 ;******************************************************************************
-    TITLE       Light control logic for the HPI Datsun 510
+    TITLE       Light control logic for Patrick's Wraith
     RADIX       dec
 
     #include    hw.tmp

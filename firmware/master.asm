@@ -307,13 +307,12 @@ Main_loop
     call    Process_steering_wheel_servo
     ENDIF
 
-    call    Service_soft_timer
     call    Output_lights
-    
     IFDEF   ENABLE_SERVO_OUTPUT
     call    Output_servo
     ENDIF
 
+    call    Service_soft_timer
     goto    Main_loop
 
     
