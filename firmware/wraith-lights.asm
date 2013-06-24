@@ -18,16 +18,16 @@
 ;       OUT3    
 ;       OUT4    
 ;       OUT5    
-;       OUT6    
-;       OUT7    
-;       OUT8    
-;       OUT9    
-;       OUT10   
-;       OUT11   
-;       OUT12   
-;       OUT13   
-;       OUT14   
-;       OUT15   
+;       OUT6    Front left
+;       OUT7    Front right
+;       OUT8    Indicator left
+;       OUT9    Indicator right
+;       OUT10   Tail/Brake left
+;       OUT11   Tail/Brake right
+;       OUT12   Roof 1 (left)
+;       OUT13   Roof 2
+;       OUT14   Roof 3
+;       OUT15   Roof 4 (right)
 ;
 ;******************************************************************************
 ;
@@ -73,9 +73,8 @@
                                         ; timer triggers (every 65.536ms)
 
 ; Bitfields in variable light_mode
-#define LIGHT_MODE_PARKING 0        ; Parking lights
-#define LIGHT_MODE_MAIN_BEAM 1      ; Main beam
-#define LIGHT_MODE_HIGH_BEAM 2      ; High beam
+#define LIGHT_MODE_MAIN_BEAM 0      ; Main beam
+#define LIGHT_MODE_ROOF      1      ; Roof light bar
 
 ; Bitfields in variable drive_mode
 #define DRIVE_MODE_FORWARD 0 
@@ -97,32 +96,25 @@
 ; and send it to the slave
 #define STARTUP_MODE_NEUTRAL 4      ; Waiting before reading ST/TH neutral
 
-#define LED_PARKING_L 0   
-#define LED_PARKING_R 1    
-#define LED_MAIN_BEAM_L 2
-#define LED_MAIN_BEAM_R 3
-#define LED_HIGH_BEAM_L 4
-#define LED_HIGH_BEAM_R 5
-#define LED_INDICATOR_F_L 6    
-#define LED_INDICATOR_F_R 7 
+#define LED_MAIN_BEAM_L 6
+#define LED_MAIN_BEAM_R 7
+#define LED_INDICATOR_F_L 8    
+#define LED_INDICATOR_F_R 9 
 #define LED_TAIL_BRAKE_L 10    
 #define LED_TAIL_BRAKE_R 11    
-#define LED_REVERSING_L 12    
-#define LED_REVERSING_R 13    
-#define LED_INDICATOR_R_L 14   
-#define LED_INDICATOR_R_R 15
+#define LED_ROOF_1 12    
+#define LED_ROOF_2 13    
+#define LED_ROOF_3 14    
+#define LED_ROOF_4 15    
 
 ; Since gpasm is not able to use 0.317 we need to calculate with micro-Amps
 #define uA_PER_STEP 317
 
-#define VAL_PARKING (7 * 1000 / uA_PER_STEP)
 #define VAL_MAIN_BEAM (20 * 1000 / uA_PER_STEP)
-#define VAL_HIGH_BEAM (20 * 1000 / uA_PER_STEP)
+#define VAL_INDICATOR_FRONT (20 * 1000 / uA_PER_STEP)
 #define VAL_TAIL (7 * 1000 / uA_PER_STEP)
 #define VAL_BRAKE (20 * 1000 / uA_PER_STEP)
-#define VAL_REVERSE (10 * 1000 / uA_PER_STEP)
-#define VAL_INDICATOR_FRONT (20 * 1000 / uA_PER_STEP)
-#define VAL_INDICATOR_REAR (8 * 1000 / uA_PER_STEP)
+#define VAL_ROOF (20 * 1000 / uA_PER_STEP)
 
 
   
@@ -173,26 +165,18 @@ Output_lights
     BANKSEL light_mode
     movfw   light_mode
     movwf   temp
-    btfsc   temp, LIGHT_MODE_PARKING
-    call    output_lights_parking
-    btfsc   temp, LIGHT_MODE_PARKING
-    call    output_lights_tail
     btfsc   temp, LIGHT_MODE_MAIN_BEAM
     call    output_lights_main_beam
-    btfsc   temp, LIGHT_MODE_HIGH_BEAM
-    call    output_lights_high_beam
+    btfsc   temp, LIGHT_MODE_MAIN_BEAM
+    call    output_lights_tail
+    btfsc   temp, LIGHT_MODE_ROOF
+    call    output_lights_roof
 
     BANKSEL drive_mode
     movfw   drive_mode
     movwf   temp
     btfsc   temp, DRIVE_MODE_BRAKE
     call    output_lights_brake
-
-    BANKSEL drive_mode
-    movfw   drive_mode
-    movwf   temp
-    btfsc   temp, DRIVE_MODE_REVERSE
-    call    output_lights_reverse
 
     BANKSEL blink_mode
     btfss   blink_mode, BLINK_MODE_BLINKFLAG
@@ -218,8 +202,8 @@ output_lights_startup
     return
     
     movlw   VAL_MAIN_BEAM
-    movwf   light_data + LED_MAIN_BEAM_L
-    movwf   light_data + LED_MAIN_BEAM_R
+    movwf   light_data + LED_ROOF_1
+    movwf   light_data + LED_ROOF_4
     goto    output_lights_execute    
 
 
@@ -245,13 +229,6 @@ output_lights_setup_right
     return
 
 
-output_lights_parking
-    BANKSEL light_data
-    movlw   VAL_PARKING
-    movwf   light_data + LED_PARKING_L
-    movwf   light_data + LED_PARKING_R
-    return
-    
 output_lights_main_beam
     BANKSEL light_data
     movlw   VAL_MAIN_BEAM
@@ -259,11 +236,13 @@ output_lights_main_beam
     movwf   light_data + LED_MAIN_BEAM_R
     return
     
-output_lights_high_beam
+output_lights_roof
     BANKSEL light_data
-    movlw   VAL_HIGH_BEAM
-    movwf   light_data + LED_HIGH_BEAM_L
-    movwf   light_data + LED_HIGH_BEAM_R
+    movlw   VAL_ROOF
+    movwf   light_data + LED_ROOF_1
+    movwf   light_data + LED_ROOF_2
+    movwf   light_data + LED_ROOF_3
+    movwf   light_data + LED_ROOF_4
     return
     
 output_lights_tail
@@ -280,27 +259,16 @@ output_lights_brake
     movwf   light_data + LED_TAIL_BRAKE_R
     return
     
-output_lights_reverse
-    BANKSEL light_data
-    movlw   VAL_REVERSE
-    movwf   light_data + LED_REVERSING_L
-    movwf   light_data + LED_REVERSING_R
-    return
-    
 output_lights_indicator_left
     BANKSEL light_data
     movlw   VAL_INDICATOR_FRONT
     movwf   light_data + LED_INDICATOR_F_L
-    movlw   VAL_INDICATOR_REAR
-    movwf   light_data + LED_INDICATOR_R_L
     return
     
 output_lights_indicator_right
     BANKSEL light_data
     movlw   VAL_INDICATOR_FRONT
     movwf   light_data + LED_INDICATOR_F_R
-    movlw   VAL_INDICATOR_REAR
-    movwf   light_data + LED_INDICATOR_R_R
     return
 
 
