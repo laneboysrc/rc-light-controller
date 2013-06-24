@@ -704,21 +704,31 @@ IFDEF ENABLE_WINCH
     ; Winch control in progress:
     ; 1 click: winch in
     ; 2 click: winch out
-    decfsz  ch3_clicks, f                
+    ; 5 click: winch disabled
+    decfsz  ch3_clicks, f                   ; 1 click: winch in                
     goto    process_ch3_no_winch_in
 
     movlw   WINCH_MODE_IN
-    goto    process_ch3_winch_execute
-
-process_ch3_no_winch_in
-    decfsz  ch3_clicks, f                
-    goto    process_ch3_click_end
-
-    movlw   WINCH_MODE_OUT
 process_ch3_winch_execute
     movwf   winch_mode
     clrf    winch_command_repeat_counter
-    return
+    goto    process_ch3_click_end
+
+process_ch3_no_winch_in
+    decfsz  ch3_clicks, f                   ; 2 clicks: winch out                
+    goto    process_ch3_no_winch_out
+
+    movlw   WINCH_MODE_OUT
+    goto    process_ch3_winch_execute
+
+process_ch3_no_winch_out
+    decf    ch3_clicks, f                   ; 3 clicks          
+    decf    ch3_clicks, f                   ; 4 clicks
+    decfsz  ch3_clicks, f                   ; 5 clicks: turn off the winch completely
+    goto    process_ch3_click_end
+
+    movlw   WINCH_MODE_DISABLED
+    goto    process_ch3_winch_execute
 ENDIF
 
 
@@ -796,7 +806,14 @@ process_ch3_quad_click
 process_ch3_5_click
     decfsz  ch3_clicks, f              
     goto    process_ch3_6_click
+    
+IFDEF ENABLE_WINCH
+    BANKSEL winch_mode
+    movlw   WINCH_MODE_IDLE
+    goto    process_ch3_winch_execute
+ELSE
     goto    process_ch3_click_end
+ENDIF        
 
 process_ch3_6_click
     decfsz  ch3_clicks, f              
