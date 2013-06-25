@@ -115,7 +115,7 @@
 #define LED_INDICATOR_F_R 9 
 #define LED_TAIL_BRAKE_L 10    
 #define LED_TAIL_BRAKE_R 11    
-#define LED_ROOF_1 12    
+#define LED_ROOF_1 12               ; right-most light (= left-most when viewed from the front!)    
 #define LED_ROOF_2 13    
 #define LED_ROOF_3 14    
 #define LED_ROOF_4 15    
@@ -136,6 +136,14 @@
 ;******************************************************************************
 .data_lights UDATA
 
+sequencer_delay_count res 1
+
+table_l     res 1
+table_h     res 1
+index_l     res 1
+index_h     res 1
+
+seq_leds    res 4
 
 
 ;============================================================================
@@ -375,5 +383,113 @@ clear_light_data_loop
     decfsz  temp, f
     goto    clear_light_data_loop
     return
+
+
+;******************************************************************************
+;******************************************************************************
+Sequencer_start
+    BANKSEL index_l
+    movlw   LOW running_light_table
+    movwf   table_l
+    movwf   index_l
+    movlw   HIGH running_light_table
+    movwf   table_h
+    movwf   index_h
+    clrf    sequencer_delay_count
+    return
+
+
+;******************************************************************************
+;******************************************************************************
+Sequencer
+    BANKSEL sequencer_delay_count
+    movfw   sequencer_delay_count
+    skpz
+    return
+    
+sequencer_loop
+    call    Lookup_table                ; Get a value from the current table
+    btfss   W, 7                        ; 0 = Delay value, 1 = LED value
+    goto    sequencer_got_delay
+
+    ;---------------------------------    
+    ; Process LED value
+    BANKSEL seq_leds
+    movwf   temp                        ; Store the LED number
+    andlw   0x1f                        ; LED value = 2x lower 5 bits
+    lslf    W, f
+
+    ; Set the LED value to the variable corresponding to the respective LED
+    ; number (bits 5 and 6 of the table value we saved in temp)
+    btfsc   temp, 6                     
+    goto    sequencer_light_3_and_4    
+    btfss   temp, 5
+    movwf   seq_leds + 0
+    btfsc   temp, 5
+    movwf   seq_leds + 1
+    goto    sequencer_loop              ; Process the next item in the table...
+
+sequencer_light_3_and_4
+    btfss   temp, 5
+    movwf   seq_leds + 2
+    btfsc   temp, 5
+    movwf   seq_leds + 3
+    goto    sequencer_loop
+
+    ;---------------------------------    
+    ; Process Delay value and END OF TABLE
+sequencer_got_delay
+    xorlw   0x7f                        ; Check for END OF TABLE (0x7f)
+    bnz     sequencer_not_at_end
+
+    BANKSEL table_l
+    movfw   table_l
+    movwf   index_l
+    movfw   table_h
+    movwf   index_h
+    goto    sequencer_loop              ; Continue processing from the first 
+                                        ; item in the table
+
+sequencer_not_at_end
+    xorlw   0x7f                        ; Restore the original delay value
+    BANKSEL sequencer_delay_count
+    movwf   sequencer_delay_count
+    return
+    
+    
+;******************************************************************************
+; Equivalent to: W = *index++
+;******************************************************************************
+Lookup_table
+    BANKSEL index_l
+    movfw   index_h
+    movwf   PCLATH
+    movfw   index_l
+    incf    index_l, f          ; Post increment
+    skpnz
+    incf    index_h, f
+    movwf   PCL                 ; Get the value and return
+    
+running_light_table
+    retlw   b'10011111'     ; LED 1 (left-most) on full brightness
+    retlw   b'00000001'     ; Delay 65ms (1 softtimer)
+    retlw   b'10000000'     ; LED 1 off
+    retlw   b'10111111'     ; LED 2 on
+    retlw   b'00000001'     ; Delay 65ms
+    retlw   b'10100000'     ; LED 2 off
+    retlw   b'11011111'     ; LED 3 on
+    retlw   b'00000001'     ; Delay 65ms
+    retlw   b'11000000'     ; LED 3 off
+    retlw   b'11111111'     ; LED 4 on
+    retlw   b'00000001'     ; Delay 65ms
+    retlw   b'11100000'     ; LED 4 off
+    retlw   b'11011111'     ; LED 3 on
+    retlw   b'00000001'     ; Delay 65ms
+    retlw   b'11000000'     ; LED 3 off
+    retlw   b'10111111'     ; LED 2 on
+    retlw   b'00000001'     ; Delay 65ms
+    retlw   b'10100000'     ; LED 2 off
+    retlw   b'01111111'     ; END OF TABLE
+
     
     END
