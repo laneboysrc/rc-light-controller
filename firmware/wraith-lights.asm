@@ -406,6 +406,16 @@ Sequencer_start
 ;******************************************************************************
 ;******************************************************************************
 Sequencer
+    BANKSEL blink_mode
+    btfss   blink_mode, BLINK_MODE_SOFTTIMER
+    goto    sequencer_softtimer_not_triggered
+
+    BANKSEL sequencer_delay_count
+    movfw   sequencer_delay_count
+    skpz
+    decf    sequencer_delay_count, f
+    
+sequencer_softtimer_not_triggered
     BANKSEL sequencer_delay_count
     movfw   sequencer_delay_count
     skpz
