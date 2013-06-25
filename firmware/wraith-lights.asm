@@ -396,6 +396,10 @@ Sequencer_start
     movwf   table_h
     movwf   index_h
     clrf    sequencer_delay_count
+    clrf    seq_leds + 0
+    clrf    seq_leds + 1
+    clrf    seq_leds + 2
+    clrf    seq_leds + 3
     return
 
 
@@ -454,6 +458,23 @@ sequencer_not_at_end
     xorlw   0x7f                        ; Restore the original delay value
     BANKSEL sequencer_delay_count
     movwf   sequencer_delay_count
+    
+    ; Push our shadow LED values into the actual LED output
+    movfw   seq_leds + 0
+    BANKSEL light_data
+    movwf   light_data + LED_ROOF_1
+    BANKSEL seq_leds
+    movfw   seq_leds + 1
+    BANKSEL light_data
+    movwf   light_data + LED_ROOF_2
+    BANKSEL seq_leds
+    movfw   seq_leds + 2
+    BANKSEL light_data
+    movwf   light_data + LED_ROOF_3
+    BANKSEL seq_leds
+    movfw   seq_leds + 3
+    BANKSEL light_data
+    movwf   light_data + LED_ROOF_4
     return
     
     
