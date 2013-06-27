@@ -14,6 +14,18 @@ TO DO LIST for the RC Light Controller
   - GT3B: TH - ST - CH3
   - Futaba 4PL: outputs all channels simultanously
 
+    So we have to deal with the following situations:
+    - Servos are output in sequence with no percievable gap. 
+        Order to be discovered
+        Read in sequence as hard-coded right now
+    - Servos are output simultanously
+        Wait for start of one servo, start timer, capture each individual
+        channel. Can we do that without causing jitter when two servos output
+        the same value?
+    - Servos are output with gaps between them
+        No actual system seen like this, but is plausible
+        In this case just read them round-robin one in each mainloop
+
 * Add a "horn" sound
     * Store in serial Flash or EEPROM
     * Invoke by toggling CH3 while steering is left/right
