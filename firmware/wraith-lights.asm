@@ -130,20 +130,32 @@
 #define VAL_ROOF (20 * 1000 / uA_PER_STEP)
 
 
+#define SEQUENCER_MODE_IDLE 0
+#define SEQUENCER_MODE_GEAR1 1 + 0x80
+#define SEQUENCER_MODE_GEAR2 2 + 0x80
+#define SEQUENCER_MODE_WINCH_IDLE 3
+#define SEQUENCER_MODE_WINCH_IN 4
+#define SEQUENCER_MODE_WINCH_OUT 5
+#define SEQUENCER_MODE_ROOF_OFF 6
+#define SEQUENCER_MODE_ROOF_ON 7
+
+
+
   
 ;******************************************************************************
 ; Relocatable variables section
 ;******************************************************************************
 .data_lights UDATA
 
-sequencer_delay_count res 1
+sequencer_delay_count   res 1
+sequencer_mode          res 1
+sequencer_count         res 1
+seq_leds                res 4
 
 table_l     res 1
 table_h     res 1
 index_l     res 1
 index_h     res 1
-
-seq_leds    res 4
 
 
 ;============================================================================
@@ -156,10 +168,13 @@ seq_leds    res 4
 ; Init_lights
 ;******************************************************************************
 Init_lights
+    BANKSEL sequencer_mode
+    clrf    sequencer_mode
+    clrf    sequencer_count
+    clrf    sequencer_delay_count
+
     call    Init_TLC5940
     call    Clear_light_data
-
-    call    Sequencer_start
 
     ; Light up both front indicators until we receive the first command 
     ; from the UART
@@ -178,11 +193,6 @@ Output_lights
     call    Clear_light_data
     call    output_lights_tail
 
-    call    Sequencer
-    goto    output_lights_execute    
-
-
-
     BANKSEL startup_mode
     movf    startup_mode, f
     bnz     output_lights_startup
@@ -191,6 +201,7 @@ Output_lights
     bnz     output_lights_setup
 
     ; Normal mode here
+output_lights_light_mode
     BANKSEL light_mode
     movfw   light_mode
     movwf   temp
@@ -199,7 +210,30 @@ Output_lights
     btfsc   temp, LIGHT_MODE_MAIN_BEAM
     call    output_lights_tail
 
+output_lights_drive_mode
+    BANKSEL drive_mode
+    movfw   drive_mode
+    movwf   temp
+    btfsc   temp, DRIVE_MODE_BRAKE
+    call    output_lights_brake
 
+output_lights_blink_mode
+    BANKSEL blink_mode
+    btfss   blink_mode, BLINK_MODE_BLINKFLAG
+    goto    output_lights_roof_mode
+    
+    movfw   blink_mode
+    movwf   temp
+    btfsc   temp, BLINK_MODE_HAZARD
+    call    output_lights_indicator_left
+    btfsc   temp, BLINK_MODE_HAZARD
+    call    output_lights_indicator_right
+    btfsc   temp, BLINK_MODE_INDICATOR_LEFT
+    call    output_lights_indicator_left
+    btfsc   temp, BLINK_MODE_INDICATOR_RIGHT
+    call    output_lights_indicator_right
+
+output_lights_roof_mode
     BANKSEL gear_mode
     btfss   gear_mode, GEAR_CHANGED_FLAG
     goto    output_lights_check_winch    
@@ -212,21 +246,16 @@ Output_lights
     call    output_lights_gear_1
     goto    output_lights_drive_mode
 
-
 output_lights_check_winch
     BANKSEL winch_mode
     movfw   winch_mode
-    bnz     output_lights_winch
-    btfsc   temp, LIGHT_MODE_ROOF
-    call    output_lights_roof
-    goto    output_lights_drive_mode
+    bz      output_lights_roof_manual
     
-output_lights_winch  
     BANKSEL winch_mode
     movfw   winch_mode
     sublw   WINCH_MODE_IDLE
     skpnz
-    call    output_lights_winch_idle        
+    call    output_lights_winch_idle
 
     BANKSEL winch_mode
     movfw   winch_mode
@@ -239,30 +268,37 @@ output_lights_winch
     sublw   WINCH_MODE_OUT
     skpnz
     call    output_lights_winch_out
-
-output_lights_drive_mode
-    BANKSEL drive_mode
-    movfw   drive_mode
-    movwf   temp
-    btfsc   temp, DRIVE_MODE_BRAKE
-    call    output_lights_brake
-
-    BANKSEL blink_mode
-    btfss   blink_mode, BLINK_MODE_BLINKFLAG
     goto    output_lights_end
     
-    movfw   blink_mode
-    movwf   temp
-    btfsc   temp, BLINK_MODE_HAZARD
-    call    output_lights_indicator_left
-    btfsc   temp, BLINK_MODE_HAZARD
-    call    output_lights_indicator_right
-    btfsc   temp, BLINK_MODE_INDICATOR_LEFT
-    call    output_lights_indicator_left
-    btfsc   temp, BLINK_MODE_INDICATOR_RIGHT
-    call    output_lights_indicator_right
-    
+output_lights_roof_manual
+    BANKSEL light_mode
+    btfss   light_mode, LIGHT_MODE_ROOF
+    call    output_lights_roof_off
+    BANKSEL light_mode
+    btfsc   light_mode, LIGHT_MODE_ROOF
+    call    output_lights_roof_on
+
 output_lights_end
+    call    Sequencer
+    
+    ; Push the sequencer LED values into the actual LED output
+    BANKSEL seq_leds
+    movfw   seq_leds + 0
+    BANKSEL light_data
+    movwf   light_data + LED_ROOF_1
+    BANKSEL seq_leds
+    movfw   seq_leds + 1
+    BANKSEL light_data
+    movwf   light_data + LED_ROOF_2
+    BANKSEL seq_leds
+    movfw   seq_leds + 2
+    BANKSEL light_data
+    movwf   light_data + LED_ROOF_3
+    BANKSEL seq_leds
+    movfw   seq_leds + 3
+    BANKSEL light_data
+    movwf   light_data + LED_ROOF_4
+
     goto    output_lights_execute    
 
 
@@ -287,6 +323,7 @@ output_lights_setup
     call    output_lights_indicator_left
     btfsc   setup_mode, SETUP_MODE_THROTTLE_REVERSE 
     call    output_lights_main_beam
+;   goto    output_lights_execute    
 
 output_lights_execute    
     call    TLC5940_send
@@ -303,15 +340,6 @@ output_lights_main_beam
     movlw   VAL_MAIN_BEAM
     movwf   light_data + LED_MAIN_BEAM_L
     movwf   light_data + LED_MAIN_BEAM_R
-    return
-    
-output_lights_roof
-    BANKSEL light_data
-    movlw   VAL_ROOF
-    movwf   light_data + LED_ROOF_1
-    movwf   light_data + LED_ROOF_2
-    movwf   light_data + LED_ROOF_3
-    movwf   light_data + LED_ROOF_4
     return
     
 output_lights_tail
@@ -339,39 +367,124 @@ output_lights_indicator_right
     movlw   VAL_INDICATOR_FRONT
     movwf   light_data + LED_INDICATOR_F_R
     return
+
+;----------------------------
+; Sequencer related light output functions
+    
+output_lights_roof_on
+    movlw   SEQUENCER_MODE_ROOF_ON
+    call    Sequencer_prepare
+    btfss   WREG, 0                 ; Modal sequence or same sequence running? 
+    return                          ; Yes: don't disturb
+
+    BANKSEL table_l    
+    movlw   HIGH table_roof_on
+    movwf   table_h
+    movlw   LOW table_roof_on
+    movwf   table_l
+
+    movlw   1                       ; Run this sequence once
+    call    Sequencer_start
+    return
+
+output_lights_roof_off
+    movlw   SEQUENCER_MODE_ROOF_OFF
+    call    Sequencer_prepare
+    btfss   WREG, 0                 ; Modal sequence or same sequence running? 
+    return                          ; Yes: don't disturb
+
+    BANKSEL table_l    
+    movlw   HIGH table_roof_off
+    movwf   table_h
+    movlw   LOW table_roof_off
+    movwf   table_l
+
+    movlw   1                       ; Run this sequence once
+    call    Sequencer_start
+    return
     
 output_lights_winch_idle
-    BANKSEL light_data
-    movlw   VAL_ROOF
-    movwf   light_data + LED_ROOF_4
+    movlw   SEQUENCER_MODE_WINCH_IDLE
+    call    Sequencer_prepare
+    btfss   WREG, 0                 ; Modal sequence or same sequence running? 
+    return                          ; Yes: don't disturb
+
+    BANKSEL table_l    
+    movlw   HIGH running_light_table
+    movwf   table_h
+    movlw   LOW running_light_table
+    movwf   table_l
+
+    movlw   0                       ; Run this sequence forever
+    call    Sequencer_start
     return
     
 output_lights_winch_in
-    BANKSEL light_data
-    movlw   VAL_ROOF
-    movwf   light_data + LED_ROOF_2
-    movwf   light_data + LED_ROOF_3
+    BANKSEL sequencer_mode      
+    btfsc   sequencer_mode, 7       ; Modal sequence running? 
+    return                          ; Yes: don't disturb
+
+    movfw   sequencer_mode
+    sublw   SEQUENCER_MODE_ROOF_OFF ; Is this sequence already running?
+    skpnz   
+    return                          ; Yes: do nothing
+
+    movlw   SEQUENCER_MODE_ROOF_OFF
+    movwf   sequencer_mode
+    movlw   HIGH night_rider_table
+    movwf   table_h
+    movlw   LOW night_rider_table
+    movwf   table_l
+
+    movlw   0                       ; Run this sequence forever
+    call    Sequencer_start
     return
     
 output_lights_winch_out
-    BANKSEL light_data
-    movlw   VAL_ROOF
-    movwf   light_data + LED_ROOF_1
-    movwf   light_data + LED_ROOF_4
+    BANKSEL sequencer_mode      
+    btfsc   sequencer_mode, 7       ; Modal sequence running? 
+    return                          ; Yes: don't disturb
+
+    movfw   sequencer_mode
+    sublw   SEQUENCER_MODE_ROOF_OFF ; Is this sequence already running?
+    skpnz   
+    return                          ; Yes: do nothing
+
+    movlw   SEQUENCER_MODE_ROOF_OFF
+    movwf   sequencer_mode
+    movlw   HIGH scan_right_table
+    movwf   table_h
+    movlw   LOW scan_right_table
+    movwf   table_l
+
+    movlw   0                       ; Run this sequence forever
+    call    Sequencer_start
     return
 
 output_lights_gear_1
-    BANKSEL light_data
-    movlw   VAL_ROOF
-    movwf   light_data + LED_ROOF_4
+    movlw   SEQUENCER_MODE_GEAR1    ; High priority sequence
+    movwf   sequencer_mode
+    movlw   HIGH table_gear
+    movwf   table_h
+    movlw   LOW table_gear
+    movwf   table_l
+
+    movlw   1                       ; Run this sequence once
+    call    Sequencer_start
     return
 
 output_lights_gear_2
-    BANKSEL light_data
-    movlw   VAL_ROOF
-    movwf   light_data + LED_ROOF_4
-    movwf   light_data + LED_ROOF_3
+    movlw   SEQUENCER_MODE_GEAR2    ; High priority sequence
+    movwf   sequencer_mode
+    movlw   HIGH table_gear
+    movwf   table_h
+    movlw   LOW table_gear
+    movwf   table_l
+
+    movlw   2                       ; Run this sequence twice
+    call    Sequencer_start
     return
+
 
 ;******************************************************************************
 ; Clear_light_data
@@ -394,14 +507,58 @@ clear_light_data_loop
 
 
 ;******************************************************************************
+; Sequencer_prepare
+;
+; This function provides business logic to support two different types of
+; tables:
+;
+;   - High-priority tables that can not be interrupted by normal tables
+;     Another high priority table can interrupt. Triggering the currently
+;     running high priority table again causes it to start from the beginning.
+;
+;   - Normal tables that run if no high priority table is active.
+;     If the same normal priority table is triggered nothing happens, the 
+;     table continues without restart.
+;
+; Each sequencer_mode value indicates a table to use. If the bit 7 is set
+; it indicates a high priority table.
+;
+; This function returns 0 in W if a high priority table is active or the
+; currently running table is the same as a given normal priority table.
+; It returns 1 in W if a high priority table is requested or the given 
+; table differs from the currently running one.
+;******************************************************************************
+Sequencer_prepare
+    BANKSEL sequencer_mode      
+
+    btfsc   WREG, 7                 ; Modal sequence requested?
+    goto    sequencer_prepare_do    ; Yes: always allow!
+    
+    btfsc   sequencer_mode, 7       ; Modal sequence running? 
+    retlw   0                       ; Yes: don't disturb
+
+    xorwf   sequencer_mode, w       ; Is this sequence already running?
+    skpnz   
+    retlw   0                       ; Yes: do nothing
+
+    xorwf   sequencer_mode, w       ; Undo previous XOR 
+sequencer_prepare_do
+    movwf   sequencer_mode
+    retlw   1
+
+
+;******************************************************************************
+; Sequencer_start
+;
+; Convenicene function to start (or re-start) a new sequence run.
 ;******************************************************************************
 Sequencer_start
-    BANKSEL index_l
-    movlw   LOW scan_right_table
-    movwf   table_l
+    BANKSEL sequencer_count
+    movwf   sequencer_count
+    
+    movfw   table_l
     movwf   index_l
-    movlw   HIGH scan_right_table
-    movwf   table_h
+    movfw   table_h
     movwf   index_h
     clrf    sequencer_delay_count
     clrf    seq_leds + 0
@@ -412,6 +569,42 @@ Sequencer_start
 
 
 ;******************************************************************************
+; Sequencer
+;
+; This is a table based light sequencer for 4 LEDs (roof lights on the Wraith).
+; The idea behind is to support different repeating light patterns that can
+; be selected when needed.
+;
+; The entries in the tables are byte based. Each entry can be one of the 
+; following commands:
+;
+;    - Set the brightness of an LED to a given value
+;    - Delay for a given time
+;    - End of table
+;
+; The "end of table" command has the unique value of 0x7f.
+;
+; If bit 7 is set the command is an LED command:
+;   - Bits 5,6 define the LED number in the range 0..3
+;   - Bits 0..4 define the brightness value from 0..31, which is multiplied by
+;     two before the value is sent to the TLC5940.
+;
+; If bit 7 is cleared the command defines a delay before further table 
+; commands are executed. Bits 0..7 define the delay in soft timer units. If
+; the delay is 0 then table processing continues in the next mainloop run
+; (usually synchronized to the servo signals).
+; With a soft timer triggering every 65.536 ms a maximum delay of 8.2 s can be
+; achieved.
+;
+; sequencer_count defines how often the table is run. A value of 0 means
+; that the table is run forever, any other value indicates the number of times
+; the table is looped.
+;
+; Note that the sequencer executes table commands until
+;   - A delay command is encountered
+;   - The table has been executed sequencer_count times
+; This means you can accidentally halt the software by not having any
+; delay commands in your table and setting sequencer_count to 0!
 ;******************************************************************************
 Sequencer
     BANKSEL blink_mode
@@ -425,29 +618,15 @@ Sequencer
     
 sequencer_softtimer_not_triggered
     BANKSEL sequencer_delay_count
-    movfw   sequencer_delay_count
-    bz      sequencer_loop
-
-sequencer_output    
-    ; Push our shadow LED values into the actual LED output
-    movfw   seq_leds + 0
-    BANKSEL light_data
-    movwf   light_data + LED_ROOF_1
-    BANKSEL seq_leds
-    movfw   seq_leds + 1
-    BANKSEL light_data
-    movwf   light_data + LED_ROOF_2
-    BANKSEL seq_leds
-    movfw   seq_leds + 2
-    BANKSEL light_data
-    movwf   light_data + LED_ROOF_3
-    BANKSEL seq_leds
-    movfw   seq_leds + 3
-    BANKSEL light_data
-    movwf   light_data + LED_ROOF_4
+    movfw   sequencer_delay_count       
+    skpz
     return
     
 sequencer_loop
+    movwf   sequencer_mode              ; Any sequence active?
+    skpnz
+    return                              ; No: stop now.
+
     call    Lookup_table                ; Get a value from the current table
     btfss   WREG, 7                     ; 0 = Delay value, 1 = LED value
     goto    sequencer_got_delay
@@ -482,29 +661,42 @@ sequencer_got_delay
     xorlw   0x7f                        ; Check for END OF TABLE (0x7f)
     bnz     sequencer_not_at_end
 
+sequencer_at_end
     BANKSEL table_l
     movfw   table_l
     movwf   index_l
     movfw   table_h
     movwf   index_h
+
+    movfw   sequencer_count             ; Endless loop requested? (count = 0)
+    skpz        
     goto    sequencer_loop              ; Continue processing from the first 
                                         ; item in the table
 
+    decfsz  sequencer_count, f
+    goto    sequencer_loop              ; Next loop if not done
+
+    clrf    sequencer_mode
+    return
+    
 sequencer_not_at_end
     xorlw   0x7f                        ; Restore the original delay value
     BANKSEL sequencer_delay_count
     movwf   sequencer_delay_count
-    goto    sequencer_output    
+    RETURN
+
     
 ;******************************************************************************
-; Equivalent to: W = *index++
+; Lookup_table
+;
+; Returns  W = *index++
 ;******************************************************************************
 Lookup_table
     BANKSEL index_l
     movfw   index_h
     movwf   PCLATH
     movfw   index_l
-    incf    index_l, f          ; Post increment
+    incf    index_l, f          ; Post-increment
     skpnz
     incf    index_h, f
     movwf   PCL                 ; Get the value and return
@@ -590,6 +782,49 @@ scan_right_table
     retlw   b'00000001'     ; Delay 65ms
     retlw   b'11100000'     ; LED 4 off
     retlw   b'00000111'     ; Delay 65ms
+    retlw   b'01111111'     ; END OF TABLE
+
+
+table_roof_on
+    retlw   b'10011111'     ; LED 1 (left-most) on full brightness
+    retlw   b'10111111'     ; LED 2 on
+    retlw   b'11011111'     ; LED 3 on
+    retlw   b'11111111'     ; LED 4 on
+    retlw   b'01111111'     ; END OF TABLE
+
+
+table_roof_off
+                            ; (no command, all LEDs off for new sequences!)
+    retlw   b'01111111'     ; END OF TABLE
+
+
+;******************************************************************************
+; One glowing flash from the middle outwards
+table_gear
+    retlw   b'10100111'     ; LED 2 dim
+    retlw   b'11000111'     ; LED 3 dim
+    retlw   b'00000001'     ; Delay 65ms
+    retlw   b'10111111'     ; LED 2 on
+    retlw   b'11011111'     ; LED 3 on
+    retlw   b'10000111'     ; LED 1 (left-most) dim
+    retlw   b'11100111'     ; LED 4 dim
+    retlw   b'00000001'     ; Delay 65ms
+    retlw   b'10011111'     ; LED 1 on
+    retlw   b'11111111'     ; LED 4 on
+    retlw   b'00000001'     ; Delay 65ms
+    retlw   b'10111111'     ; LED 2 on
+    retlw   b'11011111'     ; LED 3 on
+    retlw   b'10000111'     ; LED 1 dim
+    retlw   b'11100111'     ; LED 4 dim
+    retlw   b'00000001'     ; Delay 65ms
+    retlw   b'10100111'     ; LED 2 dim
+    retlw   b'11000111'     ; LED 3 dim
+    retlw   b'10000000'     ; LED 1 off
+    retlw   b'11100000'     ; LED 4 off
+    retlw   b'00000001'     ; Delay 65ms
+    retlw   b'10100000'     ; LED 2 off
+    retlw   b'11000000'     ; LED 3 off
+    retlw   b'00000001'     ; Delay 65ms
     retlw   b'01111111'     ; END OF TABLE
     
     END
