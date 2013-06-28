@@ -85,6 +85,9 @@ ch3                 res 1
 debug_counter   res 1
 debug_mode      res 1
 
+d1              res 1
+d2              res 1
+
 
 ;******************************************************************************
 ; Relocatable code section
@@ -106,27 +109,7 @@ Init_reader
 ; Read_all_channels
 ;******************************************************************************
 Read_all_channels
-    call    Reader_handle_softtimer
-
-    BANKSEL steering
-    movlw   0
-    movwf   steering
-    movlw   0
-    movwf   throttle
-    movlw   0
-    movwf   ch3     
-    BANKSEL startup_mode
-    movwf   startup_mode
-
-debug_read_done    
-    BANKSEL ch3
-    movfw   ch3
-    movwf   startup_mode
-    movlw   0x01                    ; Remove startup_mode bits from CH3
-    andwf   ch3, f   
-    BANKSEL startup_mode
-    movlw   0xf0                    ; Remove CH3 bits from startup_mode
-    andwf   startup_mode, f   
+    call    Simulate_servo_signals
 
     ; Calculate abs(throttle) and abs(steering) for easier math.
     BANKSEL throttle
@@ -143,14 +126,28 @@ debug_read_done
     decf    steering_abs, f
     btfsc   steering_abs, 7
     comf    steering_abs, f
-    return
-
+    
+;    return
 
 ;******************************************************************************
-; Reader_handle_softtimer
-; Softtimer related function to simulate activity
+Delay15ms
+	movlw	0xBE
+	movwf	d1
+	movlw	0x5E
+	movwf	d2
+Delay15ms_0
+	decfsz	d1, f
+	goto	$+2
+	decfsz	d2, f
+	goto	Delay15ms_0
+	goto	$+1
+	return
+	
+
 ;******************************************************************************
-Reader_handle_softtimer
+; Simulate_servo_signals
+;******************************************************************************
+Simulate_servo_signals
     BANKSEL blink_mode
     btfss   blink_mode, BLINK_MODE_SOFTTIMER
     return
@@ -168,9 +165,20 @@ Reader_handle_softtimer
     ;-----
     decfsz  WREG, f
     goto    debug_not_0
-    
+
     movlw   1000 / 65
     movwf   debug_counter
+    
+    BANKSEL steering
+    movlw   0
+    movwf   steering
+    movlw   0
+    movwf   throttle
+    movlw   0
+    movwf   ch3                     ; Only bit 0 is active
+    BANKSEL startup_mode
+    movlw   0x10                    ; Only bits 7..4 are active
+    movwf   startup_mode
     return
 
     ;-----
@@ -178,12 +186,12 @@ debug_not_0
     decfsz  WREG, f
     goto    debug_not_1
 
-    movlw   1000 / 65
+    movlw   500 / 65
     movwf   debug_counter
 
-    BANKSEL ch3_clicks
-    movlw   4
-    movwf   ch3_clicks   
+    BANKSEL startup_mode
+    movlw   0x00                    ; Only bits 7..4 are active
+    movwf   startup_mode
     return
 
     ;-----
@@ -193,6 +201,19 @@ debug_not_1
 
     movlw   5000 / 65
     movwf   debug_counter
+
+    BANKSEL ch3_clicks
+    movlw   1
+    movwf   ch3_clicks   
+    return
+
+    ;-----
+debug_not_2
+    decfsz  WREG, f
+    goto    debug_not_3
+
+    movlw   1000 / 65
+    movwf   debug_counter
     
     BANKSEL ch3_clicks
     movlw   2
@@ -200,12 +221,44 @@ debug_not_1
     return
 
     ;-----
-debug_not_2
+debug_not_3
+    return
+    
+    decfsz  WREG, f
+    goto    debug_not_4
+
+    movlw   2000 / 65
+    movwf   debug_counter
+
+;    BANKSEL ch3_clicks
+;    movlw   2
+;    movwf   ch3_clicks   
+
+    movlw   0x01
+    xorwf   ch3, f
+
+    return
+
+    ;-----
+debug_not_4
+    decfsz  WREG, f
+    goto    debug_not_5
+
+    movlw   2000 / 65
+    movwf   debug_counter
+
+    BANKSEL ch3_clicks
+    movlw   5
+    movwf   ch3_clicks   
+    return
+
+    ;-----
+debug_not_5
     decfsz  WREG, f
     return
 
     BANKSEL ch3_clicks
-    movlw   1
+    movlw   3
     movwf   ch3_clicks   
     return
 
