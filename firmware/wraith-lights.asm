@@ -319,23 +319,38 @@ output_lights_startup
 
 output_lights_setup
     btfsc   setup_mode, SETUP_MODE_CENTRE
-    goto    output_lights_setup_centre
+    call    output_lights_setup_centre
+    BANKSEL setup_mode
     btfsc   setup_mode, SETUP_MODE_LEFT
-    goto    output_lights_setup_right
+    call    output_lights_setup_left
+    BANKSEL setup_mode
     btfsc   setup_mode, SETUP_MODE_RIGHT
-    goto    output_lights_setup_right
+    call    output_lights_setup_right
+    BANKSEL setup_mode
     btfsc   setup_mode, SETUP_MODE_STEERING_REVERSE 
     call    output_lights_indicator_left
+    BANKSEL setup_mode
     btfsc   setup_mode, SETUP_MODE_THROTTLE_REVERSE 
     call    output_lights_main_beam
     goto    output_lights_execute    
 
 
 output_lights_setup_centre
+    return
+    
 output_lights_setup_left
-output_lights_setup_right
+output_lights_indicator_left
+    BANKSEL light_data
+    movlw   VAL_INDICATOR_FRONT
+    movwf   light_data + LED_INDICATOR_F_L
     return
 
+output_lights_setup_right
+output_lights_indicator_right
+    BANKSEL light_data
+    movlw   VAL_INDICATOR_FRONT
+    movwf   light_data + LED_INDICATOR_F_R
+    return
 
 output_lights_main_beam
     BANKSEL light_data
@@ -356,18 +371,6 @@ output_lights_brake
     movlw   VAL_BRAKE
     movwf   light_data + LED_TAIL_BRAKE_L
     movwf   light_data + LED_TAIL_BRAKE_R
-    return
-    
-output_lights_indicator_left
-    BANKSEL light_data
-    movlw   VAL_INDICATOR_FRONT
-    movwf   light_data + LED_INDICATOR_F_L
-    return
-    
-output_lights_indicator_right
-    BANKSEL light_data
-    movlw   VAL_INDICATOR_FRONT
-    movwf   light_data + LED_INDICATOR_F_R
     return
 
 ;----------------------------
