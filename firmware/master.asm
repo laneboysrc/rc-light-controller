@@ -22,6 +22,7 @@
     GLOBAL setup_mode
     GLOBAL startup_mode
     GLOBAL servo
+    GLOBAL ch3_clicks
 IFDEF ENABLE_GEARBOX
     GLOBAL gear_mode
 ENDIF   
@@ -755,7 +756,7 @@ process_ch3_click_no_winch
 IFDEF ENABLE_GEARBOX
     movfw   servo_epl
     movwf   servo
-    movlw   GEAR_1 | GEAR_CHANGED_FLAG
+    movlw   (1 << GEAR_1) + (1 << GEAR_CHANGED_FLAG)
     movwf   gear_mode
     movlw   GEARBOX_SWITCH_TIME
     movwf   gearbox_servo_active_counter
@@ -778,7 +779,7 @@ process_ch3_double_click
 IFDEF ENABLE_GEARBOX    
     movfw   servo_epr
     movwf   servo
-    movlw   GEAR_2 | GEAR_CHANGED_FLAG
+    movlw   (1 << GEAR_2) + (1 << GEAR_CHANGED_FLAG)
     movwf   gear_mode
     movlw   GEARBOX_SWITCH_TIME
     movwf   gearbox_servo_active_counter
