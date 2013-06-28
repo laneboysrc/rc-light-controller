@@ -296,12 +296,6 @@ Init
     clrf    indicator_state
     clrf    servo
 
-IFDEF ENABLE_GEARBOX
-    clrf    gearbox_servo_active_counter
-    clrf    gearbox_servo_idle_counter
-    clrf    gear_mode
-ENDIF
-
 IFDEF ENABLE_WINCH
     clrf    winch_mode
     clrf    winch_command_repeat_counter
@@ -318,6 +312,20 @@ ENDIF
 
     call    EEPROM_load_persistent_data
     call    Init_reader
+
+
+IFDEF ENABLE_GEARBOX
+    ; Always start in Gear 1. We can not just let the servo idle until 
+    ; the user changes gear for the first time as the gear servo moves randomly
+    ; after power on. So we set Gear 1 by default.
+    movfw   servo_epl
+    movwf   servo
+    movlw   1 << GEAR_1
+    movwf   gear_mode
+    movlw   GEARBOX_SWITCH_TIME
+    movwf   gearbox_servo_active_counter
+    clrf    gearbox_servo_idle_counter
+ENDIF
 
 ;   goto    Main_loop    
 
