@@ -521,14 +521,22 @@ IFDEF ENABLE_SERVO_OUTPUT
 Output_servo
 IFDEF ENABLE_GEARBOX    
     ; The gearbox servo is activated only when gearbox_servo_active_counter is
-    ; non-zero.
+    ; non-zero -- or when setup is active.
+
+    BANKSEL setup_mode
+    movf    setup_mode, f
+    bnz     output_servo_do
+
     BANKSEL gearbox_servo_idle_counter
     movfw   gearbox_servo_idle_counter
     skpz
     return
+
     movfw   gearbox_servo_active_counter
     skpnz   
     return
+
+output_servo_do    
 ENDIF
 
     BANKSEL servo
@@ -708,7 +716,8 @@ process_ch3_click_timeout
     
 process_ch3_setup_cancel
     bsf     setup_mode, SETUP_MODE_CANCEL
-    goto    process_ch3_click_end
+    clrf    ch3_clicks
+    return
 
 
 process_ch3_click_no_setup
@@ -838,7 +847,7 @@ ENDIF
 process_ch3_6_click
     decfsz  ch3_clicks, f              
     goto    process_ch3_7_click
-    goto    process_ch3_click_end
+    return
 
 process_ch3_7_click
     decfsz  ch3_clicks, f
@@ -857,7 +866,6 @@ process_ch3_8_click
 
     ; --------------------------
     ; 8 clicks: Enter steering wheel servo setup mode
-    clrf    ch3_clicks
     IFDEF   ENABLE_SERVO_SETUP    
     movlw   1 << SETUP_MODE_INIT
     movwf   setup_mode    
