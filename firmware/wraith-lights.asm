@@ -835,9 +835,7 @@ table_gear
     retlw   b'00000001'     ; Delay 65ms
     retlw   b'10011111'     ; LED 1 on
     retlw   b'11111111'     ; LED 4 on
-    retlw   b'00000001'     ; Delay 65ms
-    retlw   b'10111111'     ; LED 2 on
-    retlw   b'11011111'     ; LED 3 on
+    retlw   b'00000011'     ; Delay 65ms
     retlw   b'10000111'     ; LED 1 dim
     retlw   b'11100111'     ; LED 4 dim
     retlw   b'00000001'     ; Delay 65ms
