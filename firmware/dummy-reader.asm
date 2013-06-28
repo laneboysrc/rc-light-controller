@@ -199,11 +199,11 @@ debug_not_1
     decfsz  WREG, f
     goto    debug_not_2
 
-    movlw   5000 / 65
+    movlw   500 / 65
     movwf   debug_counter
 
     BANKSEL ch3_clicks
-    movlw   1
+    movlw   3
     movwf   ch3_clicks   
     return
 
@@ -212,43 +212,42 @@ debug_not_2
     decfsz  WREG, f
     goto    debug_not_3
 
-    movlw   1000 / 65
+    movlw   500 / 65
     movwf   debug_counter
     
     BANKSEL ch3_clicks
-    movlw   2
+    movlw   8
     movwf   ch3_clicks   
     return
 
     ;-----
 debug_not_3
-    return
-    
     decfsz  WREG, f
     goto    debug_not_4
 
-    movlw   2000 / 65
+    movlw   500 / 65
     movwf   debug_counter
 
-;    BANKSEL ch3_clicks
-;    movlw   2
-;    movwf   ch3_clicks   
+    BANKSEL ch3_clicks
+    movlw   1
+    movwf   ch3_clicks   
 
-    movlw   0x01
-    xorwf   ch3, f
+;    movlw   0x01
+;    xorwf   ch3, f
 
     return
 
     ;-----
 debug_not_4
+    return
     decfsz  WREG, f
     goto    debug_not_5
 
-    movlw   2000 / 65
+    movlw   500 / 65
     movwf   debug_counter
 
     BANKSEL ch3_clicks
-    movlw   5
+    movlw   1
     movwf   ch3_clicks   
     return
 
@@ -258,7 +257,7 @@ debug_not_5
     return
 
     BANKSEL ch3_clicks
-    movlw   3
+    movlw   4
     movwf   ch3_clicks   
     return
 
