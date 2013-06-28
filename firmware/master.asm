@@ -111,7 +111,7 @@ ENDIF
 ; Time the gearbox servo is activated periodically to maintain position
 #define GEARBOX_REFRESH_TIME 8               ; 0.5s
 ; Time the gearbox servo is idle between refresh pulses
-#define GEARBOX_IDLE_TIME 255                ; ~16s, maximum we can get
+#define GEARBOX_IDLE_TIME 152                ; ~10s
 
 #define WINCH_COMMAND_REPEAT_TIME 15         ; ~1 s
 
