@@ -450,8 +450,8 @@ service_soft_timer_blink
 
 service_soft_timer_gearbox
 IFDEF ENABLE_GEARBOX
-    ; Business logic to first count down idle_counter and then active_counter.
-    ; When active_counter expires we reload both active_counter and idle_counter
+    ; Business logic to first count down active_counter and then idle_counter.
+    ; When idle_counter expires we reload both active_counter and idle_counter
     ; and the game starts again.
     ;
     ; Note that nothing is executed when both idle_counter and active_counter
@@ -470,10 +470,10 @@ service_soft_timer_gearbox_active
     decfsz  gearbox_servo_active_counter, f
     goto    service_soft_timer_winch
     
-    movlw   GEARBOX_IDLE_TIME
-    movwf   gearbox_servo_idle_counter
     movlw   GEARBOX_REFRESH_TIME
     movwf   gearbox_servo_active_counter
+    movlw   GEARBOX_IDLE_TIME
+    movwf   gearbox_servo_idle_counter
 ENDIF
 
 
@@ -522,7 +522,10 @@ Output_servo
 IFDEF ENABLE_GEARBOX    
     ; The gearbox servo is activated only when gearbox_servo_active_counter is
     ; non-zero.
-    BANKSEL gearbox_servo_active_counter
+    BANKSEL gearbox_servo_idle_counter
+    movfw   gearbox_servo_idle_counter
+    skpz
+    return
     movfw   gearbox_servo_active_counter
     skpnz   
     return
