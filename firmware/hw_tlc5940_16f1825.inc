@@ -87,7 +87,7 @@ _IO_INIT_COMMON macro   master
     movwf   APFCON0
     clrf    APFCON1
     BANKSEL TRISA
-    movlw   b'00001011' ; Make all ports A except RA0, RA1 and RA3 output
+    movlw   b'00001010' ; Make all ports A except RA0, RA1 and RA3 output
     movwf   TRISA
     movlw   b'00000010' ; Make all ports C except RC1 output
     movwf   TRISC
