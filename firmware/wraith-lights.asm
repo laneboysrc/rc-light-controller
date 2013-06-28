@@ -282,22 +282,6 @@ output_lights_roof_manual
 
 output_lights_end
     call    Sequencer
-
-;    BANKSEL sequencer_mode
-;    clrf    seq_leds + 0
-;    clrf    seq_leds + 1
-;    clrf    seq_leds + 2
-;    clrf    seq_leds + 3
-;    movlw   VAL_ROOF
-;    btfsc   sequencer_mode, 0 
-;    movwf   seq_leds + 0
-;    btfsc   sequencer_mode, 1
-;    movwf   seq_leds + 1
-;    btfsc   sequencer_mode, 2 
-;    movwf   seq_leds + 2
-;    btfsc   sequencer_mode, 7
-;    movwf   seq_leds + 3
-
     
     ; Push the sequencer LED values into the actual LED output
     BANKSEL seq_leds
