@@ -1,9 +1,23 @@
 .PHONY: all
-all: wraith ben-landrover pajero subaru wyetuck-landrover phil-ford xr311 dingo
+all: porsche-911-rsr wraith datsun-510-master ben-landrover pajero \
+     subaru wyetuck-landrover phil-ford xr311 dingo
 
 
 ##############################################################################
-# HPI Datsun 510 (M-chassis using a pre-processor in the Rx)
+# HPI Porsche 911 RSR
+##############################################################################
+.PHONY: porsche-911-rsr
+porsche-911-rsr: hkr3000-preprocessor porsche-911-rsr-master
+
+.PHONY: porsche-911-rsr-master
+porsche-911-rsr-master: hw_tlc5940_16f1825.inc
+	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x03 -D DISABLE_BRAKE_DISARM_TIMEOUT)
+	$(eval files = master uart-reader utils porsche-911-rsr-lights)
+	$(build)
+
+
+##############################################################################
+# Patrick's Wraith (pre-processor. gearbox, winch control)
 ##############################################################################
 .PHONY: wraith
 wraith: hkr3000-preprocessor wraith-master
