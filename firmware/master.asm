@@ -18,6 +18,7 @@
     
     GLOBAL blink_mode
     GLOBAL light_mode
+    GLOBAL light_gimmick_mode
     GLOBAL drive_mode
     GLOBAL setup_mode
     GLOBAL startup_mode
@@ -222,6 +223,7 @@ indicator_state     res 1
 
 blink_mode          res 1
 light_mode          res 1
+light_gimmick_mode  res 1
 drive_mode          res 1
 setup_mode          res 1
 startup_mode        res 1
@@ -285,6 +287,7 @@ Init
     clrf    flags
     clrf    blink_mode
     clrf    light_mode
+    clrf    light_gimmick_mode
     clrf    drive_mode
     clrf    setup_mode
     clrf    startup_mode
@@ -825,6 +828,7 @@ process_ch3_triple_click
     skpnz
     movlw   0x00     
     movwf   light_mode
+    skpnz
     return
 
 process_ch3_quad_click
@@ -855,7 +859,9 @@ ENDIF
 process_ch3_6_click
     decfsz  ch3_clicks, f              
     goto    process_ch3_7_click
-    return
+    
+    incf    light_gimmick_mode, f
+    return    
 
 process_ch3_7_click
     decfsz  ch3_clicks, f
