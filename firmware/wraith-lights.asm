@@ -58,6 +58,7 @@
     ; Functions and variables imported from master.asm
     EXTERN blink_mode
     EXTERN light_mode
+    EXTERN light_gimmick_mode
     EXTERN drive_mode
     EXTERN setup_mode
     EXTERN startup_mode
@@ -192,6 +193,14 @@ Init_lights
 Output_lights
     call    Clear_light_data
 
+    ; Reset our light_gimmick_mode whenever light mode is not "all lights on"
+    BANKSEL light_mode
+    movf    light_mode, w
+    sublw   LIGHT_MODE_MASK
+    skpz
+    clrf    light_gimmick_mode
+
+
     BANKSEL startup_mode
     movf    startup_mode, f
     bnz     output_lights_startup
@@ -269,8 +278,42 @@ output_lights_check_winch
     skpnz
     call    output_lights_winch_out
     goto    output_lights_end
+
     
 output_lights_roof_manual
+    BANKSEL light_gimmick_mode
+    movf    light_gimmick_mode, w
+    bz      output_lights_roof_manual_no_gimmick
+
+    decf    WREG, f
+    skpnz
+    goto    output_lights_roof_gimmick1
+    decf    WREG, f
+    skpnz
+    goto    output_lights_roof_gimmick2
+
+    clrf    light_gimmick_mode
+    goto    output_lights_roof_manual_no_gimmick
+
+output_lights_roof_gimmick1
+    call    output_lights_gimmick1
+    goto    output_lights_end
+
+output_lights_roof_gimmick2
+    call    output_lights_gimmick2
+    goto    output_lights_end
+    
+output_lights_roof_manual_no_gimmick
+    ; Turn off any endless sequence by setting the sequencer_count to one,
+    ; stopping the sequence after the current loop.
+    ;
+    ; This allows that gear sequences work well, but at the same time we can
+    ; turn off gimmick sequences
+    ;BANKSEL sequencer_count
+    ;movf    sequencer_count, f
+    ;skpnz   
+    ;incf    sequencer_count
+    
     BANKSEL light_mode
     btfss   light_mode, LIGHT_MODE_ROOF
     call    output_lights_roof_off
@@ -377,11 +420,6 @@ output_lights_brake
 ; Sequencer related light output functions
     
 output_lights_roof_on
-
-    BANKSEL seq_leds
-    movlw   VAL_ROOF
-    movwf   seq_leds + 1
-
     movlw   SEQUENCER_MODE_ROOF_ON
     call    Sequencer_prepare
     btfss   WREG, 0                 ; Modal sequence or same sequence running? 
@@ -395,12 +433,6 @@ output_lights_roof_on
 
     movlw   1                       ; Run this sequence once
     call    Sequencer_start
-
-    BANKSEL seq_leds
-    movlw   VAL_ROOF
-    movwf   seq_leds + 2
-    clrf    seq_leds + 1
-
     return
 
 output_lights_roof_off
@@ -436,17 +468,12 @@ output_lights_winch_idle
     return
     
 output_lights_winch_in
-    BANKSEL sequencer_mode      
-    btfsc   sequencer_mode, 7       ; Modal sequence running? 
+    movlw   SEQUENCER_MODE_WINCH_IN
+    call    Sequencer_prepare
+    btfss   WREG, 0                 ; Modal sequence or same sequence running? 
     return                          ; Yes: don't disturb
 
-    movfw   sequencer_mode
-    sublw   SEQUENCER_MODE_ROOF_OFF ; Is this sequence already running?
-    skpnz   
-    return                          ; Yes: do nothing
-
-    movlw   SEQUENCER_MODE_ROOF_OFF
-    movwf   sequencer_mode
+    BANKSEL table_l    
     movlw   HIGH night_rider_table
     movwf   table_h
     movlw   LOW night_rider_table
@@ -457,17 +484,12 @@ output_lights_winch_in
     return
     
 output_lights_winch_out
-    BANKSEL sequencer_mode      
-    btfsc   sequencer_mode, 7       ; Modal sequence running? 
+    movlw   SEQUENCER_MODE_WINCH_OUT
+    call    Sequencer_prepare
+    btfss   WREG, 0                 ; Modal sequence or same sequence running? 
     return                          ; Yes: don't disturb
 
-    movfw   sequencer_mode
-    sublw   SEQUENCER_MODE_ROOF_OFF ; Is this sequence already running?
-    skpnz   
-    return                          ; Yes: do nothing
-
-    movlw   SEQUENCER_MODE_ROOF_OFF
-    movwf   sequencer_mode
+    BANKSEL table_l    
     movlw   HIGH scan_right_table
     movwf   table_h
     movlw   LOW scan_right_table
@@ -506,6 +528,38 @@ output_lights_gear_2
     movwf   table_l
 
     movlw   2                       ; Run this sequence twice
+    call    Sequencer_start
+    return
+    
+output_lights_gimmick1
+    movlw   SEQUENCER_MODE_WINCH_IN
+    call    Sequencer_prepare
+    btfss   WREG, 0                 ; Modal sequence or same sequence running? 
+    return                          ; Yes: don't disturb
+
+    BANKSEL table_l    
+    movlw   HIGH night_rider_table
+    movwf   table_h
+    movlw   LOW night_rider_table
+    movwf   table_l
+
+    movlw   0                       ; Run this sequence forever
+    call    Sequencer_start
+    return
+    
+output_lights_gimmick2
+    movlw   SEQUENCER_MODE_WINCH_IN
+    call    Sequencer_prepare
+    btfss   WREG, 0                 ; Modal sequence or same sequence running? 
+    return                          ; Yes: don't disturb
+
+    BANKSEL table_l    
+    movlw   HIGH night_rider_table
+    movwf   table_h
+    movlw   LOW night_rider_table
+    movwf   table_l
+
+    movlw   0                       ; Run this sequence forever
     call    Sequencer_start
     return
 
@@ -747,28 +801,93 @@ running_light_table
     retlw   b'01111111'     ; END OF TABLE
 
 night_rider_table
-    retlw   b'10011111'     ; LED 1 (left-most) on full brightness
-    retlw   b'00000001'     ; Delay 65ms (1 softtimer)
-    retlw   b'10000011'     ; LED 1 half
-    retlw   b'10111111'     ; LED 2 on
-    retlw   b'00000001'     ; Delay 65ms
-    retlw   b'10000000'     ; LED 1 off
-    retlw   b'10100011'     ; LED 2 half
-    retlw   b'11011111'     ; LED 3 on
-    retlw   b'00000001'     ; Delay 65ms
-    retlw   b'10100000'     ; LED 2 off
-    retlw   b'11000011'     ; LED 3 half
-    retlw   b'11111111'     ; LED 4 on
-    retlw   b'00000001'     ; Delay 65ms
-    retlw   b'11100011'     ; LED 4 half
-    retlw   b'11011111'     ; LED 3 on
-    retlw   b'00000001'     ; Delay 65ms
-    retlw   b'11100000'     ; LED 4 off
-    retlw   b'11000011'     ; LED 3 half
-    retlw   b'10111111'     ; LED 2 on
-    retlw   b'00000001'     ; Delay 65ms
-    retlw   b'11000000'     ; LED 3 off
-    retlw   b'10100011'     ; LED 2 half
+#define NIGHT_RIDER_DELAY b'00000001'
+
+#define LED1    b'10000000'
+#define LED2    b'10100000'
+#define LED3    b'11000000'
+#define LED4    b'11100000'
+
+#define OFF     b'00000000'
+#define ON      b'00011111'
+#define HALF    b'00001111'
+#define QUARTER b'00000111'
+#define DIM     b'00000011'
+
+    retlw   LED1 + HALF
+    retlw   NIGHT_RIDER_DELAY
+    retlw   LED1 + ON
+    retlw   NIGHT_RIDER_DELAY
+    retlw   LED2 + HALF
+    retlw   NIGHT_RIDER_DELAY
+    retlw   LED1 + HALF
+    retlw   LED2 + ON
+    retlw   NIGHT_RIDER_DELAY
+    retlw   LED1 + QUARTER
+    retlw   LED3 + HALF
+    retlw   NIGHT_RIDER_DELAY
+    retlw   LED1 + DIM
+    retlw   LED2 + HALF
+    retlw   LED3 + ON
+    retlw   NIGHT_RIDER_DELAY
+    retlw   LED1 + OFF
+    retlw   LED2 + QUARTER
+    retlw   LED4 + HALF
+    retlw   NIGHT_RIDER_DELAY
+    retlw   LED2 + DIM
+    retlw   LED3 + HALF
+    retlw   LED4 + ON
+    retlw   NIGHT_RIDER_DELAY
+    retlw   LED2 + OFF
+    retlw   LED3 + DIM
+    retlw   NIGHT_RIDER_DELAY
+    retlw   LED3 + OFF
+    retlw   LED4 + HALF
+    retlw   NIGHT_RIDER_DELAY
+    retlw   LED4 + QUARTER
+    retlw   NIGHT_RIDER_DELAY
+    retlw   LED4 + DIM
+    retlw   NIGHT_RIDER_DELAY
+    retlw   LED4 + OFF
+    retlw   NIGHT_RIDER_DELAY * 2
+
+    retlw   LED4 + HALF
+    retlw   NIGHT_RIDER_DELAY
+    retlw   LED4 + ON
+    retlw   NIGHT_RIDER_DELAY
+    retlw   LED3 + HALF
+    retlw   NIGHT_RIDER_DELAY
+    retlw   LED4+ HALF
+    retlw   LED3+ ON
+    retlw   NIGHT_RIDER_DELAY
+    retlw   LED4 + QUARTER
+    retlw   LED2+ HALF
+    retlw   NIGHT_RIDER_DELAY
+    retlw   LED4 + DIM
+    retlw   LED3 + HALF
+    retlw   LED2 + ON
+    retlw   NIGHT_RIDER_DELAY
+    retlw   LED4 + OFF
+    retlw   LED3 + QUARTER
+    retlw   LED1 + HALF
+    retlw   NIGHT_RIDER_DELAY
+    retlw   LED3 + DIM
+    retlw   LED2 + HALF
+    retlw   LED1 + ON
+    retlw   NIGHT_RIDER_DELAY
+    retlw   LED3 + OFF
+    retlw   LED2 + DIM
+    retlw   NIGHT_RIDER_DELAY
+    retlw   LED2 + OFF
+    retlw   LED1 + HALF
+    retlw   NIGHT_RIDER_DELAY
+    retlw   LED1 + QUARTER
+    retlw   NIGHT_RIDER_DELAY
+    retlw   LED1 + DIM
+    retlw   NIGHT_RIDER_DELAY
+    retlw   LED1 + OFF
+    retlw   NIGHT_RIDER_DELAY * 2
+
     retlw   b'01111111'     ; END OF TABLE
 
 
