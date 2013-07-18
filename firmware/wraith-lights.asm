@@ -538,9 +538,9 @@ output_lights_gimmick1
     return                          ; Yes: don't disturb
 
     BANKSEL table_l    
-    movlw   HIGH night_rider_table
+    movlw   HIGH random_table
     movwf   table_h
-    movlw   LOW night_rider_table
+    movlw   LOW random_table
     movwf   table_l
 
     movlw   0                       ; Run this sequence forever
@@ -706,6 +706,7 @@ sequencer_loop
     return                              ; No: stop now.
 
     call    Lookup_table                ; Get a value from the current table
+    clrf    PCLATH
     btfss   WREG, 7                     ; 0 = Delay value, 1 = LED value
     goto    sequencer_got_delay
 
@@ -778,6 +779,10 @@ Lookup_table
     skpnz
     incf    index_h, f
     movwf   PCL                 ; Get the value and return
+
+
+
+.light_tables CODE 0x800
     
 running_light_table
     retlw   b'10011111'     ; LED 1 (left-most) on full brightness
@@ -802,6 +807,7 @@ running_light_table
 
 night_rider_table
 #define NIGHT_RIDER_DELAY b'00000001'
+#define SEQUENCE_DELAY  b'00000001'
 
 #define LED1    b'10000000'
 #define LED2    b'10100000'
@@ -890,6 +896,56 @@ night_rider_table
 
     retlw   b'01111111'     ; END OF TABLE
 
+#define BLINK_KNIGHT_DELAY SEQUENCE_DELAY * 3
+blink_knight_table
+    retlw   LED1 + ON
+    retlw   BLINK_KNIGHT_DELAY
+    retlw   LED1 + OFF
+    retlw   LED2 + ON
+    retlw   BLINK_KNIGHT_DELAY
+    retlw   LED2 + OFF
+    retlw   LED3 + ON
+    retlw   BLINK_KNIGHT_DELAY
+    retlw   LED3 + OFF
+    retlw   LED4 + ON
+    retlw   BLINK_KNIGHT_DELAY
+    retlw   LED4 + OFF
+    retlw   BLINK_KNIGHT_DELAY
+
+    retlw   b'01111111'     ; END OF TABLE
+
+#define INSIDE_OUTSIDE_DELAY SEQUENCE_DELAY * 6
+inside_outside_table
+    retlw   LED1 + OFF
+    retlw   LED4 + OFF
+    retlw   LED2 + ON
+    retlw   LED3 + ON
+    retlw   INSIDE_OUTSIDE_DELAY
+
+    retlw   LED2 + OFF
+    retlw   LED3 + OFF
+    retlw   LED1 + ON
+    retlw   LED4 + ON
+    retlw   INSIDE_OUTSIDE_DELAY
+
+    retlw   b'01111111'     ; END OF TABLE
+
+#define ONETHREE_TWOFOUR_DELAY SEQUENCE_DELAY * 6
+onethree_twofour_table
+    retlw   LED2 + OFF
+    retlw   LED4 + OFF
+    retlw   LED1 + ON
+    retlw   LED3 + ON
+    retlw   ONETHREE_TWOFOUR_DELAY
+
+    retlw   LED1 + OFF
+    retlw   LED3 + OFF
+    retlw   LED2 + ON
+    retlw   LED4 + ON
+    retlw   ONETHREE_TWOFOUR_DELAY
+
+    retlw   b'01111111'     ; END OF TABLE
+
 
 scan_right_table
     retlw   b'10011111'     ; LED 1 (left-most) on full brightness
@@ -967,5 +1023,314 @@ table_gear
     retlw   b'11000000'     ; LED 3 off
     retlw   b'00000001'     ; Delay 65ms
     retlw   b'01111111'     ; END OF TABLE
+    
+    
+random_table
+    retlw   LED1 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED1 + OFF
+    retlw   LED3 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED3 + OFF
+    retlw   LED4 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED4 + OFF
+    retlw   LED2 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED2 + OFF
+    retlw   LED3 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED3 + OFF
+    retlw   LED2 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED2 + OFF
+    retlw   LED1 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED1 + OFF
+    retlw   LED4 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED4 + OFF
+    retlw   LED1 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED1 + OFF
+    retlw   LED3 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED3 + OFF
+    retlw   LED2 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED2 + OFF
+    retlw   LED4 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED4 + OFF
+    retlw   LED3 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED3 + OFF
+    retlw   LED1 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED1 + OFF
+    retlw   LED4 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED4 + OFF
+    retlw   LED2 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED2 + OFF
+    retlw   LED3 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED3 + OFF
+    retlw   LED1 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED1 + OFF
+    retlw   LED2 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED2 + OFF
+    retlw   LED1 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED1 + OFF
+    retlw   LED4 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED4 + OFF
+    retlw   LED3 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED3 + OFF
+    retlw   LED2 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED2 + OFF
+    retlw   LED1 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED1 + OFF
+    retlw   LED4 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED4 + OFF
+    retlw   LED3 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED3 + OFF
+    retlw   LED1 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED1 + OFF
+    retlw   LED3 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED3 + OFF
+    retlw   LED4 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED4 + OFF
+    retlw   LED2 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED2 + OFF
+    retlw   LED1 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED1 + OFF
+    retlw   LED3 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED3 + OFF
+    retlw   LED2 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED2 + OFF
+    retlw   LED4 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED4 + OFF
+    retlw   LED3 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED3 + OFF
+    retlw   LED4 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED4 + OFF
+    retlw   LED2 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED2 + OFF
+    retlw   LED1 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED1 + OFF
+    retlw   LED4 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED4 + OFF
+    retlw   LED3 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED3 + OFF
+    retlw   LED1 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED1 + OFF
+    retlw   LED2 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED2 + OFF
+    retlw   LED4 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED4 + OFF
+    retlw   LED1 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED1 + OFF
+    retlw   LED3 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED3 + OFF
+    retlw   LED4 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED4 + OFF
+    retlw   LED2 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED2 + OFF
+    retlw   LED1 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED1 + OFF
+    retlw   LED4 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED4 + OFF
+    retlw   LED2 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED2 + OFF
+    retlw   LED3 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED3 + OFF
+    retlw   LED1 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED1 + OFF
+    retlw   LED3 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED3 + OFF
+    retlw   LED1 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED1 + OFF
+    retlw   LED2 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED2 + OFF
+    retlw   LED4 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED4 + OFF
+    retlw   LED2 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED2 + OFF
+    retlw   LED4 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED4 + OFF
+    retlw   LED1 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED1 + OFF
+    retlw   LED3 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED3 + OFF
+    retlw   LED2 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED2 + OFF
+    retlw   LED4 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED4 + OFF
+    retlw   LED1 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED1 + OFF
+    retlw   LED3 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED3 + OFF
+    retlw   LED4 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED4 + OFF
+    retlw   LED1 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED1 + OFF
+    retlw   LED2 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED2 + OFF
+    retlw   LED4 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED4 + OFF
+    retlw   LED1 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED1 + OFF
+    retlw   LED3 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED3 + OFF
+    retlw   LED2 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED2 + OFF
+    retlw   LED1 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED1 + OFF
+    retlw   LED4 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED4 + OFF
+    retlw   LED3 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED3 + OFF
+    retlw   LED2 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED2 + OFF
+    retlw   LED1 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED1 + OFF
+    retlw   LED4 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED4 + OFF
+    retlw   LED3 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED3 + OFF
+    retlw   LED2 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED2 + OFF
+    retlw   LED3 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED3 + OFF
+    retlw   LED2 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED2 + OFF
+    retlw   LED1 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED1 + OFF
+    retlw   LED4 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED4 + OFF
+    retlw   LED3 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED3 + OFF
+    retlw   LED1 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED1 + OFF
+    retlw   LED2 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED2 + OFF
+    retlw   LED4 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED4 + OFF
+    retlw   LED3 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED3 + OFF
+    retlw   LED4 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED4 + OFF
+    retlw   LED2 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED2 + OFF
+    retlw   LED1 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED1 + OFF
+    retlw   LED4 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED4 + OFF
+    retlw   LED2 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED2 + OFF
+    retlw   LED1 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED1 + OFF
+    retlw   LED3 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED3 + OFF
+    retlw   LED2 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED2 + OFF
+    retlw   LED3 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED3 + OFF
+    retlw   LED1 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED1 + OFF
+    retlw   LED4 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED4 + OFF
+    retlw   LED3 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED3 + OFF
+    retlw   LED2 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED2 + OFF
+    retlw   b'01111111'     ; END OF TABLE
+
+    FILL 0, 0xFFF-$    
     
     END
