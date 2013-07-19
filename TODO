@@ -37,6 +37,10 @@ TO DO LIST for the RC Light Controller
 Fix the issue with master and slave regarding UART RX usage in master for
 the preprocessor use case.  
 
+Add PAGESEL statements to all calls and gotos to work properly when the code
+grows beyond one page (which happens already for the Wraith!)
+
+
 
 Patrick's Wraith:
 * Configuration
