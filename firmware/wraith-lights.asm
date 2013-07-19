@@ -139,8 +139,21 @@
 #define SEQUENCER_MODE_WINCH_OUT 5
 #define SEQUENCER_MODE_ROOF_OFF 6
 #define SEQUENCER_MODE_ROOF_ON 7
+#define SEQUENCER_MODE_GIMMICK1 8
+#define SEQUENCER_MODE_GIMMICK2 9
+#define SEQUENCER_MODE_GIMMICK3 10
+#define SEQUENCER_MODE_GIMMICK4 11
+#define SEQUENCER_MODE_GIMMICK5 12
+#define SEQUENCER_MODE_GIMMICK6 13
+#define SEQUENCER_MODE_GIMMICK7 14
 
-
+#define GIMMICK1_TABLE night_rider_table
+#define GIMMICK2_TABLE inside_outside_table
+#define GIMMICK3_TABLE onethree_twofour_table
+#define GIMMICK4_TABLE running_light_table
+#define GIMMICK5_TABLE scan_right_table
+#define GIMMICK6_TABLE scan_left_table
+#define GIMMICK7_TABLE random_table
 
   
 ;******************************************************************************
@@ -291,6 +304,21 @@ output_lights_roof_manual
     decf    WREG, f
     skpnz
     goto    output_lights_roof_gimmick2
+    decf    WREG, f
+    skpnz
+    goto    output_lights_roof_gimmick3
+    decf    WREG, f
+    skpnz
+    goto    output_lights_roof_gimmick4
+    decf    WREG, f
+    skpnz
+    goto    output_lights_roof_gimmick5
+    decf    WREG, f
+    skpnz
+    goto    output_lights_roof_gimmick6
+    decf    WREG, f
+    skpnz
+    goto    output_lights_roof_gimmick7
 
     clrf    light_gimmick_mode
     goto    output_lights_roof_manual_no_gimmick
@@ -301,6 +329,26 @@ output_lights_roof_gimmick1
 
 output_lights_roof_gimmick2
     call    output_lights_gimmick2
+    goto    output_lights_end
+
+output_lights_roof_gimmick3
+    call    output_lights_gimmick3
+    goto    output_lights_end
+
+output_lights_roof_gimmick4
+    call    output_lights_gimmick4
+    goto    output_lights_end
+
+output_lights_roof_gimmick5
+    call    output_lights_gimmick5
+    goto    output_lights_end
+
+output_lights_roof_gimmick6
+    call    output_lights_gimmick6
+    goto    output_lights_end
+
+output_lights_roof_gimmick7
+    call    output_lights_gimmick7
     goto    output_lights_end
     
 output_lights_roof_manual_no_gimmick
@@ -530,38 +578,98 @@ output_lights_gear_2
     movlw   2                       ; Run this sequence twice
     call    Sequencer_start
     return
+
+
     
 output_lights_gimmick1
-    movlw   SEQUENCER_MODE_WINCH_IN
+    movlw   SEQUENCER_MODE_GIMMICK1
     call    Sequencer_prepare
     btfss   WREG, 0                 ; Modal sequence or same sequence running? 
     return                          ; Yes: don't disturb
 
     BANKSEL table_l    
-    movlw   HIGH random_table
+    movlw   HIGH GIMMICK1_TABLE
     movwf   table_h
-    movlw   LOW random_table
+    movlw   LOW GIMMICK1_TABLE
+output_lights_gimmick_end    
     movwf   table_l
 
     movlw   0                       ; Run this sequence forever
-    call    Sequencer_start
-    return
+    ;call    Sequencer_start
+    ;return
+    goto    Sequencer_start
     
 output_lights_gimmick2
-    movlw   SEQUENCER_MODE_WINCH_IN
+    movlw   SEQUENCER_MODE_GIMMICK2
     call    Sequencer_prepare
     btfss   WREG, 0                 ; Modal sequence or same sequence running? 
     return                          ; Yes: don't disturb
 
     BANKSEL table_l    
-    movlw   HIGH night_rider_table
+    movlw   HIGH GIMMICK2_TABLE
     movwf   table_h
-    movlw   LOW night_rider_table
-    movwf   table_l
+    movlw   LOW GIMMICK2_TABLE
+    goto    output_lights_gimmick_end
+    
+output_lights_gimmick3
+    movlw   SEQUENCER_MODE_GIMMICK3
+    call    Sequencer_prepare
+    btfss   WREG, 0                 ; Modal sequence or same sequence running? 
+    return                          ; Yes: don't disturb
 
-    movlw   0                       ; Run this sequence forever
-    call    Sequencer_start
-    return
+    BANKSEL table_l    
+    movlw   HIGH GIMMICK3_TABLE
+    movwf   table_h
+    movlw   LOW GIMMICK3_TABLE
+    goto    output_lights_gimmick_end
+    
+output_lights_gimmick4
+    movlw   SEQUENCER_MODE_GIMMICK4
+    call    Sequencer_prepare
+    btfss   WREG, 0                 ; Modal sequence or same sequence running? 
+    return                          ; Yes: don't disturb
+
+    BANKSEL table_l    
+    movlw   HIGH GIMMICK4_TABLE
+    movwf   table_h
+    movlw   LOW GIMMICK4_TABLE
+    goto    output_lights_gimmick_end
+    
+output_lights_gimmick5
+    movlw   SEQUENCER_MODE_GIMMICK5
+    call    Sequencer_prepare
+    btfss   WREG, 0                 ; Modal sequence or same sequence running? 
+    return                          ; Yes: don't disturb
+
+    BANKSEL table_l    
+    movlw   HIGH GIMMICK5_TABLE
+    movwf   table_h
+    movlw   LOW GIMMICK5_TABLE
+    goto    output_lights_gimmick_end
+    
+output_lights_gimmick6
+    movlw   SEQUENCER_MODE_GIMMICK6
+    call    Sequencer_prepare
+    btfss   WREG, 0                 ; Modal sequence or same sequence running? 
+    return                          ; Yes: don't disturb
+
+    BANKSEL table_l    
+    movlw   HIGH GIMMICK6_TABLE
+    movwf   table_h
+    movlw   LOW GIMMICK6_TABLE
+    goto    output_lights_gimmick_end
+    
+output_lights_gimmick7
+    movlw   SEQUENCER_MODE_GIMMICK7
+    call    Sequencer_prepare
+    btfss   WREG, 0                 ; Modal sequence or same sequence running? 
+    return                          ; Yes: don't disturb
+
+    BANKSEL table_l    
+    movlw   HIGH GIMMICK7_TABLE
+    movwf   table_h
+    movlw   LOW GIMMICK7_TABLE
+    goto    output_lights_gimmick_end
 
 
 ;******************************************************************************
@@ -782,31 +890,35 @@ Lookup_table
 
 
 
+;******************************************************************************
+;******************************************************************************
+; LIGHT TABLES -- HACK!  HACK!  HACK!  HACK!  HACK!  HACK!  HACK!  HACK!  HACK! 
+;
+; The PIC16F1825 has two pages of flash memory (a page having 0x800 bytes).
+; The PCLATH register determines which page is being used as destination for
+; Goto and Call statements. 
+;
+; With the light tables we crossed into the 2nd page for the first time, until
+; then the light controller code fit easily in the fist bank -- sofar the code
+; never worried about page selection therefore.
+;
+; So to keep the code working without having to preceed every goto and call with
+; a PAGESEL directive we instead put the light tables starting in page 1, and
+; the rest of the code in page 0.
+;
+; To achieve this we need to reserve the remaining memory in page 1 behind
+; the light tables so that the linker doesn't put code there, as it would
+; in its default behaviour. (The linker seems to put the largest sections
+; first, and then continues with smaller sections).
+; This reservation is done with the FILL statement of gpasm after the
+; last table.
+;
+; For this to work we must reset PCLATH after every call to a function that
+; accesses the tables. This is only the Lookup_table function for now.
+;
+;******************************************************************************
+;******************************************************************************
 .light_tables CODE 0x800
-    
-running_light_table
-    retlw   b'10011111'     ; LED 1 (left-most) on full brightness
-    retlw   b'00000010'     ; Delay 65ms (1 softtimer)
-    retlw   b'10000000'     ; LED 1 off
-    retlw   b'10111111'     ; LED 2 on
-    retlw   b'00000010'     ; Delay 65ms
-    retlw   b'10100000'     ; LED 2 off
-    retlw   b'11011111'     ; LED 3 on
-    retlw   b'00000010'     ; Delay 65ms
-    retlw   b'11000000'     ; LED 3 off
-    retlw   b'11111111'     ; LED 4 on
-    retlw   b'00000010'     ; Delay 65ms
-    retlw   b'11100000'     ; LED 4 off
-    retlw   b'11011111'     ; LED 3 on
-    retlw   b'00000010'     ; Delay 65ms
-    retlw   b'11000000'     ; LED 3 off
-    retlw   b'10111111'     ; LED 2 on
-    retlw   b'00000010'     ; Delay 65ms
-    retlw   b'10100000'     ; LED 2 off
-    retlw   b'01111111'     ; END OF TABLE
-
-night_rider_table
-#define NIGHT_RIDER_DELAY b'00000001'
 #define SEQUENCE_DELAY  b'00000001'
 
 #define LED1    b'10000000'
@@ -820,6 +932,83 @@ night_rider_table
 #define QUARTER b'00000111'
 #define DIM     b'00000011'
 
+#define END_OF_TABLE b'01111111'
+
+
+;******************************************************************************
+; All lights on statically
+table_roof_on
+    retlw   LED1 + ON
+    retlw   LED2 + ON
+    retlw   LED3 + ON
+    retlw   LED4 + ON
+    retlw   END_OF_TABLE
+
+
+;******************************************************************************
+; All lights off statically
+table_roof_off
+                            ; (no command, all LEDs off for new sequences!)
+    retlw   END_OF_TABLE
+
+
+;******************************************************************************
+; One glowing flash from the middle outwards
+table_gear
+    retlw   b'10100111'     ; LED 2 dim
+    retlw   b'11000111'     ; LED 3 dim
+    retlw   b'00000001'     ; Delay 65ms
+    retlw   b'10111111'     ; LED 2 on
+    retlw   b'11011111'     ; LED 3 on
+    retlw   b'10000111'     ; LED 1 (left-most) dim
+    retlw   b'11100111'     ; LED 4 dim
+    retlw   b'00000001'     ; Delay 65ms
+    retlw   b'10011111'     ; LED 1 on
+    retlw   b'11111111'     ; LED 4 on
+    retlw   b'00000011'     ; Delay 65ms
+    retlw   b'10000111'     ; LED 1 dim
+    retlw   b'11100111'     ; LED 4 dim
+    retlw   b'00000001'     ; Delay 65ms
+    retlw   b'10100111'     ; LED 2 dim
+    retlw   b'11000111'     ; LED 3 dim
+    retlw   b'10000000'     ; LED 1 off
+    retlw   b'11100000'     ; LED 4 off
+    retlw   b'00000001'     ; Delay 65ms
+    retlw   b'10100000'     ; LED 2 off
+    retlw   b'11000000'     ; LED 3 off
+    retlw   b'00000001'     ; Delay 65ms
+    retlw   b'01111111'     ; END OF TABLE
+
+  
+;******************************************************************************
+; Scanning lights left to right and back without glow
+#define SCANNING_LIGHTS_DELAY SEQUENCE_DELAY * 3
+running_light_table
+    retlw   LED1 + ON
+    retlw   SCANNING_LIGHTS_DELAY 
+    retlw   LED1 + OFF
+    retlw   LED2 + ON
+    retlw   SCANNING_LIGHTS_DELAY 
+    retlw   LED2 + OFF
+    retlw   LED3 + ON
+    retlw   SCANNING_LIGHTS_DELAY 
+    retlw   LED3 + OFF
+    retlw   LED4 + ON
+    retlw   SCANNING_LIGHTS_DELAY 
+    retlw   LED4 + OFF
+    retlw   LED3 + ON
+    retlw   SCANNING_LIGHTS_DELAY 
+    retlw   LED3 + OFF
+    retlw   LED2 + ON
+    retlw   SCANNING_LIGHTS_DELAY 
+    retlw   LED2 + OFF
+    retlw   END_OF_TABLE
+
+
+;******************************************************************************
+; Scanning lights left to right and back with Knight Rider like glow
+night_rider_table
+#define NIGHT_RIDER_DELAY b'00000001'
     retlw   LED1 + HALF
     retlw   NIGHT_RIDER_DELAY
     retlw   LED1 + ON
@@ -894,26 +1083,11 @@ night_rider_table
     retlw   LED1 + OFF
     retlw   NIGHT_RIDER_DELAY * 2
 
-    retlw   b'01111111'     ; END OF TABLE
+    retlw   END_OF_TABLE
 
-#define BLINK_KNIGHT_DELAY SEQUENCE_DELAY * 3
-blink_knight_table
-    retlw   LED1 + ON
-    retlw   BLINK_KNIGHT_DELAY
-    retlw   LED1 + OFF
-    retlw   LED2 + ON
-    retlw   BLINK_KNIGHT_DELAY
-    retlw   LED2 + OFF
-    retlw   LED3 + ON
-    retlw   BLINK_KNIGHT_DELAY
-    retlw   LED3 + OFF
-    retlw   LED4 + ON
-    retlw   BLINK_KNIGHT_DELAY
-    retlw   LED4 + OFF
-    retlw   BLINK_KNIGHT_DELAY
 
-    retlw   b'01111111'     ; END OF TABLE
-
+;******************************************************************************
+; Blink the outside then inside LEDs at a slow pace
 #define INSIDE_OUTSIDE_DELAY SEQUENCE_DELAY * 6
 inside_outside_table
     retlw   LED1 + OFF
@@ -928,8 +1102,11 @@ inside_outside_table
     retlw   LED4 + ON
     retlw   INSIDE_OUTSIDE_DELAY
 
-    retlw   b'01111111'     ; END OF TABLE
+    retlw   END_OF_TABLE
 
+
+;******************************************************************************
+; Blink LED1 and LED3 and then LED2 and LED4 at a slow pace
 #define ONETHREE_TWOFOUR_DELAY SEQUENCE_DELAY * 6
 onethree_twofour_table
     retlw   LED2 + OFF
@@ -944,87 +1121,80 @@ onethree_twofour_table
     retlw   LED4 + ON
     retlw   ONETHREE_TWOFOUR_DELAY
 
-    retlw   b'01111111'     ; END OF TABLE
-
-
-scan_right_table
-    retlw   b'10011111'     ; LED 1 (left-most) on full brightness
-    retlw   b'00000001'     ; Delay 65ms (1 softtimer)
-    retlw   b'10001111'     ; LED 1 dim
-    retlw   b'10111111'     ; LED 2 on
-    retlw   b'00000001'     ; Delay 65ms
-    retlw   b'10000111'     ; LED 1 dim
-    retlw   b'10101111'     ; LED 2 dim
-    retlw   b'11011111'     ; LED 3 on
-    retlw   b'00000001'     ; Delay 65ms
-    retlw   b'10000011'     ; LED 1 dim
-    retlw   b'10100111'     ; LED 2 dim
-    retlw   b'11001111'     ; LED 3 dim
-    retlw   b'11111111'     ; LED 4 on
-    retlw   b'00000001'     ; Delay 65ms
-    retlw   b'10000001'     ; LED 1 dim
-    retlw   b'10100011'     ; LED 2 dim
-    retlw   b'11000111'     ; LED 3 dim
-    retlw   b'11101111'     ; LED 4 dim
-    retlw   b'00000001'     ; Delay 65ms
-    retlw   b'10000000'     ; LED 1 off
-    retlw   b'10100001'     ; LED 2 dim
-    retlw   b'11000011'     ; LED 3 dim
-    retlw   b'11100111'     ; LED 4 dim
-    retlw   b'00000001'     ; Delay 65ms
-    retlw   b'10100000'     ; LED 2 off
-    retlw   b'11000001'     ; LED 3 dim
-    retlw   b'11100011'     ; LED 4 dim
-    retlw   b'00000001'     ; Delay 65ms
-    retlw   b'11000000'     ; LED 3 off
-    retlw   b'11100001'     ; LED 4 dim
-    retlw   b'00000001'     ; Delay 65ms
-    retlw   b'11100000'     ; LED 4 off
-    retlw   b'00000111'     ; Delay 65ms
-    retlw   b'01111111'     ; END OF TABLE
-
-
-table_roof_on
-    retlw   b'10011111'     ; LED 1 (left-most) on full brightness
-    retlw   b'10111111'     ; LED 2 on
-    retlw   b'11011111'     ; LED 3 on
-    retlw   b'11111111'     ; LED 4 on
-    retlw   b'01111111'     ; END OF TABLE
-
-
-table_roof_off
-                            ; (no command, all LEDs off for new sequences!)
-    retlw   b'01111111'     ; END OF TABLE
+    retlw   END_OF_TABLE
 
 
 ;******************************************************************************
-; One glowing flash from the middle outwards
-table_gear
-    retlw   b'10100111'     ; LED 2 dim
-    retlw   b'11000111'     ; LED 3 dim
-    retlw   b'00000001'     ; Delay 65ms
-    retlw   b'10111111'     ; LED 2 on
-    retlw   b'11011111'     ; LED 3 on
-    retlw   b'10000111'     ; LED 1 (left-most) dim
-    retlw   b'11100111'     ; LED 4 dim
-    retlw   b'00000001'     ; Delay 65ms
-    retlw   b'10011111'     ; LED 1 on
-    retlw   b'11111111'     ; LED 4 on
-    retlw   b'00000011'     ; Delay 65ms
-    retlw   b'10000111'     ; LED 1 dim
-    retlw   b'11100111'     ; LED 4 dim
-    retlw   b'00000001'     ; Delay 65ms
-    retlw   b'10100111'     ; LED 2 dim
-    retlw   b'11000111'     ; LED 3 dim
-    retlw   b'10000000'     ; LED 1 off
-    retlw   b'11100000'     ; LED 4 off
-    retlw   b'00000001'     ; Delay 65ms
-    retlw   b'10100000'     ; LED 2 off
-    retlw   b'11000000'     ; LED 3 off
-    retlw   b'00000001'     ; Delay 65ms
-    retlw   b'01111111'     ; END OF TABLE
+; Scanning light to the right with glow.
+scan_right_table
+    retlw   LED1 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED1 + HALF
+    retlw   LED2 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED1 + QUARTER
+    retlw   LED2 + HALF
+    retlw   LED3 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED1 + DIM
+    retlw   LED2 + QUARTER
+    retlw   LED3 + HALF
+    retlw   LED4 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED1 + OFF
+    retlw   LED2 + DIM
+    retlw   LED3 + QUARTER
+    retlw   LED4 + HALF
+    retlw   SEQUENCE_DELAY
+    retlw   LED2 + OFF
+    retlw   LED3 + DIM
+    retlw   LED4 + QUARTER
+    retlw   SEQUENCE_DELAY
+    retlw   LED3 + OFF
+    retlw   LED4 + DIM
+    retlw   SEQUENCE_DELAY
+    retlw   LED4 + OFF
+    retlw   SEQUENCE_DELAY
+    retlw   END_OF_TABLE
+
+
+;******************************************************************************
+; Scanning light to the left with glow.
+scan_left_table
+    retlw   LED4 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED4 + HALF
+    retlw   LED3 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED4 + QUARTER
+    retlw   LED3 + HALF
+    retlw   LED2 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED4 + DIM
+    retlw   LED3 + QUARTER
+    retlw   LED2 + HALF
+    retlw   LED1 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED4 + OFF
+    retlw   LED3 + DIM
+    retlw   LED2 + QUARTER
+    retlw   LED1 + HALF
+    retlw   SEQUENCE_DELAY
+    retlw   LED3 + OFF
+    retlw   LED2 + DIM
+    retlw   LED1 + QUARTER
+    retlw   SEQUENCE_DELAY
+    retlw   LED2 + OFF
+    retlw   LED1 + DIM
+    retlw   SEQUENCE_DELAY
+    retlw   LED1 + OFF
+    retlw   SEQUENCE_DELAY
+    retlw   END_OF_TABLE
     
     
+;******************************************************************************
+; Blink all LEDs one by one in a random order
+; This table was generated by tools/generate-random-table.py
 random_table
     retlw   LED1 + ON
     retlw   SEQUENCE_DELAY
@@ -1329,8 +1499,12 @@ random_table
     retlw   LED2 + ON
     retlw   SEQUENCE_DELAY
     retlw   LED2 + OFF
-    retlw   b'01111111'     ; END OF TABLE
+    retlw   END_OF_TABLE
 
+
+    ; ##############################################################
+    ; Fill the rest of the page so the linker doesn't put code here!
+    ; ##############################################################
     FILL 0, 0xFFF-$    
     
     END
