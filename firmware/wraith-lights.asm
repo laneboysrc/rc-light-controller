@@ -352,16 +352,6 @@ output_lights_roof_gimmick7
     goto    output_lights_end
     
 output_lights_roof_manual_no_gimmick
-    ; Turn off any endless sequence by setting the sequencer_count to one,
-    ; stopping the sequence after the current loop.
-    ;
-    ; This allows that gear sequences work well, but at the same time we can
-    ; turn off gimmick sequences
-    ;BANKSEL sequencer_count
-    ;movf    sequencer_count, f
-    ;skpnz   
-    ;incf    sequencer_count
-    
     BANKSEL light_mode
     btfss   light_mode, LIGHT_MODE_ROOF
     call    output_lights_roof_off
@@ -553,6 +543,26 @@ output_lights_gear_1
     btfss   WREG, 0                 ; Modal sequence or same sequence running? 
     return                          ; Yes: don't disturb
 
+    ; If the roof lights are fully on (= not off, and no gimmick running)
+    ; then output a reverse light pattern. Otherwise it looks like it flashes
+    ; twice.
+    BANKSEL light_mode
+    btfss   light_mode, LIGHT_MODE_ROOF
+    goto    output_lights_gear_1_normal
+    movf    light_gimmick_mode, f
+    bnz     output_lights_gear_1_normal             
+
+    BANKSEL table_l    
+    movlw   HIGH table_gear_inverse
+    movwf   table_h
+    movlw   LOW table_gear_inverse
+    movwf   table_l
+
+    movlw   1                       ; Run this sequence once
+    call    Sequencer_start
+    return
+             
+output_lights_gear_1_normal
     BANKSEL table_l    
     movlw   HIGH table_gear
     movwf   table_h
@@ -563,12 +573,33 @@ output_lights_gear_1
     call    Sequencer_start
     return
 
+
 output_lights_gear_2
     movlw   SEQUENCER_MODE_GEAR2    ; High priority sequence
     call    Sequencer_prepare
     btfss   WREG, 0                 ; Modal sequence or same sequence running? 
     return                          ; Yes: don't disturb
 
+    ; If the roof lights are fully on (= not off, and no gimmick running)
+    ; then output a reverse light pattern. Otherwise it looks like it flashes
+    ; twice.
+    BANKSEL light_mode
+    btfss   light_mode, LIGHT_MODE_ROOF
+    goto    output_lights_gear_2_normal
+    movf    light_gimmick_mode, f
+    bnz     output_lights_gear_2_normal             
+
+    BANKSEL table_l    
+    movlw   HIGH table_gear_inverse
+    movwf   table_h
+    movlw   LOW table_gear_inverse
+    movwf   table_l
+
+    movlw   2                       ; Run this sequence once
+    call    Sequencer_start
+    return
+
+output_lights_gear_2_normal
     BANKSEL table_l    
     movlw   HIGH table_gear
     movwf   table_h
@@ -578,7 +609,6 @@ output_lights_gear_2
     movlw   2                       ; Run this sequence twice
     call    Sequencer_start
     return
-
 
     
 output_lights_gimmick1
@@ -955,30 +985,61 @@ table_roof_off
 ;******************************************************************************
 ; One glowing flash from the middle outwards
 table_gear
-    retlw   b'10100111'     ; LED 2 dim
-    retlw   b'11000111'     ; LED 3 dim
-    retlw   b'00000001'     ; Delay 65ms
-    retlw   b'10111111'     ; LED 2 on
-    retlw   b'11011111'     ; LED 3 on
-    retlw   b'10000111'     ; LED 1 (left-most) dim
-    retlw   b'11100111'     ; LED 4 dim
-    retlw   b'00000001'     ; Delay 65ms
-    retlw   b'10011111'     ; LED 1 on
-    retlw   b'11111111'     ; LED 4 on
-    retlw   b'00000011'     ; Delay 65ms
-    retlw   b'10000111'     ; LED 1 dim
-    retlw   b'11100111'     ; LED 4 dim
-    retlw   b'00000001'     ; Delay 65ms
-    retlw   b'10100111'     ; LED 2 dim
-    retlw   b'11000111'     ; LED 3 dim
-    retlw   b'10000000'     ; LED 1 off
-    retlw   b'11100000'     ; LED 4 off
-    retlw   b'00000001'     ; Delay 65ms
-    retlw   b'10100000'     ; LED 2 off
-    retlw   b'11000000'     ; LED 3 off
-    retlw   b'00000001'     ; Delay 65ms
-    retlw   b'01111111'     ; END OF TABLE
+    retlw   LED2 + DIM
+    retlw   LED3 + DIM
+    retlw   SEQUENCE_DELAY
+    retlw   LED1 + DIM
+    retlw   LED2 + ON
+    retlw   LED3 + ON
+    retlw   LED4 + DIM
+    retlw   SEQUENCE_DELAY
+    retlw   LED1 + ON
+    retlw   LED4 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED1 + DIM
+    retlw   LED4 + DIM
+    retlw   SEQUENCE_DELAY
+    retlw   LED1 + OFF
+    retlw   LED2 + DIM
+    retlw   LED3 + DIM
+    retlw   LED4 + OFF
+    retlw   SEQUENCE_DELAY
+    retlw   LED2 + OFF
+    retlw   LED3 + OFF
+    retlw   SEQUENCE_DELAY
+    retlw   END_OF_TABLE
 
+
+;******************************************************************************
+; One glowing dark flash from the middle outwards. Used when the roof lights
+; are on already.
+table_gear_inverse
+    retlw   LED1 + ON
+    retlw   LED2 + HALF
+    retlw   LED3 + HALF
+    retlw   LED4 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED1 + HALF
+    retlw   LED2 + OFF
+    retlw   LED3 + OFF
+    retlw   LED4 + HALF
+    retlw   SEQUENCE_DELAY
+    retlw   LED1 + OFF
+    retlw   LED4 + OFF
+    retlw   SEQUENCE_DELAY
+    retlw   LED1 + HALF
+    retlw   LED4 + HALF
+    retlw   SEQUENCE_DELAY
+    retlw   LED1 + ON
+    retlw   LED2 + HALF
+    retlw   LED3 + HALF
+    retlw   LED4 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   LED2 + ON
+    retlw   LED3 + ON
+    retlw   SEQUENCE_DELAY
+    retlw   END_OF_TABLE
+  
   
 ;******************************************************************************
 ; Scanning lights left to right and back without glow
