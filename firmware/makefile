@@ -1,6 +1,19 @@
 .PHONY: all
-all: porsche-911-rsr wraith datsun-510-master ben-landrover pajero \
-     subaru wyetuck-landrover phil-ford xr311 dingo
+all: bmw-2002-turbo porsche-911-rsr wraith datsun-510-master ben-landrover \
+     pajero subaru wyetuck-landrover phil-ford xr311 dingo
+
+
+##############################################################################
+# HPI BMW 2002 turbo
+##############################################################################
+.PHONY: bmw-2002-turbo
+bmw-2002-turbo: hkr3000-preprocessor bmw-2002-turbo-master
+
+.PHONY: bmw-2002-turbo-master
+bmw-2002-turbo-master: hw_tlc5940_16f1825.inc
+	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x01 -D DISABLE_BRAKE_DISARM_TIMEOUT)
+	$(eval files = master uart-reader utils bmw-2002-turbo-lights)
+	$(build)
 
 
 ##############################################################################
@@ -25,7 +38,7 @@ wraith: hkr3000-preprocessor wraith-master
 .PHONY: wraith-master
 wraith-master: hw_tlc5940_16f1825.inc
 	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x03 -D ESC_FORWARD_REVERSE -D ENABLE_GEARBOX -D ENABLE_SERVO_OUTPUT -D ENABLE_WINCH)
-	$(eval files = master uart-reader servo-output utils wraith-lights)
+	$(eval files = master dummy-reader servo-output utils wraith-lights)
 	$(build)
 
 
