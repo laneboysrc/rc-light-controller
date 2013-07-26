@@ -12,10 +12,10 @@
 ;
 ;   The following lights are available:
 ;
-;       OUT0    Tail / Brake rear left     
-;       OUT1    Tail / Brake rear right 
-;       OUT2    Indicator rear left Main beam left
-;       OUT3    Indicator rear right Main beam right
+;       OUT0    Main beam left     
+;       OUT1    Main beam right
+;       OUT2    Indicator front left
+;       OUT3    Indicator front right
 ;       OUT4    
 ;       OUT5    
 ;       OUT6    
@@ -24,10 +24,10 @@
 ;       OUT9    
 ;       OUT10   
 ;       OUT11   
-;       OUT12   Main beam left
-;       OUT13   Main beam right
-;       OUT14   Indicator front left
-;       OUT15   Indicator front right
+;       OUT12   Tail / Brake rear left
+;       OUT13   Tail / Brake rear right 
+;       OUT14   Indicator rear left Main beam left
+;       OUT15   Indicator rear right Main beam right
 ;
 ;******************************************************************************
 ;
@@ -40,14 +40,14 @@
 
     #include    hw.tmp
 
-#define LED_TAIL_BRAKE_L 0    
-#define LED_TAIL_BRAKE_R 1    
-#define LED_INDICATOR_R_L 2   
-#define LED_INDICATOR_R_R 3    
-#define LED_MAIN_BEAM_L 12
-#define LED_MAIN_BEAM_R 13
-#define LED_INDICATOR_F_L 14    
-#define LED_INDICATOR_F_R 15
+#define LED_TAIL_BRAKE_L 12    
+#define LED_TAIL_BRAKE_R 13    
+#define LED_INDICATOR_R_L 14   
+#define LED_INDICATOR_R_R 15   
+#define LED_MAIN_BEAM_L 0
+#define LED_MAIN_BEAM_R 1
+#define LED_INDICATOR_F_L 2    
+#define LED_INDICATOR_F_R 3
     
     GLOBAL Init_lights
     GLOBAL Output_lights
