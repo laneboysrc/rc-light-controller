@@ -321,6 +321,7 @@ IFDEF ENABLE_GEARBOX
     ; Always start in Gear 1. We can not just let the servo idle until 
     ; the user changes gear for the first time as the gear servo moves randomly
     ; after power on. So we set Gear 1 by default.
+    BANKSEL servo_epl
     movfw   servo_epl
     movwf   servo
     movlw   1 << GEAR_1
