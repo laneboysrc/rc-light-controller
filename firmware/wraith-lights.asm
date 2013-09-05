@@ -454,6 +454,33 @@ output_lights_brake
     movwf   light_data + LED_TAIL_BRAKE_R
     return
 
+output_lights_winch_idle
+    BANKSEL light_data
+    movlw   VAL_INDICATOR_FRONT
+    movwf   light_data + LED_INDICATOR_F_R
+    movwf   light_data + LED_INDICATOR_F_L
+    return
+    
+output_lights_winch_in
+    BANKSEL light_data
+    movlw   VAL_INDICATOR_FRONT
+    movwf   light_data + LED_INDICATOR_F_R
+    movwf   light_data + LED_INDICATOR_F_L
+    movlw   VAL_ROOF
+    movwf   light_data + LED_ROOF_2
+    movwf   light_data + LED_ROOF_3
+    return
+    
+output_lights_winch_out
+    BANKSEL light_data
+    movlw   VAL_INDICATOR_FRONT
+    movwf   light_data + LED_INDICATOR_F_R
+    movwf   light_data + LED_INDICATOR_F_L
+    movlw   VAL_ROOF
+    movwf   light_data + LED_ROOF_1
+    movwf   light_data + LED_ROOF_4
+    return
+
 ;----------------------------
 ; Sequencer related light output functions
     
@@ -486,54 +513,6 @@ output_lights_roof_off
     movwf   table_l
 
     movlw   1                       ; Run this sequence once
-    call    Sequencer_start
-    return
-    
-output_lights_winch_idle
-    movlw   SEQUENCER_MODE_WINCH_IDLE
-    call    Sequencer_prepare
-    btfss   WREG, 0                 ; Modal sequence or same sequence running? 
-    return                          ; Yes: don't disturb
-
-    BANKSEL table_l    
-    movlw   HIGH running_light_table
-    movwf   table_h
-    movlw   LOW running_light_table
-    movwf   table_l
-
-    movlw   0                       ; Run this sequence forever
-    call    Sequencer_start
-    return
-    
-output_lights_winch_in
-    movlw   SEQUENCER_MODE_WINCH_IN
-    call    Sequencer_prepare
-    btfss   WREG, 0                 ; Modal sequence or same sequence running? 
-    return                          ; Yes: don't disturb
-
-    BANKSEL table_l    
-    movlw   HIGH night_rider_table
-    movwf   table_h
-    movlw   LOW night_rider_table
-    movwf   table_l
-
-    movlw   0                       ; Run this sequence forever
-    call    Sequencer_start
-    return
-    
-output_lights_winch_out
-    movlw   SEQUENCER_MODE_WINCH_OUT
-    call    Sequencer_prepare
-    btfss   WREG, 0                 ; Modal sequence or same sequence running? 
-    return                          ; Yes: don't disturb
-
-    BANKSEL table_l    
-    movlw   HIGH scan_right_table
-    movwf   table_h
-    movlw   LOW scan_right_table
-    movwf   table_l
-
-    movlw   0                       ; Run this sequence forever
     call    Sequencer_start
     return
 
