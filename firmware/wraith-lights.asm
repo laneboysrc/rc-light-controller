@@ -459,6 +459,7 @@ output_lights_winch_idle
     movlw   VAL_INDICATOR_FRONT
     movwf   light_data + LED_INDICATOR_F_R
     movwf   light_data + LED_INDICATOR_F_L
+    call    output_lights_roof_off
     return
     
 output_lights_winch_in
@@ -466,9 +467,20 @@ output_lights_winch_in
     movlw   VAL_INDICATOR_FRONT
     movwf   light_data + LED_INDICATOR_F_R
     movwf   light_data + LED_INDICATOR_F_L
-    movlw   VAL_ROOF
-    movwf   light_data + LED_ROOF_2
-    movwf   light_data + LED_ROOF_3
+
+    movlw   SEQUENCER_MODE_WINCH_IN
+    call    Sequencer_prepare
+    btfss   WREG, 0                 ; Modal sequence or same sequence running? 
+    return                          ; Yes: don't disturb
+
+    BANKSEL table_l    
+    movlw   HIGH table_winch_in
+    movwf   table_h
+    movlw   LOW table_winch_in
+    movwf   table_l
+
+    movlw   1                       ; Run this sequence once
+    call    Sequencer_start
     return
     
 output_lights_winch_out
@@ -476,9 +488,20 @@ output_lights_winch_out
     movlw   VAL_INDICATOR_FRONT
     movwf   light_data + LED_INDICATOR_F_R
     movwf   light_data + LED_INDICATOR_F_L
-    movlw   VAL_ROOF
-    movwf   light_data + LED_ROOF_1
-    movwf   light_data + LED_ROOF_4
+
+    movlw   SEQUENCER_MODE_WINCH_OUT
+    call    Sequencer_prepare
+    btfss   WREG, 0                 ; Modal sequence or same sequence running? 
+    return                          ; Yes: don't disturb
+
+    BANKSEL table_l    
+    movlw   HIGH table_winch_out
+    movwf   table_h
+    movlw   LOW table_winch_out
+    movwf   table_l
+
+    movlw   1                       ; Run this sequence once
+    call    Sequencer_start
     return
 
 ;----------------------------
@@ -958,6 +981,22 @@ table_roof_on
 ; All lights off statically
 table_roof_off
                             ; (no command, all LEDs off for new sequences!)
+    retlw   END_OF_TABLE
+
+
+;******************************************************************************
+; Roof lights for winch in
+table_winch_in
+    retlw   LED2 + ON
+    retlw   LED3 + ON
+    retlw   END_OF_TABLE
+
+
+;******************************************************************************
+; Roof lights for winch out
+table_winch_out
+    retlw   LED1 + ON
+    retlw   LED4 + ON
     retlw   END_OF_TABLE
 
 
