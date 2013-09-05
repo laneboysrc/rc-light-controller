@@ -1340,14 +1340,14 @@ process_channel_reversing_throttle
     btfss   setup_mode, SETUP_MODE_THROTTLE_REVERSE
     return
 
-    ; Save the direction only when the throttle is excerted to 50% or more
+    ; Save the direction only when the throttle is excerted to 20% or more
     BANKSEL throttle_abs
-    movlw   50
+    movlw   20
     subwf   throttle_abs, w
     skpc    
     return
 
-    ; 50% or more steering input: terminate the throttle reversing setup and
+    ; 50% or more throttle input: terminate the throttle reversing setup and
     ; toggle the reversing flag if the current sign flag on the throttle
     ; channel is negative (backward = -100..0, forward = 0..+100)
     btfsc   throttle, 7
