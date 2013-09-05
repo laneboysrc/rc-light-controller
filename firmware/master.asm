@@ -681,6 +681,7 @@ IFDEF ENABLE_WINCH
 process_ch3_winch_off
     movlw   WINCH_MODE_IDLE
     movwf   winch_mode
+    clrf    winch_command_repeat_counter
 
     ; Disable this series of clicks by setting the click count to an unused
     ; high value
