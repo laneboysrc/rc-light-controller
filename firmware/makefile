@@ -1,6 +1,19 @@
 .PHONY: all
-all: bmw-2002-turbo porsche-911-rsr wraith datsun-510-master ben-landrover \
-     pajero subaru wyetuck-landrover phil-ford xr311 dingo
+all: datsun-240z-rally bmw-2002-turbo porsche-911-rsr wraith datsun-510-master \
+     ben-landrover pajero subaru wyetuck-landrover phil-ford xr311 dingo
+
+
+##############################################################################
+# Tamiya Datsun 240Z Rally
+##############################################################################
+.PHONY: datsun-240z-rally
+datsun-240z-rally: hkr3000-preprocessor datsun-240z-rally-master
+
+.PHONY: datsun-240z-rally-master
+datsun-240z-rally-master: hw_tlc5940_16f1825.inc
+	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x03)
+	$(eval files = master uart-reader utils datsun-240z-rally-lights)
+	$(build)
 
 
 ##############################################################################
