@@ -1,6 +1,26 @@
 .PHONY: all
-all: datsun-240z-rally bmw-2002-turbo porsche-911-rsr wraith datsun-510-master \
-     ben-landrover pajero subaru wyetuck-landrover phil-ford xr311 dingo
+all: generic datsun-240z-rally bmw-2002-turbo porsche-911-rsr wraith \
+     datsun-510-master ben-landrover pajero subaru wyetuck-landrover \
+     phil-ford xr311 dingo
+
+
+##############################################################################
+# Generic light logic, not specific for any car
+##############################################################################
+.PHONY: generic
+generic: generic-momentary-master generic-two-position-master
+
+.PHONY: generic-momentary-master
+generic-momentary-master: hw_tlc5940_16f1825.inc
+	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x0f -D CH3_MOMENTARY -D ENABLE_STEERING_WHEEL_SERVO -D ENABLE_SERVO_OUTPUT) 
+	$(eval files = master servo-reader servo-output utils generic-lights)
+	$(build)
+
+.PHONY: generic-two-position-master
+generic-two-position-master: hw_tlc5940_16f1825.inc
+	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x0f -D ENABLE_STEERING_WHEEL_SERVO -D ENABLE_SERVO_OUTPUT) 
+	$(eval files = master servo-reader servo-output utils generic-lights)
+	$(build)
 
 
 ##############################################################################
