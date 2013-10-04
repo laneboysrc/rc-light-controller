@@ -40,6 +40,11 @@
     TITLE       Generic light control logic
     RADIX       dec
 
+; Resistor determining the maximum LED current on the TLC5940; in Ohms
+;###################
+#define R_IREF 510                              
+;###################
+
     #include    hw.tmp
     
     
@@ -115,14 +120,25 @@
 #define LED_INDICATOR_R_L 14   
 #define LED_INDICATOR_R_R 15
 
-; Since gpasm is not able to use 0.317 we need to calculate with micro-Amps
-#define R_IREF 510
+
+; We calculate the LED current per dot-correction step, so that later we can
+; use the step size to determine the dot-correction value for a desired
+; LED current.
+;
+; The maximum current is 
+;       1.24V * 31.05 / R_IREF
+; according to the TLC5940 datasheet. 1.24*31.05 is 39.06.
+;
+; Since gpasm is not able to use fractions we need to work in micro-Amps
 #define uA_PER_STEP (39060000 / (R_IREF * 63))
+
+; Convenience value for maximum LED current (6-bit dot-correction value)
+#define VAL_FULL 63
 
 #define VAL_PARKING (10 * 1000 / uA_PER_STEP)
 #define VAL_MAIN_BEAM (20 * 1000 / uA_PER_STEP)
 #define VAL_HIGH_BEAM (20 * 1000 / uA_PER_STEP)
-#define VAL_ROOF (77 * 1000 / uA_PER_STEP)
+#define VAL_ROOF VAL_FULL
 #define VAL_TAIL (5 * 1000 / uA_PER_STEP)
 #define VAL_BRAKE (20 * 1000 / uA_PER_STEP)
 #define VAL_REVERSE (20 * 1000 / uA_PER_STEP)
