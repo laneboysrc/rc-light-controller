@@ -42,7 +42,7 @@
 
 ; Resistor determining the maximum LED current on the TLC5940; in Ohms
 ;###################
-#define R_IREF 510                              
+#define R_IREF 470                              
 ;###################
 
     #include    hw.tmp
