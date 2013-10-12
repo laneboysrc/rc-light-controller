@@ -51,7 +51,7 @@ FOSC = 32           ; Osc frequency in MHz
 #define PORT_THROTTLE   PORTA, 0        
 #define PORT_CH3        PORTA, 3        
 
-#define PORT_SERVO      LATA, 0        
+#define PORT_SERVO      LATC, 4        
 
 ; TLC5940 LED driver serial communication ports, for both master and slave
 #define PORT_SCK        PORTC, 0
@@ -87,7 +87,7 @@ _IO_INIT_COMMON macro   master
     movwf   APFCON0
     clrf    APFCON1
     BANKSEL TRISA
-    movlw   b'00001010' ; Make all ports A except RA0, RA1 and RA3 output
+    movlw   b'00001011' ; Make all ports A except RA0, RA1 and RA3 output
     movwf   TRISA
     movlw   b'00000010' ; Make all ports C except RC1 output
     movwf   TRISC
@@ -129,7 +129,7 @@ _IO_INIT_COMMON macro   master
     BANKSEL INTCON
     clrf    INTCON      ; Clear all interrupts and disable them
 
-
+IF 0
     ;-----------------------------
     ; UART specific initialization
 BAUDRATE = 38400        ; Desired baudrate
@@ -185,7 +185,7 @@ SPBRG_VALUE = (((d'10'*FOSC*d'1000000'/((d'64'-(d'48'*BRGH_VALUE))*BAUDRATE))+d'
 
     movlw	0           ; Send dummy character to get a valid transmit flag
     movwf	TXREG
-
+ENDIF
 
     ;-----------------------------
     ; MSSP1 initialization for the TLC5940
