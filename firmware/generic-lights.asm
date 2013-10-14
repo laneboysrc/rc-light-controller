@@ -257,7 +257,7 @@ output_lights_setup
     btfsc   setup_mode, SETUP_MODE_CENTRE
     goto    output_lights_setup_centre
     btfsc   setup_mode, SETUP_MODE_LEFT
-    goto    output_lights_setup_right
+    goto    output_lights_setup_left
     btfsc   setup_mode, SETUP_MODE_RIGHT
     goto    output_lights_setup_right
     btfsc   setup_mode, SETUP_MODE_STEERING_REVERSE 
