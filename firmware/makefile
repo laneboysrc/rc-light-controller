@@ -1,7 +1,7 @@
 .PHONY: all
-all: generic datsun-240z-rally bmw-2002-turbo porsche-911-rsr wraith \
-     datsun-510-master ben-landrover pajero subaru wyetuck-landrover \
-     phil-ford xr311 dingo
+all: lancia-delta-integrale generic datsun-240z-rally bmw-2002-turbo \
+     porsche-911-rsr wraith datsun-510-master ben-landrover pajero subaru \
+     wyetuck-landrover phil-ford xr311 dingo
 
 
 ##############################################################################
@@ -20,6 +20,19 @@ generic-momentary-master: hw_tlc5940_16f1825.inc
 generic-two-position-master: hw_tlc5940_16f1825.inc
 	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x0f -D ENABLE_STEERING_WHEEL_SERVO -D ENABLE_SERVO_OUTPUT) 
 	$(eval files = master servo-reader servo-output utils generic-lights)
+	$(build)
+
+
+##############################################################################
+# Tamiya Lancia Delta Integrale
+##############################################################################
+.PHONY: lancia-delta-integrale
+lancia-delta-integrale: hkr3000-preprocessor lancia-delta-integrale-master
+
+.PHONY: lancia-delta-integrale-master
+lancia-delta-integrale-master: hw_tlc5940_16f1825.inc
+	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x01 -D ENABLE_UART)
+	$(eval files = master uart-reader utils lancia-delta-integrale-lights)
 	$(build)
 
 
