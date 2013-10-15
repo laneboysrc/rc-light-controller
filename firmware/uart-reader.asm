@@ -57,6 +57,12 @@
 #define SLAVE_MAGIC_BYTE    0x87
 
 
+IFNDEF ENABLE_UART
+    ERROR "########################"
+    ERROR "To use UART input from preprocessor you must add '-D ENABLE_UART' to the CFLAGS in the makefile!"
+    ERROR "########################"
+ENDIF
+
 ;******************************************************************************
 ;* VARIABLE DEFINITIONS
 ;******************************************************************************

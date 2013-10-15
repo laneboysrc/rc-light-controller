@@ -51,7 +51,11 @@ FOSC = 32           ; Osc frequency in MHz
 #define PORT_THROTTLE   PORTA, 0        
 #define PORT_CH3        PORTA, 3        
 
+IFDEF SERVO_OUTPUT_ON_THROTTLE
+#define PORT_SERVO      LATA, 0
+ELSE
 #define PORT_SERVO      LATC, 4        
+ENDIF
 
 ; TLC5940 LED driver serial communication ports, for both master and slave
 #define PORT_SCK        PORTC, 0
@@ -129,7 +133,7 @@ _IO_INIT_COMMON macro   master
     BANKSEL INTCON
     clrf    INTCON      ; Clear all interrupts and disable them
 
-IF 0
+IFDEF ENABLE_UART
     ;-----------------------------
     ; UART specific initialization
 BAUDRATE = 38400        ; Desired baudrate

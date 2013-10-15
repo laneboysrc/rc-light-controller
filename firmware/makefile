@@ -31,7 +31,7 @@ datsun-240z-rally: hkr3000-preprocessor datsun-240z-rally-master
 
 .PHONY: datsun-240z-rally-master
 datsun-240z-rally-master: hw_tlc5940_16f1825.inc
-	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x03)
+	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x03 -D ENABLE_UART)
 	$(eval files = master uart-reader utils datsun-240z-rally-lights)
 	$(build)
 
@@ -44,7 +44,7 @@ bmw-2002-turbo: hkr3000-preprocessor bmw-2002-turbo-master
 
 .PHONY: bmw-2002-turbo-master
 bmw-2002-turbo-master: hw_tlc5940_16f1825.inc
-	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x01 -D DISABLE_BRAKE_DISARM_TIMEOUT)
+	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x01 -D DISABLE_BRAKE_DISARM_TIMEOUT -D ENABLE_UART)
 	$(eval files = master uart-reader utils bmw-2002-turbo-lights)
 	$(build)
 
@@ -57,7 +57,7 @@ porsche-911-rsr: hkr3000-preprocessor porsche-911-rsr-master
 
 .PHONY: porsche-911-rsr-master
 porsche-911-rsr-master: hw_tlc5940_16f1825.inc
-	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x03 -D DISABLE_BRAKE_DISARM_TIMEOUT)
+	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x03 -D DISABLE_BRAKE_DISARM_TIMEOUT -D ENABLE_UART)
 	$(eval files = master uart-reader utils porsche-911-rsr-lights)
 	$(build)
 
@@ -70,7 +70,7 @@ wraith: hkr3000-preprocessor wraith-master
 
 .PHONY: wraith-master
 wraith-master: hw_tlc5940_16f1825.inc
-	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x03 -D ESC_FORWARD_REVERSE -D ENABLE_GEARBOX -D ENABLE_SERVO_OUTPUT -D ENABLE_WINCH)
+	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x03 -D ESC_FORWARD_REVERSE -D ENABLE_GEARBOX -D ENABLE_SERVO_OUTPUT -D SERVO_OUTPUT_ON_THROTTLE -D ENABLE_WINCH -D ENABLE_UART)
 	$(eval files = master uart-reader servo-output utils wraith-lights)
 	$(build)
 
@@ -80,7 +80,7 @@ wraith-master: hw_tlc5940_16f1825.inc
 ##############################################################################
 .PHONY: datsun-510-master
 datsun-510-master: hw_tlc5940_16f1825.inc
-	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x07 -D DISABLE_BRAKE_DISARM_TIMEOUT)
+	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x07 -D DISABLE_BRAKE_DISARM_TIMEOUT -D ENABLE_UART)
 	$(eval files = master uart-reader utils datsun-510-lights)
 	$(build)
 
@@ -99,7 +99,7 @@ ben-landrover-preprocessor : hw_preprocessor_12f1840.inc
 
 .PHONY: ben-landrover-master
 ben-landrover-master: hw_tlc5940_16f1825.inc
-	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x07 -D CH3_MOMENTARY)
+	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x07 -D CH3_MOMENTARY -D ENABLE_UART)
 	$(eval files = master uart-reader utils ben-landrover-lights)
 	$(build)
 
@@ -138,7 +138,7 @@ wyetuck-landrover: gt3b-preprocessor wyetuck-landrover-master
 
 .PHONY: wyetuck-landrover-master
 wyetuck-landrover-master: hw_tlc5940_16f1825.inc
-	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x03)
+	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x03 -D ENABLE_UART)
 	$(eval files = master uart-reader utils wyetuck-landrover-lights)
 	$(build)
 
@@ -151,7 +151,7 @@ phil-ford: gt3b-preprocessor phil-ford-master
 
 .PHONY: phil-ford-master
 phil-ford-master: hw_tlc5940_16f1825.inc
-	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x07 -D ESC_FORWARD_REVERSE)
+	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x07 -D ESC_FORWARD_REVERSE -D ENABLE_UART)
 	$(eval files = master uart-reader utils phil-ford-lights)
 	$(build)
 
@@ -189,7 +189,7 @@ xr311-preprocessor : hw_preprocessor_16f628a.inc
 
 .PHONY: xr311-master
 xr311-master : hw_original_uart_reader.inc
-	$(eval CFLAGS = -D DUAL_TLC5916 -D ENABLE_STEERING_WHEEL_SERVO -D ENABLE_SERVO_OUTPUT -D LIGHT_MODE_MASK=0x03)
+	$(eval CFLAGS = -D DUAL_TLC5916 -D ENABLE_STEERING_WHEEL_SERVO -D ENABLE_SERVO_OUTPUT -D LIGHT_MODE_MASK=0x03 -D ENABLE_UART)
 	$(eval files = master uart-reader servo-output utils xr311-lights)
 	$(build)
 	
@@ -222,7 +222,7 @@ test: test-tlc5940-16f1825
 
 .PHONY: test-tlc5940-16f1825
 test-tlc5940-16f1825: hw_tlc5940_16f1825.inc
-#	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x07)
+	$(eval CFLAGS = -D ENABLE_UART)
 	$(eval files = master uart-reader utils test-tlc5940-16f1825-lights)
 	$(build)
 
