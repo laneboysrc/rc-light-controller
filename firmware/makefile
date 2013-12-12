@@ -13,13 +13,13 @@ generic: generic-momentary-master generic-two-position-master
 .PHONY: generic-momentary-master
 generic-momentary-master: hw_tlc5940_16f1825.inc
 	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x0f -D CH3_MOMENTARY -D ENABLE_STEERING_WHEEL_SERVO -D ENABLE_SERVO_OUTPUT) 
-	$(eval files = master servo-reader servo-output utils generic-lights)
+	$(eval files = master servo-reader servo-output utils lights-generic)
 	$(build)
 
 .PHONY: generic-two-position-master
 generic-two-position-master: hw_tlc5940_16f1825.inc
 	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x0f -D ENABLE_STEERING_WHEEL_SERVO -D ENABLE_SERVO_OUTPUT) 
-	$(eval files = master servo-reader servo-output utils generic-lights)
+	$(eval files = master servo-reader servo-output utils lights-generic)
 	$(build)
 
 
@@ -32,7 +32,7 @@ nismo-coppermix: hkr3000-preprocessor nismo-coppermix-master
 .PHONY: nismo-coppermix-master
 nismo-coppermix-master: hw_tlc5940_16f1825.inc
 	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x03 -D ENABLE_UART) 
-	$(eval files = master uart-reader utils nismo-coppermix-lights)
+	$(eval files = master uart-reader utils lights-nismo-coppermix)
 	$(build)
 
 
@@ -45,7 +45,7 @@ lancia-delta-integrale: hkr3000-preprocessor lancia-delta-integrale-master
 .PHONY: lancia-delta-integrale-master
 lancia-delta-integrale-master: hw_tlc5940_16f1825.inc
 	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x01 -D ENABLE_UART)
-	$(eval files = master uart-reader utils lancia-delta-integrale-lights)
+	$(eval files = master uart-reader utils lights-lancia-delta-integrale)
 	$(build)
 
 
@@ -58,7 +58,7 @@ datsun-240z-rally: hkr3000-preprocessor datsun-240z-rally-master
 .PHONY: datsun-240z-rally-master
 datsun-240z-rally-master: hw_tlc5940_16f1825.inc
 	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x03 -D ENABLE_UART)
-	$(eval files = master uart-reader utils datsun-240z-rally-lights)
+	$(eval files = master uart-reader utils lights-datsun-240z-rally)
 	$(build)
 
 
@@ -71,7 +71,7 @@ bmw-2002-turbo: hkr3000-preprocessor bmw-2002-turbo-master
 .PHONY: bmw-2002-turbo-master
 bmw-2002-turbo-master: hw_tlc5940_16f1825.inc
 	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x01 -D DISABLE_BRAKE_DISARM_TIMEOUT -D ENABLE_UART)
-	$(eval files = master uart-reader utils bmw-2002-turbo-lights)
+	$(eval files = master uart-reader utils lights-bmw-2002-turbo)
 	$(build)
 
 
@@ -84,7 +84,7 @@ porsche-911-rsr: hkr3000-preprocessor porsche-911-rsr-master
 .PHONY: porsche-911-rsr-master
 porsche-911-rsr-master: hw_tlc5940_16f1825.inc
 	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x03 -D DISABLE_BRAKE_DISARM_TIMEOUT -D ENABLE_UART)
-	$(eval files = master uart-reader utils porsche-911-rsr-lights)
+	$(eval files = master uart-reader utils lights-porsche-911-rsr)
 	$(build)
 
 
@@ -97,7 +97,7 @@ wraith: hkr3000-preprocessor wraith-master
 .PHONY: wraith-master
 wraith-master: hw_tlc5940_16f1825.inc
 	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x03 -D ESC_FORWARD_REVERSE -D ENABLE_GEARBOX -D ENABLE_SERVO_OUTPUT -D SERVO_OUTPUT_ON_THROTTLE -D ENABLE_WINCH -D ENABLE_UART)
-	$(eval files = master uart-reader servo-output utils wraith-lights)
+	$(eval files = master uart-reader servo-output utils lights-wraith)
 	$(build)
 
 
@@ -107,7 +107,7 @@ wraith-master: hw_tlc5940_16f1825.inc
 .PHONY: datsun-510-master
 datsun-510-master: hw_tlc5940_16f1825.inc
 	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x07 -D DISABLE_BRAKE_DISARM_TIMEOUT -D ENABLE_UART)
-	$(eval files = master uart-reader utils datsun-510-lights)
+	$(eval files = master uart-reader utils lights-datsun-510)
 	$(build)
 
 	
@@ -126,7 +126,7 @@ ben-landrover-preprocessor : hw_preprocessor_12f1840.inc
 .PHONY: ben-landrover-master
 ben-landrover-master: hw_tlc5940_16f1825.inc
 	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x07 -D CH3_MOMENTARY -D ENABLE_UART)
-	$(eval files = master uart-reader utils ben-landrover-lights)
+	$(eval files = master uart-reader utils lights-ben-landrover)
 	$(build)
 
 
@@ -139,7 +139,7 @@ pajero: pajero-master
 .PHONY: pajero-master
 pajero-master : hw_original_servo_reader.inc
 	$(eval CFLAGS = -D RECEIVER_OUTPUT_RATE=20 -D LIGHT_MODE_MASK=0x0f)
-	$(eval files = master servo-reader utils pajero-lights)
+	$(eval files = master servo-reader utils lights-pajero)
 	$(build)
 
 
@@ -152,7 +152,7 @@ subaru: subaru-master
 .PHONY: subaru-master
 subaru-master : hw_original_servo_reader.inc
 	$(eval CFLAGS = -D RECEIVER_OUTPUT_RATE=20 -D LIGHT_MODE_MASK=0x07)
-	$(eval files = master servo-reader utils subaru-lights)
+	$(eval files = master servo-reader utils lights-subaru)
 	$(build)
 
 
@@ -165,7 +165,7 @@ wyetuck-landrover: gt3b-preprocessor wyetuck-landrover-master
 .PHONY: wyetuck-landrover-master
 wyetuck-landrover-master: hw_tlc5940_16f1825.inc
 	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x03 -D ENABLE_UART)
-	$(eval files = master uart-reader utils wyetuck-landrover-lights)
+	$(eval files = master uart-reader utils lights-wyetuck-landrover)
 	$(build)
 
 
@@ -178,7 +178,7 @@ phil-ford: gt3b-preprocessor phil-ford-master
 .PHONY: phil-ford-master
 phil-ford-master: hw_tlc5940_16f1825.inc
 	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x07 -D ESC_FORWARD_REVERSE -D ENABLE_UART)
-	$(eval files = master uart-reader utils phil-ford-lights)
+	$(eval files = master uart-reader utils lights-phil-ford)
 	$(build)
 
 
@@ -191,7 +191,7 @@ dingo: dingo-master dingo-slave
 .PHONY: dingo-master
 dingo-master: hw_original_servo_reader.inc
 	$(eval CFLAGS = -D ENABLE_STEERING_WHEEL_SERVO)
-	$(eval files = master servo-reader utils dingo-lights)
+	$(eval files = master servo-reader utils lights-dingo)
 	$(build)
 
 .PHONY: dingo-slave
@@ -216,7 +216,7 @@ xr311-preprocessor : hw_preprocessor_16f628a.inc
 .PHONY: xr311-master
 xr311-master : hw_original_uart_reader.inc
 	$(eval CFLAGS = -D DUAL_TLC5916 -D ENABLE_STEERING_WHEEL_SERVO -D ENABLE_SERVO_OUTPUT -D LIGHT_MODE_MASK=0x03 -D ENABLE_UART)
-	$(eval files = master uart-reader servo-output utils xr311-lights)
+	$(eval files = master uart-reader servo-output utils lights-xr311)
 	$(build)
 	
 
@@ -249,7 +249,7 @@ test: test-tlc5940-16f1825
 .PHONY: test-tlc5940-16f1825
 test-tlc5940-16f1825: hw_tlc5940_16f1825.inc
 	$(eval CFLAGS = -D ENABLE_UART)
-	$(eval files = master uart-reader utils test-tlc5940-16f1825-lights)
+	$(eval files = master uart-reader utils lights-test-tlc5940-16f1825)
 	$(build)
 
 
