@@ -24,6 +24,19 @@ generic-two-position-master: hw_tlc5940_16f1825.inc
 
 
 ##############################################################################
+# Tamiya Nismo Coppermix Silvia
+##############################################################################
+.PHONY: nismo-coppermix
+nismo-coppermix: hkr3000-preprocessor nismo-coppermix-master
+
+.PHONY: nismo-coppermix-master
+nismo-coppermix-master: hw_tlc5940_16f1825.inc
+	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x03 -D ENABLE_UART) 
+	$(eval files = master uart-reader utils nismo-coppermix-lights)
+	$(build)
+
+
+##############################################################################
 # Tamiya Lancia Delta Integrale
 ##############################################################################
 .PHONY: lancia-delta-integrale
