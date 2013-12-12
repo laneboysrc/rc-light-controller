@@ -1,7 +1,7 @@
 .PHONY: all
-all: lancia-delta-integrale generic datsun-240z-rally bmw-2002-turbo \
-     porsche-911-rsr wraith datsun-510-master ben-landrover pajero subaru \
-     wyetuck-landrover phil-ford xr311 dingo
+all: nismo-coppermix lancia-delta-integrale generic datsun-240z-rally \
+     bmw-2002-turbo porsche-911-rsr wraith datsun-510-master ben-landrover \
+     pajero subaru wyetuck-landrover phil-ford xr311 dingo
 
 
 ##############################################################################

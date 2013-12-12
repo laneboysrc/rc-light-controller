@@ -37,7 +37,7 @@
 ;   E-mail:         laneboysrc@gmail.com
 ;
 ;******************************************************************************
-    TITLE       Generic light control logic
+    TITLE       Light control logic for the Tamiya Lancia Delta Integrale
     RADIX       dec
 
 ; Resistor determining the maximum LED current on the TLC5940; in Ohms
