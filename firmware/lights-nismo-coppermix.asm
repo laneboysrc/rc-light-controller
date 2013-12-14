@@ -23,10 +23,10 @@
 ;       OUT9    Indicator front right
 ;       OUT10   Indicator rear left
 ;       OUT11   Indicator rear right
-;       OUT12   Tail / Brake rear left
-;       OUT13   Tail / Brake rear right
-;       OUT14   Reversing light left
-;       OUT15   Reversing light right
+;       OUT12   Reversing light left
+;       OUT13   Reversing light right
+;       OUT14   Tail / Brake rear left
+;       OUT15   Tail / Brake rear right
 ;
 ;******************************************************************************
 ;
@@ -106,10 +106,10 @@
 #define LED_INDICATOR_F_R 9 
 #define LED_INDICATOR_R_L 10   
 #define LED_INDICATOR_R_R 11
-#define LED_REVERSING_L 12    
-#define LED_REVERSING_R 13    
-#define LED_TAIL_BRAKE_L 14    
-#define LED_TAIL_BRAKE_R 15    
+#define LED_TAIL_BRAKE_L 12    
+#define LED_TAIL_BRAKE_R 13    
+#define LED_REVERSING_L 14    
+#define LED_REVERSING_R 15    
 
 
 ; We calculate the LED current per dot-correction step, so that later we can
@@ -128,9 +128,9 @@
 
 #define VAL_MAIN_BEAM VAL_FULL
 #define VAL_HIGH_BEAM VAL_FULL
-#define VAL_TAIL (5 * 1000 / uA_PER_STEP)
+#define VAL_TAIL (3 * 1000 / uA_PER_STEP)
 #define VAL_BRAKE VAL_FULL
-#define VAL_REVERSE VAL_FULL
+#define VAL_REVERSE (3 * 1000 / uA_PER_STEP)
 #define VAL_INDICATOR_FRONT VAL_FULL
 #define VAL_INDICATOR_REAR VAL_FULL
 
