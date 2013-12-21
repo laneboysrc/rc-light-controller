@@ -8,7 +8,7 @@ all: nismo-coppermix lancia-delta-integrale generic datsun-240z-rally \
 # Generic light logic, not specific for any car
 ##############################################################################
 .PHONY: generic
-generic: generic-momentary-master generic-two-position-master
+generic: generic-momentary-master generic-two-position-master generic-always-on-master
 
 .PHONY: generic-momentary-master
 generic-momentary-master: hw_tlc5940_16f1825.inc
@@ -20,6 +20,12 @@ generic-momentary-master: hw_tlc5940_16f1825.inc
 generic-two-position-master: hw_tlc5940_16f1825.inc
 	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x0f -D ENABLE_STEERING_WHEEL_SERVO -D ENABLE_SERVO_OUTPUT) 
 	$(eval files = master servo-reader servo-output utils lights-generic)
+	$(build)
+
+.PHONY: generic-always-on-master
+generic-always-on-master: hw_tlc5940_16f1825.inc
+	$(eval CFLAGS = )
+	$(eval files = master servo-reader utils lights-always-on)
 	$(build)
 
 
