@@ -108,14 +108,14 @@
 #define LED_HIGH_BEAM_R 13
 #define LED_INDICATOR_F_L 8    
 #define LED_INDICATOR_F_R 9 
-#define LED_INDICATOR_R_L 4   
-#define LED_INDICATOR_R_R 5
-#define LED_TAIL_L 5    
-#define LED_TAIL_R 4    
+#define LED_INDICATOR_R_L 0   
+#define LED_INDICATOR_R_R 1
+#define LED_TAIL_L 4   
+#define LED_TAIL_R 5    
 #define LED_BRAKE_L 6    
 #define LED_BRAKE_R 7   
-#define LED_REVERSING_L 3    
-#define LED_REVERSING_R 2    
+#define LED_REVERSING_L 2    
+#define LED_REVERSING_R 3    
 
 
 ; We calculate the LED current per dot-correction step, so that later we can
