@@ -1,5 +1,6 @@
 .PHONY: all
-all: subaru-impreza-2008 nismo-coppermix lancia-delta-integrale generic \
+all: subaru-impreza-2008 ferrari-la-ferrari subaru-impreza-2008 \
+     nismo-coppermix lancia-delta-integrale generic \
      datsun-240z-rally bmw-2002-turbo porsche-911-rsr wraith datsun-510-master \
      ben-landrover pajero subaru wyetuck-landrover phil-ford xr311 dingo
 
@@ -27,8 +28,34 @@ generic-always-on-master: hw_tlc5940_16f1825.inc
 	$(eval CFLAGS = )
 	$(eval files = master servo-reader utils lights-always-on)
 	$(build)
+	
+	
+##############################################################################
+# Tamiya Subaru Impreza WRC 2007 (Sedan)
+##############################################################################
+.PHONY: subaru-impreza-2007
+subaru-impreza-2007: subaru-impreza-2007-master
+
+.PHONY: subaru-impreza-2007-master
+subaru-impreza-2007-master: hw_tlc5940_16f1825.inc
+	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x03 -D ENABLE_UART) 
+	$(eval files = master uart-reader utils lights-subaru-impreza-2007)
+	$(build)
 
 
+##############################################################################
+# Tamiya Ferrari La Ferrari
+##############################################################################
+.PHONY: ferrari-la-ferrari
+ferrari-la-ferrari: hkr3000-preprocessor ferrari-la-ferrari-master
+
+.PHONY: ferrari-la-ferrari-master
+ferrari-la-ferrari-master: hw_tlc5940_16f1825.inc
+	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x01 -D ENABLE_UART)
+	$(eval files = master uart-reader utils lights-ferrari-la-ferrari)
+	$(build)
+	
+	
 ##############################################################################
 # Tamiya Subaru Impreza WRC 2008 (hatchback)
 ##############################################################################
