@@ -34,36 +34,21 @@ TO DO LIST for the RC Light Controller
     * Sound generation via PWM or DAC?
     * What output hardware / amplifier is needed?
 
-Fix the issue with master and slave regarding UART RX usage in master for
-the preprocessor use case.  
+* Fix the issue with master and slave regarding UART RX usage in master for
+  the preprocessor use case.  
 
-Add PAGESEL statements to all calls and gotos to work properly when the code
-grows beyond one page (which happens already for the Wraith!)
+* Add PAGESEL statements to all calls and gotos to work properly when the code
+  grows beyond one page (which happens already for the Wraith!)
+
+* Add hysteresis for drive mode
+
+* Improve the PCB:
+    * Larger heat sink for TLC5940, using vias to ground plane
+    * Larger pad for tantalum cap
+    * Protection resistors for all inputs / outputs? (conflict with Vpp?)
+    * Support for 2 mm JST-PH connectors?
+    * Direct programming pads?
+    * Larger pads for resister that sets Iref?
 
 
-
-Patrick's Wraith:
-* Configuration
-    * Pre-processor in mini-receiver
-    * Use Steering servo output for gear box
-    * Use slave output for winch controller
-* Lights
-    * Main lights 3-clicks on/off
-    * Roof lights
-    * Brake lights
-    * Indicators / Hazard lights
-* Winch
-    * Indications for winch mode: use indicators
-    * Activate winch with 5-clicks
-    * 2-clicks release the cable; 1-click retracts the cable
-    * When winch is moving any change to CH3 stops the winch (don't wait for multiple clicks!)
-    * Control from slave output
-    * Show winch active by blinking indicators left/right
-    * Beep winch when activated and de-activated
-    * Send winch commands periodically in case of communication errors or reset problems
-* Gearbox control
-    * 1-click: low gear; 2-clicks: high gear    
-    * Indications for gear mode: use flashing of roof lights
-    * Only allow operation at low throttle
-    * Only apply servo signal for a short time, but regularly to keep servo in position
 
