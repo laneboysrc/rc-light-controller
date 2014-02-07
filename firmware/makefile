@@ -1,5 +1,5 @@
 .PHONY: all
-all: subaru-impreza-2008 ferrari-la-ferrari subaru-impreza-2008 \
+all: sawback subaru-impreza-2008 ferrari-la-ferrari subaru-impreza-2008 \
      nismo-coppermix lancia-delta-integrale generic \
      datsun-240z-rally bmw-2002-turbo porsche-911-rsr wraith datsun-510-master \
      ben-landrover pajero subaru wyetuck-landrover phil-ford xr311 dingo
@@ -27,6 +27,19 @@ generic-two-position-master: hw_tlc5940_16f1825.inc
 generic-always-on-master: hw_tlc5940_16f1825.inc
 	$(eval CFLAGS = )
 	$(eval files = master servo-reader utils lights-always-on)
+	$(build)
+	
+	
+##############################################################################
+# GMade Sawback (Willy's Jeep)
+##############################################################################
+.PHONY: sawback
+sawback: sawback-master
+
+.PHONY: sawback-master
+sawback-master: hw_tlc5940_16f1825.inc
+	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x01 -D ESC_FORWARD_REVERSE -D ENABLE_UART) 
+	$(eval files = master uart-reader utils lights-sawback)
 	$(build)
 	
 	
