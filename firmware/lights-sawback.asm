@@ -262,6 +262,9 @@ _output_lights_indicators_on
     btfss   drive_mode, DRIVE_MODE_BRAKE
     goto    _output_lights_combined_indicators_half
 
+    BANKSEL blink_mode
+    movfw   blink_mode
+    movwf   temp
     movlw   VAL_INDICATOR_REAR
     BANKSEL light_data
     btfsc   temp, BLINK_MODE_HAZARD
