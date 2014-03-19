@@ -383,8 +383,8 @@ Loc="0 25 1679 1025"
 State=1
 Number=2
 File="rc-light-controller-tlc5940-smd.brd"
-View="-26173 -12032 323133 254208"
-WireWidths=" 0 2540 3048 6096 8128 10160 12700 14224 16764 17780 19304 21844 25400 38100 64516 4064"
+View="30046 -16410 321140 205460"
+WireWidths=" 0 2540 3048 6096 10160 12700 14224 16764 17780 19304 21844 25400 38100 64516 8128 4064"
 PadDiameters=" 2540 3048 4064 6096 8128 10160 12700 14224 16764 17780 19304 21844 25400 38100 64516 0"
 PadDrills=" 5000 6000 7000 9000 10000 11000 12000 13000 14000 15000 16000 20000 22000 28000 32000 8000"
 ViaDiameters=" 2540 3048 4064 6096 8128 10160 12700 14224 16764 17780 19304 21844 25400 38100 64516 0"
@@ -414,17 +414,9 @@ SwapLevel=0
 ArcDirection=0
 AddLevel=2
 PadsSameType=0
-Layer=16
+Layer=1
 
 [Win_3]
-Type="CAM Processor"
-Loc="0 0 599 509"
-State=2
-Number=3
-File="rc-light-controller-tlc5940-smd.brd"
-Job="/home/laneboysrc/projects/rc-light-controller/electronics/OSH Park modified by laneboysrc.cam"
-
-[Win_4]
 Type="Control Panel"
 Loc="474 84 1675 971"
 State=2
@@ -435,4 +427,3 @@ Screen="1680 1050"
 Window="Win_1"
 Window="Win_2"
 Window="Win_3"
-Window="Win_4"
