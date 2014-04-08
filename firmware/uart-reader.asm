@@ -23,6 +23,7 @@
     GLOBAL steering_reverse
     GLOBAL throttle            
     GLOBAL throttle_abs       
+    GLOBAL throttle_threshold       
     GLOBAL throttle_reverse
     GLOBAL ch3  
 
@@ -70,6 +71,7 @@ ENDIF
 
 throttle            res 1
 throttle_abs        res 1  
+throttle_threshold  res 1       ; not used here, but defined so it is in the same bank as throttle_abs 
 throttle_reverse    res 1  
 
 steering            res 1

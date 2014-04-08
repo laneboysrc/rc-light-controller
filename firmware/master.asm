@@ -72,6 +72,7 @@ ENDIF
     EXTERN steering_reverse
     EXTERN throttle            
     EXTERN throttle_abs       
+    EXTERN throttle_threshold       
     EXTERN throttle_reverse
     EXTERN ch3                 
      
@@ -144,7 +145,14 @@ ENDIF
 #define DRIVE_MODE_BRAKE_DISARM 5
 #define DRIVE_MODE_AUTO_REVERSE 6
 
+; Centre threshold defines a range where we consider the servo being centred.
+; In order to prevent "flickering" especially for the brake and reverse light
+; the CENTRE_THRESHOLD_HIGH and CENTRE_THRESHOLD_LOW provide a hysteresis
+; that we apply to the throttle when processing drive_mode.
+#define CENTRE_THRESHOLD_LOW 8
 #define CENTRE_THRESHOLD 10
+#define CENTRE_THRESHOLD_HIGH 12
+
 #define STEERING_BLINK_THRESHOLD 50
 #define STEERING_BLINK_OFF_THRESHOLD 30
 
@@ -298,7 +306,7 @@ Init
     clrf    ch3_clicks
     clrf    indicator_state
     clrf    servo
-
+    
 IFDEF ENABLE_WINCH
     clrf    winch_mode
     clrf    winch_command_repeat_counter
@@ -306,6 +314,10 @@ ENDIF
 
     movlw   BLINK_COUNTER_VALUE
     movwf   blink_counter
+
+    BANKSEL throttle_threshold
+    movlw   CENTRE_THRESHOLD_HIGH
+    movwf   throttle_threshold
 
     call    Init_lights
 
@@ -315,7 +327,6 @@ ENDIF
 
     call    EEPROM_load_persistent_data
     call    Init_reader
-
 
 IFDEF ENABLE_GEARBOX
     ; Always start in Gear 1. We can not just let the servo idle until 
@@ -912,11 +923,14 @@ process_ch3_click_end
 ;******************************************************************************
 Process_drive_mode
     BANKSEL throttle_abs
-    movlw   CENTRE_THRESHOLD
+    movf    throttle_threshold, w
     subwf   throttle_abs, w
     bc      process_drive_mode_not_neutral
 
 process_drive_mode_neutral
+    BANKSEL throttle_threshold
+    movlw   CENTRE_THRESHOLD_HIGH
+    movwf   throttle_threshold
     BANKSEL drive_mode
     btfsc   drive_mode, DRIVE_MODE_FORWARD
     goto    process_drive_mode_neutral_after_forward    
@@ -993,6 +1007,9 @@ process_drive_mode_neutral_after_brake
     return
 
 process_drive_mode_not_neutral
+    BANKSEL throttle_threshold
+    movlw   CENTRE_THRESHOLD_LOW
+    movwf   throttle_threshold
     BANKSEL drive_mode
     bcf     drive_mode, DRIVE_MODE_AUTO_BRAKE
     bcf     drive_mode, DRIVE_MODE_BRAKE_DISARM
