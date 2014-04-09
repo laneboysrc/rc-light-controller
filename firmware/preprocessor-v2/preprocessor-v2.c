@@ -26,8 +26,24 @@
 #include <stdint.h>
 
 
-static __code uint16_t __at (_CONFIG1) configword1 = _FOSC_INTOSC & _WDTE_OFF & _PWRTE_ON & _MCLRE_OFF & _CP_OFF & _CPD_OFF & _BOREN_OFF & _CLKOUTEN_OFF & _IESO_OFF & _FCMEN_OFF;
-static __code uint16_t __at (_CONFIG2) configword2 = _WRT_OFF & _PLLEN_OFF & _STVREN_OFF & _LVP_OFF; 
+// Chip configuration
+static __code uint16_t __at (_CONFIG1) configword1 = 
+    _FOSC_INTOSC & 
+    _WDTE_OFF & 
+    _PWRTE_ON & 
+    _MCLRE_OFF & 
+    _CP_OFF & 
+    _CPD_OFF & 
+    _BOREN_OFF & 
+    _CLKOUTEN_OFF & 
+    _IESO_OFF & 
+    _FCMEN_OFF;
+
+static __code uint16_t __at (_CONFIG2) configword2 = 
+    _WRT_OFF & 
+    _PLLEN_OFF & 
+    _STVREN_OFF & 
+    _LVP_OFF; 
 
 
 extern void Init_servo_reader(void);
@@ -51,8 +67,9 @@ static void Init_hardware(void) {
     // IO Port initialization
     LATA = 0;
     ANSELA = 0;
-    TRISA = 0b00110100;     // Make all ports except RA2, RA4 and RA5 output
+    TRISA = 0b00110100;     // Make servo ports RA2, RA4 and RA5 inputs
     APFCON0 = 0b00000000;   // Use RA0/RA1 for UART TX/RX
+
     INTCON = 0;
 }
 

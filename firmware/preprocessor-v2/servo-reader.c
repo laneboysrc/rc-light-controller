@@ -18,7 +18,7 @@ static uint8_t tune_wait;
 static uint16_t avg[NUM_AVERAGES];
 
 uint8_t channel_data[4];
-extern struct {
+struct {
     unsigned locked : 1;
     unsigned new_data : 1;
 } flags;
@@ -46,9 +46,17 @@ extern struct {
 static struct {
     uint16_t time;
     uint8_t port_state;
+    uint8_t _pack;
 } timestamps[NUM_CHANNELS * 2];
+
+
 static uint8_t timestamp_count;    
 static uint8_t channel_flags;    
+// Variables used in the Interrupt routine 
+// They are not make local to be able to use inline assembly
+static uint8_t porta_temp;
+static uint8_t timer_l;
+static uint8_t timer_h;
 
 static uint8_t wait_for_all_channels_inactive;    
 
@@ -64,6 +72,8 @@ static uint16_t th_epr;
 
 static uint16_t ch3;
 static uint8_t last_ch3;
+
+
 
 #define CH3_EP0 (1000 >> 4)
 #define CH3_EP1 (2000 >> 4)
@@ -91,6 +101,10 @@ void Init_servo_reader(void)
 
     // Start measuring channels only if currently all channels are inactive
     wait_for_all_channels_inactive = 1;
+
+    flags.locked = 0;
+    flags.new_data = 0;   
+    tune_wait = NUM_AVERAGES; 
 }
 
 
@@ -102,22 +116,11 @@ void Init_servo_reader(void)
  *****************************************************************************/
 void servo_reader_interrupt(void) __interrupt 0
 {
-    uint8_t porta_temp;
-
-    union {
-        struct {
-            uint8_t tl;
-            uint8_t th;
-        };
-        uint16_t t;
-    } t;
-
-
     // Retrieve TIMER1 value safely by briefly stopping the timer while reading
     // it. The potential small error introduced is neglectible and constant.
     TMR1ON = 0;     
-    t.th = TMR1H;
-    t.tl = TMR1L;
+    timer_h = TMR1H;
+    timer_l = TMR1L;
     TMR1ON = 1;     
 
 
@@ -132,10 +135,38 @@ void servo_reader_interrupt(void) __interrupt 0
 
 
     // Store a snapshot of the current time and port state for later processing
-    timestamps[timestamp_count].time = t.t;
+#if 0
+    timestamps[timestamp_count].time = (timer_h << 8) + timer_l;
     timestamps[timestamp_count].port_state = porta_temp;
     ++timestamp_count;
-    
+#else
+    __asm
+    ; Inline assembly for optimization. About half the code size as SDCC generates
+    BANKSEL _timestamp_count
+    clrf    FSR0H
+    lslf    _timestamp_count, w         ; 1 structure element is 4 bytes, hence multiply timestamp_count by 4
+    lslf    WREG, w
+    incf    _timestamp_count, f
+    addlw	low _timestamps
+    movwf	FSR0L
+    movlw   0
+    btfsc	STATUS,0
+    incfsz  FSR0H, w     
+    addlw   high _timestamps
+    movwf   FSR0H
+
+    movf    _timer_l, w
+    movwf   INDF0
+
+    addfsr  FSR0, 1
+    movf    _timer_h, w
+    movwf   INDF0
+
+    addfsr  FSR0, 1
+    movf    _porta_temp, w
+    movwf   INDF0
+    __endasm;
+#endif    
     
     // Check if we have seen the '1' periods of all channels, and the 
     // current state of all channels is 0 -- which means we have measurements
@@ -206,19 +237,20 @@ static uint8_t normalize_ch3(void)
  *****************************************************************************/
 static uint8_t expansion_protocol_ch3(void) 
 {
-    // Remove the offset we added in the transmitter to ensure the minimum
-    // pulse does not go down to zero.
-    if (ch3 < SYNC_VALUE_LIMIT) {
-        if (ch3 < TIMING_OFFSET) {
-            return 0;
-        }
-        return ((ch3 - TIMING_OFFSET) >> 5);
-    }
-    
     // If we are dealing with a sync value we clamp it to the nominal value
     // so that our check whether the value has changed does not trigger 
     // wrongly when jitter moves between e.g. 0xa40 and 0xa3f
-    return (SYNC_VALUE_NOMINAL >> 5);
+    // We also return the sync value if oscillator tuning is not locked.
+    if (!flags.locked  ||  ch3 > SYNC_VALUE_LIMIT) {
+        return (SYNC_VALUE_NOMINAL >> 5);
+    }
+
+    // Remove the offset we added in the transmitter to ensure the minimum
+    // pulse does not go down to zero.
+    if (ch3 < TIMING_OFFSET) {
+        return 0;
+    }
+    return ((ch3 - TIMING_OFFSET) >> 5);
 }
 
 
@@ -319,7 +351,6 @@ static uint16_t calculate_servo_pulse(uint8_t mask)
     // checked elsewhere and pulse repetition time should be << TIMER1MAX
     return pulse_end_time - pulse_start_time;
 }
-
 
 
 /*****************************************************************************
@@ -431,13 +462,14 @@ void Read_servos(void)
             th = calculate_servo_pulse(1 << TH_BIT_NUMBER);
             ch3 = calculate_servo_pulse(1 << CH3_BIT_NUMBER);
 
-            /* If we receive a value > 0x880 then it can only be the special value
-               0xa40, which is used for syncing as well as calibrating the oscillator.  
+            /* If we receive a ch3 > 0x880 then it can only be the special value
+               0xa40, which is used for syncing as well as calibrating the 
+               oscillator.  
                
-               0x880 has been chosen because we must ensure that it triggers regardless
-               of how mis-tuned our local oscillator is.
+               0x880 has been chosen because we must ensure that it triggers 
+               regardless of how mis-tuned our local oscillator is.
              */
-            if (ch3 > 0x880) {
+            if (ch3 > SYNC_VALUE_LIMIT) {
                 tuneOscillator(ch3);
             }
             
@@ -482,7 +514,7 @@ void Read_servos(void)
             TMR1H = 0;
             TMR1IF = 0;
             
-            // Initialized everything for the interrupt and enable it.
+            // Initialize everything for the interrupt and enable it.
             channel_flags = 0;
             timestamp_count = 0;
             IOCIE = 1;

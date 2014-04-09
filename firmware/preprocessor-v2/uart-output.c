@@ -1,24 +1,24 @@
 #include "processor.h"
+#include <stdint.h>
 
 #define SPBRG_VALUE 104     // 38400 @ 16 MHz
 
-extern unsigned char data;
-struct {
+#define SLAVE_MAGIC_BYTE 0x87
+
+extern uint8_t channel_data[4];
+extern struct {
     unsigned locked : 1;
-    unsigned dataChanged : 1;
+    unsigned new_data : 1;
 } flags;
 
-void UART_send(void);
-void UART_send_uint(void);
-void UART_send_uchar(void);
-unsigned char tx_value;
-unsigned int tx_uint;
+uint8_t next_tx_index;
+uint8_t tx_data[4];
 
 
 /*****************************************************************************
  Init_output()
 
- Called once during start-up of the firmware. 
+ Called once during start-up of the firmware. Initialize the UART hardware.
  ****************************************************************************/
 void Init_output(void) {
 	BRG16 = 1;
@@ -31,76 +31,52 @@ void Init_output(void) {
 	TXEN=1;			// Enable transmission mode
 	CREN=0;			// Disable reception mode
 
-	TXREG = '\n';
+    // Send a dummy value to get a valid transmit flag
+	TXREG = SLAVE_MAGIC_BYTE;
+	
+	// Initialize an out-of-bound index into tx_data to signal that no 
+	// transmission is in progress.
+	next_tx_index = 4;
 }
 
 
 /*****************************************************************************
  Output_result()
 
- FIXME: change to pre-processor output; Output always 4 bytes?!
+ This non-blocking function sends the received and processed servo pulse
+ values out via the UART. 
  
-
- Outputs the timer 1 value as decimal number, including leading zeros
+ It has its own transmit buffer so that new pulse measurements can begin
+ while transmission is still in progress (even though that is not really
+ needed). 
  ****************************************************************************/
 void Output_result(void) {
-    if (flags.locked) {
-        tx_uint = (TMR1H << 8) + TMR1L;
-        UART_send_uint();
+    // Return immediately if UART transmit hardware is busy
+    if (!TRMT) {
+        return;
     }
-}
 
+    // Ongoing transmit? Yes: send the next value out.
+    if (next_tx_index < 4) {
+        TXREG = tx_data[next_tx_index++];
+        return;
+    }    
 
-/*****************************************************************************
- Send tx_uint as decimal number with leading zeros out via the UART
- ****************************************************************************/
-void UART_send_uint(void) {
-    tx_value = 0;
-    while (tx_uint >= 9999) {
-        tx_uint -= 10000;
-        ++tx_value;
+    // If new servo data was measured we copy it to our local buffer and send
+    // out the first byte, which is the magic value 0x87 that signals "start
+    // of frame".
+    if (flags.new_data) {
+        uint8_t i;
+
+        flags.new_data = 0;
+
+        for (i = 0; i < 4 ; i++) {
+            tx_data[i] = channel_data[i];
+        }
+        
+        next_tx_index = 0;
+        TXREG = SLAVE_MAGIC_BYTE;  
+        return;
     }
-    tx_value += '0';
-    UART_send();
-
-    tx_value = 0;
-    while (tx_uint >= 1000) {
-        tx_uint -= 1000;
-        ++tx_value;
-    }
-    tx_value += '0';
-    UART_send();
-    
-    tx_value = 0;
-    while (tx_uint >= 100) {
-        tx_uint -= 100;
-        ++tx_value;
-    }
-    tx_value += '0';
-    UART_send();
-
-    tx_value = 0;
-    while (tx_uint >= 10) {
-        tx_uint -= 10;
-        ++tx_value;
-    }
-    tx_value += '0';
-    UART_send();
-
-    tx_value = tx_uint + '0';
-    UART_send();
-
-    tx_value = '\n';
-    UART_send();
-}
-
-
-/*****************************************************************************
- Send tx_value out via the UART
- ****************************************************************************/
-void UART_send(void) {
-    // Wait for TSR register being empty, then send the character in tx_value
-    while (!TRMT);
-    TXREG = tx_value;  
 }
 
