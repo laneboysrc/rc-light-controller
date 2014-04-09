@@ -12,33 +12,28 @@ TIMER1 is used to measure time; it must be set to increment in 1us intervals.
 
 #define STARTUP_MODE_NEUTRAL 4
 
-uint8_t channel_data[4];
-uint8_t flag_new_data;
 
 #define NUM_AVERAGES 4
-static uint8_t wait;
+static uint8_t tune_wait;
 static uint16_t avg[NUM_AVERAGES];
 
+uint8_t channel_data[4];
 extern struct {
     unsigned locked : 1;
-    unsigned dataChanged : 1;
+    unsigned new_data : 1;
 } flags;
 
-
-uint8_t receivedValues[3];
 
 #define TIMING_OFFSET 0x20
 #define SYNC_VALUE_LIMIT 0x880
 #define SYNC_VALUE_NOMINAL 0xa40
 
-
-
 // We defind how many channels we have, and which bit of PORTA each channel is.
 // Then we calculate an AND mask for all channels.
 #define NUM_CHANNELS 3
-#define ST_BIT_NUMBER 4
-#define TH_BIT_NUMBER 5
-#define CH3_BIT_NUMBER 3
+#define ST_BIT_NUMBER 2
+#define TH_BIT_NUMBER 4
+#define CH3_BIT_NUMBER 5
 
 #define CHANNEL_MASK ((1 << ST_BIT_NUMBER) | (1 << TH_BIT_NUMBER) | (1 << CH3_BIT_NUMBER)) 
 
@@ -69,6 +64,7 @@ static uint16_t th_epr;
 
 static uint16_t ch3;
 static uint8_t last_ch3;
+
 #define CH3_EP0 (1000 >> 4)
 #define CH3_EP1 (2000 >> 4)
 #define CH3_CENTER ((CH3_EP1 - CH3_EP0) / 2) + CH3_EP0
@@ -146,7 +142,7 @@ void servo_reader_interrupt(void) __interrupt 0
     // of the pulse width of all channels.
     //
     // We also terminate if we are running out of storage space, which can
-    // only happen in error situations such as not all channels being 
+    // only happens in error situations such as not all channels being 
     // transmitted in one sequence.
     channel_flags |= porta_temp;
     if ((channel_flags == CHANNEL_MASK  &&     // All channels have seen a '1'? AND ...
@@ -155,66 +151,6 @@ void servo_reader_interrupt(void) __interrupt 0
         IOCIE = 0;    
         TMR1ON = 0;     
     }
-}
-
-
-/*****************************************************************************
- ****************************************************************************/
-static void tuneOscillator(uint16_t value) 
-{
-    char i;
-
-    for (i = 0; i < NUM_AVERAGES - 1; i++) {
-        avg[i] = avg[i + 1];
-    }
-    avg[i] = value;
-
-    if (wait) {
-        --wait;
-        return;
-    }
-
-    // Calculate the average of the last four values, to remove jitter
-    value = 0;
-    for (i = 0; i < NUM_AVERAGES; i++) {
-        value += avg[i];
-    }
-    value = value / NUM_AVERAGES;     
-
-    wait = NUM_AVERAGES;
-    i = OSCTUNE & 0x3f;
-    // Convert 6-bit signed into 6-bit unsigned
-    i = i ^ 0x20;
-    
-    if (value < 0xa31) {
-        flags.locked = 0;
-        i += 10;
-    }
-    else if (value > 0xa57) {
-        flags.locked = 0;
-        i -= 10;
-    }
-    else if (value < 0xa3e) {
-        ++i;
-    }
-    else if (value > 0xa42) {
-        --i;
-    }
-    else {
-        wait = 0;
-        flags.locked = 1;
-    }    
-
-    if (i < 0) {
-        i = 0;
-    }
-    else if (i > 0x3f) {
-        i = 0x3f;
-    } 
-
-    // Convert 6-bit unsigned back into 6-bit signed
-    i = i ^ 0x20;
-    OSCTUNE = i;
 }
 
 
@@ -263,6 +199,26 @@ static uint8_t normalize_ch3(void)
     }
     
     return last_ch3;
+}
+
+
+/*****************************************************************************
+ *****************************************************************************/
+static uint8_t expansion_protocol_ch3(void) 
+{
+    // Remove the offset we added in the transmitter to ensure the minimum
+    // pulse does not go down to zero.
+    if (ch3 < SYNC_VALUE_LIMIT) {
+        if (ch3 < TIMING_OFFSET) {
+            return 0;
+        }
+        return ((ch3 - TIMING_OFFSET) >> 5);
+    }
+    
+    // If we are dealing with a sync value we clamp it to the nominal value
+    // so that our check whether the value has changed does not trigger 
+    // wrongly when jitter moves between e.g. 0xa40 and 0xa3f
+    return (SYNC_VALUE_NOMINAL >> 5);
 }
 
 
@@ -371,53 +327,6 @@ static uint16_t calculate_servo_pulse(uint8_t mask)
  the respective endpoint, we move the endpoint to capture the pulse range that
  the transmitter is using.
  *****************************************************************************/
-static void Process_value(void) 
-{
-    uint16_t value;
-    uint8_t data;
-    static uint8_t oldData = 0;
-    static uint8_t valueCount = 0;
-
-    flags.dataChanged = 0;
-    value = (TMR1H << 8) + TMR1L;
-    
-    // Remove the offset we added in the transmitter to ensure the minimum
-    // pulse does not go down to zero.
-    if (value < SYNC_VALUE_LIMIT) {
-        value -= TIMING_OFFSET;
-    }
-    // If we are dealing with a sync value we clamp it to the nominal value
-    // so that our check whether the value has changed does not trigger 
-    // wrongly when jitter moves between e.g. 0xa40 and 0xa3f
-    else { // === if (value >= SYNC_VALUE_LIMIT)
-        value = SYNC_VALUE_NOMINAL;
-    }
-    
-    data = value >> 5;
-
-    if (oldData != data) {
-        if (value < SYNC_VALUE_LIMIT) {
-            if (valueCount < 3) {
-                receivedValues[valueCount] = data;
-            }
-            ++valueCount;
-        }
-        else {
-            if (valueCount == 3) {
-                flags.dataChanged = 1;
-            }
-            valueCount = 0;
-        }        
-    }
-    oldData = data;
-}
-
-
-/*****************************************************************************
- Automatic endpoint adjustment: if the pulse we measure is larger/smaller then
- the respective endpoint, we move the endpoint to capture the pulse range that
- the transmitter is using.
- *****************************************************************************/
 static void adjust_endpoints(void)
 {
     if (st < st_epl) {
@@ -435,6 +344,66 @@ static void adjust_endpoints(void)
     if (th > th_epr) {
         th_epr = th;
     }
+}
+
+
+/*****************************************************************************
+ ****************************************************************************/
+static void tuneOscillator(uint16_t value) 
+{
+    char i;
+
+    for (i = 0; i < NUM_AVERAGES - 1; i++) {
+        avg[i] = avg[i + 1];
+    }
+    avg[i] = value;
+
+    if (tune_wait) {
+        --tune_wait;
+        return;
+    }
+
+    // Calculate the average of the last four values, to remove jitter
+    value = 0;
+    for (i = 0; i < NUM_AVERAGES; i++) {
+        value += avg[i];
+    }
+    value = value / NUM_AVERAGES;     
+
+    tune_wait = NUM_AVERAGES;
+    i = OSCTUNE & 0x3f;
+    // Convert 6-bit signed into 6-bit unsigned
+    i = i ^ 0x20;
+    
+    if (value < 0xa31) {
+        flags.locked = 0;
+        i += 10;
+    }
+    else if (value > 0xa57) {
+        flags.locked = 0;
+        i -= 10;
+    }
+    else if (value < 0xa3e) {
+        ++i;
+    }
+    else if (value > 0xa42) {
+        --i;
+    }
+    else {
+        tune_wait = 0;
+        flags.locked = 1;
+    }    
+
+    if (i < 0) {
+        i = 0;
+    }
+    else if (i > 0x3f) {
+        i = 0x3f;
+    } 
+
+    // Convert 6-bit unsigned back into 6-bit signed
+    i = i ^ 0x20;
+    OSCTUNE = i;
 }
 
 
@@ -481,6 +450,7 @@ void Read_servos(void)
                     channel_data[0] = 0;
                     channel_data[1] = 0;
                     channel_data[2] = normalize_ch3() | (1 << STARTUP_MODE_NEUTRAL);
+                    channel_data[3] = (SYNC_VALUE_NOMINAL >> 5);
                     
                     // At the end of the initialization phase capture the endpoints
                     if (init_count == 0) {
@@ -492,8 +462,9 @@ void Read_servos(void)
                     channel_data[0] = normalize(st, st_center, st_epl, st_epr);
                     channel_data[1] = normalize(th, th_center, th_epl, th_epr);
                     channel_data[2] = normalize_ch3();
+                    channel_data[3] = expansion_protocol_ch3();
                 }
-                flag_new_data = 1;
+                flags.new_data = 1;
             }
         }        
         wait_for_all_channels_inactive = 1;
