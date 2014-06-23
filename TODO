@@ -40,15 +40,15 @@ TO DO LIST for the RC Light Controller
 * Add PAGESEL statements to all calls and gotos to work properly when the code
   grows beyond one page (which happens already for the Wraith!)
 
-* Add hysteresis for drive mode
+* Test hysteresis for drive mode
 
 * Improve the PCB:
     * Larger heat sink for TLC5940, using vias to ground plane
-    * Larger pad for tantalum cap
     * Protection resistors for all inputs / outputs? (conflict with Vpp?)
-    * Support for 2 mm JST-PH connectors?
     * Direct programming pads?
     * Larger pads for resister that sets Iref?
+    * High power switched output using MOSFET
+    * Align all 0.1 inch connectors to 0.1 inch grid (allows mounting on a breadboard)
 
 
 
