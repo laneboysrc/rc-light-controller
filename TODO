@@ -48,6 +48,7 @@ TO DO LIST for the RC Light Controller
     * Direct programming pads?
     * Larger pads for resister that sets Iref?
     * High power switched output using MOSFET
+        Use NXP PMV20XN, 4.8A in SOT23 package
     * Align all 0.1 inch connectors to 0.1 inch grid (allows mounting on a breadboard)
 
 
