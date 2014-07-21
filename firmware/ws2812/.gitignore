@@ -1,0 +1,6 @@
+*.o
+*.cod
+*.asm
+*.lst
+*.hex
+
