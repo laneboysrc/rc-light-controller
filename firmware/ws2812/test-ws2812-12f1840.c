@@ -38,6 +38,24 @@ static __code uint16_t __at (_CONFIG2) configword2 =
     _LVP_OFF; 
 
 
+// These tables were created by gamma.c
+// https://github.com/adafruit/Adafruit_NeoMatrix/blob/master/extras/gamma.c
+static const uint8_t gamma4[] = {
+      0,  0,  1,  4,  8, 15, 24, 35, 50, 68, 89,114,143,176,213,255
+};
+
+static const uint8_t gamma5[] = {
+      0,  0,  0,  1,  1,  2,  4,  5,  8, 10, 13, 17, 22, 27, 32, 39,
+     46, 53, 62, 71, 82, 93,105,117,131,146,161,178,196,214,234,255
+};
+
+static const uint8_t gamma6[] = {
+      0,  0,  0,  0,  0,  0,  1,  1,  1,  2,  2,  3,  3,  4,  5,  6,
+      7,  8, 10, 11, 13, 15, 17, 19, 21, 23, 26, 28, 31, 34, 37, 40,
+     44, 47, 51, 55, 60, 64, 69, 73, 78, 83, 89, 94,100,106,113,119,
+    126,133,140,147,155,163,171,179,188,197,206,215,225,234,245,255
+};
+
 
 /*****************************************************************************
  Init_hardware()
@@ -170,7 +188,7 @@ void main(void) {
     
     while (1) {
         for (i = 0; i < sizeof(led_data) ; i++) {
-            led_data[i] = value;
+            led_data[i] = gamma4[value & 0x0f];
         }
         value <<= 1;
         if (value == 0) {
