@@ -16,7 +16,9 @@
 #define NUM_LEDS 12
 
 
-uint8_t led_data[3 * NUM_LEDS];
+void WS2812_send(void);
+
+uint8_t light_data[3 * NUM_LEDS];
 
 // Chip configuration
 static __code uint16_t __at (_CONFIG1) configword1 = 
@@ -97,54 +99,51 @@ static void Init_hardware(void) {
 }
 
 
-#if 0
-static uint8_t ws2812_data;
-void WS2812_send_byte(uint8_t data) {
+/*****************************************************************************
+ Init_WS2812
 
-    ws2812_data = data;
-    ws2812_count = 8;
-    
-    __asm
-    BANKSEL _ws2812_data
-    movfw   _ws2812_data
-    BANKSEL _ws2812_count
+ Initializes the operation of the WS2812 (or PL9823) LEDs and sets all LED 
+ outputs to Off.
+ 
+ The LEDs seem to have a reset timeing themselves, so we send the commands
+ repeatidely for a certain time, which was determined using experiments.
+ 
+ Note that the LEDs, especially the PL9823, still flash after power on, nothing 
+ we can do about this.
+ ****************************************************************************/
+uint8_t delay;
+void Init_WS2812(void) {
+    uint8_t i;
 
-WS2812_send_byte_loop:    
-    btfsc   WREG, 7
-    goto    WS2812_send_byte_loop_high
-    
-WS2812_send_byte_loop_low:
-    bsf     LATA, 2                 ; LOW: 3 cycles = 375ns
-    nop
-    nop
-    bcf     LATA, 2                 
-    ; The loop takes 10 cycles from here to reach the next bit, which is 1000ns. 
-    ; This makes the total LOW pulse duration ~1375ns, which is fine according
-    ; to the info referenced above.
-    goto    WS2812_send_byte_loop_end
-    
-WS2812_send_byte_loop_high:
-    bsf     LATA, 2                 ; HIGH: 6 cycles = 750ns
-    nop
-    nop
-    nop
-    nop
-    nop
-    bcf     LATA, 2
-    ; From here the loop takes 7 cycles until the next bit, which is more than 
-    ; needed.
+    for (i = 0 ; i < sizeof(light_data); i++) {
+        light_data[i] = 0;
+    }
 
-WS2812_send_byte_loop_end:
-    rlf     WREG, f
-    decfsz  _ws2812_count, f
-    goto    WS2812_send_byte_loop    
-    __endasm;
+    delay = 10;
+
+    for (i = 0; i < 10; i++) {
+        // This delay is to ensure the minimum 50us reset time of the LEDs
+        __asm
+        BANKSEL _delay
+        movlw   10
+        movwf   _delay
+low_loop:
+        nop
+        nop
+        decfsz  _delay, f
+        goto    low_loop      
+        __endasm;
+        
+        WS2812_send();
+    }
 }
-#endif
+
 
 /*****************************************************************************
+ WS2812_send
 
-/*****************************************************************************
+ Sends the value in the light_data registers to the WS2812 (or PL9823) LEDs.
+
 
  According to:  
     http://cpldcpu.wordpress.com/2014/01/14/light_ws2812-library-v2-0-part-i-understanding-the-ws2812/
@@ -175,13 +174,13 @@ static uint8_t ws2812_array_count;
 
 void WS2812_send(void) {
 
-    ws2812_array_count = sizeof(led_data);
+    ws2812_array_count = sizeof(light_data);
     ws2812_count = 8;       // Need to initialize it to prevent optimizing it away...
 
     __asm
-    movlw	LOW _led_data
+    movlw	LOW _light_data
     movwf   FSR0L
-    movlw	HIGH _led_data
+    movlw	HIGH _light_data
     movwf   FSR0H
 
     BANKSEL _ws2812_array_count
@@ -301,24 +300,7 @@ void main(void) {
     uint8_t up;
 
     Init_hardware();
-
-
-    for (s = 0 ; s < sizeof(led_data); s++) {
-        led_data[s] = 0;
-    }
-
-    for (s = 0; s < 10; s++) {
-        __asm
-        movlw   10
-        movwf   _ws2812_count
-low_loop:
-        nop
-        nop
-        decfsz  _ws2812_count, f
-        goto    low_loop      
-        __endasm;
-        WS2812_send();
-    }
+    Init_WS2812();
 
     for (h = 0 ; h < 1; h++) {
         for (loop_counter = 0; loop_counter < 60000; loop_counter++) {
@@ -327,35 +309,12 @@ low_loop:
     }
 
     up = 1;    
-    h = 25;
-    s = 255;
     v = 1;
     
     while (1) {
-        //getRGB(h, s, v);
-
-
-        s = gamma5[v];
-        led_data[0] = s;
-        led_data[1] = s;
-        led_data[2] = s;
-
-//        led_data[3] = b;
-//        led_data[4] = r;
-//        led_data[5] = g;
-
-//        led_data[6] = g;
-//        led_data[7] = b;
-//        led_data[8] = r;
-
-//        led_data[9] = g;
-//        led_data[10] = r;
-//        led_data[11] = b;
-
-
 
         if (up) {
-            if (v >= 22) {
+            if (v >= 45) {
                 up = 0;
             }
             else {
@@ -371,14 +330,20 @@ low_loop:
             }
         }
 
-        ++h;
-        if (h >= 360) {
-            h = 0;
-        }
+        //getRGB(h, s, v);
+
+        s = gamma6[v];
+        light_data[0] = s;
+        light_data[1] = 0;
+        light_data[2] = 0;
+
+        light_data[3] = 0;
+        light_data[4] = 0;
+        light_data[5] = s;
 
         WS2812_send();
 
-        for (loop_counter = 0; loop_counter < 10000; loop_counter++) {
+        for (loop_counter = 0; loop_counter < 30000; loop_counter++) {
             WREG = loop_counter & 0xff;
         }
     }
