@@ -43,6 +43,9 @@ temp                res 2
 .data_utils UDATA
 random              res 1 
 
+IFDEF WS2812
+light_data          res 3 * NUMBER_OF_LEDS  ; WS2812, three bytes per LED
+ELSE                            
 IFDEF TLC5940
 light_data          res 16      ; TLC5940, one byte per LED
 ELSE                            
@@ -50,6 +53,7 @@ IFDEF DUAL_TLC5916
 light_data          res 2       ; DUAL_TLC5916, one byte per chip
 ELSE  
 light_data          res 1       ; Single TLC5916, 8 LEDs on/off
+ENDIF 
 ENDIF 
 ENDIF 
 
