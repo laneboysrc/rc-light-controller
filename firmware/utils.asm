@@ -505,6 +505,36 @@ Random_min_max_loop
     return
 
 
+
+;******************************************************************************
+; Clear_light_data / Fill_light_data
+;
+; Clear/Fill all light_data variables to set all LEDs to the same value
+; NOTE: uses variables temp and temp+1 
+;******************************************************************************
+.Clear_light_data CODE
+    GLOBAL Clear_light_data
+    GLOBAL Fill_light_data
+Clear_light_data
+    clrw
+
+Fill_light_data
+    movwf   temp+1
+    movlw   HIGH light_data
+    movwf   FSR0H
+    movlw   LOW light_data
+    movwf   FSR0L
+    movlw   3 * NUMBER_OF_LEDS
+    movwf   temp
+    movfw   temp+1   
+fill_light_data_loop
+    movwi   FSR0++    
+    decfsz  temp, f
+    goto    fill_light_data_loop
+    return
+
+
+
 ;******************************************************************************
 ; TLC5916_send
 ;

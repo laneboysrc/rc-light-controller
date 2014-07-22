@@ -14,11 +14,13 @@
 
     #include    hw.tmp
 
+    ; Functions and variables imported from utils.asm
+    EXTERN Clear_light_data
     EXTERN xl
     EXTERN temp
     EXTERN light_data
-
-
+    
+    
 ;******************************************************************************
 ; Init_WS2812
 ;
@@ -34,18 +36,7 @@
 .ws2812_Init_WS2812 CODE
     GLOBAL Init_WS2812
 Init_WS2812
-
-    movlw   HIGH light_data
-    movwf   FSR0H
-    movlw   LOW light_data
-    movwf   FSR0L
-    movlw   3 * NUMBER_OF_LEDS
-    movwf   temp
-    clrw
-Init_WS2812_fill_loop
-    movwi   FSR0++    
-    decfsz  temp, f
-    goto    Init_WS2812_fill_loop
+    call    Clear_light_data
 
     movlw   10
     movwf   xl

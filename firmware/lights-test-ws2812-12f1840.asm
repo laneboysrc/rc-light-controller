@@ -28,14 +28,17 @@
     GLOBAL Init_lights
     GLOBAL Output_lights
     
-    
     ; Functions and variables imported from utils.asm
-    EXTERN Init_WS2812   
-    EXTERN WS2812_send
-    
+    EXTERN Clear_light_data
+    EXTERN Fill_light_data
     EXTERN xl
     EXTERN temp
     EXTERN light_data
+
+    ; Functions and variables imported from ws2812.asm
+    EXTERN Init_WS2812   
+    EXTERN WS2812_send
+    
 
 #define VAL_STEP1 105
 #define VAL_STEP2 52
@@ -102,7 +105,7 @@ _init_loop
     call    _sequence_lights
 
     movlw   VAL_FULL
-    call    Set_light_data
+    call    Fill_light_data
     call    WS2812_send
     call    Delay_1s
     call    Delay_1s
@@ -111,32 +114,32 @@ _init_loop
     call    Delay_1s
 
     movlw   VAL_STEP6
-    call    Set_light_data
+    call    Fill_light_data
     call    WS2812_send
     call    Delay_1s
 
     movlw   VAL_STEP5
-    call    Set_light_data
+    call    Fill_light_data
     call    WS2812_send
     call    Delay_1s
 
     movlw   VAL_STEP4
-    call    Set_light_data
+    call    Fill_light_data
     call    WS2812_send
     call    Delay_1s
 
     movlw   VAL_STEP3
-    call    Set_light_data
+    call    Fill_light_data
     call    WS2812_send
     call    Delay_1s
 
     movlw   VAL_STEP2
-    call    Set_light_data
+    call    Fill_light_data
     call    WS2812_send
     call    Delay_1s
 
     movlw   VAL_STEP1
-    call    Set_light_data
+    call    Fill_light_data
     call    WS2812_send
     call    Delay_1s
 
@@ -220,37 +223,5 @@ Delay_1s_0
 Output_lights
     return              ; Never called, just here to get things compiling.
 
-
-;******************************************************************************
-; Clear_light_data
-;
-; Clear all light_data variables, i.e. by default all lights are off.
-;******************************************************************************
-Clear_light_data
-    clrf    temp+1
-
-Fill_light_data
-    movlw   HIGH light_data
-    movwf   FSR0H
-    movlw   LOW light_data
-    movwf   FSR0L
-    movlw   3 * NUMBER_OF_LEDS
-    movwf   temp
-    movfw   temp+1   
-fill_light_data_loop
-    movwi   FSR0++    
-    decfsz  temp, f
-    goto    fill_light_data_loop
-    return
-
-
-;******************************************************************************
-; Set_light_data
-;
-; Set all light_data variables to a value given in W
-;******************************************************************************
-Set_light_data
-    movwf   temp+1
-    goto    Fill_light_data
 
     END
