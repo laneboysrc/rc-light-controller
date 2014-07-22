@@ -97,27 +97,7 @@ static void Init_hardware(void) {
 }
 
 
-/*****************************************************************************
-
- According to:  
-    http://cpldcpu.wordpress.com/2014/01/14/light_ws2812-library-v2-0-part-i-understanding-the-ws2812/
-
- - A reset is issued as early as at 9 µs, contrary to the 50 µs mentioned in 
-   the data sheet. Longer delays between transmissions should be avoided.
-
- - The cycle time of a bit should be at least 1.25 µs, the value given in the 
-   data sheet, and at most ~9 µs, the shortest time for a reset.
-
- - A “0″ can be encoded with a pulse as short as 62.5 ns, but should not be 
-   longer than ~500 ns (maximum on WS2812).
-
- - A “1″ can be encoded with pulses almost as long as the total cycle time, 
-   but it should not be shorter than ~625 ns (minimum on WS2812B). 
- 
- ****************************************************************************/
-// These variables are local to WS2812_send, but they had to be moved to 
-// global scope because the compiler optimized them away...
-static uint8_t ws2812_count;
+#if 0
 static uint8_t ws2812_data;
 void WS2812_send_byte(uint8_t data) {
 
@@ -160,19 +140,43 @@ WS2812_send_byte_loop_end:
     goto    WS2812_send_byte_loop    
     __endasm;
 }
-
+#endif
 
 /*****************************************************************************
+
+/*****************************************************************************
+
+ According to:  
+    http://cpldcpu.wordpress.com/2014/01/14/light_ws2812-library-v2-0-part-i-understanding-the-ws2812/
+
+ - A reset is issued as early as at 9 µs, contrary to the 50 µs mentioned in 
+   the data sheet. Longer delays between transmissions should be avoided.
+
+ - The cycle time of a bit should be at least 1.25 µs, the value given in the 
+   data sheet, and at most ~9 µs, the shortest time for a reset.
+
+ - A “0″ can be encoded with a pulse as short as 62.5 ns, but should not be 
+   longer than ~500 ns (maximum on WS2812).
+
+ - A “1″ can be encoded with pulses almost as long as the total cycle time, 
+   but it should not be shorter than ~625 ns (minimum on WS2812B). 
 
  By using assembler we can get the delay between two bytes from 5us down 
  to 3us!
  
  This means we can send data for 12 LEDs within 500us.
+ 
  ****************************************************************************/
-uint8_t ws2812_array_count;
+
+// These variables are local to WS2812_send, but they had to be moved to 
+// global scope because otherwise the assembler can not access them.
+static uint8_t ws2812_count;
+static uint8_t ws2812_array_count;
+
 void WS2812_send(void) {
 
     ws2812_array_count = sizeof(led_data);
+    ws2812_count = 8;       // Need to initialize it to prevent optimizing it away...
 
     __asm
     movlw	LOW _led_data
@@ -183,81 +187,105 @@ void WS2812_send(void) {
     BANKSEL _ws2812_array_count
 
 WS2812_send_loop:
-	moviw	FSR0++
-	call	_WS2812_send_byte    
+    movlw   8
+    movwf   _ws2812_count
+    moviw   FSR0++
+
+WS2812_send_byte_loop:    
+    btfsc   WREG, 7
+    goto    WS2812_send_byte_loop_high
+    
+WS2812_send_byte_loop_low:
+    bsf     LATA, 2                 ; LOW: 3 cycles = 375ns
+    nop
+    nop
+    bcf     LATA, 2                 
+    ; The loop takes 10 cycles from here to reach the next bit, which is 1000ns. 
+    ; This makes the total LOW pulse duration ~1375ns, which is fine according
+    ; to the info referenced above.
+    goto    WS2812_send_byte_loop_end
+    
+WS2812_send_byte_loop_high:
+    bsf     LATA, 2                 ; HIGH: 6 cycles = 750ns
+    nop
+    nop
+    nop
+    nop
+    nop
+    bcf     LATA, 2
+    ; From here the loop takes 7 cycles until the next bit, which is more than 
+    ; needed.
+
+WS2812_send_byte_loop_end:
+    rlf     WREG, f
+    decfsz  _ws2812_count, f
+    goto    WS2812_send_byte_loop    	
+
     decfsz  _ws2812_array_count, f
     goto    WS2812_send_loop
     __endasm;
 }
 
-uint8_t color_r;
-uint8_t color_g;
-uint8_t color_b;
+uint8_t r;
+uint8_t g;
+uint8_t b;
 
 void getRGB(uint16_t hue, uint8_t sat, uint8_t val) {
   /* convert hue, saturation and brightness ( HSB/HSV ) to RGB
      The dim_curve is used only on brightness/value and on saturation (inverted).
      This looks the most natural.      
   */
-  uint8_t r;
-  uint8_t g;
-  uint8_t b;
-  uint16_t base;
+    uint16_t base;
+
+    val = dim_curve[val];
+    sat = 255 - dim_curve[255 - sat];
  
-  val = dim_curve[val];
-  sat = 255 - dim_curve[255 - sat];
- 
- 
-  if (sat == 0) { // Acromatic color (gray). Hue doesn't mind.
-    color_r = val;
-    color_g = val;
-    color_b = val;  
-  } else  {
- 
-    base = ((255 - sat) * val) >> 8;
- 
-    switch(hue/60) {
-    case 0:
+    if (sat == 0) { // Acromatic color (gray). Hue doesn't mind.
         r = val;
-        g = (((val-base)*hue)/60)+base;
-        b = base;
-    break;
- 
-    case 1:
-        r = (((val-base)*(60-(hue%60)))/60)+base;
         g = val;
-        b = base;
-    break;
- 
-    case 2:
-        r = base;
-        g = val;
-        b = (((val-base)*(hue%60))/60)+base;
-    break;
- 
-    case 3:
-        r = base;
-        g = (((val-base)*(60-(hue%60)))/60)+base;
-        b = val;
-    break;
- 
-    case 4:
-        r = (((val-base)*(hue%60))/60)+base;
-        g = base;
-        b = val;
-    break;
- 
-    case 5:
-        r = val;
-        g = base;
-        b = (((val-base)*(60-(hue%60)))/60)+base;
-    break;
+        b = val; 
+        return;
     }
  
-    color_r=r;
-    color_g=g;
-    color_b=b;
-  }  
+    base = ((255 - sat) * val) >> 8;
+
+    switch(hue / 60) {
+        case 0:
+            r = val;
+            g = (((val - base) * hue) / 60) + base;
+            b = base;
+            break;
+
+        case 1:
+            r = (((val - base) * (60 - (hue % 60))) / 60) +  base;
+            g = val;
+            b = base;
+            break;
+
+        case 2:
+            r = base;
+            g = val;
+            b = (((val - base) * (hue % 60)) / 60) + base;
+            break;
+
+        case 3:
+            r = base;
+            g = (((val - base) * (60 - (hue % 60))) / 60) + base;
+            b = val;
+            break;
+
+        case 4:
+            r = (((val - base) * (hue % 60)) / 60) + base;
+            g = base;
+            b = val;
+            break;
+
+        case 5:
+            r = val;
+            g = base;
+            b = (((val - base) * (60 - (hue % 60))) / 60) + base;
+            break;
+    }
 }
 
 /*****************************************************************************
@@ -274,19 +302,60 @@ void main(void) {
 
     Init_hardware();
 
+
+    for (s = 0 ; s < sizeof(led_data); s++) {
+        led_data[s] = 0;
+    }
+
+    for (s = 0; s < 10; s++) {
+        __asm
+        movlw   10
+        movwf   _ws2812_count
+low_loop:
+        nop
+        nop
+        decfsz  _ws2812_count, f
+        goto    low_loop      
+        __endasm;
+        WS2812_send();
+    }
+
+    for (h = 0 ; h < 1; h++) {
+        for (loop_counter = 0; loop_counter < 60000; loop_counter++) {
+            WREG = loop_counter & 0xff;
+        }
+    }
+
     up = 1;    
     h = 25;
     s = 255;
-    v = 127;
+    v = 1;
     
     while (1) {
-        getRGB(h, s, v);
-        led_data[0] = color_r;
-        led_data[1] = color_g;
-        led_data[2] = color_b;
+        //getRGB(h, s, v);
+
+
+        s = gamma5[v];
+        led_data[0] = s;
+        led_data[1] = s;
+        led_data[2] = s;
+
+//        led_data[3] = b;
+//        led_data[4] = r;
+//        led_data[5] = g;
+
+//        led_data[6] = g;
+//        led_data[7] = b;
+//        led_data[8] = r;
+
+//        led_data[9] = g;
+//        led_data[10] = r;
+//        led_data[11] = b;
+
+
 
         if (up) {
-            if (v == 255) {
+            if (v >= 22) {
                 up = 0;
             }
             else {
@@ -302,16 +371,14 @@ void main(void) {
             }
         }
 
-#if 0
         ++h;
         if (h >= 360) {
             h = 0;
         }
-#endif        
 
         WS2812_send();
 
-        for (loop_counter = 0; loop_counter < 2000; loop_counter++) {
+        for (loop_counter = 0; loop_counter < 10000; loop_counter++) {
             WREG = loop_counter & 0xff;
         }
     }
