@@ -68,7 +68,6 @@ d3 res 1
 ; Init_lights
 ;******************************************************************************
 Init_lights
-    call    Clear_light_data
     call    Init_WS2812
     
 _init_loop
