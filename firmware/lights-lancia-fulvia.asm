@@ -89,10 +89,10 @@
 #define LED_MAIN_BEAM_R light_data + (3 * 2)
 #define LED_HIGH_BEAM_L light_data + (3 * 0)
 #define LED_HIGH_BEAM_R light_data + (3 * 3)
-#define LED_TAIL_BRAKE_L light_data + (3 * 7)   
-#define LED_TAIL_BRAKE_R light_data + (3 * 4)
-#define LED_INDICATOR_REVERSE_L light_data + (3 * 6)   
-#define LED_INDICATOR_REVERSE_R light_data + (3 * 5)
+#define LED_TAIL_BRAKE_L light_data + (3 * 6)   
+#define LED_TAIL_BRAKE_R light_data + (3 * 5)
+#define LED_INDICATOR_REVERSE_L light_data + (3 * 7)   
+#define LED_INDICATOR_REVERSE_R light_data + (3 * 4)
 
 
 
@@ -100,7 +100,7 @@
 #define VAL_HIGH_BEAM 255
 #define VAL_TAIL 40
 #define VAL_BRAKE 255
-#define VAL_REVERSE 100
+#define VAL_REVERSE 40
 #define VAL_INDICATOR_R 100     ; Red part of orange
 #define VAL_INDICATOR_G 40      ; Green part of orange
 
@@ -126,10 +126,12 @@ Init_lights
     call    Init_WS2812
 
     ; Light up main beam, high beam and tail lights until we receive a command
+    call    Clear_light_data
     call    output_lights_main_beam
     call    output_lights_high_beam
     call    output_lights_tail
     call    WS2812_send
+    
     return
 
 
@@ -146,6 +148,7 @@ Output_lights
     movf    setup_mode, f
     bnz     output_lights_setup
 
+
     ;----------
     ; Normal operation of lights goes here
     BANKSEL light_mode
@@ -159,15 +162,11 @@ Output_lights
     call    output_lights_high_beam
 
     BANKSEL drive_mode
-    movfw   drive_mode
-    movwf   temp
-    btfsc   temp, DRIVE_MODE_BRAKE
+    btfsc   drive_mode, DRIVE_MODE_BRAKE
     call    output_lights_brake
 
     BANKSEL drive_mode
-    movfw   drive_mode
-    movwf   temp
-    btfsc   temp, DRIVE_MODE_REVERSE
+    btfsc   drive_mode, DRIVE_MODE_REVERSE
     call    output_lights_reverse
 
     BANKSEL blink_mode
@@ -196,7 +195,6 @@ output_lights_startup
     btfss   startup_mode, STARTUP_MODE_NEUTRAL
     return
     
-    BANKSEL light_data
     call    output_lights_main_beam
     goto    output_lights_end
 
@@ -214,7 +212,7 @@ output_lights_setup
     call    output_lights_indicator_left
     BANKSEL setup_mode  ; Since we do a "call" before we need to reset the bank!
     btfsc   setup_mode, SETUP_MODE_THROTTLE_REVERSE 
-    call    output_lights_main_beam
+    call    output_lights_high_beam
     goto    output_lights_end
 
 output_lights_setup_centre
@@ -229,38 +227,42 @@ output_lights_setup_right
 
 output_lights_main_beam
     movlw   LOW LED_MAIN_BEAM_L
-    movfw   FSR0L
+    movwf   FSR0L
     movlw   HIGH LED_MAIN_BEAM_L
-    movfw   FSR0H
-    movlw   VAL_MAIN_BEAM
+    movwf   FSR0H
+    movlw   VAL_MAIN_BEAM - 10
     movwi   FSR0++
+    movlw   VAL_MAIN_BEAM
     movwi   FSR0++
     movwi   FSR0++
     movlw   LOW LED_MAIN_BEAM_R
-    movfw   FSR0L
+    movwf   FSR0L
     movlw   HIGH LED_MAIN_BEAM_R
-    movfw   FSR0H
-    movlw   VAL_MAIN_BEAM
+    movwf   FSR0H
+    movlw   VAL_MAIN_BEAM - 10
     movwi   FSR0++
+    movlw   VAL_MAIN_BEAM
     movwi   FSR0++
     movwi   FSR0++
     return
 
 output_lights_high_beam
     movlw   LOW LED_HIGH_BEAM_L
-    movfw   FSR0L
+    movwf   FSR0L
     movlw   HIGH LED_HIGH_BEAM_L
-    movfw   FSR0H
-    movlw   VAL_HIGH_BEAM
+    movwf   FSR0H
+    movlw   VAL_HIGH_BEAM - 10
     movwi   FSR0++
+    movlw   VAL_HIGH_BEAM
     movwi   FSR0++
     movwi   FSR0++
     movlw   LOW LED_HIGH_BEAM_R
-    movfw   FSR0L
+    movwf   FSR0L
     movlw   HIGH LED_HIGH_BEAM_R
-    movfw   FSR0H
-    movlw   VAL_HIGH_BEAM
+    movwf   FSR0H
+    movlw   VAL_HIGH_BEAM - 10
     movwi   FSR0++
+    movlw   VAL_HIGH_BEAM
     movwi   FSR0++
     movwi   FSR0++
     return
@@ -270,15 +272,15 @@ output_lights_tail
     movwf   FSR1L
 _output_lights_tail_brake    
     movlw   LOW LED_TAIL_BRAKE_L
-    movfw   FSR0L
+    movwf   FSR0L
     movlw   HIGH LED_TAIL_BRAKE_L
-    movfw   FSR0H
+    movwf   FSR0H
     movfw   FSR1L
     movwi   FSR0++          ; Red only ...
     movlw   LOW LED_TAIL_BRAKE_R
-    movfw   FSR0L
+    movwf   FSR0L
     movlw   HIGH LED_TAIL_BRAKE_R
-    movfw   FSR0H
+    movwf   FSR0H
     movfw   FSR1L
     movwi   FSR0++          ; Red only ...
     return
@@ -290,28 +292,30 @@ output_lights_brake
     
 output_lights_reverse
     movlw   LOW LED_INDICATOR_REVERSE_L
-    movfw   FSR0L
+    movwf   FSR0L
     movlw   HIGH LED_INDICATOR_REVERSE_L
-    movfw   FSR0H
-    movlw   VAL_REVERSE
+    movwf   FSR0H
+    movlw   VAL_REVERSE - 10        ; Less RED for a cooler color temperature
     movwi   FSR0++
+    movlw   VAL_REVERSE
     movwi   FSR0++
     movwi   FSR0++
     movlw   LOW LED_INDICATOR_REVERSE_R
-    movfw   FSR0L
+    movwf   FSR0L
     movlw   HIGH LED_INDICATOR_REVERSE_R
-    movfw   FSR0H
-    movlw   VAL_REVERSE
+    movwf   FSR0H
+    movlw   VAL_REVERSE - 10
     movwi   FSR0++
+    movlw   VAL_REVERSE
     movwi   FSR0++
     movwi   FSR0++
     return
     
 output_lights_indicator_left
     movlw   LOW LED_INDICATOR_REVERSE_L
-    movfw   FSR0L
+    movwf   FSR0L
     movlw   HIGH LED_INDICATOR_REVERSE_L
-    movfw   FSR0H
+    movwf   FSR0H
     moviw   FSR0
     addlw   VAL_INDICATOR_R     ; Add orange to potential reverse light
     movwi   FSR0++
@@ -322,9 +326,9 @@ output_lights_indicator_left
 
 output_lights_indicator_right
     movlw   LOW LED_INDICATOR_REVERSE_R
-    movfw   FSR0L
+    movwf   FSR0L
     movlw   HIGH LED_INDICATOR_REVERSE_R
-    movfw   FSR0H
+    movwf   FSR0H
     moviw   FSR0
     addlw   VAL_INDICATOR_R
     movwi   FSR0++
