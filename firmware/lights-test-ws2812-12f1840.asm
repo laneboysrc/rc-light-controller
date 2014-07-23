@@ -104,41 +104,6 @@ _init_loop
     movwf   cb
     call    _sequence_lights
 
-    BANKSEL cr
-    movlw   VAL_STEP2
-    movwf   cr
-    movwf   cg
-    movwf   cb
-    call    _sequence_lights
-
-    BANKSEL cr
-    movlw   VAL_STEP3
-    movwf   cr
-    movwf   cg
-    movwf   cb
-    call    _sequence_lights
-
-    BANKSEL cr
-    movlw   VAL_STEP4
-    movwf   cr
-    movwf   cg
-    movwf   cb
-    call    _sequence_lights
-
-    BANKSEL cr
-    movlw   VAL_STEP5
-    movwf   cr
-    movwf   cg
-    movwf   cb
-    call    _sequence_lights
-
-    BANKSEL cr
-    movlw   VAL_STEP6
-    movwf   cr
-    movwf   cg
-    movwf   cb
-    call    _sequence_lights
-
     movlw   VAL_FULL
     call    Fill_light_data
     call    WS2812_send
