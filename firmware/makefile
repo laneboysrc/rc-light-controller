@@ -31,6 +31,19 @@ generic-always-on-master: hw_tlc5940_16f1825.inc
 	
 	
 ##############################################################################
+# Lancia Fulvia
+##############################################################################
+.PHONY: lancia-fulvia
+lancia-fulvia: lancia-fulvia-master
+
+.PHONY: lancia-fulvia-master
+lancia-fulvia-master: hw_ws2812_12f1840.inc
+	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x03 -D ENABLE_UART -D NUMBER_OF_LEDS=8) 
+	$(eval files = master uart-reader utils lights-lancia-fulvia ws2812) 
+	$(build)
+	
+	
+##############################################################################
 # GMade Sawback (Willy's Jeep)
 ##############################################################################
 .PHONY: sawback
@@ -303,12 +316,18 @@ gt3b-preprocessor : hw_preprocessor_12f1840.inc
 # Test code for hardware validation and debugging
 ##############################################################################
 .PHONY: test
-test: test-tlc5940-16f1825
+test: test-tlc5940-16f1825 test-ws2812-12f1840
 
 .PHONY: test-tlc5940-16f1825
 test-tlc5940-16f1825: hw_tlc5940_16f1825.inc
 	$(eval CFLAGS = -D ENABLE_UART)
 	$(eval files = master uart-reader utils lights-test-tlc5940-16f1825)
+	$(build)
+
+.PHONY: test-ws2812-12f1840
+test-ws2812-12f1840: hw_ws2812_12f1840.inc
+	$(eval CFLAGS = -D ENABLE_UART -D NUMBER_OF_LEDS=21)
+	$(eval files = master uart-reader utils lights-test-ws2812-12f1840 ws2812)
 	$(build)
 
 

@@ -43,13 +43,20 @@ temp                res 2
 .data_utils UDATA
 random              res 1 
 
+IFDEF WS2812
+light_data          res 3 * NUMBER_OF_LEDS  ; WS2812, three bytes per LED
+ELSE                            
 IFDEF TLC5940
 light_data          res 16      ; TLC5940, one byte per LED
+#define NUMBER_OF_LEDS 16
 ELSE                            
 IFDEF DUAL_TLC5916
 light_data          res 2       ; DUAL_TLC5916, one byte per chip
+#define NUMBER_OF_LEDS 2
 ELSE  
 light_data          res 1       ; Single TLC5916, 8 LEDs on/off
+#define NUMBER_OF_LEDS 1
+ENDIF 
 ENDIF 
 ENDIF 
 
@@ -499,6 +506,37 @@ Random_min_max_loop
     
     movf    random, w
     return
+
+
+
+;******************************************************************************
+; Clear_light_data / Fill_light_data
+;
+; Clear/Fill all light_data variables to set all LEDs to the same value
+; NOTE: uses variables temp and temp+1 
+;******************************************************************************
+IFDEF FSR0L     ; Only process this on extended cores
+.Clear_light_data CODE
+    GLOBAL Clear_light_data
+    GLOBAL Fill_light_data
+Clear_light_data
+    clrw
+
+Fill_light_data
+    movwf   temp+1
+    movlw   HIGH light_data
+    movwf   FSR0H
+    movlw   LOW light_data
+    movwf   FSR0L
+    movlw   3 * NUMBER_OF_LEDS
+    movwf   temp
+    movfw   temp+1   
+fill_light_data_loop
+    movwi   FSR0++    
+    decfsz  temp, f
+    goto    fill_light_data_loop
+    return
+ENDIF
 
 
 ;******************************************************************************
