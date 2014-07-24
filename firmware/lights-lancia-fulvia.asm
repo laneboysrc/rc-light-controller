@@ -98,8 +98,8 @@
 
 #define VAL_MAIN_BEAM 100
 #define VAL_HIGH_BEAM 255
-#define VAL_TAIL 40
-#define VAL_BRAKE 255
+#define VAL_TAIL 20
+#define VAL_BRAKE 100
 #define VAL_REVERSE 40
 #define VAL_INDICATOR_R 100     ; Red part of orange
 #define VAL_INDICATOR_G 40      ; Green part of orange
