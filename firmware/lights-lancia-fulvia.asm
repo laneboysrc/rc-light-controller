@@ -85,10 +85,10 @@
 ; and send it to the slave
 #define STARTUP_MODE_NEUTRAL 4      ; Waiting before reading ST/TH neutral
 
-#define LED_MAIN_BEAM_L light_data + (3 * 1)
-#define LED_MAIN_BEAM_R light_data + (3 * 2)
-#define LED_HIGH_BEAM_L light_data + (3 * 0)
-#define LED_HIGH_BEAM_R light_data + (3 * 3)
+#define LED_MAIN_BEAM_L light_data + (3 * 0)
+#define LED_MAIN_BEAM_R light_data + (3 * 3)
+#define LED_HIGH_BEAM_L light_data + (3 * 1)
+#define LED_HIGH_BEAM_R light_data + (3 * 2)
 #define LED_TAIL_BRAKE_L light_data + (3 * 6)   
 #define LED_TAIL_BRAKE_R light_data + (3 * 5)
 #define LED_INDICATOR_REVERSE_L light_data + (3 * 7)   
