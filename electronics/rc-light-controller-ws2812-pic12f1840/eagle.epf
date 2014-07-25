@@ -342,8 +342,8 @@ Type="Schematic Editor"
 Loc="0 0 599 399"
 State=0
 Number=2
-File="rc-light-controller-ws2812-12f1840.sch"
-View="-73.4597 -7.71821 149.467 98.6502"
+File="PL9823-breakout-board.sch"
+View="0.973328 25.6797 93.0067 55.6003"
 WireWidths=" 0 0.3048 0.6096 0.8128 1.016 1.27 1.4224 1.6764 1.778 1.9304 2.1844 2.54 3.81 6.4516 0.4064 0.1524"
 PadDiameters=" 0.254 0.3048 0.4064 0.6096 0.8128 1.016 1.27 1.4224 1.6764 1.778 1.9304 2.1844 2.54 3.81 6.4516 0"
 PadDrills=" 0.5 0.6 0.7 0.9 1 1.1 1.2 1.3 1.4 1.5 1.6 2 2.2 2.8 3.2 0.8"
@@ -386,11 +386,11 @@ Sheet=1
 
 [Win_2]
 Type="Board Editor"
-Loc="-1 25 1678 1025"
+Loc="0 25 1679 1025"
 State=1
 Number=1
-File="rc-light-controller-ws2812-12f1840.brd"
-View="-4.26131 -3.83822 40.8995 10.9465"
+File="rc-light-controller-ws2812-12f1840-panelized.brd"
+View="-28.6725 -1.8178 85.8028 51.169"
 WireWidths=" 0.8128 1.016 1.27 1.4224 1.6764 1.778 1.9304 2.1844 2.54 3.81 6.4516 0.6096 0.4064 0.3048 0 0.254"
 PadDiameters=" 0.254 0.3048 0.4064 0.6096 0.8128 1.016 1.27 1.4224 1.6764 1.778 1.9304 2.1844 2.54 3.81 6.4516 0"
 PadDrills=" 0.5 0.6 0.7 0.9 1 1.1 1.2 1.3 1.4 1.5 1.6 2 2.2 2.8 3.2 0.8"
@@ -428,7 +428,7 @@ SwapLevel=0
 ArcDirection=0
 AddLevel=2
 PadsSameType=0
-Layer=27
+Layer=16
 
 [Win_3]
 Type="Control Panel"
