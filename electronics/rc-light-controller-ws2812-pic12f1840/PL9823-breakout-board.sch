@@ -3835,6 +3835,7 @@ Source: AVX .. aphvc.pdf</description>
 <part name="PAD6" library="wirepad" deviceset="WIREPAD" device="SMD1,27-254" value="WIREPADSMD1,27-254"/>
 <part name="PAD7" library="wirepad" deviceset="WIREPAD" device="SMD1,27-254" value="WIREPADSMD1,27-254"/>
 <part name="C1" library="rcl" deviceset="C-EU" device="C0805K" value="100nF"/>
+<part name="C2" library="rcl" deviceset="C-EU" device="C0805K" value="100nF"/>
 </parts>
 <sheets>
 <sheet>
@@ -3844,10 +3845,11 @@ Source: AVX .. aphvc.pdf</description>
 <instance part="PAD1" gate="G$1" x="5.08" y="30.48"/>
 <instance part="PAD2" gate="G$1" x="5.08" y="40.64"/>
 <instance part="PAD3" gate="G$1" x="5.08" y="50.8"/>
-<instance part="PAD5" gate="G$1" x="71.12" y="30.48" rot="R180"/>
-<instance part="PAD6" gate="G$1" x="71.12" y="40.64" rot="R180"/>
-<instance part="PAD7" gate="G$1" x="71.12" y="50.8" rot="R180"/>
-<instance part="C1" gate="G$1" x="35.56" y="40.64"/>
+<instance part="PAD5" gate="G$1" x="88.9" y="30.48" rot="R180"/>
+<instance part="PAD6" gate="G$1" x="88.9" y="40.64" rot="R180"/>
+<instance part="PAD7" gate="G$1" x="88.9" y="50.8" rot="R180"/>
+<instance part="C1" gate="G$1" x="38.1" y="40.64"/>
+<instance part="C2" gate="G$1" x="50.8" y="40.64"/>
 </instances>
 <busses>
 </busses>
@@ -3856,22 +3858,30 @@ Source: AVX .. aphvc.pdf</description>
 <segment>
 <pinref part="PAD3" gate="G$1" pin="P"/>
 <pinref part="PAD7" gate="G$1" pin="P"/>
-<wire x1="7.62" y1="50.8" x2="35.56" y2="50.8" width="0.1524" layer="91"/>
+<wire x1="7.62" y1="50.8" x2="38.1" y2="50.8" width="0.1524" layer="91"/>
 <pinref part="C1" gate="G$1" pin="1"/>
-<wire x1="35.56" y1="50.8" x2="68.58" y2="50.8" width="0.1524" layer="91"/>
-<wire x1="35.56" y1="43.18" x2="35.56" y2="50.8" width="0.1524" layer="91"/>
-<junction x="35.56" y="50.8"/>
+<wire x1="38.1" y1="50.8" x2="50.8" y2="50.8" width="0.1524" layer="91"/>
+<wire x1="50.8" y1="50.8" x2="86.36" y2="50.8" width="0.1524" layer="91"/>
+<wire x1="38.1" y1="43.18" x2="38.1" y2="50.8" width="0.1524" layer="91"/>
+<junction x="38.1" y="50.8"/>
+<pinref part="C2" gate="G$1" pin="1"/>
+<wire x1="50.8" y1="43.18" x2="50.8" y2="50.8" width="0.1524" layer="91"/>
+<junction x="50.8" y="50.8"/>
 </segment>
 </net>
 <net name="-" class="0">
 <segment>
 <pinref part="PAD1" gate="G$1" pin="P"/>
 <pinref part="PAD5" gate="G$1" pin="P"/>
-<wire x1="7.62" y1="30.48" x2="35.56" y2="30.48" width="0.1524" layer="91"/>
+<wire x1="7.62" y1="30.48" x2="38.1" y2="30.48" width="0.1524" layer="91"/>
 <pinref part="C1" gate="G$1" pin="2"/>
-<wire x1="35.56" y1="30.48" x2="68.58" y2="30.48" width="0.1524" layer="91"/>
-<wire x1="35.56" y1="35.56" x2="35.56" y2="30.48" width="0.1524" layer="91"/>
-<junction x="35.56" y="30.48"/>
+<wire x1="38.1" y1="30.48" x2="50.8" y2="30.48" width="0.1524" layer="91"/>
+<wire x1="50.8" y1="30.48" x2="86.36" y2="30.48" width="0.1524" layer="91"/>
+<wire x1="38.1" y1="35.56" x2="38.1" y2="30.48" width="0.1524" layer="91"/>
+<junction x="38.1" y="30.48"/>
+<pinref part="C2" gate="G$1" pin="2"/>
+<wire x1="50.8" y1="35.56" x2="50.8" y2="30.48" width="0.1524" layer="91"/>
+<junction x="50.8" y="30.48"/>
 </segment>
 </net>
 <net name="DI" class="0">
@@ -3883,7 +3893,7 @@ Source: AVX .. aphvc.pdf</description>
 <net name="DO" class="0">
 <segment>
 <pinref part="PAD6" gate="G$1" pin="P"/>
-<wire x1="68.58" y1="40.64" x2="48.26" y2="40.64" width="0.1524" layer="91"/>
+<wire x1="86.36" y1="40.64" x2="60.96" y2="40.64" width="0.1524" layer="91"/>
 </segment>
 </net>
 </nets>
