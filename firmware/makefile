@@ -31,6 +31,19 @@ generic-always-on-master: hw_tlc5940_16f1825.inc
 	
 	
 ##############################################################################
+# FIAT 131
+##############################################################################
+.PHONY: fiat-131
+fiat-131: fiat-131-master
+
+.PHONY: fiat-131-master
+fiat-131-master: hw_ws2812_12f1840.inc
+	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x03 -D ENABLE_UART -D NUMBER_OF_LEDS=8) 
+	$(eval files = master uart-reader utils lights-fiat-131 ws2812) 
+	$(build)
+	
+	
+##############################################################################
 # Lancia Fulvia
 ##############################################################################
 .PHONY: lancia-fulvia
