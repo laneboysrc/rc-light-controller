@@ -272,7 +272,7 @@ output_lights_setup
     btfsc   setup_mode, SETUP_MODE_RIGHT
     goto    output_lights_setup_right
     btfsc   setup_mode, SETUP_MODE_STEERING_REVERSE 
-    call    output_lights_indicator_left
+    call    output_lights_setup_indicator_left
     BANKSEL setup_mode  ; Since we do a "call" before we need to reset the bank!
     btfsc   setup_mode, SETUP_MODE_THROTTLE_REVERSE 
     call    output_lights_high_beam
@@ -286,6 +286,17 @@ output_lights_setup_left
 
 output_lights_setup_right
     goto    output_lights_end
+
+output_lights_setup_indicator_left
+    movlw   LOW LED_INDICATOR_REVERSE_L
+    movwf   FSR0L
+    movlw   HIGH LED_INDICATOR_REVERSE_L
+    movwf   FSR0H
+    movlw   VAL_INDICATOR_R
+    movwi   FSR0++
+    movlw   VAL_INDICATOR_G
+    movwi   FSR0++
+    return
 
 
 output_lights_main_beam
