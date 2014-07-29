@@ -23,12 +23,14 @@
     GLOBAL steering_reverse
     GLOBAL throttle            
     GLOBAL throttle_abs       
+    GLOBAL throttle_threshold       
     GLOBAL throttle_reverse
     GLOBAL ch3  
 
     ; Functions imported from master.asm
     EXTERN ch3_clicks
     EXTERN blink_mode
+    EXTERN drive_mode
 
     ; Functions imported from utils.asm
     EXTERN Min
@@ -66,6 +68,14 @@
 #define BLINK_MODE_SOFTTIMER 7          ; Is 1 for one mainloop when the soft 
                                         ; timer triggers (every 65.536ms)
 
+; Bitfields in variable drive_mode
+#define DRIVE_MODE_FORWARD 0 
+#define DRIVE_MODE_BRAKE 1 
+#define DRIVE_MODE_REVERSE 2
+#define DRIVE_MODE_BRAKE_ARMED 3
+#define DRIVE_MODE_AUTO_BRAKE 4
+#define DRIVE_MODE_BRAKE_DISARM 5
+#define DRIVE_MODE_AUTO_REVERSE 6
 
 ;******************************************************************************
 ;* VARIABLE DEFINITIONS
@@ -74,6 +84,7 @@
 
 throttle            res 1
 throttle_abs        res 1  
+throttle_threshold  res 1       ; not used here, but defined so it is in the same bank as throttle_abs 
 throttle_reverse    res 1  
 
 steering            res 1
@@ -148,6 +159,15 @@ Delay15ms_0
 ; Simulate_servo_signals
 ;******************************************************************************
 Simulate_servo_signals
+    call    Delay15ms
+    BANKSEL blink_mode
+    bsf     blink_mode, BLINK_MODE_HAZARD
+    return
+
+
+
+
+
     BANKSEL blink_mode
     btfss   blink_mode, BLINK_MODE_SOFTTIMER
     return

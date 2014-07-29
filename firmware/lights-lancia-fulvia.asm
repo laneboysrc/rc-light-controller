@@ -8,6 +8,11 @@
 ;   The hardware is based on PIC12F1840 and WS2812. No DC/DC converter is used.
 ;   All LEDs are PL9823
 ;
+;   The light logic simulates a weak indicator bulb, slowly ramping up and
+;   down in brightness. It also simulates a poor ground connection on the left
+;   rear lights, causing the tail / brake light to slightly dim when the 
+;   left indicator lights up.
+;
 ;   The following lights are available:
 ;
 ;       LED 1       Left main beam   
@@ -99,7 +104,9 @@
 #define VAL_MAIN_BEAM 100
 #define VAL_HIGH_BEAM 255
 #define VAL_TAIL 20
+#define VAL_TAIL_DIM 15
 #define VAL_BRAKE 100
+#define VAL_BRAKE_DIM 60
 #define VAL_REVERSE 40
 #define VAL_INDICATOR_R 100     ; Red part of orange
 #define VAL_INDICATOR_G 40      ; Green part of orange
@@ -111,12 +118,38 @@
 ;******************************************************************************
 .data_lights UDATA
 
+blink_fade_counter res  1
 
 
 ;============================================================================
 ;============================================================================
 ;============================================================================
 .lights CODE
+
+; Lookup-tables for fading the indicators in/out. Gamma corrected values
+; for a linear ramp up/down
+
+#define LAST_FADE_ELEMENT 6
+
+blink_fade_table_r
+    brw
+    retlw   0           ; 0
+    retlw   4           ; 1
+    retlw   9           ; 2 
+    retlw   16          ; 3
+    retlw   30          ; 4
+    retlw   55          ; 5
+    retlw   100         ; 6 
+
+blink_fade_table_g
+    brw
+    retlw   0           ; 0
+    retlw   4           ; 1
+    retlw   6           ; 2 
+    retlw   10          ; 3
+    retlw   16          ; 4
+    retlw   26          ; 5
+    retlw   40          ; 6
 
 
 ;******************************************************************************
@@ -131,10 +164,13 @@ Init_lights
     call    output_lights_high_beam
     call    output_lights_tail
     call    WS2812_send
-    
+
+    BANKSEL blink_fade_counter
+    clrf    blink_fade_counter
     return
 
 
+    
 ;******************************************************************************
 ; Output_lights
 ;******************************************************************************
@@ -152,14 +188,17 @@ Output_lights
     ;----------
     ; Normal operation of lights goes here
     BANKSEL light_mode
-    movfw   light_mode
-    movwf   temp
-    btfsc   temp, LIGHT_MODE_MAIN_BEAM
+    btfsc   light_mode, LIGHT_MODE_MAIN_BEAM
     call    output_lights_tail
-    btfsc   temp, LIGHT_MODE_MAIN_BEAM
+
+    BANKSEL light_mode
+    btfsc   light_mode, LIGHT_MODE_MAIN_BEAM
     call    output_lights_main_beam
-    btfsc   temp, LIGHT_MODE_HIGH_BEAM
+
+    BANKSEL light_mode
+    btfsc   light_mode, LIGHT_MODE_HIGH_BEAM
     call    output_lights_high_beam
+
 
     BANKSEL drive_mode
     btfsc   drive_mode, DRIVE_MODE_BRAKE
@@ -169,19 +208,43 @@ Output_lights
     btfsc   drive_mode, DRIVE_MODE_REVERSE
     call    output_lights_reverse
 
+
     BANKSEL blink_mode
-    btfss   blink_mode, BLINK_MODE_BLINKFLAG
-    goto    output_lights_end
+    btfsc   blink_mode, BLINK_MODE_BLINKFLAG
+    goto    _output_lights_blinking
+
+    ; Blinking in off period: decrement the blink_fade_counter until it 
+    ; becomes 0
+    BANKSEL blink_fade_counter
+    movf    blink_fade_counter, f
+    skpz      
+    decf    blink_fade_counter, f
+    goto    _output_lights_blinking_do
     
-    movfw   blink_mode
-    movwf   temp
-    btfsc   temp, BLINK_MODE_HAZARD
+_output_lights_blinking
+    ; Blinking in on period: increment the blink_fade_counter until it 
+    ; becomes 6
+    BANKSEL blink_fade_counter
+    movf    blink_fade_counter, w
+    sublw   LAST_FADE_ELEMENT
+    skpz      
+    incf    blink_fade_counter, f
+
+_output_lights_blinking_do
+    BANKSEL blink_mode
+    btfss   blink_mode, BLINK_MODE_HAZARD
+    goto    _output_lights_blinking_do_indicator
     call    output_lights_indicator_left
-    btfsc   temp, BLINK_MODE_HAZARD
     call    output_lights_indicator_right
-    btfsc   temp, BLINK_MODE_INDICATOR_LEFT
+    goto    output_lights_end
+
+_output_lights_blinking_do_indicator
+    BANKSEL blink_mode
+    btfsc   blink_mode, BLINK_MODE_INDICATOR_LEFT
     call    output_lights_indicator_left
-    btfsc   temp, BLINK_MODE_INDICATOR_RIGHT
+
+    BANKSEL blink_mode
+    btfsc   blink_mode, BLINK_MODE_INDICATOR_RIGHT
     call    output_lights_indicator_right
     
 output_lights_end
@@ -230,7 +293,7 @@ output_lights_main_beam
     movwf   FSR0L
     movlw   HIGH LED_MAIN_BEAM_L
     movwf   FSR0H
-    movlw   VAL_MAIN_BEAM - 10
+    movlw   VAL_MAIN_BEAM - 10      ; Less RED for a cooler color temperature
     movwi   FSR0++
     movlw   VAL_MAIN_BEAM
     movwi   FSR0++
@@ -239,7 +302,7 @@ output_lights_main_beam
     movwf   FSR0L
     movlw   HIGH LED_MAIN_BEAM_R
     movwf   FSR0H
-    movlw   VAL_MAIN_BEAM - 10
+    movlw   VAL_MAIN_BEAM - 10      ; Less RED for a cooler color temperature
     movwi   FSR0++
     movlw   VAL_MAIN_BEAM
     movwi   FSR0++
@@ -251,7 +314,7 @@ output_lights_high_beam
     movwf   FSR0L
     movlw   HIGH LED_HIGH_BEAM_L
     movwf   FSR0H
-    movlw   VAL_HIGH_BEAM - 10
+    movlw   VAL_HIGH_BEAM - 10      ; Less RED for a cooler color temperature
     movwi   FSR0++
     movlw   VAL_HIGH_BEAM
     movwi   FSR0++
@@ -260,7 +323,7 @@ output_lights_high_beam
     movwf   FSR0L
     movlw   HIGH LED_HIGH_BEAM_R
     movwf   FSR0H
-    movlw   VAL_HIGH_BEAM - 10
+    movlw   VAL_HIGH_BEAM - 10      ; Less RED for a cooler color temperature
     movwi   FSR0++
     movlw   VAL_HIGH_BEAM
     movwi   FSR0++
@@ -268,8 +331,24 @@ output_lights_high_beam
     return
 
 output_lights_tail
+    ; Simulate a weak ground connection on the left lights by reducing
+    ; the brightness of the left tail / brake light slightly when the
+    ; left indicator light is on
     movlw   VAL_TAIL
     movwf   FSR1L
+    movwf   FSR1H
+    BANKSEL blink_mode
+    btfss   blink_mode, BLINK_MODE_BLINKFLAG
+    goto    _output_lights_tail_brake
+    btfsc   blink_mode, BLINK_MODE_INDICATOR_LEFT
+    goto    _output_lights_tail_reduce
+    btfss   blink_mode, BLINK_MODE_HAZARD
+    goto    _output_lights_tail_brake
+    
+_output_lights_tail_reduce
+    movlw   VAL_TAIL_DIM
+    movwf   FSR1L
+
 _output_lights_tail_brake    
     movlw   LOW LED_TAIL_BRAKE_L
     movwf   FSR0L
@@ -281,12 +360,25 @@ _output_lights_tail_brake
     movwf   FSR0L
     movlw   HIGH LED_TAIL_BRAKE_R
     movwf   FSR0H
-    movfw   FSR1L
+    movfw   FSR1H
     movwi   FSR0++          ; Red only ...
     return
     
 output_lights_brake
+    ; Simulate weak ground connection on left brake light
     movlw   VAL_BRAKE
+    movwf   FSR1L
+    movwf   FSR1H
+    BANKSEL blink_mode
+    btfss   blink_mode, BLINK_MODE_BLINKFLAG
+    goto    _output_lights_tail_brake
+    btfsc   blink_mode, BLINK_MODE_INDICATOR_LEFT
+    goto    _output_lights_brake_reduce
+    btfss   blink_mode, BLINK_MODE_HAZARD
+    goto    _output_lights_tail_brake
+    
+_output_lights_brake_reduce
+    movlw   VAL_BRAKE_DIM
     movwf   FSR1L
     goto    _output_lights_tail_brake
     
@@ -316,11 +408,21 @@ output_lights_indicator_left
     movwf   FSR0L
     movlw   HIGH LED_INDICATOR_REVERSE_L
     movwf   FSR0H
+
+_output_lights_indicators
+    BANKSEL blink_fade_counter
+    movfw   blink_fade_counter
+    call    blink_fade_table_r    
+    movwf   FSR1L
     moviw   FSR0
-    addlw   VAL_INDICATOR_R     ; Add orange to potential reverse light
+    addwf   FSR1L, w    ; Add orange to potential reverse light
     movwi   FSR0++
+
+    movfw   blink_fade_counter
+    call    blink_fade_table_g    
+    movwf   FSR1L
     moviw   FSR0
-    addlw   VAL_INDICATOR_G
+    addwf   FSR1L, w
     movwi   FSR0++
     return
 
@@ -329,13 +431,7 @@ output_lights_indicator_right
     movwf   FSR0L
     movlw   HIGH LED_INDICATOR_REVERSE_R
     movwf   FSR0H
-    moviw   FSR0
-    addlw   VAL_INDICATOR_R
-    movwi   FSR0++
-    moviw   FSR0
-    addlw   VAL_INDICATOR_G
-    movwi   FSR0++
-    return
+    goto    _output_lights_indicators
 
     
     END
