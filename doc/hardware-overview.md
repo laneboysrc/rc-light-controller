@@ -80,8 +80,10 @@ so both LEDs can be mixed in the same string of lights.
 
 The PL9823 has few downsides over the WS2812B:
 - High power consumption of ~7-8mA even if the LED is off
+
 - When power is applied the LEDs usually light up blue until they receive 
   valid data. The WS2812B stay off until data is received.
+
 - Data format is red-green-blue , while WS2812 is green-red-blue. This can be 
   easily dealt with in software though.
 
@@ -136,7 +138,9 @@ to run only a single servo extension wire between the chassis and the body,
 providing both power and data. We use this system in most of our RC cars.
 
 More information about the pre-processor:
+
 - [http://laneboysrc.blogspot.sg/2012/12/pre-processor-for-diy-rc-light.html](http://laneboysrc.blogspot.sg/2012/12/pre-processor-for-diy-rc-light.html)
+
 - [http://laneboysrc.blogspot.sg/2013/01/pre-processor-miniaturization.html](http://laneboysrc.blogspot.sg/2013/01/pre-processor-miniaturization.html)
 
 Note that with the WS2812 based light controller one could mount the light 

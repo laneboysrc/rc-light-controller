@@ -31,17 +31,17 @@ modify any of these files.
 
 - **master.asm**
 
-  This file contains the main business logic of the light controller. It
-  also contains the startup function and hardware initialization.
+    This file contains the main business logic of the light controller. It
+    also contains the startup function and hardware initialization.
 
 - **utils.asm**
 
-  Utility functions for mathematics, etc.
+    Utility functions for mathematics, etc.
 
 - **servo-output.asm**
 
-  Functionality to drive a servo, e.g. for a 2-speed gearbox, a steering wheel
-  or a figures head.
+    Functionality to drive a servo, e.g. for a 2-speed gearbox, a steering wheel
+    or a figures head.
   
 
 ## Hardware specific components
@@ -52,16 +52,16 @@ light controller hardware must be chosen.
 
 - **hw_tlc5940_16f1825.inc**
 
-  For hardware based on the TLC5940 and the PIC16F1825.
+    For hardware based on the TLC5940 and the PIC16F1825.
 
 - **hw_ws2812_12f1840.inc**, **ws2812.asm**
 
-  For driving WS2812B or PL9823 LEDs using a PIC12F1840 micro-controller.
+    For driving WS2812B or PL9823 LEDs using a PIC12F1840 micro-controller.
 
 - **hw_original_servo_reader.inc**, **hw_original_uart_reader.inc**
 
-  For the first iteration of the light controller based on PIC16F628A and
-  TLC5916. Not recommended for new builds.
+    For the first iteration of the light controller based on PIC16F628A and
+    TLC5916. Not recommended for new builds.
 
 
 ## Input specific components
@@ -72,18 +72,18 @@ in a single combined UART (serial) signal from a pre-processor.
 
 - **servo-reader.asm**
 
-  This file must be used when reading servo channels directly from a receiver.
-  Note that all three signals must be present, otherwise the light controller
-  will not function!
+    This file must be used when reading servo channels directly from a receiver.
+    Note that all three signals must be present, otherwise the light controller
+    will not function!
 
 - **uart-reader.asm**
 
-  This file is used when a pre-processor is employed. 
+    This file is used when a pre-processor is employed. 
   
 - **dummy-reader.asm**
 
-  Used during development only. It can be modified to perform certain operations
-  without having to use an actual RC system.
+    Used during development only. It can be modified to perform certain operations
+    without having to use an actual RC system.
 
 
 ## Build process
@@ -141,94 +141,93 @@ makefile.
 
 - **LIGHT_MODE_MASK=**0x0f
 
-  This bitmask defines how many lights there are that should be switched 
-  on with a single click of the AUX (CH3) channel. Each time AUX is activated,
-  more lights are turned on. If you have 2 lights (main beam and high beam 
-  for example), then you would specify **0x03** (0011 binary), if you have
-  parking, main beam, high beam and fog lights you would specify **0x0f** 
-  (1111 binary), and so on.
+    This bitmask defines how many lights there are that should be switched 
+    on with a single click of the AUX (CH3) channel. Each time AUX is activated,
+    more lights are turned on. If you have 2 lights (main beam and high beam 
+    for example), then you would specify **0x03** (0011 binary), if you have
+    parking, main beam, high beam and fog lights you would specify **0x0f** 
+    (1111 binary), and so on.
 
 - **CH3_MOMENTARY** 
 
-  Define this name if your transmitter's AUX channel returns to the initial 
-  position when the AUX channel button is released (Futaba 4PL for example)
-  If this name is not defined then the software assumes that every AUX channel
-  activation toggles the AUX servo position (HobbyKing HK310, FlySky GT3B).
+    Define this name if your transmitter's AUX channel returns to the initial 
+    position when the AUX channel button is released (Futaba 4PL for example)
+    If this name is not defined then the software assumes that every AUX channel
+    activation toggles the AUX servo position (HobbyKing HK310, FlySky GT3B).
 
 - **ESC_FORWARD_REVERSE**
 
-  Define this name when your ESC is in "crawler mode", i.e. it does not have
-  a brake function but goes from forward to reverse immediately.
+    Define this name when your ESC is in "crawler mode", i.e. it does not have
+    a brake function but goes from forward to reverse immediately.
 
 - **DISABLE_BRAKE_DISARM_TIMEOUT**
 
-  Define this name if your ESC goes into reverse only after applying the
-  brake function once (Example: Tamiya TEU-105BK). 
-  
-  Do not define this name for ESCs that automatically allow going into reverse
-  when the throttle has been in neutral for a certain amount of time.
+    Define this name if your ESC goes into reverse only after applying the
+    brake function once (Example: Tamiya TEU-105BK). 
+
+    Do not define this name for ESCs that automatically allow going into reverse
+    when the throttle has been in neutral for a certain amount of time.
 
 - **ENABLE_STEERING_WHEEL_SERVO** 
-
-  Define this name if you want the light controller to drive a steering wheel
-  servo. You must also define **ENABLE_SERVO_OUTPUT** and include **servo-output** in 
-  the list of files in the makefile.
+    
+    Define this name if you want the light controller to drive a steering wheel
+    servo. You must also define **ENABLE_SERVO_OUTPUT** and include **servo-output** in 
+    the list of files in the makefile.
 
 - **ENABLE_SERVO_OUTPUT**
 
-  Define this name if you want the light controller to drive a servo. You must
-  also include **servo-output** in the list of files in the makefile.
+    Define this name if you want the light controller to drive a servo. You must
+    also include **servo-output** in the list of files in the makefile.
   
 - **ENABLE_UART** 
 
-  Define this name when using a UART related function such as uart-reader.
-
+    Define this name when using a UART related function such as uart-reader.
 
 - **NUMBER_OF_LEDS=**8
 
-  Specifies the number of WS2812B or PL9823 LEDs in use. Only applies to the 
-  WS2812 variant of the light controller.
+    Specifies the number of WS2812B or PL9823 LEDs in use. Only applies to the 
+    WS2812 variant of the light controller.
   
 - **ENABLE_GEARBOX**
 
-  Define this name to enable control of a 2-speed gearbox using a servo.
-  You must also define **ENABLE_SERVO_OUTPUT** and include **servo-output** in 
-  the list of files in the makefile.
+    Define this name to enable control of a 2-speed gearbox using a servo.
+    You must also define **ENABLE_SERVO_OUTPUT** and include **servo-output** in 
+    the list of files in the makefile.
   
 - **SERVO_OUTPUT_ON_THROTTLE**
 
-  Define this name to output the servo signal on the throttle channel instead
-  of the dedicated steering wheel servo output of the light controller.
-  Only has an effect when **ENABLE_SERVO_OUTPUT** is enabled.
+    Define this name to output the servo signal on the throttle channel instead
+    of the dedicated steering wheel servo output of the light controller.
+    Only has an effect when **ENABLE_SERVO_OUTPUT** is enabled.
 
 - **ENABLE_WINCH**
 
-  Enables control of a RC winch through using the 
-  [DIY RC Winch Controller](http://laneboysrc.blogspot.com/2013/09/make-your-own-rc-winch-controller.html).
+    Enables control of a RC winch through using the 
+    [DIY RC Winch Controller](http://laneboysrc.blogspot.com/2013/09/make-your-own-rc-winch-controller.html).
   
 - **RECEIVER_OUTPUT_RATE=**20
 
-  Allows to specify the number of milliseconds between repeated servo pulses
-  given by the receiver. If not specified the default of 16 ms is used.
-  All this value really does is adjust the timing of initialization.
+    Allows to specify the number of milliseconds between repeated servo pulses
+    given by the receiver. If not specified the default of 16 ms is used.
+    All this value really does is adjust the timing of initialization.
   
 - **SEQUENTIAL_CHANNEL_READING** 
 
-  Define this name when you are sure that the steering, throttle and AUX
-  channel pulses are output by the receiver in sequence, right after each other.
-  This is the case for the HobbyKing HKR3000 receiver.
-  If unsure, do not define this value.
+    Define this name when you are sure that the steering, throttle and AUX
+    channel pulses are output by the receiver in sequence, right after each other.
+    This is the case for the HobbyKing HKR3000 receiver.
+    If unsure, do not define this value.
 
 
 - **CHANNEL_SEQUENCE_TH_ST_CH3**
 
-  Define this along with **SEQUENTIAL_CHANNEL_READING** when the receiver pulse 
-  sequence throttle, steering, AUX; like in the GT3B.
+    Define this along with **SEQUENTIAL_CHANNEL_READING** when the receiver pulse 
+    sequence throttle, steering, AUX; like in the GT3B.
   
 - **DUAL_TLC5916**
 
-  Enables the use of two TLC5916 (for dim and full brightness). Not recommended,
-  use TLC5940 hardware instead.
+    Enables the use of two TLC5916 (for dim and full brightness). Not recommended,
+    use TLC5940 hardware instead.
   
 
   
