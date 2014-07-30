@@ -11,7 +11,7 @@ parking lights and main beam, others main beam and high beam only. Some cars hav
 fog lamps. On some cars the brake and tail lamps are combined, on others
 they are different LEDs.
 
-As such the vehcile-specific functionality is stored in a separate file
+As such the vehicle-specific functionality is stored in a separate file
 that starts with the prefix **lights-**. 
 
 There is however also a **lights-generic.asm** that may fit a wide variety 
@@ -110,7 +110,6 @@ is also tied to a specific hardware, which is the hardware we've chosen
 for that vehicle. 
 
 Good choices for starting new vehicles are:
-fi
 For the TLC5940 based light controller, use **lights-ferrari-la-ferrari.asm**
 for a car that has only 2 LEDs in the front and 2 in the back. 
 
@@ -124,7 +123,7 @@ light logic files supplied.
 For the WS2812 based light controller there is **lights-fiat-131.asm** as 
 simple example, mixing both WS2812B and PL9823 LEDs. **lights-lancia-fulvia.asm**
 is using PL9823 exclusively but has a nice gimmick of fading indicators, 
-simulating incadescent bulbs, and a simulation of a weak earth connection
+simulating incandescent bulbs, and a simulation of a weak earth connection
 by dimming the left tail/brake light whenever the indicator lights up.
 
 Some old American vehicles have a single light in the back for combined tail, 
@@ -151,7 +150,7 @@ makefile.
 
 - **CH3_MOMENTARY** 
 
-  Define this name if your transmitter's AUX channel returns to the inital 
+  Define this name if your transmitter's AUX channel returns to the initial 
   position when the AUX channel button is released (Futaba 4PL for example)
   If this name is not defined then the software assumes that every AUX channel
   activation toggles the AUX servo position (HobbyKing HK310, FlySky GT3B).
