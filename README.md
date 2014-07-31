@@ -28,7 +28,7 @@ The following functions have been implemented:
 A detailed introduction and videos can be found at our blog:
 
 - [http://laneboysrc.blogspot.com/2012/07/diy-car-light-controller-for-3-channel.html](http://laneboysrc.blogspot.com/2012/07/diy-car-light-controller-for-3-channel.html)
-- [http://laneboysrc.blogspot.com/2013/09/diy-rc-light-controller-update.htm](http://laneboysrc.blogspot.com/2013/09/diy-rc-light-controller-update.htm)
+- [http://laneboysrc.blogspot.com/2013/09/diy-rc-light-controller-update.html](http://laneboysrc.blogspot.com/2013/09/diy-rc-light-controller-update.html)
 
 You may also want to read the [users guide](doc/light-controller-instructions.pdf) 
 for a "generic" firmware that suits many vehicles.
@@ -45,6 +45,8 @@ an inexpensive PIC12F1840 microcontroller to drive.
 An earlier but still useful design used the TLC5940 LED driver and a 
 a PIC16F1825 microcontroller. This system has been deployed in more than
 10 vehicles and can be considered very robust.
+
+[![Light controller on prototyping board and PCB](http://farm6.staticflickr.com/5321/9769284031_7576b9dbe0.jpg)](http://www.flickr.com/photos/78037110@N03/9769284031/)
 
 The project also includes information on the original design using a PIC16F628A 
 and TLC5916. I do not recommend this design for new projects.
@@ -65,14 +67,27 @@ To compile the PIC firmware you need:
   Windows executable is available at [http://gnuwin32.sourceforge.net/packages/make.htm](http://gnuwin32.sourceforge.net/packages/make.htm))
     
 - gputils (Version 1.0.0; [http://gputils.sourceforge.net/](http://gputils.sourceforge.net/))
-    
+
+   
 An overview of the software can be found in the 
 [firmware architecture](doc/firmware-architecture.md) document. This document
 also explains how to get started with customizing the lights for a new RC car.
 
+>**Attention Windows users:**
+>
+> Ensure that the PATH environment variable points to the *make.exe* and 
+> *gpasm.exe* executables.
+>
+> Run *cmd.exe*; type **make -v**. You should see a message originating
+> from GNU make. Ensure that the message is indeed from GNU make, not from
+> another make utility that you may have installed.
+> Type **gpasm -v** to check that *gputils* is correctly installed.
+
 
 ## Related articles
 
+- [http://laneboysrc.blogspot.com/2012/07/diy-car-light-controller-for-3-channel.html](http://laneboysrc.blogspot.com/2012/07/diy-car-light-controller-for-3-channel.html)
+- [http://laneboysrc.blogspot.com/2013/09/diy-rc-light-controller-update.html](http://laneboysrc.blogspot.com/2013/09/diy-rc-light-controller-update.html)
 - [http://laneboysrc.blogspot.com/2012/12/pre-processor-for-diy-rc-light.html](http://laneboysrc.blogspot.com/2012/12/pre-processor-for-diy-rc-light.html)
 - [http://laneboysrc.blogspot.com/2013/01/pre-processor-miniaturization.html](http://laneboysrc.blogspot.com/2013/01/pre-processor-miniaturization.html)
 - [http://laneboysrc.blogspot.com/2014/07/ws2812-and-pl9823-led-power-consumption.html](http://laneboysrc.blogspot.com/2014/07/ws2812-and-pl9823-led-power-consumption.html)
