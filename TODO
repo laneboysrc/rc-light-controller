@@ -1,11 +1,5 @@
 TO DO LIST for the RC Light Controller
 
-* Add documentation about the different supported configurations
-
-* Add documentation on how to build the firmware
-
-* Add documentation how to build a new "car"
-
 * Investigate whether we can detect the order of the incoming channels
   automatically.
   HK-310 and GT3B both send the servo signals in sequence (the GT3B has a 2us
@@ -26,14 +20,6 @@ TO DO LIST for the RC Light Controller
         No actual system seen like this, but is plausible
         In this case just read them round-robin one in each mainloop
 
-* Add a "horn" sound
-    * Store in serial Flash or EEPROM
-    * Invoke by toggling CH3 while steering is left/right
-        * Different sounds for left/right?
-    * Sound output may be at either master or slave configurable
-    * Sound generation via PWM or DAC?
-    * What output hardware / amplifier is needed?
-
 * Fix the issue with master and slave regarding UART RX usage in master for
   the preprocessor use case.  
 
@@ -42,7 +28,7 @@ TO DO LIST for the RC Light Controller
 
 * Test hysteresis for drive mode
 
-* Improve the PCB:
+* Improve the TLC5940 PCB:
     * Larger heat sink for TLC5940, using vias to ground plane
     * Protection resistors for all inputs / outputs? (conflict with Vpp?)
     * Direct programming pads?
