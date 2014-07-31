@@ -20,7 +20,7 @@ and more powerful than the PIC16F628A.
 The TLC5940 can drive up to 16 LEDs, which proved sufficient for all vehicles
 we equipped with lights so far. 
 
-Schematics can be found [here](../electronics/rc-light-controller/schematics-rc-light-controller-tlc5940). 
+Schematics can be found [here](../electronics/rc-light-controller/schematics-rc-light-controller-tlc5940.pdf). 
 The source files in Eagle format are available too.
 
 A PCB design is available, using SMD components. 
@@ -61,7 +61,7 @@ The WS2812B is extremely cheap too. When ordered in 100 pcs quantity from
 China it is only slightly more expensive than a regular 5 mm white LED from
 the local hobby shop.
 
-This makes wiring up a vehicle very easy: one only needs to run 3 wires from
+Using such LEDs makes wiring up a vehicle very easy: one only needs to run 3 wires from
 one LED to the next. Also the control electronics becomes simpler as only
 a simple low pin-count device is needed. We have chosen the PIC12F1840 that
 we already employed in other applications.
@@ -79,7 +79,8 @@ encasing with four leads. The PL9823 is timing compatible with the WS2812B,
 so both LEDs can be mixed in the same string of lights.
 
 The PL9823 has few downsides over the WS2812B:
-- High power consumption of ~7-8mA even if the LED is off
+
+- [High power consumption](http://laneboysrc.blogspot.com/2014/07/ws2812-and-pl9823-led-power-consumption.html) of ~7-8mA even if the LED is off
 
 - When power is applied the LEDs usually light up blue until they receive 
   valid data. The WS2812B stay off until data is received.
@@ -87,8 +88,9 @@ The PL9823 has few downsides over the WS2812B:
 - Data format is red-green-blue , while WS2812 is green-red-blue. This can be 
   easily dealt with in software though.
 
-In order to use either WS2812B or PL9823, each LED must have its own
-bypass capacitor of 100nF. When using the WS2812 it is advisable to not buy
+**Note that it is essential to put a bypass capacitor of 100nF over the supply pins of each LED.**
+
+When using the WS2812 it is advisable to not buy
 the bare LED, but rather the ones that come on a tiny circuit board of ~10 x 10 mm.
 This board already contains the bypass capacitor and convenient terminals
 for soldering.
@@ -100,7 +102,7 @@ ourself. The board layout is available in Eagle format.
 
 A downside of the WS2812B or PL9823 based light controller is the narrow 
 operating range. The WS2812B can operate between 3.5V to 5.3V, the PL9823
-requires 4.5V to 6V. The PIC12F1840 can operate between 2.5V and 5.5V.  
+requires 4.5V to 6V. The PIC12F1840 can operate between 2.5V and 5.5V.
 This means that the light controller is best powered from a 5V BEC, or if the 
 BEC operates at 6V a diode must be used to drop the voltage to the safe range.
 
@@ -109,7 +111,7 @@ accidentally swapped they burn out immediately. Don't ask how we know...
 
 A great feature of the WS2812B or PL9823 based light controller is that
 the color of each LED can be programmed individually. In our Rally Legends
-Lancia Fulvia body shelll the rear indicators and reversing lights are 
+Lancia Fulvia body shell the rear indicators and reversing lights are 
 driven by a single LED, but by programming the LED to output either white or orange
 light we were still able to simulate reversing lights and indicators.
 
@@ -122,8 +124,8 @@ will be a better choice.
 ## Pre-processor for simpler wiring
 
 To utilize its full potential, the DIY RC Light Controller must be able to read 
-Steering, Throttle and AUX (CH3) signals from the receiver. Since such a
-combined signal is unfortunately not available on modern surface receivers.
+Steering, Throttle and AUX (CH3) signals from the receiver. Such a
+combined signal such as CPPM is unfortunately not available on modern surface receivers.
 Therefore the easiest way is to use a Y-cable on steering and throttle 
 channels and feed all signals individually to the light controller. 
 
@@ -133,15 +135,15 @@ three cables every time the body shell needs to be separated from the chassis.
 
 To solve this issue we added a small micro-controller into our receivers.
 This micro-controller directly taps into the servo outputs and generates
-a serial signal that contains information of all channels. This way we need
-to run only a single servo extension wire between the chassis and the body, 
+a serial signal on a single wire that contains information of all channels. 
+This way we only need to run a single servo extension wire between the chassis and the body, 
 providing both power and data. We use this system in most of our RC cars.
 
 More information about the pre-processor:
 
-- [http://laneboysrc.blogspot.sg/2012/12/pre-processor-for-diy-rc-light.html](http://laneboysrc.blogspot.sg/2012/12/pre-processor-for-diy-rc-light.html)
+- [http://laneboysrc.blogspot.com/2012/12/pre-processor-for-diy-rc-light.html](http://laneboysrc.blogspot.com/2012/12/pre-processor-for-diy-rc-light.html)
 
-- [http://laneboysrc.blogspot.sg/2013/01/pre-processor-miniaturization.html](http://laneboysrc.blogspot.sg/2013/01/pre-processor-miniaturization.html)
+- [http://laneboysrc.blogspot.com/2013/01/pre-processor-miniaturization.html](http://laneboysrc.blogspot.com/2013/01/pre-processor-miniaturization.html)
 
 Note that with the WS2812 based light controller one could mount the light 
 controller on the chassis and have a single 3-pole wire running to the first 

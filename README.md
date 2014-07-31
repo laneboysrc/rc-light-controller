@@ -27,8 +27,8 @@ The following functions have been implemented:
 
 A detailed introduction and videos can be found at our blog:
 
-- [http://laneboysrc.blogspot.sg/2012/07/diy-car-light-controller-for-3-channel.html](http://laneboysrc.blogspot.sg/2012/07/diy-car-light-controller-for-3-channel.html)
-- [http://laneboysrc.blogspot.sg/2013/09/diy-rc-light-controller-update.htm](http://laneboysrc.blogspot.sg/2013/09/diy-rc-light-controller-update.htm)
+- [http://laneboysrc.blogspot.com/2012/07/diy-car-light-controller-for-3-channel.html](http://laneboysrc.blogspot.com/2012/07/diy-car-light-controller-for-3-channel.html)
+- [http://laneboysrc.blogspot.com/2013/09/diy-rc-light-controller-update.htm](http://laneboysrc.blogspot.com/2013/09/diy-rc-light-controller-update.htm)
 
 You may also want to read the [users guide](doc/light-controller-instructions.pdf) 
 for a "generic" firmware that suits many vehicles.
@@ -73,7 +73,7 @@ also explains how to get started with customizing the lights for a new RC car.
 
 ## Related articles
 
-- [http://laneboysrc.blogspot.sg/2012/12/pre-processor-for-diy-rc-light.html](http://laneboysrc.blogspot.sg/2012/12/pre-processor-for-diy-rc-light.html)
-- [http://laneboysrc.blogspot.sg/2013/01/pre-processor-miniaturization.html](http://laneboysrc.blogspot.sg/2013/01/pre-processor-miniaturization.html)
-- [http://laneboysrc.blogspot.sg/2014/07/ws2812-and-pl9823-led-power-consumption.html](http://laneboysrc.blogspot.sg/2014/07/ws2812-and-pl9823-led-power-consumption.html)
+- [http://laneboysrc.blogspot.com/2012/12/pre-processor-for-diy-rc-light.html](http://laneboysrc.blogspot.com/2012/12/pre-processor-for-diy-rc-light.html)
+- [http://laneboysrc.blogspot.com/2013/01/pre-processor-miniaturization.html](http://laneboysrc.blogspot.com/2013/01/pre-processor-miniaturization.html)
+- [http://laneboysrc.blogspot.com/2014/07/ws2812-and-pl9823-led-power-consumption.html](http://laneboysrc.blogspot.com/2014/07/ws2812-and-pl9823-led-power-consumption.html)
 
