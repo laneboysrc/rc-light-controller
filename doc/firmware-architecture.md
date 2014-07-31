@@ -271,7 +271,7 @@ compiling a vehicle.
 These features can be found in the **CFLAGS** directive of a vehicle in the
 makefile.
 
-- **LIGHT_MODE_MASK=**0x0f
+- **LIGHT_MODE_MASK=** 0x0f
 
     This bitmask defines how many lights there are that should be switched 
     on with a single click of the AUX/CH3 channel. Each time AUX is activated,
@@ -318,7 +318,7 @@ makefile.
 
     Define this name when using a UART related function such as uart-reader.
 
-- **NUMBER_OF_LEDS=**8
+- **NUMBER_OF_LEDS=** 8
 
     Specifies the number of WS2812B or PL9823 LEDs in use. Only applies to the 
     WS2812 variant of the light controller.
@@ -342,7 +342,7 @@ makefile.
     Enables control of a RC winch through using the 
     [DIY RC Winch Controller](http://laneboysrc.blogspot.com/2013/09/make-your-own-rc-winch-controller.html).
   
-- **RECEIVER_OUTPUT_RATE=**20
+- **RECEIVER_OUTPUT_RATE=** 20
 
     Allows to specify the number of milliseconds between repeated servo pulses
     given by the receiver. If not specified the default of 16 ms is used.
