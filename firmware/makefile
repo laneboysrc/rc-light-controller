@@ -1,8 +1,10 @@
 .PHONY: all
-all: sawback subaru-impreza-2008 ferrari-la-ferrari subaru-impreza-2008 \
-     nismo-coppermix lancia-delta-integrale generic \
-     datsun-240z-rally bmw-2002-turbo porsche-911-rsr wraith datsun-510-master \
-     ben-landrover pajero subaru wyetuck-landrover phil-ford xr311 dingo
+all: fiat-131 lancia-fulvia \
+     sawback subaru-impreza-2007 ferrari-la-ferrari subaru-impreza-2008 \
+     nismo-coppermix lancia-delta-integrale datsun-240z-rally bmw-2002-turbo \
+     porsche-911-rsr wraith datsun-510 ben-landrover pajero subaru \
+     wyetuck-landrover phil-ford xr311 dingo \
+     generic preprocessor
 
 
 ##############################################################################
@@ -195,8 +197,8 @@ wraith-master: hw_tlc5940_16f1825.inc
 ##############################################################################
 # HPI Datsun 510 (M-chassis using a pre-processor in the Rx)
 ##############################################################################
-.PHONY: datsun-510-master
-datsun-510-master: hw_tlc5940_16f1825.inc
+.PHONY: datsun-510
+datsun-510: hw_tlc5940_16f1825.inc
 	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x07 -D DISABLE_BRAKE_DISARM_TIMEOUT -D ENABLE_UART)
 	$(eval files = master uart-reader utils lights-datsun-510)
 	$(build)
@@ -312,18 +314,17 @@ xr311-master : hw_original_uart_reader.inc
 	
 
 ##############################################################################
-# Pre-processor for the HobbyKing HKR3000 receiver
+# Pre-processors
 ##############################################################################
-.PHONY: hkr3000-preprocessor
+.PHONY: preprocessor
+preprocessor: hkr3000-preprocessor gt3b-preprocessor
+
+.PHONY:  hkr3000-preprocessor
 hkr3000-preprocessor : hw_preprocessor_12f1840.inc
 	$(eval CFLAGS = -D SEQUENTIAL_CHANNEL_READING )
 	$(eval files = preprocessor servo-reader utils)
 	$(build)
 
-
-##############################################################################
-# Pre-processor for the GT3B receiver
-##############################################################################
 .PHONY: gt3b-preprocessor
 gt3b-preprocessor : hw_preprocessor_12f1840.inc
 	$(eval CFLAGS = -D SEQUENTIAL_CHANNEL_READING -D CHANNEL_SEQUENCE_TH_ST_CH3)
