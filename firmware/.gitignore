@@ -1,5 +1,8 @@
 !generic-momentary-master.hex
 !generic-two-position-master.hex
+!generic-two-position-preprocessor-master.hex
 !test-tlc5940-16f1825.hex
 !test-ws2812-12f1840.hex
+!gt3b-preprocessor.hex
+!hkr3000-preprocessor.hex
 

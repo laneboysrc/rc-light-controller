@@ -9,7 +9,7 @@ all: sawback subaru-impreza-2008 ferrari-la-ferrari subaru-impreza-2008 \
 # Generic light logic, not specific for any car
 ##############################################################################
 .PHONY: generic
-generic: generic-momentary-master generic-two-position-master generic-always-on-master
+generic: generic-momentary-master generic-two-position-master generic-always-on-master generic-two-position-preprocessor-master
 
 .PHONY: generic-momentary-master
 generic-momentary-master: hw_tlc5940_16f1825.inc
@@ -21,6 +21,12 @@ generic-momentary-master: hw_tlc5940_16f1825.inc
 generic-two-position-master: hw_tlc5940_16f1825.inc
 	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x0f -D ENABLE_STEERING_WHEEL_SERVO -D ENABLE_SERVO_OUTPUT) 
 	$(eval files = master servo-reader servo-output utils lights-generic)
+	$(build)
+
+.PHONY: generic-two-position-preprocessor-master
+generic-two-position-preprocessor-master: hw_tlc5940_16f1825.inc
+	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x0f -D ENABLE_UART -D ENABLE_STEERING_WHEEL_SERVO -D ENABLE_SERVO_OUTPUT) 
+	$(eval files = master uart-reader servo-output utils lights-generic)
 	$(build)
 
 .PHONY: generic-always-on-master
