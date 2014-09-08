@@ -5282,6 +5282,10 @@ Source: AVX .. aphvc.pdf</description>
 <rectangle x1="-1.0766" y1="2.2828" x2="-0.8734" y2="3.121" layer="51"/>
 <rectangle x1="-1.7266" y1="2.2828" x2="-1.5234" y2="3.121" layer="51"/>
 <rectangle x1="-2.3766" y1="2.2828" x2="-2.1734" y2="3.121" layer="51"/>
+<wire x1="-2.7" y1="-3.725" x2="-2.7" y2="3.725" width="0.0508" layer="39"/>
+<wire x1="2.7" y1="3.725" x2="2.7" y2="-3.725" width="0.0508" layer="39"/>
+<wire x1="-2.7" y1="-3.725" x2="2.7" y2="-3.725" width="0.0508" layer="39"/>
+<wire x1="2.7" y1="3.725" x2="-2.7" y2="3.725" width="0.0508" layer="39"/>
 </package>
 </packages>
 <symbols>
@@ -5431,8 +5435,6 @@ super fast rectifier, 2 A</description>
 <part name="C3" library="rcl" deviceset="C-EU" device="C0805" value="100n"/>
 <part name="GND8" library="supply1" deviceset="GND" device=""/>
 <part name="U$1" library="MCP1754" deviceset="MCP1754X-XXXXX/C" device=""/>
-<part name="R2" library="rcl" deviceset="R-EU_" device="R0603" value="33k"/>
-<part name="+3V4" library="supply1" deviceset="+3V3" device=""/>
 <part name="PAD2" library="wirepad" deviceset="SDM80X120" device="" value="Vdd"/>
 <part name="PAD3" library="wirepad" deviceset="SDM80X120" device="" value="GND"/>
 <part name="PAD4" library="wirepad" deviceset="SDM80X120" device="" value="ST/Rx"/>
@@ -5460,11 +5462,9 @@ super fast rectifier, 2 A</description>
 <part name="C1" library="rcl" deviceset="C-EU" device="C0805" value="10u"/>
 <part name="R3" library="rcl" deviceset="R-EU_" device="R0603" value="1k"/>
 <part name="R4" library="rcl" deviceset="R-EU_" device="R0603" value="1k"/>
-<part name="R5" library="rcl" deviceset="R-EU_" device="R0603" value="33k"/>
 <part name="U$2" library="LPC810" deviceset="LPC812M101JDH16" device="" value="LPC812"/>
 <part name="PAD1" library="wirepad" deviceset="SDM80X120" device="" value="CH3"/>
 <part name="R6" library="rcl" deviceset="R-EU_" device="R0603" value="1k"/>
-<part name="+3V5" library="supply1" deviceset="+3V3" device=""/>
 <part name="D1" library="diode" deviceset="ES2D" device="" value="(Diode)"/>
 <part name="PAD7" library="wirepad" deviceset="SDM80X120" device="" value="GND"/>
 <part name="PAD27" library="wirepad" deviceset="SDM80X120" device="" value="+5V"/>
@@ -5475,6 +5475,12 @@ super fast rectifier, 2 A</description>
 <sheet>
 <plain>
 <text x="-50.8" y="7.62" size="1.778" layer="91" rot="R90">0603</text>
+<text x="-119.38" y="154.94" size="1.27" layer="97">Special pins:
+PIO0_0 (16) ISP UART RX
+PIO0_4 (4) ISP UART TX
+PIO0_5 (3) RESET
+PIO0_10 (8) Open drain
+PIO0_11 (7) Open drain</text>
 </plain>
 <instances>
 <instance part="U2" gate="G$1" x="20.32" y="15.24"/>
@@ -5493,8 +5499,6 @@ super fast rectifier, 2 A</description>
 <instance part="C3" gate="G$1" x="-187.96" y="193.04"/>
 <instance part="GND8" gate="1" x="-187.96" y="180.34"/>
 <instance part="U$1" gate="A" x="114.3" y="175.26"/>
-<instance part="R2" gate="G$1" x="-88.9" y="50.8" rot="R90"/>
-<instance part="+3V4" gate="G$1" x="-88.9" y="60.96"/>
 <instance part="PAD2" gate="G$1" x="157.48" y="114.3" rot="R180"/>
 <instance part="PAD3" gate="G$1" x="157.48" y="106.68" rot="R180"/>
 <instance part="PAD4" gate="G$1" x="157.48" y="99.06" rot="R180"/>
@@ -5522,11 +5526,9 @@ super fast rectifier, 2 A</description>
 <instance part="C1" gate="G$1" x="91.44" y="165.1"/>
 <instance part="R3" gate="G$1" x="106.68" y="99.06" rot="R180"/>
 <instance part="R4" gate="G$1" x="106.68" y="91.44" rot="R180"/>
-<instance part="R5" gate="G$1" x="27.94" y="93.98" rot="R270"/>
 <instance part="U$2" gate="G$1" x="-106.68" y="190.5"/>
 <instance part="PAD1" gate="G$1" x="157.48" y="83.82" rot="R180"/>
 <instance part="R6" gate="G$1" x="106.68" y="83.82" rot="R180"/>
-<instance part="+3V5" gate="G$1" x="27.94" y="104.14"/>
 <instance part="D1" gate="G$1" x="12.7" y="236.22"/>
 <instance part="PAD7" gate="G$1" x="35.56" y="228.6" rot="R180"/>
 <instance part="PAD27" gate="G$1" x="35.56" y="236.22" rot="R180"/>
@@ -5568,16 +5570,6 @@ super fast rectifier, 2 A</description>
 <pinref part="+3V3" gate="G$1" pin="+3V3"/>
 <pinref part="U$1" gate="A" pin="VOUT"/>
 <pinref part="C2" gate="G$1" pin="1"/>
-</segment>
-<segment>
-<wire x1="-88.9" y1="55.88" x2="-88.9" y2="58.42" width="0.1524" layer="91"/>
-<pinref part="R2" gate="G$1" pin="2"/>
-<pinref part="+3V4" gate="G$1" pin="+3V3"/>
-</segment>
-<segment>
-<pinref part="R5" gate="G$1" pin="1"/>
-<pinref part="+3V5" gate="G$1" pin="+3V3"/>
-<wire x1="27.94" y1="99.06" x2="27.94" y2="101.6" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="GND" class="0">
@@ -5656,24 +5648,20 @@ super fast rectifier, 2 A</description>
 </net>
 <net name="SLAT" class="0">
 <segment>
-<wire x1="-134.62" y1="190.5" x2="-167.64" y2="190.5" width="0.1524" layer="91"/>
-<wire x1="-167.64" y1="190.5" x2="-167.64" y2="20.32" width="0.1524" layer="91"/>
-<wire x1="-167.64" y1="20.32" x2="-22.86" y2="20.32" width="0.1524" layer="91"/>
+<wire x1="-50.8" y1="195.58" x2="-50.8" y2="20.32" width="0.1524" layer="91"/>
+<wire x1="-50.8" y1="20.32" x2="-22.86" y2="20.32" width="0.1524" layer="91"/>
 <pinref part="U2" gate="G$1" pin="XLAT"/>
-<pinref part="U$2" gate="G$1" pin="PIO0_2/SWDIO/TMS"/>
+<pinref part="U$2" gate="G$1" pin="PIO0_10"/>
+<wire x1="-78.74" y1="195.58" x2="-50.8" y2="195.58" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="BLANK" class="0">
 <segment>
-<wire x1="-22.86" y1="35.56" x2="-63.5" y2="35.56" width="0.1524" layer="91"/>
-<wire x1="-63.5" y1="35.56" x2="-63.5" y2="195.58" width="0.1524" layer="91"/>
-<wire x1="-63.5" y1="195.58" x2="-78.74" y2="195.58" width="0.1524" layer="91"/>
-<wire x1="-88.9" y1="45.72" x2="-88.9" y2="35.56" width="0.1524" layer="91"/>
-<wire x1="-88.9" y1="35.56" x2="-63.5" y2="35.56" width="0.1524" layer="91"/>
-<junction x="-63.5" y="35.56"/>
+<wire x1="-22.86" y1="35.56" x2="-157.48" y2="35.56" width="0.1524" layer="91"/>
+<wire x1="-157.48" y1="35.56" x2="-157.48" y2="190.5" width="0.1524" layer="91"/>
 <pinref part="U2" gate="G$1" pin="BLANK"/>
-<pinref part="R2" gate="G$1" pin="1"/>
-<pinref part="U$2" gate="G$1" pin="PIO0_10"/>
+<pinref part="U$2" gate="G$1" pin="PIO0_2/SWDIO/TMS"/>
+<wire x1="-134.62" y1="190.5" x2="-157.48" y2="190.5" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="GSCLK" class="0">
@@ -5900,15 +5888,11 @@ super fast rectifier, 2 A</description>
 </net>
 <net name="N$20" class="0">
 <segment>
-<pinref part="R5" gate="G$1" pin="2"/>
-<wire x1="27.94" y1="88.9" x2="27.94" y2="76.2" width="0.1524" layer="91"/>
-<wire x1="27.94" y1="76.2" x2="154.94" y2="76.2" width="0.1524" layer="91"/>
-<wire x1="27.94" y1="76.2" x2="-71.12" y2="76.2" width="0.1524" layer="91"/>
+<wire x1="-71.12" y1="76.2" x2="154.94" y2="76.2" width="0.1524" layer="91"/>
 <wire x1="-71.12" y1="76.2" x2="-71.12" y2="190.5" width="0.1524" layer="91"/>
 <wire x1="-71.12" y1="190.5" x2="-78.74" y2="190.5" width="0.1524" layer="91"/>
 <pinref part="U$2" gate="G$1" pin="PIO0_12"/>
 <pinref part="PAD6" gate="G$1" pin="P"/>
-<junction x="27.94" y="76.2"/>
 </segment>
 </net>
 <net name="N$1" class="0">
@@ -5947,4 +5931,10 @@ super fast rectifier, 2 A</description>
 </sheets>
 </schematic>
 </drawing>
+<compatibility>
+<note version="6.3" minversion="6.2.2" severity="warning">
+Since Version 6.2.2 text objects can contain more than one line,
+which will not be processed correctly with this version.
+</note>
+</compatibility>
 </eagle>
