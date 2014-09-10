@@ -21,8 +21,8 @@
 <layer number="25" name="tNames" color="7" fill="1" visible="no" active="yes"/>
 <layer number="26" name="bNames" color="7" fill="1" visible="no" active="yes"/>
 <layer number="27" name="tValues" color="7" fill="1" visible="yes" active="yes"/>
-<layer number="28" name="bValues" color="7" fill="1" visible="no" active="yes"/>
-<layer number="29" name="tStop" color="7" fill="3" visible="no" active="yes"/>
+<layer number="28" name="bValues" color="7" fill="1" visible="yes" active="yes"/>
+<layer number="29" name="tStop" color="7" fill="3" visible="yes" active="yes"/>
 <layer number="30" name="bStop" color="7" fill="6" visible="no" active="yes"/>
 <layer number="31" name="tCream" color="7" fill="4" visible="no" active="yes"/>
 <layer number="32" name="bCream" color="7" fill="5" visible="no" active="yes"/>
@@ -359,40 +359,6 @@
 </package>
 </packages>
 </library>
-<library name="MCP1754">
-<packages>
-<package name="SOT-23A_MC">
-<wire x1="-0.6858" y1="-0.889" x2="-1.1938" y2="-0.889" width="0" layer="21"/>
-<wire x1="-1.1938" y1="-0.889" x2="-1.1938" y2="-1.4986" width="0" layer="21"/>
-<wire x1="-1.1938" y1="-1.4986" x2="-0.6858" y2="-1.4986" width="0" layer="21"/>
-<wire x1="-0.6858" y1="-1.4986" x2="-0.6858" y2="-0.889" width="0" layer="21"/>
-<wire x1="1.1938" y1="-0.889" x2="0.6858" y2="-0.889" width="0" layer="21"/>
-<wire x1="0.6858" y1="-0.889" x2="0.6858" y2="-1.4986" width="0" layer="21"/>
-<wire x1="0.6858" y1="-1.4986" x2="1.1938" y2="-1.4986" width="0" layer="21"/>
-<wire x1="1.1938" y1="-1.4986" x2="1.1938" y2="-0.889" width="0" layer="21"/>
-<wire x1="-0.254" y1="0.889" x2="0.254" y2="0.889" width="0" layer="21"/>
-<wire x1="0.254" y1="0.889" x2="0.254" y2="1.4986" width="0" layer="21"/>
-<wire x1="0.254" y1="1.4986" x2="-0.254" y2="1.4986" width="0" layer="21"/>
-<wire x1="-0.254" y1="1.4986" x2="-0.254" y2="0.889" width="0" layer="21"/>
-<wire x1="-1.5494" y1="-0.889" x2="1.5494" y2="-0.889" width="0" layer="21"/>
-<wire x1="1.5494" y1="-0.889" x2="1.5494" y2="0.889" width="0" layer="21"/>
-<wire x1="1.5494" y1="0.889" x2="-1.5494" y2="0.889" width="0" layer="21"/>
-<wire x1="-1.5494" y1="0.889" x2="-1.5494" y2="-0.889" width="0" layer="21"/>
-<wire x1="-0.3302" y1="-0.889" x2="0.3302" y2="-0.889" width="0.1524" layer="51"/>
-<wire x1="1.5494" y1="-0.4572" x2="1.5494" y2="0.889" width="0.1524" layer="51"/>
-<wire x1="1.5494" y1="0.889" x2="0.6096" y2="0.889" width="0.1524" layer="51"/>
-<wire x1="-1.5494" y1="0.889" x2="-1.5494" y2="-0.4572" width="0.1524" layer="51"/>
-<wire x1="-0.6096" y1="0.889" x2="-1.5494" y2="0.889" width="0.1524" layer="51"/>
-<smd name="1" x="-0.9398" y="-1.1938" dx="0.5588" dy="1.3208" layer="1"/>
-<smd name="2" x="0.9398" y="-1.1938" dx="0.5588" dy="1.3208" layer="1"/>
-<smd name="3" x="0" y="1.1938" dx="0.5588" dy="1.3208" layer="1"/>
-<text x="-2.6416" y="3.81" size="1.27" layer="51" ratio="6" rot="SR0">RefDes</text>
-<text x="-1.143" y="-0.635" size="1.27" layer="51" ratio="6" rot="SR0">PN</text>
-<text x="2.7178" y="-1.27" size="1.27" layer="51" ratio="6" rot="SR0">DEV</text>
-<text x="2.7178" y="-3.175" size="1.27" layer="51" ratio="6" rot="SR0">VAL</text>
-</package>
-</packages>
-</library>
 <library name="wirepad">
 <description>&lt;b&gt;Single Pads&lt;/b&gt;&lt;p&gt;
 &lt;author&gt;Created by librarian@cadsoft.de&lt;/author&gt;</description>
@@ -489,6 +455,38 @@ Based on the following sources:
 <rectangle x1="-2.794" y1="-1.0922" x2="-2.2606" y2="1.0922" layer="51"/>
 <rectangle x1="2.2606" y1="-1.0922" x2="2.794" y2="1.0922" layer="51"/>
 <rectangle x1="-1.35" y1="-1.9" x2="-0.8" y2="1.9" layer="51"/>
+</package>
+</packages>
+</library>
+<library name="MCP1703">
+<packages>
+<package name="SOT95P300X145-3N">
+<smd name="1" x="-0.9398" y="-1.1938" dx="0.5588" dy="1.3208" layer="1"/>
+<smd name="2" x="0.9398" y="-1.1938" dx="0.5588" dy="1.3208" layer="1"/>
+<smd name="3" x="0" y="1.1938" dx="0.5588" dy="1.3208" layer="1"/>
+<wire x1="-0.6858" y1="-0.889" x2="-1.1938" y2="-0.889" width="0.1524" layer="51"/>
+<wire x1="-1.1938" y1="-0.889" x2="-1.1938" y2="-1.4986" width="0.1524" layer="51"/>
+<wire x1="-1.1938" y1="-1.4986" x2="-0.6858" y2="-1.4986" width="0.1524" layer="51"/>
+<wire x1="-0.6858" y1="-1.4986" x2="-0.6858" y2="-0.889" width="0.1524" layer="51"/>
+<wire x1="1.1938" y1="-0.889" x2="0.6858" y2="-0.889" width="0.1524" layer="51"/>
+<wire x1="0.6858" y1="-0.889" x2="0.6858" y2="-1.4986" width="0.1524" layer="51"/>
+<wire x1="0.6858" y1="-1.4986" x2="1.1938" y2="-1.4986" width="0.1524" layer="51"/>
+<wire x1="1.1938" y1="-1.4986" x2="1.1938" y2="-0.889" width="0.1524" layer="51"/>
+<wire x1="-0.254" y1="0.889" x2="0.254" y2="0.889" width="0.1524" layer="51"/>
+<wire x1="0.254" y1="0.889" x2="0.254" y2="1.4986" width="0.1524" layer="51"/>
+<wire x1="0.254" y1="1.4986" x2="-0.254" y2="1.4986" width="0.1524" layer="51"/>
+<wire x1="-0.254" y1="1.4986" x2="-0.254" y2="0.889" width="0.1524" layer="51"/>
+<wire x1="-1.5494" y1="-0.889" x2="1.5494" y2="-0.889" width="0.1524" layer="51"/>
+<wire x1="1.5494" y1="-0.889" x2="1.5494" y2="0.889" width="0.1524" layer="51"/>
+<wire x1="1.5494" y1="0.889" x2="-1.5494" y2="0.889" width="0.1524" layer="51"/>
+<wire x1="-1.5494" y1="0.889" x2="-1.5494" y2="-0.889" width="0.1524" layer="51"/>
+<wire x1="-0.6096" y1="0.889" x2="-1.5494" y2="0.889" width="0.1524" layer="21"/>
+<wire x1="-0.3302" y1="-0.889" x2="0.3302" y2="-0.889" width="0.1524" layer="21"/>
+<wire x1="1.5494" y1="-0.4572" x2="1.5494" y2="0.889" width="0.1524" layer="21"/>
+<wire x1="1.5494" y1="0.889" x2="0.6096" y2="0.889" width="0.1524" layer="21"/>
+<wire x1="-1.5494" y1="0.889" x2="-1.5494" y2="-0.4572" width="0.1524" layer="21"/>
+<text x="-4.2418" y="2.413" size="2.0828" layer="25" ratio="10" rot="SR0">&gt;NAME</text>
+<text x="-5.6896" y="-4.4196" size="2.0828" layer="27" ratio="10" rot="SR0">&gt;VALUE</text>
 </package>
 </packages>
 </library>
@@ -699,7 +697,15 @@ design rules under a new name.</description>
 <attribute name="NAME" x="12.954" y="7.366" size="1.27" layer="25" rot="R90"/>
 <attribute name="VALUE" x="13.208" y="8.636" size="0.8128" layer="27" font="vector" ratio="15" rot="R90" align="bottom-center"/>
 </element>
-<element name="U$1" library="MCP1754" package="SOT-23A_MC" value="MCP1754X-XXXXX/C" x="18.796" y="4.572" rot="R90"/>
+<element name="U$1" library="MCP1703" package="SOT95P300X145-3N" value="LDO3V3" x="18.796" y="4.572" smashed="yes" rot="R90">
+<attribute name="PACKAGE" value="SOT-3" x="18.796" y="4.572" size="1.778" layer="27" rot="R90" display="off"/>
+<attribute name="OC_NEWARK" value="40M0637" x="18.796" y="4.572" size="1.778" layer="27" rot="R90" display="off"/>
+<attribute name="MPN" value="MCP1703T-3302E/CB" x="18.796" y="4.572" size="1.778" layer="27" rot="R90" display="off"/>
+<attribute name="SUPPLIER" value="Microchip" x="18.796" y="4.572" size="1.778" layer="27" rot="R90" display="off"/>
+<attribute name="OC_FARNELL" value="1439518" x="18.796" y="4.572" size="1.778" layer="27" rot="R90" display="off"/>
+<attribute name="NAME" x="16.383" y="0.3302" size="2.0828" layer="25" ratio="10" rot="SR90"/>
+<attribute name="VALUE" x="16.4084" y="1.9304" size="0.8128" layer="27" font="vector" ratio="15" rot="SR0"/>
+</element>
 <element name="PAD1" library="wirepad" package="SMD80X120" value="Vdd" x="24.638" y="4.826" smashed="yes" rot="R90">
 <attribute name="VALUE" x="26.162" y="4.826" size="1.016" layer="28" ratio="15" rot="MR180" align="center-right"/>
 <attribute name="NAME" x="26.162" y="3.556" size="0.8128" layer="25" ratio="15" rot="R180"/>
@@ -760,7 +766,7 @@ design rules under a new name.</description>
 </element>
 <element name="R6" library="rcl" package="R0603" value="1k" x="21.844" y="14.224" smashed="yes" rot="R90">
 <attribute name="NAME" x="21.209" y="13.589" size="1.27" layer="25" rot="R90"/>
-<attribute name="VALUE" x="21.844" y="12.7" size="0.8128" layer="27" font="vector" ratio="15" rot="R180" align="bottom-center"/>
+<attribute name="VALUE" x="21.844" y="15.748" size="0.8128" layer="27" font="vector" ratio="15" align="bottom-center"/>
 </element>
 <element name="D1" library="diode" package="SMB" value="(Diode)" x="20.066" y="4.064" smashed="yes" rot="MR270">
 <attribute name="NAME" x="17.907" y="6.223" size="1.27" layer="26" rot="MR270"/>

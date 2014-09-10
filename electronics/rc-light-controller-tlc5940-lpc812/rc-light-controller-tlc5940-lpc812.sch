@@ -465,71 +465,6 @@
 </deviceset>
 </devicesets>
 </library>
-<library name="MCP1754">
-<packages>
-<package name="SOT-23A_MC">
-<wire x1="-0.6858" y1="-0.889" x2="-1.1938" y2="-0.889" width="0" layer="21"/>
-<wire x1="-1.1938" y1="-0.889" x2="-1.1938" y2="-1.4986" width="0" layer="21"/>
-<wire x1="-1.1938" y1="-1.4986" x2="-0.6858" y2="-1.4986" width="0" layer="21"/>
-<wire x1="-0.6858" y1="-1.4986" x2="-0.6858" y2="-0.889" width="0" layer="21"/>
-<wire x1="1.1938" y1="-0.889" x2="0.6858" y2="-0.889" width="0" layer="21"/>
-<wire x1="0.6858" y1="-0.889" x2="0.6858" y2="-1.4986" width="0" layer="21"/>
-<wire x1="0.6858" y1="-1.4986" x2="1.1938" y2="-1.4986" width="0" layer="21"/>
-<wire x1="1.1938" y1="-1.4986" x2="1.1938" y2="-0.889" width="0" layer="21"/>
-<wire x1="-0.254" y1="0.889" x2="0.254" y2="0.889" width="0" layer="21"/>
-<wire x1="0.254" y1="0.889" x2="0.254" y2="1.4986" width="0" layer="21"/>
-<wire x1="0.254" y1="1.4986" x2="-0.254" y2="1.4986" width="0" layer="21"/>
-<wire x1="-0.254" y1="1.4986" x2="-0.254" y2="0.889" width="0" layer="21"/>
-<wire x1="-1.5494" y1="-0.889" x2="1.5494" y2="-0.889" width="0" layer="21"/>
-<wire x1="1.5494" y1="-0.889" x2="1.5494" y2="0.889" width="0" layer="21"/>
-<wire x1="1.5494" y1="0.889" x2="-1.5494" y2="0.889" width="0" layer="21"/>
-<wire x1="-1.5494" y1="0.889" x2="-1.5494" y2="-0.889" width="0" layer="21"/>
-<wire x1="-0.3302" y1="-0.889" x2="0.3302" y2="-0.889" width="0.1524" layer="51"/>
-<wire x1="1.5494" y1="-0.4572" x2="1.5494" y2="0.889" width="0.1524" layer="51"/>
-<wire x1="1.5494" y1="0.889" x2="0.6096" y2="0.889" width="0.1524" layer="51"/>
-<wire x1="-1.5494" y1="0.889" x2="-1.5494" y2="-0.4572" width="0.1524" layer="51"/>
-<wire x1="-0.6096" y1="0.889" x2="-1.5494" y2="0.889" width="0.1524" layer="51"/>
-<smd name="1" x="-0.9398" y="-1.1938" dx="0.5588" dy="1.3208" layer="1"/>
-<smd name="2" x="0.9398" y="-1.1938" dx="0.5588" dy="1.3208" layer="1"/>
-<smd name="3" x="0" y="1.1938" dx="0.5588" dy="1.3208" layer="1"/>
-<text x="-2.6416" y="3.81" size="1.27" layer="51" ratio="6" rot="SR0">RefDes</text>
-<text x="-1.143" y="-0.635" size="1.27" layer="51" ratio="6" rot="SR0">PN</text>
-<text x="2.7178" y="-1.27" size="1.27" layer="51" ratio="6" rot="SR0">DEV</text>
-<text x="2.7178" y="-3.175" size="1.27" layer="51" ratio="6" rot="SR0">VAL</text>
-</package>
-</packages>
-<symbols>
-<symbol name="MCP1754X-XXXXX/C">
-<wire x1="-10.16" y1="5.08" x2="-10.16" y2="-7.62" width="0.127" layer="94"/>
-<wire x1="-10.16" y1="-7.62" x2="10.16" y2="-7.62" width="0.127" layer="94"/>
-<wire x1="10.16" y1="-7.62" x2="10.16" y2="5.08" width="0.127" layer="94"/>
-<wire x1="10.16" y1="5.08" x2="-10.16" y2="5.08" width="0.127" layer="94"/>
-<text x="-11.4046" y="6.5786" size="2.0828" layer="96" ratio="6" rot="SR0">MCP1754-3302</text>
-<pin name="GND" x="0" y="-15.24" direction="pas" rot="R90"/>
-<pin name="VOUT" x="17.78" y="0" direction="pas" rot="R180"/>
-<pin name="VIN" x="-17.78" y="0" direction="pas"/>
-</symbol>
-</symbols>
-<devicesets>
-<deviceset name="MCP1754X-XXXXX/C">
-<gates>
-<gate name="A" symbol="MCP1754X-XXXXX/C" x="0" y="0"/>
-</gates>
-<devices>
-<device name="" package="SOT-23A_MC">
-<connects>
-<connect gate="A" pin="GND" pad="1"/>
-<connect gate="A" pin="VIN" pad="3"/>
-<connect gate="A" pin="VOUT" pad="2"/>
-</connects>
-<technologies>
-<technology name=""/>
-</technologies>
-</device>
-</devices>
-</deviceset>
-</devicesets>
-</library>
 <library name="rcl">
 <packages>
 <package name="R0402">
@@ -5458,6 +5393,77 @@ DIN A3, landscape with location and doc. field</description>
 </deviceset>
 </devicesets>
 </library>
+<library name="MCP1703">
+<packages>
+<package name="SOT95P300X145-3N">
+<smd name="1" x="-0.9398" y="-1.1938" dx="0.5588" dy="1.3208" layer="1"/>
+<smd name="2" x="0.9398" y="-1.1938" dx="0.5588" dy="1.3208" layer="1"/>
+<smd name="3" x="0" y="1.1938" dx="0.5588" dy="1.3208" layer="1"/>
+<wire x1="-0.6858" y1="-0.889" x2="-1.1938" y2="-0.889" width="0.1524" layer="51"/>
+<wire x1="-1.1938" y1="-0.889" x2="-1.1938" y2="-1.4986" width="0.1524" layer="51"/>
+<wire x1="-1.1938" y1="-1.4986" x2="-0.6858" y2="-1.4986" width="0.1524" layer="51"/>
+<wire x1="-0.6858" y1="-1.4986" x2="-0.6858" y2="-0.889" width="0.1524" layer="51"/>
+<wire x1="1.1938" y1="-0.889" x2="0.6858" y2="-0.889" width="0.1524" layer="51"/>
+<wire x1="0.6858" y1="-0.889" x2="0.6858" y2="-1.4986" width="0.1524" layer="51"/>
+<wire x1="0.6858" y1="-1.4986" x2="1.1938" y2="-1.4986" width="0.1524" layer="51"/>
+<wire x1="1.1938" y1="-1.4986" x2="1.1938" y2="-0.889" width="0.1524" layer="51"/>
+<wire x1="-0.254" y1="0.889" x2="0.254" y2="0.889" width="0.1524" layer="51"/>
+<wire x1="0.254" y1="0.889" x2="0.254" y2="1.4986" width="0.1524" layer="51"/>
+<wire x1="0.254" y1="1.4986" x2="-0.254" y2="1.4986" width="0.1524" layer="51"/>
+<wire x1="-0.254" y1="1.4986" x2="-0.254" y2="0.889" width="0.1524" layer="51"/>
+<wire x1="-1.5494" y1="-0.889" x2="1.5494" y2="-0.889" width="0.1524" layer="51"/>
+<wire x1="1.5494" y1="-0.889" x2="1.5494" y2="0.889" width="0.1524" layer="51"/>
+<wire x1="1.5494" y1="0.889" x2="-1.5494" y2="0.889" width="0.1524" layer="51"/>
+<wire x1="-1.5494" y1="0.889" x2="-1.5494" y2="-0.889" width="0.1524" layer="51"/>
+<wire x1="-0.6096" y1="0.889" x2="-1.5494" y2="0.889" width="0.1524" layer="21"/>
+<wire x1="-0.3302" y1="-0.889" x2="0.3302" y2="-0.889" width="0.1524" layer="21"/>
+<wire x1="1.5494" y1="-0.4572" x2="1.5494" y2="0.889" width="0.1524" layer="21"/>
+<wire x1="1.5494" y1="0.889" x2="0.6096" y2="0.889" width="0.1524" layer="21"/>
+<wire x1="-1.5494" y1="0.889" x2="-1.5494" y2="-0.4572" width="0.1524" layer="21"/>
+<text x="-4.2418" y="2.413" size="2.0828" layer="25" ratio="10" rot="SR0">&gt;NAME</text>
+<text x="-5.6896" y="-4.4196" size="2.0828" layer="27" ratio="10" rot="SR0">&gt;VALUE</text>
+</package>
+</packages>
+<symbols>
+<symbol name="MCP1703T-3302E/CB">
+<pin name="VIN" x="-17.78" y="0" length="middle" direction="in"/>
+<pin name="GND" x="-17.78" y="-5.08" length="middle" direction="pas"/>
+<pin name="VOUT" x="17.78" y="0" length="middle" direction="out" rot="R180"/>
+<wire x1="-12.7" y1="5.08" x2="-12.7" y2="-10.16" width="0.1524" layer="94"/>
+<wire x1="-12.7" y1="-10.16" x2="12.7" y2="-10.16" width="0.1524" layer="94"/>
+<wire x1="12.7" y1="-10.16" x2="12.7" y2="5.08" width="0.1524" layer="94"/>
+<wire x1="12.7" y1="5.08" x2="-12.7" y2="5.08" width="0.1524" layer="94"/>
+<text x="-3.9116" y="7.5946" size="2.0828" layer="95" ratio="10" rot="SR0">&gt;NAME</text>
+<text x="-5.2324" y="-14.9352" size="2.0828" layer="96" ratio="10" rot="SR0">&gt;VALUE</text>
+</symbol>
+</symbols>
+<devicesets>
+<deviceset name="MCP1703T-3302E/CB">
+<description>Low Quiescent Current LDO Regulator</description>
+<gates>
+<gate name="A" symbol="MCP1703T-3302E/CB" x="0" y="0"/>
+</gates>
+<devices>
+<device name="" package="SOT95P300X145-3N">
+<connects>
+<connect gate="A" pin="GND" pad="1"/>
+<connect gate="A" pin="VIN" pad="3"/>
+<connect gate="A" pin="VOUT" pad="2"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="MPN" value="MCP1703T-3302E/CB" constant="no"/>
+<attribute name="OC_FARNELL" value="1439518" constant="no"/>
+<attribute name="OC_NEWARK" value="40M0637" constant="no"/>
+<attribute name="PACKAGE" value="SOT-3" constant="no"/>
+<attribute name="SUPPLIER" value="Microchip" constant="no"/>
+</technology>
+</technologies>
+</device>
+</devices>
+</deviceset>
+</devicesets>
+</library>
 </libraries>
 <attributes>
 </attributes>
@@ -5483,7 +5489,7 @@ DIN A3, landscape with location and doc. field</description>
 <part name="GND7" library="supply1" deviceset="GND" device=""/>
 <part name="C3" library="rcl" deviceset="C-EU" device="C0805" value="100n"/>
 <part name="GND8" library="supply1" deviceset="GND" device=""/>
-<part name="U$1" library="MCP1754" deviceset="MCP1754X-XXXXX/C" device=""/>
+<part name="U$1" library="MCP1703" deviceset="MCP1703T-3302E/CB" device="" value="LDO3V3"/>
 <part name="PAD1" library="wirepad" deviceset="SDM80X120" device="" value="Vdd"/>
 <part name="PAD2" library="wirepad" deviceset="SDM80X120" device="" value="GND"/>
 <part name="PAD3" library="wirepad" deviceset="SDM80X120" device="" value="ST/Rx"/>
@@ -5547,13 +5553,16 @@ PIO0_11 ( 7)   Open drain</text>
 <instance part="GND3" gate="1" x="215.9" y="175.26"/>
 <instance part="C2" gate="G$1" x="91.44" y="43.18"/>
 <instance part="GND" gate="1" x="91.44" y="33.02"/>
-<instance part="GND5" gate="1" x="45.72" y="33.02"/>
-<instance part="GND6" gate="1" x="68.58" y="33.02"/>
+<instance part="GND5" gate="1" x="40.64" y="33.02"/>
+<instance part="GND6" gate="1" x="50.8" y="33.02"/>
 <instance part="+3V3" gate="G$1" x="91.44" y="63.5"/>
 <instance part="GND7" gate="1" x="53.34" y="165.1" rot="MR0"/>
 <instance part="C3" gate="G$1" x="119.38" y="119.38"/>
 <instance part="GND8" gate="1" x="119.38" y="106.68"/>
-<instance part="U$1" gate="A" x="68.58" y="55.88"/>
+<instance part="U$1" gate="A" x="68.58" y="55.88" smashed="yes">
+<attribute name="NAME" x="64.6684" y="63.4746" size="2.0828" layer="95" ratio="10" rot="SR0"/>
+<attribute name="VALUE" x="53.1876" y="40.9448" size="2.0828" layer="96" ratio="10" rot="SR0"/>
+</instance>
 <instance part="PAD1" gate="G$1" x="35.56" y="223.52" rot="MR180"/>
 <instance part="PAD2" gate="G$1" x="35.56" y="213.36" rot="MR180"/>
 <instance part="PAD3" gate="G$1" x="35.56" y="203.2" rot="MR180"/>
@@ -5578,7 +5587,7 @@ PIO0_11 ( 7)   Open drain</text>
 <instance part="PAD37" gate="1" x="370.84" y="111.76" rot="R180"/>
 <instance part="PAD66" gate="1" x="370.84" y="119.38" rot="R180"/>
 <instance part="GND4" gate="1" x="266.7" y="175.26"/>
-<instance part="C1" gate="G$1" x="45.72" y="45.72"/>
+<instance part="C1" gate="G$1" x="40.64" y="45.72"/>
 <instance part="R3" gate="G$1" x="63.5" y="203.2" rot="MR180"/>
 <instance part="R4" gate="G$1" x="63.5" y="193.04" rot="MR180"/>
 <instance part="U$2" gate="G$1" x="180.34" y="116.84"/>
@@ -5651,7 +5660,7 @@ PIO0_11 ( 7)   Open drain</text>
 <pinref part="R1" gate="G$1" pin="1"/>
 </segment>
 <segment>
-<wire x1="45.72" y1="35.56" x2="45.72" y2="40.64" width="0.1524" layer="91"/>
+<wire x1="40.64" y1="35.56" x2="40.64" y2="40.64" width="0.1524" layer="91"/>
 <pinref part="GND5" gate="1" pin="GND"/>
 <pinref part="C1" gate="G$1" pin="2"/>
 </segment>
@@ -5661,7 +5670,7 @@ PIO0_11 ( 7)   Open drain</text>
 <pinref part="GND8" gate="1" pin="GND"/>
 </segment>
 <segment>
-<wire x1="68.58" y1="40.64" x2="68.58" y2="35.56" width="0.1524" layer="91"/>
+<wire x1="50.8" y1="50.8" x2="50.8" y2="35.56" width="0.1524" layer="91"/>
 <pinref part="U$1" gate="A" pin="GND"/>
 <pinref part="GND6" gate="1" pin="GND"/>
 </segment>
@@ -5770,10 +5779,10 @@ PIO0_11 ( 7)   Open drain</text>
 </net>
 <net name="VIN" class="0">
 <segment>
-<wire x1="50.8" y1="55.88" x2="45.72" y2="55.88" width="0.1524" layer="91"/>
-<wire x1="45.72" y1="55.88" x2="30.48" y2="55.88" width="0.1524" layer="91"/>
-<wire x1="45.72" y1="48.26" x2="45.72" y2="55.88" width="0.1524" layer="91"/>
-<junction x="45.72" y="55.88"/>
+<wire x1="50.8" y1="55.88" x2="40.64" y2="55.88" width="0.1524" layer="91"/>
+<wire x1="40.64" y1="55.88" x2="30.48" y2="55.88" width="0.1524" layer="91"/>
+<wire x1="40.64" y1="48.26" x2="40.64" y2="55.88" width="0.1524" layer="91"/>
+<junction x="40.64" y="55.88"/>
 <pinref part="U$1" gate="A" pin="VIN"/>
 <pinref part="C1" gate="G$1" pin="1"/>
 <label x="30.48" y="55.88" size="1.778" layer="95"/>

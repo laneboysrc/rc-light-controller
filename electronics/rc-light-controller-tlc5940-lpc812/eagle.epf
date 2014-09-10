@@ -15,6 +15,7 @@ UsedLibrary="/home/laneboysrc/projects/rc-light-controller/electronics/PIC16F182
 UsedLibrary="/home/laneboysrc/projects/rc-light-controller/electronics/con-lstb-modified.lbr"
 UsedLibrary="/home/laneboysrc/projects/rc-light-controller/electronics/wirepad.lbr"
 UsedLibrary="/home/laneboysrc/projects/rc-light-controller/electronics/LPC810.lbr"
+UsedLibrary="/home/laneboysrc/projects/rc-light-controller/electronics/MCP1703.lbr"
 
 [Win_1]
 Type="Schematic Editor"
@@ -22,7 +23,7 @@ Loc="0 25 1679 1025"
 State=1
 Number=1
 File="rc-light-controller-tlc5940-lpc812.sch"
-View="-42.3022 3.78298 442.8 253.632"
+View="-72.9929 1.15796 412.109 251.007"
 WireWidths=" 0 0.3048 0.6096 0.8128 1.016 1.27 1.4224 1.6764 1.778 1.9304 2.1844 2.54 3.81 6.4516 0.4064 0.1524"
 PadDiameters=" 0.254 0.3048 0.4064 0.6096 0.8128 1.016 1.27 1.4224 1.6764 1.778 1.9304 2.1844 2.54 3.81 6.4516 0"
 PadDrills=" 0.5 0.6 0.7 0.9 1 1.1 1.2 1.3 1.4 1.5 1.6 2 2.2 2.8 3.2 0.8"
@@ -61,7 +62,7 @@ ArcDirection=0
 AddLevel=2
 PadsSameType=0
 Layer=97
-Views=" 1: -42.3022 3.78298 442.8 253.632"
+Views=" 1: -72.9929 1.15796 412.109 251.007"
 Sheet=1
 
 [Win_2]
@@ -70,7 +71,7 @@ Loc="0 25 1679 1049"
 State=1
 Number=2
 File="rc-light-controller-tlc5940-lpc812.brd"
-View="-16.5461 -4.35162 34.8586 23.512"
+View="-7.10388 -2.89855 35.7334 20.3211"
 WireWidths=" 2.54 3.81 6.4516 2.1844 1.9304 1.778 1.6764 1.4224 0 0.2032 0.254 1.016 0.8128 0.6096 0.4064 0.3048"
 PadDiameters=" 0.254 0.3048 0.4064 0.6096 0.8128 1.016 1.27 1.4224 1.6764 1.778 1.9304 2.1844 2.54 3.81 6.4516 0"
 PadDrills=" 0.5 0.6 0.7 0.9 1 1.1 1.2 1.3 1.4 1.5 1.6 2 2.2 2.8 3.2 0.8"
