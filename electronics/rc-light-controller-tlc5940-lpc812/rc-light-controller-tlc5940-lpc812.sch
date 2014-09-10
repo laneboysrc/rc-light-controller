@@ -5526,6 +5526,7 @@ DIN A3, landscape with location and doc. field</description>
 <part name="PAD32" library="wirepad" deviceset="SDM80X120" device="" value="Data out"/>
 <part name="GND9" library="supply1" deviceset="GND" device=""/>
 <part name="FRAME1" library="frames" deviceset="A3L-LOC" device=""/>
+<part name="R2" library="rcl" deviceset="R-EU_" device="R0603" value="1k"/>
 </parts>
 <sheets>
 <sheet>
@@ -5538,7 +5539,7 @@ PIO0_5  ( 3)   RESET
 PIO0_10 ( 8)   Open drain
 PIO0_11 ( 7)   Open drain</text>
 <text x="40.64" y="233.68" size="2.54" layer="97">Servo in/out</text>
-<text x="238.76" y="248.92" size="2.54" layer="97">LED driver and outputs</text>
+<text x="238.76" y="246.38" size="2.54" layer="97">LED driver and outputs</text>
 <text x="43.18" y="71.12" size="2.54" layer="97">Voltage regulator</text>
 <text x="160.02" y="139.7" size="2.54" layer="97">Microcontroller</text>
 <text x="279.4" y="91.44" size="2.54" layer="97">WS2812 LED output</text>
@@ -5603,6 +5604,7 @@ PIO0_11 ( 7)   Open drain</text>
 <attribute name="LAST_DATE_TIME" x="344.17" y="10.16" size="1.27" layer="94" font="vector" ratio="10"/>
 <attribute name="SHEET" x="357.505" y="5.08" size="2.54" layer="94" font="vector"/>
 </instance>
+<instance part="R2" gate="G$1" x="63.5" y="172.72" rot="MR180"/>
 </instances>
 <busses>
 </busses>
@@ -5978,14 +5980,14 @@ PIO0_11 ( 7)   Open drain</text>
 </net>
 <net name="OUT/ISP" class="0">
 <segment>
-<wire x1="81.28" y1="172.72" x2="38.1" y2="172.72" width="0.1524" layer="91"/>
-<pinref part="PAD7" gate="G$1" pin="P"/>
-<label x="81.28" y="172.72" size="1.778" layer="95" rot="MR0"/>
-</segment>
-<segment>
 <wire x1="223.52" y1="116.84" x2="208.28" y2="116.84" width="0.1524" layer="91"/>
 <pinref part="U$2" gate="G$1" pin="PIO0_12"/>
 <label x="218.44" y="116.84" size="1.778" layer="95"/>
+</segment>
+<segment>
+<pinref part="R2" gate="G$1" pin="2"/>
+<wire x1="81.28" y1="172.72" x2="68.58" y2="172.72" width="0.1524" layer="91"/>
+<label x="81.28" y="172.72" size="1.778" layer="95" rot="MR0"/>
 </segment>
 </net>
 <net name="N$1" class="0">
@@ -6024,6 +6026,13 @@ PIO0_11 ( 7)   Open drain</text>
 <pinref part="U$2" gate="G$1" pin="PIO0_9/XTALOUT"/>
 <wire x1="223.52" y1="124.46" x2="208.28" y2="124.46" width="0.1524" layer="91"/>
 <label x="218.44" y="124.46" size="1.778" layer="95"/>
+</segment>
+</net>
+<net name="N$2" class="0">
+<segment>
+<pinref part="PAD7" gate="G$1" pin="P"/>
+<pinref part="R2" gate="G$1" pin="1"/>
+<wire x1="38.1" y1="172.72" x2="58.42" y2="172.72" width="0.1524" layer="91"/>
 </segment>
 </net>
 </nets>
