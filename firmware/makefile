@@ -15,7 +15,7 @@ generic: generic-momentary-master generic-two-position-master generic-always-on-
 
 .PHONY: generic-momentary-master
 generic-momentary-master: hw_tlc5940_16f1825.inc
-	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x0f -D CH3_MOMENTARY -D ENABLE_STEERING_WHEEL_SERVO -D ENABLE_SERVO_OUTPUT)
+	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x0f -D ENABLE_STEERING_WHEEL_SERVO -D ENABLE_SERVO_OUTPUT)
 	$(eval files = master servo-reader servo-output utils lights-generic)
 	$(build)
 
@@ -46,7 +46,7 @@ tobias: tobias-master tobias-slave
 
 .PHONY: tobias-master
 tobias-master: hw_tlc5940_16f1825.inc
-	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x03 -D ESC_FORWARD_REVERSE -D ENABLE_UART -D BAUDRATE_115200)
+	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x03 -D CH3_IS_PUSHBUTTON -D CH3_MOMENTARY -D ESC_FORWARD_REVERSE -D CH3_MOMENTARY -D ENABLE_UART -D BAUDRATE_115200)
 	$(eval files = master servo-reader utils lights-tobias-jeep)
 	$(build)
 
