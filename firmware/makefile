@@ -39,6 +39,25 @@ generic-always-on-master: hw_tlc5940_16f1825.inc
 	
 	
 ##############################################################################
+# Tobias' Jeep Wrangler
+##############################################################################
+.PHONY: tobias
+tobias: tobias-master tobias-slave
+
+.PHONY: tobias-master
+tobias-master: hw_tlc5940_16f1825.inc
+	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x03 -D ESC_FORWARD_REVERSE -D ENABLE_UART -D BAUDRATE_115200) 
+	$(eval files = master servo-reader utils lights-tobias-jeep) 
+	$(build)
+
+.PHONY: tobias-slave
+tobias-slave: hw_tlc5940_16f1825.inc
+	$(eval CFLAGS = -D ENABLE_UART) 
+	$(eval files = slave-tlc5940 utils) 
+	$(build)
+	
+	
+##############################################################################
 # FIAT 131
 ##############################################################################
 .PHONY: fiat-131
