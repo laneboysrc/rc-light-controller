@@ -136,7 +136,12 @@ _IO_INIT_COMMON macro   master
 IFDEF ENABLE_UART
     ;-----------------------------
     ; UART specific initialization
-BAUDRATE = 38400        ; Desired baudrate
+IFDEF BAUDRATE_115200    
+BAUDRATE = 115200
+ELSE
+BAUDRATE = 38400 
+ENDIF
+
 BRGH_VALUE = 1          ; Either 0 or 1
 SPBRG_VALUE = (((d'10'*FOSC*d'1000000'/((d'64'-(d'48'*BRGH_VALUE))*BAUDRATE))+d'5')/d'10')-1
 
