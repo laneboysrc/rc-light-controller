@@ -52,7 +52,7 @@ tobias-master: hw_tlc5940_16f1825.inc
 
 .PHONY: tobias-slave
 tobias-slave: hw_tlc5940_16f1825.inc
-	$(eval CFLAGS = -D ENABLE_UART)
+	$(eval CFLAGS = -D ENABLE_UART -D BAUDRATE_115200)
 	$(eval files = slave-tlc5940 utils)
 	$(build)
 

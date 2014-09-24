@@ -16,10 +16,10 @@
     #include    hw.tmp
 
     ; Functions imported from utils.asm
-    EXTERN Init_TLC5940    
+    EXTERN Init_TLC5940
     EXTERN TLC5940_send
     EXTERN UART_read_byte
-    
+
     EXTERN xl
     EXTERN xh
     EXTERN yl
@@ -42,13 +42,13 @@ ENDIF
 ;******************************************************************************
 ;* VARIABLE DEFINITIONS
 ;******************************************************************************
-.data_slave UDATA           
+.data_slave UDATA
 count   RES     1
 
 ;******************************************************************************
-; Reset vector 
+; Reset vector
 ;******************************************************************************
-.code_reset CODE    0x000           
+.code_reset CODE    0x000
 
     goto    Init
 
@@ -66,8 +66,10 @@ Init
     ; Initialise the chip (macro included from hw_*.tmp)
     IO_INIT_SLAVE
 
+    call    Init_TLC5940
     call    Clear_light_data
-;   goto    Main_loop    
+
+;   goto    Main_loop
 
 
 ;******************************************************************************
@@ -75,7 +77,7 @@ Init
 ;******************************************************************************
 Main_loop
     call    Read_UART
-    call    TLC5940_send    
+    call    TLC5940_send
 
     goto    Main_loop
 
@@ -126,9 +128,9 @@ Clear_light_data
     movwf   FSR0L
     movlw   16          ; There are 16 bytes in light_data
     movwf   temp
-    clrw   
+    clrw
 clear_light_data_loop
-    movwi   FSR0++    
+    movwi   FSR0++
     decfsz  temp, f
     goto    clear_light_data_loop
     return

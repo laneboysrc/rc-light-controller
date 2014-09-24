@@ -19,7 +19,7 @@
 
 IFDEF INCLUDE_CONFIG
     __CONFIG     _CONFIG1, _FOSC_INTOSC & _WDTE_OFF & _PWRTE_ON & _MCLRE_OFF & _CP_OFF & _CPD_OFF & _BOREN_OFF & _CLKOUTEN_OFF & _IESO_OFF & _FCMEN_OFF
-    __CONFIG     _CONFIG2, _WRT_OFF & _PLLEN_OFF & _STVREN_OFF & _LVP_OFF 
+    __CONFIG     _CONFIG2, _WRT_OFF & _PLLEN_OFF & _STVREN_OFF & _LVP_OFF
 ENDIF
 
 
@@ -30,7 +30,7 @@ FOSC = 32           ; Osc frequency in MHz
 
 ;******************************************************************************
 ;   Port usage:
-;   ===========                                             
+;   ===========
 ;   RA1:  IN  (12) Servo input ST; Slave in (UART RX); ICSPCLK
 ;   RA0:  IN  (13) Servo input TH; Slave steering wheel servo; ICSPDAT
 ;   RA3:  IN  ( 4) Servo input CH3; Vpp
@@ -43,18 +43,18 @@ FOSC = 32           ; Osc frequency in MHz
 ;   RA5:  OUT ( 2) BLANK TLC5940
 ;   RC5:  OUT ( 5) GSCLK TLC5940
 ;
-;   RA2:  OUT (11) Reserved for audio out (PWM using CCP3) 
+;   RA2:  OUT (11) Reserved for audio out (PWM using CCP3)
 ;   RC3:  OUT ( 7) Reserved for SPI EEPROM (CS)
 
 
-#define PORT_STEERING   PORTA, 1        
-#define PORT_THROTTLE   PORTA, 0        
-#define PORT_CH3        PORTA, 3        
+#define PORT_STEERING   PORTA, 1
+#define PORT_THROTTLE   PORTA, 0
+#define PORT_CH3        PORTA, 3
 
 IFDEF SERVO_OUTPUT_ON_THROTTLE
 #define PORT_SERVO      LATA, 0
 ELSE
-#define PORT_SERVO      LATC, 4        
+#define PORT_SERVO      LATC, 4
 ENDIF
 
 ; TLC5940 LED driver serial communication ports, for both master and slave
@@ -72,12 +72,12 @@ ENDIF
 _IO_INIT_COMMON macro   master
 
     ;-----------------------------
-    ; Oscillator Control 
+    ; Oscillator Control
     BANKSEL OSCCON
     movlw   b'11110000' ; 32MHz: 4x PLL enabled, 8 MHz HF, Clock determined by FOSC<2:0>
     movwf   OSCCON
 
-    
+
     ;-----------------------------
     ; IO Port initialization
     BANKSEL LATA
@@ -95,15 +95,15 @@ _IO_INIT_COMMON macro   master
     movwf   TRISA
     movlw   b'00000010' ; Make all ports C except RC1 output
     movwf   TRISC
-        
-        
+
+
     ;-----------------------------
     ; Initialize Timer1 for 1 MHz operation
     BANKSEL T1CON
-    movlw   b'00110000' 
+    movlw   b'00110000'
     movwf   T1CON
 
-    
+
     ;-----------------------------
     ; Use Timer2 as soft timer with an interval of 32.768ms. This is half
     ; of what we would like to have, so software has to adjust for it.
@@ -136,10 +136,10 @@ _IO_INIT_COMMON macro   master
 IFDEF ENABLE_UART
     ;-----------------------------
     ; UART specific initialization
-IFDEF BAUDRATE_115200    
+IFDEF BAUDRATE_115200
 BAUDRATE = 115200
 ELSE
-BAUDRATE = 38400 
+BAUDRATE = 38400
 ENDIF
 
 BRGH_VALUE = 1          ; Either 0 or 1
@@ -162,7 +162,7 @@ SPBRG_VALUE = (((d'10'*FOSC*d'1000000'/((d'64'-(d'48'*BRGH_VALUE))*BAUDRATE))+d'
     ELSE
         bcf TXSTA, BRGH
     ENDIF
-    
+
     movlw	SPBRG_VALUE
     movwf	SPBRGL
 
@@ -211,12 +211,12 @@ ENDIF
     movwf   SSP1CON1
 
     movlw   b'01000000'
-            ; |||||||+ 
-            ; ||||||+- 
-            ; |||||+-- 
-            ; ||||+--- 
-            ; |||+---- 
-            ; ||+----- 
+            ; |||||||+
+            ; ||||||+-
+            ; |||||+--
+            ; ||||+---
+            ; |||+----
+            ; ||+-----
             ; |+------ CKE   (Transmit occurs on transition from active to idle clock state)
             ; +------- SMP   (Input data sampled at middle of data output time)
     movwf   SSP1STAT
@@ -229,7 +229,7 @@ IO_INIT_MASTER macro
     _IO_INIT_COMMON 0
     endm
 
-    
+
 IO_INIT_SLAVE macro
     _IO_INIT_COMMON 0
     endm
@@ -237,4 +237,4 @@ IO_INIT_SLAVE macro
 
 #define EEDATA EEDATL   ; New chips have EEDATL/H, we map it to the old EEDATA
 
-    
+
