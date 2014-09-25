@@ -6,7 +6,7 @@ all : $(PROGRAM_NAME).bin
 ###############################################################################
 # Configuration options for our application
 SYSTEM_CLOCK := 12000000
-LINKER_SCRIPT := lpc810.ld
+LINKER_SCRIPT := lpc812.ld
 
 
 ###############################################################################
