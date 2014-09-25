@@ -362,7 +362,7 @@
         }
 
         function sendStartup(mode) {
-            if (mode == 1) {
+            if (mode) {
                 document.getElementById("steering-neutral").click();
                 document.getElementById("throttle-neutral").click();
             }
@@ -398,7 +398,8 @@
             send("ST", steering);
             send("TH", throttle);
             send("CH3", ch3);
-            sendStartup(document.getElementById("startup_mode").checked)
+            document.getElementById("startup_mode").checked = true
+            sendStartup(true)
 
             window.addEventListener("resize", resizeColumns, true);
             resizeColumns();

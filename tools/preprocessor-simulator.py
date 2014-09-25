@@ -29,6 +29,7 @@ except ImportError:
     from urllib.parse import parse_qs
 
 
+SLAVE_MAGIC_BYTE = 0x87
 HTML_FILE = "preprocessor-simulator.html"
 
 
@@ -88,7 +89,7 @@ class PreprocessorApp(object):
 
     def __init__(self):
         self.args = parse_commandline()
-        self.receiver = {'ST': 0, 'TH': 0, 'CH3': 0, 'STARTUP_MODE': False}
+        self.receiver = {'ST': 0, 'TH': 0, 'CH3': 0, 'STARTUP_MODE': 1}
         self.uart_thread = None
         self.done = False
 
@@ -118,8 +119,25 @@ class PreprocessorApp(object):
         def sender(app):
             ''' Background thread performing the UART transmission '''
             while not app.done:
-                print("sender() ", app.receiver)
-                sleep(0.1)
+                steering = app.receiver['ST']
+                if steering < 0:
+                    steering = 256 + steering
+
+                throttle = app.receiver['TH']
+                if throttle < 0:
+                    throttle = 256 + throttle
+
+                last_byte = 0
+                if app.receiver['CH3']:
+                    last_byte += 0x01
+                if app.receiver['STARTUP_MODE']:
+                    last_byte += 0x10
+
+                data = bytearray(
+                    [SLAVE_MAGIC_BYTE, steering, throttle, last_byte])
+                app.uart.write(data)
+                app.uart.flush()
+                sleep(0.02)
 
         print("Please call up the user interface on localhost:{port}".format(
             port=self.args.port))
