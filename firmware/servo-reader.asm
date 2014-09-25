@@ -494,6 +494,7 @@ IFDEF CH3_IS_PUSHBUTTON
     ; we have read ST and TH, which is about 8..20 ms depending on the
     ; receiver.
 
+    BANKSEL PORTA
     movlw   1000 >> 4
     btfsc   PORT_CH3
     movlw   2000 >> 4
