@@ -206,8 +206,13 @@ Init_lights
     ; from the UART
     movlw   VAL_INDICATOR_FRONT
     BANKSEL light_data_slave
-    movwf   light_data + LED_S_INDICATOR_F_R
-    movwf   light_data + LED_S_INDICATOR_F_L
+    movwf   light_data_slave + LED_S_INDICATOR_F_R
+    movwf   light_data_slave + LED_S_INDICATOR_F_L
+
+    movlw   VAL_EXTRA
+    BANKSEL light_data
+    movwf   light_data + LED_M_EXTRA_1
+    movwf   light_data + LED_M_EXTRA_4
 
 output_lights_end
     call    TLC5940_send
@@ -220,7 +225,6 @@ output_lights_end
 ;******************************************************************************
 Output_lights
     call    Clear_light_data
-    call    output_lights_always_on
 
     BANKSEL startup_mode
     movf    startup_mode, f
@@ -231,6 +235,7 @@ Output_lights
 
     ;----------
     ; Normal operation of lights goes here
+    call    output_lights_always_on
     BANKSEL light_mode
     btfsc   light_mode, LIGHT_MODE_MAIN_BEAM
     call    output_lights_main_beam
@@ -246,8 +251,11 @@ Output_lights
     btfsc   drive_mode, DRIVE_MODE_REVERSE
     call    output_lights_reverse
 
-    movfw   blink_mode
+    BANKSEL blink_mode
+    movf    blink_mode, W
     movwf   temp
+    btfss   temp, BLINK_MODE_BLINKFLAG
+    goto    output_lights_blink_end
     btfsc   temp, BLINK_MODE_HAZARD
     call    output_lights_indicator_left
     btfsc   temp, BLINK_MODE_HAZARD
@@ -257,6 +265,7 @@ Output_lights
     btfsc   temp, BLINK_MODE_INDICATOR_RIGHT
     call    output_lights_indicator_right
 
+output_lights_blink_end
     goto    output_lights_end
 
 
@@ -270,6 +279,11 @@ output_lights_startup
     BANKSEL light_data_slave
     movwf   light_data_slave + LED_S_MAIN_BEAM_L
     movwf   light_data_slave + LED_S_MAIN_BEAM_R
+
+    movlw   VAL_EXTRA
+    BANKSEL light_data
+    movwf   light_data + LED_M_EXTRA_2
+    movwf   light_data + LED_M_EXTRA_3
     goto    output_lights_end
 
 
@@ -389,9 +403,9 @@ Slave_send
     movlw   SLAVE_MAGIC_BYTE
     call    UART_send_w
 
-    movlw   HIGH light_data
+    movlw   HIGH light_data_slave
     movwf   FSR0H
-    movlw   LOW light_data
+    movlw   LOW light_data_slave
     movwf   FSR0L
 
     movlw   16
@@ -409,15 +423,15 @@ slave_send_loop
 ; Clear all light_data variables, i.e. by default all lights are off.
 ;******************************************************************************
 Clear_light_data
-    movlw   HIGH light_data
-    movwf   FSR0H
-    movlw   LOW light_data
-    movwf   FSR0L
-    call    clear_light_data_start
-
     movlw   HIGH light_data_slave
     movwf   FSR0H
     movlw   LOW light_data_slave
+    movwf   FSR0L
+    call    clear_light_data_start
+
+    movlw   HIGH light_data
+    movwf   FSR0H
+    movlw   LOW light_data
     movwf   FSR0L
 ;   goto    clear_light_data_start
 

@@ -47,7 +47,7 @@ tobias: tobias-master tobias-slave
 .PHONY: tobias-master
 tobias-master: hw_tlc5940_16f1825.inc
 	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x03 -D CH3_IS_PUSHBUTTON -D CH3_MOMENTARY -D ESC_FORWARD_REVERSE -D CH3_MOMENTARY -D ENABLE_UART -D BAUDRATE_115200)
-	$(eval files = master servo-reader utils lights-tobias-jeep)
+	$(eval files = master uart-reader utils lights-tobias-jeep)
 	$(build)
 
 .PHONY: tobias-slave
