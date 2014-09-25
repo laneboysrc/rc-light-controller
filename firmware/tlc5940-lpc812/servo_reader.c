@@ -2,11 +2,10 @@
 #include <stdbool.h>
 #include <LPC8xx.h>
 
+#include <globals.h>
 #include <reader.h>
 
 struct channel_s channel[3];
-enum startup_mode_e startup_mode;
-
 
 static enum {
     WAIT_FOR_FIRST_PULSE,
@@ -24,9 +23,7 @@ static enum {
 #define SOFT_TIMER_PERIOD 20
 
 static volatile bool new_raw_channel_data = false;
-
-bool new_channel_data = false;
-extern uint32_t servo_reader_timer;
+static uint32_t servo_reader_timer;
 
 // ****************************************************************************
 void init_reader(void)
@@ -39,7 +36,7 @@ void init_reader(void)
         channel[i].reversed = false;
     }
 
-    startup_mode = STARTUP_MODE_NEUTRAL;
+    global_flags.startup_mode_neutral = 1;
 
     // SCTimer setup
     // At this point we assume that SCTimer has been setup in the following way:
@@ -207,7 +204,13 @@ static void normalize_channel(struct channel_s *c)
 // ****************************************************************************
 void read_all_channels(void)
 {
-    new_channel_data = false;
+    if (global_flags.soft_timer) {
+        if (servo_reader_timer) {
+            --servo_reader_timer;
+        }
+    }
+
+    global_flags.new_channel_data = false;
 
     if (!new_raw_channel_data) {
         return;
@@ -225,7 +228,7 @@ void read_all_channels(void)
                 int i;
 
                 servo_reader_state = NORMAL_OPERATION;
-                startup_mode = STARTUP_MODE_RUNNING;
+                global_flags.startup_mode_neutral = 0;
 
                 for (i = 0; i < 3; i++) {
                     channel[i].centre = channel[i].raw_data;
@@ -233,14 +236,14 @@ void read_all_channels(void)
                     channel[i].ep_h = channel[i].raw_data + 250;
                 }
             }
-            new_channel_data = true;
+            global_flags.new_channel_data = true;
             break;
 
         case NORMAL_OPERATION:
             normalize_channel(&channel[0]);
             normalize_channel(&channel[1]);
             normalize_channel(&channel[2]);
-            new_channel_data = true;
+            global_flags.new_channel_data = true;
             break;
     }
 }

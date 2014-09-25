@@ -16,15 +16,6 @@ struct channel_s {
 
 extern struct channel_s channel[3];
 
-enum startup_mode_e {
-    STARTUP_MODE_RUNNING = 0,
-    STARTUP_MODE_NEUTRAL = (1 << 3)
-};
-
-extern enum startup_mode_e startup_mode;
-
-extern bool new_channel_data;
-
 void servo_reader_SCT_interrupt_handler(void);
 void init_reader(void);
 void read_all_channels(void);

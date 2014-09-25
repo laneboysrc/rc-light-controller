@@ -2,15 +2,16 @@
 #include <stdbool.h>
 #include <LPC8xx.h>
 
+#include <globals.h>
 #include <uart0.h>
 #include <reader.h>
 
 
-uint32_t servo_reader_timer;
 volatile uint32_t soft_timer;
 
 #define SOFT_TIMER_PERIOD 20        // Soft timer triggers every 20 ms
 
+struct global_flags_s global_flags;
 
 
 // ****************************************************************************
@@ -144,8 +145,6 @@ void init_hardware()
 // ****************************************************************************
 void SCT_irq_handler(void)
 {
-
-
     // Event 0: Match (reload) event every 20 ms (SCTimer H)
     if (LPC_SCT->EVFLAG & (1 << 0)) {
         LPC_SCT->EVFLAG = (1 << 0);
@@ -160,7 +159,12 @@ void SCT_irq_handler(void)
 // ****************************************************************************
 void service_soft_timer(void)
 {
-    uint32_t s;
+    if (!soft_timer) {
+        global_flags.soft_timer = 0;
+        return;
+    }
+
+    global_flags.soft_timer = 1;
 
     // Disable the SCTimer interrupt. Use memory barriers to ensure that no
     // interrupt is pending in the pipeline.
@@ -169,13 +173,8 @@ void service_soft_timer(void)
     NVIC_DisableIRQ(SCT_IRQn);
     __DSB();
     __ISB();
-    s = soft_timer;
-    soft_timer = 0;
+    --soft_timer;
     NVIC_EnableIRQ(SCT_IRQn);
-
-    if (servo_reader_timer) {
-        servo_reader_timer -= (servo_reader_timer < s ? servo_reader_timer : s);
-    }
 }
 
 

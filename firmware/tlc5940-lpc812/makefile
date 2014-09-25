@@ -43,7 +43,7 @@ OBJECTS := main.o crt0.o uart0.o servo_reader.o output_preprocessor.o
 
 ###############################################################################
 # Dependencies
-$(OBJECTS) : makefile uart0.h reader.h
+$(OBJECTS) : makefile globals.h uart0.h reader.h 
 
 
 ###############################################################################

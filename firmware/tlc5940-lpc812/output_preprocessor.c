@@ -1,5 +1,6 @@
 #include <stdint.h>
 
+#include <globals.h>
 #include <reader.h>
 #include <uart0.h>
 
@@ -13,7 +14,7 @@ static uint8_t next_tx_index = 0xff;
 // ****************************************************************************
 void output_preprocessor(void)
 {
-    if (new_channel_data) {
+    if (global_flags.new_channel_data) {
         if (ch3_2pos) {
             if (channel[2].normalized < -CH3_HYSTERESIS) {
                 ch3_2pos = false;
@@ -29,7 +30,7 @@ void output_preprocessor(void)
         tx_data[1] = channel[0].normalized;
         tx_data[2] = channel[1].normalized;
         tx_data[3] = (ch3_2pos ? (1 << 0) : 0)| 
-                     (startup_mode == STARTUP_MODE_NEUTRAL ? (1 << 4) : 0);
+                     (global_flags.startup_mode_neutral ? (1 << 4) : 0);
 
         next_tx_index = 0;
 
