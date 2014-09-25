@@ -39,21 +39,25 @@ generic-always-on-master: hw_tlc5940_16f1825.inc
 
 
 ##############################################################################
+# Slave based on TLC5940 and PIC16F1825, not specific for any car
+##############################################################################
+.PHONY: slave-tlc5940
+slave-tlc5940: hw_tlc5940_16f1825.inc
+	$(eval CFLAGS = -D ENABLE_UART -D BAUDRATE_115200)
+	$(eval files = slave-tlc5940 utils)
+	$(build)
+
+
+##############################################################################
 # Tobias' Jeep Wrangler
 ##############################################################################
 .PHONY: tobias
-tobias: tobias-master tobias-slave
+tobias: tobias-master slave-tlc5940
 
 .PHONY: tobias-master
 tobias-master: hw_tlc5940_16f1825.inc
 	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x03 -D CH3_IS_PUSHBUTTON -D CH3_MOMENTARY -D ESC_FORWARD_REVERSE -D CH3_MOMENTARY -D ENABLE_UART -D BAUDRATE_115200)
 	$(eval files = master servo-reader utils lights-tobias-jeep)
-	$(build)
-
-.PHONY: tobias-slave
-tobias-slave: hw_tlc5940_16f1825.inc
-	$(eval CFLAGS = -D ENABLE_UART -D BAUDRATE_115200)
-	$(eval files = slave-tlc5940 utils)
 	$(build)
 
 
