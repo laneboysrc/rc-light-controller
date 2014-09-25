@@ -15,69 +15,21 @@ from __future__ import print_function
 import sys
 import argparse
 import serial
-from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
-from urlparse import urlparse, parse_qs
+from time import sleep
+import threading
+
+try:
+    from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
+except ImportError:
+    from http.server import BaseHTTPRequestHandler, HTTPServer
+
+try:
+    from urlparse import parse_qs
+except ImportError:
+    from urllib.parse import parse_qs
+
 
 HTML_FILE = "preprocessor-simulator.html"
-
-HTML = '''\
-<!doctype html>
-<html class="no-js" lang="en">
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <title>Preprocessor simulator - DIY RC Light Controller</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-    </head>
-    <body>
-        <h1>Preprocessor simulator</h1>
-        <h2>DIY RC Light Controller</h2>
-        <div >
-            <input type="range" min="-100" max="100" step="1" name="st"
-                value="0" style="width:80%;" onchange="send('st', this.value);",
-                oninput="send('st', this.value);" />
-        </div>
-        <div>
-            Throttle
-        </div>
-        <div>
-            CH3 (AUX)
-        </div>
-
-        <div id="response">
-        </div>
-
-        <script>
-            function createXMLHttpRequest() {
-                try { return new XMLHttpRequest(); } catch(e) {}
-                try { return new ActiveXObject("Msxml2.XMLHTTP"); } catch (e) {}
-                return null;
-            }
-
-            function send(type, value) {
-                var params = type + "=" + value;
-
-                var xhr = createXMLHttpRequest();
-                xhr.onerror = function(evt) {
-                    msg = "ERR Unable to send XMLHttpRequest";
-                    document.getElementById("response").innerHTML = msg;
-                }
-
-                xhr.onload = function(evt) {
-                    document.getElementById("response").innerHTML = xhr.responseText;
-                }
-
-                xhr.open("GET", "/api?" + params, true);
-
-                //xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-                xhr.setRequestHeader("Connection", "close");
-
-                xhr.send(params);
-            }
-        </script>
-    </body>
-</html>
-'''
 
 
 def parse_commandline():
@@ -106,12 +58,13 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
         self.send_header('Content-type', 'text/html')
         self.end_headers()
         with open(HTML_FILE, "r") as html_file:
-            self.wfile.write(html_file.read())
+            self.wfile.write(html_file.read().encode("UTF-8"))
         return
 
     def do_POST(self):
         ''' POST request handler '''
-        query = self.rfile.read(int(self.headers['Content-Length']))
+        query = self.rfile.read(
+            int(self.headers['Content-Length'])).decode("UTF-8")
         try:
             query = parse_qs(query, strict_parsing=True)
 
@@ -126,7 +79,7 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
             self.send_response(response)
             self.send_header('Content-type', 'text/html')
             self.end_headers()
-            self.wfile.write(content)
+            self.wfile.write(content.encode('UTF-8'))
         return
 
 
@@ -135,6 +88,9 @@ class PreprocessorApp(object):
 
     def __init__(self):
         self.args = parse_commandline()
+        self.receiver = {'ST': 0, 'TH': 0, 'CH3': 0, 'STARTUP_MODE': False}
+        self.uart_thread = None
+        self.done = False
 
         try:
             self.uart = serial.Serial(self.args.tty, self.args.baudrate)
@@ -147,22 +103,48 @@ class PreprocessorApp(object):
 
     def api(self, query):
         ''' Web api handler '''
-        print(query)
+        for key, value in query.items():
+            if key in self.receiver:
+                self.receiver[key] = int(value[0])
+            else:
+                return 400, "Bad request"
         return 200, "OK"
 
     def run(self):
         ''' Send the test patterns to the TLC5940 based slave '''
         server = HTTPServer(('', self.args.port), CustomHTTPRequestHandler)
         server.preprocessor = self
+
+        def sender(app):
+            ''' Background thread performing the UART transmission '''
+            while not app.done:
+                print("sender() ", app.receiver)
+                sleep(0.1)
+
         print("Please call up the user interface on localhost:{port}".format(
             port=self.args.port))
+
+        self.uart_thread = threading.Thread(target=sender, args=([self]))
+        self.uart_thread.start()
         server.serve_forever()
+
+    def shutdown(self):
+        ''' Shut down the application, wait for the uart thread to finish '''
+        self.done = True
+        if not self.uart_thread is None:
+            self.uart_thread.join()
+
+
+def main():
+    ''' Program start '''
+    app = PreprocessorApp()
+    try:
+        app.run()
+    except KeyboardInterrupt:
+        print("")
+        app.shutdown()
+        sys.exit(0)
 
 
 if __name__ == '__main__':
-    try:
-        PreprocessorApp().run()
-    except KeyboardInterrupt:
-        print("")
-        sys.exit(0)
-
+    main()

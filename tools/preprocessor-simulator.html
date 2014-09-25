@@ -283,7 +283,7 @@
             function sendThrottleCommand() {
                 sendingThrottle = true;
                 sentThrottle = throttle;
-                send('TH ', throttle, cb);
+                send('TH', throttle, cb);
             }
 
 
@@ -345,17 +345,17 @@
             if (momentary_element.checked) {
                 if (action == 'down') {
                     ch3 = 1;
-                    send("ch3", ch3);
+                    send("CH3", ch3);
                 }
                 if (action == 'up') {
                     ch3 = 0;
-                    send("ch3", ch3);
+                    send("CH3", ch3);
                 }
             }
             else {
                 if (action == 'click') {
                     ch3 = ch3 ? 0 : 1;
-                    send("ch3", ch3);
+                    send("CH3", ch3);
                 }
             }
             return false;
@@ -366,7 +366,7 @@
                 document.getElementById("steering-neutral").click();
                 document.getElementById("throttle-neutral").click();
             }
-            send('startup_mode', mode);
+            send('STARTUP_MODE', mode ? 1 : 0);
         }
 
         function resizeColumns() {
@@ -395,6 +395,11 @@
         document.addEventListener("DOMContentLoaded", function () {
             document.getElementById("throttle").value = throttle;
             document.getElementById("steering").value = steering;
+            send("ST", steering);
+            send("TH", throttle);
+            send("CH3", ch3);
+            sendStartup(document.getElementById("startup_mode").checked)
+
             window.addEventListener("resize", resizeColumns, true);
             resizeColumns();
         }, false);
