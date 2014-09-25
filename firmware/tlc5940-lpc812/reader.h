@@ -4,6 +4,10 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#define ST 0
+#define TH 1
+#define CH3 2
+
 struct channel_s {
     uint32_t raw_data;
     int32_t normalized;
