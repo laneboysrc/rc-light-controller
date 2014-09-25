@@ -5,21 +5,21 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>Preprocessor simulator - DIY RC Light Controller</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    
-    <style type = "text/css"> 
+
+    <style type = "text/css">
         * {
             font-size: 16px;
             padding: 0;
             margin: 0;
         }
-        
+
         body {
             font-family: sans-serif;
             color: black;
         }
 
-        dummy {        
-             border: 1px solid red; 
+        dummy {
+             border: 1px solid red;
         }
 
         h1, h1 a, h1 a:visited, h1 a:active, h1 a:hover {
@@ -27,31 +27,31 @@
             font-size: 24px;
             color: black;
         }
-        
+
         h2 {
         }
-        
+
         pre {
             font-size: 13px;
         }
-        
+
         select {
             width: 100%;
         }
-        
+
         select, button {
             margin-top: 12px;
         }
-        
+
         input {
             margin-top: 6px;
         }
-        
+
         .column {
             float: left;
             width: auto;
         }
-        
+
         .box {
             width: 420px;
             border-radius: 10px;
@@ -74,29 +74,33 @@
         .heading {
             background-color: #ff9900;
         }
-        
+
         .response {
             background-color: #FFEDA5;
             color: gray;
         }
-        
+
+        .centered {
+            text-align: center;
+        }
+
         .controls, .features, .upload, .vehicles, .reversing, .luci {
             background-color: #FFCF0D;
         }
 
-        .controls > div, .horns > div, .response > div {
+        .response > div {
             margin: 12px 0;
         }
-        
-        #throttle, #volume {
+
+        #throttle, #steering {
             width: 100%;
         }
-        
+
         #heading img {
             vertical-align: middle;
             border: 1px solid #FFCF0D;
         }
-        
+
     </style>
 </head>
 <body>
@@ -107,36 +111,44 @@
     <div class="page" id="main">
         <div class="column">
             <form class="box controls">
-                <h2>Steering</h2>       
+                <h2>Steering</h2>
                 <div>
-                    <input id="throttle" type="range" min ="0" max="100" step ="1" value ="0" oninput="sendThrottle(this.value);" onchange="sendThrottle(this.value);"/>
-                    <div>
-                        <span id="minrpm"></span><span id="maxrpm" style="float: right;"></span>
+                    <input id="steering" type="range" min ="-100" max="100" step ="1" value ="0" oninput="sendSteering(this.value);" onchange="sendSteering(this.value);"/>
+                    <div class="centered">
+                        <button id="steering-neutral" type="button" onclick="document.getElementById('steering').value = 0; sendSteering(0);">neutral</button>
                     </div>
                 </div>
             </form>
             <form class="box controls">
-                <h2>Throttle</h2>       
+                <h2>Throttle</h2>
                 <div>
-                    <input id="volume" type="range" min ="10" max="100" step ="1" value ="100" oninput="sendVolume(this.value);" onchange="sendVolume(this.value);"/>
+                    <input id="throttle" type="range" min ="-100" max="100" step ="1" value ="0" oninput="sendThrottle(this.value);" onchange="sendThrottle(this.value);"/>
+                    <div class="centered">
+                        <button id="throttle-neutral" type="button" onclick="document.getElementById('throttle').value = 0; sendThrottle(0);">neutral</button>
+                    </div>
                 </div>
             </form>
         </div>
 
         <div class="column">
             <form class="box features">
-                <h2>CH3 / AUX</h2>       
+                <h2>CH3 / AUX</h2>
                 <div>
-                    <button type="button" onclick="return send('start');">CH3</button>
-                    &nbsp;&nbsp;&nbsp; 
-                    <label><input id="indicator" type="checkbox" onclick="send('indicator ' + (document.getElementById('indicator').checked ? 1 : 0));" /> Momemtary</label>
+                    <button type="button" onclick="sendCh3('click');" onmousedown="sendCh3('down');" onmouseup="sendCh3('up');">CH3</button>
+                    &nbsp;&nbsp;&nbsp;
+                    <label><input id="momentary" type="checkbox" /> Momemtary</label>
+                </div>
+            </form>
+            <form class="box features">
+                <div>
+                    <label><input id="startup_mode" type="checkbox" onchange="sendStartup(this.checked);" /> Startup</label>
                 </div>
             </form>
         </div>
     </div>
 
     <div class="widebox response">
-        <h2>Response</h2>       
+        <h2>Response</h2>
         <pre id="response">
         </pre>
     </div>
@@ -145,10 +157,12 @@
         var throttle = 0;
         var sendingThrottle = false;
 
-        var volume = 100;
-        var sendingVolume = false;
-    
-        var trucks = [];
+        var steering = 0;
+        var sendingSteering = false;
+
+        var ch3 = 0
+
+        var momentary_element = document.getElementById("momentary");
 
         /**
          * Provides python-like string interpolation.
@@ -204,17 +218,17 @@
             else
                 return CCSstyle[style] = value;
         }
-    
-    
+
+
         function createXMLHttpRequest() {
             try { return new XMLHttpRequest(); } catch(e) {}
             try { return new ActiveXObject("Msxml2.XMLHTTP"); } catch (e) {}
             return null;
         }
 
-        function send(cmd, callback = null) {
-            var params = "command=" + cmd;
-            
+        function send(cmd, value, callback = null) {
+            var params = cmd + "=" + value;
+
             var xhr = createXMLHttpRequest();
             xhr.onerror = function(evt) {
                 msg = "ERR Unable to send XMLHttpRequest";
@@ -226,129 +240,136 @@
                 document.getElementById("response").innerHTML = xhr.responseText;
                 callback != null && callback(xhr.responseText);
             }
-            
+
             xhr.open("POST", "/", true);
-            
+
             xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
             xhr.setRequestHeader("Content-length", params.length);
             xhr.setRequestHeader("Connection", "close");
-            
+
             xhr.send(params);
-        }    
+        }
 
-        function sendForm(form, callback = null, logSuccess = true) {
-            var xhr = createXMLHttpRequest();
-            xhr.onerror = function(evt) {
-                msg = "ERR Unable to send XMLHttpRequest";
-                document.getElementById("response").innerHTML = msg;
-                callback != null && callback(msg);
-            }
-
-            xhr.onload = function(evt) {
-                document.getElementById("response").innerHTML = logSuccess ? xhr.responseText : "OK";
-                callback != null && callback(xhr.responseText);
-            }
-            
-            xhr.open("POST", "/", true);
-            xhr.setRequestHeader("Connection", "close");
-            xhr.send(form);
-        }    
-        
-        // Moving the throttle slider causes a lot of update events. Sending 
+        // Moving the throttle slider causes a lot of update events. Sending
         // all those requests to the rc-sound-module is quite rude to both
         // the software, the web browser and the network.
         //
         // So instead we build a function that only sends the value if it has
         // changed, and it waits for the last transfer to have finished before
         // sending the next.
-        // We achieve this with flags (global variable sendingThrottle) and a 
+        // We achieve this with flags (global variable sendingThrottle) and a
         // local callback function that gets called after the XHR request has
         // completed (successful or not).
-        // 
+        //
         // Of course we have to ensure that the last throttle value correctly
         // gets sent to the rc-sound-module.
         function sendThrottle(value) {
             var sentThrottle;       // Holds the last throttle value we sent
-            
+
             // Local callback function, called when the XHR has completed
             function cb() {
                 sendingThrottle = false;
                 // If the value we sent has changed in the meantime we trigger
-                // another transmission to ensure the most recent value is 
+                // another transmission to ensure the most recent value is
                 // sent to the rc-sound-module
                 if (sentThrottle != throttle) {
                     sendThrottleCommand();
                 }
             };
 
-            // This local function sends the actual throttle command. It sets 
-            // the "transmission in progress flag sendingThrottle, and stores 
+            // This local function sends the actual throttle command. It sets
+            // the "transmission in progress flag sendingThrottle, and stores
             // the sent value for later comparison in the callback function.
             function sendThrottleCommand() {
                 sendingThrottle = true;
                 sentThrottle = throttle;
-                send('throttle ' + throttle, cb);
+                send('TH ', throttle, cb);
             }
 
-            
+
             // Ignore multiple events of the same throttle value
             if (value == throttle) {
                 return;
             }
             throttle = value;
-            
+
             // Trigger sending only if no throttle transmission is already ongoing.
-            // If a transmission is in progress the callback function will 
-            // ensure that the latest throttle value is sent to the 
+            // If a transmission is in progress the callback function will
+            // ensure that the latest throttle value is sent to the
             // rc-sound-module.
             if (!sendingThrottle) {
                 sendThrottleCommand();
             }
         }
 
-       
-        
-        function sendVolume(value) {
-            var sentVolume;             // Holds the last volume value we sent
+        function sendSteering(value) {
+            var sentSteering;       // Holds the last steering value we sent
 
             // Local callback function, called when the XHR has completed
             function cb() {
-                sendingVolume = false;
+                sendingSteering = false;
                 // If the value we sent has changed in the meantime we trigger
-                // another transmission to ensure the most recent value is 
+                // another transmission to ensure the most recent value is
                 // sent to the rc-sound-module
-                if (sentVolume != volume) {
-                    sendVolumeCommand();
+                if (sentSteering != steering) {
+                    sendSteeringCommand();
                 }
             };
 
-            // This local function sends the actual throttle command. It sets 
-            // the "transmission in progress flag sendingThrottle, and stores 
+            // This local function sends the actual throttle command. It sets
+            // the "transmission in progress flag sendingThrottle, and stores
             // the sent value for later comparison in the callback function.
-            function sendVolumeCommand() {
-                sendingVolume = true;
-                sentVolume = volume;
-                send('set_volume ' + volume, cb);
+            function sendSteeringCommand() {
+                sendingSteering = true;
+                sentSteering = steering;
+                send('ST', steering, cb);
             }
 
+
             // Ignore multiple events of the same throttle value
-            if (value == volume) {
+            if (value == steering) {
                 return;
             }
-            volume = value;
-            
+            steering = value;
+
             // Trigger sending only if no throttle transmission is already ongoing.
-            // If a transmission is in progress the callback function will 
-            // ensure that the latest throttle value is sent to the 
+            // If a transmission is in progress the callback function will
+            // ensure that the latest throttle value is sent to the
             // rc-sound-module.
-            if (!sendingVolume) {
-                sendVolumeCommand();
+            if (!sendingSteering) {
+                sendSteeringCommand();
             }
         }
 
+        function sendCh3(action) {
+            if (momentary_element.checked) {
+                if (action == 'down') {
+                    ch3 = 1;
+                    send("ch3", ch3);
+                }
+                if (action == 'up') {
+                    ch3 = 0;
+                    send("ch3", ch3);
+                }
+            }
+            else {
+                if (action == 'click') {
+                    ch3 = ch3 ? 0 : 1;
+                    send("ch3", ch3);
+                }
+            }
+            return false;
+        }
 
+        function sendStartup(mode) {
+            if (mode == 1) {
+                document.getElementById("steering-neutral").click();
+                document.getElementById("throttle-neutral").click();
+            }
+            send('startup_mode', mode);
+        }
 
-        function resizeColumns() { 
+        function resizeColumns() {
             var minBoxWidth = 420;
             var paddingAndMargin = 10 + 10 + 10 + 10;
             var minColumnWidth = minBoxWidth + paddingAndMargin;
@@ -366,16 +387,18 @@
             if (columnWidth < minBoxWidth) {
                 columnWidth = minBoxWidth;
             }
-            
+
             CCSStylesheetRuleStyle(".box", "width", columnWidth + "px");
         }
-            
 
-        document.addEventListener("DOMContentLoaded", function () { 
+
+        document.addEventListener("DOMContentLoaded", function () {
+            document.getElementById("throttle").value = throttle;
+            document.getElementById("steering").value = steering;
             window.addEventListener("resize", resizeColumns, true);
             resizeColumns();
         }, false);
-        
+
     </script>
 </body>
 </html>

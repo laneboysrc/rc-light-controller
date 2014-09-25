@@ -18,6 +18,8 @@ import serial
 from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 from urlparse import urlparse, parse_qs
 
+HTML_FILE = "preprocessor-simulator.html"
+
 HTML = '''\
 <!doctype html>
 <html class="no-js" lang="en">
@@ -100,42 +102,31 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         ''' GET request handler '''
-        if self.path == '/':
-            self.send_response(200)
-            self.send_header('Content-type', 'text/html')
-            self.end_headers()
-            self.wfile.write(HTML)
-
-        elif self.path.startswith('/api?'):
-            try:
-                query = parse_qs(urlparse(self.path).query, strict_parsing=True)
-
-            except ValueError:
-                self.send_response(400)
-                self.send_header('Content-type', 'text/html')
-                self.end_headers()
-                self.wfile.write("Bad querystring")
-
-            else:
-                response, content = self.server.preprocessor.api(query)
-                self.send_response(response)
-                self.send_header('Content-type', 'text/html')
-                self.end_headers()
-                self.wfile.write(content)
-
-        else:
-            self.send_response(404)
-            self.send_header('Content-type', 'text/html')
-            self.end_headers()
-            self.wfile.write("Not found")
+        self.send_response(200)
+        self.send_header('Content-type', 'text/html')
+        self.end_headers()
+        with open(HTML_FILE, "r") as html_file:
+            self.wfile.write(html_file.read())
         return
 
     def do_POST(self):
         ''' POST request handler '''
-        self.send_response(405)
-        self.send_header('Content-type', 'text/html')
-        self.end_headers()
-        self.wfile.write("POST not implemented")
+        query = self.rfile.read(int(self.headers['Content-Length']))
+        try:
+            query = parse_qs(query, strict_parsing=True)
+
+        except ValueError:
+            self.send_response(400)
+            self.send_header('Content-type', 'text/html')
+            self.end_headers()
+            self.wfile.write("Bad querystring")
+
+        else:
+            response, content = self.server.preprocessor.api(query)
+            self.send_response(response)
+            self.send_header('Content-type', 'text/html')
+            self.end_headers()
+            self.wfile.write(content)
         return
 
 
