@@ -4,7 +4,6 @@
 
 #include <globals.h>
 #include <uart0.h>
-#include <reader.h>
 
 
 volatile uint32_t systick_count;
@@ -14,9 +13,9 @@ volatile uint32_t systick_count;
 // Certainly not suitable for secure implementations...
 uint32_t entropy;
 
+struct channel_s channel[3];
 uint16_t light_mode;
 GLOBAL_FLAGS_T global_flags;
-
 
 // FIXME: make baudrate configurable
 

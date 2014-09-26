@@ -7,7 +7,6 @@
 #include <stdbool.h>
 
 #include <globals.h>
-#include <reader.h>
 
 
 static struct {
@@ -171,7 +170,7 @@ static void add_click(void)
         // If the winch is running any movement of CH3 immediately turns off
         // the winch (without waiting for click timeout!)
         // FIXME: move this to the winch handler
-        if (global_flags.winch_mode == WINCH_IN || 
+        if (global_flags.winch_mode == WINCH_IN ||
             global_flags.winch_mode == WINCH_OUT) {
             global_flags.winch_mode = WINCH_IDLE;
             winch_command_repeat_counter = 0;

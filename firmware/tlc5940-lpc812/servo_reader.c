@@ -3,9 +3,7 @@
 #include <LPC8xx.h>
 
 #include <globals.h>
-#include <reader.h>
 
-struct channel_s channel[3];
 
 static enum {
     WAIT_FOR_FIRST_PULSE,

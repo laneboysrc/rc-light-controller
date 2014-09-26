@@ -2,6 +2,7 @@
 #define __GLOBALS_H
 
 #include <stdint.h>
+#include <stdbool.h>
 
 
 #define __SYSTICK_IN_MS 20
@@ -10,6 +11,19 @@
 // parsing a light controller binary by an external tool
 #define ROM_MAGIC 0x6372424c                // LBrc (LANE Boys RC) in little endian
 
+#define ST 0
+#define TH 1
+#define CH3 2
+
+struct channel_s {
+    uint32_t raw_data;
+    int16_t normalized;
+    uint16_t absolute;
+    uint32_t centre;
+    uint32_t ep_l;
+    uint32_t ep_h;
+    bool reversed;
+};
 
 typedef struct {
     unsigned int systick : 1;               // Set for one mainloop every 20 ms
@@ -96,7 +110,6 @@ typedef struct {
 } LIGHT_CONTROLLER_CONFIG_T;
 
 
-
 // The entropy variable is incremented every mainloop. It can therefore serve
 // as a random value in practical RC car application,
 // Certainly not suitable for secure implementations...
@@ -105,8 +118,12 @@ extern uint32_t entropy;
 extern uint16_t light_mode;
 extern GLOBAL_FLAGS_T global_flags;
 extern const LIGHT_CONTROLLER_CONFIG_T config;
+extern struct channel_s channel[3];
 
 
+void servo_reader_SCT_interrupt_handler(void);
+void init_reader(void);
+void read_all_channels(void);
 
 void process_ch3_clicks(void);
 

@@ -46,7 +46,7 @@ OBJECTS += output_preprocessor.o
 
 ###############################################################################
 # Dependencies
-$(OBJECTS) : makefile globals.h uart0.h reader.h
+$(OBJECTS) : makefile globals.h uart0.h utils.h
 
 
 ###############################################################################

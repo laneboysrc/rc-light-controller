@@ -4,7 +4,6 @@
 #include <stdbool.h>
 
 #include <globals.h>
-#include <reader.h>
 
 static bool next = false;
 
@@ -39,7 +38,7 @@ void servo_output_setup_action(uint8_t ch3_clicks)
         else {
             // More than 1 click: cancel setup
             // FIXME: call EEPROM_save_persistent_data
-            global_flags.servo_output_setup = SERVO_OUTPUT_SETUP_OFF; 
+            global_flags.servo_output_setup = SERVO_OUTPUT_SETUP_OFF;
         }
     }
 }
@@ -54,16 +53,16 @@ void servo_output_setup_action(uint8_t ch3_clicks)
 // value but store the sign. After multiplication and division using the
 // absolute value we re-apply the sign, then add centre.
 //
-// Note: this function is needed by Process_servo_setup, so it can't be 
+// Note: this function is needed by Process_servo_setup, so it can't be
 // removed e.g. if only a gearbox servo is used.
 void calculate_servo_pulse(void)
 {
     if (channel[ST].normalized < 0) {
-        servo_pulse = servo_centre - 
+        servo_pulse = servo_centre -
             (((servo_centre - servo_epl) * channel[ST].absolute) / 100);
-    }    
+    }
     else {
-        servo_pulse = servo_centre + 
+        servo_pulse = servo_centre +
             (((servo_epr - servo_centre) * channel[ST].absolute) / 100);
     }
 }
@@ -82,17 +81,17 @@ void process_servo_output(void)
         if (!next) {
             return;
         }
-        next = false;                
+        next = false;
 
         switch (global_flags.servo_output_setup) {
             case SERVO_OUTPUT_SETUP_CENTRE:
                 servo_setup_centre = servo_pulse;
-                global_flags.servo_output_setup = SERVO_OUTPUT_SETUP_LEFT; 
+                global_flags.servo_output_setup = SERVO_OUTPUT_SETUP_LEFT;
                 break;
 
             case SERVO_OUTPUT_SETUP_LEFT:
                 servo_setup_epl = servo_pulse;
-                global_flags.servo_output_setup = SERVO_OUTPUT_SETUP_RIGHT; 
+                global_flags.servo_output_setup = SERVO_OUTPUT_SETUP_RIGHT;
                 break;
 
             case SERVO_OUTPUT_SETUP_RIGHT:
@@ -100,7 +99,7 @@ void process_servo_output(void)
                 servo_centre = servo_setup_centre;
                 servo_epl = servo_setup_epl;
                 // FIXME: call EEPROM_save_persistent_data
-                global_flags.servo_output_setup = SERVO_OUTPUT_SETUP_OFF; 
+                global_flags.servo_output_setup = SERVO_OUTPUT_SETUP_OFF;
                 break;
 
             default:

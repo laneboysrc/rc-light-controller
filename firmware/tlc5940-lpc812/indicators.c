@@ -14,7 +14,6 @@
 #include <stdbool.h>
 
 #include <globals.h>
-#include <reader.h>
 
 static enum {
     NOT_NEUTRAL = 0,
@@ -33,8 +32,8 @@ static uint16_t indicator_timer;
 
 static void synchronize_blinking(void)
 {
-    if (global_flags.blink_indicator_left || 
-        global_flags.blink_indicator_right || 
+    if (global_flags.blink_indicator_left ||
+        global_flags.blink_indicator_right ||
         global_flags.blink_hazard) {
         return;
     }

@@ -1,11 +1,9 @@
 #include <stdint.h>
 #include <globals.h>
-#include <reader.h>
 #include <uart0.h>
 
 #define SLAVE_MAGIC_BYTE 0x87
 #define CONSECUTIVE_BYTE_COUNTS 3
-
 
 struct channel_s channel[3];
 
