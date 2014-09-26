@@ -7,9 +7,7 @@
 #include <reader.h>
 
 
-volatile uint32_t soft_timer;
-
-#define SOFT_TIMER_PERIOD 20        // Soft timer triggers every 20 ms
+volatile uint32_t systick_count;
 
 struct global_flags_s global_flags;
 
@@ -121,8 +119,11 @@ void init_hardware()
                        (5 << 5);    // PRE_L[12:5] = 6-1 (SCTimer L clock 2 MHz)
     LPC_SCT->CTRL_H |= (1 << 3) |   // Clear the counter H
                        (11 << 5);   // PRE_H[12:5] = 12-1 (SCTimer H clock 1 MHz)
-    LPC_SCT->MATCHREL[0].H =
-        (1000000 / 50) - 1;         // 50 Hz (20ms per overflow)
+
+#if __SYSTICK_IN_MS != 20
+#error  Code expexts __SYSTICK_IN_MS to be set to 20
+#endif
+    LPC_SCT->MATCHREL[0].H = (1000000 / 50) - 1; // 50 Hz (20ms per overflow)
 
     // SCTimer H is soft timer, trigger interrupt on reload
     LPC_SCT->EVENT[0].STATE = 0xFFFF;       // Event 0 happens in all states
@@ -148,23 +149,22 @@ void SCT_irq_handler(void)
     // Event 0: Match (reload) event every 20 ms (SCTimer H)
     if (LPC_SCT->EVFLAG & (1 << 0)) {
         LPC_SCT->EVFLAG = (1 << 0);
-        ++soft_timer;
+        ++systick_count;
     }
 
     servo_reader_SCT_interrupt_handler();
 }
 
 
-
 // ****************************************************************************
-void service_soft_timer(void)
+void service_systick(void)
 {
-    if (!soft_timer) {
-        global_flags.soft_timer = 0;
+    if (!systick_count) {
+        global_flags.systick = 0;
         return;
     }
 
-    global_flags.soft_timer = 1;
+    global_flags.systick = 1;
 
     // Disable the SCTimer interrupt. Use memory barriers to ensure that no
     // interrupt is pending in the pipeline.
@@ -173,7 +173,7 @@ void service_soft_timer(void)
     NVIC_DisableIRQ(SCT_IRQn);
     __DSB();
     __ISB();
-    --soft_timer;
+    --systick_count;
     NVIC_EnableIRQ(SCT_IRQn);
 }
 
@@ -202,7 +202,7 @@ int main(void)
         output_winch();
         output_preprocessor();
 
-        service_soft_timer();
+        service_systick();
     }
 }
 

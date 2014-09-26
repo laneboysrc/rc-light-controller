@@ -19,9 +19,6 @@ static enum {
 #define SERVO_PULSE_CLAMP_HIGH 2300
 #define STARTUP_TIME 2000           // Time at startup until neutral is initialized
 
-
-#define SOFT_TIMER_PERIOD 20
-
 static volatile bool new_raw_channel_data = false;
 static uint32_t servo_reader_timer;
 
@@ -177,7 +174,7 @@ static void normalize_channel(struct channel_s *c)
             c->ep_l = c->raw_data;
         }
         // In order to acheive a stable 100% value we actually calculate the
-        // percentage up to 101%, and then clamp to 100%. 
+        // percentage up to 101%, and then clamp to 100%.
         c->normalized = (c->centre - c->raw_data) * 101 / (c->centre - c->ep_l);
         if (c->normalized > 100) {
             c->normalized = 100;
@@ -204,7 +201,7 @@ static void normalize_channel(struct channel_s *c)
 // ****************************************************************************
 void read_all_channels(void)
 {
-    if (global_flags.soft_timer) {
+    if (global_flags.systick) {
         if (servo_reader_timer) {
             --servo_reader_timer;
         }
@@ -219,7 +216,7 @@ void read_all_channels(void)
 
     switch (servo_reader_state) {
         case WAIT_FOR_FIRST_PULSE:
-            servo_reader_timer = STARTUP_TIME / SOFT_TIMER_PERIOD;
+            servo_reader_timer = STARTUP_TIME / __SYSTICK_IN_MS;
             servo_reader_state = WAIT_FOR_TIMEOUT;
             break;
 

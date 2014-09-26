@@ -31,22 +31,22 @@
 #define CENTRE_THRESHOLD_HIGH 12
 
 #ifndef AUTO_BRAKE_COUNTER_VALUE_REVERSE_MIN
-#define AUTO_BRAKE_COUNTER_VALUE_REVERSE_MIN 12
+#define AUTO_BRAKE_COUNTER_VALUE_REVERSE_MIN (800 / __SYSTICK_IN_MS)
 #endif
 #ifndef AUTO_BRAKE_COUNTER_VALUE_REVERSE_MAX
-#define AUTO_BRAKE_COUNTER_VALUE_REVERSE_MAX 38
+#define AUTO_BRAKE_COUNTER_VALUE_REVERSE_MAX (2500 / __SYSTICK_IN_MS)
 #endif
 #ifndef AUTO_BRAKE_COUNTER_VALUE_FORWARD_MIN
-#define AUTO_BRAKE_COUNTER_VALUE_FORWARD_MIN 12
+#define AUTO_BRAKE_COUNTER_VALUE_FORWARD_MIN (800 / __SYSTICK_IN_MS)
 #endif
 #ifndef AUTO_BRAKE_COUNTER_VALUE_FORWARD_MAX
-#define AUTO_BRAKE_COUNTER_VALUE_FORWARD_MAX 38
+#define AUTO_BRAKE_COUNTER_VALUE_FORWARD_MAX (2500 / __SYSTICK_IN_MS)
 #endif
 #ifndef AUTO_REVERSE_COUNTER_VALUE_MIN
-#define AUTO_REVERSE_COUNTER_VALUE_MIN 12
+#define AUTO_REVERSE_COUNTER_VALUE_MIN (800 / __SYSTICK_IN_MS)
 #endif
 #ifndef AUTO_REVERSE_COUNTER_VALUE_MAX
-#define AUTO_REVERSE_COUNTER_VALUE_MAX 30
+#define AUTO_REVERSE_COUNTER_VALUE_MAX (2000 / __SYSTICK_IN_MS)
 #endif
 
 #define BRAKE_DISARM_COUNTER_VALUE (1000 / __SYSTICK_IN_MS)
@@ -152,7 +152,7 @@ static void throttle_not_neutral(void)
 
 void process_drive_mode(void)
 {
-    if (global_flags.soft_timer) {
+    if (global_flags.systick) {
         if (drive_mode.brake_disarm) {
             if (--brake_disarm_counter == 0) {
                 drive_mode.brake_disarm = false;
