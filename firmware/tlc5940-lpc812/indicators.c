@@ -33,7 +33,14 @@ static uint16_t indicator_timer;
 
 static void synchronize_blinking(void)
 {
-    ;
+    if (global_flags.blink_indicator_left || 
+        global_flags.blink_indicator_right || 
+        global_flags.blink_hazard) {
+        return;
+    }
+
+    // FIXME blink_timer = BLINK_TIMER_VALUE;
+    global_flags.blink_flag = true;
 }
 
 static void set_not_neutral(void)
@@ -59,6 +66,11 @@ static void set_blink_right(void)
     global_flags.blink_indicator_right = true;
 }
 
+void toggle_hazard_lights(void)
+{
+    synchronize_blinking();
+    global_flags.blink_hazard = ~global_flags.blink_hazard;
+}
 
 void process_indicators(void)
 {

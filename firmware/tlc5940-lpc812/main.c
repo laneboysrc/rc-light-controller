@@ -17,6 +17,9 @@ uint32_t entropy;
 uint16_t light_mode;
 GLOBAL_FLAGS_T global_flags;
 
+
+// FIXME: make baudrate configurable
+
 // FIXME: not needed, rather strive for 1 binary that can handle everything!
 // ****************************************************************************
 // Declare a couple of "weak" functions that are overloaded if certain modules
@@ -30,13 +33,8 @@ GLOBAL_FLAGS_T global_flags;
 // function in the other file it will get undetected at compile time!
 //
 void servo_reader_SCT_interrupt_handler(void) __attribute__ ((weak, alias ("dummy_function")));
-void process_ch3_clicks(void) __attribute__ ((weak, alias ("dummy_function")));
-void process_drive_mode(void) __attribute__ ((weak, alias ("dummy_function")));
-void process_indicators(void) __attribute__ ((weak, alias ("dummy_function")));
 void process_channel_reversing(void) __attribute__ ((weak, alias ("dummy_function")));
-void process_steering_wheel_servo(void) __attribute__ ((weak, alias ("dummy_function")));
 void process_winch(void) __attribute__ ((weak, alias ("dummy_function")));
-void output_preprocessor(void) __attribute__ ((weak, alias ("dummy_function")));
 void process_lights(void) __attribute__ ((weak, alias ("dummy_function")));
 
 void dummy_function(void)
@@ -177,7 +175,7 @@ int main(void)
         process_indicators();
         process_channel_reversing();
 
-        process_steering_wheel_servo();
+        process_servo_output();
         process_winch();
         process_lights();
         output_preprocessor();

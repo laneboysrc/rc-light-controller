@@ -22,6 +22,7 @@ static uint16_t ch3_click_counter;
 static uint16_t winch_command_repeat_counter;
 
 
+
 static void process_ch3_click_timeout(void)
 {
     if (ch3_clicks == 0) {          // Any clicks pending?
@@ -36,20 +37,8 @@ static void process_ch3_click_timeout(void)
     // At this point we have detected one of more clicks and need to
     // perform the appropriate action.
 
-    if (global_flags.steering_wheel_servo_setup != STEERING_WHEEL_SERVO_SETUP_OFF) {
-        // ====================================
-        // Steering servo setup in progress:
-// FIXME: let the steering wheel module handle the clicks
-#if 0
-        if (ch3_clicks == 1) {
-            // 1 click: next setup step
-            global_flags.steering_wheel_servo_setup_mode = STEERING_WHEEL_SERVO_SETUP_MODE_NEXT;
-        }
-        else {
-            // More than 1 click: cancel setup
-            global_flags.steering_wheel_servo_setup_mode = STEERING_WHEEL_SERVO_SETUP_MODE_CANCEL;
-        }
-#endif
+    if (global_flags.servo_output_setup != SERVO_OUTPUT_SETUP_OFF) {
+        servo_output_setup_action(ch3_clicks);
     }
     else if (global_flags.winch_mode != WINCH_DISABLED) {
         // ====================================
@@ -137,11 +126,7 @@ static void process_ch3_click_timeout(void)
             case 4:
                 // --------------------------
                 // Quad click: Hazard lights on/off
-
-                // FIXME
-                // synchronize_blinking();
-
-                global_flags.blink_hazard = ~global_flags.blink_hazard;
+                toggle_hazard_lights();
                 break;
 
             case 5:
@@ -166,9 +151,8 @@ static void process_ch3_click_timeout(void)
             case 8:
                 // --------------------------
                 // 8 clicks: Enter steering wheel servo setup mode
-                if (config.flags.steering_wheel_servo_output_enabled) {
-                    // FIXME: call function instead
-                    //global_flags.steering_wheel_servo_setup = SETUP_MODE_INIT;
+                if (config.flags.servo_output_enabled) {
+                    servo_output_setup_action(ch3_clicks);
                 }
                 break;
 

@@ -25,11 +25,11 @@ typedef struct {
     unsigned int gear_changed : 1;          // Set when a new gear was selected
 
     enum {
-        STEERING_WHEEL_SERVO_SETUP_OFF = 0,
-        STEERING_WHEEL_SERVO_SETUP_CENTRE = 0x01,
-        STEERING_WHEEL_SERVO_SETUP_LEFT = 0x02,
-        STEERING_WHEEL_SERVO_SETUP_RIGHT = 0x04
-    } steering_wheel_servo_setup : 3;
+        SERVO_OUTPUT_SETUP_OFF = 0,
+        SERVO_OUTPUT_SETUP_CENTRE = 0x01,
+        SERVO_OUTPUT_SETUP_LEFT = 0x02,
+        SERVO_OUTPUT_SETUP_RIGHT = 0x04
+    } servo_output_setup : 3;
 
     enum {
         REVERSING_SETUP_OFF = 0,
@@ -66,7 +66,7 @@ typedef struct {
         unsigned int brake_disarm_timeout_enabled : 1;
 
         unsigned int preprocessor_output_enabled : 1;
-        unsigned int steering_wheel_servo_output_enabled : 1;
+        unsigned int servo_output_enabled : 1;
         unsigned int gearbox_servo_enabled : 1;
         unsigned int winch_enabled : 1;
     } flags;
@@ -106,4 +106,17 @@ extern uint16_t light_mode;
 extern GLOBAL_FLAGS_T global_flags;
 extern const LIGHT_CONTROLLER_CONFIG_T config;
 
+
+
+void process_ch3_clicks(void);
+
+void process_drive_mode(void);
+
+void process_indicators(void);
+void toggle_hazard_lights(void);
+
+void process_servo_output(void);
+void servo_output_setup_action(uint8_t ch3_clicks);
+
+void output_preprocessor(void);
 #endif // __GLOBALS_H
