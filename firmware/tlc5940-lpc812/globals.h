@@ -25,25 +25,24 @@ typedef struct {
     unsigned int gear_changed : 1;          // Set when a new gear was selected
 
     enum {
-        STEERING_WHEEL_SERVO_SETUP_MODE_OFF = 0,
-        STEERING_WHEEL_SERVO_SETUP_MODE_INIT = 1,
-        STEERING_WHEEL_SERVO_SETUP_MODE_CENTRE = 2,
-        STEERING_WHEEL_SERVO_SETUP_MODE_LEFT = 3,
-        STEERING_WHEEL_SERVO_SETUP_MODE_RIGHT = 4
-    } steering_wheel_servo_setup_mode : 3;
+        STEERING_WHEEL_SERVO_SETUP_OFF = 0,
+        STEERING_WHEEL_SERVO_SETUP_CENTRE = 0x01,
+        STEERING_WHEEL_SERVO_SETUP_LEFT = 0x02,
+        STEERING_WHEEL_SERVO_SETUP_RIGHT = 0x04
+    } steering_wheel_servo_setup : 3;
 
     enum {
         REVERSING_SETUP_OFF = 0,
-        REVERSING_SETUP_STEERING_REVERSE = 0x01,
-        REVERSING_SETUP_THROTTLE_REVERSE = 0x02,
+        REVERSING_SETUP_STEERING = 0x01,
+        REVERSING_SETUP_THROTTLE = 0x02,
     } reversing_setup : 2;
 
     enum {
-        WINCH_MODE_DISABLED = 0,
-        WINCH_MODE_IDLE = 1,
-        WINCH_MODE_IN = 2,
-        WINCH_MODE_OUT = 3
-    } winch_mode : 2;
+        WINCH_DISABLED = 0,
+        WINCH_IDLE = 0x01,
+        WINCH_IN = 0x02,
+        WINCH_OUT = 0x04
+    } winch_mode : 3;
 } GLOBAL_FLAGS_T;
 
 typedef struct {
