@@ -1,9 +1,19 @@
 #include <stdint.h>
+#include <stdbool.h>
 #include <globals.h>
 
 const LIGHT_CONTROLLER_CONFIG_T config = {
     ROM_MAGIC,                  // magic
     0x01,                       // type
+    0x01,                       // version
+
+    {                           // flags
+        false,                  //   esc_forward_reverse
+        true,                   //   enable_auto_brake_lights_forward
+        true,                   //   enable_auto_brake_lights_reverse
+        true,                   //   enable_brake_disarm_timeout
+        0
+    },
 
     (800 / __SYSTICK_IN_MS),    // auto_brake_counter_value_forward_min
     (2500 / __SYSTICK_IN_MS),   // auto_brake_counter_value_forward_min

@@ -22,6 +22,7 @@
 #include <reader.h>
 #include <utils.h>
 
+
 static uint32_t throttle_threshold = 0xffffffff;    // Signify uninitialized value
 static uint32_t brake_disarm_counter;
 static uint32_t auto_brake_counter;
@@ -41,25 +42,25 @@ static void throttle_neutral(void)
     if (global_flags.forward) {
         global_flags.forward = false;
 
-        // If DISABLE_BRAKE_DISARM_TIMEOUT is defined the user has to go for
-        // brake, then neutral, before reverse engages. Otherwise reverse engages
-        // if the user stays in neutral for a few seconds.
+        // If ENABLE_BRAKE_DISARM_TIMEOUT is not set, the user has to go for
+        // brake, then neutral, before reverse engages. Otherwise reverse
+        // engages if the user stays in neutral for a few seconds.
         //
-        // Tamiya ESC need this DISABLE_BRAKE_DISARM_TIMEOUT defined.
-        // The China ESC and HPI SC-15WP need DISABLE_BRAKE_DISARM_TIMEOUT undefined.
-#ifndef DISABLE_BRAKE_DISARM_TIMEOUT
-        drive_mode.brake_disarm = true;
-        brake_disarm_counter = config.brake_disarm_counter_value;
-#endif
+        // Tamiya ESC need this ENABLE_BRAKE_DISARM_TIMEOUT cleared.
+        // The China ESC and HPI SC-15WP need ENABLE_BRAKE_DISARM_TIMEOUT set.
+        if (config.flags.enable_brake_disarm_timeout) {
+            drive_mode.brake_disarm = true;
+            brake_disarm_counter = config.brake_disarm_counter_value;
+        }
 
-#ifndef DISABLE_AUTO_BRAKE_LIGHTS_FORWARD
-        global_flags.braking = true;
-        // The time the brake lights stay on after going back to neutral
-        // is random
-        auto_brake_counter = random_min_max(
-            config.auto_brake_counter_value_forward_min,
-            config.auto_brake_counter_value_forward_max);
-#endif
+        if (config.flags.enable_auto_brake_lights_forward) {
+            global_flags.braking = true;
+            // The time the brake lights stay on after going back to neutral
+            // is random
+            auto_brake_counter = random_min_max(
+                config.auto_brake_counter_value_forward_min,
+                config.auto_brake_counter_value_forward_max);
+        }
     }
     else if (global_flags.reversing) {
         if (!drive_mode.auto_reverse) {
@@ -68,12 +69,12 @@ static void throttle_neutral(void)
                 config.auto_reverse_counter_value_min,
                 config.auto_reverse_counter_value_max);
 
-#ifndef DISABLE_AUTO_BRAKE_LIGHTS_REVERSE
-            global_flags.braking = true;
-            auto_brake_counter = random_min_max(
-                config.auto_brake_counter_value_reverse_min,
-                config.auto_brake_counter_value_reverse_max);
-#endif
+            if (config.flags.enable_auto_brake_lights_reverse) {
+                global_flags.braking = true;
+                auto_brake_counter = random_min_max(
+                    config.auto_brake_counter_value_reverse_min,
+                    config.auto_brake_counter_value_reverse_max);
+            }
         }
     }
     else if (global_flags.braking) {
@@ -114,9 +115,9 @@ static void throttle_not_neutral(void)
         global_flags.forward = true;
         global_flags.reversing = false;
         global_flags.braking = false;
-#ifndef ESC_FORWARD_REVERSE
-        drive_mode.brake_armed = true;
-#endif
+        if (config.flags.esc_forward_reverse) {
+           drive_mode.brake_armed = true;
+        }
     }
 }
 

@@ -28,6 +28,24 @@ extern GLOBAL_FLAGS_T global_flags;
 typedef struct {
     uint32_t magic;
     uint16_t type;
+    uint16_t version;
+
+    struct {
+        unsigned int esc_forward_reverse : 1;
+
+        unsigned int enable_auto_brake_lights_forward : 1;
+        unsigned int enable_auto_brake_lights_reverse : 1;
+
+        // If ENABLE_BRAKE_DISARM_TIMEOUT is not set, the user has to go for
+        // brake, then neutral, before reverse engages. Otherwise reverse
+        // engages if the user stays in neutral for a few seconds.
+        //
+        // Tamiya ESC need this ENABLE_BRAKE_DISARM_TIMEOUT cleared.
+        // The China ESC and HPI SC-15WP need ENABLE_BRAKE_DISARM_TIMEOUT set.
+        unsigned int enable_brake_disarm_timeout : 1;
+
+        unsigned int reserved : 30;
+    } flags;
 
     uint16_t auto_brake_counter_value_forward_min;
     uint16_t auto_brake_counter_value_forward_max;
