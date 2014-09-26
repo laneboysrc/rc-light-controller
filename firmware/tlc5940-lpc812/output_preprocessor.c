@@ -14,7 +14,13 @@ static uint8_t next_tx_index = 0xff;
 // ****************************************************************************
 void output_preprocessor(void)
 {
-    if (global_flags.new_channel_data) {
+    if (!config.flags.enable_preprocessor_output)
+    {
+        return;
+    }
+
+    // FIXME: add 5th byte for hk310 expansion support
+    if (!global_flags.new_channel_data) {
         if (ch3_2pos) {
             if (channel[2].normalized < -CH3_HYSTERESIS) {
                 ch3_2pos = false;
@@ -29,26 +35,10 @@ void output_preprocessor(void)
         tx_data[0] = SLAVE_MAGIC_BYTE;
         tx_data[1] = channel[0].normalized;
         tx_data[2] = channel[1].normalized;
-        tx_data[3] = (ch3_2pos ? (1 << 0) : 0)| 
+        tx_data[3] = (ch3_2pos ? (1 << 0) : 0)|
                      (global_flags.startup_mode_neutral ? (1 << 4) : 0);
 
         next_tx_index = 0;
-
-#if 0
-        if (startup_mode == STARTUP_MODE_NEUTRAL) {
-            uart0_send_cstring("Startup\n");
-        }
-        else {
-            uart0_send_cstring("ST: ");
-            uart0_send_int32(channel[0].normalized);
-            uart0_send_cstring(" TH: ");
-            uart0_send_int32(channel[1].normalized);
-            uart0_send_cstring(" AUX: ");
-            uart0_send_int32(channel[2].normalized);
-            uart0_send_linefeed();
-        }
-#endif    
-
     }
 
     if (next_tx_index < sizeof(tx_data)  &&  uart0_send_is_ready()) {

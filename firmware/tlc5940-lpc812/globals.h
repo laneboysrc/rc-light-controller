@@ -42,6 +42,8 @@ typedef struct {
         // Tamiya ESC need this ENABLE_BRAKE_DISARM_TIMEOUT cleared.
         // The China ESC and HPI SC-15WP need ENABLE_BRAKE_DISARM_TIMEOUT set.
         unsigned int enable_brake_disarm_timeout : 1;
+
+        unsigned int enable_preprocessor_output : 1;
     } flags;
 
     uint16_t auto_brake_counter_value_forward_min;
