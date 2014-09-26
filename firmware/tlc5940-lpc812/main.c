@@ -9,7 +9,7 @@
 
 volatile uint32_t systick_count;
 
-struct global_flags_s global_flags;
+GLOBAL_FLAGS_T global_flags;
 
 
 // ****************************************************************************

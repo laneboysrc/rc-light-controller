@@ -22,36 +22,11 @@
 #include <reader.h>
 #include <utils.h>
 
-// Centre threshold defines a range where we consider the servo being centred.
-// In order to prevent "flickering" especially for the brake and reverse light
-// the CENTRE_THRESHOLD_HIGH and CENTRE_THRESHOLD_LOW provide a hysteresis
-// that we apply to the throttle when processing drive_mode.
-#define CENTRE_THRESHOLD_LOW 8
-#define CENTRE_THRESHOLD 10
-#define CENTRE_THRESHOLD_HIGH 12
 
-#ifndef AUTO_BRAKE_COUNTER_VALUE_REVERSE_MIN
-#define AUTO_BRAKE_COUNTER_VALUE_REVERSE_MIN (800 / __SYSTICK_IN_MS)
-#endif
-#ifndef AUTO_BRAKE_COUNTER_VALUE_REVERSE_MAX
-#define AUTO_BRAKE_COUNTER_VALUE_REVERSE_MAX (2500 / __SYSTICK_IN_MS)
-#endif
-#ifndef AUTO_BRAKE_COUNTER_VALUE_FORWARD_MIN
-#define AUTO_BRAKE_COUNTER_VALUE_FORWARD_MIN (800 / __SYSTICK_IN_MS)
-#endif
-#ifndef AUTO_BRAKE_COUNTER_VALUE_FORWARD_MAX
-#define AUTO_BRAKE_COUNTER_VALUE_FORWARD_MAX (2500 / __SYSTICK_IN_MS)
-#endif
-#ifndef AUTO_REVERSE_COUNTER_VALUE_MIN
-#define AUTO_REVERSE_COUNTER_VALUE_MIN (800 / __SYSTICK_IN_MS)
-#endif
-#ifndef AUTO_REVERSE_COUNTER_VALUE_MAX
-#define AUTO_REVERSE_COUNTER_VALUE_MAX (2000 / __SYSTICK_IN_MS)
-#endif
 
-#define BRAKE_DISARM_COUNTER_VALUE (1000 / __SYSTICK_IN_MS)
 
-static uint32_t throttle_threshold = CENTRE_THRESHOLD_HIGH;
+
+static uint32_t throttle_threshold = 0xffffffff;    // Signify uninitialized value
 static uint32_t brake_disarm_counter;
 static uint32_t auto_brake_counter;
 static uint32_t auto_reverse_counter;
@@ -66,7 +41,7 @@ static struct {
 
 static void throttle_neutral(void)
 {
-    throttle_threshold = CENTRE_THRESHOLD_HIGH;
+    throttle_threshold = config.centre_threshold_high;
     if (global_flags.forward) {
         global_flags.forward = false;
 
@@ -78,7 +53,7 @@ static void throttle_neutral(void)
         // The China ESC and HPI SC-15WP need DISABLE_BRAKE_DISARM_TIMEOUT undefined.
 #ifndef DISABLE_BRAKE_DISARM_TIMEOUT
         drive_mode.brake_disarm = true;
-        brake_disarm_counter = BRAKE_DISARM_COUNTER_VALUE;
+        brake_disarm_counter = config.brake_disarm_counter_value;
 #endif
 
 #ifndef DISABLE_AUTO_BRAKE_LIGHTS_FORWARD
@@ -86,22 +61,22 @@ static void throttle_neutral(void)
         // The time the brake lights stay on after going back to neutral
         // is random
         auto_brake_counter = random_min_max(
-            AUTO_BRAKE_COUNTER_VALUE_FORWARD_MIN,
-            AUTO_BRAKE_COUNTER_VALUE_FORWARD_MAX);
+            config.auto_brake_counter_value_forward_min,
+            config.auto_brake_counter_value_forward_max);
 #endif
     }
     else if (global_flags.reversing) {
         if (!drive_mode.auto_reverse) {
             drive_mode.auto_reverse = true;
             auto_reverse_counter = random_min_max(
-            AUTO_REVERSE_COUNTER_VALUE_MIN,
-            AUTO_REVERSE_COUNTER_VALUE_MAX);
+                config.auto_reverse_counter_value_min,
+                config.auto_reverse_counter_value_max);
 
 #ifndef DISABLE_AUTO_BRAKE_LIGHTS_REVERSE
             global_flags.braking = true;
             auto_brake_counter = random_min_max(
-                AUTO_BRAKE_COUNTER_VALUE_REVERSE_MIN,
-                AUTO_BRAKE_COUNTER_VALUE_REVERSE_MAX);
+                config.auto_brake_counter_value_reverse_min,
+                config.auto_brake_counter_value_reverse_max);
 #endif
         }
     }
@@ -132,7 +107,7 @@ static void throttle_brake_or_reverse(void)
 
 static void throttle_not_neutral(void)
 {
-    throttle_threshold = CENTRE_THRESHOLD_LOW;
+    throttle_threshold = config.centre_threshold_low;
     drive_mode.auto_brake = false;
     drive_mode.brake_disarm = false;
 
@@ -177,6 +152,10 @@ void process_drive_mode(void)
 
     if (!global_flags.new_channel_data) {
         return;
+    }
+
+    if (throttle_threshold == 0xffffffff) {
+        config.centre_threshold_high;
     }
 
     if (channel[TH].absolute < throttle_threshold) {
