@@ -9,6 +9,11 @@
 
 volatile uint32_t systick_count;
 
+// The entropy variable is incremented every mainloop. It can therefore serve
+// as a random value in practical RC car application,
+// Certainly not suitable for secure implementations...
+uint32_t entropy;
+
 GLOBAL_FLAGS_T global_flags;
 
 
@@ -160,6 +165,7 @@ int main(void)
     init_reader();
 
     while (1) {
+        ++entropy;
         read_all_channels();
 
         process_ch3_double_click();

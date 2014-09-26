@@ -12,7 +12,6 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
         true,                   //   enable_auto_brake_lights_forward
         true,                   //   enable_auto_brake_lights_reverse
         true,                   //   enable_brake_disarm_timeout
-        0
     },
 
     (800 / __SYSTICK_IN_MS),    // auto_brake_counter_value_forward_min

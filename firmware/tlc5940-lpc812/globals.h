@@ -3,11 +3,13 @@
 
 #include <stdint.h>
 
+
 #define __SYSTICK_IN_MS 20
 
 // The ROM_MAGIC marker is used to identify the location of ROM constants when
 // parsing a light controller binary by an external tool
-#define ROM_MAGIC 0x4c427263                // LBrc (LANE Boys RC) in hex
+#define ROM_MAGIC 0x6372424c                // LBrc (LANE Boys RC) in little endian
+
 
 typedef struct {
     unsigned int systick : 1;               // Set for one mainloop every 20 ms
@@ -21,9 +23,6 @@ typedef struct {
     unsigned int braking : 1;               // Set when the brakes are enganged
     unsigned int reversing : 1;             // Set when the car is reversing
 } GLOBAL_FLAGS_T;
-
-extern GLOBAL_FLAGS_T global_flags;
-
 
 typedef struct {
     uint32_t magic;
@@ -43,8 +42,6 @@ typedef struct {
         // Tamiya ESC need this ENABLE_BRAKE_DISARM_TIMEOUT cleared.
         // The China ESC and HPI SC-15WP need ENABLE_BRAKE_DISARM_TIMEOUT set.
         unsigned int enable_brake_disarm_timeout : 1;
-
-        unsigned int reserved : 30;
     } flags;
 
     uint16_t auto_brake_counter_value_forward_min;
@@ -64,7 +61,13 @@ typedef struct {
     uint16_t centre_threshold_high;
 } LIGHT_CONTROLLER_CONFIG_T;
 
-extern const LIGHT_CONTROLLER_CONFIG_T config;
 
+// The entropy variable is incremented every mainloop. It can therefore serve
+// as a random value in practical RC car application,
+// Certainly not suitable for secure implementations...
+extern uint32_t entropy;
+
+extern GLOBAL_FLAGS_T global_flags;
+extern const LIGHT_CONTROLLER_CONFIG_T config;
 
 #endif // __GLOBALS_H
