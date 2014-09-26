@@ -154,6 +154,7 @@ void process_drive_mode(void)
         return;
     }
 
+    // Initialization as the compile complains that config.* is not static.
     if (throttle_threshold == 0xffffffff) {
         config.centre_threshold_high;
     }
