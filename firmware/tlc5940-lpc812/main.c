@@ -48,34 +48,8 @@ void init_hardware()
 #if __SYSTEM_CLOCK != 12000000
 #error Clock initialization code expexts __SYSTEM_CLOCK to be set to 1200000
 #endif
-
-// #################
-// SYSTEM_CLOCK = 30 MHz, MAIN_CLOCK = 60 MHz, using PLL
-#if 0
-#if __SYSTEM_CLOCK != 30000000
-#error Clock initialization code expexts __SYSTEM_CLOCK to be set to 3000000
-#endif
-
-    // Step 1: power up and configure the PLL
-    LPC_SYSCON->PDRUNCFG &= ~(1 << 7);          // Power-up SYSPLL
-    // After reset the PLL input is IRC, so no need to configure SYSPLLCLKSEL
-    LPC_SYSCON->SYSPLLCTRL = 0x24;              // M=4+1, P=1 -> 12Mhz*5/1 = 60Mhz
-    while (!(LPC_SYSCON->SYSPLLSTAT & 1));      // Wait for PLL lock
-
-    // Step 2: configure main clock and system clock
-    LPC_SYSCON->MAINCLKSEL = 0x3;               // Use PLL output as main clock source
-    LPC_SYSCON->MAINCLKUEN = 0;                 // Update MCLK clock source, already reset value
-    LPC_SYSCON->MAINCLKUEN = 1;
-    LPC_SYSCON->SYSAHBCLKDIV = 2;               // System clock is main clock / 2
-
-#endif
-// #################
-
-
     // Set flash wait-states to 1 system clock
     LPC_FLASHCTRL->FLASHCFG = 0;
-
-
 
     // Turn on peripheral clocks for IOCON (GPIO, SWM alrady enabled after reset)
     LPC_SYSCON->SYSAHBCLKCTRL |= (1 << 18);
@@ -205,13 +179,3 @@ int main(void)
         service_systick();
     }
 }
-
-
-
-#if 0
-        // Read PINO_1
-        if (LPC_GPIO_PORT->W0[1] == 0) {
-            ;
-        }
-#endif
-

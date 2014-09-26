@@ -22,10 +22,6 @@
 #include <reader.h>
 #include <utils.h>
 
-
-
-
-
 static uint32_t throttle_threshold = 0xffffffff;    // Signify uninitialized value
 static uint32_t brake_disarm_counter;
 static uint32_t auto_brake_counter;
@@ -156,7 +152,7 @@ void process_drive_mode(void)
 
     // Initialization as the compile complains that config.* is not static.
     if (throttle_threshold == 0xffffffff) {
-        config.centre_threshold_high;
+        throttle_threshold = config.centre_threshold_high;
     }
 
     if (channel[TH].absolute < throttle_threshold) {
