@@ -40,4 +40,6 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
     0x0f,                       // light_mode_mask
 
     260,                        // ch3_multi_click_timeout
+
+    (1000 / __SYSTICK_IN_MS),   // winch_command_repeat_time
 };
