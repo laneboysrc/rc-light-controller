@@ -28,6 +28,7 @@ static enum {
 } indicator_state = NOT_NEUTRAL;
 
 static uint16_t indicator_timer;
+static uint16_t blink_counter;
 
 
 static void synchronize_blinking(void)
@@ -38,9 +39,10 @@ static void synchronize_blinking(void)
         return;
     }
 
-    // FIXME blink_timer = BLINK_TIMER_VALUE;
+    blink_counter = config.blink_counter_value;
     global_flags.blink_flag = true;
 }
+
 
 static void set_not_neutral(void)
 {
@@ -52,18 +54,19 @@ static void set_not_neutral(void)
 
 static void set_blink_left(void)
 {
-    indicator_state = BLINK_LEFT;
     synchronize_blinking();
+    indicator_state = BLINK_LEFT;
     global_flags.blink_indicator_left = true;
 }
 
 
 static void set_blink_right(void)
 {
-    indicator_state = BLINK_RIGHT;
     synchronize_blinking();
+    indicator_state = BLINK_RIGHT;
     global_flags.blink_indicator_right = true;
 }
+
 
 void toggle_hazard_lights(void)
 {
@@ -71,11 +74,18 @@ void toggle_hazard_lights(void)
     global_flags.blink_hazard = ~global_flags.blink_hazard;
 }
 
+
 void process_indicators(void)
 {
     if (global_flags.systick) {
         if (indicator_timer) {
             --indicator_timer;
+        }
+
+        --blink_counter;
+        if (blink_counter == 0) {
+            blink_counter = config.blink_counter_value;
+            global_flags.blink_flag = ~global_flags.blink_flag;
         }
     }
 

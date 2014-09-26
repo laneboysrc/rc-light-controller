@@ -29,6 +29,7 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
     (2000 / __SYSTICK_IN_MS),   // auto_reverse_counter_value_max
     (1000 / __SYSTICK_IN_MS),   // brake_disarm_counter_value
 
+    (333 / __SYSTICK_IN_MS),    // blink_counter_value
     (500 / __SYSTICK_IN_MS),    // indicator_idle_time_value
     (2000 / __SYSTICK_IN_MS),   // indicator_off_timeout_value
 

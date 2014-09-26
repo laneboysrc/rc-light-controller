@@ -93,6 +93,7 @@ typedef struct {
     uint16_t auto_reverse_counter_value_max;
     uint16_t brake_disarm_counter_value;
 
+    uint16_t blink_counter_value;
     uint16_t indicator_idle_time_value;
     uint16_t indicator_off_timeout_value;
 
