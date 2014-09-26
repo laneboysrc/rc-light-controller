@@ -1,4 +1,4 @@
-PROGRAM_NAME := test
+PROGRAM_NAME := master
 
 all : $(PROGRAM_NAME).bin
 

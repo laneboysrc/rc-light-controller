@@ -16,7 +16,7 @@ uint32_t entropy;
 
 GLOBAL_FLAGS_T global_flags;
 
-
+// FIXME: not needed, rather strive for 1 binary that can handle everything!
 // ****************************************************************************
 // Declare a couple of "weak" functions that are overloaded if certain modules
 // are linked in. This allows us to configure the light controller by
@@ -29,7 +29,7 @@ GLOBAL_FLAGS_T global_flags;
 // function in the other file it will get undetected at compile time!
 //
 void servo_reader_SCT_interrupt_handler(void) __attribute__ ((weak, alias ("dummy_function")));
-void process_ch3_double_click(void) __attribute__ ((weak, alias ("dummy_function")));
+void process_ch3_clicks(void) __attribute__ ((weak, alias ("dummy_function")));
 void process_drive_mode(void) __attribute__ ((weak, alias ("dummy_function")));
 void process_indicators(void) __attribute__ ((weak, alias ("dummy_function")));
 void process_channel_reversing(void) __attribute__ ((weak, alias ("dummy_function")));
@@ -165,14 +165,16 @@ int main(void)
     init_hardware();
     init_uart0();
     init_reader();
+    //init_lights();
 
     while (1) {
         service_systick();
 
-        // FIXME: use configurable servo or uart reader
+        // FIXME: uart_servo and servo_reader are auto-detect!
+        // Use rc-sound-module as reference
         read_all_channels();
 
-        process_ch3_double_click();
+        process_ch3_clicks();
         process_drive_mode();
         process_indicators();
 
