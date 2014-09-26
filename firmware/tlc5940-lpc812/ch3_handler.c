@@ -18,8 +18,6 @@ static struct {
 static uint8_t ch3_clicks;
 static uint16_t ch3_click_counter;
 
-static uint16_t winch_command_repeat_counter;
-
 
 
 static void process_ch3_click_timeout(void)
@@ -40,33 +38,7 @@ static void process_ch3_click_timeout(void)
         servo_output_setup_action(ch3_clicks);
     }
     else if (global_flags.winch_mode != WINCH_DISABLED) {
-        // ====================================
-        // Winch control in progress:
-
-        // FIXME: let the winch module handle the clicks
-        switch (ch3_clicks) {
-            case 1:
-                // 1 click: winch in
-                global_flags.winch_mode = WINCH_IN;
-                winch_command_repeat_counter = 0;
-                break;
-
-            case 2:
-                // 2 click: winch out
-                global_flags.winch_mode = WINCH_OUT;
-                winch_command_repeat_counter = 0;
-                break;
-
-            case 5:
-                // 5 click: winch disabled
-                global_flags.winch_mode = WINCH_DISABLED;
-                winch_command_repeat_counter = 0;
-                break;
-
-            default:
-                // Ignore all other clicks
-                break;
-        }
+        winch_action(ch3_clicks);
     }
     else {
         // ====================================
@@ -129,9 +101,7 @@ static void process_ch3_click_timeout(void)
                 break;
 
             case 5:
-                if (config.flags.winch_enabled) {
-                    global_flags.winch_mode = WINCH_IDLE;
-                }
+                winch_action(ch3_clicks);
                 break;
 
             case 6:
@@ -169,12 +139,7 @@ static void add_click(void)
     if (config.flags.winch_enabled) {
         // If the winch is running any movement of CH3 immediately turns off
         // the winch (without waiting for click timeout!)
-        // FIXME: move this to the winch handler
-        if (global_flags.winch_mode == WINCH_IN ||
-            global_flags.winch_mode == WINCH_OUT) {
-            global_flags.winch_mode = WINCH_IDLE;
-            winch_command_repeat_counter = 0;
-
+        if (abort_winching()) {
             // Disable this series of clicks by setting the click count to an unused
             // high value
             ch3_clicks = 99;
@@ -189,6 +154,12 @@ static void add_click(void)
 void process_ch3_clicks(void)
 {
     global_flags.gear_changed = 0;
+
+    if (global_flags.systick) {
+        if (ch3_click_counter) {
+            --ch3_click_counter;
+        }
+    }
 
     if (global_flags.startup_mode_neutral) {
         return;
@@ -245,308 +216,3 @@ void process_ch3_clicks(void)
 }
 
 
-#if 0
-Process_ch3_double_click
-IFDEF ENABLE_GEARBOX
-    BANKSEL gear_mode
-    bcf     gear_mode, GEAR_CHANGED_FLAG
-ENDIF
-    BANKSEL startup_mode
-    movf    startup_mode, f
-    bz      process_ch3_no_startup
-    return
-
-process_ch3_no_startup
-    btfsc   flags, CH3_FLAG_INITIALIZED
-    goto    process_ch3_initialized
-
-    ; Ignore the potential "toggle" after power on
-    bsf     flags, CH3_FLAG_INITIALIZED
-    bcf     flags, CH3_FLAG_LAST_STATE
-    BANKSEL ch3
-    btfss   ch3, CH3_FLAG_LAST_STATE
-    return
-    BANKSEL flags
-    bsf     flags, CH3_FLAG_LAST_STATE
-    return
-
-process_ch3_initialized
-    BANKSEL ch3
-    movfw   ch3
-    movwf   temp+1
-
-    ; ch3 is only using bit 0, the same bit as CH3_FLAG_LAST_STATE.
-    ; We can therefore use XOR to determine whether ch3 has changed.
-
-    BANKSEL flags
-    xorwf   flags, w
-    movwf   temp
-
-IFDEF CH3_MOMENTARY
-    ; -------------------------------------------------------
-    ; Code for CH3 having a momentory signal when pressed (Futaba 4PL)
-
-    ; We only care about the switch transition from CH3_FLAG_LAST_STATE
-    ; (set upon initialization) to the opposite position, which is when
-    ; we add a click.
-    btfsc   temp, CH3_FLAG_LAST_STATE
-    goto    process_ch3_potential_click
-
-    ; ch3 is the same as CH3_FLAG_LAST_STATE (idle position), therefore reset
-    ; our "transitioned" flag to detect the next transition.
-    bcf     flags, CH3_FLAG_TANSITIONED
-    goto    process_ch3_click_timeout
-
-process_ch3_potential_click
-    ; Did we register this transition already?
-    ;   Yes: check for click timeout.
-    ;   No: Register transition and add click
-    btfsc   flags, CH3_FLAG_TANSITIONED
-    goto    process_ch3_click_timeout
-
-    bsf     flags, CH3_FLAG_TANSITIONED
-    ;goto   process_ch3_add_click
-
-ELSE
-    ; -------------------------------------------------------
-    ; Code for CH3 being a two position switch (HK-310, GT3B)
-
-    ; Check whether ch3 has changed with respect to LAST_STATE
-    btfss   temp, CH3_FLAG_LAST_STATE
-    goto    process_ch3_click_timeout
-
-    bcf     flags, CH3_FLAG_LAST_STATE      ; Store the new ch3 state
-    btfsc   temp+1, CH3_FLAG_LAST_STATE     ; temp+1 contains ch3
-    bsf     flags, CH3_FLAG_LAST_STATE
-    ;goto   process_ch3_add_click
-
-    ; -------------------------------------------------------
-ENDIF
-
-process_ch3_add_click
-IFDEF ENABLE_WINCH
-    ; If the winch is running any movement of CH3 immediately turns off
-    ; the winch (without waiting for click timeout!)
-    BANKSEL winch_mode
-    movlw   WINCH_MODE_IN
-    subwf   winch_mode, w
-    bz      process_ch3_winch_off
-
-    movlw   WINCH_MODE_OUT
-    subwf   winch_mode, w
-    bnz     process_ch3_no_winch
-
-process_ch3_winch_off
-    movlw   WINCH_MODE_IDLE
-    movwf   winch_mode
-    clrf    winch_command_repeat_counter
-
-    ; Disable this series of clicks by setting the click count to an unused
-    ; high value
-    BANKSEL ch3_clicks
-    movlw   99
-    movwf   ch3_clicks
-    movlw   CH3_BUTTON_TIMEOUT
-    movwf   ch3_click_counter
-    return
-ENDIF
-
-process_ch3_no_winch
-    BANKSEL ch3_clicks
-    incf    ch3_clicks, f
-    movlw   CH3_BUTTON_TIMEOUT
-    movwf   ch3_click_counter
-    return
-
-
-process_ch3_click_timeout
-    movf    ch3_clicks, f           ; Any buttons pending?
-    skpnz
-    return                          ; No: done
-
-    movf    ch3_click_counter, f    ; Double-click timer expired?
-    skpz
-    return                          ; No: wait for more buttons
-
-
-    ;####################################
-    ; At this point we have detected one of more clicks and need to
-    ; perform the appropriate action.
-    ;####################################
-    movf    setup_mode, f
-    bz      process_ch3_click_no_setup
-
-    ;====================================
-    ; Steering servo setup in progress:
-    ; 1 click: next setup step
-    ; more than 1 click: cancel setup
-    decfsz  ch3_clicks, f
-    goto    process_ch3_setup_cancel
-    bsf     setup_mode, SETUP_MODE_NEXT
-    return
-
-process_ch3_setup_cancel
-    bsf     setup_mode, SETUP_MODE_CANCEL
-    clrf    ch3_clicks
-    return
-
-
-process_ch3_click_no_setup
-IFDEF ENABLE_WINCH
-    movf    winch_mode, f
-    bz      process_ch3_click_no_winch
-
-    ;====================================
-    ; Winch control in progress:
-    ; 1 click: winch in
-    ; 2 click: winch out
-    ; 5 click: winch disabled
-    decfsz  ch3_clicks, f                   ; 1 click: winch in
-    goto    process_ch3_no_winch_in
-
-    movlw   WINCH_MODE_IN
-process_ch3_winch_execute
-    movwf   winch_mode
-    clrf    winch_command_repeat_counter
-    goto    process_ch3_click_end
-
-process_ch3_no_winch_in
-    decfsz  ch3_clicks, f                   ; 2 clicks: winch out
-    goto    process_ch3_no_winch_out
-
-    movlw   WINCH_MODE_OUT
-    goto    process_ch3_winch_execute
-
-process_ch3_no_winch_out
-    decf    ch3_clicks, f                   ; 3 clicks
-    decf    ch3_clicks, f                   ; 4 clicks
-    decfsz  ch3_clicks, f                   ; 5 clicks: turn off the winch completely
-    goto    process_ch3_click_end
-
-    movlw   WINCH_MODE_DISABLED
-    goto    process_ch3_winch_execute
-ENDIF
-
-
-    ;====================================
-    ; Normal operation; neither winch nor setup is active
-process_ch3_click_no_winch
-    decfsz  ch3_clicks, f
-    goto    process_ch3_double_click
-
-    ; --------------------------
-    ; Single click
-IFDEF ENABLE_GEARBOX
-    movfw   servo_epl
-    movwf   servo
-    movlw   (1 << GEAR_1) + (1 << GEAR_CHANGED_FLAG)
-    movwf   gear_mode
-    movlw   GEARBOX_SWITCH_TIME
-    movwf   gearbox_servo_active_counter
-    clrf    gearbox_servo_idle_counter
-ELSE
-    ; Switch light mode up (Parking, Low Beam, Fog, High Beam)
-    rlf     light_mode, f
-    bsf     light_mode, 0
-    movlw   LIGHT_MODE_MASK
-    andwf   light_mode, f
-ENDIF
-    return
-
-process_ch3_double_click
-    decfsz  ch3_clicks, f
-    goto    process_ch3_triple_click
-
-    ; --------------------------
-    ; Double click
-IFDEF ENABLE_GEARBOX
-    movfw   servo_epr
-    movwf   servo
-    movlw   (1 << GEAR_2) + (1 << GEAR_CHANGED_FLAG)
-    movwf   gear_mode
-    movlw   GEARBOX_SWITCH_TIME
-    movwf   gearbox_servo_active_counter
-    clrf    gearbox_servo_idle_counter
-ELSE
-    ; Switch light mode down (Parking, Low Beam, Fog, High Beam)
-    rrf     light_mode, f
-    movlw   LIGHT_MODE_MASK
-    andwf   light_mode, f
-ENDIF
-    return
-
-process_ch3_triple_click
-    decfsz  ch3_clicks, f
-    goto    process_ch3_quad_click
-
-    ; --------------------------
-    ; Triple click: all lights on/off
-    movlw   LIGHT_MODE_MASK
-    andwf   light_mode, w
-    sublw   LIGHT_MODE_MASK
-    movlw   LIGHT_MODE_MASK
-    skpnz
-    movlw   0x00
-    movwf   light_mode
-    skpnz
-    return
-
-process_ch3_quad_click
-    decfsz  ch3_clicks, f
-    goto    process_ch3_5_click
-
-    ; --------------------------
-    ; Quad click: Hazard lights on/off
-    clrf    ch3_clicks
-    call    Synchronize_blinking
-    BANKSEL blink_mode
-    movlw   1 << BLINK_MODE_HAZARD
-    xorwf   blink_mode, f
-    return
-
-process_ch3_5_click
-    decfsz  ch3_clicks, f
-    goto    process_ch3_6_click
-
-IFDEF ENABLE_WINCH
-    BANKSEL winch_mode
-    movlw   WINCH_MODE_IDLE
-    goto    process_ch3_winch_execute
-ELSE
-    goto    process_ch3_click_end
-ENDIF
-
-process_ch3_6_click
-    decfsz  ch3_clicks, f
-    goto    process_ch3_7_click
-
-    incf    light_gimmick_mode, f
-    return
-
-process_ch3_7_click
-    decfsz  ch3_clicks, f
-    goto    process_ch3_8_click
-
-    ; --------------------------
-    ; 7 clicks: Enter steering channel reverse setup mode
-    clrf    ch3_clicks
-    movlw   (1 << SETUP_MODE_STEERING_REVERSE) + (1 << SETUP_MODE_THROTTLE_REVERSE)
-    movwf   setup_mode
-    return
-
-process_ch3_8_click
-    decfsz  ch3_clicks, f
-    goto    process_ch3_click_end
-
-    ; --------------------------
-    ; 8 clicks: Enter steering wheel servo setup mode
-    IFDEF   ENABLE_SERVO_SETUP
-    movlw   1 << SETUP_MODE_INIT
-    movwf   setup_mode
-    ENDIF
-    return
-
-process_ch3_click_end
-    clrf    ch3_clicks
-    return
-#endif
