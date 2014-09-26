@@ -10,8 +10,8 @@
 
 struct channel_s {
     uint32_t raw_data;
-    int32_t normalized;
-    uint32_t absolute;
+    int16_t normalized;
+    uint16_t absolute;
     uint32_t centre;
     uint32_t ep_l;
     uint32_t ep_h;

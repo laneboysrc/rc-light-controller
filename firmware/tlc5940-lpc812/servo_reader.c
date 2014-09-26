@@ -167,7 +167,6 @@ static void normalize_channel(struct channel_s *c)
 
     if (c->raw_data == c->centre) {
         c->normalized = 0;
-        c->absolute = 0;
     }
     else if (c->raw_data < c->centre) {
         if (c->raw_data < c->ep_l) {
@@ -194,6 +193,13 @@ static void normalize_channel(struct channel_s *c)
         if (c->reversed) {
             c->normalized = -c->normalized;
         }
+    }
+
+    if (c->normalized < 0) {
+        c->absolute = -c->normalized;
+    }
+    else {
+        c->absolute = c->normalized;
     }
 }
 

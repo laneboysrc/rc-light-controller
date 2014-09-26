@@ -138,6 +138,8 @@ void SCT_irq_handler(void)
 // ****************************************************************************
 void service_systick(void)
 {
+    ++entropy;
+
     if (!systick_count) {
         global_flags.systick = 0;
         return;
@@ -165,7 +167,9 @@ int main(void)
     init_reader();
 
     while (1) {
-        ++entropy;
+        service_systick();
+
+        // FIXME: use configurable servo or uart reader
         read_all_channels();
 
         process_ch3_double_click();
@@ -181,7 +185,5 @@ int main(void)
         output_servo();
         output_winch();
         output_preprocessor();
-
-        service_systick();
     }
 }
