@@ -23,6 +23,27 @@ typedef struct {
     unsigned int braking : 1;               // Set when the brakes are enganged
     unsigned int reversing : 1;             // Set when the car is reversing
     unsigned int gear_changed : 1;          // Set when a new gear was selected
+
+    enum {
+        STEERING_WHEEL_SERVO_SETUP_MODE_OFF = 0,
+        STEERING_WHEEL_SERVO_SETUP_MODE_INIT = 1,
+        STEERING_WHEEL_SERVO_SETUP_MODE_CENTRE = 2,
+        STEERING_WHEEL_SERVO_SETUP_MODE_LEFT = 3,
+        STEERING_WHEEL_SERVO_SETUP_MODE_RIGHT = 4
+    } steering_wheel_servo_setup_mode : 3;
+
+    enum {
+        REVERSING_SETUP_OFF = 0,
+        REVERSING_SETUP_STEERING_REVERSE = 0x01,
+        REVERSING_SETUP_THROTTLE_REVERSE = 0x02,
+    } reversing_setup : 2;
+
+    enum {
+        WINCH_MODE_DISABLED = 0,
+        WINCH_MODE_IDLE = 1,
+        WINCH_MODE_IN = 2,
+        WINCH_MODE_OUT = 3
+    } winch_mode : 2;
 } GLOBAL_FLAGS_T;
 
 typedef struct {
@@ -75,24 +96,6 @@ typedef struct {
     uint16_t ch3_multi_click_timeout;
 } LIGHT_CONTROLLER_CONFIG_T;
 
-typedef enum {
-    SETUP_MODE_OFF = 0,
-    SETUP_MODE_INIT = 0x01,
-    SETUP_MODE_CENTRE = 0x02,
-    SETUP_MODE_LEFT = 0x04,
-    SETUP_MODE_RIGHT = 0x08,
-    SETUP_MODE_STEERING_REVERSE = 0x10,
-    SETUP_MODE_THROTTLE_REVERSE = 0x20,
-    SETUP_MODE_NEXT = 0x40,
-    SETUP_MODE_CANCEL = 0x80
-} SETUP_MODE_T;
-
-typedef enum {
-    WINCH_MODE_DISABLED = 0,
-    WINCH_MODE_IDLE = 0x01,
-    WINCH_MODE_IN = 0x02,
-    WINCH_MODE_OUT = 0x04
-} WINCH_MODE_T;
 
 
 // The entropy variable is incremented every mainloop. It can therefore serve
@@ -101,8 +104,6 @@ typedef enum {
 extern uint32_t entropy;
 
 extern uint16_t light_mode;
-extern SETUP_MODE_T setup_mode;
-extern WINCH_MODE_T winch_mode;
 extern GLOBAL_FLAGS_T global_flags;
 extern const LIGHT_CONTROLLER_CONFIG_T config;
 

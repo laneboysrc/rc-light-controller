@@ -15,8 +15,6 @@ volatile uint32_t systick_count;
 uint32_t entropy;
 
 uint16_t light_mode;
-SETUP_MODE_T setup_mode;
-WINCH_MODE_T winch_mode;
 GLOBAL_FLAGS_T global_flags;
 
 // FIXME: not needed, rather strive for 1 binary that can handle everything!
@@ -36,12 +34,10 @@ void process_ch3_clicks(void) __attribute__ ((weak, alias ("dummy_function")));
 void process_drive_mode(void) __attribute__ ((weak, alias ("dummy_function")));
 void process_indicators(void) __attribute__ ((weak, alias ("dummy_function")));
 void process_channel_reversing(void) __attribute__ ((weak, alias ("dummy_function")));
-void process_servo_setup(void) __attribute__ ((weak, alias ("dummy_function")));
 void process_steering_wheel_servo(void) __attribute__ ((weak, alias ("dummy_function")));
+void process_winch(void) __attribute__ ((weak, alias ("dummy_function")));
 void output_preprocessor(void) __attribute__ ((weak, alias ("dummy_function")));
-void output_lights(void) __attribute__ ((weak, alias ("dummy_function")));
-void output_servo(void) __attribute__ ((weak, alias ("dummy_function")));
-void output_winch(void) __attribute__ ((weak, alias ("dummy_function")));
+void process_lights(void) __attribute__ ((weak, alias ("dummy_function")));
 
 void dummy_function(void)
 {
@@ -176,19 +172,14 @@ int main(void)
         // FIXME: uart_servo and servo_reader are auto-detect!
         // Use rc-sound-module as reference
         read_all_channels();
-
         process_ch3_clicks();
         process_drive_mode();
         process_indicators();
-
         process_channel_reversing();
 
-        process_servo_setup();
         process_steering_wheel_servo();
-
-        output_lights();
-        output_servo();
-        output_winch();
+        process_winch();
+        process_lights();
         output_preprocessor();
     }
 }

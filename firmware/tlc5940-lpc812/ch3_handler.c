@@ -36,39 +36,39 @@ static void process_ch3_click_timeout(void)
     // At this point we have detected one of more clicks and need to
     // perform the appropriate action.
 
-    if (setup_mode != 0) {
+    if (global_flags.steering_wheel_servo_setup_mode != STEERING_WHEEL_SERVO_SETUP_MODE_OFF) {
         // ====================================
         // Steering servo setup in progress:
 
         if (ch3_clicks == 1) {
             // 1 click: next setup step
-            setup_mode = SETUP_MODE_NEXT;
+            global_flags.steering_wheel_servo_setup_mode = STEERING_WHEEL_SERVO_SETUP_MODE_NEXT;
         }
         else {
             // More than 1 click: cancel setup
-            setup_mode = SETUP_MODE_CANCEL;
+            global_flags.steering_wheel_servo_setup_mode = STEERING_WHEEL_SERVO_SETUP_MODE_CANCEL;
         }
     }
-    else if (winch_mode != 0) {
+    else if (global_flags.winch_mode != WINCH_MODE_DISABLED) {
         // ====================================
         // Winch control in progress:
 
         switch (ch3_clicks) {
             case 1:
                 // 1 click: winch in
-                winch_mode = WINCH_MODE_IN;
+                global_flags.winch_mode = WINCH_MODE_IN;
                 winch_command_repeat_counter = 0;
                 break;
 
             case 2:
                 // 2 click: winch out
-                winch_mode = WINCH_MODE_OUT;
+                global_flags.winch_mode = WINCH_MODE_OUT;
                 winch_command_repeat_counter = 0;
                 break;
 
             case 5:
                 // 5 click: winch disabled
-                winch_mode = WINCH_MODE_DISABLED;
+                global_flags.winch_mode = WINCH_MODE_DISABLED;
                 winch_command_repeat_counter = 0;
                 break;
 
@@ -143,7 +143,7 @@ static void process_ch3_click_timeout(void)
 
             case 5:
                 if (config.flags.winch_enabled) {
-                    winch_mode = WINCH_MODE_IDLE;
+                    global_flags.winch_mode = WINCH_MODE_IDLE;
                 }
                 break;
 
@@ -156,7 +156,7 @@ static void process_ch3_click_timeout(void)
             case 7:
                 // --------------------------
                 // 7 clicks: Enter channel reversing setup mode
-                setup_mode =
+                global_flags.setup_mode =
                     SETUP_MODE_STEERING_REVERSE | SETUP_MODE_THROTTLE_REVERSE;
                 break;
 
@@ -164,7 +164,7 @@ static void process_ch3_click_timeout(void)
                 // --------------------------
                 // 8 clicks: Enter steering wheel servo setup mode
                 if (config.flags.steering_wheel_servo_output_enabled) {
-                    setup_mode = SETUP_MODE_INIT;
+                    global_flags.setup_mode = SETUP_MODE_INIT;
                 }
                 break;
 
@@ -182,8 +182,8 @@ static void add_click(void)
     if (config.flags.winch_enabled) {
         // If the winch is running any movement of CH3 immediately turns off
         // the winch (without waiting for click timeout!)
-        if (winch_mode == WINCH_MODE_IN  ||  winch_mode == WINCH_MODE_OUT) {
-            winch_mode = WINCH_MODE_IDLE;
+        if (global_flags.winch_mode == WINCH_MODE_IN  ||  global_flags.winch_mode == WINCH_MODE_OUT) {
+            global_flags.winch_mode = WINCH_MODE_IDLE;
             winch_command_repeat_counter = 0;
 
             // Disable this series of clicks by setting the click count to an unused
