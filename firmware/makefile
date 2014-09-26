@@ -62,6 +62,19 @@ tobias-master: hw_tlc5940_16f1825.inc
 
 
 ##############################################################################
+# Bogdan's controller, derived from generic, using a preprocessor
+##############################################################################
+.PHONY: bogdan
+bogdan: bogdan-master
+
+.PHONY: bogdan-master
+bogdan-master: hw_tlc5940_16f1825.inc
+	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x0f -D ENABLE_UART -D ENABLE_STEERING_WHEEL_SERVO -D ENABLE_SERVO_OUTPUT)
+	$(eval files = master uart-reader servo-output utils lights-bogdan)
+	$(build)
+
+
+##############################################################################
 # FIAT 131
 ##############################################################################
 .PHONY: fiat-131
