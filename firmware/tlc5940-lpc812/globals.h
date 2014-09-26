@@ -52,6 +52,9 @@ typedef struct {
     uint16_t auto_reverse_counter_value_max;
     uint16_t brake_disarm_counter_value;
 
+    uint16_t indicator_idle_time_value;
+    uint16_t indicator_off_timeout_value;
+
     // Centre threshold defines a range where we consider the servo being
     // centred. In order to prevent "flickering" especially for the brake and
     // reverse light the CENTRE_THRESHOLD_HIGH and CENTRE_THRESHOLD_LOW provide
@@ -59,6 +62,7 @@ typedef struct {
     uint16_t centre_threshold_low;
     uint16_t centre_threshold;
     uint16_t centre_threshold_high;
+    uint16_t blink_threshold;
 } LIGHT_CONTROLLER_CONFIG_T;
 
 

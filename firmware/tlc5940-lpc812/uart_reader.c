@@ -122,9 +122,9 @@ void read_all_channels(void)
             }
             else {
                 channel_data[3] = 0;
-                normalize_channel(&channel[0], channel_data[0]);
-                normalize_channel(&channel[1], channel_data[1]);
-                normalize_channel(&channel[2], channel_data[2]);
+                normalize_channel(&channel[ST], channel_data[0]);
+                normalize_channel(&channel[TH], channel_data[1]);
+                normalize_channel(&channel[CH3], channel_data[2]);
 
                 global_flags.new_channel_data = true;
                 state = 0;
@@ -137,9 +137,9 @@ void read_all_channels(void)
                 state = 5;      // Dummy state, handled by 'default'
             }
             else {
-                normalize_channel(&channel[0], channel_data[0]);
-                normalize_channel(&channel[1], channel_data[1]);
-                normalize_channel(&channel[2], channel_data[2]);
+                normalize_channel(&channel[ST], channel_data[0]);
+                normalize_channel(&channel[TH], channel_data[1]);
+                normalize_channel(&channel[CH3], channel_data[2]);
                 global_flags.new_channel_data = true;
                 state = 0;
             }
