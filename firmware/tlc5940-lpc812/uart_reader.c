@@ -124,6 +124,7 @@ void read_all_channels(void)
                 channel_data[3] = 0;
                 normalize_channel(&channel[ST], channel_data[0]);
                 normalize_channel(&channel[TH], channel_data[1]);
+                // FIXME: strip out startup_mode, and worry about ch3 0/1 vs % values
                 normalize_channel(&channel[CH3], channel_data[2]);
 
                 global_flags.new_channel_data = true;

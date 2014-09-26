@@ -14,7 +14,7 @@ static uint8_t next_tx_index = 0xff;
 // ****************************************************************************
 void output_preprocessor(void)
 {
-    if (!config.flags.enable_preprocessor_output)
+    if (!config.flags.preprocessor_output_enabled)
     {
         return;
     }

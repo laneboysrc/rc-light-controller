@@ -48,12 +48,12 @@ static void throttle_neutral(void)
         //
         // Tamiya ESC need this ENABLE_BRAKE_DISARM_TIMEOUT cleared.
         // The China ESC and HPI SC-15WP need ENABLE_BRAKE_DISARM_TIMEOUT set.
-        if (config.flags.enable_brake_disarm_timeout) {
+        if (config.flags.brake_disarm_timeout_enabled) {
             drive_mode.brake_disarm = true;
             brake_disarm_counter = config.brake_disarm_counter_value;
         }
 
-        if (config.flags.enable_auto_brake_lights_forward) {
+        if (config.flags.auto_brake_lights_forward_enabled) {
             global_flags.braking = true;
             // The time the brake lights stay on after going back to neutral
             // is random
@@ -69,7 +69,7 @@ static void throttle_neutral(void)
                 config.auto_reverse_counter_value_min,
                 config.auto_reverse_counter_value_max);
 
-            if (config.flags.enable_auto_brake_lights_reverse) {
+            if (config.flags.auto_brake_lights_reverse_enabled) {
                 global_flags.braking = true;
                 auto_brake_counter = random_min_max(
                     config.auto_brake_counter_value_reverse_min,

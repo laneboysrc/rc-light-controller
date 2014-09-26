@@ -22,6 +22,7 @@ typedef struct {
     unsigned int forward : 1;               // Set when the car is driving forward
     unsigned int braking : 1;               // Set when the brakes are enganged
     unsigned int reversing : 1;             // Set when the car is reversing
+    unsigned int gear_changed : 1;          // Set when a new gear was selected
 } GLOBAL_FLAGS_T;
 
 typedef struct {
@@ -31,9 +32,10 @@ typedef struct {
 
     struct {
         unsigned int esc_forward_reverse : 1;
+        unsigned int ch3_is_momentary : 1;
 
-        unsigned int enable_auto_brake_lights_forward : 1;
-        unsigned int enable_auto_brake_lights_reverse : 1;
+        unsigned int auto_brake_lights_forward_enabled : 1;
+        unsigned int auto_brake_lights_reverse_enabled : 1;
 
         // If ENABLE_BRAKE_DISARM_TIMEOUT is not set, the user has to go for
         // brake, then neutral, before reverse engages. Otherwise reverse
@@ -41,9 +43,12 @@ typedef struct {
         //
         // Tamiya ESC need this ENABLE_BRAKE_DISARM_TIMEOUT cleared.
         // The China ESC and HPI SC-15WP need ENABLE_BRAKE_DISARM_TIMEOUT set.
-        unsigned int enable_brake_disarm_timeout : 1;
+        unsigned int brake_disarm_timeout_enabled : 1;
 
-        unsigned int enable_preprocessor_output : 1;
+        unsigned int preprocessor_output_enabled : 1;
+        unsigned int steering_wheel_servo_output_enabled : 1;
+        unsigned int gearbox_servo_enabled : 1;
+        unsigned int winch_enabled : 1;
     } flags;
 
     uint16_t auto_brake_counter_value_forward_min;
@@ -65,7 +70,29 @@ typedef struct {
     uint16_t centre_threshold;
     uint16_t centre_threshold_high;
     uint16_t blink_threshold;
+
+    uint16_t light_mode_mask;
+    uint16_t ch3_multi_click_timeout;
 } LIGHT_CONTROLLER_CONFIG_T;
+
+typedef enum {
+    SETUP_MODE_OFF = 0,
+    SETUP_MODE_INIT = 0x01,
+    SETUP_MODE_CENTRE = 0x02,
+    SETUP_MODE_LEFT = 0x04,
+    SETUP_MODE_RIGHT = 0x08,
+    SETUP_MODE_STEERING_REVERSE = 0x10,
+    SETUP_MODE_THROTTLE_REVERSE = 0x20,
+    SETUP_MODE_NEXT = 0x40,
+    SETUP_MODE_CANCEL = 0x80
+} SETUP_MODE_T;
+
+typedef enum {
+    WINCH_MODE_DISABLED = 0,
+    WINCH_MODE_IDLE = 0x01,
+    WINCH_MODE_IN = 0x02,
+    WINCH_MODE_OUT = 0x04
+} WINCH_MODE_T;
 
 
 // The entropy variable is incremented every mainloop. It can therefore serve
@@ -73,6 +100,9 @@ typedef struct {
 // Certainly not suitable for secure implementations...
 extern uint32_t entropy;
 
+extern uint16_t light_mode;
+extern SETUP_MODE_T setup_mode;
+extern WINCH_MODE_T winch_mode;
 extern GLOBAL_FLAGS_T global_flags;
 extern const LIGHT_CONTROLLER_CONFIG_T config;
 

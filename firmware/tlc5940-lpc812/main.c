@@ -14,6 +14,9 @@ volatile uint32_t systick_count;
 // Certainly not suitable for secure implementations...
 uint32_t entropy;
 
+uint16_t light_mode;
+SETUP_MODE_T setup_mode;
+WINCH_MODE_T winch_mode;
 GLOBAL_FLAGS_T global_flags;
 
 // FIXME: not needed, rather strive for 1 binary that can handle everything!

@@ -9,12 +9,16 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
 
     {                           // flags
         false,                  //   esc_forward_reverse
+        false,                  //   ch3_is_momentary
 
-        true,                   //   enable_auto_brake_lights_forward
-        true,                   //   enable_auto_brake_lights_reverse
-        true,                   //   enable_brake_disarm_timeout
+        true,                   //   auto_brake_lights_forward_enabled
+        true,                   //   auto_brake_lights_reverse_enabled
+        true,                   //   brake_disarm_timeout_enabled
 
-        true,                   //   enable_preprocessor_output
+        false,                  //   preprocessor_output_enabled
+        true,                   //   steering_wheel_servo_output_enabled
+        false,                  //   gearbox_servo_enabled
+        false,                  //   winch_enabled
     },
 
     (800 / __SYSTICK_IN_MS),    // auto_brake_counter_value_forward_min
@@ -32,4 +36,8 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
     10,                         // centre_threshold
     12,                         // centre_threshold_high
     50,                         // blink_threshold
+
+    0x0f,                       // light_mode_mask
+
+    260,                        // ch3_multi_click_timeout
 };
