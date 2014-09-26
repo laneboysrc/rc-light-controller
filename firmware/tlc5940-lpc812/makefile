@@ -38,13 +38,13 @@ LDLIBS := -lgcc
 
 ###############################################################################
 # Components of our application
-OBJECTS := main.o crt0.o uart0.o servo_reader.o output_preprocessor.o 
-OBJECTS += drive_mode.o
+OBJECTS := main.o crt0.o uart0.o servo_reader.o output_preprocessor.o
+OBJECTS += drive_mode.o utils.o
 
 
 ###############################################################################
 # Dependencies
-$(OBJECTS) : makefile globals.h uart0.h reader.h 
+$(OBJECTS) : makefile globals.h uart0.h reader.h
 
 
 ###############################################################################

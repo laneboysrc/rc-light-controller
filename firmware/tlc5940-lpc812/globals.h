@@ -3,6 +3,8 @@
 
 #include <stdint.h>
 
+#define __SYSTICK_IN_MS 20
+
 struct global_flags_s {
     unsigned int soft_timer : 1;             // Set for one mainloop every 20 ms
     unsigned int new_channel_data : 1;       // Set for one mainloop every time servo pulses were received
