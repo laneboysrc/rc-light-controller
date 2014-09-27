@@ -6,7 +6,7 @@
 #include <uart0.h>
 
 // ****************************************************************************
-// IO pins:
+// IO pins: (LPC812 in TSSOP16 package)
 //
 // PIO0_0   (16, TDO, ISP-Rx)   Steering input / Rx
 // PIO0_1   (9,  TDI)           TLC5940 GSCLK
@@ -22,6 +22,9 @@
 // PIO0_11  (7)                 TLC5940 SCLK
 // PIO0_12  (2,  ISP-entry)     Servo out / ISP
 // PIO0_13  (1)                 CH3 input
+//
+// GND      (13)
+// 3.3V     (12)
 // ****************************************************************************
 
 
@@ -55,12 +58,17 @@ void init_hardware()
 
     LPC_SWM->PINENABLE0 = 0xffffffbf;   // Enable reset, all other special functions disabled
 
-    // FIXME: make UART be able to move to PIO0_12
-    // Make configurable servo reader / uart reader
-    // if servo reader, UART Tx moves to PIN0_12
-    // if UART reader, Tx stays at 0_4
-    // U0_TXT_O=PIO0_4, U0_RXD_I=PIO0_0
-    LPC_SWM->PINASSIGN0 = 0xffff0004;   
+    if (config.mode == MASTER_WITH_SERVO_READER) {
+        if (config.flags.slave_output || config.flags.preprocessor_output ||
+            config.flags.winch_output) {
+            // U0_TXT_O=PIO0_12, U0_RXD_I=PIO0_0
+            LPC_SWM->PINASSIGN0 = 0xffff000c;   
+        }
+    }
+    else {
+        // U0_TXT_O=PIO0_4, U0_RXD_I=PIO0_0
+        LPC_SWM->PINASSIGN0 = 0xffff0004;   
+    }
 
     // SCT CTIN_3 at PIO0.13, CTIN_2 at PIO0.4, CTIN_1 at PIO0.0
     LPC_SWM->PINASSIGN6 = 0xff0d0400;   
