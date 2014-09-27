@@ -51,6 +51,7 @@ static void process_ch3_click_timeout(void)
                 // --------------------------
                 // Single click
                 if (config.flags.gearbox_servo_enabled) {
+                    // FIXME: gear handling
                     // movfw   servo_epl
                     // movwf   servo
                     // movlw   (1 << GEAR_1) + (1 << GEAR_CHANGED_FLAG)
@@ -71,6 +72,7 @@ static void process_ch3_click_timeout(void)
                 // --------------------------
                 // Double click
                 if (config.flags.gearbox_servo_enabled) {
+                    // FIXME: gear handling
                     // movfw   servo_epr
                     // movwf   servo
                     // movlw   (1 << GEAR_2) + (1 << GEAR_CHANGED_FLAG)

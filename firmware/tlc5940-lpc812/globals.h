@@ -151,4 +151,8 @@ void process_channel_reversing_setup(void);
 void reversing_setup_action(uint8_t ch3_clicks);
 
 void output_preprocessor(void);
+
+void init_lights(void);
+void process_lights(void);
+
 #endif // __GLOBALS_H

@@ -19,24 +19,6 @@ GLOBAL_FLAGS_T global_flags;
 
 // FIXME: make baudrate configurable
 
-// FIXME: not needed, rather strive for 1 binary that can handle everything!
-// ****************************************************************************
-// Declare a couple of "weak" functions that are overloaded if certain modules
-// are linked in. This allows us to configure the light controller by
-// just linking (or omitting) various object files to achieve optional
-// functionality without having to resort to a mess with #defines
-//
-// __attribute__ is a GNU specific extension though.
-//
-// NOTE: one potential issue with this will be that if you misspell the
-// function in the other file it will get undetected at compile time!
-//
-void process_lights(void) __attribute__ ((weak, alias ("dummy_function")));
-
-void dummy_function(void)
-{
-    ;
-}
 
 
 // ****************************************************************************
@@ -159,7 +141,7 @@ int main(void)
     init_uart0();
     // init_persistent_data_storage();  // FIXME
     init_servo_reader();
-    //init_lights();
+    init_lights();
 
     while (1) {
         service_systick();
