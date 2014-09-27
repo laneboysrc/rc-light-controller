@@ -139,7 +139,7 @@ int main(void)
 {
     init_hardware();
     init_uart0();
-    // init_persistent_data_storage();  // FIXME
+    load_persistent_storage();  // FIXME
     init_servo_reader();
     init_lights();
 

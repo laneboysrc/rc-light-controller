@@ -39,28 +39,35 @@ void process_channel_reversing_setup(void)
         return;
     }
 
-    if (channel[ST].absolute > 50) {
-        // 50% or more steering input: terminate the steering reversing setup.
-        // We were expecting the user to turn 'left', which should give us a
-        // negative reading if the 'reversed' flat is correct. If we are
-        // getting a positive reading we therefore have to reverse the
-        // steering channel.
-        if (channel[ST].normalized > 0) {
-            channel[ST].reversed = ~channel[ST].reversed;
-            // FIXME: save persistently
+    if (global_flags.reversing_setup & REVERSING_SETUP_STEERING) {
+        if (channel[ST].absolute > 50) {
+            // 50% or more steering input: terminate the steering reversing setup.
+            // We were expecting the user to turn 'left', which should give us a
+            // negative reading if the 'reversed' flat is correct. If we are
+            // getting a positive reading we therefore have to reverse the
+            // steering channel.
+            if (channel[ST].normalized > 0) {
+                channel[ST].reversed = ~channel[ST].reversed;
+            }
+            global_flags.reversing_setup &= ~REVERSING_SETUP_STEERING;
         }
     }
 
-    if (channel[TH].absolute > 20) {
-        // 20% or more throttle input: terminate the throttle reversing setup.
-        // We were expecting the user to push the throttle 'forward', which
-        // should give a positive reading if the 'reversed' flag is correct.
-        // If we are reading a negative value we therefore have to reverse
-        // the throttle channel.
-        if (channel[TH].normalized < 0) {
-            channel[TH].reversed = ~channel[ST].reversed;
-            // FIXME: save persistently
+    if (global_flags.reversing_setup & REVERSING_SETUP_THROTTLE) {
+        if (channel[TH].absolute > 20) {
+            // 20% or more throttle input: terminate the throttle reversing setup.
+            // We were expecting the user to push the throttle 'forward', which
+            // should give a positive reading if the 'reversed' flag is correct.
+            // If we are reading a negative value we therefore have to reverse
+            // the throttle channel.
+            if (channel[TH].normalized < 0) {
+                channel[TH].reversed = ~channel[ST].reversed;
+            }
+            global_flags.reversing_setup &= ~REVERSING_SETUP_THROTTLE;
         }
     }
 
+    if (global_flags.reversing_setup == REVERSING_SETUP_OFF) {
+        write_persistent_storage();
+    }
 }

@@ -38,7 +38,7 @@ LDLIBS := -lgcc
 
 ###############################################################################
 # Components of our application
-OBJECTS := main.o crt0.o utils.o config.o uart0.o
+OBJECTS := main.o crt0.o utils.o config.o uart0.o persistent_storage.o
 OBJECTS += servo_reader.o uart_reader.o ch3_handler.o
 OBJECTS += drive_mode.o indicators.o winch.o channel_reversing.o
 OBJECTS += servo_output.o preprocessor_output.o lights.o

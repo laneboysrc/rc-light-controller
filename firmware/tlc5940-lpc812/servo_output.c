@@ -37,8 +37,8 @@ void servo_output_setup_action(uint8_t ch3_clicks)
         }
         else {
             // More than 1 click: cancel setup
-            // FIXME: call EEPROM_save_persistent_data
             global_flags.servo_output_setup = SERVO_OUTPUT_SETUP_OFF;
+            load_persistent_storage();
         }
     }
 }
@@ -98,7 +98,7 @@ void process_servo_output(void)
                 servo_epr = servo_setup_epr = servo_pulse;
                 servo_centre = servo_setup_centre;
                 servo_epl = servo_setup_epl;
-                // FIXME: call EEPROM_save_persistent_data
+                write_persistent_storage();
                 global_flags.servo_output_setup = SERVO_OUTPUT_SETUP_OFF;
                 break;
 
