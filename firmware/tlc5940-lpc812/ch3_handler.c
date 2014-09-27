@@ -51,14 +51,7 @@ static void process_ch3_click_timeout(void)
                 // --------------------------
                 // Single click
                 if (config.flags.gearbox_servo_enabled) {
-                    // FIXME: gear handling
-                    // movfw   servo_epl
-                    // movwf   servo
-                    // movlw   (1 << GEAR_1) + (1 << GEAR_CHANGED_FLAG)
-                    // movwf   gear_mode
-                    // movlw   GEARBOX_SWITCH_TIME
-                    // movwf   gearbox_servo_active_counter
-                    // clrf    gearbox_servo_idle_counter
+                    gearbox_action(ch3_clicks);
                 }
                 else {
                     // Switch light mode up (Parking, Low Beam, Fog, High Beam)
@@ -72,14 +65,7 @@ static void process_ch3_click_timeout(void)
                 // --------------------------
                 // Double click
                 if (config.flags.gearbox_servo_enabled) {
-                    // FIXME: gear handling
-                    // movfw   servo_epr
-                    // movwf   servo
-                    // movlw   (1 << GEAR_2) + (1 << GEAR_CHANGED_FLAG)
-                    // movwf   gear_mode
-                    // movlw   GEARBOX_SWITCH_TIME
-                    // movwf   gearbox_servo_active_counter
-                    // clrf    gearbox_servo_idle_counter
+                    gearbox_action(ch3_clicks);
                 }
                 else {
                     // Switch light mode down (Parking, Low Beam, Fog, High Beam)

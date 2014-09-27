@@ -6,16 +6,43 @@
 #include <globals.h>
 
 static bool next = false;
+static uint16_t servo_pulse;
 
-// FIXME: move somewhere else?
 static uint16_t servo_setup_centre;
 static uint16_t servo_setup_epl;
 static uint16_t servo_setup_epr;
 
+// FIXME: move somewhere else?
 static uint16_t servo_centre;
 static uint16_t servo_epl;
 static uint16_t servo_epr;
-static uint16_t servo_pulse;
+
+
+static uint16_t gearbox_servo_active_counter;
+static uint16_t gearbox_servo_idle_counter;
+
+// FIXME: make configurable
+#define GEARBOX_SWITCH_TIME 1
+
+void gearbox_action(uint8_t ch3_clicks)
+{
+    if (!config.flags.gearbox_servo_enabled) {
+        return;
+    }
+
+    if (ch3_clicks == 1) {
+        global_flags.gear = GEAR_1;
+    }
+    else {
+        global_flags.gear = GEAR_2;
+    }
+
+    // FIXME: we need to ensure this is active for one mainloop!
+    global_flags.gear_changed = true;
+
+    gearbox_servo_active_counter = GEARBOX_SWITCH_TIME;
+    gearbox_servo_idle_counter = 0;
+}
 
 void servo_output_setup_action(uint8_t ch3_clicks)
 {
@@ -43,6 +70,7 @@ void servo_output_setup_action(uint8_t ch3_clicks)
     }
 }
 
+
 // This function calculates:
 //
 //       (right - centre) * abs(steering)
@@ -57,6 +85,7 @@ void servo_output_setup_action(uint8_t ch3_clicks)
 // removed e.g. if only a gearbox servo is used.
 void calculate_servo_pulse(void)
 {
+
     if (channel[ST].normalized < 0) {
         servo_pulse = servo_centre -
             (((servo_centre - servo_epl) * channel[ST].absolute) / 100);
@@ -67,45 +96,47 @@ void calculate_servo_pulse(void)
     }
 }
 
+
 // ****************************************************************************
 // Process_steering_wheel_servo
 //
 // ****************************************************************************
 void process_servo_output(void)
 {
-    if (global_flags.servo_output_setup == SERVO_OUTPUT_SETUP_OFF) {
+    if (global_flags.servo_output_setup != SERVO_OUTPUT_SETUP_OFF) {
         calculate_servo_pulse();
-    }
-    else {
-        calculate_servo_pulse();
-        if (!next) {
-            return;
-        }
-        next = false;
+        if (next) {
+            next = false;
 
-        switch (global_flags.servo_output_setup) {
-            case SERVO_OUTPUT_SETUP_CENTRE:
-                servo_setup_centre = servo_pulse;
-                global_flags.servo_output_setup = SERVO_OUTPUT_SETUP_LEFT;
-                break;
+            switch (global_flags.servo_output_setup) {
+                case SERVO_OUTPUT_SETUP_CENTRE:
+                    servo_setup_centre = servo_pulse;
+                    global_flags.servo_output_setup = SERVO_OUTPUT_SETUP_LEFT;
+                    break;
 
-            case SERVO_OUTPUT_SETUP_LEFT:
-                servo_setup_epl = servo_pulse;
-                global_flags.servo_output_setup = SERVO_OUTPUT_SETUP_RIGHT;
-                break;
+                case SERVO_OUTPUT_SETUP_LEFT:
+                    servo_setup_epl = servo_pulse;
+                    global_flags.servo_output_setup = SERVO_OUTPUT_SETUP_RIGHT;
+                    break;
 
-            case SERVO_OUTPUT_SETUP_RIGHT:
-                servo_epr = servo_setup_epr = servo_pulse;
-                servo_centre = servo_setup_centre;
-                servo_epl = servo_setup_epl;
-                write_persistent_storage();
-                global_flags.servo_output_setup = SERVO_OUTPUT_SETUP_OFF;
-                break;
+                case SERVO_OUTPUT_SETUP_RIGHT:
+                    servo_epr = servo_setup_epr = servo_pulse;
+                    servo_centre = servo_setup_centre;
+                    servo_epl = servo_setup_epl;
+                    write_persistent_storage();
+                    global_flags.servo_output_setup = SERVO_OUTPUT_SETUP_OFF;
+                    break;
 
-            default:
-                break;
+                default:
+                    break;
+            }
         }
     }
+    else if (config.flags.gearbox_servo_enabled) {
+        servo_pulse = (global_flags.gear == GEAR_1) ? servo_epl : servo_epr;
+    }
+
+    // FIXME: output servo pulse
 }
 
 

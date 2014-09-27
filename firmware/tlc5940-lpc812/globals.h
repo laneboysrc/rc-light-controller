@@ -38,7 +38,12 @@ typedef struct {
     unsigned int forward : 1;               // Set when the car is driving forward
     unsigned int braking : 1;               // Set when the brakes are enganged
     unsigned int reversing : 1;             // Set when the car is reversing
-    unsigned int gear_changed : 1;          // Set when a new gear was selected
+
+    unsigned int gear_changed : 1;          // Set for one mainloop when a new gear was selected
+    enum {
+        GEAR_1 = 0,
+        GEAR_2 = 1
+    } gear : 1;
 
     enum {
         SERVO_OUTPUT_SETUP_OFF = 0,
@@ -145,6 +150,7 @@ void toggle_hazard_lights(void);
 
 void process_servo_output(void);
 void servo_output_setup_action(uint8_t ch3_clicks);
+void gearbox_action(uint8_t ch3_clicks);
 
 void process_winch(void);
 void winch_action(uint8_t ch3_clicks);
