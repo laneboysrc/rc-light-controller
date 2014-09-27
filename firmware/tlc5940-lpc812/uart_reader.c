@@ -1,9 +1,15 @@
 #include <stdint.h>
+
 #include <globals.h>
 #include <uart0.h>
 
+// FIXME: uart_servo and servo_reader are auto-detect!
+// Use rc-sound-module as reference
+
+
 #define SLAVE_MAGIC_BYTE 0x87
 #define CONSECUTIVE_BYTE_COUNTS 3
+
 
 struct channel_s channel[3];
 
@@ -24,7 +30,6 @@ static void normalize_channel(struct channel_s *c, uint8_t data)
         c->absolute = c->normalized;
     }
 }
-
 
 
 /******************************************************************************

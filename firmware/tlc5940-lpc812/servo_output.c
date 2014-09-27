@@ -24,6 +24,7 @@ static uint16_t gearbox_servo_idle_counter;
 // FIXME: make configurable
 #define GEARBOX_SWITCH_TIME 1
 
+
 void gearbox_action(uint8_t ch3_clicks)
 {
     if (!config.flags.gearbox_servo_enabled) {
@@ -44,8 +45,13 @@ void gearbox_action(uint8_t ch3_clicks)
     gearbox_servo_idle_counter = 0;
 }
 
+
 void servo_output_setup_action(uint8_t ch3_clicks)
 {
+    if (!config.flags.servo_output_enabled) {
+        return;
+    }
+
     if (global_flags.servo_output_setup == SERVO_OUTPUT_SETUP_OFF) {
         servo_epl = -120;
         servo_centre = 0;

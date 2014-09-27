@@ -9,6 +9,9 @@
 #include <globals.h>
 
 
+#define IGNORE_CLICK_COUNT 99
+
+
 static struct {
     unsigned int initialized : 1;
     unsigned int last_state : 1;
@@ -17,7 +20,6 @@ static struct {
 
 static uint8_t ch3_clicks;
 static uint16_t ch3_click_counter;
-
 
 
 static void process_ch3_click_timeout(void)
@@ -45,7 +47,8 @@ static void process_ch3_click_timeout(void)
     }
     else {
         // ====================================
-        // Normal operation; neither winch nor setup is active
+        // Normal operation:
+        // Neither winch nor setup nor reversing setup is active
         switch (ch3_clicks) {
             case 1:
                 // --------------------------
@@ -54,10 +57,7 @@ static void process_ch3_click_timeout(void)
                     gearbox_action(ch3_clicks);
                 }
                 else {
-                    // Switch light mode up (Parking, Low Beam, Fog, High Beam)
-                    light_mode <<= 1;
-                    light_mode |= 1;
-                    light_mode &= config.light_mode_mask;
+                    more_lights();
                 }
                 break;
 
@@ -68,37 +68,33 @@ static void process_ch3_click_timeout(void)
                     gearbox_action(ch3_clicks);
                 }
                 else {
-                    // Switch light mode down (Parking, Low Beam, Fog, High Beam)
-                    light_mode >>= 1;
-                    light_mode &= config.light_mode_mask;
+                    less_lights();
                 }
                 break;
 
             case 3:
                 // --------------------------
-                // Triple click: all lights on/off
-                if (light_mode == config.light_mode_mask) {
-                    light_mode = 0;
-                }
-                else {
-                    light_mode = config.light_mode_mask;
-                }
+                // 3 clicks: all lights on/off
+                toggle_lights();
+
                 break;
 
             case 4:
                 // --------------------------
-                // Quad click: Hazard lights on/off
+                // 4 clicks: Hazard lights on/off
                 toggle_hazard_lights();
                 break;
 
             case 5:
+                // --------------------------
+                // 5 clicks: Arm/disarm the winch
                 winch_action(ch3_clicks);
                 break;
 
             case 6:
                 // --------------------------
-                // 7 clicks: Increment sequencer pattern selection
-                // incf    light_gimmick_mode, f
+                // 6 clicks: Increment sequencer pattern selection
+                next_light_sequence();
                 break;
 
             case 7:
@@ -110,9 +106,7 @@ static void process_ch3_click_timeout(void)
             case 8:
                 // --------------------------
                 // 8 clicks: Enter steering wheel servo setup mode
-                if (config.flags.servo_output_enabled) {
-                    servo_output_setup_action(ch3_clicks);
-                }
+                servo_output_setup_action(ch3_clicks);
                 break;
 
             default:
@@ -126,14 +120,12 @@ static void process_ch3_click_timeout(void)
 
 static void add_click(void)
 {
-    if (config.flags.winch_enabled) {
-        // If the winch is running any movement of CH3 immediately turns off
-        // the winch (without waiting for click timeout!)
-        if (abort_winching()) {
-            // Disable this series of clicks by setting the click count to an unused
-            // high value
-            ch3_clicks = 99;
-        }
+    // If the winch is running any movement of CH3 immediately turns off
+    // the winch (without waiting for click timeout!)
+    if (abort_winching()) {
+        // If winching was aborted disable this series of clicks by setting
+        // the click count to an unused high value
+        ch3_clicks = IGNORE_CLICK_COUNT;
     }
 
     ++ch3_clicks;

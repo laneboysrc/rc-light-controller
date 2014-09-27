@@ -51,8 +51,13 @@ void winch_action(uint8_t ch3_clicks)
     }
 }
 
+
 bool abort_winching(void)
 {
+    if (!config.flags.winch_enabled) {
+        return false;
+    }
+
     if (global_flags.winch_mode == WINCH_IN ||
         global_flags.winch_mode == WINCH_OUT) {
         global_flags.winch_mode = WINCH_IDLE;

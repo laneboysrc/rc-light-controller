@@ -139,15 +139,13 @@ int main(void)
 {
     init_hardware();
     init_uart0();
-    load_persistent_storage();  // FIXME
+    load_persistent_storage();
     init_servo_reader();
     init_lights();
 
     while (1) {
         service_systick();
 
-        // FIXME: uart_servo and servo_reader are auto-detect!
-        // Use rc-sound-module as reference
         read_all_servo_channels();
         read_preprocessor();
         process_ch3_clicks();

@@ -5,6 +5,10 @@
 #include <globals.h>
 
 
+// FIXME: uart_servo and servo_reader are auto-detect!
+// Use rc-sound-module as reference
+
+
 static enum {
     WAIT_FOR_FIRST_PULSE,
     WAIT_FOR_TIMEOUT,
