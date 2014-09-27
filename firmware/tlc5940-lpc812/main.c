@@ -5,6 +5,25 @@
 #include <globals.h>
 #include <uart0.h>
 
+// ****************************************************************************
+// IO pins:
+//
+// PIO0_0   (16, TDO, ISP-Rx)   Steering input / Rx
+// PIO0_1   (9,  TDI)           TLC5940 GSCLK
+// PIO0_2   (6,  TMS, SWDIO)    TLC5940 BLANK
+// PIO0_3   (5,  TCK, SWCLK)    TLC5940 SIN
+// PIO0_4   (4,  TRST, ISP-Tx)  Throttle input / Tx
+// PIO0_5   (3,  RESET)         NC (test point)
+// PIO0_6   (15)                NC
+// PIO0_7   (14)                NC
+// PIO0_8   (11, XTALIN)        NC
+// PIO0_9   (10, XTALOUT)       WS2812b data out
+// PIO0_10  (8)                 TLC5940 XLAT
+// PIO0_11  (7)                 TLC5940 SCLK
+// PIO0_12  (2,  ISP-entry)     Servo out / ISP
+// PIO0_13  (1)                 CH3 input
+// ****************************************************************************
+
 
 volatile uint32_t systick_count;
 
@@ -36,33 +55,40 @@ void init_hardware()
 
     LPC_SWM->PINENABLE0 = 0xffffffbf;   // Enable reset, all other special functions disabled
 
-    LPC_SWM->PINASSIGN0 = 0xffff0004;   // U0_TXT_O=pio4, U0_RXD_I=pio0
-    LPC_SWM->PINASSIGN6 = 0x02030303;   // SCT CTOUT_0 at PIO0.2, CTIN_3 at PIO0.3, CTIN_2 at PIO0.3, CTIN_1 at PIO0.3
+    // FIXME: make UART be able to move to PIO0_12
+    // Make configurable servo reader / uart reader
+    // if servo reader, UART Tx moves to PIN0_12
+    // if UART reader, Tx stays at 0_4
+    // U0_TXT_O=PIO0_4, U0_RXD_I=PIO0_0
+    LPC_SWM->PINASSIGN0 = 0xffff0004;   
 
-    LPC_GPIO_PORT->DIR0 |= (1 << 2);    // Make PIO0_2 an output
-
-    // Make open-drain pins PIO0_10 and PIO0_11 outputs and set them to "0"
-    // to prevent them from floating internally. See UM10601 section 6.3
-    LPC_GPIO_PORT->DIR0 |= (1 << 10) | (1 << 11);
-    LPC_GPIO_PORT->CLR0 = (1 << 10) | (1 << 11);
+    // SCT CTIN_3 at PIO0.13, CTIN_2 at PIO0.4, CTIN_1 at PIO0.0
+    LPC_SWM->PINASSIGN6 = 0xff0d0400;   
+    
+    // Make port PIO0_1, PIO0_2, PIO0_3, PIO0_10, PIO0_11 outputs
+    LPC_GPIO_PORT->DIR0 |= 
+        (1 << 1) | (1 << 2) | (1 << 3) | (1 << 10) | (1 << 11);    
 
     // Enable glitch filtering on the IOs
     // GOTCHA: ICONCLKDIV0 is actually the last register in the array!
     LPC_SYSCON->IOCONCLKDIV[6] = 255;       // Glitch filter 0: Main clock divided by 255
     LPC_SYSCON->IOCONCLKDIV[5] = 1;         // Glitch filter 0: Main clock divided by 1
 
-    LPC_IOCON->PIO0_1 |= (1 << 5) |         // Enable Hysteresis
-                         (0x0 << 13) |      // Glitch filter 0
-                         (0x3 << 11);       // Reject 3 clock cycles of glitch filter
-
     // NOTE: for some reason it is absolutely necessary to enable glitch
     // filtering on the IOs used for the capture timer. One clock cytle of the
     // main clock is enough, but with none weird things happen.
 
-    LPC_IOCON->PIO0_3 |= (1 << 5) |         // Enable Hysteresis
+    LPC_IOCON->PIO0_0 |= (1 << 5) |         // Enable Hysteresis
                          (0x1 << 13) |      // Glitch filter 1
                          (0x1 << 11);       // Reject 1 clock cycle of glitch filter
 
+    LPC_IOCON->PIO0_4 |= (1 << 5) |         // Enable Hysteresis
+                         (0x1 << 13) |      // Glitch filter 1
+                         (0x1 << 11);       // Reject 1 clock cycle of glitch filter
+
+    LPC_IOCON->PIO0_13 |= (1 << 5) |        // Enable Hysteresis
+                         (0x1 << 13) |      // Glitch filter 1
+                         (0x1 << 11);       // Reject 1 clock cycle of glitch filter
 
 
     // Turn on peripheral clock for SCTimer
@@ -87,7 +113,6 @@ void init_hardware()
 
     LPC_SCT->CTRL_L &= ~(1 << 2);           // Start the SCTimer L
     LPC_SCT->CTRL_H &= ~(1 << 2);           // Start the SCTimer H
-
 
 
     // Turn off peripheral clock for IOCON and SWM to preserve power
