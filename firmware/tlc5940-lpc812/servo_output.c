@@ -27,7 +27,7 @@ static uint16_t gearbox_servo_idle_counter;
 
 void gearbox_action(uint8_t ch3_clicks)
 {
-    if (config.output_function != GEARBOX_SERVO) {
+    if (config.flags.gearbox_servo_output) {
         return;
     }
 
@@ -48,8 +48,8 @@ void gearbox_action(uint8_t ch3_clicks)
 
 void servo_output_setup_action(uint8_t ch3_clicks)
 {
-    if (config.output_function != GEARBOX_SERVO  &&  
-        config.output_function != STEERING_WHEEL_SERVO) {
+    if (!config.flags.gearbox_servo_output  &&  
+        !config.flags.steering_wheel_servo_output) {
         return;
     }
 
@@ -57,7 +57,7 @@ void servo_output_setup_action(uint8_t ch3_clicks)
         servo_epl = -120;
         servo_centre = 0;
         servo_epr = 120;
-        if (config.output_function == GEARBOX_SERVO) {
+        if (config.flags.gearbox_servo_output) {
             global_flags.servo_output_setup = SERVO_OUTPUT_SETUP_LEFT;
         }
         else {
@@ -139,7 +139,7 @@ void process_servo_output(void)
             }
         }
     }
-    else if (config.output_function == GEARBOX_SERVO) {
+    else if (config.flags.gearbox_servo_output) {
         servo_pulse = (global_flags.gear == GEAR_1) ? servo_epl : servo_epr;
     }
 

@@ -15,7 +15,7 @@ static uint16_t winch_command_repeat_counter;
 
 void winch_action(uint8_t ch3_clicks)
 {
-    if (!config.output_function == WINCH) {
+    if (!config.flags.winch_output) {
         return;
     }
     // FIXME: let the winch module handle the clicks
@@ -52,7 +52,7 @@ void winch_action(uint8_t ch3_clicks)
 
 bool abort_winching(void)
 {
-    if (!config.output_function == WINCH) {
+    if (!config.flags.winch_output) {
         return false;
     }
 
@@ -70,7 +70,7 @@ bool abort_winching(void)
 // ****************************************************************************
 void process_winch(void)
 {
-    if (!config.output_function == WINCH) {
+    if (!config.flags.winch_output) {
         return;
     }
 
