@@ -31,7 +31,6 @@ GLOBAL_FLAGS_T global_flags;
 // NOTE: one potential issue with this will be that if you misspell the
 // function in the other file it will get undetected at compile time!
 //
-void process_channel_reversing(void) __attribute__ ((weak, alias ("dummy_function")));
 void process_lights(void) __attribute__ ((weak, alias ("dummy_function")));
 
 void dummy_function(void)
@@ -158,6 +157,7 @@ int main(void)
 {
     init_hardware();
     init_uart0();
+    // init_persistent_data_storage();  // FIXME
     init_servo_reader();
     //init_lights();
 
@@ -171,7 +171,7 @@ int main(void)
         process_ch3_clicks();
         process_drive_mode();
         process_indicators();
-        process_channel_reversing();
+        process_channel_reversing_setup();
 
         process_servo_output();
         process_winch();

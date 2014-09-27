@@ -15,6 +15,7 @@
 #define TH 1
 #define CH3 2
 
+// ****************************************************************************
 struct channel_s {
     uint32_t raw_data;
     int16_t normalized;
@@ -25,6 +26,7 @@ struct channel_s {
     bool reversed;
 };
 
+// ****************************************************************************
 typedef struct {
     unsigned int systick : 1;               // Set for one mainloop every 20 ms
     unsigned int new_channel_data : 1;      // Set for one mainloop every time servo pulses were received
@@ -59,6 +61,7 @@ typedef struct {
     } winch_mode : 3;
 } GLOBAL_FLAGS_T;
 
+// ****************************************************************************
 typedef struct {
     uint32_t magic;
     uint16_t type;
@@ -112,6 +115,7 @@ typedef struct {
 } LIGHT_CONTROLLER_CONFIG_T;
 
 
+// ****************************************************************************
 // The entropy variable is incremented every mainloop. It can therefore serve
 // as a random value in practical RC car application,
 // Certainly not suitable for secure implementations...
@@ -123,6 +127,7 @@ extern const LIGHT_CONTROLLER_CONFIG_T config;
 extern struct channel_s channel[3];
 
 
+// ****************************************************************************
 void servo_reader_SCT_interrupt_handler(void);
 void init_servo_reader(void);
 void read_all_servo_channels(void);
@@ -141,6 +146,8 @@ void servo_output_setup_action(uint8_t ch3_clicks);
 void process_winch(void);
 void winch_action(uint8_t ch3_clicks);
 bool abort_winching(void);
+
+void process_channel_reversing_setup(void);
 
 void output_preprocessor(void);
 #endif // __GLOBALS_H
