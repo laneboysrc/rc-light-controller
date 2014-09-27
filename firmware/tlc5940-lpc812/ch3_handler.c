@@ -53,7 +53,7 @@ static void process_ch3_click_timeout(void)
             case 1:
                 // --------------------------
                 // Single click
-                if (config.flags.gearbox_servo_enabled) {
+                if (config.output_function == GEARBOX_SERVO) {
                     gearbox_action(ch3_clicks);
                 }
                 else {
@@ -64,7 +64,7 @@ static void process_ch3_click_timeout(void)
             case 2:
                 // --------------------------
                 // Double click
-                if (config.flags.gearbox_servo_enabled) {
+                if (config.output_function == GEARBOX_SERVO) {
                     gearbox_action(ch3_clicks);
                 }
                 else {

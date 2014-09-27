@@ -72,7 +72,23 @@ typedef struct {
     uint16_t type;
     uint16_t version;
 
+    enum {
+        MASTER_WITH_SERVO_READER,
+        MASTER_WITH_UART_READER,
+        SLAVE
+    } mode : 3;
+
+    enum {
+        OFF,                    // No signal on pin OUT
+        SLAVE_OUTPUT,
+        PREPROCESSOR,           // Requires MODE_MASTER_WITH_SERVO_READER
+        STEERING_WHEEL_SERVO,
+        GEARBOX_SERVO,
+        WINCH
+    } output_function;
+
     struct {
+        
         unsigned int esc_forward_reverse : 1;
         unsigned int ch3_is_momentary : 1;
 
@@ -86,11 +102,6 @@ typedef struct {
         // Tamiya ESC need this ENABLE_BRAKE_DISARM_TIMEOUT cleared.
         // The China ESC and HPI SC-15WP need ENABLE_BRAKE_DISARM_TIMEOUT set.
         unsigned int brake_disarm_timeout_enabled : 1;
-
-        unsigned int preprocessor_output_enabled : 1;
-        unsigned int servo_output_enabled : 1;
-        unsigned int gearbox_servo_enabled : 1;
-        unsigned int winch_enabled : 1;
     } flags;
 
     uint16_t auto_brake_counter_value_forward_min;

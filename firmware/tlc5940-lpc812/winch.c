@@ -15,7 +15,7 @@ static uint16_t winch_command_repeat_counter;
 
 void winch_action(uint8_t ch3_clicks)
 {
-    if (!config.flags.winch_enabled) {
+    if (!config.output_function == WINCH) {
         return;
     }
     // FIXME: let the winch module handle the clicks
@@ -34,15 +34,13 @@ void winch_action(uint8_t ch3_clicks)
 
         case 5:
             // 5 click: winch enabled/disabled toggle
-            if (config.flags.winch_enabled) {
-                if (global_flags.winch_mode == WINCH_DISABLED) {
-                    global_flags.winch_mode = WINCH_IDLE;
-                }
-                else {
-                    global_flags.winch_mode = WINCH_DISABLED;
-                }
-                winch_command_repeat_counter = 0;
+            if (global_flags.winch_mode == WINCH_DISABLED) {
+                global_flags.winch_mode = WINCH_IDLE;
             }
+            else {
+                global_flags.winch_mode = WINCH_DISABLED;
+            }
+            winch_command_repeat_counter = 0;
             break;
 
         default:
@@ -54,7 +52,7 @@ void winch_action(uint8_t ch3_clicks)
 
 bool abort_winching(void)
 {
-    if (!config.flags.winch_enabled) {
+    if (!config.output_function == WINCH) {
         return false;
     }
 
@@ -72,7 +70,7 @@ bool abort_winching(void)
 // ****************************************************************************
 void process_winch(void)
 {
-    if (!config.flags.winch_enabled) {
+    if (!config.output_function == WINCH) {
         return;
     }
 

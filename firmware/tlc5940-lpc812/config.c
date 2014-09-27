@@ -7,6 +7,9 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
     0x01,                       // type
     0x01,                       // version
 
+    MASTER_WITH_UART_READER,    // mode
+    OFF,                        // output_function
+
     {                           // flags
         false,                  //   esc_forward_reverse
         false,                  //   ch3_is_momentary
@@ -14,11 +17,6 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
         true,                   //   auto_brake_lights_forward_enabled
         true,                   //   auto_brake_lights_reverse_enabled
         true,                   //   brake_disarm_timeout_enabled
-
-        false,                  //   preprocessor_output_enabled
-        true,                   //   steering_wheel_servo_output_enabled
-        false,                  //   gearbox_servo_enabled
-        false,                  //   winch_enabled
     },
 
     (800 / __SYSTICK_IN_MS),    // auto_brake_counter_value_forward_min
