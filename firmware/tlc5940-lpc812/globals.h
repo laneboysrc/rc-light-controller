@@ -148,6 +148,7 @@ void winch_action(uint8_t ch3_clicks);
 bool abort_winching(void);
 
 void process_channel_reversing_setup(void);
+void reversing_setup_action(uint8_t ch3_clicks);
 
 void output_preprocessor(void);
 #endif // __GLOBALS_H

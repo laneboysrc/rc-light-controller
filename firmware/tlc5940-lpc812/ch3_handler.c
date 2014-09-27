@@ -40,6 +40,9 @@ static void process_ch3_click_timeout(void)
     else if (global_flags.winch_mode != WINCH_DISABLED) {
         winch_action(ch3_clicks);
     }
+    else if (global_flags.reversing_setup != REVERSING_SETUP_OFF) {
+        reversing_setup_action(ch3_clicks);
+    }
     else {
         // ====================================
         // Normal operation; neither winch nor setup is active
@@ -113,8 +116,7 @@ static void process_ch3_click_timeout(void)
             case 7:
                 // --------------------------
                 // 7 clicks: Enter channel reversing setup mode
-                global_flags.reversing_setup =
-                    REVERSING_SETUP_STEERING | REVERSING_SETUP_THROTTLE;
+                reversing_setup_action(ch3_clicks);
                 break;
 
             case 8:

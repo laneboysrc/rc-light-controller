@@ -5,6 +5,20 @@
 
 #include <globals.h>
 
+
+void reversing_setup_action(uint8_t ch3_clicks)
+{
+    (void) ch3_clicks;
+
+    if (global_flags.reversing_setup == REVERSING_SETUP_OFF) {
+        global_flags.reversing_setup =
+            REVERSING_SETUP_STEERING | REVERSING_SETUP_THROTTLE;
+    }
+    else {
+        global_flags.reversing_setup = REVERSING_SETUP_OFF;
+    }
+}
+
 // ****************************************************************************
 // Process_channel_reversing
 //
