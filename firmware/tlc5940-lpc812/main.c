@@ -31,9 +31,7 @@ GLOBAL_FLAGS_T global_flags;
 // NOTE: one potential issue with this will be that if you misspell the
 // function in the other file it will get undetected at compile time!
 //
-void servo_reader_SCT_interrupt_handler(void) __attribute__ ((weak, alias ("dummy_function")));
 void process_channel_reversing(void) __attribute__ ((weak, alias ("dummy_function")));
-void process_winch(void) __attribute__ ((weak, alias ("dummy_function")));
 void process_lights(void) __attribute__ ((weak, alias ("dummy_function")));
 
 void dummy_function(void)
@@ -160,7 +158,7 @@ int main(void)
 {
     init_hardware();
     init_uart0();
-    init_reader();
+    init_servo_reader();
     //init_lights();
 
     while (1) {
@@ -168,7 +166,8 @@ int main(void)
 
         // FIXME: uart_servo and servo_reader are auto-detect!
         // Use rc-sound-module as reference
-        read_all_channels();
+        read_all_servo_channels();
+        read_preprocessor();
         process_ch3_clicks();
         process_drive_mode();
         process_indicators();

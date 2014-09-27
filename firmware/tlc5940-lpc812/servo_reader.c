@@ -21,7 +21,7 @@ static volatile bool new_raw_channel_data = false;
 static uint32_t servo_reader_timer;
 
 // ****************************************************************************
-void init_reader(void)
+void init_servo_reader(void)
 {
     int i;
 
@@ -203,7 +203,7 @@ static void normalize_channel(struct channel_s *c)
 
 
 // ****************************************************************************
-void read_all_channels(void)
+void read_all_servo_channels(void)
 {
     if (global_flags.systick) {
         if (servo_reader_timer) {

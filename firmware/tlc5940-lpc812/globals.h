@@ -124,8 +124,9 @@ extern struct channel_s channel[3];
 
 
 void servo_reader_SCT_interrupt_handler(void);
-void init_reader(void);
-void read_all_channels(void);
+void init_servo_reader(void);
+void read_all_servo_channels(void);
+void read_preprocessor(void);
 
 void process_ch3_clicks(void);
 

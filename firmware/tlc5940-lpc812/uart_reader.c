@@ -26,12 +26,6 @@ static void normalize_channel(struct channel_s *c, uint8_t data)
 }
 
 
-/*****************************************************************************
- ****************************************************************************/
-void init_reader(void) {
-    // Nothing to do...
-}
-
 
 /******************************************************************************
  Read_all_channels
@@ -67,7 +61,7 @@ void init_reader(void) {
  TODO: describe this better, and define the range including both SYNC values
 
  *****************************************************************************/
-void read_all_channels(void)
+void read_preprocessor(void)
 {
     static uint8_t channel_data[4];
     uint8_t uart_byte;
