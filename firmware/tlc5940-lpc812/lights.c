@@ -7,6 +7,14 @@
 
 static uint16_t light_mode;
 
+/*
+SPI configuration:
+    Configuration: CPOL = 0, CPHA = 0,
+    We can send 6 bit frame lengths, so no need to pack light data!
+    TXRDY indicates when we can put the next data into txbuf
+    Check Master idle status flag before asserting XLAT
+*/
+
 void next_light_sequence(void)
 {
 	;
