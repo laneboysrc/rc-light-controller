@@ -203,16 +203,25 @@ int main(void)
     while (1) {
         service_systick();
 
-        read_all_servo_channels();
+        //read_all_servo_channels();
         read_preprocessor();
-        process_ch3_clicks();
-        process_drive_mode();
-        process_indicators();
-        process_channel_reversing_setup();
+        //process_ch3_clicks();
+        //process_drive_mode();
+        //process_indicators();
+        //process_channel_reversing_setup();
 
-        process_servo_output();
-        process_winch();
-        process_lights();
-        output_preprocessor();
+        //process_servo_output();
+        //process_winch();
+        //process_lights();
+        //output_preprocessor();
+        
+        if (global_flags.new_channel_data) {
+            uart0_send_cstring("ST: ");
+            uart0_send_int32(channel[ST].normalized);
+            uart0_send_cstring("   TH: ");
+            uart0_send_int32(channel[TH].normalized);
+            uart0_send_linefeed();
+        }
+   
     }
 }

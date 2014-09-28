@@ -13,7 +13,6 @@
 
 struct channel_s channel[3];
 
-static int8_t state = 0;
 static int8_t byte_count = -1;
 static int8_t init_count = CONSECUTIVE_BYTE_COUNTS;
 
@@ -73,6 +72,7 @@ static void normalize_channel(struct channel_s *c, uint8_t data)
  *****************************************************************************/
 void read_preprocessor(void)
 {
+    static int8_t state = 0;
     static uint8_t channel_data[4];
     uint8_t uart_byte;
 
@@ -85,7 +85,7 @@ void read_preprocessor(void)
     if (!uart0_read_is_byte_pending()) {
         return;
     }
-
+    
     uart_byte = uart0_read_byte();
 
     if (uart_byte == SLAVE_MAGIC_BYTE) {
