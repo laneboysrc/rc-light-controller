@@ -209,6 +209,10 @@ static void normalize_channel(struct channel_s *c)
 // ****************************************************************************
 void read_all_servo_channels(void)
 {
+    if (config.mode != MASTER_WITH_SERVO_READER) {
+        return;
+    }
+
     if (global_flags.systick) {
         if (servo_reader_timer) {
             --servo_reader_timer;

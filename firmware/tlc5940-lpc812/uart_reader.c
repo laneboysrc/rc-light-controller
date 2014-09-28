@@ -21,8 +21,13 @@ static int8_t init_count = CONSECUTIVE_BYTE_COUNTS;
 // ****************************************************************************
 static void normalize_channel(struct channel_s *c, uint8_t data)
 {
-    c->normalized = (int16_t)data;
-
+    if (data > 127) {
+        c->normalized = -(256 - data);
+    }
+    else {
+        c->normalized = data;
+    }
+    
     if (c->normalized < 0) {
         c->absolute = -c->normalized;
     }
@@ -70,6 +75,10 @@ void read_preprocessor(void)
 {
     static uint8_t channel_data[4];
     uint8_t uart_byte;
+
+    if (config.mode != MASTER_WITH_UART_READER) {
+        return;
+    }
 
     global_flags.new_channel_data = false;
 
@@ -121,8 +130,12 @@ void read_preprocessor(void)
                 channel_data[3] = 0;
                 normalize_channel(&channel[ST], channel_data[0]);
                 normalize_channel(&channel[TH], channel_data[1]);
-                // FIXME: strip out startup_mode, and worry about ch3 0/1 vs % values
-                normalize_channel(&channel[CH3], channel_data[2]);
+
+                global_flags.startup_mode_neutral = 
+                    (channel_data[2] & 0x10) ? true : false;
+
+                normalize_channel(&channel[CH3], 
+                    (channel_data[2] & 0x01) ? 100 : -100);
 
                 global_flags.new_channel_data = true;
                 state = 0;
@@ -137,7 +150,13 @@ void read_preprocessor(void)
             else {
                 normalize_channel(&channel[ST], channel_data[0]);
                 normalize_channel(&channel[TH], channel_data[1]);
-                normalize_channel(&channel[CH3], channel_data[2]);
+
+                global_flags.startup_mode_neutral = 
+                    (channel_data[2] & 0x10) ? true : false;
+
+                normalize_channel(&channel[CH3], 
+                    (channel_data[2] & 0x01) ? 100 : -100);
+
                 global_flags.new_channel_data = true;
                 state = 0;
             }

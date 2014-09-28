@@ -55,5 +55,16 @@ void init_lights(void)
 
 void process_lights(void)
 {
-    ;
+    static uint16_t old_light_mode = 0xffff;
+    if (light_mode != old_light_mode) {
+        old_light_mode = light_mode;
+        uart0_send_cstring("light_mode ");
+        uart0_send_uint32(light_mode);
+        uart0_send_linefeed();
+    }   
+    //if (global_flags.new_channel_data) {
+    //    uart0_send_cstring("CH3 ");
+    //    uart0_send_int32((int32_t)channel[CH3].normalized);
+    //    uart0_send_linefeed();
+    //}
 }

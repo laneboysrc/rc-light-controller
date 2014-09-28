@@ -14,7 +14,6 @@
 
 
 static struct {
-    unsigned int initialized : 1;
     unsigned int last_state : 1;
     unsigned int transitioned : 1;
 } ch3_flags;
@@ -32,6 +31,8 @@ static void process_ch3_click_timeout(void)
     if (ch3_click_counter != 0) {   // Double-click timer expired?
         return;                     // No: wait for more buttons
     }
+
+    uart0_send_cstring("click_timeout\n");
 
     // ####################################
     // At this point we have detected one of more clicks and need to
@@ -121,6 +122,8 @@ static void process_ch3_click_timeout(void)
 
 static void add_click(void)
 {
+    uart0_send_cstring("add_click\n");
+
     // If the winch is running any movement of CH3 immediately turns off
     // the winch (without waiting for click timeout!)
     if (abort_winching()) {
@@ -145,16 +148,12 @@ void process_ch3_clicks(void)
     }
 
     if (global_flags.startup_mode_neutral) {
+        ch3_flags.last_state = (channel[CH3].normalized > 0) ? true : false;
         return;
     }
 
     if (!global_flags.new_channel_data) {
         return;
-    }
-
-    if (!ch3_flags.initialized) {
-        ch3_flags.initialized = true;
-        ch3_flags.last_state = (channel[CH3].normalized > 0) ? true : false;
     }
 
     if (config.flags.ch3_is_momentary) {
