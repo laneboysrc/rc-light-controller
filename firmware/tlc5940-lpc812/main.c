@@ -38,9 +38,6 @@ uint32_t entropy;
 struct channel_s channel[3];
 GLOBAL_FLAGS_T global_flags;
 
-// FIXME: make baudrate configurable
-
-
 
 // ****************************************************************************
 void init_hardware()
@@ -198,8 +195,6 @@ int main(void)
     init_servo_reader();
     init_lights();
 
-    uart0_send_cstring("Initialization done\n");
-
     while (1) {
         service_systick();
 
@@ -216,11 +211,21 @@ int main(void)
         output_preprocessor();
 
         if (global_flags.new_channel_data) {
-            uart0_send_cstring("ST: ");
-            uart0_send_int32(channel[ST].normalized);
-            uart0_send_cstring("   TH: ");
-            uart0_send_int32(channel[TH].normalized);
-            uart0_send_linefeed();
+            // if (global_flags.blink_indicator_left) {
+            //     uart0_send_cstring("blink left\n");
+            // }
+            // if (global_flags.blink_indicator_right) {
+            //     uart0_send_cstring("blink right\n");
+            // }
+            // if (global_flags.blink_hazard) {
+            //     uart0_send_cstring("hazard\n");
+            // }
+
+            // uart0_send_cstring("ST: ");
+            // uart0_send_int32(channel[ST].normalized);
+            // uart0_send_cstring("   TH: ");
+            // uart0_send_int32(channel[TH].normalized);
+            // uart0_send_linefeed();
         }
 
     }
