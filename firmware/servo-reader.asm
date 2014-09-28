@@ -18,14 +18,14 @@
     GLOBAL Read_all_channels
     GLOBAL Init_reader
 
-    GLOBAL steering            
-    GLOBAL steering_abs       
+    GLOBAL steering
+    GLOBAL steering_abs
     GLOBAL steering_reverse
-    GLOBAL throttle            
-    GLOBAL throttle_abs       
+    GLOBAL throttle
+    GLOBAL throttle_abs
     GLOBAL throttle_threshold
     GLOBAL throttle_reverse
-    GLOBAL ch3  
+    GLOBAL ch3
 
 
     ; Functions imported from utils.asm
@@ -42,8 +42,8 @@
     EXTERN Mul_x_by_100
     EXTERN Div_x_by_4
     EXTERN Mul_x_by_6
-    EXTERN Add_x_and_780    
-    
+    EXTERN Add_x_and_780
+
     EXTERN xl
     EXTERN xh
     EXTERN yl
@@ -63,8 +63,8 @@
 #define STARTUP_MODE_NEUTRAL 4      ; Waiting before reading ST/TH neutral
 
 ; The initial endpoint delta that is used right after initialization of the
-; neutrals. 
-; Example: 
+; neutrals.
+; Example:
 ;   ep-left = centre - INITIAL_ENDPOINT_DELTA
 ;   ep-right = centre + INITIAL_ENDPOINT_DELTA
 IFNDEF INITIAL_ENDPOINT_DELTA
@@ -72,9 +72,9 @@ IFNDEF INITIAL_ENDPOINT_DELTA
 ENDIF
 
 ; Specify the frequency in Hz with which the receiver outputs the servo signals.
-; Usually this is somewhere betwen 50 and 60 Hz. 
+; Usually this is somewhere betwen 50 and 60 Hz.
 ; The HobbyKing HK310 uses 60 Hz.
-IFNDEF RECEIVER_OUTPUT_RATE 
+IFNDEF RECEIVER_OUTPUT_RATE
 #define RECEIVER_OUTPUT_RATE 60
 ENDIF
 
@@ -90,8 +90,8 @@ ENDIF
 .data_servo_reader UDATA
 
 throttle            res 1
-throttle_abs        res 1    
-throttle_threshold  res 1       ; not used here, but defined so it is in the same bank as throttle_abs 
+throttle_abs        res 1
+throttle_threshold  res 1       ; not used here, but defined so it is in the same bank as throttle_abs
 throttle_l          res 1
 throttle_h          res 1
 throttle_centre_l   res 1
@@ -119,7 +119,7 @@ ch3_value           res 1
 ch3_ep0             res 1
 ch3_ep1             res 1
 ch3_centre          res 1
-ch3_hysteresis      res 1  
+ch3_hysteresis      res 1
 
 init_prescaler      res 1
 init_counter        res 1
@@ -161,8 +161,8 @@ Init_reader
     ; Do NOT initialize channel reverse flags as it is done by
     ; EEPROM_load_persistent_data!
 ;   xxxx    throttle_reverse
-;   xxxx    steering_reverse    
-    
+;   xxxx    steering_reverse
+
     movlw   RECEIVER_OUTPUT_RATE / 10
     movwf   init_prescaler
     movlw   STARTUP_WAIT_TIME / 100
@@ -170,15 +170,15 @@ Init_reader
 
     BANKSEL startup_mode
     movlw   1 << STARTUP_MODE_NEUTRAL
-    movwf   startup_mode    
-    
+    movwf   startup_mode
+
     return
 
 
 ;******************************************************************************
 ;******************************************************************************
 Read_all_channels
-    IFDEF   SEQUENTIAL_CHANNEL_READING  ; {   
+    IFDEF   SEQUENTIAL_CHANNEL_READING  ; {
     call    Read_all
     ELSE                                ; } {
     call    Read_steering
@@ -189,7 +189,7 @@ Read_all_channels
     BANKSEL startup_mode
     movf    startup_mode, f
     bnz     read_neutral
-    
+
     call    Normalize_steering
     call    Normalize_throttle
     call    Normalize_ch3
@@ -205,7 +205,7 @@ read_waiting_for_throttle_direction
 read_neutral
     BANKSEL steering
     ; We are initializing so pretend steering and throttle are neutral
-    clrf    steering            
+    clrf    steering
     clrf    steering_abs
     clrf    throttle
     clrf    throttle_abs
@@ -244,9 +244,9 @@ read_neutral
     movwf   steering_centre_l
     movwf   xl
 
-    ; Now that we have determined the center for steering and throttle, 
-    ; we need to set initial endpoints around them. We use a value of +/- 
-    ; INITIAL_ENDPOINT_DELTA for that. 
+    ; Now that we have determined the center for steering and throttle,
+    ; we need to set initial endpoints around them. We use a value of +/-
+    ; INITIAL_ENDPOINT_DELTA for that.
     ; If we would use a fixed initial endpoint value we may get into trouble
     ; due to steering trim/sub-trim.
 
@@ -258,9 +258,9 @@ read_neutral
     call    Add_y_to_x
     BANKSEL steering_epr_h
     movf    xh, w
-    movwf   steering_epr_h    
+    movwf   steering_epr_h
     movf    xl, w
-    movwf   steering_epr_l    
+    movwf   steering_epr_l
 
     movf    steering_centre_h, w
     movwf   xh
@@ -269,9 +269,9 @@ read_neutral
     call    Sub_y_from_x
     BANKSEL steering_epr_h
     movf    xh, w
-    movwf   steering_epl_h    
+    movwf   steering_epl_h
     movf    xl, w
-    movwf   steering_epl_l    
+    movwf   steering_epl_l
 
     movf    throttle_centre_h, w
     movwf   xh
@@ -280,9 +280,9 @@ read_neutral
     call    Add_y_to_x
     BANKSEL throttle_epr_h
     movf    xh, w
-    movwf   throttle_epr_h    
+    movwf   throttle_epr_h
     movf    xl, w
-    movwf   throttle_epr_l    
+    movwf   throttle_epr_l
 
     movf    throttle_centre_h, w
     movwf   xh
@@ -291,24 +291,24 @@ read_neutral
     call    Sub_y_from_x
     BANKSEL throttle_epr_h
     movf    xh, w
-    movwf   throttle_epl_h    
+    movwf   throttle_epl_h
     movf    xl, w
-    movwf   throttle_epl_l    
+    movwf   throttle_epl_l
 
-    BANKSEL startup_mode    
+    BANKSEL startup_mode
     clrf    startup_mode
     return
-    
-    
+
+
 ;******************************************************************************
 ; Read_all
-; 
-; Read all servo channels in one go. 
+;
+; Read all servo channels in one go.
 ; This function can only be used if you have verified that your receiver
-; is indeed outputting all channels in sequence Steering / Throttle / CH3, one 
+; is indeed outputting all channels in sequence Steering / Throttle / CH3, one
 ; after each other.
-; This is true for the HK-3000 receiver. 
-; The Flyksy/Turnigy/Eugle GT3B receiver also outputs the channels in 
+; This is true for the HK-3000 receiver.
+; The Flyksy/Turnigy/Eugle GT3B receiver also outputs the channels in
 ; sequence, but has reversed order: Throttle / Steering / CH3.
 ;
 ; By using this function we can read all channels in one "loop", and therefore
@@ -318,20 +318,20 @@ Read_all
     ; ***************
     ; ASSUMPTION: the PORT registers and TIMER1 registers are in the same bank.
     ; ***************
-    
+
     BANKSEL T1CON
     bcf     T1CON, TMR1ON   ; Stop timer 1
     clrf    TMR1H           ; Reset the timer to 0
     clrf    TMR1L
 
-    ; Wait until servo signal is LOW 
+    ; Wait until servo signal is LOW
     ; This ensures that we do not start in the middle of a pulse
 all_st_wait_for_low1
 IFDEF CHANNEL_SEQUENCE_TH_ST_CH3
     btfsc   PORT_THROTTLE
 ELSE
     btfsc   PORT_STEERING
-ENDIF    
+ENDIF
     goto    all_st_wait_for_low1
 
 all_st_wait_for_high
@@ -339,7 +339,7 @@ IFDEF CHANNEL_SEQUENCE_TH_ST_CH3
     btfss   PORT_THROTTLE
 ELSE
     btfss   PORT_STEERING   ; Wait until servo signal is high
-ENDIF    
+ENDIF
     goto    all_st_wait_for_high
 
     bsf     T1CON, TMR1ON   ; Start timer 1
@@ -349,7 +349,7 @@ IFDEF CHANNEL_SEQUENCE_TH_ST_CH3
     btfsc   PORT_THROTTLE
 ELSE
     btfsc   PORT_STEERING   ; Wait until servo signal is LOW again
-ENDIF    
+ENDIF
     goto    all_st_wait_for_low2
 
     bcf     T1CON, TMR1ON   ; Stop timer 1
@@ -370,7 +370,7 @@ ELSE
     movf    TMR1L, w
     BANKSEL steering_l
     movwf   steering_l
-ENDIF    
+ENDIF
 
     ; At this point the throttle signal is already being output
     ; from the receiver -- it takes 100ns after the steering pulse goes
@@ -378,7 +378,7 @@ ENDIF
     ; throttle to be low again to read the measured value.
 
     BANKSEL TMR1H
-    clrf    TMR1H       ; Reset the timer to 0 ... 
+    clrf    TMR1H       ; Reset the timer to 0 ...
     movlw   14          ;  but prime it with the no of instructions until here
     movwf   TMR1L
     bsf     T1CON, TMR1ON   ; Start timer 1
@@ -388,7 +388,7 @@ IFDEF CHANNEL_SEQUENCE_TH_ST_CH3
     btfsc   PORT_STEERING
 ELSE
     btfsc   PORT_THROTTLE   ; Wait until servo signal is LOW
-ENDIF    
+ENDIF
     goto    all_th_wait_for_low2
 
     bcf     T1CON, TMR1ON   ; Stop timer 1
@@ -409,10 +409,10 @@ ELSE
     movf    TMR1L, w
     BANKSEL throttle_l
     movwf   throttle_l
-ENDIF    
+ENDIF
 
     BANKSEL TMR1H
-    clrf    TMR1H       ; Reset the timer to 0 ... 
+    clrf    TMR1H       ; Reset the timer to 0 ...
     movlw   14          ;  but prime it with the no of instructions until here
     movwf   TMR1L
     bsf     T1CON, TMR1ON   ; Start timer 1
@@ -424,9 +424,9 @@ all_ch3_wait_for_low2
     bcf     T1CON, TMR1ON   ; Stop timer 1
 
     call    Validate_servo_measurement
-  
+
     ; Use the middle 12 bit as an 8 bit value since we don't need high
-    ; accuracy for the CH3 
+    ; accuracy for the CH3
     rlf     xl, f
     rlf     xh, f
     rlf     xl, f
@@ -436,15 +436,15 @@ all_ch3_wait_for_low2
     rlf     xl, f
     rlf     xh, f
 
-    movf    xh, w   
-    BANKSEL ch3_value 
+    movf    xh, w
+    BANKSEL ch3_value
     movwf   ch3_value
 
-    ; We are done now measuring all 3 channels, so do throttle and steering 
+    ; We are done now measuring all 3 channels, so do throttle and steering
     ; validation. We cheekily use the Timer 1 registers to do this
-    
+
     BANKSEL steering_h
-    movf    steering_h, w    
+    movf    steering_h, w
     BANKSEL TMR1H
     movwf   TMR1H
     BANKSEL steering_l
@@ -453,12 +453,12 @@ all_ch3_wait_for_low2
     movwf   TMR1L
     call    Validate_servo_measurement
     BANKSEL steering_h
-    movf    xh, w    
+    movf    xh, w
     movwf   steering_h
     movf    xl, w
     movwf   steering_l
 
-    movf    throttle_h, w    
+    movf    throttle_h, w
     BANKSEL TMR1H
     movwf   TMR1H
     BANKSEL throttle_l
@@ -467,7 +467,7 @@ all_ch3_wait_for_low2
     movwf   TMR1L
     call    Validate_servo_measurement
     BANKSEL throttle_h
-    movf    xh, w    
+    movf    xh, w
     movwf   throttle_h
     movf    xl, w
     movwf   throttle_l
@@ -477,10 +477,34 @@ all_ch3_wait_for_low2
 
 ;******************************************************************************
 ; Read_ch3
-; 
+;
 ; Read servo channel 3 and write the result in ch3_h/ch3_l
 ;******************************************************************************
 Read_ch3
+IFDEF CH3_IS_PUSHBUTTON
+
+    ; For 2-channel radios it is possible to hook up a push-button to CH3
+    ; to switch the lights manually.
+    ; We simply read the CH3 port and fake a servo pulse of 1000 or 2000 us
+    ; depending on its state.
+    ;
+    ; NOTE: This only works if SEQUENTIAL_CHANNEL_READING is NOT used! You
+    ; must also configure CH3_MOMENTARY.
+    ; We do not have to worry about switch debouncing as we only read whenever
+    ; we have read ST and TH, which is about 8..20 ms depending on the
+    ; receiver.
+
+    BANKSEL PORTA
+    movlw   1000 >> 4
+    btfsc   PORT_CH3
+    movlw   2000 >> 4
+
+    BANKSEL ch3_value
+    movwf   ch3_value
+    return
+
+ELSE ; CH3_IS_PUSHBUTTON
+
     BANKSEL ch3_value
     clrf    ch3_value       ; Prime the result with "timing measurement failed"
 
@@ -489,7 +513,7 @@ Read_ch3
     clrf    TMR1H           ; Reset the timer to 0
     clrf    TMR1L
 
-    ; Wait until servo signal is LOW 
+    ; Wait until servo signal is LOW
     ; This ensures that we do not start in the middle of a pulse
 ch3_wait_for_low1
     btfsc   PORT_CH3
@@ -508,9 +532,9 @@ ch3_wait_for_low2
     bcf     T1CON, TMR1ON   ; Stop timer 1
 
     call    Validate_servo_measurement
-  
+
     ; Use the middle 12 bit as an 8 bit value since we don't need high
-    ; accuracy for the CH3 
+    ; accuracy for the CH3
     rlf     xl, f
     rlf     xh, f
     rlf     xl, f
@@ -520,21 +544,21 @@ ch3_wait_for_low2
     rlf     xl, f
     rlf     xh, f
 
-    movf    xh, w    
+    movf    xh, w
     BANKSEL ch3_value
     movwf   ch3_value
 
     return
-
+ENDIF ; CH3_IS_PUSHBUTTON
 
 ;******************************************************************************
 ; Normalize_ch3
-; 
+;
 ; Normalize the processed CH3 channel into ch3 value 0 or 1.
 ;
 ; Algorithm:
 ;
-; Switch position 0 stored in ch3_ep0: 1000 us 
+; Switch position 0 stored in ch3_ep0: 1000 us
 ; Switch position 1 stored in ch3_ep1: 2000 is
 ;   Note: these values can be changed through the setup procedure to adjust
 ;   to a specific TX/RX.
@@ -564,7 +588,7 @@ Normalize_ch3
     clrc
     rrf     temp, w
     addwf   ch3_centre, f
-    
+
     ; Step 2: calculate the hysteresis: (max(ep0, ep1) - min(ep0, ep1)) / 8
     movf    ch3_ep0, w
     movwf   temp
@@ -586,14 +610,14 @@ Normalize_ch3
     clrc
     rrf     ch3_hysteresis, f
 
-    ; Step 3: Depending on whether CH3 was previously set we have to 
+    ; Step 3: Depending on whether CH3 was previously set we have to
     ; test for the positive or negative hysteresis around the centre. In
     ; addition we have to utilize positive or negative hysteresis depending
     ; on which end point is larger in value (to support reversed channels)
     btfss   ch3, 0
     goto    process_ch3_pos0
 
-    ; CH3 was in pos 1; check if we need to use the positive (ch reversed) or 
+    ; CH3 was in pos 1; check if we need to use the positive (ch reversed) or
     ; negative (ch normal) hysteresis
     movf    ch3_ep1, w
     subwf   ch3_ep0, w
@@ -602,7 +626,7 @@ Normalize_ch3
     goto    process_ch3_lower
 
 process_ch3_pos0
-    ; CH3 was in pos 0; check if we need to use the positive (ch normal) or 
+    ; CH3 was in pos 0; check if we need to use the positive (ch normal) or
     ; negative (ch reversed) hysteresis
     movf    ch3_ep1, w
     subwf   ch3_ep0, w
@@ -611,24 +635,24 @@ process_ch3_pos0
 ;   goto    process_ch3_higher
 
 process_ch3_higher
-    ; Add the hysteresis to the centre. Then subtract it from the current 
+    ; Add the hysteresis to the centre. Then subtract it from the current
     ; ch3 value. If it is smaller C will be set and we treat it to toggle
     ; channel 3.
     movf    ch3_centre, w
     addwf   ch3_hysteresis, w
     subwf   ch3_value, w
-    skpc    
+    skpc
     return
     goto    process_ch3_toggle
 
 process_ch3_lower
-    ; Subtract the hysteresis to the centre. Then subtract it from the current 
+    ; Subtract the hysteresis to the centre. Then subtract it from the current
     ; ch3 value. If it is larger C will be set and we treat it to toggle
     ; channel 3.
     movf    ch3_hysteresis, w
     subwf   ch3_centre, w
     subwf   ch3_value, w
-    skpnc    
+    skpnc
     return
 
 process_ch3_toggle
@@ -643,7 +667,7 @@ process_ch3_toggle
 
 ;******************************************************************************
 ; Read_throttle
-; 
+;
 ; Read the throttle servo channel and write the result in throttle_h/throttle_l
 ;******************************************************************************
 Read_throttle
@@ -656,7 +680,7 @@ Read_throttle
     clrf    TMR1H           ; Reset the timer to 0
     clrf    TMR1L
 
-    ; Wait until servo signal is LOW 
+    ; Wait until servo signal is LOW
     ; This ensures that we do not start in the middle of a pulse
 th_wait_for_low1
     btfsc   PORT_THROTTLE
@@ -676,7 +700,7 @@ th_wait_for_low2
 
     call    Validate_servo_measurement
     BANKSEL throttle_h
-    movf    xh, w    
+    movf    xh, w
     movwf   throttle_h
     movf    xl, w
     movwf   throttle_l
@@ -734,7 +758,7 @@ throttle_off_centre
     movf    throttle_h, w
     movwf   xh
     movf    throttle_l, w
-    movwf   xl   
+    movwf   xl
     call    If_y_lt_x
     bnc     throttle_right
 
@@ -755,7 +779,7 @@ throttle_left
     call    Calculate_normalized_servo_position
     BANKSEL throttle_reverse
     movf    throttle_reverse, f
-    skpnz   
+    skpnz
     sublw   0
     goto    throttle_set
 
@@ -776,26 +800,26 @@ throttle_right
     call    Calculate_normalized_servo_position
     BANKSEL throttle_reverse
     movf    throttle_reverse, f
-    skpz   
+    skpz
     sublw   0
 
 throttle_set
     BANKSEL throttle
     movwf   throttle
 
-    ; Calculate abs(throttle) for easier math. We can use the highest bit 
+    ; Calculate abs(throttle) for easier math. We can use the highest bit
     ; of throttle to get the sign later!
     movwf   throttle_abs
     btfsc   throttle_abs, 7
     decf    throttle_abs, f
     btfsc   throttle_abs, 7
     comf    throttle_abs, f
-    return    
+    return
 
 
 ;******************************************************************************
 ; Read_steering
-; 
+;
 ; Read the steering servo channel and write the result in steering_h/steering_l
 ;******************************************************************************
 Read_steering
@@ -808,7 +832,7 @@ Read_steering
     clrf    TMR1H       ; Reset the timer to 0
     clrf    TMR1L
 
-    ; Wait until servo signal is LOW 
+    ; Wait until servo signal is LOW
     ; This ensures that we do not start in the middle of a pulse
 st_wait_for_low1
     btfsc   PORT_STEERING
@@ -828,7 +852,7 @@ st_wait_for_low2
 
     call    Validate_servo_measurement
     BANKSEL steering_h
-    movf    xh, w    
+    movf    xh, w
     movwf   steering_h
     movf    xl, w
     movwf   steering_l
@@ -886,7 +910,7 @@ steering_off_centre
     movf    steering_h, w
     movwf   xh
     movf    steering_l, w
-    movwf   xl   
+    movwf   xl
     call    If_y_lt_x
     bnc      steering_right
 
@@ -907,7 +931,7 @@ steering_left
     call    Calculate_normalized_servo_position
     BANKSEL steering_reverse
     movf    steering_reverse, f
-    skpnz   
+    skpnz
     sublw   0
     goto    steering_set
 
@@ -928,21 +952,21 @@ steering_right
     call    Calculate_normalized_servo_position
     BANKSEL steering_reverse
     movf    steering_reverse, f
-    skpz   
+    skpz
     sublw   0
 
 steering_set
     BANKSEL steering
     movwf   steering
 
-    ; Calculate abs(steering) for easier math. We can use the highest bit 
+    ; Calculate abs(steering) for easier math. We can use the highest bit
     ; of throttle to get the sign later!
     movwf   steering_abs
     btfsc   steering_abs, 7
     decf    steering_abs, f
     btfsc   steering_abs, 7
     comf    steering_abs, f
-    return   
+    return
 
 
 ;******************************************************************************
@@ -971,7 +995,7 @@ Validate_servo_measurement
     movwf   yl
     call    If_y_lt_x
     bnc     Validate_servo_above_min
-    
+
 Validate_servo_out_of_range
     clrf    xh
     clrf    xl
@@ -981,14 +1005,14 @@ Validate_servo_above_min
     movlw   HIGH(2500)
     movwf   yh
     movlw   LOW(2500)
-    movwf   yl    
+    movwf   yl
     call    If_y_lt_x
     bnc     Validate_servo_out_of_range
 
     movlw   HIGH(800)
     movwf   yh
     movlw   LOW(800)
-    movwf   yl    
+    movwf   yl
     call    If_y_lt_x
     bnc     Validate_servo_above_clamp_min
 
@@ -1003,7 +1027,7 @@ Validate_servo_above_clamp_min
     movlw   HIGH(2300)
     movwf   yh
     movlw   LOW(2300)
-    movwf   yl    
+    movwf   yl
     call    If_y_lt_x
     bnc     Validate_servo_clamp
     return
@@ -1039,26 +1063,26 @@ Calculate_normalized_servo_position
 
     call    If_y_lt_x
     bc      calculate_ep_gt_cen
-        
+
     movfw   zl
     subwf   yl, w
     movfw   zh
-    skpc                
-    incfsz  zh, w       
+    skpc
+    incfsz  zh, w
     subwf   yh, w
-    skpnc   
+    skpnc
     retlw   100
 
 calculate_normalized_left
     ; (CEN - POS) * 100 / (CEN - EP)
-    ; Worst case we are dealing with CEN = 2300 and POS = 800 (we clamp 
+    ; Worst case we are dealing with CEN = 2300 and POS = 800 (we clamp
     ; measured values into that range!)
     ; To keep within 16 bits we have to scale down:
     ;
     ;   ((CEN - POS) / 4) * 100 / ((CEN - EP) / 4)
-    
 
-    movf    xh, w           ; Save CEN in wh/wl as xh/xl gets result of 
+
+    movf    xh, w           ; Save CEN in wh/wl as xh/xl gets result of
     movwf   wh              ;  sub_x_from_y
     movf    xl, w
     movwf   wl
@@ -1091,26 +1115,26 @@ calculate_normalized_left
 
     call    Div_x_by_y
     movf    xl, w
-    return    
+    return
 
 calculate_ep_gt_cen
     movfw   zl
     subwf   yl, w
     movfw   zh
-    skpc                
-    incfsz  zh, w       
+    skpc
+    incfsz  zh, w
     subwf   yh, w
-    skpc    
+    skpc
     retlw   100
 
 calculate_normalized_right
     ; ((POS - CEN) * 100 / (EP - CEN))
-    ; Worst case we are dealing with CEN = 800 and POS = 2300 (we clamp 
+    ; Worst case we are dealing with CEN = 800 and POS = 2300 (we clamp
     ; measured values into that range!)
     ; To keep within 16 bits we have to scale down:
     ;
     ;   ((POS - CEN) / 4) * 100 / ((EP - CEN) / 4)
-    
+
     ; x = CEN, y = EP, z = POS
 
     swap_x_y    yh, zh
@@ -1143,7 +1167,7 @@ calculate_normalized_right
 
     call    Div_x_by_y
     movf    xl, w
-    return  
+    return
 
     END     ; Directive 'end of program'
 

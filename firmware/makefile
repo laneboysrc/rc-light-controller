@@ -1,5 +1,5 @@
 .PHONY: all
-all: fiat-131 lancia-fulvia \
+all: tobias fiat-131 lancia-fulvia \
      sawback subaru-impreza-2007 ferrari-la-ferrari subaru-impreza-2008 \
      nismo-coppermix lancia-delta-integrale datsun-240z-rally bmw-2002-turbo \
      porsche-911-rsr wraith datsun-510 ben-landrover pajero subaru \
@@ -15,19 +15,19 @@ generic: generic-momentary-master generic-two-position-master generic-always-on-
 
 .PHONY: generic-momentary-master
 generic-momentary-master: hw_tlc5940_16f1825.inc
-	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x0f -D CH3_MOMENTARY -D ENABLE_STEERING_WHEEL_SERVO -D ENABLE_SERVO_OUTPUT) 
+	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x0f -D ENABLE_STEERING_WHEEL_SERVO -D ENABLE_SERVO_OUTPUT)
 	$(eval files = master servo-reader servo-output utils lights-generic)
 	$(build)
 
 .PHONY: generic-two-position-master
 generic-two-position-master: hw_tlc5940_16f1825.inc
-	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x0f -D ENABLE_STEERING_WHEEL_SERVO -D ENABLE_SERVO_OUTPUT) 
+	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x0f -D ENABLE_STEERING_WHEEL_SERVO -D ENABLE_SERVO_OUTPUT)
 	$(eval files = master servo-reader servo-output utils lights-generic)
 	$(build)
 
 .PHONY: generic-two-position-preprocessor-master
 generic-two-position-preprocessor-master: hw_tlc5940_16f1825.inc
-	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x0f -D ENABLE_UART -D ENABLE_STEERING_WHEEL_SERVO -D ENABLE_SERVO_OUTPUT) 
+	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x0f -D ENABLE_UART -D ENABLE_STEERING_WHEEL_SERVO -D ENABLE_SERVO_OUTPUT)
 	$(eval files = master uart-reader servo-output utils lights-generic)
 	$(build)
 
@@ -36,8 +36,44 @@ generic-always-on-master: hw_tlc5940_16f1825.inc
 	$(eval CFLAGS = )
 	$(eval files = master servo-reader utils lights-always-on)
 	$(build)
-	
-	
+
+
+##############################################################################
+# Slave based on TLC5940 and PIC16F1825, not specific for any car
+##############################################################################
+.PHONY: slave-tlc5940
+slave-tlc5940: hw_tlc5940_16f1825.inc
+	$(eval CFLAGS = -D ENABLE_UART -D BAUDRATE_115200)
+	$(eval files = slave-tlc5940 utils)
+	$(build)
+
+
+##############################################################################
+# Tobias' Jeep Wrangler
+##############################################################################
+.PHONY: tobias
+tobias: tobias-master slave-tlc5940
+
+.PHONY: tobias-master
+tobias-master: hw_tlc5940_16f1825.inc
+	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x03 -D CH3_IS_PUSHBUTTON -D CH3_MOMENTARY -D ESC_FORWARD_REVERSE -D CH3_MOMENTARY -D ENABLE_UART -D BAUDRATE_115200)
+	$(eval files = master servo-reader utils lights-tobias-jeep)
+	$(build)
+
+
+##############################################################################
+# Bogdan's controller, derived from generic, using a preprocessor
+##############################################################################
+.PHONY: bogdan
+bogdan: bogdan-master
+
+.PHONY: bogdan-master
+bogdan-master: hw_tlc5940_16f1825.inc
+	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x0f -D ENABLE_UART -D ENABLE_STEERING_WHEEL_SERVO -D ENABLE_SERVO_OUTPUT)
+	$(eval files = master uart-reader servo-output utils lights-bogdan)
+	$(build)
+
+
 ##############################################################################
 # FIAT 131
 ##############################################################################
@@ -46,11 +82,11 @@ fiat-131: fiat-131-master
 
 .PHONY: fiat-131-master
 fiat-131-master: hw_ws2812_12f1840.inc
-	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x03 -D ENABLE_UART -D NUMBER_OF_LEDS=8) 
-	$(eval files = master uart-reader utils lights-fiat-131 ws2812) 
+	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x03 -D ENABLE_UART -D NUMBER_OF_LEDS=8)
+	$(eval files = master uart-reader utils lights-fiat-131 ws2812)
 	$(build)
-	
-	
+
+
 ##############################################################################
 # Lancia Fulvia
 ##############################################################################
@@ -59,11 +95,11 @@ lancia-fulvia: lancia-fulvia-master
 
 .PHONY: lancia-fulvia-master
 lancia-fulvia-master: hw_ws2812_12f1840.inc
-	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x03 -D ENABLE_UART -D NUMBER_OF_LEDS=8) 
-	$(eval files = master uart-reader utils lights-lancia-fulvia ws2812) 
+	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x03 -D ENABLE_UART -D NUMBER_OF_LEDS=8)
+	$(eval files = master uart-reader utils lights-lancia-fulvia ws2812)
 	$(build)
-	
-	
+
+
 ##############################################################################
 # GMade Sawback (Willy's Jeep)
 ##############################################################################
@@ -72,11 +108,11 @@ sawback: sawback-master
 
 .PHONY: sawback-master
 sawback-master: hw_tlc5940_16f1825.inc
-	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x01 -D ESC_FORWARD_REVERSE -D ENABLE_UART) 
+	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x01 -D ESC_FORWARD_REVERSE -D ENABLE_UART)
 	$(eval files = master uart-reader utils lights-sawback)
 	$(build)
-	
-	
+
+
 ##############################################################################
 # Tamiya Subaru Impreza WRC 2007 (Sedan)
 ##############################################################################
@@ -85,7 +121,7 @@ subaru-impreza-2007: subaru-impreza-2007-master
 
 .PHONY: subaru-impreza-2007-master
 subaru-impreza-2007-master: hw_tlc5940_16f1825.inc
-	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x03 -D ENABLE_UART) 
+	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x03 -D ENABLE_UART)
 	$(eval files = master uart-reader utils lights-subaru-impreza-2007)
 	$(build)
 
@@ -101,8 +137,8 @@ ferrari-la-ferrari-master: hw_tlc5940_16f1825.inc
 	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x01 -D ENABLE_UART)
 	$(eval files = master uart-reader utils lights-ferrari-la-ferrari)
 	$(build)
-	
-	
+
+
 ##############################################################################
 # Tamiya Subaru Impreza WRC 2008 (hatchback)
 ##############################################################################
@@ -111,7 +147,7 @@ subaru-impreza-2008: subaru-impreza-2008-master
 
 .PHONY: subaru-impreza-2008-master
 subaru-impreza-2008-master: hw_tlc5940_16f1825.inc
-	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x03 -D ENABLE_UART) 
+	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x03 -D ENABLE_UART)
 	$(eval files = master uart-reader utils lights-subaru-impreza-2008)
 	$(build)
 
@@ -124,7 +160,7 @@ nismo-coppermix: hkr3000-preprocessor nismo-coppermix-master
 
 .PHONY: nismo-coppermix-master
 nismo-coppermix-master: hw_tlc5940_16f1825.inc
-	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x03 -D ENABLE_UART) 
+	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x03 -D ENABLE_UART)
 	$(eval files = master uart-reader utils lights-nismo-coppermix)
 	$(build)
 
@@ -203,7 +239,7 @@ datsun-510: hw_tlc5940_16f1825.inc
 	$(eval files = master uart-reader utils lights-datsun-510)
 	$(build)
 
-	
+
 ##############################################################################
 # Ben's Land Rover D90
 ##############################################################################
@@ -311,7 +347,7 @@ xr311-master : hw_original_uart_reader.inc
 	$(eval CFLAGS = -D DUAL_TLC5916 -D ENABLE_STEERING_WHEEL_SERVO -D ENABLE_SERVO_OUTPUT -D LIGHT_MODE_MASK=0x03 -D ENABLE_UART)
 	$(eval files = master uart-reader servo-output utils lights-xr311)
 	$(build)
-	
+
 
 ##############################################################################
 # Pre-processors
@@ -351,7 +387,7 @@ test-ws2812-12f1840: hw_ws2812_12f1840.inc
 	$(build)
 
 
-	
+
 ##############################################################################
 ##############################################################################
 ##############################################################################
@@ -362,29 +398,29 @@ test-ws2812-12f1840: hw_ws2812_12f1840.inc
 # -----------------------------
 # The RC light controller is based on various modules that allow different
 # configurations. The original configuration was a master-slave concept,
-# but it has been intended with the pre-processor concept that puts a 
+# but it has been intended with the pre-processor concept that puts a
 # small micro-controller into the receiver, connecting with a single wire
 # to the light controller master. Also different functions are configurable,
 # such as whether a steering wheel output is available, support for different
 # LED drivers, and possibly more in the future.
-# 
+#
 # This quickly lead to the problem of maintaining the makefile. It became
 # unwieldly especially during refactoring the source code.
-# 
+#
 # The solution was that each hex file is built from just three configuration
 # options:
-# 
+#
 #   - The name of the io_*.inc file, specifying the hardware and chip type
 #   - The defines that switch features through conditional compilation
 #   - The list of "modules" that are needed
-# 
+#
 # To make this work two important features of GNU Make were needed:
-# 
+#
 #   - The $(eval x) function is used to set variables from within recipes
-# 
-#     Example: $(eval CFLAGS = -D DUAL_TLC5916 -D ENABLE_SERVO_OUTPUT)  
-# 
-# 
+#
+#     Example: $(eval CFLAGS = -D DUAL_TLC5916 -D ENABLE_SERVO_OUTPUT)
+#
+#
 #   - Calling the make file recursively to execute the build of an individual
 #     component given the variables set in the recipe for the component.
 #
@@ -402,26 +438,26 @@ test-ws2812-12f1840: hw_ws2812_12f1840.inc
 # building a  single component (= a master, a slave, or a pre-processor).
 #
 # It sets variables 'CFLAGS', 'prefix', 'hw' and 'objects' for the new instance
-# of make and asks to build the target $@.hex, which translates into 
+# of make and asks to build the target $@.hex, which translates into
 # <component>.hex
 #
 # 'hw' is set to the first dependency of the component, which must be the
 #  hw_*.inc file specifying the hardware of the component.
 #
 # 'objects' is transformed from the list of source files (without extension)
-# required for the module by prepending the component name, a dash, and 
-# appending the .o file extension. 
+# required for the module by prepending the component name, a dash, and
+# appending the .o file extension.
 #
-# So if you build component 'xr311-slave' then a list of files 
+# So if you build component 'xr311-slave' then a list of files
 #
 #    rc-light-controller utils
 #
-# will translate into 'objects' being 
+# will translate into 'objects' being
 #
 #    xr311-slave-rc-light-controller.o xr311-slave-utils.o
-build = @$(MAKE) CFLAGS="$(CFLAGS)" prefix="$@" hw="$<" objects="$(patsubst %,$@-%.o,$(files))" $@.hex 
+build = @$(MAKE) CFLAGS="$(CFLAGS)" prefix="$@" hw="$<" objects="$(patsubst %,$@-%.o,$(files))" $@.hex
 
-$(prefix).hex : $(objects) 
+$(prefix).hex : $(objects)
 	gplink -m -O 2 -o $@ $^
 
 $(prefix)-%.o : %.asm $(hw)
@@ -436,4 +472,4 @@ clean :
 	$(RM) *.cod
 	$(RM) *.o
 	$(RM) *.tmp
-	
+
