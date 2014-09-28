@@ -5,6 +5,8 @@
 
 #include <globals.h>
 
+static uint16_t light_mode;
+
 void next_light_sequence(void)
 {
 	;

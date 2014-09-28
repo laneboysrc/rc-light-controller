@@ -138,7 +138,6 @@ typedef struct {
 // Certainly not suitable for secure implementations...
 extern uint32_t entropy;
 
-extern uint16_t light_mode;
 extern GLOBAL_FLAGS_T global_flags;
 extern const LIGHT_CONTROLLER_CONFIG_T config;
 extern struct channel_s channel[3];
