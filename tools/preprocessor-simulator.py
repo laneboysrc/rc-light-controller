@@ -15,7 +15,7 @@ from __future__ import print_function
 import sys
 import argparse
 import serial
-from time import sleep
+import time
 import threading
 
 try:
@@ -118,6 +118,8 @@ class PreprocessorApp(object):
 
         def sender(app):
             ''' Background thread performing the UART transmission '''
+            time_of_last_line = start_time = time.time()
+            
             while not app.done:
                 steering = app.receiver['ST']
                 if steering < 0:
@@ -137,7 +139,20 @@ class PreprocessorApp(object):
                     [SLAVE_MAGIC_BYTE, steering, throttle, last_byte])
                 app.uart.write(data)
                 app.uart.flush()
-                sleep(0.02)
+                
+                #time.sleep(0.02)
+                app.uart.timeout = 0.02;
+                data = app.uart.read(2048)
+                if len(data):
+                    current_time = time.time()
+                    time_difference = current_time - time_of_last_line
+                    elapsed_time = current_time - start_time
+                    
+                    print("%10.3f  %10.3f  %s" % (elapsed_time, 
+                        time_difference, data.encode('UTF-8')), end='')
+
+                    time_of_last_line = current_time
+                
 
         print("Please call up the user interface on localhost:{port}".format(
             port=self.args.port))
