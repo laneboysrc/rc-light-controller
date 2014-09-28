@@ -36,7 +36,6 @@ volatile uint32_t systick_count;
 uint32_t entropy;
 
 struct channel_s channel[3];
-uint16_t light_mode;
 GLOBAL_FLAGS_T global_flags;
 
 // FIXME: make baudrate configurable
@@ -86,10 +85,11 @@ void init_hardware()
 
 
     if (config.mode == MASTER_WITH_SERVO_READER) {
-        if (config.flags.slave_output || config.flags.preprocessor_output ||
-            config.flags.winch_output) {
-            // U0_TXT_O=PIO0_12, U0_RXD_I=PIO0_0
-            LPC_SWM->PINASSIGN0 = 0xffff000c;   
+        // Turn the UART output on unless a servo output is requested
+        if (!config.flags.steering_wheel_servo_output && 
+            !config.flags.gearbox_servo_output) {
+            // U0_TXT_O=PIO0_12
+            LPC_SWM->PINASSIGN0 = 0xffffff0c;   
         }
     }
     else {
@@ -198,6 +198,8 @@ int main(void)
     init_servo_reader();
     init_lights();
 
+    uart0_send_cstring("Initialization done\n");
+
     while (1) {
         service_systick();
 
@@ -212,5 +214,9 @@ int main(void)
         process_winch();
         process_lights();
         output_preprocessor();
+        
+        if (global_flags.new_channel_data) {
+            uart0_send_cstring("new_channel_data\n");
+        }
     }
 }

@@ -2,11 +2,9 @@
 
 #include <LPC8xx.h>
 
+#include <globals.h>
 #include <uart0.h>
 
-#ifndef UART0_BAUDRATE
-    #define UART0_BAUDRATE 115200
-#endif
 
 // INT32_MIN  is -2147483648 (decimal needs 12 characters, incl. terminating 0)
 // INT32_MAX  is 2147483647
@@ -82,13 +80,12 @@ void init_uart0(void)
     LPC_SYSCON->UARTFRGDIV = 255;
     LPC_SYSCON->UARTFRGMULT = 22;
 
-#if UART0_BAUDRATE == 38400  
-    LPC_USART0->BRG = 17;
-#elif UART0_BAUDRATE == 115200
-    LPC_USART0->BRG = 5; 
-#else
-    #error Requested baudrate currently not implemented
-#endif    
+    if (config.baudrate == 115200) {
+        LPC_USART0->BRG = 5; 
+    }
+    else {
+        LPC_USART0->BRG = 17;
+    }
 
     LPC_USART0->CFG = UART_CFG_DATALEN(8) | UART_CFG_ENABLE;     // 8n1
 

@@ -129,6 +129,8 @@ typedef struct {
     uint16_t light_mode_mask;
     uint16_t ch3_multi_click_timeout;
     uint16_t winch_command_repeat_time;
+    
+    uint32_t baudrate;
 } LIGHT_CONTROLLER_CONFIG_T;
 
 

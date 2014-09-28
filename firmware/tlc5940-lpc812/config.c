@@ -16,17 +16,17 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
         // (slave, preprocessor or winch) and one servo output (steering wheel
         // or gearbox servo)
         false,                  // slave_output
-        true,                   // preprocessor_output
+        false,                  // preprocessor_output
         false,                  // winch_output
         false,                  // steering_wheel_servo_output
         false,                  // gearbox_servo_output
 
-        false,                  //   esc_forward_reverse
-        false,                  //   ch3_is_momentary
+        false,                  // esc_forward_reverse
+        false,                  // ch3_is_momentary
 
-        true,                   //   auto_brake_lights_forward_enabled
-        true,                   //   auto_brake_lights_reverse_enabled
-        true,                   //   brake_disarm_timeout_enabled
+        true,                   // auto_brake_lights_forward_enabled
+        true,                   // auto_brake_lights_reverse_enabled
+        true,                   // brake_disarm_timeout_enabled
     },
 
     (800 / __SYSTICK_IN_MS),    // auto_brake_counter_value_forward_min
@@ -51,4 +51,6 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
     260,                        // ch3_multi_click_timeout
 
     (1000 / __SYSTICK_IN_MS),   // winch_command_repeat_time
+    
+    115200                      // baudrate of the UART
 };
