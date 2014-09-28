@@ -214,9 +214,5 @@ int main(void)
         process_winch();
         process_lights();
         output_preprocessor();
-        
-        if (global_flags.new_channel_data) {
-            uart0_send_cstring("new_channel_data\n");
-        }
     }
 }

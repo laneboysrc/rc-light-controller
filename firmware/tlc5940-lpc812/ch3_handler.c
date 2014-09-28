@@ -7,6 +7,7 @@
 #include <stdbool.h>
 
 #include <globals.h>
+#include <uart0.h>
 
 
 #define IGNORE_CLICK_COUNT 99

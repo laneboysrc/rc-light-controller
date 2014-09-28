@@ -82,10 +82,12 @@ void process_indicators(void)
             --indicator_timer;
         }
 
-        --blink_counter;
         if (blink_counter == 0) {
             blink_counter = config.blink_counter_value;
             global_flags.blink_flag = ~global_flags.blink_flag;
+        }
+        else {
+            --blink_counter;
         }
     }
 

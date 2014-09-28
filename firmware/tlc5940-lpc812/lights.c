@@ -4,6 +4,7 @@
 #include <stdbool.h>
 
 #include <globals.h>
+#include <uart0.h>
 
 static uint16_t light_mode;
 static uint8_t tlc5940_light_data[16];
