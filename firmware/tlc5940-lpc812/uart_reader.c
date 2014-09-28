@@ -1,12 +1,7 @@
 #include <stdint.h>
 
-#include <LPC8xx.h>
-
 #include <globals.h>
 #include <uart0.h>
-
-// FIXME: uart_servo and servo_reader are auto-detect!
-// Use rc-sound-module as reference
 
 
 #define SLAVE_MAGIC_BYTE 0x87
@@ -28,7 +23,7 @@ static void normalize_channel(struct channel_s *c, uint8_t data)
     else {
         c->normalized = data;
     }
-    
+
     if (c->normalized < 0) {
         c->absolute = -c->normalized;
     }
@@ -84,19 +79,6 @@ void read_preprocessor(void)
 
     global_flags.new_channel_data = false;
 
-    if (LPC_USART0->STAT & (1 << 8)) {
-        uart0_send_cstring("overrun\n");
-        LPC_USART0->STAT |= (1 << 8);
-    }
-    if (LPC_USART0->STAT & (1 << 13)) {
-        uart0_send_cstring("frameerr\n");
-        LPC_USART0->STAT |= (1 << 13);
-    }
-    if (LPC_USART0->STAT & (1 << 15)) {
-        uart0_send_cstring("noise\n");
-        LPC_USART0->STAT |= (1 << 15);
-    }
-
     while (uart0_read_is_byte_pending()) {
         uart_byte = uart0_read_byte();
 
@@ -143,10 +125,10 @@ void read_preprocessor(void)
                     normalize_channel(&channel[ST], channel_data[0]);
                     normalize_channel(&channel[TH], channel_data[1]);
 
-                    global_flags.startup_mode_neutral = 
+                    global_flags.startup_mode_neutral =
                         (channel_data[2] & 0x10) ? true : false;
 
-                    normalize_channel(&channel[CH3], 
+                    normalize_channel(&channel[CH3],
                         (channel_data[2] & 0x01) ? 100 : -100);
 
                     global_flags.new_channel_data = true;
@@ -163,10 +145,10 @@ void read_preprocessor(void)
                     normalize_channel(&channel[ST], channel_data[0]);
                     normalize_channel(&channel[TH], channel_data[1]);
 
-                    global_flags.startup_mode_neutral = 
+                    global_flags.startup_mode_neutral =
                         (channel_data[2] & 0x10) ? true : false;
 
-                    normalize_channel(&channel[CH3], 
+                    normalize_channel(&channel[CH3],
                         (channel_data[2] & 0x01) ? 100 : -100);
 
                     global_flags.new_channel_data = true;

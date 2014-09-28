@@ -51,6 +51,6 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
     (260 / __SYSTICK_IN_MS),    // ch3_multi_click_timeout
 
     (1000 / __SYSTICK_IN_MS),   // winch_command_repeat_time
-    
-    115200                      // baudrate of the UART
+
+    115200                       // baudrate of the UART
 };

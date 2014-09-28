@@ -19,6 +19,13 @@
 #define UART_STAT_TXRDY (1 << 2)
 #define UART_STAT_TXIDLE (1 << 3)
 
+#define RECEIVE_BUFFER_SIZE 16           // Must be modulo 2 for speed
+#define RECEIVE_BUFFER_INDEX_MASK (RECEIVE_BUFFER_SIZE - 1)
+
+static uint8_t receive_buffer[RECEIVE_BUFFER_SIZE];
+static volatile uint16_t read_index = 0;
+static volatile uint16_t write_index = 0;
+
 
 // ****************************************************************************
 static void uint32_to_cstring(uint32_t value, char *result, int radix, int number_of_leading_zeros)
@@ -75,11 +82,11 @@ void init_uart0(void)
 #if __SYSTEM_CLOCK == 12000000
     // U_PCLK = UARTCLKDIV/(1+(MULT/DIV))
     // baud rate = U_PCLK/(16 x (BRGVAL + 1))
-    
+
     // 115200 * 16 * (brgval + 1) = 11059200
     // 12000000 / 11059200 = 1.085069444 = 1 + (mult/div)
     // MULT = 22
-    
+
     // u_pclk = 115200 * (16 * (5(=BRG) + 1)) = 11059200
     // (MULT / 256(=DIV) = ((12000000(=mainclock) / (1(=CLKDIV))) / u_pclk - 1) = 0.0850694444444444
     // MULT = 0.0850694444444444 * 256 = 22
@@ -88,13 +95,13 @@ void init_uart0(void)
     LPC_SYSCON->UARTFRGMULT = 22;
 
     if (config.baudrate == 115200) {
-        LPC_USART0->BRG = 5; 
+        LPC_USART0->BRG = 5;
     }
     else {
         LPC_USART0->BRG = 17;
     }
+// -----------------------------
 
-    LPC_USART0->CFG = UART_CFG_DATALEN(8) | UART_CFG_ENABLE;     // 8n1
 
 // -----------------------------
 #elif __SYSTEM_CLOCK == 30000000
@@ -104,13 +111,19 @@ void init_uart0(void)
     LPC_SYSCON->UARTFRGDIV = 255;
     LPC_SYSCON->UARTFRGMULT = 4;
 #if UART0_BAUDRATE == 115200
-    LPC_USART0->BRG = 30;           
+    LPC_USART0->BRG = 30;
 #else
     #error Requested baudrate currently not implemented
 #endif
 
-    LPC_USART0->CFG = UART_CFG_DATALEN(8) | UART_CFG_ENABLE;     // 8n1
 #endif
+// -----------------------------
+
+
+    LPC_USART0->CFG = UART_CFG_DATALEN(8) | UART_CFG_ENABLE;     // 8n1
+
+    LPC_USART0->INTENSET = (1 << 0);    // Enable RXRDY interrupt
+    NVIC_EnableIRQ(UART0_IRQn);
 }
 
 
@@ -198,16 +211,57 @@ inline void uart0_send_linefeed(void)
 }
 
 
+
+// ****************************************************************************
+// ****************************************************************************
+// ****************************************************************************
+void UART0_irq_handler(void)
+{
+    receive_buffer[write_index++] = LPC_USART0->RXDATA;
+
+    // Wrap around the write pointer. This works because the buffer size is
+    // a modulo of 2.
+    write_index &= RECEIVE_BUFFER_INDEX_MASK;
+
+    // If we are bumping into the read pointer we are dealing with a buffer
+    // overflow. Back off and rather destroy the last value.
+    if (write_index == read_index) {
+        write_index = (write_index - 1) & RECEIVE_BUFFER_INDEX_MASK;
+    }
+}
+
+
 // ****************************************************************************
 int uart0_read_is_byte_pending(void)
 {
-    return (LPC_USART0->STAT & UART_STAT_RXRDY) ? 1 : 0;
+    if (LPC_USART0->STAT & (1 << 8)) {
+        uart0_send_cstring("overrun\n");
+        LPC_USART0->STAT |= (1 << 8);
+    }
+    if (LPC_USART0->STAT & (1 << 13)) {
+        uart0_send_cstring("frameerr\n");
+        LPC_USART0->STAT |= (1 << 13);
+    }
+    if (LPC_USART0->STAT & (1 << 15)) {
+        uart0_send_cstring("noise\n");
+        LPC_USART0->STAT |= (1 << 15);
+    }
+
+    return (read_index != write_index);
 }
 
 
 // ****************************************************************************
 uint8_t uart0_read_byte(void)
 {
-    while (!(LPC_USART0->STAT & UART_STAT_RXRDY));
-    return LPC_USART0->RXDATA;
+    uint8_t data;
+
+    while (!uart0_read_is_byte_pending());
+
+    data = receive_buffer[read_index++];
+
+    // Wrap around the read pointer.
+    read_index &= RECEIVE_BUFFER_INDEX_MASK;
+
+    return data;
 }

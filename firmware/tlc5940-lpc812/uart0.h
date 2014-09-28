@@ -17,6 +17,7 @@ void uart0_send_uint8_binary(uint8_t number);
 void uart0_send_linefeed(void);
 
 int uart0_read_is_byte_pending(void);
+void UART0_irq_handler(void);
 uint8_t uart0_read_byte(void);
 
 #endif /* __UART0_H */

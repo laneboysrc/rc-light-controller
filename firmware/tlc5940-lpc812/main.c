@@ -57,10 +57,10 @@ void init_hardware()
 
 
     LPC_SWM->PINENABLE0 = 0xffffffbf;   // Enable reset, all other special functions disabled
-    
+
     // Make port PIO0_1, PIO0_2, PIO0_3, PIO0_10, PIO0_11 outputs
-    LPC_GPIO_PORT->DIR0 |= 
-        (1 << 1) | (1 << 2) | (1 << 3) | (1 << 10) | (1 << 11);    
+    LPC_GPIO_PORT->DIR0 |=
+        (1 << 1) | (1 << 2) | (1 << 3) | (1 << 10) | (1 << 11);
 
     // Enable glitch filtering on the IOs
     // GOTCHA: ICONCLKDIV0 is actually the last register in the array!
@@ -86,19 +86,19 @@ void init_hardware()
 
     if (config.mode == MASTER_WITH_SERVO_READER) {
         // Turn the UART output on unless a servo output is requested
-        if (!config.flags.steering_wheel_servo_output && 
+        if (!config.flags.steering_wheel_servo_output &&
             !config.flags.gearbox_servo_output) {
             // U0_TXT_O=PIO0_12
-            LPC_SWM->PINASSIGN0 = 0xffffff0c;   
+            LPC_SWM->PINASSIGN0 = 0xffffff0c;
         }
     }
     else {
         // U0_TXT_O=PIO0_4, U0_RXD_I=PIO0_0
-        LPC_SWM->PINASSIGN0 = 0xffff0004;   
+        LPC_SWM->PINASSIGN0 = 0xffff0004;
     }
 
     // SCT CTIN_3 at PIO0.13, CTIN_2 at PIO0.4, CTIN_1 at PIO0.0
-    LPC_SWM->PINASSIGN6 = 0xff0d0400;   
+    LPC_SWM->PINASSIGN6 = 0xff0d0400;
 
 
     // Turn on peripheral clock for SCTimer
@@ -134,10 +134,10 @@ void init_hardware()
     LPC_SCT->OUT[1].SET = (1 << 0);         // Event 0 will set CTOUT_1
     LPC_SCT->OUT[1].CLR = (1 << 4);         // Event 4 will clear CTOUT_1
 
-    if (config.flags.steering_wheel_servo_output || 
+    if (config.flags.steering_wheel_servo_output ||
         config.flags.gearbox_servo_output) {
         // CTOUT_1 = PIO0_12
-        LPC_SWM->PINASSIGN7 = 0xffffff0c;   
+        LPC_SWM->PINASSIGN7 = 0xffffff0c;
     }
 
 
@@ -203,25 +203,25 @@ int main(void)
     while (1) {
         service_systick();
 
-        //read_all_servo_channels();
+        read_all_servo_channels();
         read_preprocessor();
-        //process_ch3_clicks();
-        //process_drive_mode();
-        //process_indicators();
-        //process_channel_reversing_setup();
+        process_ch3_clicks();
+        process_drive_mode();
+        process_indicators();
+        process_channel_reversing_setup();
 
-        //process_servo_output();
-        //process_winch();
-        //process_lights();
-        //output_preprocessor();
-        
-        //if (global_flags.new_channel_data) {
-        //    uart0_send_cstring("ST: ");
-        //    uart0_send_int32(channel[ST].normalized);
-        //    uart0_send_cstring("   TH: ");
-        //    uart0_send_int32(channel[TH].normalized);
-        //    uart0_send_linefeed();
-        //}
-   
+        process_servo_output();
+        process_winch();
+        process_lights();
+        output_preprocessor();
+
+        if (global_flags.new_channel_data) {
+            uart0_send_cstring("ST: ");
+            uart0_send_int32(channel[ST].normalized);
+            uart0_send_cstring("   TH: ");
+            uart0_send_int32(channel[TH].normalized);
+            uart0_send_linefeed();
+        }
+
     }
 }

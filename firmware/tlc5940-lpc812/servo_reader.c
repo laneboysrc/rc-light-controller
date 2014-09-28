@@ -5,8 +5,11 @@
 #include <globals.h>
 
 
-// FIXME: uart_servo and servo_reader are auto-detect!
-// Use rc-sound-module as reference
+#define SERVO_PULSE_MIN 600
+#define SERVO_PULSE_MAX 2500
+#define SERVO_PULSE_CLAMP_LOW 800
+#define SERVO_PULSE_CLAMP_HIGH 2300
+#define STARTUP_TIME 2000           // Time at startup until neutral is initialized
 
 
 static enum {
@@ -14,12 +17,6 @@ static enum {
     WAIT_FOR_TIMEOUT,
     NORMAL_OPERATION
 } servo_reader_state = WAIT_FOR_FIRST_PULSE;
-
-#define SERVO_PULSE_MIN 600
-#define SERVO_PULSE_MAX 2500
-#define SERVO_PULSE_CLAMP_LOW 800
-#define SERVO_PULSE_CLAMP_HIGH 2300
-#define STARTUP_TIME 2000           // Time at startup until neutral is initialized
 
 static volatile bool new_raw_channel_data = false;
 static uint32_t servo_reader_timer;
