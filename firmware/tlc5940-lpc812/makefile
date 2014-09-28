@@ -29,7 +29,7 @@ CFLAGS := -mthumb -mcpu=cortex-m0plus
 CFLAGS += -Wall -Wextra
 CFLAGS += -I. -I./LPC8xx
 CFLAGS += -Os -fdata-sections -ffunction-sections
-CFLAGS += -D__SYSTEM_CLOCK=$(SYSTEM_CLOCK) -DUART0_BAUDRATE=38400
+CFLAGS += -D__SYSTEM_CLOCK=$(SYSTEM_CLOCK)
 
 LDFLAGS := -nostdlib -T $(LINKER_SCRIPT) -Map=MAPFILE --gc-sections -L$(GCC_ARM_LIB)
 
