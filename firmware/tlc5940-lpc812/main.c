@@ -215,13 +215,13 @@ int main(void)
         //process_lights();
         //output_preprocessor();
         
-        if (global_flags.new_channel_data) {
-            uart0_send_cstring("ST: ");
-            uart0_send_int32(channel[ST].normalized);
-            uart0_send_cstring("   TH: ");
-            uart0_send_int32(channel[TH].normalized);
-            uart0_send_linefeed();
-        }
+        //if (global_flags.new_channel_data) {
+        //    uart0_send_cstring("ST: ");
+        //    uart0_send_int32(channel[ST].normalized);
+        //    uart0_send_cstring("   TH: ");
+        //    uart0_send_int32(channel[TH].normalized);
+        //    uart0_send_linefeed();
+        //}
    
     }
 }

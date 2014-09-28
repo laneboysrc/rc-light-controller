@@ -73,6 +73,13 @@ void init_uart0(void)
 
 // -----------------------------
 #if __SYSTEM_CLOCK == 12000000
+    // U_PCLK = UARTCLKDIV/(1+(MULT/DIV))
+    // baud rate = U_PCLK/(16 x (BRGVAL + 1))
+    
+    // 115200 * 16 * (brgval + 1) = 11059200
+    // 12000000 / 11059200 = 1.085069444 = 1 + (mult/div)
+    // MULT = 22
+    
     // u_pclk = 115200 * (16 * (5(=BRG) + 1)) = 11059200
     // (MULT / 256(=DIV) = ((12000000(=mainclock) / (1(=CLKDIV))) / u_pclk - 1) = 0.0850694444444444
     // MULT = 0.0850694444444444 * 256 = 22

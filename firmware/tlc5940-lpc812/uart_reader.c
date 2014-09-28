@@ -1,5 +1,7 @@
 #include <stdint.h>
 
+#include <LPC8xx.h>
+
 #include <globals.h>
 #include <uart0.h>
 
@@ -82,87 +84,99 @@ void read_preprocessor(void)
 
     global_flags.new_channel_data = false;
 
-    if (!uart0_read_is_byte_pending()) {
-        return;
+    if (LPC_USART0->STAT & (1 << 8)) {
+        uart0_send_cstring("overrun\n");
+        LPC_USART0->STAT |= (1 << 8);
     }
-    
-    uart_byte = uart0_read_byte();
+    if (LPC_USART0->STAT & (1 << 13)) {
+        uart0_send_cstring("frameerr\n");
+        LPC_USART0->STAT |= (1 << 13);
+    }
+    if (LPC_USART0->STAT & (1 << 15)) {
+        uart0_send_cstring("noise\n");
+        LPC_USART0->STAT |= (1 << 15);
+    }
 
-    if (uart_byte == SLAVE_MAGIC_BYTE) {
-        // The first /init_count/ consecutive frames must have the same number
-        // of bytes
-        if (init_count) {
-            if (state == 4 || state == 5) {
-                if (byte_count == state) {
-                    --init_count;
+    while (uart0_read_is_byte_pending()) {
+        uart_byte = uart0_read_byte();
+
+        if (uart_byte == SLAVE_MAGIC_BYTE) {
+            // The first /init_count/ consecutive frames must have the same number
+            // of bytes
+            if (init_count) {
+                if (state == 4 || state == 5) {
+                    if (byte_count == state) {
+                        --init_count;
+                    }
+                    else {
+                        byte_count = state;
+                        init_count = CONSECUTIVE_BYTE_COUNTS;
+                    }
+                }
+            }
+            state = 1;
+            return;
+        }
+
+        switch (state) {
+            case 0:
+                // Nothing to do; SLAVE_MAGIC_BYTE is checked globally
+                break;
+
+            case 1:
+                channel_data[0] = uart_byte;
+                state = 2;
+                break;
+
+            case 2:
+                channel_data[1] = uart_byte;
+                state = 3;
+                break;
+
+            case 3:
+                channel_data[2] = uart_byte;
+                if (init_count || byte_count > 4) {
+                    state = 4;
                 }
                 else {
-                    byte_count = state;
-                    init_count = CONSECUTIVE_BYTE_COUNTS;
+                    channel_data[3] = 0;
+                    normalize_channel(&channel[ST], channel_data[0]);
+                    normalize_channel(&channel[TH], channel_data[1]);
+
+                    global_flags.startup_mode_neutral = 
+                        (channel_data[2] & 0x10) ? true : false;
+
+                    normalize_channel(&channel[CH3], 
+                        (channel_data[2] & 0x01) ? 100 : -100);
+
+                    global_flags.new_channel_data = true;
+                    state = 0;
                 }
-            }
+                break;
+
+            case 4:
+                channel_data[3] = uart_byte;
+                if (init_count) {
+                    state = 5;      // Dummy state, handled by 'default'
+                }
+                else {
+                    normalize_channel(&channel[ST], channel_data[0]);
+                    normalize_channel(&channel[TH], channel_data[1]);
+
+                    global_flags.startup_mode_neutral = 
+                        (channel_data[2] & 0x10) ? true : false;
+
+                    normalize_channel(&channel[CH3], 
+                        (channel_data[2] & 0x01) ? 100 : -100);
+
+                    global_flags.new_channel_data = true;
+                    state = 0;
+                }
+                break;
+
+            default:
+                break;
         }
-        state = 1;
-        return;
-    }
-
-    switch (state) {
-        case 0:
-            // Nothing to do; SLAVE_MAGIC_BYTE is checked globally
-            break;
-
-        case 1:
-            channel_data[0] = uart_byte;
-            state = 2;
-            break;
-
-        case 2:
-            channel_data[1] = uart_byte;
-            state = 3;
-            break;
-
-        case 3:
-            channel_data[2] = uart_byte;
-            if (init_count || byte_count > 4) {
-                state = 4;
-            }
-            else {
-                channel_data[3] = 0;
-                normalize_channel(&channel[ST], channel_data[0]);
-                normalize_channel(&channel[TH], channel_data[1]);
-
-                global_flags.startup_mode_neutral = 
-                    (channel_data[2] & 0x10) ? true : false;
-
-                normalize_channel(&channel[CH3], 
-                    (channel_data[2] & 0x01) ? 100 : -100);
-
-                global_flags.new_channel_data = true;
-                state = 0;
-            }
-            break;
-
-        case 4:
-            channel_data[3] = uart_byte;
-            if (init_count) {
-                state = 5;      // Dummy state, handled by 'default'
-            }
-            else {
-                normalize_channel(&channel[ST], channel_data[0]);
-                normalize_channel(&channel[TH], channel_data[1]);
-
-                global_flags.startup_mode_neutral = 
-                    (channel_data[2] & 0x10) ? true : false;
-
-                normalize_channel(&channel[CH3], 
-                    (channel_data[2] & 0x01) ? 100 : -100);
-
-                global_flags.new_channel_data = true;
-                state = 0;
-            }
-            break;
-
-        default:
-            break;
     }
 }
+

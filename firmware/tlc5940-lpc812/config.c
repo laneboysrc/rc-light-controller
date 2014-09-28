@@ -52,5 +52,5 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
 
     (1000 / __SYSTICK_IN_MS),   // winch_command_repeat_time
     
-    38400                       // baudrate of the UART
+    115200                      // baudrate of the UART
 };
