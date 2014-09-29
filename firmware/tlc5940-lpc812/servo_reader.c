@@ -21,10 +21,15 @@ static enum {
 static volatile bool new_raw_channel_data = false;
 static uint32_t servo_reader_timer;
 
+
 // ****************************************************************************
 void init_servo_reader(void)
 {
     int i;
+
+    if (config.mode != MASTER_WITH_SERVO_READER) {
+        return;
+    }
 
     for (i = 0; i < 3; i++) {
         channel[i].normalized = 0;
@@ -33,8 +38,6 @@ void init_servo_reader(void)
     }
 
     global_flags.startup_mode_neutral = 1;
-
-    // FIXME: do this only when servo reader is enabled
 
     // SCTimer setup
     // At this point we assume that SCTimer has been setup in the following way:

@@ -164,6 +164,7 @@ int main(void)
     init_uart0();
     load_persistent_storage();
     init_servo_reader();
+    init_uart_reader();
     init_servo_output();
     init_lights();
 
@@ -189,6 +190,9 @@ int main(void)
         // }
 
         if (global_flags.new_channel_data) {
+            static int16_t st = 999;
+            static int16_t th = 999;
+
             // if (global_flags.blink_indicator_left) {
             //     uart0_send_cstring("blink left\n");
             // }
@@ -199,11 +203,18 @@ int main(void)
             //     uart0_send_cstring("hazard\n");
             // }
 
-            uart0_send_cstring("ST: ");
-            uart0_send_int32(channel[ST].normalized);
-            uart0_send_cstring("   TH: ");
-            uart0_send_int32(channel[TH].normalized);
-            uart0_send_linefeed();
+            if (st != channel[ST].normalized  ||
+                th != channel[TH].normalized) {
+
+               st = channel[ST].normalized;
+               th = channel[TH].normalized;
+
+               uart0_send_cstring("ST: ");
+               uart0_send_int32(channel[ST].normalized);
+               uart0_send_cstring("   TH: ");
+               uart0_send_int32(channel[TH].normalized);
+               uart0_send_linefeed();
+            }
         }
     }
 }

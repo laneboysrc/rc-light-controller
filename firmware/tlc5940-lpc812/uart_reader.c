@@ -8,10 +8,27 @@
 #define CONSECUTIVE_BYTE_COUNTS 3
 
 
-struct channel_s channel[3];
-
 static int8_t byte_count = -1;
 static int8_t init_count = CONSECUTIVE_BYTE_COUNTS;
+
+
+// ****************************************************************************
+void init_uart_reader(void)
+{
+    int i;
+
+    if (config.mode != MASTER_WITH_UART_READER) {
+        return;
+    }
+
+    for (i = 0; i < 3; i++) {
+        channel[i].normalized = 0;
+        channel[i].absolute = 0;
+        channel[i].reversed = false;
+    }
+
+    global_flags.startup_mode_neutral = 1;
+}
 
 
 // ****************************************************************************
