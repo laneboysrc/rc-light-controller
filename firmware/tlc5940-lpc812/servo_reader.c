@@ -34,18 +34,19 @@ void init_servo_reader(void)
 
     global_flags.startup_mode_neutral = 1;
 
+    // FIXME: do this only when servo reader is enabled
+
     // SCTimer setup
     // At this point we assume that SCTimer has been setup in the following way:
     //
     //  * Split 16-bit timers
-    //  * Timer L runs at 2 MHz
     //  * Events 1, 2 and 3 available for our use
     //  * Registers 1, 2 and 3 available for our use
     //  * CTIN_1, CTIN_2 and CTIN3 available for our use
-    //  * Timer interrupt will be enabled externally
-    //  * Timer will be enabled externally
 
-    LPC_SCT->EVEN |= (1 << 0);            // Event 0 generates an interrupt
+    LPC_SCT->CTRL_L |= (1 << 3) |   // Clear the counter L
+                       (5 << 5);    // PRE_L[12:5] = 6-1 (SCTimer L clock 2 MHz)
+
 
     // Configure registers 1..3 to capture servo pulses on SCTimer L
     for (i = 1; i <= 3; i++) {
@@ -59,6 +60,14 @@ void init_servo_reader(void)
         LPC_SCT->CAPCTRL[i].L = (1 << i);       // Event i loads capture register i
         LPC_SCT->EVEN |= (1 << i);              // Event i generates an interrupt
     }
+
+
+    // SCT CTIN_3 at PIO0.13, CTIN_2 at PIO0.4, CTIN_1 at PIO0.0
+    LPC_SWM->PINASSIGN6 = 0xff0d0400;
+
+
+    LPC_SCT->CTRL_L &= ~(1 << 2);           // Start the SCTimer L
+    NVIC_EnableIRQ(SCT_IRQn);
 }
 
 

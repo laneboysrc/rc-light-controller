@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#include <LPC8xx.h>
 #include <globals.h>
 
 static bool next = false;
@@ -23,6 +24,42 @@ static uint16_t gearbox_servo_idle_counter;
 
 // FIXME: make configurable
 #define GEARBOX_SWITCH_TIME 1
+
+
+void init_servo_output(void) {
+    if (!config.flags.steering_wheel_servo_output &&
+        !config.flags.gearbox_servo_output) {
+        return;
+    }
+
+    LPC_SCT->CONFIG |= (1 << 18);   // Auto-limit on counter H
+    LPC_SCT->CTRL_H |= (1 << 3) |   // Clear the counter H
+                       (11 << 5);   // PRE_H[12:5] = 12-1 (SCTimer H clock 1 MHz)
+    LPC_SCT->MATCHREL[0].H = 20000 - 1;     // 20 ms per overflow (50 Hz)
+    LPC_SCT->MATCHREL[4].H = 1500;          // Servo pulse 1.5 ms intially
+
+    LPC_SCT->EVENT[0].STATE = 0xFFFF;       // Event 0 happens in all states
+    LPC_SCT->EVENT[0].CTRL = (0 << 0) |     // Match register 0
+                             (1 << 4) |     // Select H counter
+                             (0x1 << 12);   // Match condition only
+
+    LPC_SCT->EVENT[4].STATE = 0xFFFF;       // Event 4 happens in all states
+    LPC_SCT->EVENT[4].CTRL = (4 << 0) |     // Match register 4
+                             (1 << 4) |     // Select H counter
+                             (0x1 << 12);   // Match condition only
+
+    // We've chosen CTOUT_1 because CTOUT_0 resides in PINASSIGN6, which
+    // changing may affect CTIN_1..3 that we need.
+    // CTOUT_1 is in PINASSIGN7, where no other function is needed for our
+    // application.
+    LPC_SCT->OUT[1].SET = (1 << 0);         // Event 0 will set CTOUT_1
+    LPC_SCT->OUT[1].CLR = (1 << 4);         // Event 4 will clear CTOUT_1
+
+    // CTOUT_1 = PIO0_12
+    LPC_SWM->PINASSIGN7 = 0xffffff0c;
+
+    LPC_SCT->CTRL_H &= ~(1 << 2);           // Start the SCTimer H
+}
 
 
 void gearbox_action(uint8_t ch3_clicks)
@@ -48,7 +85,7 @@ void gearbox_action(uint8_t ch3_clicks)
 
 void servo_output_setup_action(uint8_t ch3_clicks)
 {
-    if (!config.flags.gearbox_servo_output  &&  
+    if (!config.flags.gearbox_servo_output  &&
         !config.flags.steering_wheel_servo_output) {
         return;
     }

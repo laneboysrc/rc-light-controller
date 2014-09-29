@@ -58,7 +58,6 @@ void HardFault_handler(void) ALIAS(default_irq_handler);
 void SVCall_handler(void) ALIAS(default_irq_handler);
 void PendSV_handler(void) ALIAS(default_irq_handler);
 void SysTick_handler(void) ALIAS(default_irq_handler);
-void SysTick_Handle(void) ALIAS(default_irq_handler);
 void SPI0_irq_handler(void) ALIAS(default_irq_handler);
 void SPI1_irq_handler(void) ALIAS(default_irq_handler);
 void UART0_irq_handler(void) ALIAS(default_irq_handler);
@@ -100,7 +99,7 @@ irq_handler vectors[48] = {
     SysTick_handler,        // SysTick handler
 
     // LPC81x specific vectors
-    SPI0_irq_handler,       // SPI0 
+    SPI0_irq_handler,       // SPI0
     SPI1_irq_handler,       // SPI1
     0,                      // Reserved
     UART0_irq_handler,      // UART0

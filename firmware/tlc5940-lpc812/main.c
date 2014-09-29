@@ -49,10 +49,13 @@ void init_hardware()
     // Set flash wait-states to 1 system clock
     LPC_FLASHCTRL->FLASHCFG = 0;
 
-    // Turn on peripheral clocks for IOCON (GPIO, SWM alrady enabled after reset)
-    LPC_SYSCON->SYSAHBCLKCTRL |= (1 << 18);
+    // Turn on peripheral clocks for SCTimer, IOCON
+    // (GPIO, SWM alrady enabled after reset)
+    LPC_SYSCON->SYSAHBCLKCTRL |= (1 << 8) | (1 << 18);
 
 
+    // ------------------------
+    // IO configuration
     LPC_SWM->PINENABLE0 = 0xffffffbf;   // Enable reset, all other special functions disabled
 
     // Make port PIO0_1, PIO0_2, PIO0_3, PIO0_10, PIO0_11 outputs
@@ -94,58 +97,39 @@ void init_hardware()
         LPC_SWM->PINASSIGN0 = 0xffff0004;
     }
 
-    // SCT CTIN_3 at PIO0.13, CTIN_2 at PIO0.4, CTIN_1 at PIO0.0
-    LPC_SWM->PINASSIGN6 = 0xff0d0400;
+
+    // ------------------------
+    // Configure SCTimer globally for two 16-bit counters
+    LPC_SCT->CONFIG = 0;
 
 
-    // Turn on peripheral clock for SCTimer
-    LPC_SYSCON->SYSAHBCLKCTRL |= (1 << 8);
 
-    LPC_SCT->CONFIG = (1 << 18);    // Auto-limit on counter H
-    LPC_SCT->CTRL_L |= (1 << 3) |   // Clear the counter L
-                       (5 << 5);    // PRE_L[12:5] = 6-1 (SCTimer L clock 2 MHz)
-    LPC_SCT->CTRL_H |= (1 << 3) |   // Clear the counter H
-                       (11 << 5);   // PRE_H[12:5] = 12-1 (SCTimer H clock 1 MHz)
+    // ------------------------
+    // SysTick configuration
+    SysTick->LOAD = __SYSTEM_CLOCK * __SYSTICK_IN_MS / 1000;
+    SysTick->VAL = __SYSTEM_CLOCK * __SYSTICK_IN_MS / 1000;
+    SysTick->CTRL = (1 << 0) |               // Enable System Tick counter
+                    (1 << 1) |               // System Tick interrupt enable
+                    (1 << 2);                // Use system clock
 
-#if __SYSTICK_IN_MS != 20
-#error  Code expexts __SYSTICK_IN_MS to be set to 20
-#endif
-    LPC_SCT->MATCHREL[0].H = 20000 - 1;     // 20 ms per overflow (50 Hz)
-    LPC_SCT->MATCHREL[4].H = 1500;          // Servo pulse 1.5 ms intially
-
-    // SCTimer H is soft timer, trigger interrupt on reload
-    LPC_SCT->EVENT[0].STATE = 0xFFFF;       // Event 0 happens in all states
-    LPC_SCT->EVENT[0].CTRL = (0 << 0) |     // Match register 0
-                             (1 << 4) |     // Select H counter
-                             (0x1 << 12);   // Match condition only
-
-    LPC_SCT->EVENT[4].STATE = 0xFFFF;       // Event 4 happens in all states
-    LPC_SCT->EVENT[4].CTRL = (4 << 0) |     // Match register 4
-                             (1 << 4) |     // Select H counter
-                             (0x1 << 12);   // Match condition only
-
-    // We've chosen CTOUT_1 because CTOUT_0 resides in PINASSIGN6, which
-    // changing may affect CTIN_1..3 that we need.
-    // CTOUT_1 is in PINASSIGN7, where no other function is needed for our
-    // application.
-    LPC_SCT->OUT[1].SET = (1 << 0);         // Event 0 will set CTOUT_1
-    LPC_SCT->OUT[1].CLR = (1 << 4);         // Event 4 will clear CTOUT_1
-
-    if (config.flags.steering_wheel_servo_output ||
-        config.flags.gearbox_servo_output) {
-        // CTOUT_1 = PIO0_12
-        LPC_SWM->PINASSIGN7 = 0xffffff0c;
-    }
+    NVIC_EnableIRQ(SysTick_IRQn);
 
 
-    LPC_SCT->CTRL_L &= ~(1 << 2);           // Start the SCTimer L
-    LPC_SCT->CTRL_H &= ~(1 << 2);           // Start the SCTimer H
-
+    // FIXME: we can't do that here because other modules may use the
+    // SWM or IOCON
 
     // Turn off peripheral clock for IOCON and SWM to preserve power
-    LPC_SYSCON->SYSAHBCLKCTRL &= ~((1 << 18) | (1 << 7));
+    //LPC_SYSCON->SYSAHBCLKCTRL &= ~((1 << 18) | (1 << 7));
 
-    NVIC_EnableIRQ(SCT_IRQn);
+}
+
+
+// ****************************************************************************
+void SysTick_handler(void)
+{
+    if (SysTick->CTRL & (1 << 16)) {        // Read and clear Countflag
+        ++systick_count;
+    }
 }
 
 
@@ -155,7 +139,6 @@ void SCT_irq_handler(void)
     // Event 0: Match (reload) event every 20 ms (SCTimer H)
     if (LPC_SCT->EVFLAG & (1 << 0)) {
         LPC_SCT->EVFLAG = (1 << 0);
-        ++systick_count;
     }
 
     servo_reader_SCT_interrupt_handler();
@@ -178,11 +161,11 @@ void service_systick(void)
     // interrupt is pending in the pipeline.
     // More info:
     // http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.dai0321a/BIHHFHJD.html
-    NVIC_DisableIRQ(SCT_IRQn);
+    NVIC_DisableIRQ(SysTick_IRQn);
     __DSB();
     __ISB();
     --systick_count;
-    NVIC_EnableIRQ(SCT_IRQn);
+    NVIC_EnableIRQ(SysTick_IRQn);
 }
 
 
@@ -193,7 +176,10 @@ int main(void)
     init_uart0();
     load_persistent_storage();
     init_servo_reader();
+    init_servo_output();
     init_lights();
+
+    uart0_send_cstring("Light controller initialized\n");
 
     while (1) {
         service_systick();
@@ -210,6 +196,10 @@ int main(void)
         process_lights();
         output_preprocessor();
 
+        //if (global_flags.systick) {
+        //     uart0_send_cstring("tick\n");
+        // }
+
         if (global_flags.new_channel_data) {
             // if (global_flags.blink_indicator_left) {
             //     uart0_send_cstring("blink left\n");
@@ -221,12 +211,11 @@ int main(void)
             //     uart0_send_cstring("hazard\n");
             // }
 
-            // uart0_send_cstring("ST: ");
-            // uart0_send_int32(channel[ST].normalized);
-            // uart0_send_cstring("   TH: ");
-            // uart0_send_int32(channel[TH].normalized);
-            // uart0_send_linefeed();
+            uart0_send_cstring("ST: ");
+            uart0_send_int32(channel[ST].normalized);
+            uart0_send_cstring("   TH: ");
+            uart0_send_int32(channel[TH].normalized);
+            uart0_send_linefeed();
         }
-
     }
 }

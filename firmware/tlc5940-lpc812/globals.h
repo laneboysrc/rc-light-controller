@@ -129,7 +129,7 @@ typedef struct {
     uint16_t light_mode_mask;
     uint16_t ch3_multi_click_timeout;
     uint16_t winch_command_repeat_time;
-    
+
     uint32_t baudrate;
 } LIGHT_CONTROLLER_CONFIG_T;
 
@@ -161,6 +161,7 @@ void process_drive_mode(void);
 void process_indicators(void);
 void toggle_hazard_lights(void);
 
+void init_servo_output(void);
 void process_servo_output(void);
 void servo_output_setup_action(uint8_t ch3_clicks);
 void gearbox_action(uint8_t ch3_clicks);
