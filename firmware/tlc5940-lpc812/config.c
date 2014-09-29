@@ -3,54 +3,54 @@
 #include <globals.h>
 
 const LIGHT_CONTROLLER_CONFIG_T config = {
-    ROM_MAGIC,                  // magic
-    0x01,                       // type
-    0x01,                       // version
+    .magic = ROM_MAGIC,
+    .type = 0x01,
+    .version = 0x01,
 
-    MASTER_WITH_UART_READER,    // mode
+    .mode = MASTER_WITH_UART_READER,
 
-    {                           // flags
-        // If mode is MASTER_WITH_SERVO_READER  then all flags are mutually
-        // exculsive.
+    .flags = {
+        // If mode is MASTER_WITH_SERVO_READER then all *_output flags are
+        // mutually exculsive.
         // If mode is MASTER_WITH_UART_READER then there can be one UART output
         // (slave, preprocessor or winch) and one servo output (steering wheel
         // or gearbox servo)
-        false,                  // slave_output
-        false,                  // preprocessor_output
-        false,                  // winch_output
-        false,                  // steering_wheel_servo_output
-        false,                  // gearbox_servo_output
+        .slave_output = false,
+        .preprocessor_output = false,
+        .winch_output = false,
+        .steering_wheel_servo_output = false,
+        .gearbox_servo_output = false,
 
-        false,                  // esc_forward_reverse
-        false,                  // ch3_is_momentary
+        .esc_forward_reverse = false,
+        .ch3_is_momentary = false,
 
-        true,                   // auto_brake_lights_forward_enabled
-        true,                   // auto_brake_lights_reverse_enabled
-        true,                   // brake_disarm_timeout_enabled
+        .auto_brake_lights_forward_enabled = true,
+        .auto_brake_lights_reverse_enabled = true,
+        .brake_disarm_timeout_enabled = true,
     },
 
-    (800 / __SYSTICK_IN_MS),    // auto_brake_counter_value_forward_min
-    (2500 / __SYSTICK_IN_MS),   // auto_brake_counter_value_forward_min
-    (800 / __SYSTICK_IN_MS),    // auto_brake_counter_value_reverse_min
-    (2500 / __SYSTICK_IN_MS),   // auto_brake_counter_value_reverse_min
-    (800 / __SYSTICK_IN_MS),    // auto_reverse_counter_value_min
-    (2000 / __SYSTICK_IN_MS),   // auto_reverse_counter_value_max
-    (1000 / __SYSTICK_IN_MS),   // brake_disarm_counter_value
+    .auto_brake_counter_value_forward_min = (800 / __SYSTICK_IN_MS),
+    .auto_brake_counter_value_forward_max = (2500 / __SYSTICK_IN_MS),
+    .auto_brake_counter_value_reverse_min = (800 / __SYSTICK_IN_MS),
+    .auto_brake_counter_value_reverse_max = (2500 / __SYSTICK_IN_MS),
+    .auto_reverse_counter_value_min = (800 / __SYSTICK_IN_MS),
+    .auto_reverse_counter_value_max = (2000 / __SYSTICK_IN_MS),
+    .brake_disarm_counter_value = (1000 / __SYSTICK_IN_MS),
 
-    (333 / __SYSTICK_IN_MS),    // blink_counter_value
-    (500 / __SYSTICK_IN_MS),    // indicator_idle_time_value
-    (2000 / __SYSTICK_IN_MS),   // indicator_off_timeout_value
+    .blink_counter_value = (333 / __SYSTICK_IN_MS),
+    .indicator_idle_time_value = (500 / __SYSTICK_IN_MS),
+    .indicator_off_timeout_value = (2000 / __SYSTICK_IN_MS),
 
-    8,                          // centre_threshold_low
-    10,                         // centre_threshold
-    12,                         // centre_threshold_high
-    50,                         // blink_threshold
+    .centre_threshold_low = 8,
+    .centre_threshold = 10,
+    .centre_threshold_high = 12,
+    .blink_threshold = 50,
 
-    0x0f,                       // light_mode_mask
+    .light_mode_mask = 0x0f,
 
-    (260 / __SYSTICK_IN_MS),    // ch3_multi_click_timeout
+    .ch3_multi_click_timeout = (260 / __SYSTICK_IN_MS),
 
-    (1000 / __SYSTICK_IN_MS),   // winch_command_repeat_time
+    .winch_command_repeat_time = (1000 / __SYSTICK_IN_MS),
 
-    115200                       // baudrate of the UART
+    .baudrate = 115200
 };

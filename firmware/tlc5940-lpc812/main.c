@@ -113,14 +113,14 @@ void init_hardware()
                     (1 << 2);                // Use system clock
 
     NVIC_EnableIRQ(SysTick_IRQn);
+}
 
 
-    // FIXME: we can't do that here because other modules may use the
-    // SWM or IOCON
-
+// ****************************************************************************
+void init_hardware_final(void)
+{
     // Turn off peripheral clock for IOCON and SWM to preserve power
-    //LPC_SYSCON->SYSAHBCLKCTRL &= ~((1 << 18) | (1 << 7));
-
+    LPC_SYSCON->SYSAHBCLKCTRL &= ~((1 << 18) | (1 << 7));
 }
 
 
@@ -167,6 +167,7 @@ int main(void)
     init_uart_reader();
     init_servo_output();
     init_lights();
+    init_hardware_final();
 
     uart0_send_cstring("Light controller initialized\n");
 
