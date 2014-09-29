@@ -18,6 +18,13 @@ SPI configuration:
     Check Master idle status flag before asserting XLAT
 */
 
+#define GSCLK LPC_GPIO_PORT->W0[1]
+#define BLANK LPC_GPIO_PORT->W0[6]
+#define XLAT LPC_GPIO_PORT->W0[2]
+#define SCK LPC_GPIO_PORT->W0[3]
+#define SIN LPC_GPIO_PORT->W0[7]
+
+
 static void send_light_data_to_tlc5940(void)
 {
     volatile int i;
@@ -40,9 +47,9 @@ static void send_light_data_to_tlc5940(void)
 
 void init_lights(void)
 {
-    LPC_GPIO_PORT->W0[2] = 1;           // BLANK = 1
-    LPC_GPIO_PORT->W0[6] = 0;          // XLAT = 0
-    LPC_GPIO_PORT->W0[1] = 0;           // GSCLK = 0
+    BLANK = 1;
+    XLAT = 0;
+    GSCLK = 0;
 
     LPC_GPIO_PORT->DIR0 |= (1 << 1) | (1 << 2) | (1 << 3) | (1 << 6) | (1 << 7);
 
@@ -62,15 +69,13 @@ void init_lights(void)
 
     // We use the SSEL function for XLAT: low during the transmission, high
     // during the idle periood.
-    // LPC_SWM->PINASSIGN3 = 0x0bffffff;   // PIO0_11 is SCK
-    // LPC_SWM->PINASSIGN4 = 0xff0aff03;   // PIO0_10 is XLAT (SSEL) PIO0_3 is SIN (MOSI)
-    LPC_SWM->PINASSIGN3 = 0x07ffffff;   // PIO0_7 is SCK
-    LPC_SWM->PINASSIGN4 = 0xff06ff03;   // PIO0_6 is XLAT (SSEL) PIO0_3 is SIN (MOSI)
+    LPC_SWM->PINASSIGN3 = 0x03ffffff;   // PIO0_3 is SCK
+    LPC_SWM->PINASSIGN4 = 0xff02ff07;   // PIO0_2 is XLAT (SSEL) PIO0_3 is SIN (MOSI)
 
     send_light_data_to_tlc5940();
 
-    LPC_GPIO_PORT->W0[2] = 0;           // BLANK = 0
-    LPC_GPIO_PORT->W0[1] = 1;           // GSCLK = 1
+    BLANK = 0;
+    GSCLK = 1;
 }
 
 

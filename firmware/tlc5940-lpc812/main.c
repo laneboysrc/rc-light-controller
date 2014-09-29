@@ -10,12 +10,12 @@
 //
 // PIO0_0   (16, TDO, ISP-Rx)   Steering input / Rx
 // PIO0_1   (9,  TDI)           TLC5940 GSCLK
-// PIO0_2   (6,  TMS, SWDIO)    TLC5940 BLANK
-// PIO0_3   (5,  TCK, SWCLK)    TLC5940 SIN
+// PIO0_2   (6,  TMS, SWDIO)    TLC5940 XLAT
+// PIO0_3   (5,  TCK, SWCLK)    TLC5940 SCLK
 // PIO0_4   (4,  TRST, ISP-Tx)  Throttle input / Tx
 // PIO0_5   (3,  RESET)         NC (test point)
-// PIO0_6   (15)                TLC5940 XLAT
-// PIO0_7   (14)                TLC5940 SCLK
+// PIO0_6   (15)                TLC5940 BLANK
+// PIO0_7   (14)                TLC5940 SIN
 // PIO0_8   (11, XTALIN)        NC
 // PIO0_9   (10, XTALOUT)       WS2812b data out
 // PIO0_10  (8,  Open drain)    NC
@@ -58,9 +58,11 @@ void init_hardware()
     // IO configuration
     LPC_SWM->PINENABLE0 = 0xffffffbf;   // Enable reset, all other special functions disabled
 
-    // Make port PIO0_1, PIO0_2, PIO0_3, PIO0_10, PIO0_11 outputs
-    //LPC_GPIO_PORT->DIR0 |=
-    //    (1 << 1) | (1 << 2) | (1 << 3) | (1 << 10) | (1 << 11);
+    // Make the open drain ports PIO0_10, PIO0_11 outputs and pull to ground
+    // to prevent them from floating.
+    LPC_GPIO_PORT->W0[10] = 0;
+    LPC_GPIO_PORT->W0[11] = 0;
+    LPC_GPIO_PORT->DIR0 |= (1 << 10) | (1 << 11);
 
     // Enable glitch filtering on the IOs
     // GOTCHA: ICONCLKDIV0 is actually the last register in the array!
