@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include <LPC8xx.h>
 
 #include <globals.h>
 #include <uart0.h>
@@ -16,6 +17,19 @@ static int8_t init_count = CONSECUTIVE_BYTE_COUNTS;
 void init_uart_reader(void)
 {
     int i;
+
+    if (config.mode == MASTER_WITH_SERVO_READER) {
+        // Turn the UART output on unless a servo output is requested
+        if (!config.flags.steering_wheel_servo_output &&
+            !config.flags.gearbox_servo_output) {
+            // U0_TXT_O=PIO0_12
+            LPC_SWM->PINASSIGN0 = 0xffffff0c;
+        }
+    }
+    else {
+        // U0_TXT_O=PIO0_4, U0_RXD_I=PIO0_0
+        LPC_SWM->PINASSIGN0 = 0xffff0004;
+    }
 
     if (config.mode != MASTER_WITH_UART_READER) {
         return;

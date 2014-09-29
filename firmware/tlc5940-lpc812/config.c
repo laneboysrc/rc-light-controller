@@ -29,9 +29,9 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
         .brake_disarm_timeout_enabled = true,
     },
 
-    .auto_brake_counter_value_forward_min = (800 / __SYSTICK_IN_MS),
+    .auto_brake_counter_value_forward_min = (500 / __SYSTICK_IN_MS),
     .auto_brake_counter_value_forward_max = (2500 / __SYSTICK_IN_MS),
-    .auto_brake_counter_value_reverse_min = (800 / __SYSTICK_IN_MS),
+    .auto_brake_counter_value_reverse_min = (500 / __SYSTICK_IN_MS),
     .auto_brake_counter_value_reverse_max = (2500 / __SYSTICK_IN_MS),
     .auto_reverse_counter_value_min = (800 / __SYSTICK_IN_MS),
     .auto_reverse_counter_value_max = (2000 / __SYSTICK_IN_MS),

@@ -56,6 +56,7 @@ static void throttle_neutral(void)
             global_flags.braking = true;
             // The time the brake lights stay on after going back to neutral
             // is random
+            drive_mode.auto_brake = true;
             auto_brake_counter = random_min_max(
                 config.auto_brake_counter_value_forward_min,
                 config.auto_brake_counter_value_forward_max);
@@ -70,6 +71,7 @@ static void throttle_neutral(void)
 
             if (config.flags.auto_brake_lights_reverse_enabled) {
                 global_flags.braking = true;
+                drive_mode.auto_brake = true;
                 auto_brake_counter = random_min_max(
                     config.auto_brake_counter_value_reverse_min,
                     config.auto_brake_counter_value_reverse_max);
@@ -114,7 +116,7 @@ static void throttle_not_neutral(void)
         global_flags.forward = true;
         global_flags.reversing = false;
         global_flags.braking = false;
-        if (config.flags.esc_forward_reverse) {
+        if (!config.flags.esc_forward_reverse) {
            drive_mode.brake_armed = true;
         }
     }

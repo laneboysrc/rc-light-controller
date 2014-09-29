@@ -58,52 +58,39 @@ void init_hardware()
     // IO configuration
     LPC_SWM->PINENABLE0 = 0xffffffbf;   // Enable reset, all other special functions disabled
 
+
     // Make the open drain ports PIO0_10, PIO0_11 outputs and pull to ground
     // to prevent them from floating.
     LPC_GPIO_PORT->W0[10] = 0;
     LPC_GPIO_PORT->W0[11] = 0;
     LPC_GPIO_PORT->DIR0 |= (1 << 10) | (1 << 11);
 
+
     // Enable glitch filtering on the IOs
     // GOTCHA: ICONCLKDIV0 is actually the last register in the array!
-    // LPC_SYSCON->IOCONCLKDIV[6] = 255;       // Glitch filter 0: Main clock divided by 255
-    // LPC_SYSCON->IOCONCLKDIV[5] = 1;         // Glitch filter 0: Main clock divided by 1
+    LPC_SYSCON->IOCONCLKDIV[6] = 255;       // Glitch filter 0: Main clock divided by 255
+    LPC_SYSCON->IOCONCLKDIV[5] = 1;         // Glitch filter 0: Main clock divided by 1
 
     // NOTE: for some reason it is absolutely necessary to enable glitch
     // filtering on the IOs used for the capture timer. One clock cytle of the
     // main clock is enough, but with none weird things happen.
 
-    // LPC_IOCON->PIO0_0 |= (1 << 5) |         // Enable Hysteresis
-    //                      (0x1 << 13) |      // Glitch filter 1
-    //                      (0x1 << 11);       // Reject 1 clock cycle of glitch filter
+    LPC_IOCON->PIO0_0 |= (1 << 5) |         // Enable Hysteresis
+                         (0x1 << 13) |      // Glitch filter 1
+                         (0x1 << 11);       // Reject 1 clock cycle of glitch filter
 
-    // LPC_IOCON->PIO0_4 |= (1 << 5) |         // Enable Hysteresis
-    //                      (0x1 << 13) |      // Glitch filter 1
-    //                      (0x1 << 11);       // Reject 1 clock cycle of glitch filter
+    LPC_IOCON->PIO0_4 |= (1 << 5) |         // Enable Hysteresis
+                         (0x1 << 13) |      // Glitch filter 1
+                         (0x1 << 11);       // Reject 1 clock cycle of glitch filter
 
-    // LPC_IOCON->PIO0_13 |= (1 << 5) |        // Enable Hysteresis
-    //                      (0x1 << 13) |      // Glitch filter 1
-    //                      (0x1 << 11);       // Reject 1 clock cycle of glitch filter
-
-
-    if (config.mode == MASTER_WITH_SERVO_READER) {
-        // Turn the UART output on unless a servo output is requested
-        if (!config.flags.steering_wheel_servo_output &&
-            !config.flags.gearbox_servo_output) {
-            // U0_TXT_O=PIO0_12
-            LPC_SWM->PINASSIGN0 = 0xffffff0c;
-        }
-    }
-    else {
-        // U0_TXT_O=PIO0_4, U0_RXD_I=PIO0_0
-        LPC_SWM->PINASSIGN0 = 0xffff0004;
-    }
+    LPC_IOCON->PIO0_13 |= (1 << 5) |        // Enable Hysteresis
+                         (0x1 << 13) |      // Glitch filter 1
+                         (0x1 << 11);       // Reject 1 clock cycle of glitch filter
 
 
     // ------------------------
     // Configure SCTimer globally for two 16-bit counters
     LPC_SCT->CONFIG = 0;
-
 
 
     // ------------------------
@@ -122,7 +109,7 @@ void init_hardware()
 void init_hardware_final(void)
 {
     // Turn off peripheral clock for IOCON and SWM to preserve power
-    // FIXME LPC_SYSCON->SYSAHBCLKCTRL &= ~((1 << 18) | (1 << 7));
+    LPC_SYSCON->SYSAHBCLKCTRL &= ~((1 << 18) | (1 << 7));
 }
 
 

@@ -15,7 +15,7 @@ SPI configuration:
     Configuration: CPOL = 0, CPHA = 0,
     We can send 6 bit frame lengths, so no need to pack light data!
     TXRDY indicates when we can put the next data into txbuf
-    Check Master idle status flag before asserting XLAT
+    Use SSEL function to de-assert XLAT while sending new data
 */
 
 #define GSCLK LPC_GPIO_PORT->W0[1]
@@ -29,6 +29,9 @@ static void send_light_data_to_tlc5940(void)
 {
     volatile int i;
 
+    // Wait for MSTIDLE
+    while (!(LPC_SPI0->STAT & (1 << 8)));
+
     for (i = 15; i >= 0; i--) {
         // Wait for TXRDY
         while (!(LPC_SPI0->STAT & (1 << 1)));
@@ -38,18 +41,14 @@ static void send_light_data_to_tlc5940(void)
 
     // Force END OF TRANSFER
     LPC_SPI0->STAT = (1 << 7);
-
-    // Wait for MSTIDLE
-    while (!(LPC_SPI0->STAT & (1 << 8)));
-
 }
 
 
 void init_lights(void)
 {
     BLANK = 1;
-    XLAT = 0;
     GSCLK = 0;
+    XLAT = 0;
 
     LPC_GPIO_PORT->DIR0 |= (1 << 1) | (1 << 2) | (1 << 3) | (1 << 6) | (1 << 7);
 
@@ -64,7 +63,8 @@ void init_lights(void)
                     (0 << 8);           // SPOL = 0
 
     LPC_SPI0->TXCTRL = (1 << 21) |      // set EOF
-                       (1 << 22) |      // RXIGNORE
+                       (1 << 22) |      // RXIGNORE, otherwise SPI hangs until
+                                        //   we read the data register
                        ((6 - 1) << 24); // 6 bit frames
 
     // We use the SSEL function for XLAT: low during the transmission, high
@@ -116,7 +116,12 @@ void toggle_lights(void)
 void process_lights(void)
 {
     if (global_flags.systick) {
-        ++tlc5940_light_data[0];
+        if (global_flags.braking) {
+            tlc5940_light_data[0] = 63;
+        }
+        else {
+            tlc5940_light_data[0] = 0;
+        }
         send_light_data_to_tlc5940();
     }
 
