@@ -21,7 +21,7 @@ OBJCOPY := $(GCC_ARM_BIN)/arm-none-eabi-objcopy
 
 FLASH_TOOL = lpc81x_isp.py --run --flash $<
 TERMINAL_PROGRAM := miniterm.py -p /dev/ttyUSB0 -b 115200
-
+PREPROCESSOR_SIMULATOR := ../../tools/preprocessor-simulator.py -b 115200
 
 ###############################################################################
 # Compiler and linker flags
@@ -81,6 +81,11 @@ terminal :
 	$(TERMINAL_PROGRAM)
 
 
+# Invoke the preprocessor simulation tool
+preprocessor-simulator :
+	$(PREPROCESSOR_SIMULATOR)
+
+
 clean :
 	rm -f $(OBJECTS)
 	rm -f $(OBJECTS:.o=.lst)
@@ -89,5 +94,5 @@ clean :
 	rm -f $(PROGRAM_NAME).map
 
 
-.PHONY : all clean program terminal list
+.PHONY : all clean program terminal preprocessor-simulator list
 
