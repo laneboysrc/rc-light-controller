@@ -22,8 +22,6 @@ static void send_light_data_to_tlc5940(void)
 {
     volatile int i;
 
-    LPC_GPIO_PORT->W0[10] = 0;          // XLAT = 0
-
     for (i = 15; i >= 0; i--) {
         // Wait for TXRDY
         while (!(LPC_SPI0->STAT & (1 << 1)));
@@ -37,33 +35,37 @@ static void send_light_data_to_tlc5940(void)
     // Wait for MSTIDLE
     while (!(LPC_SPI0->STAT & (1 << 8)));
 
-    LPC_GPIO_PORT->W0[10] = 1;          // XLAT = 1
 }
 
 
 void init_lights(void)
 {
-    tlc5940_light_data[0] = 5;
-
     LPC_GPIO_PORT->W0[2] = 1;           // BLANK = 1
-    LPC_GPIO_PORT->W0[10] = 0;          // XLAT = 0
+    LPC_GPIO_PORT->W0[6] = 0;          // XLAT = 0
     LPC_GPIO_PORT->W0[1] = 0;           // GSCLK = 0
 
-    LPC_SPI0->DIV = 100;
-    LPC_SPI0->DLY = 0;
+    LPC_GPIO_PORT->DIR0 |= (1 << 1) | (1 << 2) | (1 << 3) | (1 << 6) | (1 << 7);
+
+    // Use 2 MHz SPI clock. 16 bytes takes about 50 us to transmit.
+    LPC_SPI0->DIV = 6 - 1;
 
     LPC_SPI0->CFG = (1 << 0) |          // Enable SPI0
                     (1 << 2) |          // Master mode
                     (0 << 3) |          // LSB First mode disabled
                     (0 << 4) |          // CPHA = 0
-                    (0 << 5);           // CPOL = 0
+                    (0 << 5) |          // CPOL = 0
+                    (0 << 8);           // SPOL = 0
 
     LPC_SPI0->TXCTRL = (1 << 21) |      // set EOF
                        (1 << 22) |      // RXIGNORE
                        ((6 - 1) << 24); // 6 bit frames
 
-    LPC_SWM->PINASSIGN3 = 0x0bffffff;   // PIO0_11 is SCK
-    LPC_SWM->PINASSIGN4 = 0x0fffff03;   // PIO0_3 is SIN (MOSI)
+    // We use the SSEL function for XLAT: low during the transmission, high
+    // during the idle periood.
+    // LPC_SWM->PINASSIGN3 = 0x0bffffff;   // PIO0_11 is SCK
+    // LPC_SWM->PINASSIGN4 = 0xff0aff03;   // PIO0_10 is XLAT (SSEL) PIO0_3 is SIN (MOSI)
+    LPC_SWM->PINASSIGN3 = 0x07ffffff;   // PIO0_7 is SCK
+    LPC_SWM->PINASSIGN4 = 0xff06ff03;   // PIO0_6 is XLAT (SSEL) PIO0_3 is SIN (MOSI)
 
     send_light_data_to_tlc5940();
 

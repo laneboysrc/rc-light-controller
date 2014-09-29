@@ -14,12 +14,12 @@
 // PIO0_3   (5,  TCK, SWCLK)    TLC5940 SIN
 // PIO0_4   (4,  TRST, ISP-Tx)  Throttle input / Tx
 // PIO0_5   (3,  RESET)         NC (test point)
-// PIO0_6   (15)                NC
-// PIO0_7   (14)                NC
+// PIO0_6   (15)                TLC5940 XLAT
+// PIO0_7   (14)                TLC5940 SCLK
 // PIO0_8   (11, XTALIN)        NC
 // PIO0_9   (10, XTALOUT)       WS2812b data out
-// PIO0_10  (8)                 TLC5940 XLAT
-// PIO0_11  (7)                 TLC5940 SCLK
+// PIO0_10  (8,  Open drain)    NC
+// PIO0_11  (7,  Open drain)    NC
 // PIO0_12  (2,  ISP-entry)     Servo out / ISP
 // PIO0_13  (1)                 CH3 input
 //
@@ -59,29 +59,29 @@ void init_hardware()
     LPC_SWM->PINENABLE0 = 0xffffffbf;   // Enable reset, all other special functions disabled
 
     // Make port PIO0_1, PIO0_2, PIO0_3, PIO0_10, PIO0_11 outputs
-    LPC_GPIO_PORT->DIR0 |=
-        (1 << 1) | (1 << 2) | (1 << 3) | (1 << 10) | (1 << 11);
+    //LPC_GPIO_PORT->DIR0 |=
+    //    (1 << 1) | (1 << 2) | (1 << 3) | (1 << 10) | (1 << 11);
 
     // Enable glitch filtering on the IOs
     // GOTCHA: ICONCLKDIV0 is actually the last register in the array!
-    LPC_SYSCON->IOCONCLKDIV[6] = 255;       // Glitch filter 0: Main clock divided by 255
-    LPC_SYSCON->IOCONCLKDIV[5] = 1;         // Glitch filter 0: Main clock divided by 1
+    // LPC_SYSCON->IOCONCLKDIV[6] = 255;       // Glitch filter 0: Main clock divided by 255
+    // LPC_SYSCON->IOCONCLKDIV[5] = 1;         // Glitch filter 0: Main clock divided by 1
 
     // NOTE: for some reason it is absolutely necessary to enable glitch
     // filtering on the IOs used for the capture timer. One clock cytle of the
     // main clock is enough, but with none weird things happen.
 
-    LPC_IOCON->PIO0_0 |= (1 << 5) |         // Enable Hysteresis
-                         (0x1 << 13) |      // Glitch filter 1
-                         (0x1 << 11);       // Reject 1 clock cycle of glitch filter
+    // LPC_IOCON->PIO0_0 |= (1 << 5) |         // Enable Hysteresis
+    //                      (0x1 << 13) |      // Glitch filter 1
+    //                      (0x1 << 11);       // Reject 1 clock cycle of glitch filter
 
-    LPC_IOCON->PIO0_4 |= (1 << 5) |         // Enable Hysteresis
-                         (0x1 << 13) |      // Glitch filter 1
-                         (0x1 << 11);       // Reject 1 clock cycle of glitch filter
+    // LPC_IOCON->PIO0_4 |= (1 << 5) |         // Enable Hysteresis
+    //                      (0x1 << 13) |      // Glitch filter 1
+    //                      (0x1 << 11);       // Reject 1 clock cycle of glitch filter
 
-    LPC_IOCON->PIO0_13 |= (1 << 5) |        // Enable Hysteresis
-                         (0x1 << 13) |      // Glitch filter 1
-                         (0x1 << 11);       // Reject 1 clock cycle of glitch filter
+    // LPC_IOCON->PIO0_13 |= (1 << 5) |        // Enable Hysteresis
+    //                      (0x1 << 13) |      // Glitch filter 1
+    //                      (0x1 << 11);       // Reject 1 clock cycle of glitch filter
 
 
     if (config.mode == MASTER_WITH_SERVO_READER) {
@@ -120,7 +120,7 @@ void init_hardware()
 void init_hardware_final(void)
 {
     // Turn off peripheral clock for IOCON and SWM to preserve power
-    LPC_SYSCON->SYSAHBCLKCTRL &= ~((1 << 18) | (1 << 7));
+    // FIXME LPC_SYSCON->SYSAHBCLKCTRL &= ~((1 << 18) | (1 << 7));
 }
 
 
