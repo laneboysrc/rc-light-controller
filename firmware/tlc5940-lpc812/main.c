@@ -49,9 +49,9 @@ void init_hardware()
     // Set flash wait-states to 1 system clock
     LPC_FLASHCTRL->FLASHCFG = 0;
 
-    // Turn on peripheral clocks for SCTimer, IOCON
+    // Turn on peripheral clocks for SCTimer, IOCON, SPI0
     // (GPIO, SWM alrady enabled after reset)
-    LPC_SYSCON->SYSAHBCLKCTRL |= (1 << 8) | (1 << 18);
+    LPC_SYSCON->SYSAHBCLKCTRL |= (1 << 8) | (1 << 18) | (1 << 11);
 
 
     // ------------------------
