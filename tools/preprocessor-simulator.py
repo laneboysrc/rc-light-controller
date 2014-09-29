@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 '''
 preprocessor-simulator.py
 
@@ -13,6 +14,7 @@ E-mail:         laneboysrc@gmail.com
 from __future__ import print_function
 
 import sys
+import os
 import argparse
 import serial
 import time
@@ -33,6 +35,12 @@ SLAVE_MAGIC_BYTE = 0x87
 HTML_FILE = "preprocessor-simulator.html"
 
 
+class QuietBaseHTTPRequestHandler(BaseHTTPRequestHandler):
+    def log_request(self, code, message=None):
+        ''' Supress logging of HTTP requests '''
+        pass
+
+
 def parse_commandline():
     ''' Simulate a receiver with built-in preprocessor '''
     parser = argparse.ArgumentParser(
@@ -50,7 +58,7 @@ def parse_commandline():
     return parser.parse_args()
 
 
-class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
+class CustomHTTPRequestHandler(QuietBaseHTTPRequestHandler):
     ''' Request handler that implements our simple web based API '''
 
     def do_GET(self):
@@ -58,7 +66,12 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
         self.send_response(200)
         self.send_header('Content-type', 'text/html')
         self.end_headers()
-        with open(HTML_FILE, "r") as html_file:
+
+        html_path = os.path.join(
+            os.path.dirname(os.path.abspath(sys.argv[0])),
+            HTML_FILE)
+
+        with open(html_path, "r") as html_file:
             self.wfile.write(html_file.read().encode("UTF-8"))
         return
 
@@ -90,7 +103,8 @@ class PreprocessorApp(object):
     def __init__(self):
         self.args = parse_commandline()
         self.receiver = {'ST': 0, 'TH': 0, 'CH3': 0, 'STARTUP_MODE': 1}
-        self.uart_thread = None
+        self.read_thread = None
+        self.write_thread = None
         self.done = False
 
         try:
@@ -113,13 +127,30 @@ class PreprocessorApp(object):
 
     def run(self):
         ''' Send the test patterns to the TLC5940 based slave '''
-        server = HTTPServer(('', self.args.port), CustomHTTPRequestHandler)
-        server.preprocessor = self
 
-        def sender(app):
-            ''' Background thread performing the UART transmission '''
+        def reader(app):
+            ''' Background thread performing the UART read '''
             time_of_last_line = start_time = time.time()
-            
+            print("     TOTAL  DIFFERENCE  RESPONSE")
+            print("----------  ----------  --------")
+
+            while not app.done:
+                app.uart.timeout = 0.1
+                data = app.uart.readline()
+                if len(data):
+                    current_time = time.time()
+                    time_difference = current_time - time_of_last_line
+                    elapsed_time = current_time - start_time
+
+                    print("%10.3f  %10.3f  %s" % (elapsed_time,
+                        time_difference,
+                        data.decode('ascii', errors='replace')),
+                        end='')
+
+                    time_of_last_line = current_time
+
+        def writer(app):
+            ''' Background thread performing the UART transmission '''
             while not app.done:
                 steering = app.receiver['ST']
                 if steering < 0:
@@ -139,33 +170,28 @@ class PreprocessorApp(object):
                     [SLAVE_MAGIC_BYTE, steering, throttle, last_byte])
                 app.uart.write(data)
                 app.uart.flush()
-                
-                #time.sleep(0.02)
-                app.uart.timeout = 0.02;
-                data = app.uart.read(2048)
-                if len(data):
-                    current_time = time.time()
-                    time_difference = current_time - time_of_last_line
-                    elapsed_time = current_time - start_time
-                    
-                    print("%10.3f  %10.3f  %s" % (elapsed_time, 
-                        time_difference, data.encode('UTF-8')), end='')
 
-                    time_of_last_line = current_time
-                
+                time.sleep(0.02)
+
+        server = HTTPServer(('', self.args.port), CustomHTTPRequestHandler)
+        server.preprocessor = self
 
         print("Please call up the user interface on localhost:{port}".format(
             port=self.args.port))
 
-        self.uart_thread = threading.Thread(target=sender, args=([self]))
-        self.uart_thread.start()
+        self.read_thread = threading.Thread(target=reader, args=([self]))
+        self.write_thread = threading.Thread(target=writer, args=([self]))
+        self.read_thread.start()
+        self.write_thread.start()
         server.serve_forever()
 
     def shutdown(self):
         ''' Shut down the application, wait for the uart thread to finish '''
         self.done = True
-        if not self.uart_thread is None:
-            self.uart_thread.join()
+        if not self.write_thread is None:
+            self.write_thread.join()
+        if not self.read_thread is None:
+            self.read_thread.join()
 
 
 def main():
