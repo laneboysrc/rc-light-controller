@@ -134,18 +134,6 @@ void SysTick_handler(void)
 
 
 // ****************************************************************************
-void SCT_irq_handler(void)
-{
-    // Event 0: Match (reload) event every 20 ms (SCTimer H)
-    if (LPC_SCT->EVFLAG & (1 << 0)) {
-        LPC_SCT->EVFLAG = (1 << 0);
-    }
-
-    servo_reader_SCT_interrupt_handler();
-}
-
-
-// ****************************************************************************
 void service_systick(void)
 {
     ++entropy;

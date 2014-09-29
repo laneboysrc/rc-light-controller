@@ -72,7 +72,7 @@ void init_servo_reader(void)
 
 
 // ****************************************************************************
-void servo_reader_SCT_interrupt_handler(void)
+void SCT_irq_handler(void)
 {
     static uint32_t start[3] = {0, 0, 0};
     static uint32_t result[3] = {0, 0, 0};

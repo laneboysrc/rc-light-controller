@@ -149,7 +149,6 @@ extern struct channel_s channel[3];
 void load_persistent_storage(void);
 void write_persistent_storage(void);
 
-void servo_reader_SCT_interrupt_handler(void);
 void init_servo_reader(void);
 void read_all_servo_channels(void);
 void read_preprocessor(void);
