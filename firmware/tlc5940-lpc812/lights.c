@@ -52,8 +52,8 @@ void init_lights(void)
 
     LPC_GPIO_PORT->DIR0 |= (1 << 1) | (1 << 2) | (1 << 3) | (1 << 6) | (1 << 7);
 
-    // Use 2 MHz SPI clock. 16 bytes takes about 50 us to transmit.
-    LPC_SPI0->DIV = 6 - 1;
+    // Use 2 MHz SPI clock. 16 bytes take about 50 us to transmit.
+    LPC_SPI0->DIV = (__SYSTEM_CLOCK / 2000000) - 1;
 
     LPC_SPI0->CFG = (1 << 0) |          // Enable SPI0
                     (1 << 2) |          // Master mode
