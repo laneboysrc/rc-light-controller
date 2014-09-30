@@ -17,6 +17,7 @@ from __future__ import print_function
 import sys
 import argparse
 import re
+from collections import defaultdict
 
 
 def parse_section_dict(dictionary):
@@ -29,9 +30,9 @@ def parse_section_dict(dictionary):
 
     if 'writeable' in dictionary:
         if dictionary['writeable'] == 'w':
-            dictionary['area'] = "RAM"
+            dictionary['type'] = "RAM"
         else:
-            dictionary['area'] = 'FLASH'
+            dictionary['type'] = 'FLASH'
         del dictionary['writeable']
 
     return dictionary
@@ -96,17 +97,20 @@ def parse_memory_map(map_data):
     return memory_map
 
 
-def get_category(module_name):
+def get_category(section):
     ''' Categorize module names for the summary this tool outputs '''
 
-    if re.match(r'/lib.+\.a$', module_name):
-        return 'System libraries'
+    if section['name'] == '*fill*':
+        return '(alignment data)'
 
-    if module_name == 'crt0.o':
-        return 'Runtime'
+    if re.match(r'/lib.+\.a$', section['module_name']):
+        return '(system libraries)'
 
-    if re.match(r'.+\.o$', module_name):
-        return module_name
+    if section['module_name'] == 'crt0.o':
+        return '(runtime)'
+
+    if re.match(r'.+\.o$', section['module_name']):
+        return section['module_name']
 
     return '(others)'
 
@@ -116,25 +120,23 @@ def process_sections(memory_map, memory_sections):
     re_flags = re.VERBOSE + re.MULTILINE
     section_re = r'''
         ^
-        [ ]
-        [\.\*]?(?P<name>\S+?)\*?
+        [ ]\.?(?P<name>\S+?)
         \s+
         (?P<start_address>0x\S+)
-        \s+
+        [ ]+                        # Match spaces, not \s which matches \n!
         (?P<size>0x\S+)
-        \s+
+        [ ]+
         (?P<module_name>.*)
         $
         '''
 
     sections_to_ignore = ("ARM.attributes", "comment")
-    totals = dict(RAM=0, FLASH=0)
+    totals = dict(RAM=defaultdict(int), FLASH=defaultdict(int))
 
     for match in re.finditer(section_re, memory_map, flags=re_flags):
-
         section = parse_section_dict(match.groupdict())
 
-        if section['size'] == 0 or section['start_address'] == 0:
+        if section['size'] == 0:
             continue
 
         if section['name'] in sections_to_ignore:
@@ -143,18 +145,51 @@ def process_sections(memory_map, memory_sections):
         if section['name'].startswith('debug_'):
             continue
 
+
         for memory_section in memory_sections:
             start = memory_section['start_address']
             size = memory_section['size']
             end = start + size
             if start <= section['start_address'] <= end:
-                section['area'] = memory_section['area']
-                totals[section['area']] += section['size']
+                section['memory'] = memory_section['type']
+                break
 
-        category = get_category(section['module_name'])
-        print(section)
+        category = get_category(section)
 
-    print(totals)
+        totals[section['memory']]['.total'] += section['size']
+        totals[section['memory']][category] += section['size']
+
+    return totals
+
+
+def print_summary(totals):
+    ''' Output the summary of memory usage '''
+    summary = dict()
+
+    for flash in totals['FLASH']:
+        summary[flash] = dict(FLASH=totals['FLASH'][flash], RAM=0)
+
+    for ram in totals['RAM']:
+        if ram in summary:
+            summary[ram]['RAM'] = totals['RAM'][ram]
+        else:
+            summary[ram] = dict(RAM=totals['RAM'][ram], FLASH=0)
+
+    print('------------------------------------+-----------+-----------')
+    print('Module                              |     FLASH |       RAM')
+    print('------------------------------------+-----------+-----------')
+
+    for entry in sorted(summary):
+        if entry == '.total':
+            continue
+        print('{:35} | {:9} | {:9}'.format(
+            entry, summary[entry]['FLASH'], summary[entry]['RAM']))
+
+    print('------------------------------------+-----------+-----------')
+    print('{:35} | {:9} | {:9}'.format(
+            'TOTAL:', summary['.total']['FLASH'], summary['.total']['RAM']
+            ))
+    print('------------------------------------+-----------+-----------')
 
 
 def map_file_parser(args):
@@ -162,10 +197,10 @@ def map_file_parser(args):
     map_data = args.mapfile[0].read()
 
     memory_sections = parse_memory_sections(map_data)
-
     memory_map = parse_memory_map(map_data)
+    totals = process_sections(memory_map, memory_sections)
+    print_summary(totals)
 
-    process_sections(memory_map, memory_sections)
 
 
 def parse_commandline():
