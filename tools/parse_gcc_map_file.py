@@ -20,6 +20,10 @@ import re
 from collections import defaultdict
 
 
+FLASH = 'flash'
+RAM = 'ram'
+
+
 def parse_section_dict(dictionary):
     ''' Convert numbers in a section dictionary from strings to integers,
         and set the 'area' to either 'RAM' or 'FLASH' if 'writeable' is 'w'
@@ -30,9 +34,9 @@ def parse_section_dict(dictionary):
 
     if 'writeable' in dictionary:
         if dictionary['writeable'] == 'w':
-            dictionary['type'] = "RAM"
+            dictionary['type'] = RAM
         else:
-            dictionary['type'] = 'FLASH'
+            dictionary['type'] = FLASH
         del dictionary['writeable']
 
     return dictionary
@@ -101,16 +105,18 @@ def get_category(section):
     ''' Categorize module names for the summary this tool outputs '''
 
     if section['name'] == '*fill*':
-        return '(alignment data)'
+        return '(alignment waste)'
 
-    if re.match(r'/lib.+\.a$', section['module_name']):
-        return '(system libraries)'
+    if re.search(r'/lib.+\.a', section['module_name']):
+        return '(libraries)'
 
     if section['module_name'] == 'crt0.o':
-        return '(runtime)'
+        return '(C runtime)'
 
     if re.match(r'.+\.o$', section['module_name']):
         return section['module_name']
+
+    print(section['name'], section['module_name'])
 
     return '(others)'
 
@@ -131,7 +137,7 @@ def process_sections(memory_map, memory_sections):
         '''
 
     sections_to_ignore = ("ARM.attributes", "comment")
-    totals = dict(RAM=defaultdict(int), FLASH=defaultdict(int))
+    totals = dict(ram=defaultdict(int), flash=defaultdict(int))
 
     for match in re.finditer(section_re, memory_map, flags=re_flags):
         section = parse_section_dict(match.groupdict())
@@ -155,40 +161,40 @@ def process_sections(memory_map, memory_sections):
                 break
 
         category = get_category(section)
-
-        totals[section['memory']]['.total'] += section['size']
         totals[section['memory']][category] += section['size']
 
     return totals
 
 
-def print_summary(totals):
+def print_summary(totals, sort):
     ''' Output the summary of memory usage '''
     summary = dict()
 
-    for flash in totals['FLASH']:
-        summary[flash] = dict(FLASH=totals['FLASH'][flash], RAM=0)
+    for flash in totals[FLASH]:
+        summary[flash] = dict(
+            flash=totals[FLASH][flash], ram=0, module_name=flash)
 
-    for ram in totals['RAM']:
+    for ram in totals[RAM]:
         if ram in summary:
-            summary[ram]['RAM'] = totals['RAM'][ram]
+            summary[ram][RAM] = totals[RAM][ram]
         else:
-            summary[ram] = dict(RAM=totals['RAM'][ram], FLASH=0)
+            summary[ram] = dict(
+                ram=totals[RAM][ram], flash=0, module_name=ram)
 
-    print('------------------------------------+-----------+-----------')
     print('Module                              |     FLASH |       RAM')
     print('------------------------------------+-----------+-----------')
 
-    for entry in sorted(summary):
-        if entry == '.total':
-            continue
+    total_flash = 0
+    total_ram = 0
+
+    for entry in sorted(summary, key=lambda item: summary[item][sort]):
+        total_flash += summary[entry][FLASH]
+        total_ram += summary[entry][RAM]
         print('{:35} | {:9} | {:9}'.format(
-            entry, summary[entry]['FLASH'], summary[entry]['RAM']))
+            entry, summary[entry][FLASH], summary[entry][RAM]))
 
     print('------------------------------------+-----------+-----------')
-    print('{:35} | {:9} | {:9}'.format(
-            'TOTAL:', summary['.total']['FLASH'], summary['.total']['RAM']
-            ))
+    print('{:35} | {:9} | {:9}'.format('TOTAL:', total_flash, total_ram))
     print('------------------------------------+-----------+-----------')
 
 
@@ -199,14 +205,18 @@ def map_file_parser(args):
     memory_sections = parse_memory_sections(map_data)
     memory_map = parse_memory_map(map_data)
     totals = process_sections(memory_map, memory_sections)
-    print_summary(totals)
-
+    print_summary(totals, args.sort)
 
 
 def parse_commandline():
     ''' Simulate a receiver with built-in preprocessor '''
     parser = argparse.ArgumentParser(
         description="Simulate a receiver with built-in preprocessor.")
+
+    parser.add_argument("-s", "--sort", choices=['flash', 'ram'],
+        default='module_name',
+        help="""sort the output by flash or ram size. Default is sort by
+        module name""")
 
     parser.add_argument("mapfile", nargs=1, type=argparse.FileType('r'),
         help="the filename of the map file to summarize")
