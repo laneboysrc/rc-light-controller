@@ -1,16 +1,58 @@
+/******************************************************************************
+
+    This function returns after having successfully received a complete
+    protocol frame via the UART.
+
+    The frame size is either 4 or 5 bytes. The traditional preprocessor sent
+    4 byte frames, the new one with the HK310 expansion protocol sends 5 byte
+    frames.
+
+    This software automatically determines the frame size upon startup. It
+    checks the number of bytes in the first few frames and only then
+    outputs values.
+
+
+    The preprocessor protocol is as follows:
+
+    The first byte is always 0x87, which indicates that it is a start byte. No
+    other byte can have this value.
+
+    The second byte is a signed char of the steering channel, from -100 to 0
+    (Neutral) to +100, corresponding to the percentage of steering left/right.
+
+    The third byte is a signed char of the throttle channel, from -100 to 0
+    (Neutral) to +100.
+
+    The fourth byte holds CH3 in the lowest bit (0 or 1), and bit 4 indicates
+    whether the preprocessor is initializing. Note that the other bits must
+    be zero as this is required by the light controller (waste of bits, poor
+    implementation...)
+
+    The (optional) 5th byte is the normalized 6-bit value of CH3 as used in the
+    HK310 expansion protocol. This module ignores that value.
+    TODO: describe this better, and define the range including both SYNC values
+
+ *****************************************************************************/
 #include <stdint.h>
 #include <LPC8xx.h>
 
 #include <globals.h>
 #include <uart0.h>
 
+// FIXME: don't update CH3 if a push button is used
+
 
 #define SLAVE_MAGIC_BYTE 0x87
 #define CONSECUTIVE_BYTE_COUNTS 3
 
-
-static int8_t byte_count = -1;
-static int8_t init_count = CONSECUTIVE_BYTE_COUNTS;
+typedef enum {
+    STATE_WAIT_FOR_MAGIC_BYTE = 0,
+    STATE_STEERING,
+    STATE_THROTTLE,
+    STATE_CH3,
+    STATE_CH3_EXTENDED,
+    STATE_INVALID
+} STATE_T;
 
 
 // ****************************************************************************
@@ -46,7 +88,7 @@ void init_uart_reader(void)
 
 
 // ****************************************************************************
-static void normalize_channel(struct channel_s *c, uint8_t data)
+static void normalize_channel(CHANNEL_T *c, uint8_t data)
 {
     if (data > 127) {
         c->normalized = -(256 - data);
@@ -64,44 +106,14 @@ static void normalize_channel(struct channel_s *c, uint8_t data)
 }
 
 
-/******************************************************************************
- Read_all_channels
-
- This function returns after having successfully received a complete
- protocol frame via the UART.
-
- The frame size is either 4 or 5 bytes. The traditional preprocessor sent
- 4 byte frames, the new one with the HK310 expansion protocol sends 5 byte
- frames.
-
- This software automatically determines the frame size upon startup. It checks
- the number of bytes in the first few frames and only then outputs values.
-
- The protocol is as follows:
-
- The first byte is always 0x87, which indicates that it is a start byte. No
- other byte can have this value.
-
- The second byte is a signed char of the steering channel, from -100 to 0
- (Neutral) to +100.
-
- The third byte is a signed char of the throttle channel, from -100 to 0
- (Neutral) to +100.
-
- The fourth byte holds CH3 in the lowest bit (0 or 1), and bit 4 indicates
- whether the preprocessor is initializing. Note that the other bits must
- be zero as this is required by the light controller (waste of bits, poor
- implementation...)
-
- The (optional) 5th byte is the normalized 6-bit value of CH3 as used in the
- HK310 expansion protocol.
- TODO: describe this better, and define the range including both SYNC values
-
- *****************************************************************************/
+// ****************************************************************************
 void read_preprocessor(void)
 {
-    static int8_t state = 0;
-    static uint8_t channel_data[4];
+    static STATE_T state = STATE_WAIT_FOR_MAGIC_BYTE;
+    static uint8_t channel_data[3];
+    static int8_t byte_count = -1;
+    static int8_t init_count = CONSECUTIVE_BYTE_COUNTS;
+
     uint8_t uart_byte;
 
     if (config.mode != MASTER_WITH_UART_READER) {
@@ -117,7 +129,7 @@ void read_preprocessor(void)
             // The first /init_count/ consecutive frames must have the same number
             // of bytes
             if (init_count) {
-                if (state == 4 || state == 5) {
+                if (state == STATE_CH3_EXTENDED || state == STATE_INVALID) {
                     if (byte_count == state) {
                         --init_count;
                     }
@@ -127,32 +139,31 @@ void read_preprocessor(void)
                     }
                 }
             }
-            state = 1;
+            state = STATE_STEERING;
             return;
         }
 
         switch (state) {
-            case 0:
+            case STATE_WAIT_FOR_MAGIC_BYTE:
                 // Nothing to do; SLAVE_MAGIC_BYTE is checked globally
                 break;
 
-            case 1:
+            case STATE_STEERING:
                 channel_data[0] = uart_byte;
-                state = 2;
+                state = STATE_THROTTLE;
                 break;
 
-            case 2:
+            case STATE_THROTTLE:
                 channel_data[1] = uart_byte;
-                state = 3;
+                state = STATE_CH3;
                 break;
 
-            case 3:
+            case STATE_CH3:
                 channel_data[2] = uart_byte;
                 if (init_count || byte_count > 4) {
-                    state = 4;
+                    state = STATE_CH3_EXTENDED;
                 }
                 else {
-                    channel_data[3] = 0;
                     normalize_channel(&channel[ST], channel_data[0]);
                     normalize_channel(&channel[TH], channel_data[1]);
 
@@ -167,10 +178,9 @@ void read_preprocessor(void)
                 }
                 break;
 
-            case 4:
-                channel_data[3] = uart_byte;
+            case STATE_CH3_EXTENDED:
                 if (init_count) {
-                    state = 5;      // Dummy state, handled by 'default'
+                    state = STATE_INVALID;
                 }
                 else {
                     normalize_channel(&channel[ST], channel_data[0]);
@@ -183,8 +193,12 @@ void read_preprocessor(void)
                         (channel_data[2] & 0x01) ? 100 : -100);
 
                     global_flags.new_channel_data = true;
-                    state = 0;
+                    state = STATE_WAIT_FOR_MAGIC_BYTE;
                 }
+                break;
+
+            case STATE_INVALID:
+                // Dummy state used for counting
                 break;
 
             default:

@@ -13,6 +13,7 @@ static uint16_t winch_command_repeat_counter;
 #define WINCH_COMMAND_IN '2'
 #define WINCH_COMMAND_OUT '3'
 
+// ****************************************************************************
 void winch_action(uint8_t ch3_clicks)
 {
     if (!config.flags.winch_output) {
@@ -50,6 +51,7 @@ void winch_action(uint8_t ch3_clicks)
 }
 
 
+// ****************************************************************************
 bool abort_winching(void)
 {
     if (!config.flags.winch_output) {

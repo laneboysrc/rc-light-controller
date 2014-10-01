@@ -1,9 +1,54 @@
+/******************************************************************************
+
+    This module reads the servo pulses for steering, throttle and CH3/AUX
+    from a receiver.
+
+    It populates the global channel[] array with the read data.
+
+
+    Internal operation:
+
+    The SCTimer in 16-bit mode is utilized.
+    We use 3 events, 3 capture registers, and 3 CTIN signals connected to the
+    servo input pins. The 16 bit timer L is running at 2 MHz, giving us a
+    resolution of 0.5 us.
+
+    At rest, the 3 capture registers wait for a rising edge.
+    When an edge is detected the value is retrieved from the capture register
+    and stored in a holding place. The edge of the capture block is toggled.
+
+    When a falling edge is detected we calculate the difference (taking
+    overflow into account) and store it in a result registers (raw_data, one
+    per channel).
+
+    In order to be able to be able to handle missing channels we do the
+    following:
+
+    Each channel has a flag that gets set on the rising edge.
+    When a channel sees its flag set at a rising edge it clears the
+    flags of the *other* channels, but leaves its own flat set. It then copies
+    all result registers into transfer registers (one per channel) and sets a
+    flag to let the mainloop know that a set of data is available.
+    The result registers are cleared.
+
+    This way the first channel that outputs data will dictate the repeat
+    frequency of the combined set of channels. If this "dominant channel"
+    goes missing, another channel will take over after two pulses.
+
+    Missing channels will have the value 0 in raw_data, active channels the
+    measured pulse duration in milliseconds.
+
+    The downside of the algorithm is that there is a one frame delay
+    of the output, but it is very robust for use in the pre-processor.
+
+******************************************************************************/
 #include <stdio.h>
 #include <stdbool.h>
 #include <LPC8xx.h>
 
 #include <globals.h>
 
+// FIXME: don't update CH3 if a push button is used
 
 #define SERVO_PULSE_MIN 600
 #define SERVO_PULSE_MAX 2500
@@ -20,8 +65,6 @@ static enum {
 
 static volatile bool new_raw_channel_data = false;
 static uint32_t servo_reader_timer;
-
-
 
 
 // ****************************************************************************
@@ -85,45 +128,6 @@ void SCT_irq_handler(void)
     uint32_t capture_value;
     int i;
 
-/*
-    Algorithm for reading 3 servo pulses
-
-    The SCTimer in 16-bit mode is utilized.
-    We use 3 events, 3 capture registers, and 3 CTIN signals connected to the
-    servo input pins. The 16 bit timer L is running at 1 MHz, giving us a
-    resolution of 1 us.
-    (Discussion: we could increase the resolution since we don't need to measure
-    65 ms. But detecting overruns could get important).
-
-    At rest the 3 captures wait for the rising edge.
-    When an edge is detected the value is retrieved from the capture register
-    and stored in a persistent holding place. The edge is toggled.
-
-    When a falling edge is detected we calculate the difference (taking
-    overflow into account) and store it in presistent result registers
-    (one per channel).
-
-    In order to be able to be able to handle missing channels we do the
-    following:
-
-    Each channel has a flag that gets set on the rising edge.
-    When a channel sees its flag set at a rising edge it clears the
-    flags of the *other* channels, but leaves its own flat set. It then copies
-    all result registers into transfer registers (one per channel) and sets a
-    flag to let the mainloop know that a set of data is available.
-    The result registers are cleared.
-
-    This way the first channel that outputs data will dictate the repeat
-    frequency of the combined set of channels. If this dominant channel
-    goes missing another channel will take over after two pulses.
-
-    Missing channels will have the value 0, active channels the measured
-    pulse duration.
-
-    The downside of the algorithm is that there is a 1 frame delay
-    of the output, but it is very robust for use in the pre-processor.
-
-    */
 
     for (i = 1; i <= 3; i++) {
         // Event i: Capture CTIN_i
@@ -162,7 +166,7 @@ void SCT_irq_handler(void)
 
 
 // ****************************************************************************
-static void normalize_channel(struct channel_s *c)
+static void normalize_channel(CHANNEL_T *c)
 {
     if (c->raw_data < SERVO_PULSE_MIN  ||  c->raw_data > SERVO_PULSE_MAX) {
         c->normalized = 0;
@@ -178,16 +182,17 @@ static void normalize_channel(struct channel_s *c)
         c->raw_data = SERVO_PULSE_CLAMP_HIGH;
     }
 
-    if (c->raw_data == c->centre) {
+    if (c->raw_data == c->endpoint.centre) {
         c->normalized = 0;
     }
-    else if (c->raw_data < c->centre) {
-        if (c->raw_data < c->ep_l) {
-            c->ep_l = c->raw_data;
+    else if (c->raw_data < c->endpoint.centre) {
+        if (c->raw_data < c->endpoint.left) {
+            c->endpoint.left = c->raw_data;
         }
         // In order to acheive a stable 100% value we actually calculate the
         // percentage up to 101%, and then clamp to 100%.
-        c->normalized = (c->centre - c->raw_data) * 101 / (c->centre - c->ep_l);
+        c->normalized = (c->endpoint.centre - c->raw_data) * 101 /
+            (c->endpoint.centre - c->endpoint.left);
         if (c->normalized > 100) {
             c->normalized = 100;
         }
@@ -196,10 +201,11 @@ static void normalize_channel(struct channel_s *c)
         }
     }
     else {
-        if (c->raw_data > c->ep_h) {
-            c->ep_h = c->raw_data;
+        if (c->raw_data > c->endpoint.right) {
+            c->endpoint.right = c->raw_data;
         }
-        c->normalized = (c->raw_data - c->centre) * 101 / (c->ep_h - c->centre);;
+        c->normalized = (c->raw_data - c->endpoint.centre) * 101 /
+            (c->endpoint.right - c->endpoint.centre);
         if (c->normalized > 100) {
             c->normalized = 100;
         }
@@ -251,9 +257,9 @@ void read_all_servo_channels(void)
                 global_flags.startup_mode_neutral = 0;
 
                 for (i = 0; i < 3; i++) {
-                    channel[i].centre = channel[i].raw_data;
-                    channel[i].ep_l = channel[i].raw_data - 250;
-                    channel[i].ep_h = channel[i].raw_data + 250;
+                    channel[i].endpoint.centre = channel[i].raw_data;
+                    channel[i].endpoint.left = channel[i].raw_data - 250;
+                    channel[i].endpoint.right = channel[i].raw_data + 250;
                 }
             }
             global_flags.new_channel_data = true;

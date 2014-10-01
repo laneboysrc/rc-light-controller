@@ -1,3 +1,15 @@
+/******************************************************************************
+
+    Outputs Steering, Throttle and CH3/AUX information in the UART Tx.
+
+    This allows running a single wire to a light controller, making wiring
+    very easy through the use of a standard servo cable.
+    Data is output "normalized", which means the values go from -100 to +100%.
+    CH3 is either 0 or 1.
+    There is also a flag sent out that indicates when the preprocessor is
+    initializing and reading the 0-position of steering and throttle.
+
+******************************************************************************/
 #include <stdint.h>
 
 #include <globals.h>
@@ -9,6 +21,7 @@
 static bool ch3_2pos = false;
 static uint8_t tx_data[4];
 static uint8_t next_tx_index = 0xff;
+
 
 // ****************************************************************************
 void output_preprocessor(void)

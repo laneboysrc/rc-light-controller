@@ -1,19 +1,20 @@
 /******************************************************************************
-; Process_indicators
-;
-; Implements a sensible indicator algorithm.
-;
-; To turn on the indicators, throtte and steering must be centered for 2 s,
-; then steering must be either left or right >50% for more than 2 s.
-;
-; Indicators are turned off when:
-;   - opposite steering is >30%
-;   - steering neutral or opposite for >2s
+
+    Implements a sensible indicator algorithm.
+
+    To turn on the indicators, throtte and steering must be centered for 2 s,
+    then steering must be either left or right >50% for more than 2 s.
+
+    Indicators are turned off when:
+      - opposite steering is >30%
+      - steering neutral or opposite for >2s
+
 ;******************************************************************************/
 #include <stdint.h>
 #include <stdbool.h>
 
 #include <globals.h>
+
 
 static enum {
     NOT_NEUTRAL = 0,
@@ -31,6 +32,7 @@ static uint16_t indicator_timer;
 static uint16_t blink_counter;
 
 
+// ****************************************************************************
 static void synchronize_blinking(void)
 {
     if (global_flags.blink_indicator_left ||
@@ -44,6 +46,7 @@ static void synchronize_blinking(void)
 }
 
 
+// ****************************************************************************
 static void set_not_neutral(void)
 {
     indicator_state = NOT_NEUTRAL;
@@ -52,6 +55,7 @@ static void set_not_neutral(void)
 }
 
 
+// ****************************************************************************
 static void set_blink_left(void)
 {
     synchronize_blinking();
@@ -60,6 +64,7 @@ static void set_blink_left(void)
 }
 
 
+// ****************************************************************************
 static void set_blink_right(void)
 {
     synchronize_blinking();
@@ -68,6 +73,7 @@ static void set_blink_right(void)
 }
 
 
+// ****************************************************************************
 void toggle_hazard_lights(void)
 {
     synchronize_blinking();
@@ -75,6 +81,7 @@ void toggle_hazard_lights(void)
 }
 
 
+// ****************************************************************************
 void process_indicators(void)
 {
     if (global_flags.systick) {

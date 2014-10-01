@@ -1,9 +1,19 @@
+/******************************************************************************
+******************************************************************************/
 #include <stdint.h>
 
 #include <LPC8xx.h>
 
 #include <globals.h>
 #include <uart0.h>
+
+
+// U_PCLK = UARTCLKDIV/(1+(MULT/DIV))
+// baud rate = U_PCLK/(16 x (BRGVAL + 1))
+
+// 115200 * 16 * (brgval + 1) = 11059200
+// 12000000 / 11059200 = 1.085069444 = 1 + (mult/div)
+// MULT = 22
 
 
 // INT32_MIN  is -2147483648 (decimal needs 12 characters, incl. terminating 0)
@@ -22,6 +32,7 @@
 #define RECEIVE_BUFFER_SIZE 16           // Must be modulo 2 for speed
 #define RECEIVE_BUFFER_INDEX_MASK (RECEIVE_BUFFER_SIZE - 1)
 
+
 static uint8_t receive_buffer[RECEIVE_BUFFER_SIZE];
 static volatile uint16_t read_index = 0;
 static volatile uint16_t write_index = 0;
@@ -32,7 +43,7 @@ static void uint32_to_cstring(uint32_t value, char *result,
     unsigned int radix, int number_of_leading_zeros)
 {
     // Worst case (base 2) we have to write 32 characters. However, since we
-    // only support base 2 for uint8_t we can make due with 12 bytes,
+    // only support base 2 fo+r uint8_t we can make due with 12 bytes,
     // which is the maximum needed for decimal.
     char temp[12];
     char *tp = temp;

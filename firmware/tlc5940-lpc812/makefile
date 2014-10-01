@@ -1,11 +1,11 @@
 NAME := master
 
-all : $(NAME).bin
+all : $(NAME).axf $(NAME).bin
 
 
 ifneq ($(VERBOSE), 1)
 QUIET := @
-ECHO = @echo
+ECHO := @echo
 else
 QUIET :=
 ECHO := @printf ""
@@ -32,6 +32,7 @@ FLASH_TOOL := lpc81x_isp.py --run --flash
 TERMINAL_PROGRAM := miniterm.py -p /dev/ttyUSB0 -b 115200
 PREPROCESSOR_SIMULATOR := $(TOOL_PATH)preprocessor-simulator.py -b 115200
 MAP_SUMMARY_TOOL := $(TOOL_PATH)parse_gcc_map_file.py
+
 
 ###############################################################################
 # Compiler and linker flags
@@ -81,6 +82,7 @@ $(OBJECTS) : makefile globals.h uart0.h utils.h
 	$(QUIET)$(LD) $(LDFLAGS) -o $@ $(OBJECTS) $(LDLIBS)
 
 %.bin : %.axf
+	$(ECHO) [CP] $@
 	$(QUIET)$(OBJCOPY) $< -O binary $@
 
 # Generate list files with mixed Assembler and C code
@@ -116,6 +118,7 @@ preprocessor-simulator :
 
 
 clean :
+	$(ECHO) [RM] $(NAME)
 	$(QUIET)$(RM) -f $(OBJECTS)
 	$(QUIET)$(RM) -f $(OBJECTS:.o=.lst)
 	$(QUIET)$(RM) -f $(NAME).bin

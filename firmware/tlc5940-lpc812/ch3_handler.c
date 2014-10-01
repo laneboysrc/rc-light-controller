@@ -1,7 +1,10 @@
 /******************************************************************************
-; This function handles CH3 to determine which actions to invoke.
-; It is designed for a two-position switch on CH3 (HK-310, GT3B ...). The
-; switch can either be momentary (e.g Futaba 4PL) or static (HK-310).
+
+    This function handles CH3 to determine which actions to invoke.
+
+    It is designed for a two-position switch on CH3 (HK-310, GT3B ...). The
+    switch can either be momentary (e.g Futaba 4PL) or static (HK-310).
+
 ;******************************************************************************/
 #include <stdint.h>
 #include <stdbool.h>
@@ -9,7 +12,8 @@
 #include <globals.h>
 #include <uart0.h>
 
-
+// This value must be a number higher than any number of clicks we want to
+// process.
 #define IGNORE_CLICK_COUNT 99
 
 
@@ -22,6 +26,7 @@ static uint8_t ch3_clicks;
 static uint16_t ch3_click_counter;
 
 
+// ****************************************************************************
 static void process_ch3_click_timeout(void)
 {
     if (ch3_clicks == 0) {          // Any clicks pending?
@@ -120,6 +125,7 @@ static void process_ch3_click_timeout(void)
 }
 
 
+// ****************************************************************************
 static void add_click(void)
 {
     uart0_send_cstring("add_click\n");
@@ -137,6 +143,7 @@ static void add_click(void)
 }
 
 
+// ****************************************************************************
 void process_ch3_clicks(void)
 {
     global_flags.gear_changed = 0;
@@ -146,6 +153,9 @@ void process_ch3_clicks(void)
             --ch3_click_counter;
         }
     }
+
+    // FIXME: add support for CH3 being a momentary button directly connected
+    // to the light controller
 
     if (global_flags.startup_mode_neutral) {
         ch3_flags.last_state = (channel[CH3].normalized > 0) ? true : false;

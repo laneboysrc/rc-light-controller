@@ -10,7 +10,6 @@
 #define UNUSED(x) ((void)(x))
 #endif
 
-
 #define __SYSTICK_IN_MS 20
 
 // The ROM_MAGIC marker is used to identify the location of ROM constants when
@@ -21,16 +20,23 @@
 #define TH 1
 #define CH3 2
 
+
 // ****************************************************************************
-struct channel_s {
+typedef struct {
+    uint16_t left;
+    uint16_t centre;
+    uint16_t right;
+} SERVO_ENDPOINTS_T;
+
+
+// ****************************************************************************
+typedef struct {
     uint32_t raw_data;
+    SERVO_ENDPOINTS_T endpoint;
     int16_t normalized;
     uint16_t absolute;
-    uint32_t centre;
-    uint32_t ep_l;
-    uint32_t ep_h;
     bool reversed;
-};
+} CHANNEL_T;
 
 
 // ****************************************************************************
@@ -168,9 +174,10 @@ typedef struct {
 // Certainly not suitable for secure implementations...
 extern uint32_t entropy;
 
-extern GLOBAL_FLAGS_T global_flags;
 extern const LIGHT_CONTROLLER_CONFIG_T config;
-extern struct channel_s channel[3];
+extern GLOBAL_FLAGS_T global_flags;
+extern CHANNEL_T channel[3];
+extern SERVO_ENDPOINTS_T servo_output_endpoint;
 
 
 // ****************************************************************************

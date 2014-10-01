@@ -1,3 +1,10 @@
+/******************************************************************************
+
+    Application entry point.
+
+    Contains the main loop and the hardware initialization.
+
+******************************************************************************/
 #include <stdio.h>
 #include <stdbool.h>
 #include <LPC8xx.h>
@@ -35,7 +42,7 @@ volatile uint32_t systick_count;
 // Certainly not suitable for secure implementations...
 uint32_t entropy;
 
-struct channel_s channel[3];
+CHANNEL_T channel[3];
 GLOBAL_FLAGS_T global_flags;
 
 

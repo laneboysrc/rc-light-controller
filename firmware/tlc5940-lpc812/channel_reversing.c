@@ -1,11 +1,20 @@
-/******************************************************************************
-******************************************************************************/
+/*****************************************************************************
+Process_channel_reversing
+
+When the user performs 7 clicks on CH3, channel reversing setup is engaged.
+
+The user should then turn the steering wheel to left so that the light
+controller knows the direction of the steering channel.
+The user should also push the throttle in forward direction so that the
+light controller knows the direction of the throttle channel.
+*****************************************************************************/
 #include <stdint.h>
 #include <stdbool.h>
 
 #include <globals.h>
 
 
+// ****************************************************************************
 void reversing_setup_action(uint8_t ch3_clicks)
 {
     (void) ch3_clicks;
@@ -19,15 +28,7 @@ void reversing_setup_action(uint8_t ch3_clicks)
     }
 }
 
-// ****************************************************************************
-// Process_channel_reversing
-//
-// When the user performs 7 clicks on CH3, the left indicator and front
-// head lights light up.
-// The user should then turn the steering wheel to left so that the light
-// controller knows the direction of the steering channel.
-// The user should then also push the throttle in forward direction so that the
-// light controller knows the direction of the throttle channel.
+
 // ****************************************************************************
 void process_channel_reversing_setup(void)
 {
