@@ -2,8 +2,12 @@ PROGRAM_NAME := master
 
 all : $(PROGRAM_NAME).bin
 
-QUIET := @
-#QUIET :=
+ifneq ($(VERBOSE),1)
+QUIET:=@
+else
+QUIET:=
+endif
+
 
 ###############################################################################
 # Configuration options for our application
