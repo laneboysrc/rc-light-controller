@@ -1,11 +1,14 @@
-PROGRAM_NAME := master
+NAME := master
 
-all : $(PROGRAM_NAME).bin
+all : $(NAME).bin
 
-ifneq ($(VERBOSE),1)
-QUIET:=@
+
+ifneq ($(VERBOSE), 1)
+QUIET := @
+ECHO = @echo
 else
-QUIET:=
+QUIET :=
+ECHO := @printf ""
 endif
 
 
@@ -70,17 +73,17 @@ $(OBJECTS) : makefile globals.h uart0.h utils.h
 # Rules
 
 %.o : %.c
+	$(ECHO) [CC] $<
 	$(QUIET)$(CC) -c $(CFLAGS) -o $@ $<
-
 
 %.axf : MAPFILE = $(@:.axf=.map)
 %.axf : $(OBJECTS) $(LINKER_SCRIPT)
+	$(ECHO) [LD] $@
 	$(QUIET)$(LD) $(LDFLAGS) -o $@ $(OBJECTS) $(LDLIBS)
 	$(QUIET)$(MAP_SUMMARY_TOOL) $(MAPFILE)
 
 %.bin : %.axf
 	$(QUIET)$(OBJCOPY) $< -O binary $@
-
 
 # Generate list files with mixed Assembler and C code
 %.lst : %.c
@@ -95,7 +98,7 @@ list : $(OBJECTS:.o=.lst)
 
 
 # Invoke the tool to program the microcontroller
-program : $(PROGRAM_NAME).bin
+program : $(NAME).bin
 	$(QUIET)$(FLASH_TOOL)
 
 
@@ -112,9 +115,9 @@ preprocessor-simulator :
 clean :
 	$(QUIET)$(RM) -f $(OBJECTS)
 	$(QUIET)$(RM) -f $(OBJECTS:.o=.lst)
-	$(QUIET)$(RM) -f $(PROGRAM_NAME).bin
-	$(QUIET)$(RM) -f $(PROGRAM_NAME).axf
-	$(QUIET)$(RM) -f $(PROGRAM_NAME).map
+	$(QUIET)$(RM) -f $(NAME).bin
+	$(QUIET)$(RM) -f $(NAME).axf
+	$(QUIET)$(RM) -f $(NAME).map
 
 
 .PHONY : all clean program terminal preprocessor-simulator list
