@@ -28,7 +28,7 @@ MAP_SUMMARY_TOOL := $(TOOL_PATH)parse_gcc_map_file.py
 
 ###############################################################################
 # Compiler and linker flags
-CFLAGS = -mthumb -mcpu=cortex-m0plus
+CFLAGS = -mthumb -mcpu=cortex-m0plus -mlittle-endian
 CFLAGS += -std=c99
 CFLAGS += -W -Wall -Wextra -Wpedantic
 CFLAGS += -Wstrict-prototypes -Wshadow -Wwrite-strings
