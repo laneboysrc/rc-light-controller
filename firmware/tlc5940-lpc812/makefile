@@ -13,18 +13,18 @@ LINKER_SCRIPT := lpc812.ld
 
 ###############################################################################
 # Toolchain setup
-GCC_ARM := /opt/gcc-arm-none-eabi-4_8-2014q2
-GCC_ARM_BIN := $(GCC_ARM)/bin
-GCC_ARM_LIB := $(GCC_ARM)/lib/gcc/arm-none-eabi/4.8.4/armv6-m
+TOOLCHAIN_PREFIX := arm-none-eabi-
+TOOLCHAIN_PATH := /opt/gcc-arm-none-eabi-4_8-2014q2/bin/
+TOOL_PATH := ../../tools/
 
-CC := $(GCC_ARM_BIN)/arm-none-eabi-gcc
-LD := $(GCC_ARM_BIN)/arm-none-eabi-ld
-OBJCOPY := $(GCC_ARM_BIN)/arm-none-eabi-objcopy
+CC := $(TOOLCHAIN_PATH)$(TOOLCHAIN_PREFIX)gcc
+LD := $(TOOLCHAIN_PATH)$(TOOLCHAIN_PREFIX)ld
+OBJCOPY := $(TOOLCHAIN_PATH)$(TOOLCHAIN_PREFIX)objcopy
 
 FLASH_TOOL := lpc81x_isp.py --run --flash $<
 TERMINAL_PROGRAM := miniterm.py -p /dev/ttyUSB0 -b 115200
-PREPROCESSOR_SIMULATOR := ../../tools/preprocessor-simulator.py -b 115200
-MAP_SUMMARY_TOOL := ../../tools/parse_gcc_map_file.py
+PREPROCESSOR_SIMULATOR := $(TOOL_PATH)preprocessor-simulator.py -b 115200
+MAP_SUMMARY_TOOL := $(TOOL_PATH)parse_gcc_map_file.py
 
 ###############################################################################
 # Compiler and linker flags
@@ -41,7 +41,10 @@ CFLAGS += -I. -isystem./LPC8xx
 CFLAGS += -Os -fdata-sections -ffunction-sections -fno-common
 CFLAGS += -D__SYSTEM_CLOCK=$(SYSTEM_CLOCK)
 
-LDFLAGS = -nostdlib -T $(LINKER_SCRIPT) -Map=$(MAPFILE) --gc-sections -L$(GCC_ARM_LIB)
+LDFLAGS = -T $(LINKER_SCRIPT) -nostdlib --warn-common
+LDFLAGS += --gc-sections -O3
+LDFLAGS += -Map=$(MAPFILE) --cref
+LDFLAGS += -L$(TOOLCHAIN_PATH)../lib/gcc/arm-none-eabi/4.8.4/armv6-m
 
 LDLIBS = -lgcc
 
