@@ -265,5 +265,9 @@ void read_all_servo_channels(void)
             normalize_channel(&channel[2]);
             global_flags.new_channel_data = true;
             break;
+
+        default:
+            servo_reader_state = WAIT_FOR_FIRST_PULSE;
+            break;
     }
 }
