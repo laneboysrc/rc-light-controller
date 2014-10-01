@@ -106,11 +106,11 @@ preprocessor-simulator :
 
 
 clean :
-	$(QUIET)rm -f $(OBJECTS)
-	$(QUIET)rm -f $(OBJECTS:.o=.lst)
-	$(QUIET)rm -f $(PROGRAM_NAME).bin
-	$(QUIET)rm -f $(PROGRAM_NAME).axf
-	$(QUIET)rm -f $(PROGRAM_NAME).map
+	$(QUIET)$(RM) -f $(OBJECTS)
+	$(QUIET)$(RM) -f $(OBJECTS:.o=.lst)
+	$(QUIET)$(RM) -f $(PROGRAM_NAME).bin
+	$(QUIET)$(RM) -f $(PROGRAM_NAME).axf
+	$(QUIET)$(RM) -f $(PROGRAM_NAME).map
 
 
 .PHONY : all clean program terminal preprocessor-simulator list
