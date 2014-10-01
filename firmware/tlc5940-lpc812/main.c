@@ -103,8 +103,6 @@ static void init_hardware(void)
     SysTick->CTRL = (1 << 0) |              // Enable System Tick counter
                     (1 << 1) |              // System Tick interrupt enable
                     (1 << 2);               // Use system clock
-
-    NVIC_EnableIRQ(SysTick_IRQn);
 }
 
 
@@ -137,15 +135,15 @@ static void service_systick(void)
 
     global_flags.systick = 1;
 
-    // Disable the SCTimer interrupt. Use memory barriers to ensure that no
+    // Disable the SysTick interrupt. Use memory barriers to ensure that no
     // interrupt is pending in the pipeline.
     // More info:
     // http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.dai0321a/BIHHFHJD.html
-    NVIC_DisableIRQ(SysTick_IRQn);
+    SysTick->CTRL &= ~(1 << 1);
     __DSB();
     __ISB();
     --systick_count;
-    NVIC_EnableIRQ(SysTick_IRQn);
+    SysTick->CTRL |= (1 << 1);      // Re-enable the system tick interrupt
 }
 
 
