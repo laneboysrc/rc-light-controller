@@ -13,11 +13,11 @@
 
 #define NO_LEADING_ZEROS 0
 
-#define UART_CFG_ENABLE (1u << 0)
+#define UART_CFG_ENABLE (1 << 0)
 #define UART_CFG_DATALEN(d) ((unsigned)((d) - 7) << 2)
-#define UART_STAT_RXRDY (1u << 0)
-#define UART_STAT_TXRDY (1u << 2)
-#define UART_STAT_TXIDLE (1u << 3)
+#define UART_STAT_RXRDY (1 << 0)
+#define UART_STAT_TXRDY (1 << 2)
+#define UART_STAT_TXIDLE (1 << 3)
 
 #define RECEIVE_BUFFER_SIZE 16           // Must be modulo 2 for speed
 #define RECEIVE_BUFFER_INDEX_MASK (RECEIVE_BUFFER_SIZE - 1)
@@ -29,7 +29,7 @@ static volatile uint16_t write_index = 0;
 
 // ****************************************************************************
 static void uint32_to_cstring(uint32_t value, char *result,
-    unsigned int radix, unsigned int number_of_leading_zeros)
+    unsigned int radix, int number_of_leading_zeros)
 {
     // Worst case (base 2) we have to write 32 characters. However, since we
     // only support base 2 for uint8_t we can make due with 12 bytes,
@@ -42,8 +42,8 @@ static void uint32_to_cstring(uint32_t value, char *result,
     // significant digit first. We stop as soon as the higher most remaining
     // digits are 0 (leading zero supression).
     do {
-        digit = (value % radix);
-        *tp++ = (digit < 10) ? (char)(digit + '0') : (char)(digit + 'a' - 10);
+        digit = value % radix;
+        *tp++ = (digit < 10) ? (digit + '0') : (digit + 'a' - 10);
         value /= radix;
         --number_of_leading_zeros;
     } while (value || number_of_leading_zeros > 0);
@@ -73,11 +73,11 @@ static void int32_to_cstring(int32_t value, char *result, unsigned int radix)
 void init_uart0(void)
 {
     // Turn on peripheral clocks for UART0
-    LPC_SYSCON->SYSAHBCLKCTRL |= (1u << 14);
+    LPC_SYSCON->SYSAHBCLKCTRL |= (1 << 14);
 
     // Toggle peripheral reset for USART0
-    LPC_SYSCON->PRESETCTRL &= ~(1u << 3);
-    LPC_SYSCON->PRESETCTRL |=  (1u << 3);
+    LPC_SYSCON->PRESETCTRL &= ~(1 << 3);
+    LPC_SYSCON->PRESETCTRL |=  (1 << 3);
 
 // -----------------------------
 #if __SYSTEM_CLOCK == 12000000
@@ -123,7 +123,7 @@ void init_uart0(void)
 
     LPC_USART0->CFG = UART_CFG_DATALEN(8) | UART_CFG_ENABLE;     // 8n1
 
-    LPC_USART0->INTENSET = (1u << 0);    // Enable RXRDY interrupt
+    LPC_USART0->INTENSET = (1 << 0);    // Enable RXRDY interrupt
     NVIC_EnableIRQ(UART0_IRQn);
 }
 
@@ -235,17 +235,17 @@ void UART0_irq_handler(void)
 // ****************************************************************************
 int uart0_read_is_byte_pending(void)
 {
-    if (LPC_USART0->STAT & (1u << 8)) {
+    if (LPC_USART0->STAT & (1 << 8)) {
         uart0_send_cstring("overrun\n");
-        LPC_USART0->STAT |= (1u << 8);
+        LPC_USART0->STAT |= (1 << 8);
     }
-    if (LPC_USART0->STAT & (1u << 13)) {
+    if (LPC_USART0->STAT & (1 << 13)) {
         uart0_send_cstring("frameerr\n");
-        LPC_USART0->STAT |= (1u << 13);
+        LPC_USART0->STAT |= (1 << 13);
     }
-    if (LPC_USART0->STAT & (1u << 15)) {
+    if (LPC_USART0->STAT & (1 << 15)) {
         uart0_send_cstring("noise\n");
-        LPC_USART0->STAT |= (1u << 15);
+        LPC_USART0->STAT |= (1 << 15);
     }
 
     return (read_index != write_index);
