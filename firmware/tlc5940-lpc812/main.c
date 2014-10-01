@@ -51,7 +51,7 @@ void init_hardware(void)
 
     // Turn on peripheral clocks for SCTimer, IOCON, SPI0
     // (GPIO, SWM alrady enabled after reset)
-    LPC_SYSCON->SYSAHBCLKCTRL |= (1 << 8) | (1 << 18) | (1 << 11);
+    LPC_SYSCON->SYSAHBCLKCTRL |= (1u << 8) | (1u << 18) | (1u << 11);
 
 
     // ------------------------
@@ -63,7 +63,7 @@ void init_hardware(void)
     // to prevent them from floating.
     LPC_GPIO_PORT->W0[10] = 0;
     LPC_GPIO_PORT->W0[11] = 0;
-    LPC_GPIO_PORT->DIR0 |= (1 << 10) | (1 << 11);
+    LPC_GPIO_PORT->DIR0 |= (1u << 10) | (1u << 11);
 
 
     // Enable glitch filtering on the IOs
@@ -75,17 +75,17 @@ void init_hardware(void)
     // filtering on the IOs used for the capture timer. One clock cytle of the
     // main clock is enough, but with none weird things happen.
 
-    LPC_IOCON->PIO0_0 |= (1 << 5) |         // Enable Hysteresis
-                         (0x1 << 13) |      // Glitch filter 1
-                         (0x1 << 11);       // Reject 1 clock cycle of glitch filter
+    LPC_IOCON->PIO0_0 |= (1u << 5) |         // Enable Hysteresis
+                         (0x1u << 13) |      // Glitch filter 1
+                         (0x1u << 11);       // Reject 1 clock cycle of glitch filter
 
-    LPC_IOCON->PIO0_4 |= (1 << 5) |         // Enable Hysteresis
-                         (0x1 << 13) |      // Glitch filter 1
-                         (0x1 << 11);       // Reject 1 clock cycle of glitch filter
+    LPC_IOCON->PIO0_4 |= (1u << 5) |         // Enable Hysteresis
+                         (0x1u << 13) |      // Glitch filter 1
+                         (0x1u << 11);       // Reject 1 clock cycle of glitch filter
 
-    LPC_IOCON->PIO0_13 |= (1 << 5) |        // Enable Hysteresis
-                         (0x1 << 13) |      // Glitch filter 1
-                         (0x1 << 11);       // Reject 1 clock cycle of glitch filter
+    LPC_IOCON->PIO0_13 |= (1u << 5) |        // Enable Hysteresis
+                         (0x1u << 13) |      // Glitch filter 1
+                         (0x1u << 11);       // Reject 1 clock cycle of glitch filter
 
 
     // ------------------------
@@ -97,9 +97,9 @@ void init_hardware(void)
     // SysTick configuration
     SysTick->LOAD = __SYSTEM_CLOCK * __SYSTICK_IN_MS / 1000;
     SysTick->VAL = __SYSTEM_CLOCK * __SYSTICK_IN_MS / 1000;
-    SysTick->CTRL = (1 << 0) |               // Enable System Tick counter
-                    (1 << 1) |               // System Tick interrupt enable
-                    (1 << 2);                // Use system clock
+    SysTick->CTRL = (1u << 0) |              // Enable System Tick counter
+                    (1u << 1) |              // System Tick interrupt enable
+                    (1u << 2);               // Use system clock
 
     NVIC_EnableIRQ(SysTick_IRQn);
 }
@@ -109,14 +109,14 @@ void init_hardware(void)
 void init_hardware_final(void)
 {
     // Turn off peripheral clock for IOCON and SWM to preserve power
-    LPC_SYSCON->SYSAHBCLKCTRL &= ~((1 << 18) | (1 << 7));
+    LPC_SYSCON->SYSAHBCLKCTRL &= ~((1u << 18) | (1u << 7));
 }
 
 
 // ****************************************************************************
 void SysTick_handler(void)
 {
-    if (SysTick->CTRL & (1 << 16)) {        // Read and clear Countflag
+    if (SysTick->CTRL & (1u << 16)) {       // Read and clear Countflag
         ++systick_count;
     }
 }

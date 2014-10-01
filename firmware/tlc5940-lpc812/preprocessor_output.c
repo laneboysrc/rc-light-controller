@@ -33,8 +33,8 @@ void output_preprocessor(void)
         tx_data[0] = SLAVE_MAGIC_BYTE;
         tx_data[1] = channel[0].normalized;
         tx_data[2] = channel[1].normalized;
-        tx_data[3] = (ch3_2pos ? (1 << 0) : 0) |
-                     (global_flags.startup_mode_neutral ? (1 << 4) : 0);
+        tx_data[3] = (ch3_2pos ? (1u << 0) : 0) |
+                     (global_flags.startup_mode_neutral ? (1u << 4) : 0);
 
         next_tx_index = 0;
     }

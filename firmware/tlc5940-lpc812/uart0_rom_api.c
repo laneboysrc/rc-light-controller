@@ -15,7 +15,7 @@
 
 #define NO_LEADING_ZEROS 0
 
-#define UART_STAT_RXRDY (1 << 0)
+#define UART_STAT_RXRDY (1u << 0)
 
 static uint8_t ram[40];
 static UART_HANDLE_T *handle;
@@ -68,11 +68,11 @@ void init_uart0(void)
     UART_CONFIG_T uart_config;
 
     // Turn on peripheral clocks for UART0
-    LPC_SYSCON->SYSAHBCLKCTRL |= (1 << 14);
+    LPC_SYSCON->SYSAHBCLKCTRL |= (1u << 14);
 
     // Toggle peripheral reset for USART0
-    LPC_SYSCON->PRESETCTRL &= ~(1 << 3);
-    LPC_SYSCON->PRESETCTRL |=  (1 << 3);
+    LPC_SYSCON->PRESETCTRL &= ~(1u << 3);
+    LPC_SYSCON->PRESETCTRL |=  (1u << 3);
 
     LPC_SYSCON->UARTCLKDIV = 1;
     LPC_SYSCON->UARTFRGDIV = 255;
@@ -81,7 +81,7 @@ void init_uart0(void)
 
     uart_config.sys_clk_in_hz = __SYSTEM_CLOCK;
     uart_config.baudrate_in_hz = UART0_BAUDRATE;
-    uart_config.config = (0x01 << 0) | (0x00 << 2) | (0x0 << 4);    // 8n1
+    uart_config.config = (0x01u << 0) | (0x00 << 2) | (0x0 << 4);    // 8n1
     uart_config.sync_mod = (0x0 << 0);      // Async mode
     uart_config.error_en = 0;               // Ignore all errors
 

@@ -30,17 +30,17 @@ static void send_light_data_to_tlc5940(void)
     volatile int i;
 
     // Wait for MSTIDLE
-    while (!(LPC_SPI0->STAT & (1 << 8)));
+    while (!(LPC_SPI0->STAT & (1u << 8)));
 
     for (i = 15; i >= 0; i--) {
         // Wait for TXRDY
-        while (!(LPC_SPI0->STAT & (1 << 1)));
+        while (!(LPC_SPI0->STAT & (1u << 1)));
 
         LPC_SPI0->TXDAT = tlc5940_light_data[i];
     }
 
     // Force END OF TRANSFER
-    LPC_SPI0->STAT = (1 << 7);
+    LPC_SPI0->STAT = (1u << 7);
 }
 
 
@@ -50,20 +50,21 @@ void init_lights(void)
     GSCLK = 0;
     XLAT = 0;
 
-    LPC_GPIO_PORT->DIR0 |= (1 << 1) | (1 << 2) | (1 << 3) | (1 << 6) | (1 << 7);
+    LPC_GPIO_PORT->DIR0 |=
+        (1u << 1) | (1u << 2) | (1u << 3) | (1u << 6) | (1u << 7);
 
     // Use 2 MHz SPI clock. 16 bytes take about 50 us to transmit.
     LPC_SPI0->DIV = (__SYSTEM_CLOCK / 2000000) - 1;
 
-    LPC_SPI0->CFG = (1 << 0) |          // Enable SPI0
-                    (1 << 2) |          // Master mode
+    LPC_SPI0->CFG = (1u << 0) |          // Enable SPI0
+                    (1u << 2) |          // Master mode
                     (0 << 3) |          // LSB First mode disabled
                     (0 << 4) |          // CPHA = 0
                     (0 << 5) |          // CPOL = 0
                     (0 << 8);           // SPOL = 0
 
-    LPC_SPI0->TXCTRL = (1 << 21) |      // set EOF
-                       (1 << 22) |      // RXIGNORE, otherwise SPI hangs until
+    LPC_SPI0->TXCTRL = (1u << 21) |      // set EOF
+                       (1u << 22) |      // RXIGNORE, otherwise SPI hangs until
                                         //   we read the data register
                        ((6 - 1) << 24); // 6 bit frames
 
@@ -88,7 +89,7 @@ void next_light_sequence(void)
 void more_lights(void)
 {
     // Switch light mode up (Parking, Low Beam, Fog, High Beam)
-    light_mode <<= 1;
+    light_mode = (uint16_t)(light_mode << 1);
     light_mode |= 1;
     light_mode &= config.light_mode_mask;
 }
