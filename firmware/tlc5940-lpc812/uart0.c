@@ -65,7 +65,7 @@ static void int32_to_cstring(int32_t value, char *result, unsigned int radix)
         value = -value;
     }
 
-    return uint32_to_cstring((uint32_t)value, result, radix, NO_LEADING_ZEROS);
+    uint32_to_cstring((uint32_t)value, result, radix, NO_LEADING_ZEROS);
 }
 
 

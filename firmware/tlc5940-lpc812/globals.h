@@ -26,6 +26,40 @@ struct channel_s {
     bool reversed;
 };
 
+
+// ****************************************************************************
+typedef enum {
+    GEAR_1 = 0,
+    GEAR_2 = 1
+} GEAR_T;
+
+
+// ****************************************************************************
+typedef enum {
+    SERVO_OUTPUT_SETUP_OFF = 0,
+    SERVO_OUTPUT_SETUP_CENTRE = 0x01,
+    SERVO_OUTPUT_SETUP_LEFT = 0x02,
+    SERVO_OUTPUT_SETUP_RIGHT = 0x04
+} SERVO_OUTPUT_T;
+
+
+// ****************************************************************************
+typedef enum {
+    REVERSING_SETUP_OFF = 0,
+    REVERSING_SETUP_STEERING = 0x01,
+    REVERSING_SETUP_THROTTLE = 0x02,
+} REVERSING_SETUP_T;
+
+
+// ****************************************************************************
+typedef enum {
+    WINCH_DISABLED = 0,
+    WINCH_IDLE = 0x01,
+    WINCH_IN = 0x02,
+    WINCH_OUT = 0x04
+} WINCH_T;
+
+
 // ****************************************************************************
 typedef struct {
     unsigned int systick : 1;               // Set for one mainloop every 20 ms
@@ -40,31 +74,23 @@ typedef struct {
     unsigned int reversing : 1;             // Set when the car is reversing
 
     unsigned int gear_changed : 1;          // Set for one mainloop when a new gear was selected
-    enum {
-        GEAR_1 = 0,
-        GEAR_2 = 1
-    } gear : 1;
+    unsigned int gear : 1;
 
-    enum {
-        SERVO_OUTPUT_SETUP_OFF = 0,
-        SERVO_OUTPUT_SETUP_CENTRE = 0x01,
-        SERVO_OUTPUT_SETUP_LEFT = 0x02,
-        SERVO_OUTPUT_SETUP_RIGHT = 0x04
-    } servo_output_setup : 3;
+    unsigned int servo_output_setup : 3;
 
-    enum {
-        REVERSING_SETUP_OFF = 0,
-        REVERSING_SETUP_STEERING = 0x01,
-        REVERSING_SETUP_THROTTLE = 0x02,
-    } reversing_setup : 2;
+    unsigned int reversing_setup : 2;
 
-    enum {
-        WINCH_DISABLED = 0,
-        WINCH_IDLE = 0x01,
-        WINCH_IN = 0x02,
-        WINCH_OUT = 0x04
-    } winch_mode : 3;
+    unsigned int winch_mode : 3;
 } GLOBAL_FLAGS_T;
+
+
+// ****************************************************************************
+typedef enum {
+    MASTER_WITH_SERVO_READER,
+    MASTER_WITH_UART_READER,
+    SLAVE
+} MASTER_MODE_T;
+
 
 // ****************************************************************************
 typedef struct {
@@ -72,11 +98,7 @@ typedef struct {
     uint16_t type;
     uint16_t version;
 
-    enum {
-        MASTER_WITH_SERVO_READER,
-        MASTER_WITH_UART_READER,
-        SLAVE
-    } mode : 3;
+    unsigned int mode : 3;
 
     struct {
         // If mode is MASTER_WITH_SERVO_READER  then all flags are mutually
