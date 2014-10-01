@@ -38,7 +38,7 @@ CFLAGS += -Wmissing-field-initializers -Wdouble-promotion -Wfloat-equal
 CFLAGS += -Wswitch-enum -Wswitch-default -Wuninitialized -Wunknown-pragmas
 CFLAGS += -Wundef
 CFLAGS += -I. -isystem./LPC8xx
-CFLAGS += -Os -fdata-sections -ffunction-sections -fno-common
+CFLAGS += -Os -fsigned-char -fdata-sections -ffunction-sections -fno-common
 CFLAGS += -D__SYSTEM_CLOCK=$(SYSTEM_CLOCK)
 
 LDFLAGS = -T $(LINKER_SCRIPT) -nostdlib --warn-common
