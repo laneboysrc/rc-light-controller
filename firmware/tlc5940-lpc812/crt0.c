@@ -47,7 +47,7 @@ static inline void crt0(void)
 typedef void (*irq_handler)(void);
 
 // This symbol is defined by the linker in the lpc81x.ld script
-extern void _stacktop();
+extern void _stacktop(void);
 
 // Forward declaration of the exception handlers.
 // When the application defines a handler with the same name it will

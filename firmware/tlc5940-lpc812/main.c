@@ -40,7 +40,7 @@ GLOBAL_FLAGS_T global_flags;
 
 
 // ****************************************************************************
-void init_hardware()
+void init_hardware(void)
 {
 
 #if __SYSTEM_CLOCK != 12000000
