@@ -13,7 +13,7 @@ static void next16(uint16_t *lfsr)
 {
     // Feedback polynomial: x^16 + x^14 + x^13 + x^11 + 1
     unsigned bit = ((*lfsr >> 0) ^ (*lfsr >> 2) ^ (*lfsr >> 3) ^ (*lfsr >> 5)) & 1;
-    *lfsr =  (*lfsr >> 1) | (bit << 15);
+    *lfsr =  (*lfsr >> 1) | (uint16_t)(bit << 15);
 }
 
 
@@ -42,5 +42,5 @@ uint16_t random_min_max(uint16_t min, uint16_t max)
     }
 
     next16(&lfsr);
-    return min + (lfsr % (max - min + 1));
+    return (uint16_t)(min + (lfsr % (max - min + 1)));
 }

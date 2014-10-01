@@ -28,21 +28,22 @@ static volatile uint16_t write_index = 0;
 
 
 // ****************************************************************************
-static void uint32_to_cstring(uint32_t value, char *result, int radix, int number_of_leading_zeros)
+static void uint32_to_cstring(uint32_t value, char *result,
+    unsigned int radix, unsigned int number_of_leading_zeros)
 {
     // Worst case (base 2) we have to write 32 characters. However, since we
     // only support base 2 for uint8_t we can make due with 12 bytes,
     // which is the maximum needed for decimal.
     char temp[12];
     char *tp = temp;
-    int digit;
+    unsigned int digit;
 
     // Process the digits in reverse order, i.e. fill temp[] with the least
     // significant digit first. We stop as soon as the higher most remaining
     // digits are 0 (leading zero supression).
     do {
-        digit = value % radix;
-        *tp++ = (digit < 10) ? (digit + '0') : (digit + 'a' - 10);
+        digit = (value % radix);
+        *tp++ = (digit < 10) ? (char)(digit + '0') : (char)(digit + 'a' - 10);
         value /= radix;
         --number_of_leading_zeros;
     } while (value || number_of_leading_zeros > 0);
@@ -57,7 +58,7 @@ static void uint32_to_cstring(uint32_t value, char *result, int radix, int numbe
 
 
 // ****************************************************************************
-static void int32_to_cstring(int32_t value, char *result, int radix)
+static void int32_to_cstring(int32_t value, char *result, unsigned int radix)
 {
     if (radix == 10  &&  value < 0) {
         *result++ = '-';
@@ -217,7 +218,7 @@ inline void uart0_send_linefeed(void)
 // ****************************************************************************
 void UART0_irq_handler(void)
 {
-    receive_buffer[write_index++] = LPC_USART0->RXDATA;
+    receive_buffer[write_index++] = (uint8_t)LPC_USART0->RXDATA;
 
     // Wrap around the write pointer. This works because the buffer size is
     // a modulo of 2.

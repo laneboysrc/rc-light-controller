@@ -30,15 +30,15 @@ MAP_SUMMARY_TOOL := ../../tools/parse_gcc_map_file.py
 # Compiler and linker flags
 CFLAGS = -mthumb -mcpu=cortex-m0plus
 CFLAGS += -std=c99
-CFLAGS += -W -Wall -Wextra -Wstrict-prototypes -Wshadow -Wwrite-strings
+CFLAGS += -W -Wall -Wextra
+CFLAGS += -Wstrict-prototypes -Wshadow -Wwrite-strings
 CFLAGS += -Wdeclaration-after-statement -Waddress -Wlogical-op
 CFLAGS += -Wold-style-definition -Wmissing-prototypes -Wmissing-declarations
-CFLAGS += -Wmissing-field-initializers -Wdouble-promotion -Wswitch-enum
-CFLAGS += -Wswitch-default
-#CFLAGS += -Wconversion
+CFLAGS += -Wmissing-field-initializers -Wdouble-promotion -Wfloat-equal
+CFLAGS += -Wswitch-enum -Wswitch-default -Wuninitialized -Wunknown-pragmas
+CFLAGS += -Wundef
 #CFLAGS += -Wpedantic
-#  -W             -Wuninitialized -Wunknown-pragmas -Wfloat-equal  -Wundef  -Wshadow
-CFLAGS += -I. -I./LPC8xx
+CFLAGS += -I. -isystem./LPC8xx
 CFLAGS += -Os -fdata-sections -ffunction-sections -fno-common
 CFLAGS += -D__SYSTEM_CLOCK=$(SYSTEM_CLOCK)
 
