@@ -28,7 +28,7 @@ CC := $(TOOLCHAIN_PATH)$(TOOLCHAIN_PREFIX)gcc
 LD := $(TOOLCHAIN_PATH)$(TOOLCHAIN_PREFIX)ld
 OBJCOPY := $(TOOLCHAIN_PATH)$(TOOLCHAIN_PREFIX)objcopy
 
-FLASH_TOOL := lpc81x_isp.py --run --flash $<
+FLASH_TOOL := lpc81x_isp.py --run --flash
 TERMINAL_PROGRAM := miniterm.py -p /dev/ttyUSB0 -b 115200
 PREPROCESSOR_SIMULATOR := $(TOOL_PATH)preprocessor-simulator.py -b 115200
 MAP_SUMMARY_TOOL := $(TOOL_PATH)parse_gcc_map_file.py
@@ -50,7 +50,7 @@ CFLAGS += -D__SYSTEM_CLOCK=$(SYSTEM_CLOCK)
 
 LDFLAGS = -T $(LINKER_SCRIPT) -nostdlib --warn-common
 LDFLAGS += --gc-sections -O3
-LDFLAGS += -Map=$(MAPFILE) --cref
+LDFLAGS += -Map=$(NAME).map --cref
 LDFLAGS += -L$(TOOLCHAIN_PATH)../lib/gcc/arm-none-eabi/4.8.4/armv6-m
 
 LDLIBS = -lgcc
@@ -76,11 +76,9 @@ $(OBJECTS) : makefile globals.h uart0.h utils.h
 	$(ECHO) [CC] $<
 	$(QUIET)$(CC) -c $(CFLAGS) -o $@ $<
 
-%.axf : MAPFILE = $(@:.axf=.map)
-%.axf : $(OBJECTS) $(LINKER_SCRIPT)
+%.axf %.map : $(OBJECTS) $(LINKER_SCRIPT)
 	$(ECHO) [LD] $@
 	$(QUIET)$(LD) $(LDFLAGS) -o $@ $(OBJECTS) $(LDLIBS)
-	$(QUIET)$(MAP_SUMMARY_TOOL) $(MAPFILE)
 
 %.bin : %.axf
 	$(QUIET)$(OBJCOPY) $< -O binary $@
@@ -97,9 +95,14 @@ $(OBJECTS) : makefile globals.h uart0.h utils.h
 list : $(OBJECTS:.o=.lst)
 
 
+# Print a memory usage summary
+summary : $(NAME).map
+	$(QUIET)$(MAP_SUMMARY_TOOL) $<
+
+
 # Invoke the tool to program the microcontroller
 program : $(NAME).bin
-	$(QUIET)$(FLASH_TOOL)
+	$(QUIET)$(FLASH_TOOL) $<
 
 
 # Invoke a tool for UART communication
@@ -120,5 +123,5 @@ clean :
 	$(QUIET)$(RM) -f $(NAME).map
 
 
-.PHONY : all clean program terminal preprocessor-simulator list
+.PHONY : all clean program terminal preprocessor-simulator list summary
 
