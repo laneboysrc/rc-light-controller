@@ -1,4 +1,94 @@
 /******************************************************************************
+
+
+    Light scenarios to consider
+
+    - Always-on of certain LEDs
+    - Dynamic discover of light_mode maximum value
+    - Combined tail / brake lights
+    - Combined tail / brake / indicator lights (XR311, Sawback)
+    - Hazard and indicators
+    - High priority situations (in order or priority)
+        - Startup
+        - Setup of steering, throttle reverse
+        - Setup of the output servo centre, left, right
+        - Winch active
+    - Events
+        - Can trigger a sequence
+        - Gear change
+        -   Different sequence depending on gear value
+        -   Different sequence depending on state of roof lights?
+        - Any other?
+    - Programmabe sequences
+        - Store difference with previous state
+        - Steps can have a delay
+        - Run once or always
+        - Events can trigger a sequence, while another sequence is running
+          and needs to continue after the event sequence finished.
+        - How to map sequences and non-sequences?
+        - Automatic fading between two steps?
+        - Resolution 20ms
+        - Bogdan's idea regarding flame simulation, depending on throttle
+
+    - Consider single and multi-color LEDs
+    - Consider half brightness is not half LED current
+    - Simulation of incadescent bulbs
+    - Simulation of weak ground connection
+
+
+
+
+    Combined tail / brake / indicator:
+
+                             BLINKFLAG
+                          on          off
+     --------------------------------------
+     Tail + Brake off     half        off
+     Tail                 half        off
+     Brake                full        off
+     Tail + Brake         full        half
+
+    Best is to pre-calculate this, as well as the indicators.
+
+
+    Flags for static lights:
+    - light_mode (max 16)
+    - brakeing
+    - reversing
+    - indicator left
+    - indicator left
+    - hazard
+    - blink flag
+    - blink left (includes hazard, modulated with blink_flag)
+    - blink right (includes hazard,  modulated with blink_flag)
+    - brake / tail / blink left half (XR311)
+    - brake / tail / blink right half (XR311)
+    - brake / tail / blink left full (XR311)
+    - brake / tail / blink right full (XR311)
+
+
+            Tail | Brake | Ind | Blink      RESULT
+            0      0       0     0          0
+            0      0       0     1          0
+            0      0       1     0          0
+            0      0       1     1          half
+            0      1       0     0          full
+            0      1       0     1          full
+            0      1       1     0          0
+            0      1       1     1          full
+            1      0       0     0          half
+            1      0       0     1          half
+            1      0       1     0          0
+            1      0       1     1          half
+            1      1       0     0          full
+            1      1       0     1          full
+            1      1       1     0          half
+            1      1       1     1          full
+
+
+
+
+
 ******************************************************************************/
 #include <stdint.h>
 #include <stdbool.h>
