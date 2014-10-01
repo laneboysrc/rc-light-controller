@@ -24,6 +24,12 @@ SPI configuration:
 #define SCK LPC_GPIO_PORT->W0[3]
 #define SIN LPC_GPIO_PORT->W0[7]
 
+#define LED_BRIGHTNESS_CONST_A        (0.08f)                       /* Set Point LED brightness equation: a * b ^ (brightness_level + c) ...                      */
+#define LED_BRIGHTNESS_CONST_B        (1.75f)                       /* Constants have been set for the equations to produce distinctive brightness levels         */
+#define LED_BRIGHTNESS_CONST_C        (2.00f)
+#define LED_BRIGHTNESS_EQUATION(level) (LED_BRIGHTNESS_CONST_A * pow(LED_BRIGHTNESS_CONST_B, level + LED_BRIGHTNESS_CONST_C))
+
+
 
 static void send_light_data_to_tlc5940(void)
 {

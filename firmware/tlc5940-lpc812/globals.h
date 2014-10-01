@@ -5,6 +5,12 @@
 #include <stdbool.h>
 
 
+// Suppress unused parameter or variable warning
+#ifndef UNUSED
+#define UNUSED(x) ((void)(x))
+#endif
+
+
 #define __SYSTICK_IN_MS 20
 
 // The ROM_MAGIC marker is used to identify the location of ROM constants when
