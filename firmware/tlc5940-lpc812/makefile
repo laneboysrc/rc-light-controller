@@ -31,7 +31,7 @@ MAP_SUMMARY_TOOL := ../../tools/parse_gcc_map_file.py
 CFLAGS = -mthumb -mcpu=cortex-m0plus
 CFLAGS += -Wall -Wextra
 CFLAGS += -I. -I./LPC8xx
-CFLAGS += -Os -fdata-sections -ffunction-sections
+CFLAGS += -Os -fdata-sections -ffunction-sections -fno-common
 CFLAGS += -D__SYSTEM_CLOCK=$(SYSTEM_CLOCK)
 
 LDFLAGS = -nostdlib -T $(LINKER_SCRIPT) -Map=$(MAPFILE) --gc-sections -L$(GCC_ARM_LIB)
