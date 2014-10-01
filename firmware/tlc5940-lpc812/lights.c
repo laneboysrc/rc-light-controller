@@ -116,6 +116,15 @@ void toggle_lights(void)
 
 void process_lights(void)
 {
+    static uint16_t old_light_mode = 0xffff;
+
+    if (light_mode != old_light_mode) {
+        old_light_mode = light_mode;
+        uart0_send_cstring("light_mode ");
+        uart0_send_uint32(light_mode);
+        uart0_send_linefeed();
+    }
+
     if (global_flags.systick) {
         if (global_flags.braking) {
             tlc5940_light_data[0] = 63;
@@ -124,13 +133,5 @@ void process_lights(void)
             tlc5940_light_data[0] = 0;
         }
         send_light_data_to_tlc5940();
-    }
-
-    static uint16_t old_light_mode = 0xffff;
-    if (light_mode != old_light_mode) {
-        old_light_mode = light_mode;
-        uart0_send_cstring("light_mode ");
-        uart0_send_uint32(light_mode);
-        uart0_send_linefeed();
     }
 }

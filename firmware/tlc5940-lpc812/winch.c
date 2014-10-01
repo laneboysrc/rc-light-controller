@@ -81,8 +81,9 @@ void process_winch(void)
     }
 
     if (winch_command_repeat_counter == 0) {
-        winch_command_repeat_counter = config.winch_command_repeat_time;
         char winch_command;
+
+        winch_command_repeat_counter = config.winch_command_repeat_time;
         switch (global_flags.winch_mode) {
             case WINCH_DISABLED:
                 winch_command = WINCH_COMMAND_DISABLED;
