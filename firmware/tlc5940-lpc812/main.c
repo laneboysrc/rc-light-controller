@@ -39,8 +39,11 @@ struct channel_s channel[3];
 GLOBAL_FLAGS_T global_flags;
 
 
+void SysTick_handler(void);
+
+
 // ****************************************************************************
-void init_hardware(void)
+static void init_hardware(void)
 {
 
 #if __SYSTEM_CLOCK != 12000000
@@ -106,7 +109,7 @@ void init_hardware(void)
 
 
 // ****************************************************************************
-void init_hardware_final(void)
+static void init_hardware_final(void)
 {
     // Turn off peripheral clock for IOCON and SWM to preserve power
     LPC_SYSCON->SYSAHBCLKCTRL &= ~((1u << 18) | (1u << 7));
@@ -123,7 +126,7 @@ void SysTick_handler(void)
 
 
 // ****************************************************************************
-void service_systick(void)
+static void service_systick(void)
 {
     ++entropy;
 

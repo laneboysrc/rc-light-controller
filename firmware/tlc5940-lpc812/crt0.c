@@ -134,7 +134,7 @@ irq_handler vectors[48] = {
 };
 
 __attribute__ ((section(".after_vectors")))
-void default_irq_handler(void)
+static void default_irq_handler(void)
 {
     while(1);
 }

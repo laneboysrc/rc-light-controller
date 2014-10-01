@@ -127,7 +127,7 @@ void servo_output_setup_action(uint8_t ch3_clicks)
 //
 // Note: this function is needed by Process_servo_setup, so it can't be
 // removed e.g. if only a gearbox servo is used.
-void calculate_servo_pulse(void)
+static void calculate_servo_pulse(void)
 {
 
     if (channel[ST].normalized < 0) {

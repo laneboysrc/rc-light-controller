@@ -31,10 +31,11 @@ MAP_SUMMARY_TOOL := ../../tools/parse_gcc_map_file.py
 CFLAGS = -mthumb -mcpu=cortex-m0plus
 CFLAGS += -std=c99
 CFLAGS += -W -Wall -Wextra -Wstrict-prototypes -Wshadow -Wwrite-strings
-CFLAGS += -Wdeclaration-after-statement
+CFLAGS += -Wdeclaration-after-statement -Waddress -Wlogical-op
+CFLAGS += -Wold-style-definition -Wmissing-prototypes
 #CFLAGS += -Wconversion
 #CFLAGS += -Wpedantic
-#  -W     -Wconversion -Waddress -Wlogical-op -Wstrict-prototypes -Wold-style-definition -Wmissing-prototypes -Wmissing-declarations -Wmissing-field-initializers -Wdouble-promotion -Wswitch-enum -Wswitch-default -Wuninitialized -Wunknown-pragmas -Wfloat-equal  -Wundef  -Wshadow
+#  -W         -Wmissing-declarations -Wmissing-field-initializers -Wdouble-promotion -Wswitch-enum -Wswitch-default -Wuninitialized -Wunknown-pragmas -Wfloat-equal  -Wundef  -Wshadow
 CFLAGS += -I. -I./LPC8xx
 CFLAGS += -Os -fdata-sections -ffunction-sections -fno-common
 CFLAGS += -D__SYSTEM_CLOCK=$(SYSTEM_CLOCK)
