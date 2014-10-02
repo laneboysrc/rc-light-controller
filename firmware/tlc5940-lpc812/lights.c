@@ -132,7 +132,7 @@ typedef struct {
 } TLC5940_CAR_LIGHT_T;
 
 
-static TLC5940_CAR_LIGHT_T local_leds[16] = {
+static const TLC5940_CAR_LIGHT_T local_leds[16] = {
     // LED 0
     {.always_on = 63},
 
@@ -268,7 +268,7 @@ static void mix_light(SINGLE_COLOR_LED_T *led, uint8_t value)
 
 
 static void combined_tail_brake(
-    TLC5940_CAR_LIGHT_T *current_light, SINGLE_COLOR_LED_T *current_led)
+    const TLC5940_CAR_LIGHT_T *current_light, SINGLE_COLOR_LED_T *current_led)
 {
     if (current_light->tail_light) {
         if (light_switch_position > 0) {
@@ -285,7 +285,7 @@ static void combined_tail_brake(
 
 
 static void combined_tail_brake_indicators(
-    TLC5940_CAR_LIGHT_T *current_light, SINGLE_COLOR_LED_T *current_led)
+    const TLC5940_CAR_LIGHT_T *current_light, SINGLE_COLOR_LED_T *current_led)
 {
 
     SINGLE_COLOR_LED_T active_indicator = 0;
@@ -341,7 +341,7 @@ static void combined_tail_brake_indicators(
 
 
 static void process_single_color_light(
-    TLC5940_CAR_LIGHT_T *current_light, SINGLE_COLOR_LED_T *current_led)
+    const TLC5940_CAR_LIGHT_T *current_light, SINGLE_COLOR_LED_T *current_led)
 {
     *current_led = 0;
 
