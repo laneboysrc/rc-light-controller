@@ -22,7 +22,7 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
         .gearbox_servo_output = false,
 
         .esc_forward_reverse = false,
-        .ch3_is_pushbutton = false,
+        .ch3_is_local_switch = false,
         .ch3_is_momentary = false,
 
         .auto_brake_lights_forward_enabled = true,

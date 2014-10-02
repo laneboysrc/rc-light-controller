@@ -10,6 +10,7 @@
 ;******************************************************************************/
 #include <stdint.h>
 #include <stdbool.h>
+#include <LPC8xx.h>
 
 #include <globals.h>
 #include <uart0.h>
@@ -18,6 +19,7 @@
 // process.
 #define IGNORE_CLICK_COUNT 99
 
+#define CH3_PIN LPC_GPIO_PORT->W0[13]
 
 static struct {
     unsigned int last_state : 1;
@@ -156,8 +158,16 @@ void process_ch3_clicks(void)
         }
     }
 
-    // FIXME: add support for CH3 being a momentary button directly connected
-    // to the light controller
+    // Support for CH3 being a button or switch directly connected to the
+    // light controller. Steering and Throttle are still being read from either
+    // the servo reader or the uart reader.
+
+    // FIXME: it would be great if this would trigger new_channel_data
+    // independently of the other signals, i.e. set it if no other
+    // new_channel_data was seen in a certain amount of systicks
+    if (config.flags.ch3_is_local_switch) {
+        channel[CH3].normalized = CH3_PIN ? -100 : 100;
+    }
 
     if (global_flags.startup_mode_neutral) {
         ch3_flags.last_state = (channel[CH3].normalized > 0) ? true : false;

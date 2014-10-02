@@ -135,7 +135,7 @@ void SCT_irq_handler(void)
                     channel_flags = (1u << i);
                     channel[ST].raw_data = result[0] >> 1;
                     channel[TH].raw_data = result[1] >> 1;
-                    if (!config.flags.ch3_is_pushbutton) {
+                    if (!config.flags.ch3_is_local_switch) {
                         channel[CH3].raw_data = result[2] >> 1;
                     }
                     result[0] = result[1] = result[2] = 0;
@@ -256,7 +256,7 @@ void read_all_servo_channels(void)
             if (servo_reader_timer == 0) {
                 initialize_channel(&channel[ST]);
                 initialize_channel(&channel[ST]);
-                if (!config.flags.ch3_is_pushbutton) {
+                if (!config.flags.ch3_is_local_switch) {
                     initialize_channel(&channel[CH3]);
                 }
 
@@ -269,7 +269,7 @@ void read_all_servo_channels(void)
         case NORMAL_OPERATION:
             normalize_channel(&channel[ST]);
             normalize_channel(&channel[TH]);
-            if (!config.flags.ch3_is_pushbutton) {
+            if (!config.flags.ch3_is_local_switch) {
                 // FIXME: does this need to be different for CH3?!!
                 normalize_channel(&channel[CH3]);
             }

@@ -104,7 +104,7 @@ static void publish_channels(uint8_t channel_data[])
     global_flags.startup_mode_neutral =
         (channel_data[2] & 0x10) ? true : false;
 
-    if (!config.flags.ch3_is_pushbutton) {
+    if (!config.flags.ch3_is_local_switch) {
         normalize_channel(&channel[CH3],
             (channel_data[2] & 0x01) ? 100 : -100);
     }

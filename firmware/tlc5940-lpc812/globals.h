@@ -125,8 +125,8 @@ typedef struct {
         unsigned int gearbox_servo_output : 1;
 
         unsigned int esc_forward_reverse : 1;
+        unsigned int ch3_is_local_switch : 1;
         unsigned int ch3_is_momentary : 1;
-        unsigned int ch3_is_pushbutton : 1;
 
         unsigned int auto_brake_lights_forward_enabled : 1;
         unsigned int auto_brake_lights_reverse_enabled : 1;
