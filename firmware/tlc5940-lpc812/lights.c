@@ -129,10 +129,10 @@ typedef struct {
     SINGLE_COLOR_LED_T reversing_light;
     SINGLE_COLOR_LED_T indicator_left;
     SINGLE_COLOR_LED_T indicator_right;
-} LOCAL_CAR_LIGHT_T;
+} TLC5940_CAR_LIGHT_T;
 
 
-static LOCAL_CAR_LIGHT_T local_leds[16] = {
+static TLC5940_CAR_LIGHT_T local_leds[16] = {
     // LED 0
     {.always_on = 63},
 
@@ -265,7 +265,7 @@ static void max_light(SINGLE_COLOR_LED_T *led, uint8_t value)
 
 
 static void combined_tail_brake_indicators(
-    LOCAL_CAR_LIGHT_T *current_light, SINGLE_COLOR_LED_T *current_led)
+    TLC5940_CAR_LIGHT_T *current_light, SINGLE_COLOR_LED_T *current_led)
 {
 
     SINGLE_COLOR_LED_T active_indicator = 0;
@@ -332,7 +332,7 @@ static void process_car_lights(void)
     int i;
 
     for (i = 0; i < 16 ; i++) {
-        LOCAL_CAR_LIGHT_T *current_light;
+        TLC5940_CAR_LIGHT_T *current_light;
         SINGLE_COLOR_LED_T *current_led;
 
         current_light = &local_leds[i];
