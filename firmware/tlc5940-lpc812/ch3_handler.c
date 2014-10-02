@@ -68,7 +68,7 @@ static void process_ch3_click_timeout(void)
                     gearbox_action(ch3_clicks);
                 }
                 else {
-                    more_lights();
+                    light_switch_up();
                 }
                 break;
 
@@ -79,14 +79,14 @@ static void process_ch3_click_timeout(void)
                     gearbox_action(ch3_clicks);
                 }
                 else {
-                    less_lights();
+                    light_switch_down();
                 }
                 break;
 
             case 3:
                 // --------------------------
                 // 3 clicks: all lights on/off
-                toggle_lights();
+                toggle_light_switch();
 
                 break;
 

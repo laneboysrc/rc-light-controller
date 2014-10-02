@@ -220,8 +220,8 @@ void output_preprocessor(void);
 void init_lights(void);
 void process_lights(void);
 void next_light_sequence(void);
-void more_lights(void);
-void less_lights(void);
-void toggle_lights(void);
+void light_switch_up(void);
+void light_switch_down(void);
+void toggle_light_switch(void);
 
 #endif // __GLOBALS_H

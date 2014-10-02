@@ -52,22 +52,6 @@
     Best is to pre-calculate this, as well as the indicators.
 
 
-    Flags for static lights:
-    - light_mode (max 16)
-    - brakeing
-    - reversing
-    - indicator left
-    - indicator left
-    - hazard
-    - blink flag
-    - blink left (includes hazard, modulated with blink_flag)
-    - blink right (includes hazard,  modulated with blink_flag)
-    - brake / tail / blink left half (XR311)
-    - brake / tail / blink right half (XR311)
-    - brake / tail / blink left full (XR311)
-    - brake / tail / blink right full (XR311)
-
-
             Tail | Brake | Ind | Blink      RESULT
             0      0       0     0          0
             0      0       0     1          0
@@ -87,7 +71,18 @@
             1      1       1     1          full
 
 
+    Flags for static lights:
+    - always on
+    - light switch position (max 0..8), 0 is off (default)
+    - tail light (= any light switch position other than 0)
+    - brakeing
+    - reversing
+    - indicator left
+    - indicator left
 
+    The light controller is intelligent enough to find combined tail/brake
+    and tail/brake/indicator lights.
+    For unknown combinations the highest light value is used.
 
 
 ******************************************************************************/
@@ -183,7 +178,7 @@ void next_light_sequence(void)
 }
 
 
-void more_lights(void)
+void light_switch_up(void)
 {
     // Switch light mode up (Parking, Low Beam, Fog, High Beam)
     light_mode = (uint16_t)(light_mode << 1);
@@ -192,7 +187,7 @@ void more_lights(void)
 }
 
 
-void less_lights(void)
+void light_switch_down(void)
 {
     // Switch light mode down (Parking, Low Beam, Fog, High Beam)
     light_mode >>= 1;
@@ -200,7 +195,7 @@ void less_lights(void)
 }
 
 
-void toggle_lights(void)
+void toggle_light_switch(void)
 {
     if (light_mode == config.light_mode_mask) {
         light_mode = 0;
