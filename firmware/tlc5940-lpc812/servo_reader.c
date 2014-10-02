@@ -48,7 +48,6 @@
 
 #include <globals.h>
 
-// FIXME: don't update CH3 if a push button is used
 
 #define SERVO_PULSE_MIN 600
 #define SERVO_PULSE_MAX 2500
@@ -74,12 +73,6 @@ void init_servo_reader(void)
 
     if (config.mode != MASTER_WITH_SERVO_READER) {
         return;
-    }
-
-    for (i = 0; i < 3; i++) {
-        channel[i].normalized = 0;
-        channel[i].absolute = 0;
-        channel[i].reversed = false;
     }
 
     global_flags.startup_mode_neutral = 1;
@@ -140,9 +133,11 @@ void SCT_irq_handler(void)
 
                 if (channel_flags & (1u << i)) {
                     channel_flags = (1u << i);
-                    channel[0].raw_data = result[0] >> 1;
-                    channel[1].raw_data = result[1] >> 1;
-                    channel[2].raw_data = result[2] >> 1;
+                    channel[ST].raw_data = result[0] >> 1;
+                    channel[TH].raw_data = result[1] >> 1;
+                    if (!config.flags.ch3_is_pushbutton) {
+                        channel[CH3].raw_data = result[2] >> 1;
+                    }
                     result[0] = result[1] = result[2] = 0;
                     new_raw_channel_data = true;
                 }
@@ -224,6 +219,14 @@ static void normalize_channel(CHANNEL_T *c)
 
 
 // ****************************************************************************
+static void initialize_channel(CHANNEL_T *c) {
+    c->endpoint.centre = c->raw_data;
+    c->endpoint.left = c->raw_data - config.initial_endpoint_delta;
+    c->endpoint.right = c->raw_data + config.initial_endpoint_delta;
+}
+
+
+// ****************************************************************************
 void read_all_servo_channels(void)
 {
     if (config.mode != MASTER_WITH_SERVO_READER) {
@@ -251,24 +254,25 @@ void read_all_servo_channels(void)
 
         case WAIT_FOR_TIMEOUT:
             if (servo_reader_timer == 0) {
-                int i;
+                initialize_channel(&channel[ST]);
+                initialize_channel(&channel[ST]);
+                if (!config.flags.ch3_is_pushbutton) {
+                    initialize_channel(&channel[CH3]);
+                }
 
                 servo_reader_state = NORMAL_OPERATION;
                 global_flags.startup_mode_neutral = 0;
-
-                for (i = 0; i < 3; i++) {
-                    channel[i].endpoint.centre = channel[i].raw_data;
-                    channel[i].endpoint.left = channel[i].raw_data - 250;
-                    channel[i].endpoint.right = channel[i].raw_data + 250;
-                }
             }
             global_flags.new_channel_data = true;
             break;
 
         case NORMAL_OPERATION:
-            normalize_channel(&channel[0]);
-            normalize_channel(&channel[1]);
-            normalize_channel(&channel[2]);
+            normalize_channel(&channel[ST]);
+            normalize_channel(&channel[TH]);
+            if (!config.flags.ch3_is_pushbutton) {
+                // FIXME: does this need to be different for CH3?!!
+                normalize_channel(&channel[CH3]);
+            }
             global_flags.new_channel_data = true;
             break;
 

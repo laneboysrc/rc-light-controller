@@ -2,8 +2,10 @@
 
     This function handles CH3 to determine which actions to invoke.
 
-    It is designed for a two-position switch on CH3 (HK-310, GT3B ...). The
-    switch can either be momentary (e.g Futaba 4PL) or static (HK-310).
+    It is designed for a two-position switch on CH3. The switch can either be
+    momentary (e.g Futaba 4PL) or static (HK-310, GT3B ...).
+    It also supports direct push-button reading instead of getting the
+    CH3 information from a servo or a preprocessor.
 
 ;******************************************************************************/
 #include <stdint.h>

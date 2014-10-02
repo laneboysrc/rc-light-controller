@@ -42,11 +42,41 @@ volatile uint32_t systick_count;
 // Certainly not suitable for secure implementations...
 uint32_t entropy;
 
-CHANNEL_T channel[3];
 GLOBAL_FLAGS_T global_flags;
 
-
-void SysTick_handler(void);
+CHANNEL_T channel[3] = {
+    {   // STEERING
+        .normalized = 0,
+        .absolute = 0,
+        .reversed = false,
+        .endpoint = {
+            .left = 1250,
+            .centre = 1500,
+            .right = 1450,
+        }
+    },
+    {   // THROTTLE
+        .normalized = 0,
+        .absolute = 0,
+        .reversed = false,
+        .endpoint = {
+            .left = 1250,
+            .centre = 1500,
+            .right = 1450,
+        }
+    },
+    {   // CH3 (AUX)
+        .normalized = 0,
+        .absolute = 0,
+        .reversed = false,
+        // FIXME: check CH3 handling of two-position switch regarding endpoint!
+        .endpoint = {
+            .left = 1250,
+            .centre = 1500,
+            .right = 1450,
+        }
+    }
+};
 
 
 // ****************************************************************************

@@ -22,6 +22,7 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
         .gearbox_servo_output = false,
 
         .esc_forward_reverse = false,
+        .ch3_is_pushbutton = false,
         .ch3_is_momentary = false,
 
         .auto_brake_lights_forward_enabled = true,
@@ -47,6 +48,8 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
     .blink_threshold = 50,
 
     .light_mode_mask = 0x0f,
+
+    .initial_endpoint_delta = 250,
 
     .ch3_multi_click_timeout = (260 / __SYSTICK_IN_MS),
 

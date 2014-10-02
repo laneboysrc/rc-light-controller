@@ -39,27 +39,22 @@
 #include <globals.h>
 #include <uart0.h>
 
-// FIXME: don't update CH3 if a push button is used
-
 
 #define SLAVE_MAGIC_BYTE 0x87
 #define CONSECUTIVE_BYTE_COUNTS 3
+
 
 typedef enum {
     STATE_WAIT_FOR_MAGIC_BYTE = 0,
     STATE_STEERING,
     STATE_THROTTLE,
-    STATE_CH3,
-    STATE_CH3_EXTENDED,
-    STATE_INVALID
+    STATE_CH3
 } STATE_T;
 
 
 // ****************************************************************************
 void init_uart_reader(void)
 {
-    int i;
-
     if (config.mode == MASTER_WITH_SERVO_READER) {
         // Turn the UART output on unless a servo output is requested
         if (!config.flags.steering_wheel_servo_output &&
@@ -75,12 +70,6 @@ void init_uart_reader(void)
 
     if (config.mode != MASTER_WITH_UART_READER) {
         return;
-    }
-
-    for (i = 0; i < 3; i++) {
-        channel[i].normalized = 0;
-        channel[i].absolute = 0;
-        channel[i].reversed = false;
     }
 
     global_flags.startup_mode_neutral = 1;
@@ -107,12 +96,28 @@ static void normalize_channel(CHANNEL_T *c, uint8_t data)
 
 
 // ****************************************************************************
+static void publish_channels(uint8_t channel_data[])
+{
+    normalize_channel(&channel[ST], channel_data[0]);
+    normalize_channel(&channel[TH], channel_data[1]);
+
+    global_flags.startup_mode_neutral =
+        (channel_data[2] & 0x10) ? true : false;
+
+    if (!config.flags.ch3_is_pushbutton) {
+        normalize_channel(&channel[CH3],
+            (channel_data[2] & 0x01) ? 100 : -100);
+    }
+
+    global_flags.new_channel_data = true;
+}
+
+
+// ****************************************************************************
 void read_preprocessor(void)
 {
     static STATE_T state = STATE_WAIT_FOR_MAGIC_BYTE;
     static uint8_t channel_data[3];
-    static int8_t byte_count = -1;
-    static int8_t init_count = CONSECUTIVE_BYTE_COUNTS;
 
     uint8_t uart_byte;
 
@@ -125,22 +130,13 @@ void read_preprocessor(void)
     while (uart0_read_is_byte_pending()) {
         uart_byte = uart0_read_byte();
 
+        // The preprocessor protocol is designed such that only the first
+        // byte can have the MAGIC value. This allows us to be in sync at all
+        // times.
+        // If we receive the MAGIC value we know it is the first byte, so we
+        // can kick off the state machine.
         if (uart_byte == SLAVE_MAGIC_BYTE) {
-            // The first /init_count/ consecutive frames must have the same number
-            // of bytes
-            if (init_count) {
-                if (state == STATE_CH3_EXTENDED || state == STATE_INVALID) {
-                    if (byte_count == state) {
-                        --init_count;
-                    }
-                    else {
-                        byte_count = state;
-                        init_count = CONSECUTIVE_BYTE_COUNTS;
-                    }
-                }
-            }
             state = STATE_STEERING;
-            return;
         }
 
         switch (state) {
@@ -160,48 +156,12 @@ void read_preprocessor(void)
 
             case STATE_CH3:
                 channel_data[2] = uart_byte;
-                if (init_count || byte_count > 4) {
-                    state = STATE_CH3_EXTENDED;
-                }
-                else {
-                    normalize_channel(&channel[ST], channel_data[0]);
-                    normalize_channel(&channel[TH], channel_data[1]);
-
-                    global_flags.startup_mode_neutral =
-                        (channel_data[2] & 0x10) ? true : false;
-
-                    normalize_channel(&channel[CH3],
-                        (channel_data[2] & 0x01) ? 100 : -100);
-
-                    global_flags.new_channel_data = true;
-                    state = 0;
-                }
-                break;
-
-            case STATE_CH3_EXTENDED:
-                if (init_count) {
-                    state = STATE_INVALID;
-                }
-                else {
-                    normalize_channel(&channel[ST], channel_data[0]);
-                    normalize_channel(&channel[TH], channel_data[1]);
-
-                    global_flags.startup_mode_neutral =
-                        (channel_data[2] & 0x10) ? true : false;
-
-                    normalize_channel(&channel[CH3],
-                        (channel_data[2] & 0x01) ? 100 : -100);
-
-                    global_flags.new_channel_data = true;
-                    state = STATE_WAIT_FOR_MAGIC_BYTE;
-                }
-                break;
-
-            case STATE_INVALID:
-                // Dummy state used for counting
+                publish_channels(channel_data);
+                state = STATE_WAIT_FOR_MAGIC_BYTE;
                 break;
 
             default:
+                state = STATE_WAIT_FOR_MAGIC_BYTE;
                 break;
         }
     }

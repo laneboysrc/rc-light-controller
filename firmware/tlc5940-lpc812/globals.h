@@ -126,6 +126,7 @@ typedef struct {
 
         unsigned int esc_forward_reverse : 1;
         unsigned int ch3_is_momentary : 1;
+        unsigned int ch3_is_pushbutton : 1;
 
         unsigned int auto_brake_lights_forward_enabled : 1;
         unsigned int auto_brake_lights_reverse_enabled : 1;
@@ -161,6 +162,7 @@ typedef struct {
     uint16_t blink_threshold;
 
     uint16_t light_mode_mask;
+    uint16_t initial_endpoint_delta;
     uint16_t ch3_multi_click_timeout;
     uint16_t winch_command_repeat_time;
 
@@ -181,6 +183,9 @@ extern SERVO_ENDPOINTS_T servo_output_endpoint;
 
 
 // ****************************************************************************
+// Globally accessible functions from various modules
+void SysTick_handler(void);
+
 void load_persistent_storage(void);
 void write_persistent_storage(void);
 
