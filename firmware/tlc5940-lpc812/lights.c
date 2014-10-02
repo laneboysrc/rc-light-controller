@@ -337,6 +337,7 @@ static void process_car_lights(void)
 
         current_light = &local_leds[i];
         current_led = &tlc5940_light_data[i];
+        *current_led = 0;
 
         if (current_light->always_on) {
             *current_led = current_light->always_on;
