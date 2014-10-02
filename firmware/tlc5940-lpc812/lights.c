@@ -34,7 +34,8 @@
     - Consider half brightness is not half LED current
     - Simulation of incadescent bulbs
     - Simulation of weak ground connection
-
+    - Support weird, unforeseen combinations, like combined reverse/indicators
+      on the Lancia Fulvia
 
 
 
