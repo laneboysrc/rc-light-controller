@@ -137,16 +137,19 @@ static TLC5940_CAR_LIGHT_T local_leds[16] = {
     {.always_on = 63},
 
     // LED 1
-    {.light_switch_position[1] = 63},
-
-    // LED 2
     {.light_switch_position[1] = 63, .light_switch_position[2] = 63},
 
-    // LED 4
+    // LED 2
+    {.light_switch_position[2] = 63},
+
+    // LED 3
     {.tail_light = 63},
 
-    // LED 5
+    // LED 4
     {.brake_light = 63},
+
+    // LED 5
+    {},
 
     // LED 6
     {.tail_light = 5, .brake_light = 63},
@@ -270,10 +273,14 @@ static void combined_tail_brake_indicators(
 
     SINGLE_COLOR_LED_T active_indicator = 0;
 
-    if (global_flags.blink_indicator_left) {
+    if (global_flags.blink_indicator_left || global_flags.blink_hazard) {
         max_light(&active_indicator, current_light->indicator_left);
     }
     if (global_flags.blink_indicator_right) {
+        max_light(&active_indicator, current_light->indicator_right);
+    }
+    if (global_flags.blink_hazard) {
+        max_light(&active_indicator, current_light->indicator_left);
         max_light(&active_indicator, current_light->indicator_right);
     }
 
