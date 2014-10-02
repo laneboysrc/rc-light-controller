@@ -184,39 +184,30 @@ void process_ch3_clicks(void)
         // We only care about the switch transition from ch3_flags.last_state
         // (set upon initialization) to the opposite position, which is when
         // we add a click.
-        if ((channel[CH3].normalized > 0)  ==  (ch3_flags.last_state)) {
-            // CH33 is the same as CH3_FLAG_LAST_STATE (idle position), therefore reset
-            // our "transitioned" flag to detect the next transition.
-            ch3_flags.transitioned = false;
-            process_ch3_click_timeout();
-            return;
+        if ((channel[CH3].normalized > 0)  !=  (ch3_flags.last_state)) {
+
+            // Did we register this transition already?
+            if (!ch3_flags.transitioned) {
+                // No: Register transition and add click
+                ch3_flags.transitioned = true;
+                add_click();
+            }
         }
         else {
-            // Did we register this transition already?
-            // Yes: check for click timeout.
-            // No: Register transition and add click
-            if (ch3_flags.transitioned) {
-                process_ch3_click_timeout();
-                return;
-            }
-            ch3_flags.transitioned = true;
-            add_click();
-            return;
+            ch3_flags.transitioned = false;
         }
     }
     else {
         // Code for CH3 being a two position switch (HK-310, GT3B)
 
         // Check whether ch3 has changed with respect to LAST_STATE
-        if ((channel[CH3].normalized > 0)  ==  (ch3_flags.last_state)) {
-            process_ch3_click_timeout();
-            return;
+        if ((channel[CH3].normalized > 0)  !=  (ch3_flags.last_state)) {
+            ch3_flags.last_state = (channel[CH3].normalized > 0);
+            add_click();
         }
-
-        ch3_flags.last_state = (channel[CH3].normalized > 0);
-        add_click();
-        return;
     }
+
+    process_ch3_click_timeout();
 }
 
 
