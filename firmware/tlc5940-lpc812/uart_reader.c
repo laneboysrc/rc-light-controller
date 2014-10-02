@@ -137,6 +137,7 @@ void read_preprocessor(void)
         // can kick off the state machine.
         if (uart_byte == SLAVE_MAGIC_BYTE) {
             state = STATE_STEERING;
+            return;
         }
 
         switch (state) {
