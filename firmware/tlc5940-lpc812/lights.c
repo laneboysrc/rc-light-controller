@@ -93,7 +93,9 @@
 #include <globals.h>
 #include <uart0.h>
 
-static uint16_t light_mode;
+#define MAX_LIGHT_SWITCH_POSITIONS 9
+
+static uint8_t light_switch_position;
 static uint8_t tlc5940_light_data[16];
 
 /*
@@ -115,6 +117,55 @@ SPI configuration:
 #define LED_BRIGHTNESS_CONST_C        (2.00f)
 #define LED_BRIGHTNESS_EQUATION(level) (LED_BRIGHTNESS_CONST_A * pow(LED_BRIGHTNESS_CONST_B, level + LED_BRIGHTNESS_CONST_C))
 
+typedef uint8_t SINGLE_COLOR_LED_T;
+
+typedef struct {
+    SINGLE_COLOR_LED_T always_on;
+
+    SINGLE_COLOR_LED_T light_switch_position[MAX_LIGHT_SWITCH_POSITIONS];
+
+    SINGLE_COLOR_LED_T tail_light;
+    SINGLE_COLOR_LED_T brake_light;
+    SINGLE_COLOR_LED_T reversing_light;
+    SINGLE_COLOR_LED_T indicator_left;
+    SINGLE_COLOR_LED_T indicator_right;
+} LOCAL_CAR_LIGHT_T;
+
+
+static LOCAL_CAR_LIGHT_T local_leds[16] = {
+    // LED 0
+    {.always_on = 63},
+
+    // LED 1
+    {.light_switch_position[1] = 63},
+
+    // LED 2
+    {.light_switch_position[1] = 63, .light_switch_position[2] = 63},
+
+    // LED 4
+    {.tail_light = 63},
+
+    // LED 5
+    {.brake_light = 63},
+
+    // LED 6
+    {.tail_light = 5, .brake_light = 63},
+
+    // LED 7
+    {.reversing_light = 63},
+
+    // LED 8
+    {.indicator_left = 63},
+
+    // LED 9
+    {.indicator_right = 63},
+
+    // LED 10
+    {.indicator_left = 5, .tail_light = 5, .brake_light = 63},
+
+    // LED 11
+    {.indicator_right = 5, .tail_light = 5, .brake_light = 63},
+};
 
 
 static void send_light_data_to_tlc5940(void)
@@ -180,50 +231,180 @@ void next_light_sequence(void)
 
 void light_switch_up(void)
 {
-    // Switch light mode up (Parking, Low Beam, Fog, High Beam)
-    light_mode = (uint16_t)(light_mode << 1);
-    light_mode |= 1;
-    light_mode &= config.light_mode_mask;
+    if (light_switch_position < config.light_switch_positions) {
+        ++light_switch_position;
+    }
 }
 
 
 void light_switch_down(void)
 {
-    // Switch light mode down (Parking, Low Beam, Fog, High Beam)
-    light_mode >>= 1;
-    light_mode &= config.light_mode_mask;
+    if (light_switch_position > 0) {
+        --light_switch_position;
+    }
 }
 
 
 void toggle_light_switch(void)
 {
-    if (light_mode == config.light_mode_mask) {
-        light_mode = 0;
+    if (light_switch_position < config.light_switch_positions) {
+        light_switch_position = config.light_switch_positions;
     }
     else {
-        light_mode = config.light_mode_mask;
+        light_switch_position = 0;
+    }
+}
+
+
+static void max_light(SINGLE_COLOR_LED_T *led, uint8_t value)
+{
+    if (value > *led) {
+        *led = value;
+    }
+}
+
+
+static void combined_tail_brake_indicators(
+    LOCAL_CAR_LIGHT_T *current_light, SINGLE_COLOR_LED_T *current_led)
+{
+
+    SINGLE_COLOR_LED_T active_indicator = 0;
+
+    if (global_flags.blink_indicator_left) {
+        max_light(&active_indicator, current_light->indicator_left);
+    }
+    if (global_flags.blink_indicator_right) {
+        max_light(&active_indicator, current_light->indicator_right);
+    }
+
+    if (active_indicator > 0) {
+        //                         BLINKFLAG
+        //                      on          off
+        // --------------------------------------
+        // Tail + Brake off     blink       off
+        // Tail                 tail        off
+        // Brake                brake       off
+        // Tail + Brake         brake       tail
+
+        if (global_flags.blink_flag) {
+            // Bright blink period: Brake value has highest priority, followed
+            // by tail and finally the indicator value
+
+            if (global_flags.braking) {
+                max_light(current_led, current_light->brake_light);
+            }
+            else if (light_switch_position > 0) {
+                max_light(current_led, current_light->tail_light);
+            }
+            else {
+                max_light(current_led, active_indicator);
+            }
+        }
+        else {
+            // Dark blink period: light is off unless both tail and brake are
+            // active
+
+            if (light_switch_position > 0 && global_flags.braking) {
+                max_light(current_led, current_light->tail_light);
+            }
+        }
+    }
+    else {
+        // No indicator active: process like normal tail/brake lights
+
+        if (current_light->tail_light) {
+            if (light_switch_position > 0) {
+                max_light(current_led, current_light->tail_light);
+            }
+        }
+
+        if (current_light->brake_light) {
+            if (global_flags.braking) {
+                max_light(current_led, current_light->brake_light);
+            }
+        }
+    }
+}
+
+
+static void process_car_lights(void)
+{
+    int i;
+
+    for (i = 0; i < 16 ; i++) {
+        LOCAL_CAR_LIGHT_T *current_light;
+        SINGLE_COLOR_LED_T *current_led;
+
+        current_light = &local_leds[i];
+        current_led = &tlc5940_light_data[i];
+
+        if (current_light->always_on) {
+            *current_led = current_light->always_on;
+        }
+
+        if (current_light->light_switch_position[light_switch_position] > 0) {
+            *current_led =
+                current_light->light_switch_position[light_switch_position];
+        }
+
+        if (current_light->reversing_light) {
+            if (global_flags.reversing) {
+                max_light(current_led, current_light->reversing_light);
+            }
+        }
+
+        if (current_light->tail_light &&
+            current_light->brake_light &&
+            (current_light->indicator_left || current_light->indicator_right)) {
+            // Special case for combined tail / brake / indicators
+            combined_tail_brake_indicators(current_light, current_led);
+        }
+        else {
+            if (current_light->tail_light) {
+                if (light_switch_position > 0) {
+                    max_light(current_led, current_light->tail_light);
+                }
+            }
+
+            if (current_light->brake_light) {
+                if (global_flags.braking) {
+                    max_light(current_led, current_light->brake_light);
+                }
+            }
+
+            if (current_light->indicator_left) {
+                if (global_flags.blink_flag &&
+                    (global_flags.blink_hazard ||
+                     global_flags.blink_indicator_left)) {
+                    max_light(current_led, current_light->indicator_left);
+                }
+            }
+
+            if (current_light->indicator_right) {
+                if (global_flags.blink_flag &&
+                    (global_flags.blink_hazard ||
+                     global_flags.blink_indicator_right)) {
+                    max_light(current_led, current_light->indicator_right);
+                }
+            }
+        }
     }
 }
 
 
 void process_lights(void)
 {
-    static uint16_t old_light_mode = 0xffff;
+    static uint8_t old_light_switch_position = 0xff;
 
-    if (light_mode != old_light_mode) {
-        old_light_mode = light_mode;
-        uart0_send_cstring("light_mode ");
-        uart0_send_uint32(light_mode);
+    if (light_switch_position != old_light_switch_position) {
+        old_light_switch_position = light_switch_position;
+        uart0_send_cstring("light_switch_position ");
+        uart0_send_uint32(light_switch_position);
         uart0_send_linefeed();
     }
 
     if (global_flags.systick) {
-        if (global_flags.braking) {
-            tlc5940_light_data[0] = 63;
-        }
-        else {
-            tlc5940_light_data[0] = 0;
-        }
+        process_car_lights();
         send_light_data_to_tlc5940();
     }
 }

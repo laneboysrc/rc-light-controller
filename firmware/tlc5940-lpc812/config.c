@@ -47,7 +47,7 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
     .centre_threshold_high = 12,
     .blink_threshold = 50,
 
-    .light_mode_mask = 0x0f,
+    .light_switch_positions = 3,
 
     .initial_endpoint_delta = 250,
 
