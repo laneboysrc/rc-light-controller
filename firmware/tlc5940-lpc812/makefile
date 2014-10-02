@@ -1,7 +1,9 @@
 NAME := master
 
-all : $(NAME).axf $(NAME).bin
+MKDIR_P = mkdir -p
+BUILD_DIR = build
 
+all : $(BUILD_DIR)/$(NAME).bin
 
 ifneq ($(VERBOSE), 1)
 QUIET := @
@@ -51,7 +53,7 @@ CFLAGS += -D__SYSTEM_CLOCK=$(SYSTEM_CLOCK)
 
 LDFLAGS = -T $(LINKER_SCRIPT) -nostdlib --warn-common
 LDFLAGS += --gc-sections -O3
-LDFLAGS += -Map=$(NAME).map --cref
+LDFLAGS += -Map=$(BUILD_DIR)/$(NAME).map --cref
 LDFLAGS += -L$(TOOLCHAIN_PATH)../lib/gcc/arm-none-eabi/4.8.4/armv6-m
 
 LDLIBS = -lgcc
@@ -72,14 +74,16 @@ $(OBJECTS) : makefile globals.h uart0.h utils.h
 
 ###############################################################################
 # Rules
+VPATH = $(BUILD_DIR)
+$(shell $(MKDIR_P) $(BUILD_DIR))
 
 %.o : %.c
 	$(ECHO) [CC] $<
-	$(QUIET)$(CC) -c $(CFLAGS) -o $@ $<
+	$(QUIET)$(CC) -c $(CFLAGS) -o $(BUILD_DIR)/$@ $<
 
-%.axf %.map : $(OBJECTS) $(LINKER_SCRIPT)
+%.axf : $(OBJECTS) $(LINKER_SCRIPT)
 	$(ECHO) [LD] $@
-	$(QUIET)$(LD) $(LDFLAGS) -o $@ $(OBJECTS) $(LDLIBS)
+	$(QUIET)$(LD) $(LDFLAGS) -o $@ $(addprefix $(BUILD_DIR)/, $(OBJECTS)) $(LDLIBS)
 
 %.bin : %.axf
 	$(ECHO) [CP] $@
@@ -87,7 +91,8 @@ $(OBJECTS) : makefile globals.h uart0.h utils.h
 
 # Generate list files with mixed Assembler and C code
 %.lst : %.c
-	$(QUIET)$(CC) -c -g -Wa,-adlhn $(CFLAGS) $< > $@
+	$(ECHO) [LIST] $@
+	$(QUIET)$(CC) -c -g -Wa,-adlhn $(CFLAGS) $< -o /dev/null > $(BUILD_DIR)/$@
 
 
 ###############################################################################
@@ -96,35 +101,27 @@ $(OBJECTS) : makefile globals.h uart0.h utils.h
 # Create list files that include C code as well as Assembler
 list : $(OBJECTS:.o=.lst)
 
-
 # Print a memory usage summary
-summary : $(NAME).map
-	$(QUIET)$(MAP_SUMMARY_TOOL) $<
-
+summary : $(BUILD_DIR)/$(NAME).axf
+	$(QUIET)$(MAP_SUMMARY_TOOL) $(<:.axf=.map)
 
 # Invoke the tool to program the microcontroller
-program : $(NAME).bin
+program : $(BUILD_DIR)/$(NAME).bin
 	$(QUIET)$(FLASH_TOOL) $<
-
 
 # Invoke a tool for UART communication
 terminal :
 	$(QUIET)$(TERMINAL_PROGRAM)
 
-
 # Invoke the preprocessor simulation tool
 preprocessor-simulator :
 	$(QUIET)$(PREPROCESSOR_SIMULATOR)
 
-
+# Clean all generated files
 clean :
 	$(ECHO) [RM] $(NAME)
-	$(QUIET)$(RM) -f $(OBJECTS)
-	$(QUIET)$(RM) -f $(OBJECTS:.o=.lst)
-	$(QUIET)$(RM) -f $(NAME).bin
-	$(QUIET)$(RM) -f $(NAME).axf
-	$(QUIET)$(RM) -f $(NAME).map
-
+	$(QUIET)$(RM) -rf $(BUILD_DIR)
 
 .PHONY : all clean program terminal preprocessor-simulator list summary
+.PHONY : directories
 

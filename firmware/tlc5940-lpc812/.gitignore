@@ -1,7 +1,2 @@
 *~
-*.o
-*.lst
-*.bin
-*.axf
-*.map
-
+build/*

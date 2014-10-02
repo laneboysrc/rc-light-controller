@@ -15,6 +15,7 @@ E-mail:         laneboysrc@gmail.com
 from __future__ import print_function
 
 import sys
+import os
 import argparse
 import re
 from collections import defaultdict
@@ -101,6 +102,11 @@ def parse_memory_map(map_data):
     return memory_map
 
 
+def strip_directory(path):
+    ''' Return the filename component of path '''
+    return os.path.split(path)[1]
+
+
 def get_category(section):
     ''' Categorize module names for the summary this tool outputs '''
 
@@ -110,7 +116,7 @@ def get_category(section):
     if re.search(r'/lib.+\.a', section['module_name']):
         return '(libraries)'
 
-    if section['module_name'] == 'crt0.o':
+    if strip_directory(section['module_name']) == 'crt0.o':
         return '(C runtime)'
 
     if re.match(r'.+\.o$', section['module_name']):
