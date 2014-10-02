@@ -149,7 +149,7 @@ static TLC5940_CAR_LIGHT_T local_leds[16] = {
     {.brake_light = 63},
 
     // LED 5
-    {},
+    {.always_on = 0}, // LED not present...
 
     // LED 6
     {.tail_light = 5, .brake_light = 63},
@@ -234,7 +234,7 @@ void next_light_sequence(void)
 
 void light_switch_up(void)
 {
-    if (light_switch_position < config.light_switch_positions) {
+    if (light_switch_position < (config.light_switch_positions - 1)) {
         ++light_switch_position;
     }
 }
@@ -250,8 +250,8 @@ void light_switch_down(void)
 
 void toggle_light_switch(void)
 {
-    if (light_switch_position < config.light_switch_positions) {
-        light_switch_position = config.light_switch_positions;
+    if (light_switch_position < (config.light_switch_positions - 1)) {
+        light_switch_position = config.light_switch_positions - 1;
     }
     else {
         light_switch_position = 0;
@@ -263,6 +263,23 @@ static void max_light(SINGLE_COLOR_LED_T *led, uint8_t value)
 {
     if (value > *led) {
         *led = value;
+    }
+}
+
+
+static void combined_tail_brake(
+    TLC5940_CAR_LIGHT_T *current_light, SINGLE_COLOR_LED_T *current_led)
+{
+    if (current_light->tail_light) {
+        if (light_switch_position > 0) {
+            max_light(current_led, current_light->tail_light);
+        }
+    }
+
+    if (current_light->brake_light) {
+        if (global_flags.braking) {
+            max_light(current_led, current_light->brake_light);
+        }
     }
 }
 
@@ -318,18 +335,7 @@ static void combined_tail_brake_indicators(
     }
     else {
         // No indicator active: process like normal tail/brake lights
-
-        if (current_light->tail_light) {
-            if (light_switch_position > 0) {
-                max_light(current_led, current_light->tail_light);
-            }
-        }
-
-        if (current_light->brake_light) {
-            if (global_flags.braking) {
-                max_light(current_led, current_light->brake_light);
-            }
-        }
+        combined_tail_brake(current_light, current_led);
     }
 }
 
@@ -368,17 +374,7 @@ static void process_car_lights(void)
             combined_tail_brake_indicators(current_light, current_led);
         }
         else {
-            if (current_light->tail_light) {
-                if (light_switch_position > 0) {
-                    max_light(current_led, current_light->tail_light);
-                }
-            }
-
-            if (current_light->brake_light) {
-                if (global_flags.braking) {
-                    max_light(current_led, current_light->brake_light);
-                }
-            }
+            combined_tail_brake(current_light, current_led);
 
             if (current_light->indicator_left) {
                 if (global_flags.blink_flag &&
