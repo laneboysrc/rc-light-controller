@@ -7,21 +7,78 @@
 #include <globals.h>
 #include <uart0.h>
 
+/*
+UART register value calculation
 
-// U_PCLK = UARTCLKDIV/(1+(MULT/DIV))
-// baud rate = U_PCLK/(16 x (BRGVAL + 1))
+Problem description:
+    - System clock varies, but is fixed at compile time
+    - Assumption is that UARTCLKDIV is 1
+    - We have a fixed list of baudrates to support
+        - Therefore we can use the preprocessor for calculation
+    - We want to find settings for MULT and BRG for each baudrate
 
-// 115200 * 16 * (brgval + 1) = 11059200
-// 12000000 / 11059200 = 1.085069444 = 1 + (mult/div)
-// MULT = 22
+First we need to calculate the BRG value for the highest possible baudrate
+
+    BAUDRATE = U_PCLK/(16 * (BRGVAL + 1))
+    BAUDRATE * 16 * (BRGVAL + 1) = U_PCLK
+    U_PCLK = __SYSTEM_CLOCK
+    BAUDRATE = 115200
+    BAUDRATE * 16 * (BRGVAL_MAXBAUD + 1) = __SYSTEM_CLOCK
+    BRGVAL_MAXBAUD = (__SYSTEM_CLOCK / (BAUDRATE * 16)) - 1
+    BRGVAL_MAXBAUD = int(__SYSTEM_CLOCK / (115200 * 16)) - 1
+
+    For 12 MHz BRGVAL_MAXBAUD is 5
+    For 30 MHz BRGVAL_MAXBAUD is 15
+
+Then we can calculate the exact U_PCLK we need:
+
+    U_PCLK = BAUDRATE * 16 * (BRGVAL_MAXBAUD + 1)
+
+    For 12 MHZ U_PCLK is 11059200
+    For 30 MHZ U_PCLK is 29491200
+
+Now we can calculate the MULT needed:
+
+    U_PCLK = (__SYSTEM_CLOCK / UARTCLKDIV) / (1 + (MULT / DIV))
+    UARTCLKDIV = 1
+    DIV = 256
+    U_PCLK = __SYSTEM_CLOCK / (1 + (MULT / DIV))
+    1 + (MULT / DIV) = __SYSTEM_CLOCK / U_PCLK
+    MULT = round((__SYSTEM_CLOCK / U_PCLK - 1) * DIV)
+
+Since we only can do integer math in #define we multiply by DIV first.
+The rounding we implement by adding the divisor / 2 to the nominator.
+
+    MULT = ((DIV *__SYSTEM_CLOCK) + (U_PCLK / 2)) / U_PCLK - DIV
+
+Note that we need 64 bit math for that!
+
+    For 12 MHZ MULT is 22
+    For 30 MHZ MULT is 4
+
+With the given MULT we can calculate the BRG values for other baudrates:
+
+    U_PCLK = (__SYSTEM_CLOCK / UARTCLKDIV) / (1 + (MULT / DIV))
+    BRGVAL = U_PCLK / (BAUDRATE * 16) - 1
+
+Again we have to round by adding BAUDRATE * 16 / 2 to the nominator:
+
+    BRGVAL = (U_PCLK + (BAUDRATE * 16 / 2)) / (BAUDRATE * 16) - 1
+
+*/
+#define MAX_BAUDRATE ((uint64_t)115200)
+#define DIV ((uint64_t)256)
+#define BRGVAL_MAXBAUD ((__SYSTEM_CLOCK / (MAX_BAUDRATE * 16)) - 1)
+#define U_PCLK (MAX_BAUDRATE * 16 * (BRGVAL_MAXBAUD + 1))
+#define MULT ((((__SYSTEM_CLOCK * DIV) + (U_PCLK / 2)) / U_PCLK) - DIV)
+
+#define U_PCLK_ACTUAL ((__SYSTEM_CLOCK * DIV) / (DIV + MULT))
+
+#define BRGVAL(x) ((U_PCLK_ACTUAL + (x * 8))/ (x * 16) - 1)
 
 
-// INT32_MIN  is -2147483648 (decimal needs 12 characters, incl. terminating 0)
-// INT32_MAX  is 2147483647
-// UINT32_MIN is 0
-// UINT32_MAX is 4294967295
 
-#define NO_LEADING_ZEROS 0
+#define NO_LEADING_ZEROS (0)
 
 #define UART_CFG_ENABLE (1 << 0)
 #define UART_CFG_DATALEN(d) ((unsigned)((d) - 7) << 2)
@@ -29,8 +86,20 @@
 #define UART_STAT_TXRDY (1 << 2)
 #define UART_STAT_TXIDLE (1 << 3)
 
-#define RECEIVE_BUFFER_SIZE 16           // Must be modulo 2 for speed
+#define RECEIVE_BUFFER_SIZE (16)        // Must be modulo 2 for speed
 #define RECEIVE_BUFFER_INDEX_MASK (RECEIVE_BUFFER_SIZE - 1)
+
+/*
+INT32_MIN  is -2147483648 (decimal needs 12 characters, incl. terminating '\0')
+INT32_MAX  is 2147483647
+UINT32_MIN is 0
+UINT32_MAX is 4294967295
+
+Worst case (base 2) we would have to write 32 characters + '\0'. However,
+since we only support base 2 for uint8_t we can make due with 12 bytes,
+which is the maximum needed for decimal.
+*/
+#define TRANSMIT_BUFFER_SIZE (12)
 
 
 static uint8_t receive_buffer[RECEIVE_BUFFER_SIZE];
@@ -38,14 +107,13 @@ static volatile uint16_t read_index = 0;
 static volatile uint16_t write_index = 0;
 
 
+
+
 // ****************************************************************************
 static void uint32_to_cstring(uint32_t value, char *result,
     unsigned int radix, int number_of_leading_zeros)
 {
-    // Worst case (base 2) we have to write 32 characters. However, since we
-    // only support base 2 fo+r uint8_t we can make due with 12 bytes,
-    // which is the maximum needed for decimal.
-    char temp[12];
+    char temp[TRANSMIT_BUFFER_SIZE];
     char *tp = temp;
     unsigned int digit;
 
@@ -65,6 +133,7 @@ static void uint32_to_cstring(uint32_t value, char *result,
         *result++ = *--tp;
     }
     *result = '\0';
+
 }
 
 
@@ -90,47 +159,16 @@ void init_uart0(void)
     LPC_SYSCON->PRESETCTRL &= ~(1 << 3);
     LPC_SYSCON->PRESETCTRL |=  (1 << 3);
 
-// -----------------------------
-#if __SYSTEM_CLOCK == 12000000
-    // U_PCLK = UARTCLKDIV/(1+(MULT/DIV))
-    // baud rate = U_PCLK/(16 x (BRGVAL + 1))
-
-    // 115200 * 16 * (brgval + 1) = 11059200
-    // 12000000 / 11059200 = 1.085069444 = 1 + (mult/div)
-    // MULT = 22
-
-    // u_pclk = 115200 * (16 * (5(=BRG) + 1)) = 11059200
-    // (MULT / 256(=DIV) = ((12000000(=mainclock) / (1(=CLKDIV))) / u_pclk - 1) = 0.0850694444444444
-    // MULT = 0.0850694444444444 * 256 = 22
     LPC_SYSCON->UARTCLKDIV = 1;
     LPC_SYSCON->UARTFRGDIV = 255;
-    LPC_SYSCON->UARTFRGMULT = 22;
+    LPC_SYSCON->UARTFRGMULT = MULT;
 
     if (config.baudrate == 115200) {
-        LPC_USART0->BRG = 5;
+        LPC_USART0->BRG = BRGVAL(115200);
     }
     else {
-        LPC_USART0->BRG = 17;
+        LPC_USART0->BRG = BRGVAL(38400);
     }
-// -----------------------------
-
-
-// -----------------------------
-#elif __SYSTEM_CLOCK == 30000000
-    // u_pclk = (60000000(=mainclock) / (1(=CLKDIV))) / (1 + (4(=MULT) / 256(=DIV))
-    // baudrate = u_pclk / (16 * (30(=BRG) +1))
-    LPC_SYSCON->UARTCLKDIV = 1;
-    LPC_SYSCON->UARTFRGDIV = 255;
-    LPC_SYSCON->UARTFRGMULT = 4;
-#if UART0_BAUDRATE == 115200
-    LPC_USART0->BRG = 30;
-#else
-    #error Requested baudrate currently not implemented
-#endif
-
-#endif
-// -----------------------------
-
 
     LPC_USART0->CFG = UART_CFG_DATALEN(8) | UART_CFG_ENABLE;     // 8n1
 
