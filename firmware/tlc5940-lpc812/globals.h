@@ -204,6 +204,7 @@ typedef struct {
 // and the software will "mix" the final color value.
 
 typedef struct {
+    uint8_t max_change_per_systick;
     MONOCHROME_LED_T always_on;
 
     MONOCHROME_LED_T light_switch_position[LIGHT_SWITCH_POSITIONS];
@@ -217,6 +218,7 @@ typedef struct {
 
 
 typedef struct {
+    uint8_t max_change_per_systick;
     RGB_LED_T always_on;
 
     RGB_LED_T light_switch_position[LIGHT_SWITCH_POSITIONS];
@@ -242,7 +244,8 @@ typedef enum {
 typedef struct {
     LED_TYPE_T led_type;
 
-    // Can either be MONOCHROME_CAR_LIGHT_T or RGB_CAR_LIGHT_T
+    // Can either be MONOCHROME_CAR_LIGHT_T or RGB_CAR_LIGHT_T. It is actually
+    // a pointer to the first element in an array of those structures.
     const void *car_lights;
 } CAR_LIGHT_T;
 
@@ -257,6 +260,7 @@ extern uint32_t entropy;
 extern const LIGHT_CONTROLLER_CONFIG_T config;
 extern const CAR_LIGHT_T local_monochrome_leds;
 extern const CAR_LIGHT_T slave_monochrome_leds;
+extern const uint8_t gamma_table[];
 
 extern GLOBAL_FLAGS_T global_flags;
 extern CHANNEL_T channel[3];
