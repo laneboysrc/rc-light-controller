@@ -93,7 +93,6 @@
 #include <globals.h>
 #include <uart0.h>
 
-#define mix_light_SWITCH_POSITIONS 9
 
 static uint8_t light_switch_position;
 static uint8_t tlc5940_light_data[16];
@@ -106,29 +105,18 @@ SPI configuration:
     Use SSEL function to de-assert XLAT while sending new data
 */
 
-#define GSCLK LPC_GPIO_PORT->W0[1]
-#define BLANK LPC_GPIO_PORT->W0[6]
-#define XLAT LPC_GPIO_PORT->W0[2]
-#define SCK LPC_GPIO_PORT->W0[3]
-#define SIN LPC_GPIO_PORT->W0[7]
+#define GPIO_GSCLK LPC_GPIO_PORT->W0[1]
+#define GPIO_BLANK LPC_GPIO_PORT->W0[6]
+#define GPIO_XLAT LPC_GPIO_PORT->W0[2]
+#define GPIO_SCK LPC_GPIO_PORT->W0[3]
+#define GPIO_SIN LPC_GPIO_PORT->W0[7]
 
 #define LED_BRIGHTNESS_CONST_A        (0.08f)                       /* Set Point LED brightness equation: a * b ^ (brightness_level + c) ...                      */
 #define LED_BRIGHTNESS_CONST_B        (1.75f)                       /* Constants have been set for the equations to produce distinctive brightness levels         */
 #define LED_BRIGHTNESS_CONST_C        (2.00f)
 #define LED_BRIGHTNESS_EQUATION(level) (LED_BRIGHTNESS_CONST_A * pow(LED_BRIGHTNESS_CONST_B, level + LED_BRIGHTNESS_CONST_C))
 
-typedef uint8_t MONOCHROME_LED_T;
 
-typedef struct {
-    uint8_t r;
-    uint8_t g;
-    uint8_t b;
-} RGB_LED_T;
-
-typedef enum {
-    MONOCHROME,
-    RGB
-} LED_TYPE_T;
 
 typedef enum {
     ALWAYS_ON,
@@ -149,82 +137,15 @@ typedef enum {
     INDICATOR_RIGHT
 } CAR_LIGHT_FUNCTION_T;
 
-typedef struct {
-    MONOCHROME_LED_T always_on;
-
-    MONOCHROME_LED_T light_switch_position[mix_light_SWITCH_POSITIONS];
-
-    MONOCHROME_LED_T tail_light;
-    MONOCHROME_LED_T brake_light;
-    MONOCHROME_LED_T reversing_light;
-    MONOCHROME_LED_T indicator_left;
-    MONOCHROME_LED_T indicator_right;
-} MONOCHROME_CAR_LIGHT_T;
-
-typedef struct {
-    RGB_LED_T always_on;
-
-    RGB_LED_T light_switch_position[mix_light_SWITCH_POSITIONS];
-
-    RGB_LED_T tail_light;
-    RGB_LED_T brake_light;
-    RGB_LED_T reversing_light;
-    RGB_LED_T indicator_left;
-    RGB_LED_T indicator_right;
-} RGB_CAR_LIGHT_T;
-
-static const RGB_CAR_LIGHT_T local_rgb_leds[16];
-
-typedef struct {
-    LED_TYPE_T led_type;
-    const void *car_lights;
-} CAR_LIGHT_T;
-
-
-CAR_LIGHT_T local_leds = {
-    .led_type = MONOCHROME,
-    .car_lights = &(const MONOCHROME_CAR_LIGHT_T [16]) {
-        // LED 0
-        {.always_on = 63},
-
-        // LED 1
-        {.light_switch_position[1] = 63, .light_switch_position[2] = 63},
-
-        // LED 2
-        {.light_switch_position[2] = 63},
-
-        // LED 3
-        {.tail_light = 63},
-
-        // LED 4
-        {.brake_light = 63},
-
-        // LED 5
-        {.always_on = 0}, // LED not present...
-
-        // LED 6
-        {.tail_light = 5, .brake_light = 63},
-
-        // LED 7
-        {.reversing_light = 63},
-
-        // LED 8
-        {.indicator_left = 63},
-
-        // LED 9
-        {.indicator_right = 63},
-
-        // LED 10
-        {.indicator_left = 5, .tail_light = 5, .brake_light = 63},
-
-        // LED 11
-        {.indicator_right = 5, .tail_light = 5, .brake_light = 63},
-    }
-};
 
 
 
 
+
+
+
+
+// ****************************************************************************
 static void send_light_data_to_tlc5940(void)
 {
     volatile int i;
@@ -244,12 +165,14 @@ static void send_light_data_to_tlc5940(void)
 }
 
 
+// ****************************************************************************
 void init_lights(void)
 {
-    BLANK = 1;
-    GSCLK = 0;
-    XLAT = 0;
+    GPIO_BLANK = 1;
+    GPIO_GSCLK = 0;
+    GPIO_XLAT = 0;
 
+    // FIXME: can we make that more configurable?
     LPC_GPIO_PORT->DIR0 |=
         (1 << 1) | (1 << 2) | (1 << 3) | (1 << 6) | (1 << 7);
 
@@ -275,17 +198,19 @@ void init_lights(void)
 
     send_light_data_to_tlc5940();
 
-    BLANK = 0;
-    GSCLK = 1;
+    GPIO_BLANK = 0;
+    GPIO_GSCLK = 1;
 }
 
 
+// ****************************************************************************
 void next_light_sequence(void)
 {
 	;
 }
 
 
+// ****************************************************************************
 void light_switch_up(void)
 {
     if (light_switch_position < (config.light_switch_positions - 1)) {
@@ -294,6 +219,7 @@ void light_switch_up(void)
 }
 
 
+// ****************************************************************************
 void light_switch_down(void)
 {
     if (light_switch_position > 0) {
@@ -302,6 +228,7 @@ void light_switch_down(void)
 }
 
 
+// ****************************************************************************
 void toggle_light_switch(void)
 {
     if (light_switch_position < (config.light_switch_positions - 1)) {
@@ -313,6 +240,7 @@ void toggle_light_switch(void)
 }
 
 
+// ****************************************************************************
 static const void * get_light_value(
     const CAR_LIGHT_T *lights, int index, CAR_LIGHT_FUNCTION_T function)
 {
@@ -320,8 +248,7 @@ static const void * get_light_value(
 
     switch(lights->led_type) {
         case MONOCHROME:
-            mono = (MONOCHROME_CAR_LIGHT_T *)lights->car_lights;
-            mono = &mono[index];
+            mono = &((MONOCHROME_CAR_LIGHT_T *)lights->car_lights)[index];
 
             switch (function) {
                 case ALWAYS_ON:
@@ -366,16 +293,18 @@ static const void * get_light_value(
 }
 
 
+// ****************************************************************************
 static bool is_value_zero(
     const CAR_LIGHT_T *lights, int index, CAR_LIGHT_FUNCTION_T function)
 {
-    const void *value = get_light_value(lights, index, function);
+    const void * value = get_light_value(lights, index, function);
 
     switch(lights->led_type) {
         case MONOCHROME:
             return *(MONOCHROME_LED_T *)value == 0 ? true : false;
 
         case RGB:
+            // All r/g/b values must be zero for RGB LEDs to qualify as zero
             if (((RGB_LED_T *)value)->r != 0) {
                 return false;
             }
@@ -393,6 +322,7 @@ static bool is_value_zero(
 }
 
 
+// ****************************************************************************
 static void set_light(LED_TYPE_T led_type, void *led, const void *value)
 {
     switch(led_type) {
@@ -407,6 +337,7 @@ static void set_light(LED_TYPE_T led_type, void *led, const void *value)
 }
 
 
+// ****************************************************************************
 static void mix_light(LED_TYPE_T led_type, void *led, const void *value)
 {
     MONOCHROME_LED_T *mono_led;
@@ -430,6 +361,7 @@ static void mix_light(LED_TYPE_T led_type, void *led, const void *value)
 }
 
 
+// ****************************************************************************
 static void set_car_light(void *led, const CAR_LIGHT_T *lights,
     int index, CAR_LIGHT_FUNCTION_T function)
 {
@@ -437,6 +369,7 @@ static void set_car_light(void *led, const CAR_LIGHT_T *lights,
 }
 
 
+// ****************************************************************************
 static void mix_car_light(void *led, const CAR_LIGHT_T *lights,
     int index, CAR_LIGHT_FUNCTION_T function)
 {
@@ -444,6 +377,7 @@ static void mix_car_light(void *led, const CAR_LIGHT_T *lights,
 }
 
 
+// ****************************************************************************
 static void combined_tail_brake(
     const CAR_LIGHT_T *lights, int index, MONOCHROME_LED_T *led)
 {
@@ -457,6 +391,7 @@ static void combined_tail_brake(
 }
 
 
+// ****************************************************************************
 static void combined_tail_brake_indicators(
     const CAR_LIGHT_T *lights, int index, MONOCHROME_LED_T *led)
 {
@@ -507,6 +442,7 @@ static void combined_tail_brake_indicators(
 }
 
 
+// ****************************************************************************
 static void process_light(
     const CAR_LIGHT_T *lights, int index, MONOCHROME_LED_T *current_led)
 {
@@ -544,6 +480,7 @@ static void process_light(
 }
 
 
+// ****************************************************************************
 static void process_car_lights(void)
 {
     int i;
@@ -554,6 +491,7 @@ static void process_car_lights(void)
 }
 
 
+// ****************************************************************************
 void process_lights(void)
 {
     static uint8_t old_light_switch_position = 0xff;

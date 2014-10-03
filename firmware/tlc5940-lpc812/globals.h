@@ -20,6 +20,12 @@
 #define TH 1
 #define CH3 2
 
+// Number of positions of our virtual light switch. Includes the "off"
+// position 0.
+// NOTE: if you change this value you need to adjust CAR_LIGHT_FUNCTION_T
+// accordingly!
+#define LIGHT_SWITCH_POSITIONS 9
+
 
 // ****************************************************************************
 typedef struct {
@@ -170,6 +176,72 @@ typedef struct {
 } LIGHT_CONTROLLER_CONFIG_T;
 
 
+
+// ****************************************************************************
+// Definitions for the various light configuration structures
+// The design goal was to handle the both RGB and monochrome LEDs with similar
+// functions.
+// Ideally this part would have been done in an object-oriented language...
+
+typedef uint8_t MONOCHROME_LED_T;
+
+typedef struct {
+    uint8_t r;
+    uint8_t g;
+    uint8_t b;
+} RGB_LED_T;
+
+
+// For standard car light functions we have an array of values, one per LED,
+// where each entry corresponds to one light funciton. The user can assign
+// multiple functions to a single LED (such as brake and tail light function)
+// and the software will "mix" the final color value.
+
+typedef struct {
+    MONOCHROME_LED_T always_on;
+
+    MONOCHROME_LED_T light_switch_position[LIGHT_SWITCH_POSITIONS];
+
+    MONOCHROME_LED_T tail_light;
+    MONOCHROME_LED_T brake_light;
+    MONOCHROME_LED_T reversing_light;
+    MONOCHROME_LED_T indicator_left;
+    MONOCHROME_LED_T indicator_right;
+} MONOCHROME_CAR_LIGHT_T;
+
+
+typedef struct {
+    RGB_LED_T always_on;
+
+    RGB_LED_T light_switch_position[LIGHT_SWITCH_POSITIONS];
+
+    RGB_LED_T tail_light;
+    RGB_LED_T brake_light;
+    RGB_LED_T reversing_light;
+    RGB_LED_T indicator_left;
+    RGB_LED_T indicator_right;
+} RGB_CAR_LIGHT_T;
+
+
+// In order to have most of the functions being generic to the LED type
+// we define a super-structure that adds a LED type identifier.
+// This identifier allows low-level code to cast to the proper car light
+// structure (MONOCHROME_CAR_LIGHT_T or RGB_CAR_LIGHT_T).
+
+typedef enum {
+    MONOCHROME,
+    RGB
+} LED_TYPE_T;
+
+typedef struct {
+    LED_TYPE_T led_type;
+
+    // Can either be MONOCHROME_CAR_LIGHT_T or RGB_CAR_LIGHT_T
+    const void *car_lights;
+} CAR_LIGHT_T;
+
+
+
 // ****************************************************************************
 // The entropy variable is incremented every mainloop. It can therefore serve
 // as a random value in practical RC car application,
@@ -177,6 +249,8 @@ typedef struct {
 extern uint32_t entropy;
 
 extern const LIGHT_CONTROLLER_CONFIG_T config;
+extern const CAR_LIGHT_T local_leds;
+
 extern GLOBAL_FLAGS_T global_flags;
 extern CHANNEL_T channel[3];
 extern SERVO_ENDPOINTS_T servo_output_endpoint;

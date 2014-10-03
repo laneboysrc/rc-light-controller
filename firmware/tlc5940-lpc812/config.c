@@ -2,6 +2,8 @@
 #include <stdbool.h>
 #include <globals.h>
 
+
+// ****************************************************************************
 const LIGHT_CONTROLLER_CONFIG_T config = {
     .magic = ROM_MAGIC,
     .type = 0x01,
@@ -56,4 +58,47 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
     .winch_command_repeat_time = (1000 / __SYSTICK_IN_MS),
 
     .baudrate = 115200
+};
+
+
+// ****************************************************************************
+const CAR_LIGHT_T local_leds = {
+    .led_type = MONOCHROME,
+    .car_lights = &(const MONOCHROME_CAR_LIGHT_T [16]) {
+        // LED 0
+        {.always_on = 63},
+
+        // LED 1
+        {.light_switch_position[1] = 63, .light_switch_position[2] = 63},
+
+        // LED 2
+        {.light_switch_position[2] = 63},
+
+        // LED 3
+        {.tail_light = 63},
+
+        // LED 4
+        {.brake_light = 63},
+
+        // LED 5
+        {.always_on = 0}, // LED not present...
+
+        // LED 6
+        {.tail_light = 5, .brake_light = 63},
+
+        // LED 7
+        {.reversing_light = 63},
+
+        // LED 8
+        {.indicator_left = 63},
+
+        // LED 9
+        {.indicator_right = 63},
+
+        // LED 10
+        {.indicator_left = 5, .tail_light = 5, .brake_light = 63},
+
+        // LED 11
+        {.indicator_right = 5, .tail_light = 5, .brake_light = 63},
+    }
 };
