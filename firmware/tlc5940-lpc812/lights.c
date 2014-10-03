@@ -117,22 +117,46 @@ SPI configuration:
 #define LED_BRIGHTNESS_CONST_C        (2.00f)
 #define LED_BRIGHTNESS_EQUATION(level) (LED_BRIGHTNESS_CONST_A * pow(LED_BRIGHTNESS_CONST_B, level + LED_BRIGHTNESS_CONST_C))
 
-typedef uint8_t SINGLE_COLOR_LED_T;
+typedef uint8_t MONOCHROME_LED_T;
 
 typedef struct {
-    SINGLE_COLOR_LED_T always_on;
-
-    SINGLE_COLOR_LED_T light_switch_position[mix_light_SWITCH_POSITIONS];
-
-    SINGLE_COLOR_LED_T tail_light;
-    SINGLE_COLOR_LED_T brake_light;
-    SINGLE_COLOR_LED_T reversing_light;
-    SINGLE_COLOR_LED_T indicator_left;
-    SINGLE_COLOR_LED_T indicator_right;
-} TLC5940_CAR_LIGHT_T;
+    uint8_t r;
+    uint8_t g;
+    uint8_t b;
+} RGB_LED_T;
 
 
-static const TLC5940_CAR_LIGHT_T local_leds[16] = {
+typedef enum {
+    MONOCHROME,
+    RGB
+} LED_TYPE_T; 
+
+typedef struct {
+    MONOCHROME_LED_T always_on;
+
+    MONOCHROME_LED_T light_switch_position[mix_light_SWITCH_POSITIONS];
+
+    MONOCHROME_LED_T tail_light;
+    MONOCHROME_LED_T brake_light;
+    MONOCHROME_LED_T reversing_light;
+    MONOCHROME_LED_T indicator_left;
+    MONOCHROME_LED_T indicator_right;
+} MONOCHROME_CAR_LIGHT_T;
+
+typedef struct {
+    RGB_LED_T always_on;
+
+    RGB_LED_T light_switch_position[mix_light_SWITCH_POSITIONS];
+
+    RGB_LED_T tail_light;
+    RGB_LED_T brake_light;
+    RGB_LED_T reversing_light;
+    RGB_LED_T indicator_left;
+    RGB_LED_T indicator_right;
+} RGB_CAR_LIGHT_T;
+
+
+static const MONOCHROME_CAR_LIGHT_T local_leds[16] = {
     // LED 0
     {.always_on = 63},
 
@@ -169,6 +193,18 @@ static const TLC5940_CAR_LIGHT_T local_leds[16] = {
     // LED 11
     {.indicator_right = 5, .tail_light = 5, .brake_light = 63},
 };
+
+static const RGB_CAR_LIGHT_T local_rgb_leds[16];
+
+struct {
+    LED_TYPE_T led_type;
+    const void *car_light;
+} test = {
+    MONOCHROME,
+    local_leds
+};
+
+
 
 
 static void send_light_data_to_tlc5940(void)
@@ -259,7 +295,12 @@ void toggle_light_switch(void)
 }
 
 
-static void mix_light(SINGLE_COLOR_LED_T *led, uint8_t value)
+static void set_light(MONOCHROME_LED_T *led, uint8_t value)
+{
+    *led = value;
+}
+
+static void mix_light(MONOCHROME_LED_T *led, uint8_t value)
 {
     if (value > *led) {
         *led = value;
@@ -268,7 +309,7 @@ static void mix_light(SINGLE_COLOR_LED_T *led, uint8_t value)
 
 
 static void combined_tail_brake(
-    const TLC5940_CAR_LIGHT_T *current_light, SINGLE_COLOR_LED_T *current_led)
+    const MONOCHROME_CAR_LIGHT_T *current_light, MONOCHROME_LED_T *current_led)
 {
     if (current_light->tail_light) {
         if (light_switch_position > 0) {
@@ -285,10 +326,10 @@ static void combined_tail_brake(
 
 
 static void combined_tail_brake_indicators(
-    const TLC5940_CAR_LIGHT_T *current_light, SINGLE_COLOR_LED_T *current_led)
+    const MONOCHROME_CAR_LIGHT_T *current_light, MONOCHROME_LED_T *current_led)
 {
 
-    SINGLE_COLOR_LED_T active_indicator = 0;
+    MONOCHROME_LED_T active_indicator = 0;
 
     if (global_flags.blink_indicator_left || global_flags.blink_hazard) {
         mix_light(&active_indicator, current_light->indicator_left);
@@ -340,18 +381,16 @@ static void combined_tail_brake_indicators(
 }
 
 
-static void process_single_color_light(
-    const TLC5940_CAR_LIGHT_T *current_light, SINGLE_COLOR_LED_T *current_led)
+static void process_light(LED_TYPE_T led_type, 
+    const MONOCHROME_CAR_LIGHT_T *current_light, MONOCHROME_LED_T *current_led)
 {
-    *current_led = 0;
+    UNUSED(led_type);
 
-    if (current_light->always_on) {
-        *current_led = current_light->always_on;
-    }
+    set_light(current_led, current_light->always_on);
 
     if (current_light->light_switch_position[light_switch_position] > 0) {
-        *current_led =
-            current_light->light_switch_position[light_switch_position];
+        set_light(current_led, 
+            current_light->light_switch_position[light_switch_position]);
     }
 
     if (current_light->reversing_light) {
@@ -393,7 +432,7 @@ static void process_car_lights(void)
     int i;
 
     for (i = 0; i < 16 ; i++) {
-        process_single_color_light(&local_leds[i], &tlc5940_light_data[i]);
+        process_light(MONOCHROME, &local_leds[i], &tlc5940_light_data[i]);
     }
 }
 
