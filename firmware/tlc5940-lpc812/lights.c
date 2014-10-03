@@ -5,70 +5,40 @@
 
     - Always-on of certain LEDs
     - Dynamic discover of light_mode maximum value
+        * This is done by the firmware generator, not at run-time
     - Combined tail / brake lights
     - Combined tail / brake / indicator lights (XR311, Sawback)
     - Hazard and indicators
-    - High priority situations (in order or priority)
-        - Startup
-        - Setup of steering, throttle reverse
-        - Setup of the output servo centre, left, right
-        - Winch active
-    - Events
-        - Can trigger a sequence
-        - Gear change
-        -   Different sequence depending on gear value
-        -   Different sequence depending on state of roof lights?
-        - Any other?
-    - Programmabe sequences
-        - Store difference with previous state
-        - Steps can have a delay
-        - Run once or always
-        - Events can trigger a sequence, while another sequence is running
+    * High priority situations (in order or priority)
+        * Startup
+        * Setup of steering, throttle reverse
+        * Setup of the output servo centre, left, right
+        * Winch active
+    * Events
+        * Can trigger a sequence
+        * Gear change
+        *   Different sequence depending on gear value
+        *   Different sequence depending on state of roof lights?
+        * Any other?
+    * Programmabe sequences
+        * Store difference with previous state
+        * Steps can have a delay
+        * Run once or always
+        * Events can trigger a sequence, while another sequence is running
           and needs to continue after the event sequence finished.
-        - How to map sequences and non-sequences?
-        - Automatic fading between two steps?
-        - Resolution 20ms
-        - Bogdan's idea regarding flame simulation, depending on throttle
+        * How to map sequences and non-sequences?
+        * Automatic fading between two steps?
+        * Resolution 20ms
+        * Bogdan's idea regarding flame simulation, depending on throttle
 
     - Consider single and multi-color LEDs
-    - Consider half brightness is not half LED current
-    - Simulation of incadescent bulbs
-    - Simulation of weak ground connection
-    - Support weird, unforeseen combinations, like combined reverse/indicators
+    * Consider half brightness is not half LED current
+        * Do that in the firmware generator!
+    * Simulation of incadescent bulbs
+    * Simulation of weak ground connection
+    * Support weird, unforeseen combinations, like combined reverse/indicators
       on the Lancia Fulvia
 
-
-
-    Combined tail / brake / indicator:
-
-                             BLINKFLAG
-                          on          off
-     --------------------------------------
-     Tail + Brake off     half        off
-     Tail                 half        off
-     Brake                full        off
-     Tail + Brake         full        half
-
-    Best is to pre-calculate this, as well as the indicators.
-
-
-            Tail | Brake | Ind | Blink      RESULT
-            0      0       0     0          0
-            0      0       0     1          0
-            0      0       1     0          0
-            0      0       1     1          half
-            0      1       0     0          full
-            0      1       0     1          full
-            0      1       1     0          0
-            0      1       1     1          full
-            1      0       0     0          half
-            1      0       0     1          half
-            1      0       1     0          0
-            1      0       1     1          half
-            1      1       0     0          full
-            1      1       0     1          full
-            1      1       1     0          half
-            1      1       1     1          full
 
 
     Flags for static lights:
@@ -82,7 +52,6 @@
 
     The light controller is intelligent enough to find combined tail/brake
     and tail/brake/indicator lights.
-    For unknown combinations the highest light value is used.
 
 
 ******************************************************************************/
@@ -106,6 +75,8 @@
 #define LED_BRIGHTNESS_CONST_B        (1.75f)                       /* Constants have been set for the equations to produce distinctive brightness levels         */
 #define LED_BRIGHTNESS_CONST_C        (2.00f)
 #define LED_BRIGHTNESS_EQUATION(level) (LED_BRIGHTNESS_CONST_A * pow(LED_BRIGHTNESS_CONST_B, level + LED_BRIGHTNESS_CONST_C))
+
+
 
 
 typedef enum {
@@ -165,7 +136,6 @@ void init_lights(void)
     GPIO_GSCLK = 0;
     GPIO_XLAT = 0;
 
-    // FIXME: can we make that more configurable?
     LPC_GPIO_PORT->DIR0 |=
         (1 << 1) | (1 << 2) | (1 << 3) | (1 << 6) | (1 << 7);
 
@@ -238,6 +208,7 @@ static const void * get_light_value(
     const CAR_LIGHT_T *lights, int index, CAR_LIGHT_FUNCTION_T function)
 {
     const MONOCHROME_CAR_LIGHT_T *mono;
+    const RGB_CAR_LIGHT_T *rgb;
 
     switch(lights->led_type) {
         case MONOCHROME:
@@ -279,7 +250,43 @@ static const void * get_light_value(
             }
 
         case RGB:
-            // FIXME: implement RGB light
+            rgb = &((RGB_CAR_LIGHT_T *)lights->car_lights)[index];
+
+            switch (function) {
+                case ALWAYS_ON:
+                    return &rgb->always_on;
+
+                case LIGHT_SWITCH_POSITION_0:
+                case LIGHT_SWITCH_POSITION_1:
+                case LIGHT_SWITCH_POSITION_2:
+                case LIGHT_SWITCH_POSITION_3:
+                case LIGHT_SWITCH_POSITION_4:
+                case LIGHT_SWITCH_POSITION_5:
+                case LIGHT_SWITCH_POSITION_6:
+                case LIGHT_SWITCH_POSITION_7:
+                case LIGHT_SWITCH_POSITION_8:
+                    return &rgb->light_switch_position[
+                        function - LIGHT_SWITCH_POSITION];
+
+                case TAIL_LIGHT:
+                    return &rgb->tail_light;
+
+                case BRAKE_LIGHT:
+                    return &rgb->brake_light;
+
+                case REVERSING_LIGHT:
+                    return &rgb->reversing_light;
+
+                case INDICATOR_LEFT:
+                    return &rgb->indicator_left;
+
+                case INDICATOR_RIGHT:
+                    return &rgb->indicator_right;
+
+                default:
+                    return (uint8_t []){0, 0, 0};
+            }
+
         default:
             return (uint8_t []){0, 0, 0};
     }
@@ -318,14 +325,24 @@ static bool is_value_zero(
 // ****************************************************************************
 static void set_light(LED_TYPE_T led_type, void *led, const void *value)
 {
+    MONOCHROME_LED_T *mono_led = led;
+    const MONOCHROME_LED_T *mono_value = value;
+    RGB_LED_T *rgb_led = led;
+    const RGB_LED_T *rgb_value = value;
+
     switch(led_type) {
         case MONOCHROME:
-            *(MONOCHROME_LED_T *)led = *(MONOCHROME_LED_T *)value;
-
-        case RGB:
-        default:
+            *mono_led = *mono_value;
             break;
 
+        case RGB:
+            rgb_led->r = rgb_value->r;
+            rgb_led->g = rgb_value->g;
+            rgb_led->b = rgb_value->b;
+            break;
+
+        default:
+            break;
     }
 }
 
@@ -333,20 +350,22 @@ static void set_light(LED_TYPE_T led_type, void *led, const void *value)
 // ****************************************************************************
 static void mix_light(LED_TYPE_T led_type, void *led, const void *value)
 {
-    MONOCHROME_LED_T *mono_led;
-    MONOCHROME_LED_T *mono_value;
+    MONOCHROME_LED_T *mono_led = led;
+    const MONOCHROME_LED_T *mono_value = value;
+    RGB_LED_T *rgb_led = led;
+    const RGB_LED_T *rgb_value = value;
 
     switch(led_type) {
         case MONOCHROME:
-            mono_led = (MONOCHROME_LED_T *)led;
-            mono_value = (MONOCHROME_LED_T *)value;
-
-            if (*mono_value > *mono_led) {
-                *mono_led = *mono_value;
-            }
+            *mono_led = MAX(*mono_led, *mono_value);
             break;
 
         case RGB:
+            rgb_led->r = MAX(rgb_led->r, rgb_value->r);
+            rgb_led->g = MAX(rgb_led->r, rgb_value->r);
+            rgb_led->b = MAX(rgb_led->r, rgb_value->r);
+            break;
+
         default:
             break;
 
@@ -371,8 +390,7 @@ static void mix_car_light(void *led, const CAR_LIGHT_T *lights,
 
 
 // ****************************************************************************
-static void combined_tail_brake(
-    const CAR_LIGHT_T *lights, int index, MONOCHROME_LED_T *led)
+static void combined_tail_brake(const CAR_LIGHT_T *lights, int index, void *led)
 {
     if (light_switch_position > 0) {
         mix_car_light(led, lights, index, TAIL_LIGHT);
@@ -386,7 +404,7 @@ static void combined_tail_brake(
 
 // ****************************************************************************
 static void combined_tail_brake_indicators(
-    const CAR_LIGHT_T *lights, int index, MONOCHROME_LED_T *led)
+    const CAR_LIGHT_T *lights, int index, void *led)
 {
     if (global_flags.blink_hazard || global_flags.blink_indicator_left ||
         global_flags.blink_indicator_right) {
@@ -436,16 +454,17 @@ static void combined_tail_brake_indicators(
 
 
 // ****************************************************************************
-static void process_light(
-    const CAR_LIGHT_T *lights, int index, MONOCHROME_LED_T *current_led)
+static void process_light(const CAR_LIGHT_T *lights, int index, void * out)
 {
-    set_car_light(current_led, lights, index, ALWAYS_ON);
+    void *led = (uint8_t []){0, 0, 0};
 
-    mix_car_light(current_led, lights, index,
+    set_car_light(led, lights, index, ALWAYS_ON);
+
+    mix_car_light(led, lights, index,
         LIGHT_SWITCH_POSITION + light_switch_position);
 
     if (global_flags.reversing) {
-        mix_car_light(current_led, lights, index, REVERSING_LIGHT);
+        mix_car_light(led, lights, index, REVERSING_LIGHT);
     }
 
     if (!is_value_zero(lights, index, TAIL_LIGHT) &&
@@ -453,23 +472,25 @@ static void process_light(
         (   !is_value_zero(lights, index, INDICATOR_LEFT) ||
             !is_value_zero(lights, index, INDICATOR_RIGHT))) {
         // Special case for combined tail / brake / indicators
-        combined_tail_brake_indicators(lights, index, current_led);
+        combined_tail_brake_indicators(lights, index, led);
     }
     else {
-        combined_tail_brake(lights, index, current_led);
+        combined_tail_brake(lights, index, led);
 
         if (global_flags.blink_flag) {
-
             if (global_flags.blink_hazard ||
                 global_flags.blink_indicator_left) {
-                mix_car_light(current_led, lights, index, INDICATOR_LEFT);
+                mix_car_light(led, lights, index, INDICATOR_LEFT);
             }
             if (global_flags.blink_hazard ||
                 global_flags.blink_indicator_right) {
-                mix_car_light(current_led, lights, index, INDICATOR_RIGHT);
+                mix_car_light(led, lights, index, INDICATOR_RIGHT);
             }
         }
     }
+
+    // FIXME: implement incadescent and weak ground connection here
+    set_light(lights->led_type, out, led);
 }
 
 
@@ -478,12 +499,16 @@ static void process_car_lights(void)
 {
     int i;
 
+    // Handle LEDs connected to the TLC5940 locally
     for (i = 0; i < 16 ; i++) {
         process_light(&local_monochrome_leds, i, &tlc5940_light_data[i]);
     }
+    send_light_data_to_tlc5940();
 
+
+    // Handle monochrome LEDs connected to a slave light controller
     if (config.flags.slave_output) {
-        MONOCHROME_LED_T led;
+        MONOCHROME_LED_T led = 0;
 
         uart0_send_char(SLAVE_MAGIC_BYTE);
 
@@ -509,6 +534,5 @@ void process_lights(void)
 
     if (global_flags.systick) {
         process_car_lights();
-        send_light_data_to_tlc5940();
     }
 }

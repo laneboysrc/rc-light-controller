@@ -27,6 +27,12 @@
 #define LIGHT_SWITCH_POSITIONS 9
 
 
+// Convenience functions for min/max
+#define MIN(x, y) ((x) < (y) ? x : (y))
+#define MAX(x, y) ((x) > (y) ? x : (y))
+
+
+
 // ****************************************************************************
 typedef struct {
     uint16_t left;
