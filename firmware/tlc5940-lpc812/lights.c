@@ -430,6 +430,7 @@ static void limit_stepsize(const CAR_LIGHT_T *lights, int index,
                     mono_led, mono_value, mono->max_change_per_systick);
 
             }
+
             set_light(lights->led_type, led, &mono_value);
             break;
 
@@ -549,7 +550,6 @@ static void process_light(const CAR_LIGHT_T *lights, int index, void * out)
     if (global_flags.reversing) {
         mix_car_light(led, lights, index, REVERSING_LIGHT);
     }
-
     if (!is_value_zero(lights, index, TAIL_LIGHT) &&
         !is_value_zero(lights, index, BRAKE_LIGHT) &&
         (   !is_value_zero(lights, index, INDICATOR_LEFT) ||
