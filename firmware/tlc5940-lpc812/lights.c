@@ -125,11 +125,29 @@ typedef struct {
     uint8_t b;
 } RGB_LED_T;
 
-
 typedef enum {
     MONOCHROME,
     RGB
-} LED_TYPE_T; 
+} LED_TYPE_T;
+
+typedef enum {
+    ALWAYS_ON,
+    LIGHT_SWITCH_POSITION,
+    LIGHT_SWITCH_POSITION_0 = LIGHT_SWITCH_POSITION + 0,
+    LIGHT_SWITCH_POSITION_1 = LIGHT_SWITCH_POSITION + 1,
+    LIGHT_SWITCH_POSITION_2 = LIGHT_SWITCH_POSITION + 2,
+    LIGHT_SWITCH_POSITION_3 = LIGHT_SWITCH_POSITION + 3,
+    LIGHT_SWITCH_POSITION_4 = LIGHT_SWITCH_POSITION + 4,
+    LIGHT_SWITCH_POSITION_5 = LIGHT_SWITCH_POSITION + 5,
+    LIGHT_SWITCH_POSITION_6 = LIGHT_SWITCH_POSITION + 6,
+    LIGHT_SWITCH_POSITION_7 = LIGHT_SWITCH_POSITION + 7,
+    LIGHT_SWITCH_POSITION_8 = LIGHT_SWITCH_POSITION + 8,
+    TAIL_LIGHT,
+    BRAKE_LIGHT,
+    REVERSING_LIGHT,
+    INDICATOR_LEFT,
+    INDICATOR_RIGHT
+} CAR_LIGHT_FUNCTION_T;
 
 typedef struct {
     MONOCHROME_LED_T always_on;
@@ -155,53 +173,53 @@ typedef struct {
     RGB_LED_T indicator_right;
 } RGB_CAR_LIGHT_T;
 
-
-static const MONOCHROME_CAR_LIGHT_T local_leds[16] = {
-    // LED 0
-    {.always_on = 63},
-
-    // LED 1
-    {.light_switch_position[1] = 63, .light_switch_position[2] = 63},
-
-    // LED 2
-    {.light_switch_position[2] = 63},
-
-    // LED 3
-    {.tail_light = 63},
-
-    // LED 4
-    {.brake_light = 63},
-
-    // LED 5
-    {.always_on = 0}, // LED not present...
-
-    // LED 6
-    {.tail_light = 5, .brake_light = 63},
-
-    // LED 7
-    {.reversing_light = 63},
-
-    // LED 8
-    {.indicator_left = 63},
-
-    // LED 9
-    {.indicator_right = 63},
-
-    // LED 10
-    {.indicator_left = 5, .tail_light = 5, .brake_light = 63},
-
-    // LED 11
-    {.indicator_right = 5, .tail_light = 5, .brake_light = 63},
-};
-
 static const RGB_CAR_LIGHT_T local_rgb_leds[16];
 
-struct {
+typedef struct {
     LED_TYPE_T led_type;
-    const void *car_light;
-} test = {
-    MONOCHROME,
-    local_leds
+    const void *car_lights;
+} CAR_LIGHT_T;
+
+
+CAR_LIGHT_T local_leds = {
+    .led_type = MONOCHROME,
+    .car_lights = &(const MONOCHROME_CAR_LIGHT_T [16]) {
+        // LED 0
+        {.always_on = 63},
+
+        // LED 1
+        {.light_switch_position[1] = 63, .light_switch_position[2] = 63},
+
+        // LED 2
+        {.light_switch_position[2] = 63},
+
+        // LED 3
+        {.tail_light = 63},
+
+        // LED 4
+        {.brake_light = 63},
+
+        // LED 5
+        {.always_on = 0}, // LED not present...
+
+        // LED 6
+        {.tail_light = 5, .brake_light = 63},
+
+        // LED 7
+        {.reversing_light = 63},
+
+        // LED 8
+        {.indicator_left = 63},
+
+        // LED 9
+        {.indicator_right = 63},
+
+        // LED 10
+        {.indicator_left = 5, .tail_light = 5, .brake_light = 63},
+
+        // LED 11
+        {.indicator_right = 5, .tail_light = 5, .brake_light = 63},
+    }
 };
 
 
@@ -295,54 +313,155 @@ void toggle_light_switch(void)
 }
 
 
-static void set_light(MONOCHROME_LED_T *led, uint8_t value)
+static const void * get_light_value(
+    const CAR_LIGHT_T *lights, int index, CAR_LIGHT_FUNCTION_T function)
 {
-    *led = value;
+    const MONOCHROME_CAR_LIGHT_T *mono;
+
+    switch(lights->led_type) {
+        case MONOCHROME:
+            mono = (MONOCHROME_CAR_LIGHT_T *)lights->car_lights;
+            mono = &mono[index];
+
+            switch (function) {
+                case ALWAYS_ON:
+                    return &mono->always_on;
+
+                case LIGHT_SWITCH_POSITION_0:
+                case LIGHT_SWITCH_POSITION_1:
+                case LIGHT_SWITCH_POSITION_2:
+                case LIGHT_SWITCH_POSITION_3:
+                case LIGHT_SWITCH_POSITION_4:
+                case LIGHT_SWITCH_POSITION_5:
+                case LIGHT_SWITCH_POSITION_6:
+                case LIGHT_SWITCH_POSITION_7:
+                case LIGHT_SWITCH_POSITION_8:
+                    return &mono->light_switch_position[
+                        function - LIGHT_SWITCH_POSITION];
+
+                case TAIL_LIGHT:
+                    return &mono->tail_light;
+
+                case BRAKE_LIGHT:
+                    return &mono->brake_light;
+
+                case REVERSING_LIGHT:
+                    return &mono->reversing_light;
+
+                case INDICATOR_LEFT:
+                    return &mono->indicator_left;
+
+                case INDICATOR_RIGHT:
+                    return &mono->indicator_right;
+
+                default:
+                    return (uint8_t []){0};
+            }
+
+        case RGB:
+            // FIXME: implement RGB light
+        default:
+            return (uint8_t []){0, 0, 0};
+    }
 }
 
-static void mix_light(MONOCHROME_LED_T *led, uint8_t value)
+
+static bool is_value_zero(
+    const CAR_LIGHT_T *lights, int index, CAR_LIGHT_FUNCTION_T function)
 {
-    if (value > *led) {
-        *led = value;
+    const void *value = get_light_value(lights, index, function);
+
+    switch(lights->led_type) {
+        case MONOCHROME:
+            return *(MONOCHROME_LED_T *)value == 0 ? true : false;
+
+        case RGB:
+            if (((RGB_LED_T *)value)->r != 0) {
+                return false;
+            }
+            if (((RGB_LED_T *)value)->g != 0) {
+                return false;
+            }
+            if (((RGB_LED_T *)value)->b != 0) {
+                return false;
+            }
+            return true;
+
+        default:
+            return true;
     }
+}
+
+
+static void set_light(LED_TYPE_T led_type, void *led, const void *value)
+{
+    switch(led_type) {
+        case MONOCHROME:
+            *(MONOCHROME_LED_T *)led = *(MONOCHROME_LED_T *)value;
+
+        case RGB:
+        default:
+            break;
+
+    }
+}
+
+
+static void mix_light(LED_TYPE_T led_type, void *led, const void *value)
+{
+    MONOCHROME_LED_T *mono_led;
+    MONOCHROME_LED_T *mono_value;
+
+    switch(led_type) {
+        case MONOCHROME:
+            mono_led = (MONOCHROME_LED_T *)led;
+            mono_value = (MONOCHROME_LED_T *)value;
+
+            if (*mono_value > *mono_led) {
+                *mono_led = *mono_value;
+            }
+            break;
+
+        case RGB:
+        default:
+            break;
+
+    }
+}
+
+
+static void set_car_light(void *led, const CAR_LIGHT_T *lights,
+    int index, CAR_LIGHT_FUNCTION_T function)
+{
+    set_light(lights->led_type, led, get_light_value(lights, index, function));
+}
+
+
+static void mix_car_light(void *led, const CAR_LIGHT_T *lights,
+    int index, CAR_LIGHT_FUNCTION_T function)
+{
+    mix_light(lights->led_type, led, get_light_value(lights, index, function));
 }
 
 
 static void combined_tail_brake(
-    const MONOCHROME_CAR_LIGHT_T *current_light, MONOCHROME_LED_T *current_led)
+    const CAR_LIGHT_T *lights, int index, MONOCHROME_LED_T *led)
 {
-    if (current_light->tail_light) {
-        if (light_switch_position > 0) {
-            mix_light(current_led, current_light->tail_light);
-        }
+    if (light_switch_position > 0) {
+        mix_car_light(led, lights, index, TAIL_LIGHT);
     }
 
-    if (current_light->brake_light) {
-        if (global_flags.braking) {
-            mix_light(current_led, current_light->brake_light);
-        }
+    if (global_flags.braking) {
+        mix_car_light(led, lights, index, BRAKE_LIGHT);
     }
 }
 
 
 static void combined_tail_brake_indicators(
-    const MONOCHROME_CAR_LIGHT_T *current_light, MONOCHROME_LED_T *current_led)
+    const CAR_LIGHT_T *lights, int index, MONOCHROME_LED_T *led)
 {
-
-    MONOCHROME_LED_T active_indicator = 0;
-
-    if (global_flags.blink_indicator_left || global_flags.blink_hazard) {
-        mix_light(&active_indicator, current_light->indicator_left);
-    }
-    if (global_flags.blink_indicator_right) {
-        mix_light(&active_indicator, current_light->indicator_right);
-    }
-    if (global_flags.blink_hazard) {
-        mix_light(&active_indicator, current_light->indicator_left);
-        mix_light(&active_indicator, current_light->indicator_right);
-    }
-
-    if (active_indicator > 0) {
+    if (global_flags.blink_hazard || global_flags.blink_indicator_left ||
+        global_flags.blink_indicator_right) {
         //                         BLINKFLAG
         //                      on          off
         // --------------------------------------
@@ -356,13 +475,20 @@ static void combined_tail_brake_indicators(
             // by tail and finally the indicator value
 
             if (global_flags.braking) {
-                mix_light(current_led, current_light->brake_light);
+                mix_car_light(led, lights, index, BRAKE_LIGHT);
             }
             else if (light_switch_position > 0) {
-                mix_light(current_led, current_light->tail_light);
+                mix_car_light(led, lights, index, TAIL_LIGHT);
             }
             else {
-                mix_light(current_led, active_indicator);
+                if (global_flags.blink_indicator_left
+                    || global_flags.blink_hazard) {
+                    mix_car_light(led, lights, index, INDICATOR_LEFT);
+                }
+                if (global_flags.blink_indicator_right
+                    || global_flags.blink_hazard) {
+                    mix_car_light(led, lights, index, INDICATOR_RIGHT);
+                }
             }
         }
         else {
@@ -370,57 +496,48 @@ static void combined_tail_brake_indicators(
             // active
 
             if (light_switch_position > 0 && global_flags.braking) {
-                mix_light(current_led, current_light->tail_light);
+                mix_car_light(led, lights, index, TAIL_LIGHT);
             }
         }
     }
     else {
         // No indicator active: process like normal tail/brake lights
-        combined_tail_brake(current_light, current_led);
+        combined_tail_brake(lights, index, led);
     }
 }
 
 
-static void process_light(LED_TYPE_T led_type, 
-    const MONOCHROME_CAR_LIGHT_T *current_light, MONOCHROME_LED_T *current_led)
+static void process_light(
+    const CAR_LIGHT_T *lights, int index, MONOCHROME_LED_T *current_led)
 {
-    UNUSED(led_type);
+    set_car_light(current_led, lights, index, ALWAYS_ON);
 
-    set_light(current_led, current_light->always_on);
+    mix_car_light(current_led, lights, index,
+        LIGHT_SWITCH_POSITION + light_switch_position);
 
-    if (current_light->light_switch_position[light_switch_position] > 0) {
-        set_light(current_led, 
-            current_light->light_switch_position[light_switch_position]);
+    if (global_flags.reversing) {
+        mix_car_light(current_led, lights, index, REVERSING_LIGHT);
     }
 
-    if (current_light->reversing_light) {
-        if (global_flags.reversing) {
-            mix_light(current_led, current_light->reversing_light);
-        }
-    }
-
-    if (current_light->tail_light &&
-        current_light->brake_light &&
-        (current_light->indicator_left || current_light->indicator_right)) {
+    if (!is_value_zero(lights, index, TAIL_LIGHT) &&
+        !is_value_zero(lights, index, BRAKE_LIGHT) &&
+        (   !is_value_zero(lights, index, INDICATOR_LEFT) ||
+            !is_value_zero(lights, index, INDICATOR_RIGHT))) {
         // Special case for combined tail / brake / indicators
-        combined_tail_brake_indicators(current_light, current_led);
+        combined_tail_brake_indicators(lights, index, current_led);
     }
     else {
-        combined_tail_brake(current_light, current_led);
+        combined_tail_brake(lights, index, current_led);
 
-        if (current_light->indicator_left) {
-            if (global_flags.blink_flag &&
-                (global_flags.blink_hazard ||
-                 global_flags.blink_indicator_left)) {
-                mix_light(current_led, current_light->indicator_left);
+        if (global_flags.blink_flag) {
+
+            if (global_flags.blink_hazard ||
+                global_flags.blink_indicator_left) {
+                mix_car_light(current_led, lights, index, INDICATOR_LEFT);
             }
-        }
-
-        if (current_light->indicator_right) {
-            if (global_flags.blink_flag &&
-                (global_flags.blink_hazard ||
-                 global_flags.blink_indicator_right)) {
-                mix_light(current_led, current_light->indicator_right);
+            if (global_flags.blink_hazard ||
+                global_flags.blink_indicator_right) {
+                mix_car_light(current_led, lights, index, INDICATOR_RIGHT);
             }
         }
     }
@@ -432,7 +549,7 @@ static void process_car_lights(void)
     int i;
 
     for (i = 0; i < 16 ; i++) {
-        process_light(MONOCHROME, &local_leds[i], &tlc5940_light_data[i]);
+        process_light(&local_leds, i, &tlc5940_light_data[i]);
     }
 }
 
