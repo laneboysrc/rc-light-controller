@@ -12,7 +12,7 @@ def gamma_correction(level, gamma):
 def main():
     ''' Main application '''
     gamma = 2.2
-    level = 1
+    level = 0
     print('const uint8_t gamma_table[] = {')
     while level < 256:
         step = gamma_correction(level, gamma)
