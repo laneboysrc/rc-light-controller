@@ -94,16 +94,7 @@
 #include <uart0.h>
 
 
-static uint8_t light_switch_position;
-static uint8_t tlc5940_light_data[16];
-
-/*
-SPI configuration:
-    Configuration: CPOL = 0, CPHA = 0,
-    We can send 6 bit frame lengths, so no need to pack light data!
-    TXRDY indicates when we can put the next data into txbuf
-    Use SSEL function to de-assert XLAT while sending new data
-*/
+#define SLAVE_MAGIC_BYTE ((uint8_t)0x87)
 
 #define GPIO_GSCLK LPC_GPIO_PORT->W0[1]
 #define GPIO_BLANK LPC_GPIO_PORT->W0[6]
@@ -115,7 +106,6 @@ SPI configuration:
 #define LED_BRIGHTNESS_CONST_B        (1.75f)                       /* Constants have been set for the equations to produce distinctive brightness levels         */
 #define LED_BRIGHTNESS_CONST_C        (2.00f)
 #define LED_BRIGHTNESS_EQUATION(level) (LED_BRIGHTNESS_CONST_A * pow(LED_BRIGHTNESS_CONST_B, level + LED_BRIGHTNESS_CONST_C))
-
 
 
 typedef enum {
@@ -138,11 +128,8 @@ typedef enum {
 } CAR_LIGHT_FUNCTION_T;
 
 
-
-
-
-
-
+static uint8_t light_switch_position;
+static MONOCHROME_LED_T tlc5940_light_data[16];
 
 
 // ****************************************************************************
@@ -165,6 +152,12 @@ static void send_light_data_to_tlc5940(void)
 }
 
 
+// ****************************************************************************
+// SPI configuration:
+//     Configuration: CPOL = 0, CPHA = 0,
+//     We can send 6 bit frame lengths, so no need to pack light data!
+//     TXRDY indicates when we can put the next data into txbuf
+//     Use SSEL function to de-assert XLAT while sending new data
 // ****************************************************************************
 void init_lights(void)
 {
@@ -490,8 +483,13 @@ static void process_car_lights(void)
     }
 
     if (config.flags.slave_output) {
+        MONOCHROME_LED_T led;
+
+        uart0_send_char(SLAVE_MAGIC_BYTE);
+
         for (i = 0; i < 16 ; i++) {
-            process_light(&slave_monochrome_leds, i, &tlc5940_light_data[i]);
+            process_light(&slave_monochrome_leds, i, &led);
+            uart0_send_char(led);
         }
     }
 }
