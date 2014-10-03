@@ -90,7 +90,7 @@ const CAR_LIGHT_T local_monochrome_leds = {
         {.reversing_light = 255},
 
         // LED 8
-        {.indicator_left = 255},
+        {.indicator_left = 255, .max_change_per_systick = 10},
 
         // LED 9
         {.indicator_right = 255},
