@@ -66,7 +66,7 @@ const CAR_LIGHT_T local_monochrome_leds = {
     .led_type = MONOCHROME,
     .car_lights = &(const MONOCHROME_CAR_LIGHT_T [16]) {
         // LED 0
-        {.always_on = 255},
+        {.always_on = 255, .max_change_per_systick = 1},
 
         // LED 1
         {.light_switch_position[1] = 255, .light_switch_position[2] = 255},
@@ -93,13 +93,25 @@ const CAR_LIGHT_T local_monochrome_leds = {
         {.indicator_left = 255, .max_change_per_systick = 10},
 
         // LED 9
-        {.indicator_right = 255},
+        {.indicator_left = 85, .tail_light = 85, .brake_light = 255},
 
         // LED 10
-        {.indicator_left = 85, .tail_light = 85, .brake_light = 255},
+        {.indicator_right = 255, .max_change_per_systick = 42},
 
         // LED 11
         {.indicator_right = 85, .tail_light = 85, .brake_light = 255},
+
+        // LED 12
+        {.indicator_left = 255, .max_change_per_systick = 20},
+
+        // LED 13
+        {.indicator_left = 255, .max_change_per_systick = 10},
+
+        // LED 14
+        {.indicator_left = 255, .max_change_per_systick = 8},
+
+        // LED 15
+        {.indicator_left = 255, .max_change_per_systick = 8},
     }
 };
 
