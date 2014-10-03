@@ -486,7 +486,13 @@ static void process_car_lights(void)
     int i;
 
     for (i = 0; i < 16 ; i++) {
-        process_light(&local_leds, i, &tlc5940_light_data[i]);
+        process_light(&local_monochrome_leds, i, &tlc5940_light_data[i]);
+    }
+
+    if (config.flags.slave_output) {
+        for (i = 0; i < 16 ; i++) {
+            process_light(&slave_monochrome_leds, i, &tlc5940_light_data[i]);
+        }
     }
 }
 

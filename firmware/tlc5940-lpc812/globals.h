@@ -249,7 +249,8 @@ typedef struct {
 extern uint32_t entropy;
 
 extern const LIGHT_CONTROLLER_CONFIG_T config;
-extern const CAR_LIGHT_T local_leds;
+extern const CAR_LIGHT_T local_monochrome_leds;
+extern const CAR_LIGHT_T slave_monochrome_leds;
 
 extern GLOBAL_FLAGS_T global_flags;
 extern CHANNEL_T channel[3];

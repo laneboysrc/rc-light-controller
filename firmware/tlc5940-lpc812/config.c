@@ -62,7 +62,7 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
 
 
 // ****************************************************************************
-const CAR_LIGHT_T local_leds = {
+const CAR_LIGHT_T local_monochrome_leds = {
     .led_type = MONOCHROME,
     .car_lights = &(const MONOCHROME_CAR_LIGHT_T [16]) {
         // LED 0
@@ -101,4 +101,10 @@ const CAR_LIGHT_T local_leds = {
         // LED 11
         {.indicator_right = 5, .tail_light = 5, .brake_light = 63},
     }
+};
+
+// ****************************************************************************
+const CAR_LIGHT_T slave_monochrome_leds = {
+    .led_type = MONOCHROME,
+    .car_lights = &(const MONOCHROME_CAR_LIGHT_T [16]) {{0}}
 };
