@@ -291,7 +291,8 @@ typedef enum {
     RGB
 } LED_TYPE_T;
 
-typedef struct {    // 8-bytes packed (3 byte free)
+typedef struct {    // 16-bytes packed (3 byte free)
+    MAGIC_T magic;
     LED_TYPE_T led_type;
     uint8_t led_count;
 
