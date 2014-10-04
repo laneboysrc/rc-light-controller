@@ -426,9 +426,9 @@ static void limit_stepsize(const CAR_LIGHT_T *lights, int index,
             mono_value = *(MONOCHROME_LED_T *)value;
 
             // If max_change_per_systick is not set allow full swing
-            if (mono->max_change_per_systick > 0) {
+            if (mono->features.max_change_per_systick > 0) {
                 mono_value = calculate_step_value(
-                    mono_led, mono_value, mono->max_change_per_systick);
+                    mono_led, mono_value, mono->features.max_change_per_systick);
 
             }
 
@@ -441,13 +441,13 @@ static void limit_stepsize(const CAR_LIGHT_T *lights, int index,
             rgb_value = *(RGB_LED_T *)value;
 
             // If max_change_per_systick is not set allow full swing
-            if (rgb->max_change_per_systick > 0) {
+            if (rgb->features.max_change_per_systick > 0) {
                 rgb_value.r = calculate_step_value(
-                    rgb_led.r, rgb_value.r, rgb->max_change_per_systick);
+                    rgb_led.r, rgb_value.r, rgb->features.max_change_per_systick);
                 rgb_value.g = calculate_step_value(
-                    rgb_led.g, rgb_value.g, rgb->max_change_per_systick);
+                    rgb_led.g, rgb_value.g, rgb->features.max_change_per_systick);
                 rgb_value.g = calculate_step_value(
-                    rgb_led.g, rgb_value.g, rgb->max_change_per_systick);
+                    rgb_led.g, rgb_value.g, rgb->features.max_change_per_systick);
             }
             set_light(lights->led_type, led, &rgb_value);
             break;
@@ -542,7 +542,7 @@ static void combined_tail_brake_indicators(
 
 
 // ****************************************************************************
-static bool is_light_affected(WEAK_GROUND_SIMULATION_T *w)
+static bool is_light_affected(LIGHT_FEATURE_T *w)
 {
     if (w->light_switch_position_0 && light_switch_position == 0) {
         return true;
@@ -610,13 +610,13 @@ static bool is_light_affected(WEAK_GROUND_SIMULATION_T *w)
 static void simulate_weak_ground(
     void *led, const CAR_LIGHT_T *lights, int index)
 {
-    WEAK_GROUND_SIMULATION_T weak_ground_simulation;
+    LIGHT_FEATURE_T weak_ground_simulation;
     const MONOCHROME_CAR_LIGHT_T *light;
 
     // We can use either MONOCHROME or RGB here, the first parts of the
     // structure are identical.
     light = &((MONOCHROME_CAR_LIGHT_T *)lights->car_lights)[index];
-    weak_ground_simulation = light->weak_ground_simulation;
+    weak_ground_simulation = light->features;
 
     if (weak_ground_simulation.reduction_percent == 0) {
         return;

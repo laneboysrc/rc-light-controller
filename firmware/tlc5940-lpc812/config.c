@@ -62,72 +62,7 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
 
 
 // ****************************************************************************
-const CAR_LIGHT_T local_monochrome_leds = {
-    .led_type = MONOCHROME,
-    .car_lights = &(const MONOCHROME_CAR_LIGHT_T [16]) {
-        // LED 0
-        {.always_on = 255, .max_change_per_systick = 3},
-
-        // LED 1
-        {.light_switch_position[1] = 255, .light_switch_position[2] = 255},
-
-        // LED 2
-        {.light_switch_position[2] = 255},
-
-        // LED 3
-        {.tail_light = 255, .weak_ground_simulation = {
-                .reduction_percent = 20,
-                .indicator_left = 1,
-            }, .max_change_per_systick = 37
-        },
-
-        // LED 4
-        {.brake_light = 255},
-
-        // LED 5
-        {.always_on = 0}, // LED not present...
-
-        // LED 6
-        {.tail_light = 85, .brake_light = 255},
-
-        // LED 7
-        {.reversing_light = 255},
-
-        // LED 8
-        {.indicator_left = 255, .max_change_per_systick = 37},
-
-        // LED 9
-        {.indicator_right = 255, .max_change_per_systick = 37},
-
-        // LED 10
-        {.always_on = 0},
-
-        // LED 11
-        {.indicator_left = 85, .tail_light = 85, .brake_light = 255},
-
-        // LED 12
-        {.indicator_right = 85, .tail_light = 85, .brake_light = 255},
-
-        // LED 13
-        {.always_on = 0},
-
-        // LED 14
-        {.always_on = 0},
-
-        // LED 15
-        {.always_on = 0},
-    }
-};
-
-
-// ****************************************************************************
-const CAR_LIGHT_T slave_monochrome_leds = {
-    .led_type = MONOCHROME,
-    .car_lights = &(const MONOCHROME_CAR_LIGHT_T [16]) {{0}}
-};
-
-
-// ****************************************************************************
+// Gamma 2.2, created with tools/print_gamma_correction_table.py
 const uint8_t gamma_table[256] = {
     0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 3, 3, 3, 3, 4,
     4, 4, 4, 5, 5, 5, 6, 6, 6, 7, 7, 8, 8, 8, 9, 9, 10, 10, 10, 11, 11, 12, 12,

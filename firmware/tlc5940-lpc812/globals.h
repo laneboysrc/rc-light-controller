@@ -198,7 +198,11 @@ typedef struct {
 } RGB_LED_T;
 
 
-typedef struct {
+typedef struct {    // 4-bytes packed
+    // Simulation of incandescent lights
+    uint8_t max_change_per_systick;
+
+    // Simulation of a weak ground connection
     uint8_t reduction_percent;
     unsigned int light_switch_position_0 : 1;
     unsigned int light_switch_position_1 : 1;
@@ -214,7 +218,7 @@ typedef struct {
     unsigned int reversing_light : 1;
     unsigned int indicator_left : 1;
     unsigned int indicator_right : 1;
-} WEAK_GROUND_SIMULATION_T;
+} LIGHT_FEATURE_T;
 
 // For standard car light functions we have an array of values, one per LED,
 // where each entry corresponds to one light funciton. The user can assign
@@ -222,8 +226,7 @@ typedef struct {
 // and the software will "mix" the final color value.
 
 typedef struct {
-    uint8_t max_change_per_systick;
-    WEAK_GROUND_SIMULATION_T weak_ground_simulation;
+    LIGHT_FEATURE_T features;
 
     MONOCHROME_LED_T always_on;
     MONOCHROME_LED_T light_switch_position[LIGHT_SWITCH_POSITIONS];
@@ -236,8 +239,7 @@ typedef struct {
 
 
 typedef struct {
-    uint8_t max_change_per_systick;
-    WEAK_GROUND_SIMULATION_T weak_ground_simulation;
+    LIGHT_FEATURE_T features;
 
     RGB_LED_T always_on;
     RGB_LED_T light_switch_position[LIGHT_SWITCH_POSITIONS];
