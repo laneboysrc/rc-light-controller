@@ -198,6 +198,24 @@ typedef struct {
 } RGB_LED_T;
 
 
+typedef struct {
+    uint8_t reduction_percent;
+    unsigned int light_switch_position_0 : 1;
+    unsigned int light_switch_position_1 : 1;
+    unsigned int light_switch_position_2 : 1;
+    unsigned int light_switch_position_3 : 1;
+    unsigned int light_switch_position_4 : 1;
+    unsigned int light_switch_position_5 : 1;
+    unsigned int light_switch_position_6 : 1;
+    unsigned int light_switch_position_7 : 1;
+    unsigned int light_switch_position_8 : 1;
+    unsigned int tail_light : 1;
+    unsigned int brake_light : 1;
+    unsigned int reversing_light : 1;
+    unsigned int indicator_left : 1;
+    unsigned int indicator_right : 1;
+} WEAK_GROUND_SIMULATION_T;
+
 // For standard car light functions we have an array of values, one per LED,
 // where each entry corresponds to one light funciton. The user can assign
 // multiple functions to a single LED (such as brake and tail light function)
@@ -205,10 +223,10 @@ typedef struct {
 
 typedef struct {
     uint8_t max_change_per_systick;
+    WEAK_GROUND_SIMULATION_T weak_ground_simulation;
+
     MONOCHROME_LED_T always_on;
-
     MONOCHROME_LED_T light_switch_position[LIGHT_SWITCH_POSITIONS];
-
     MONOCHROME_LED_T tail_light;
     MONOCHROME_LED_T brake_light;
     MONOCHROME_LED_T reversing_light;
@@ -219,10 +237,10 @@ typedef struct {
 
 typedef struct {
     uint8_t max_change_per_systick;
+    WEAK_GROUND_SIMULATION_T weak_ground_simulation;
+
     RGB_LED_T always_on;
-
     RGB_LED_T light_switch_position[LIGHT_SWITCH_POSITIONS];
-
     RGB_LED_T tail_light;
     RGB_LED_T brake_light;
     RGB_LED_T reversing_light;
