@@ -4,6 +4,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#define CONFIG_VERSION 1
+
 
 // Suppress unused parameter or variable warning
 #ifndef UNUSED
@@ -31,6 +33,36 @@
 #define MIN(x, y) ((x) < (y) ? x : (y))
 #define MAX(x, y) ((x) > (y) ? x : (y))
 
+
+
+// ****************************************************************************
+typedef enum {
+    // By specifying this unused value we force the enmeration to fit in a
+    // uint16_t
+    EMPTY = 0xffff,
+
+    CONFIG_SECTION = 0x01,
+    GAMMA_TABLE = 0x02,
+    LOCAL_MONOCHROME_LEDS = 0x10,
+    LOCAL_RGB_LEDS = 0x11,
+    SLAVE_MONOCHROME_LEDS = 0x20,
+    SLAVE_RGB_LEDS = 0x21
+} ROM_SECTION_T;
+
+
+// ****************************************************************************
+typedef struct {
+    uint32_t magic_value;
+    ROM_SECTION_T type;
+    uint16_t version;
+} MAGIC_T;
+
+
+// ****************************************************************************
+typedef struct {
+    MAGIC_T magic;
+    uint8_t gamma_table[256];
+} GAMMA_TABLE_T;
 
 
 // ****************************************************************************
@@ -118,9 +150,7 @@ typedef enum {
 
 // ****************************************************************************
 typedef struct {
-    uint32_t magic;
-    uint16_t type;
-    uint16_t version;
+    MAGIC_T magic;
 
     MASTER_MODE_T mode;
 
@@ -283,7 +313,7 @@ extern const CAR_LIGHT_T local_monochrome_leds;
 extern const CAR_LIGHT_T local_rgb_leds;
 extern const CAR_LIGHT_T slave_monochrome_leds;
 extern const CAR_LIGHT_T slave_rgb_leds;
-extern const uint8_t gamma_table[];
+extern const GAMMA_TABLE_T gamma_table;
 
 extern GLOBAL_FLAGS_T global_flags;
 extern CHANNEL_T channel[3];

@@ -136,7 +136,7 @@ static void send_light_data_to_tlc5940(void)
         // Wait for TXRDY
         while (!(LPC_SPI0->STAT & (1 << 1)));
 
-        LPC_SPI0->TXDAT = gamma_table[tlc5940_light_data[i]] >> 2;
+        LPC_SPI0->TXDAT = gamma_table.gamma_table[tlc5940_light_data[i]] >> 2;
     }
 
     // Force END OF TRANSFER
@@ -718,16 +718,16 @@ static void process_car_lights(void)
         // Handle monochrome LEDs connected to a slave light controller
         for (i = 0; i < slave_monochrome_leds.led_count ; i++) {
             process_light(&slave_monochrome_leds, i, &led);
-            uart0_send_char(gamma_table[led] >> 2);
+            uart0_send_char(gamma_table.gamma_table[led] >> 2);
         }
 
         // Handle RGB LEDs connected to a slave light controller
         if (slave_rgb_leds.led_count) {
             for (i = 0; i < slave_rgb_leds.led_count ; i++) {
                 process_light(&slave_rgb_leds, i, &rgb_led);
-                uart0_send_char(gamma_table[rgb_led.r] >> 2);
-                uart0_send_char(gamma_table[rgb_led.g] >> 2);
-                uart0_send_char(gamma_table[rgb_led.b] >> 2);
+                uart0_send_char(gamma_table.gamma_table[rgb_led.r] >> 2);
+                uart0_send_char(gamma_table.gamma_table[rgb_led.g] >> 2);
+                uart0_send_char(gamma_table.gamma_table[rgb_led.b] >> 2);
             }
         }
     }
