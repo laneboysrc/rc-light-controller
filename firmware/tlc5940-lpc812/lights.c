@@ -21,10 +21,11 @@
     - Support weird, unforeseen combinations, like combined reverse/indicators
       on the Lancia Fulvia
     * We need to handle WS2812 as well as PL9823 (swapped rgb order!)
+    * Consider HSL fading?!
 
 
     * High priority situations (in order or priority)
-        * Startup
+        * Initialization
         * Setup of steering, throttle reverse
         * Setup of the output servo centre, left, right
         * Winch active
@@ -79,6 +80,79 @@
         There would also be a configurable brightness reduction value in %
 
 
+
+    Light programs:
+        * Programs reside at the end of flash space
+        * Do we need to limit the number of programs?
+        * Mini programming language
+            * GOTO to implement loops 
+            * SET_MONOCHROME led value (translates to command below)  
+            * SET_MONOCHROME start_led stop_led value  
+            * SET_RGB(0..95) red green blue (takes up a lot of opcodes!)
+            * FADE led time (translates to command below)  
+            * FADE start_led stop_led time  
+            * WAIT time
+            * IF condition (skips next instruction)
+            
+            * Reading values of lights?
+            * Different sequence depending on gear value?
+            * Different sequence depending on state of roof lights?
+            * Random value
+            * "Next sequence"
+            * 0x00 and 0xff should not be used (empty flash, 0 initialized)
+        * Every opcode is 4 bytes
+            * This means that 1 byte command + 3 bytes RGB is possible
+            * End-of-program marker to find different programs in the flash
+        * The lights used in a program are automatically removed from normal
+          car light processing
+        * Programs run in a certain states
+            * Any state
+            * Initializing
+            * Setup of steering, throttle reverse
+            * Setup of the output servo centre, left, right
+            * Winch active
+            * Gear 1, Gear 2
+            * Any of the car states (light switch position, braking, ...)
+            * Multiple programs can be running in parallel
+                * What happens if multiple programs use the same light?
+        * Programs run when certain events occur   
+            * Gearbox change event
+            * There can only be one event active
+            * New events stop currently running events
+            * Events interrupt other programs
+            * When the event program has finished the lights are restored
+            * If an event uses lights that occure in other running programs,
+              those programs are paused / resumed
+
+    Test programs:
+        Night rider with LEDs 0..3:
+            0:  SET     LED0    0           ; LED range comand useful?
+            1:  SET     LED1    0
+            2:  SET     LED2    0
+            3:  SET     LED3    0
+            4:  FADE    LED0    120
+            5:  FADE    LED1    120
+            6:  FADE    LED2    120
+            7:  FADE    LED3    120
+            8:  SET     LED0    255
+            9:  WAIT    120
+            10: SET     LED0    0
+            11: SET     LED1    255
+            12: WAIT    120
+            13: SET     LED1    0
+            14: SET     LED2    255
+            15: WAIT    120
+            16: SET     LED2    0
+            17: SET     LED3    255
+            18: WAIT    120
+            19: SET     LED3    0
+            20: SET     LED2    255
+            21: WAIT    120
+            22: SET     LED2    0
+            23: SET     LED1    255
+            24: WAIT    120
+            25: SET     LED1    0
+            26: GOTO    8                
 
 
 ******************************************************************************/
