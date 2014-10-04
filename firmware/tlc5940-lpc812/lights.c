@@ -20,6 +20,7 @@
     - Simulation of weak ground connection
     - Support weird, unforeseen combinations, like combined reverse/indicators
       on the Lancia Fulvia
+    * We need to handle WS2812 as well as PL9823 (swapped rgb order!)
 
 
     * High priority situations (in order or priority)
@@ -120,6 +121,7 @@ typedef enum {
 
 static uint8_t light_switch_position;
 static MONOCHROME_LED_T tlc5940_light_data[16];
+static RGB_LED_T ws2812_light_data[32];
 
 
 // ****************************************************************************
@@ -694,21 +696,39 @@ static void process_car_lights(void)
     int i;
 
     // Handle LEDs connected to the TLC5940 locally
-    for (i = 0; i < 16 ; i++) {
+    for (i = 0; i < local_monochrome_leds.led_count ; i++) {
         process_light(&local_monochrome_leds, i, &tlc5940_light_data[i]);
     }
     send_light_data_to_tlc5940();
 
+    // Handle RGB LEDs connected locally
+    if (local_rgb_leds.led_count) {
+        for (i = 0; i < local_rgb_leds.led_count ; i++) {
+            process_light(&local_rgb_leds, i, &ws2812_light_data[i]);
+        }
+        //send_light_data_to_ws2812();
+    }
 
-    // Handle monochrome LEDs connected to a slave light controller
     if (config.flags.slave_output) {
         MONOCHROME_LED_T led = 0;
+        RGB_LED_T rgb_led = {0, 0, 0};
 
         uart0_send_char(SLAVE_MAGIC_BYTE);
 
-        for (i = 0; i < 16 ; i++) {
+        // Handle monochrome LEDs connected to a slave light controller
+        for (i = 0; i < slave_monochrome_leds.led_count ; i++) {
             process_light(&slave_monochrome_leds, i, &led);
             uart0_send_char(gamma_table[led] >> 2);
+        }
+
+        // Handle RGB LEDs connected to a slave light controller
+        if (slave_rgb_leds.led_count) {
+            for (i = 0; i < slave_rgb_leds.led_count ; i++) {
+                process_light(&slave_rgb_leds, i, &rgb_led);
+                uart0_send_char(gamma_table[rgb_led.r] >> 2);
+                uart0_send_char(gamma_table[rgb_led.g] >> 2);
+                uart0_send_char(gamma_table[rgb_led.b] >> 2);
+            }
         }
     }
 }

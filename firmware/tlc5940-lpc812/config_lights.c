@@ -6,6 +6,7 @@
 // ****************************************************************************
 const CAR_LIGHT_T local_monochrome_leds = {
     .led_type = MONOCHROME,
+    .led_count = 16,
     .car_lights = &(const MONOCHROME_CAR_LIGHT_T [16]) {
         // LED 0
         {.always_on = 255, .features = {.max_change_per_systick = 3}},
@@ -66,5 +67,43 @@ const CAR_LIGHT_T local_monochrome_leds = {
 // ****************************************************************************
 const CAR_LIGHT_T slave_monochrome_leds = {
     .led_type = MONOCHROME,
+    .led_count = 16,
     .car_lights = &(const MONOCHROME_CAR_LIGHT_T [16]) {{.always_on = 0}}
+};
+
+
+// ****************************************************************************
+const CAR_LIGHT_T local_rgb_leds = {
+    .led_type = RGB,
+    .led_count = 32,
+    .car_lights = &(const RGB_CAR_LIGHT_T [32]) {
+        {   .features = {.max_change_per_systick = 1},
+            .always_on = {2, 2, 2},
+            .light_switch_position = {{3, 3, 3}, {3, 3, 3}, {3, 3, 3}, {3, 3, 3}, {3, 3, 3}, {3, 3, 3}, {3, 3, 3}, {3, 3, 3}, {3, 3, 3}},
+            .tail_light = {4, 4, 4},
+            .brake_light = {5, 5, 5},
+            .reversing_light = {6, 6, 6},
+            .indicator_left = {7, 7, 7},
+            .indicator_right = {8, 8, 8}
+        }
+
+    }
+};
+
+
+// ****************************************************************************
+const CAR_LIGHT_T slave_rgb_leds = {
+    .led_type = RGB,
+    .led_count = 32,
+    .car_lights = &(const RGB_CAR_LIGHT_T [32]) {
+        {   .features = {.max_change_per_systick = 1},
+            .always_on = {2, 2, 2},
+            .light_switch_position = {{3, 3, 3}, {3, 3, 3}, {3, 3, 3}, {3, 3, 3}, {3, 3, 3}, {3, 3, 3}, {3, 3, 3}, {3, 3, 3}, {3, 3, 3}},
+            .tail_light = {4, 4, 4},
+            .brake_light = {5, 5, 5},
+            .reversing_light = {6, 6, 6},
+            .indicator_left = {7, 7, 7},
+            .indicator_right = {8, 8, 8}
+        }
+    }
 };

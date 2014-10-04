@@ -122,7 +122,7 @@ typedef struct {
     uint16_t type;
     uint16_t version;
 
-    unsigned int mode : 3;
+    MASTER_MODE_T mode;
 
     struct {
         // If mode is MASTER_WITH_SERVO_READER  then all flags are mutually
@@ -191,14 +191,14 @@ typedef struct {
 
 typedef uint8_t MONOCHROME_LED_T;
 
-typedef struct {
+typedef struct {    // 3-bytes, not packed
     uint8_t r;
     uint8_t g;
     uint8_t b;
 } RGB_LED_T;
 
 
-typedef struct {    // 4-bytes packed
+typedef struct {    // 4-bytes packed (2 bits free)
     // Simulation of incandescent lights
     uint8_t max_change_per_systick;
 
@@ -225,7 +225,7 @@ typedef struct {    // 4-bytes packed
 // multiple functions to a single LED (such as brake and tail light function)
 // and the software will "mix" the final color value.
 
-typedef struct {
+typedef struct {    // 20-bytes packed (1 byte free)
     LIGHT_FEATURE_T features;
 
     MONOCHROME_LED_T always_on;
@@ -238,7 +238,7 @@ typedef struct {
 } MONOCHROME_CAR_LIGHT_T;
 
 
-typedef struct {
+typedef struct {    // 52-bytes packed (3 byte free)
     LIGHT_FEATURE_T features;
 
     RGB_LED_T always_on;
@@ -261,8 +261,9 @@ typedef enum {
     RGB
 } LED_TYPE_T;
 
-typedef struct {
+typedef struct {    // 8-bytes packed (3 byte free)
     LED_TYPE_T led_type;
+    uint8_t led_count;
 
     // Can either be MONOCHROME_CAR_LIGHT_T or RGB_CAR_LIGHT_T. It is actually
     // a pointer to the first element in an array of those structures.
@@ -279,7 +280,9 @@ extern uint32_t entropy;
 
 extern const LIGHT_CONTROLLER_CONFIG_T config;
 extern const CAR_LIGHT_T local_monochrome_leds;
+extern const CAR_LIGHT_T local_rgb_leds;
 extern const CAR_LIGHT_T slave_monochrome_leds;
+extern const CAR_LIGHT_T slave_rgb_leds;
 extern const uint8_t gamma_table[];
 
 extern GLOBAL_FLAGS_T global_flags;
