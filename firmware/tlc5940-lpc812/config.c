@@ -90,28 +90,28 @@ const CAR_LIGHT_T local_monochrome_leds = {
         {.reversing_light = 255},
 
         // LED 8
-        {.indicator_left = 255, .max_change_per_systick = 10},
+        {.indicator_left = 255, .max_change_per_systick = 37},
 
         // LED 9
-        {.indicator_left = 85, .tail_light = 85, .brake_light = 255},
+        {.indicator_right = 255, .max_change_per_systick = 37},
 
         // LED 10
-        {.indicator_right = 255, .max_change_per_systick = 42},
+        {.always_on = 0},
 
         // LED 11
-        {.indicator_right = 85, .tail_light = 85, .brake_light = 255},
+        {.indicator_left = 85, .tail_light = 85, .brake_light = 255},
 
         // LED 12
-        {.indicator_left = 255, .max_change_per_systick = 20},
+        {.indicator_right = 85, .tail_light = 85, .brake_light = 255},
 
         // LED 13
-        {.indicator_left = 255, .max_change_per_systick = 10},
+        {.always_on = 0},
 
         // LED 14
-        {.indicator_left = 255, .max_change_per_systick = 8},
+        {.always_on = 0},
 
         // LED 15
-        {.indicator_left = 255, .max_change_per_systick = 8},
+        {.always_on = 0},
     }
 };
 
