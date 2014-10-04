@@ -34,6 +34,7 @@ FLASH_TOOL := lpc81x_isp.py --run --flash
 TERMINAL_PROGRAM := miniterm.py -p /dev/ttyUSB0 -b 115200
 PREPROCESSOR_SIMULATOR := $(TOOL_PATH)preprocessor-simulator.py -b 115200
 MAP_SUMMARY_TOOL := $(TOOL_PATH)parse_gcc_map_file.py
+CONFIGURATION_VALIDATION_TOOL := $(TOOL_PATH)validate_image_file.py
 
 
 ###############################################################################
@@ -90,6 +91,7 @@ $(shell $(MKDIR_P) $(BUILD_DIR))
 %.bin : %.axf
 	$(ECHO) [CP] $@
 	$(QUIET)$(OBJCOPY) $< -O binary $@
+	$(QUIET)$(CONFIGURATION_VALIDATION_TOOL) $@
 
 # Generate list files with mixed Assembler and C code
 %.lst : %.c
