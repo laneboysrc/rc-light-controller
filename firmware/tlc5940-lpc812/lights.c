@@ -360,7 +360,7 @@ static const LED_T *get_light_value(const CAR_LIGHT_T *light,
             return &light->indicator_right;
 
         default:
-            return (uint8_t []){0};
+            return (LED_T []){0};
     }
 }
 
@@ -587,40 +587,40 @@ static void simulate_weak_ground(LED_T *led, const CAR_LIGHT_T *light)
 // ****************************************************************************
 static void process_light(const CAR_LIGHT_T *light, LED_T *led)
 {
-    LED_T result = 0;
+    LED_T *result = (LED_T []){0};
 
-    set_car_light(&result, light, ALWAYS_ON);
+    set_car_light(result, light, ALWAYS_ON);
 
-    mix_car_light(&result, light, LIGHT_SWITCH_POSITION + light_switch_position);
+    mix_car_light(result, light, LIGHT_SWITCH_POSITION + light_switch_position);
 
     if (global_flags.reversing) {
-        mix_car_light(&result, light, REVERSING_LIGHT);
+        mix_car_light(result, light, REVERSING_LIGHT);
     }
     if (!is_value_zero(light, TAIL_LIGHT) &&
         !is_value_zero(light, BRAKE_LIGHT) &&
         (   !is_value_zero(light, INDICATOR_LEFT) ||
             !is_value_zero(light, INDICATOR_RIGHT))) {
         // Special case for combined tail / brake / indicators
-        combined_tail_brake_indicators(&result, light);
+        combined_tail_brake_indicators(result, light);
     }
     else {
-        combined_tail_brake(&result, light);
+        combined_tail_brake(result, light);
 
         if (global_flags.blink_flag) {
             if (global_flags.blink_hazard ||
                 global_flags.blink_indicator_left) {
-                mix_car_light(&result, light, INDICATOR_LEFT);
+                mix_car_light(result, light, INDICATOR_LEFT);
             }
             if (global_flags.blink_hazard ||
                 global_flags.blink_indicator_right) {
-                mix_car_light(&result, light, INDICATOR_RIGHT);
+                mix_car_light(result, light, INDICATOR_RIGHT);
             }
         }
     }
 
-    simulate_weak_ground(&result, light);
-    limit_stepsize(light, &result, led);
-    *led = result;
+    simulate_weak_ground(result, light);
+    limit_stepsize(light, result, led);
+    *led = *result;
 }
 
 
