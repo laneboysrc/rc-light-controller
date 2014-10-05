@@ -10,28 +10,27 @@ const SETUP_LIGHTS_T setup_lights = {
         .version = CONFIG_VERSION
     },
 
-    .no_signal = {{.led_number=15, .value={255, 255, 255}}},
-    .initializing = {{.led_number=0, .value={255, 255, 255}}},
-    .reverse_setup_steering = {{.led_number=7, .value={255, 255, 255}}},
-    .reverse_setup_throttle = {{.led_number=6, .value={255, 255, 255}}},
-    .servo_setup_left = {{.led_number=1, .value={255, 255, 255}}},
-    .servo_setup_centre = {{.led_number=2, .value={255, 255, 255}}},
-    .servo_setup_right = {{.led_number=3, .value={255, 255, 255}}}
+    .no_signal = {{.led_number=15, .value=255}},
+    .initializing = {{.led_number=0, .value=255}},
+    .reverse_setup_steering = {{.led_number=7, .value=255}},
+    .reverse_setup_throttle = {{.led_number=6, .value=255}},
+    .servo_setup_left = {{.led_number=1, .value=255}},
+    .servo_setup_centre = {{.led_number=2, .value=255}},
+    .servo_setup_right = {{.led_number=3, .value=255}}
 };
 
 
 // ****************************************************************************
-const CAR_LIGHT_T local_monochrome_leds = {
+const CAR_LIGHT_ARRAY_T local_leds = {
     .magic = {
         .magic_value = ROM_MAGIC,
-        .type = LOCAL_MONOCHROME_LEDS,
+        .type = LOCAL_LEDS,
         .version = CONFIG_VERSION
     },
 
-    .led_type = MONOCHROME,
     .led_count = 16,
 
-    .car_lights = &(const MONOCHROME_CAR_LIGHT_T [16]) {
+    .car_lights = (const CAR_LIGHT_T [16]) {
         // LED 0
         {.always_on = 255, .features = {.max_change_per_systick = 3}},
 
@@ -83,51 +82,22 @@ const CAR_LIGHT_T local_monochrome_leds = {
         {.always_on = 0},
 
         // LED 15
-        {.always_on = 0},
+        {.always_on = 0}
     }
 };
 
 
 // ****************************************************************************
-const CAR_LIGHT_T slave_monochrome_leds = {
+const CAR_LIGHT_ARRAY_T slave_leds = {
     .magic = {
         .magic_value = ROM_MAGIC,
-        .type = SLAVE_MONOCHROME_LEDS,
+        .type = SLAVE_LEDS,
         .version = CONFIG_VERSION
     },
 
-    .led_type = MONOCHROME,
     .led_count = 16,
 
-    .car_lights = &(const MONOCHROME_CAR_LIGHT_T [16]) {{.always_on = 0}}
+    .car_lights = (const CAR_LIGHT_T [16]) {{.always_on = 0}}
 };
 
 
-// ****************************************************************************
-const CAR_LIGHT_T local_rgb_leds = {
-    .magic = {
-        .magic_value = ROM_MAGIC,
-        .type = LOCAL_RGB_LEDS,
-        .version = CONFIG_VERSION
-    },
-
-    .led_type = RGB,
-    .led_count = 32,
-
-    .car_lights = &(const RGB_CAR_LIGHT_T [32]) {{.always_on = {0, 0, 0}}}
-};
-
-
-// ****************************************************************************
-const CAR_LIGHT_T slave_rgb_leds = {
-    .magic = {
-        .magic_value = ROM_MAGIC,
-        .type = SLAVE_RGB_LEDS,
-        .version = CONFIG_VERSION
-    },
-
-    .led_type = RGB,
-    .led_count = 32,
-
-    .car_lights = &(const RGB_CAR_LIGHT_T [32]) {{.always_on = {0, 0, 0}}}
-};

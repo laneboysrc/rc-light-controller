@@ -43,10 +43,8 @@ typedef enum {
 
     CONFIG_SECTION = 0x01,
     GAMMA_TABLE = 0x02,
-    LOCAL_MONOCHROME_LEDS = 0x10,
-    LOCAL_RGB_LEDS = 0x11,
-    SLAVE_MONOCHROME_LEDS = 0x20,
-    SLAVE_RGB_LEDS = 0x21,
+    LOCAL_LEDS = 0x10,
+    SLAVE_LEDS = 0x20,
     LIGHT_PROGRAMS = 0x30,
     SETUP_LIGHTS = 0x40
 } ROM_SECTION_T;
@@ -218,17 +216,8 @@ typedef struct {
 
 // ****************************************************************************
 // Definitions for the various light configuration structures
-// The design goal was to handle the both RGB and monochrome LEDs with similar
-// functions.
-// Ideally this part would have been done in an object-oriented language...
 
-typedef uint8_t MONOCHROME_LED_T;
-
-typedef struct {    // 3-bytes, not packed
-    uint8_t r;
-    uint8_t g;
-    uint8_t b;
-} RGB_LED_T;
+typedef uint8_t LED_T;
 
 typedef struct {    // 4-bytes packed (2 bits free)
     // Simulation of incandescent lights
@@ -260,54 +249,30 @@ typedef struct {    // 4-bytes packed (2 bits free)
 typedef struct {    // 20-bytes packed (1 byte free)
     LIGHT_FEATURE_T features;
 
-    MONOCHROME_LED_T always_on;
-    MONOCHROME_LED_T light_switch_position[LIGHT_SWITCH_POSITIONS];
-    MONOCHROME_LED_T tail_light;
-    MONOCHROME_LED_T brake_light;
-    MONOCHROME_LED_T reversing_light;
-    MONOCHROME_LED_T indicator_left;
-    MONOCHROME_LED_T indicator_right;
-} MONOCHROME_CAR_LIGHT_T;
+    LED_T always_on;
+    LED_T light_switch_position[LIGHT_SWITCH_POSITIONS];
+    LED_T tail_light;
+    LED_T brake_light;
+    LED_T reversing_light;
+    LED_T indicator_left;
+    LED_T indicator_right;
+} CAR_LIGHT_T;
 
 
-typedef struct {    // 52-bytes packed (3 byte free)
-    LIGHT_FEATURE_T features;
-
-    RGB_LED_T always_on;
-    RGB_LED_T light_switch_position[LIGHT_SWITCH_POSITIONS];
-    RGB_LED_T tail_light;
-    RGB_LED_T brake_light;
-    RGB_LED_T reversing_light;
-    RGB_LED_T indicator_left;
-    RGB_LED_T indicator_right;
-} RGB_CAR_LIGHT_T;
-
-
-// In order to have most of the functions being generic to the LED type
-// we define a super-structure that adds a LED type identifier.
-// This identifier allows low-level code to cast to the proper car light
-// structure (MONOCHROME_CAR_LIGHT_T or RGB_CAR_LIGHT_T).
-
-typedef enum {
-    MONOCHROME,
-    RGB
-} LED_TYPE_T;
 
 typedef struct {
     MAGIC_T magic;
-    LED_TYPE_T led_type;
     uint8_t led_count;  // Number of actually used LEDs
 
-    // Can either be MONOCHROME_CAR_LIGHT_T or RGB_CAR_LIGHT_T. It is actually
-    // a pointer to the first element in an array of those structures.
-    const void *car_lights;
-} CAR_LIGHT_T;
+    // Pointer to the first element in an array of lights.
+    const CAR_LIGHT_T *car_lights;
+} CAR_LIGHT_ARRAY_T;
 
 
 // LEDs that are on during light controller internal setup states
 typedef struct {
     uint8_t led_number;
-    RGB_LED_T value;
+    LED_T value;
 } SETUP_ENTRY_T;
 
 typedef struct {
@@ -331,10 +296,8 @@ typedef struct {
 extern uint32_t entropy;
 
 extern const LIGHT_CONTROLLER_CONFIG_T config;
-extern const CAR_LIGHT_T local_monochrome_leds;
-extern const CAR_LIGHT_T local_rgb_leds;
-extern const CAR_LIGHT_T slave_monochrome_leds;
-extern const CAR_LIGHT_T slave_rgb_leds;
+extern const CAR_LIGHT_ARRAY_T local_leds;
+extern const CAR_LIGHT_ARRAY_T slave_leds;
 extern const SETUP_LIGHTS_T setup_lights;
 extern const GAMMA_TABLE_T gamma_table;
 
