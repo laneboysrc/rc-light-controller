@@ -792,13 +792,46 @@ static void process_light(const CAR_LIGHT_T *lights, int index, void * out)
 
 
 // ****************************************************************************
+static void process_setup_lights(const SETUP_ENTRY_T *light_array)
+{
+    int i;
+    volatile uint32_t dummy;
+    
+    for (i = 0; i < 10; i++) {
+        dummy += light_array[i].value.r;        
+    }
+}
+
+
+// ****************************************************************************
 static void process_car_lights(void)
 {
     int i;
 
-    if (setup_lights.magic.type != SETUP_LIGHTS) {
-        uart0_send_cstring("dummy\n");
+    if (global_flags.initializing) {
+        process_setup_lights(setup_lights.initializing);
     }
+    if (global_flags.no_signal) {
+        process_setup_lights(setup_lights.no_signal);
+    }
+    if (global_flags.servo_output_setup == SERVO_OUTPUT_SETUP_LEFT) {
+        process_setup_lights(setup_lights.servo_setup_left);
+    }
+    if (global_flags.servo_output_setup == SERVO_OUTPUT_SETUP_CENTRE) {
+        process_setup_lights(setup_lights.servo_setup_centre);
+    }
+    if (global_flags.servo_output_setup == SERVO_OUTPUT_SETUP_RIGHT) {
+        process_setup_lights(setup_lights.servo_setup_right);
+    }
+    if (global_flags.reversing_setup != REVERSING_SETUP_OFF) {
+        if (global_flags.reversing_setup == REVERSING_SETUP_STEERING) {
+            process_setup_lights(setup_lights.reverse_setup_steering);
+        }
+        if (global_flags.reversing_setup == REVERSING_SETUP_THROTTLE) {
+            process_setup_lights(setup_lights.reverse_setup_throttle);
+        }
+    }
+
 
     // Handle LEDs connected to the TLC5940 locally
     for (i = 0; i < local_monochrome_leds.led_count ; i++) {

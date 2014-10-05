@@ -169,7 +169,7 @@ void process_ch3_clicks(void)
         channel[CH3].normalized = CH3_PIN ? -100 : 100;
     }
 
-    if (global_flags.startup_mode_neutral) {
+    if (global_flags.initializing) {
         ch3_flags.last_state = (channel[CH3].normalized > 0) ? true : false;
         return;
     }

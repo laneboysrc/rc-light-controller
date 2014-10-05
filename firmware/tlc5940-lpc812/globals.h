@@ -122,7 +122,12 @@ typedef enum {
 typedef struct {
     unsigned int systick : 1;               // Set for one mainloop every 20 ms
     unsigned int new_channel_data : 1;      // Set for one mainloop every time servo pulses were received
-    unsigned int startup_mode_neutral : 1;
+
+    unsigned int no_signal : 1;
+    unsigned int initializing : 1;
+    unsigned int servo_output_setup : 3;
+    unsigned int reversing_setup : 2;
+
     unsigned int blink_flag : 1;            // Toggles with 1.5 Hz
     unsigned int blink_hazard : 1;          // Hazard lights active
     unsigned int blink_indicator_left : 1;  // Left indicator active
@@ -133,10 +138,6 @@ typedef struct {
 
     unsigned int gear_changed : 1;          // Set for one mainloop when a new gear was selected
     unsigned int gear : 1;
-
-    unsigned int servo_output_setup : 3;
-
-    unsigned int reversing_setup : 2;
 
     unsigned int winch_mode : 3;
 } GLOBAL_FLAGS_T;

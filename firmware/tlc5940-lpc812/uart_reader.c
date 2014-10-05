@@ -72,7 +72,7 @@ void init_uart_reader(void)
         return;
     }
 
-    global_flags.startup_mode_neutral = 1;
+    global_flags.initializing = 1;
 }
 
 
@@ -101,7 +101,7 @@ static void publish_channels(uint8_t channel_data[])
     normalize_channel(&channel[ST], channel_data[0]);
     normalize_channel(&channel[TH], channel_data[1]);
 
-    global_flags.startup_mode_neutral =
+    global_flags.initializing =
         (channel_data[2] & 0x10) ? true : false;
 
     if (!config.flags.ch3_is_local_switch) {

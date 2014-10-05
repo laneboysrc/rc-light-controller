@@ -75,7 +75,7 @@ void init_servo_reader(void)
         return;
     }
 
-    global_flags.startup_mode_neutral = 1;
+    global_flags.initializing = 1;
 
     // SCTimer setup
     // At this point we assume that SCTimer has been setup in the following way:
@@ -261,7 +261,7 @@ void read_all_servo_channels(void)
                 }
 
                 servo_reader_state = NORMAL_OPERATION;
-                global_flags.startup_mode_neutral = 0;
+                global_flags.initializing = 0;
             }
             global_flags.new_channel_data = true;
             break;
