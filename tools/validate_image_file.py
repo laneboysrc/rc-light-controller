@@ -16,9 +16,10 @@ import argparse
 
 ROM_MAGIC = 0x6372424c          # LBrc (LANE Boys RC) in little endian
 
-SECTIONS = {0x01: "Configuration", 0x02: "Gamma table", 
+SECTIONS = {0x01: "Configuration", 0x02: "Gamma table",
     0x10: "Local monochrome LEDs", 0x11: "Local RGB LEDs",
-    0x20: "Slave monochrome LEDs", 0x21: "Slave RGB LEDs"}
+    0x20: "Slave monochrome LEDs", 0x21: "Slave RGB LEDs",
+    0x40: "Setup lights"}
 
 
 def parse_commandline():
@@ -39,7 +40,7 @@ and a version number.''')
 
     return parser.parse_args()
 
-    
+
 def find_section(content, offset):
     ''' Find the next section in content starting at offset '''
     for i in range(offset, len(content) - 4):
@@ -58,7 +59,7 @@ def find_section(content, offset):
 def dump_sections(args):
     ''' Find all sections in the image file and dump their name and offset '''
     content = args.image_file[0].read()
-    
+
     available_sections = dict()
     for section_name in SECTIONS.values():
         available_sections[section_name] = 0
@@ -85,8 +86,8 @@ def dump_sections(args):
         elif available_sections[section_name] > 1:
             error_found = True
             print('ERROR: Multiple "{}" sections found'.format(section_name))
-            
-    if error_found:        
+
+    if error_found:
         sys.exit(1)
 
 

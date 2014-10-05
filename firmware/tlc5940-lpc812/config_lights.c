@@ -3,6 +3,23 @@
 #include <globals.h>
 
 
+const SETUP_LIGHTS_T setup_lights = {
+    .magic = {
+        .magic_value = ROM_MAGIC,
+        .type = SETUP_LIGHTS,
+        .version = CONFIG_VERSION
+    },
+
+    .no_signal = {{.led_number=15, .value={255, 255, 255}}},
+    .initializing = {{.led_number=0, .value={255, 255, 255}}},
+    .reverse_setup_steering = {{.led_number=7, .value={255, 255, 255}}},
+    .reverse_setup_throttle = {{.led_number=6, .value={255, 255, 255}}},
+    .servo_setup_left = {{.led_number=1, .value={255, 255, 255}}},
+    .servo_setup_centre = {{.led_number=2, .value={255, 255, 255}}},
+    .servo_setup_right = {{.led_number=3, .value={255, 255, 255}}}
+};
+
+
 // ****************************************************************************
 const CAR_LIGHT_T local_monochrome_leds = {
     .magic = {

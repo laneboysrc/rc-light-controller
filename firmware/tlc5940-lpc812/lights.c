@@ -23,31 +23,23 @@
     * We need to handle WS2812 as well as PL9823 (swapped rgb order!)
     * Consider HSL fading?!
 
+    * Setup
+        * No signal (1 entry)
+            * At run-time it depends on the receiver, but we can still detect
+              broken wires (timeout 500ms)
+        * Initializing (startup mode neutral; 1 entry)
+        * Setup of steering, throttle reverse (2 entries)
+        * Setup of the output servo centre, left, right (3 entries)
+        * That would be 1568 bytes total, quite a bit!
+            * We rather allow up to 10 LEDs being specified, others are off
+            * This will take only 280 bytes (everything RGB)
 
-    * High priority situations (in order or priority)
-        * Initialization
-        * Setup of steering, throttle reverse
-        * Setup of the output servo centre, left, right
-        * Winch active
     * Events
         * Can trigger a sequence
         * Gear change
         *   Different sequence depending on gear value
         *   Different sequence depending on state of roof lights?
         * Any other?
-
-
-    * Programmabe sequences
-        * Store difference with previous state
-        * Steps can have a delay
-        * Run once or always
-        * Events can trigger a sequence, while another sequence is running
-          and needs to continue after the event sequence finished.
-        * How to map sequences and non-sequences?
-        * Automatic fading between two steps?
-        * Resolution 20ms
-        * Bogdan's idea regarding flame simulation, depending on throttle
-
 
 
     Flags for normal car lights:
@@ -82,19 +74,33 @@
 
 
     Light programs:
+        * Bogdan's idea regarding flame simulation, depending on throttle
         * Programs reside at the end of flash space
         * Do we need to limit the number of programs?
+            * Most likely yes, otherwise we need to scan the whole flash
+              every systick to find all programs
         * Mini programming language
-            * GOTO to implement loops 
-            * SET_MONOCHROME led value (translates to command below)  
-            * SET_MONOCHROME start_led stop_led value  
-            * SET_RGB(0..95) red green blue (takes up a lot of opcodes!)
-            * FADE led time (translates to command below)  
-            * FADE start_led stop_led time  
+            * GOTO to implement loops
+            * SET led value (monochrome, translates to command below)
+            * SET start_led stop_led value
+            * SET(0..95) red green blue (takes up a lot of opcodes!)
+            * FADE led time (translates to command below)
+            * FADE start_led stop_led time
             * WAIT time
-            * IF condition (skips next instruction)
-            
+            * IF condition (skips next instruction if false)
+                * VARIABLE == integer, VAR2
+                * VARIABLE > integer, VAR2
+                * VARIABLE < integer, VAR2
+                * VARIABLE != integer, VAR2
+                * car state: implement as AND and OR mask?
+                * ANY car state
+                * ALL car state
+                * NONE car state
+            * IF NOT condition (skips next instruction if true)
+            * VARIABLE = integer
+            * VARIABLE += integer (signed, so -= can work with same opcode!)
             * Reading values of lights?
+
             * Different sequence depending on gear value?
             * Different sequence depending on state of roof lights?
             * Random value
@@ -105,54 +111,75 @@
             * End-of-program marker to find different programs in the flash
         * The lights used in a program are automatically removed from normal
           car light processing
-        * Programs run in a certain states
-            * Any state
-            * Initializing
-            * Setup of steering, throttle reverse
-            * Setup of the output servo centre, left, right
-            * Winch active
-            * Gear 1, Gear 2
-            * Any of the car states (light switch position, braking, ...)
-            * Multiple programs can be running in parallel
-                * What happens if multiple programs use the same light?
-        * Programs run when certain events occur   
+        * Issue: how to return to the normal program if a light program has
+          an IF .. GOTO loop that waits for a certain condition?
+            * Return if false?
+            * Detect if a GOTO lands on a IF?
+            * Return after a number of instructions?
+        * Programs are active because of an event, or because of a match state
+        * Program triggering events
             * Gearbox change event
             * There can only be one event active
             * New events stop currently running events
-            * Events interrupt other programs
-            * When the event program has finished the lights are restored
-            * If an event uses lights that occure in other running programs,
-              those programs are paused / resumed
+            * Event programs have priority over other programs regarding light use
+        * Programs states
+            * Always
+            * Winch active
+            * Any of the car states
+                * light switch position[9]
+                * tail light (shortcut to light switch position > 0)
+                * neutral (not available yet)
+                * forward
+                * reversing
+                * braking
+                * indicator left (static flag)
+                * indicator left (static flag)
+                * hazard (static flag)
+                * blink flag
+                * blink indicator left
+                * blink indicator right
+                * gear 1
+                * gear 2
+            * Multiple programs can be running in parallel
+                * If multiple programs run then the first program using a
+                  particular light wins, the other can not use that light
+        Program metadata
+            * FLASH: State or event the program runs
+            * FLASH: LEDs used (16 + 32 + 16 + 32 = 96 bits = 12 bytes)
+            * FLASH: RAM used
+            * RAM: Shadow values for all used LEDs
+            * RAM: fade time, start time, led, start value, end value
+            * RAM: program counter
+                * Gets reset every time a program is not running
+            * RAM: variables
+
 
     Test programs:
         Night rider with LEDs 0..3:
-            0:  SET     LED0    0           ; LED range comand useful?
-            1:  SET     LED1    0
-            2:  SET     LED2    0
-            3:  SET     LED3    0
-            4:  FADE    LED0    120
-            5:  FADE    LED1    120
-            6:  FADE    LED2    120
-            7:  FADE    LED3    120
-            8:  SET     LED0    255
+            0:  SET LED0 LED3 0
+            1:  FADE    LED0    120
+            2:  FADE    LED1    120
+            3:  FADE    LED2    120
+            4:  FADE    LED3    120
+            5:  SET     LED0    255
+            6:  WAIT    120
+            7:  SET     LED0    0
+            8:  SET     LED1    255
             9:  WAIT    120
-            10: SET     LED0    0
-            11: SET     LED1    255
+            10: SET     LED1    0
+            11: SET     LED2    255
             12: WAIT    120
-            13: SET     LED1    0
-            14: SET     LED2    255
+            13: SET     LED2    0
+            14: SET     LED3    255
             15: WAIT    120
-            16: SET     LED2    0
-            17: SET     LED3    255
+            16: SET     LED3    0
+            17: SET     LED2    255
             18: WAIT    120
-            19: SET     LED3    0
-            20: SET     LED2    255
+            19: SET     LED2    0
+            20: SET     LED1    255
             21: WAIT    120
-            22: SET     LED2    0
-            23: SET     LED1    255
-            24: WAIT    120
-            25: SET     LED1    0
-            26: GOTO    8                
+            22: SET     LED1    0
+            23: GOTO    5
 
 
 ******************************************************************************/
@@ -768,6 +795,10 @@ static void process_light(const CAR_LIGHT_T *lights, int index, void * out)
 static void process_car_lights(void)
 {
     int i;
+
+    if (setup_lights.magic.type != SETUP_LIGHTS) {
+        uart0_send_cstring("dummy\n");
+    }
 
     // Handle LEDs connected to the TLC5940 locally
     for (i = 0; i < local_monochrome_leds.led_count ; i++) {

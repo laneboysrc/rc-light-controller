@@ -47,7 +47,8 @@ typedef enum {
     LOCAL_RGB_LEDS = 0x11,
     SLAVE_MONOCHROME_LEDS = 0x20,
     SLAVE_RGB_LEDS = 0x21,
-    LIGHT_PROGRAMS = 0x30
+    LIGHT_PROGRAMS = 0x30,
+    SETUP_LIGHTS = 0x40
 } ROM_SECTION_T;
 
 
@@ -228,7 +229,6 @@ typedef struct {    // 3-bytes, not packed
     uint8_t b;
 } RGB_LED_T;
 
-
 typedef struct {    // 4-bytes packed (2 bits free)
     // Simulation of incandescent lights
     uint8_t max_change_per_systick;
@@ -292,15 +292,34 @@ typedef enum {
     RGB
 } LED_TYPE_T;
 
-typedef struct {    // 16-bytes packed (3 byte free)
+typedef struct {
     MAGIC_T magic;
     LED_TYPE_T led_type;
-    uint8_t led_count;
+    uint8_t led_count;  // Number of actually used LEDs
 
     // Can either be MONOCHROME_CAR_LIGHT_T or RGB_CAR_LIGHT_T. It is actually
     // a pointer to the first element in an array of those structures.
     const void *car_lights;
 } CAR_LIGHT_T;
+
+
+// LEDs that are on during light controller internal setup states
+typedef struct {
+    uint8_t led_number;
+    RGB_LED_T value;
+} SETUP_ENTRY_T;
+
+typedef struct {
+    MAGIC_T magic;
+
+    SETUP_ENTRY_T no_signal[10];
+    SETUP_ENTRY_T initializing[10];
+    SETUP_ENTRY_T reverse_setup_steering[10];
+    SETUP_ENTRY_T reverse_setup_throttle[10];
+    SETUP_ENTRY_T servo_setup_left[10];
+    SETUP_ENTRY_T servo_setup_centre[10];
+    SETUP_ENTRY_T servo_setup_right[10];
+} SETUP_LIGHTS_T;
 
 
 
@@ -315,6 +334,7 @@ extern const CAR_LIGHT_T local_monochrome_leds;
 extern const CAR_LIGHT_T local_rgb_leds;
 extern const CAR_LIGHT_T slave_monochrome_leds;
 extern const CAR_LIGHT_T slave_rgb_leds;
+extern const SETUP_LIGHTS_T setup_lights;
 extern const GAMMA_TABLE_T gamma_table;
 
 extern GLOBAL_FLAGS_T global_flags;
