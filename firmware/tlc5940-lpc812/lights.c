@@ -325,9 +325,11 @@ void toggle_light_switch(void)
 
 
 // ****************************************************************************
-static const LED_T *get_light_value(const CAR_LIGHT_T *light, 
+static const LED_T *get_light_value(const CAR_LIGHT_T *light,
     CAR_LIGHT_FUNCTION_T function)
 {
+    static LED_T zero = 0;
+
     switch (function) {
         case ALWAYS_ON:
             return &light->always_on;
@@ -360,13 +362,13 @@ static const LED_T *get_light_value(const CAR_LIGHT_T *light,
             return &light->indicator_right;
 
         default:
-            return (LED_T []){0};
+            return &zero;
     }
 }
 
 
 // ****************************************************************************
-static bool is_value_zero(const CAR_LIGHT_T *light, 
+static bool is_value_zero(const CAR_LIGHT_T *light,
     CAR_LIGHT_FUNCTION_T function)
 {
     const LED_T * value = get_light_value(light, function);
@@ -406,19 +408,16 @@ static LED_T calculate_step_value(LED_T current, LED_T new, uint8_t max_change)
 
 
 // ****************************************************************************
-static void limit_stepsize(const CAR_LIGHT_T *light, LED_T *led, 
-    const LED_T *value)
+static void limit_stepsize(LED_T *led, const LED_T *current_value,
+     const CAR_LIGHT_T *light)
 {
-    LED_T adjusted_value = *value;
-    
     // If max_change_per_systick is not set allow full swing
     if (light->features.max_change_per_systick > 0) {
-        adjusted_value = calculate_step_value(
-            *led, *value, light->features.max_change_per_systick);
+        LED_T adjusted_value = calculate_step_value(
+            *current_value, *led, light->features.max_change_per_systick);
 
+        set_light(led, &adjusted_value);
     }
-
-    set_light(led, &adjusted_value);
 }
 
 
@@ -587,40 +586,44 @@ static void simulate_weak_ground(LED_T *led, const CAR_LIGHT_T *light)
 // ****************************************************************************
 static void process_light(const CAR_LIGHT_T *light, LED_T *led)
 {
-    LED_T *result = (LED_T []){0};
+    LED_T result = 0;
 
-    set_car_light(result, light, ALWAYS_ON);
+    set_car_light(&result, light, ALWAYS_ON);
 
-    mix_car_light(result, light, LIGHT_SWITCH_POSITION + light_switch_position);
+
+    mix_car_light(&result, light, LIGHT_SWITCH_POSITION + light_switch_position);
+
+
 
     if (global_flags.reversing) {
-        mix_car_light(result, light, REVERSING_LIGHT);
+        mix_car_light(&result, light, REVERSING_LIGHT);
     }
+
     if (!is_value_zero(light, TAIL_LIGHT) &&
         !is_value_zero(light, BRAKE_LIGHT) &&
         (   !is_value_zero(light, INDICATOR_LEFT) ||
             !is_value_zero(light, INDICATOR_RIGHT))) {
         // Special case for combined tail / brake / indicators
-        combined_tail_brake_indicators(result, light);
+        combined_tail_brake_indicators(&result, light);
     }
     else {
-        combined_tail_brake(result, light);
+        combined_tail_brake(&result, light);
 
         if (global_flags.blink_flag) {
             if (global_flags.blink_hazard ||
                 global_flags.blink_indicator_left) {
-                mix_car_light(result, light, INDICATOR_LEFT);
+                mix_car_light(&result, light, INDICATOR_LEFT);
             }
             if (global_flags.blink_hazard ||
                 global_flags.blink_indicator_right) {
-                mix_car_light(result, light, INDICATOR_RIGHT);
+                mix_car_light(&result, light, INDICATOR_RIGHT);
             }
         }
     }
 
-    simulate_weak_ground(result, light);
-    limit_stepsize(light, result, led);
-    *led = *result;
+    simulate_weak_ground(&result, light);
+    limit_stepsize(&result, led, light);
+    *led = result;
 }
 
 
@@ -629,9 +632,9 @@ static void process_setup_lights(const SETUP_ENTRY_T *light_array)
 {
     int i;
     volatile uint32_t dummy;
-    
+
     for (i = 0; i < 10; i++) {
-        dummy += light_array[i].value;        
+        dummy += light_array[i].value;
     }
 }
 
