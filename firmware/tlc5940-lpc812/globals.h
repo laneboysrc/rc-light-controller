@@ -67,6 +67,12 @@ typedef struct {
 
 // ****************************************************************************
 typedef struct {
+    MAGIC_T magic;
+    uint32_t programs[2];
+} LIGHT_PROGRAMS_T;
+
+// ****************************************************************************
+typedef struct {
     uint16_t left;
     uint16_t centre;
     uint16_t right;

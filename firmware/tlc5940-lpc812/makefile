@@ -67,7 +67,8 @@ LDLIBS = -lgcc
 OBJECTS := main.o crt0.o utils.o config.o uart0.o persistent_storage.o
 OBJECTS += servo_reader.o uart_reader.o ch3_handler.o
 OBJECTS += drive_mode.o indicators.o winch.o channel_reversing.o
-OBJECTS += servo_output.o preprocessor_output.o lights.o config_lights.o
+OBJECTS += servo_output.o preprocessor_output.o 
+OBJECTS += lights.o light_programs.o config_lights.o
 
 
 ###############################################################################

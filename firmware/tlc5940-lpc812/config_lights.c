@@ -101,3 +101,18 @@ const CAR_LIGHT_ARRAY_T slave_leds = {
 };
 
 
+// ****************************************************************************
+__attribute__ ((section(".light_programs")))
+const LIGHT_PROGRAMS_T light_programs = {
+    .magic = {
+        .magic_value = ROM_MAGIC,
+        .type = LIGHT_PROGRAMS,
+        .version = CONFIG_VERSION
+    },
+    
+    .programs = {
+        0x00000000,
+        0x00000001
+    }
+};
+
