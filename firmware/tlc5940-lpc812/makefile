@@ -17,7 +17,7 @@ endif
 ###############################################################################
 # Configuration options for our application
 SYSTEM_CLOCK := 12000000
-LINKER_SCRIPT := lpc812.ld
+LINKER_SCRIPT := light_controller.ld
 
 
 ###############################################################################
