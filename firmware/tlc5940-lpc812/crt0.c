@@ -22,6 +22,13 @@ static inline void crt0(void)
     unsigned int *destination;
     unsigned int *end;
 
+    // Place stack canaries into RAM
+    destination = (unsigned int *)(0x10000000);
+    end = (unsigned int *)(0x10001000);
+    while (destination < end) {
+        *(destination++) = 0xcafebabe;
+    }
+
     // Copy initialization values from Flash to RAM
     source = (unsigned int *)(&_etext);
     destination = (unsigned int *)(&_data);
