@@ -16,7 +16,7 @@ import argparse
 
 ROM_MAGIC = 0x6372424c          # LBrc (LANE Boys RC) in little endian
 
-SECTIONS = {0x01: "Configuration", 0x02: "Gamma table",
+SECTIONS = {0x01: "Configuration", 0x02: "Gamma table", 0x30: "Light programs",
     0x10: "Local LEDs", 0x20: "Slave LEDs", 0x40: "Setup lights"}
 
 

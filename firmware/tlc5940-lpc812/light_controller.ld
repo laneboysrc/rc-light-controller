@@ -15,7 +15,6 @@ SECTIONS
         *(.rodata*)
         . = ALIGN(4);
         _etext = .;
-        *(.light_programs)  /* Consumes rest of flash space */
     } > FLASH
 
     .data : AT (_etext)
@@ -25,7 +24,6 @@ SECTIONS
         *(.data*)
         . = ALIGN(4);
         _edata = .;
-
     } > RAM
 
     .bss :
@@ -36,6 +34,14 @@ SECTIONS
         . = ALIGN(4);
         _ebss = .;
     } > RAM
-
+ 
+    /* Light programs must be located at the end of the flash memory,
+     * which is after the RAM initialization data
+     */
+    .light_programs : AT (_etext + (_edata - _data))
+    {
+        *(.light_programs)
+    } > FLASH
+   
     _stacktop = ORIGIN(RAM) + LENGTH(RAM);
 }

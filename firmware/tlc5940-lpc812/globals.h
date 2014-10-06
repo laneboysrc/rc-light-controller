@@ -68,7 +68,7 @@ typedef struct {
 // ****************************************************************************
 typedef struct {
     MAGIC_T magic;
-    uint32_t programs[2];
+    uint32_t programs[3];
 } LIGHT_PROGRAMS_T;
 
 // ****************************************************************************
@@ -303,6 +303,7 @@ extern const CAR_LIGHT_ARRAY_T local_leds;
 extern const CAR_LIGHT_ARRAY_T slave_leds;
 extern const SETUP_LIGHTS_T setup_lights;
 extern const GAMMA_TABLE_T gamma_table;
+extern const LIGHT_PROGRAMS_T light_programs;
 
 extern GLOBAL_FLAGS_T global_flags;
 extern CHANNEL_T channel[3];

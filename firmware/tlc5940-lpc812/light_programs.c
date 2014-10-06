@@ -109,12 +109,23 @@
 
 
 ******************************************************************************/
+#include <stdint.h>
+#include <stdbool.h>
+
+#include <globals.h>
+#include <uart0.h>
 
 void process_light_programs(void);
 
 
 void process_light_programs(void)
 {
-        
+    const uint32_t *program_pointer = light_programs.programs;
+    while (*program_pointer != 0xffffffff) {
+        uart0_send_cstring("OPCODE: ");
+        uart0_send_uint32_hex(*program_pointer);
+        uart0_send_linefeed();
+        ++program_pointer;
+    }        
 }
 
