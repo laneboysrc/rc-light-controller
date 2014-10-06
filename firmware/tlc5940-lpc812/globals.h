@@ -270,21 +270,18 @@ typedef struct {
 
 
 // LEDs that are on during light controller internal setup states
-typedef struct {
-    uint8_t led_number;
-    LED_T value;
-} SETUP_ENTRY_T;
 
 typedef struct {
     MAGIC_T magic;
 
-    SETUP_ENTRY_T no_signal[10];
-    SETUP_ENTRY_T initializing[10];
-    SETUP_ENTRY_T reverse_setup_steering[10];
-    SETUP_ENTRY_T reverse_setup_throttle[10];
-    SETUP_ENTRY_T servo_setup_left[10];
-    SETUP_ENTRY_T servo_setup_centre[10];
-    SETUP_ENTRY_T servo_setup_right[10];
+    // Each entry has 16 LEDs for the master and 16 for the slave
+    LED_T no_signal[16 + 16];
+    LED_T initializing[16 + 16];
+    LED_T reverse_setup_steering[16 + 16];
+    LED_T reverse_setup_throttle[16 + 16];
+    LED_T servo_setup_left[16 + 16];
+    LED_T servo_setup_centre[16 + 16];
+    LED_T servo_setup_right[16 + 16];
 } SETUP_LIGHTS_T;
 
 

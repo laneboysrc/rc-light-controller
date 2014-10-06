@@ -10,13 +10,13 @@ const SETUP_LIGHTS_T setup_lights = {
         .version = CONFIG_VERSION
     },
 
-    .no_signal = {{.led_number=15, .value=255}},
-    .initializing = {{.led_number=0, .value=255}},
-    .reverse_setup_steering = {{.led_number=7, .value=255}},
-    .reverse_setup_throttle = {{.led_number=6, .value=255}},
-    .servo_setup_left = {{.led_number=1, .value=255}},
-    .servo_setup_centre = {{.led_number=2, .value=255}},
-    .servo_setup_right = {{.led_number=3, .value=255}}
+    .no_signal = {255},
+    .initializing = {0, 255},
+    .reverse_setup_steering = {0, 0, 255},
+    .reverse_setup_throttle = {0, 0, 0, 255},
+    .servo_setup_left = {0, 0, 0, 0, 255},
+    .servo_setup_centre = {0, 0, 0, 0, 0, 255},
+    .servo_setup_right = {0, 0, 0, 0, 0, 0, 255}
 };
 
 

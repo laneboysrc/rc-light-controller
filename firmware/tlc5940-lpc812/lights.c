@@ -199,6 +199,7 @@
 #define GPIO_SCK LPC_GPIO_PORT->W0[3]
 #define GPIO_SIN LPC_GPIO_PORT->W0[7]
 
+#define NO_LIGHT_ARRAY 0
 
 typedef enum {
     ALWAYS_ON,
@@ -628,13 +629,43 @@ static void process_light(const CAR_LIGHT_T *light, LED_T *led)
 
 
 // ****************************************************************************
-static void process_setup_lights(const SETUP_ENTRY_T *light_array)
+static void process_setup_lights_reversing(const LED_T *light_array1, 
+    const LED_T *light_array2)
 {
     int i;
-    volatile uint32_t dummy;
+    
+    for (i = 0; i < 16; i++) {
+        tlc5940_light_data[i] = MAX(light_array1[i], light_array2[i]);
+    }
+    send_light_data_to_tlc5940();
 
-    for (i = 0; i < 10; i++) {
-        dummy += light_array[i].value;
+    if (config.flags.slave_output) {
+        LED_T led;
+
+        uart0_send_char(SLAVE_MAGIC_BYTE);
+        for (i = 0; i < 16 ; i++) {
+            led = MAX(light_array1[i + 16], light_array2[i + 16]);
+            uart0_send_char(gamma_table.gamma_table[led] >> 2);
+        }
+    }
+}
+
+
+// ****************************************************************************
+static void process_setup_lights(const LED_T *light_array) 
+{
+    int i;
+    
+    for (i = 0; i < 16; i++) {
+        tlc5940_light_data[i] = light_array[i];
+    }
+    send_light_data_to_tlc5940();
+
+    if (config.flags.slave_output) {
+        uart0_send_char(SLAVE_MAGIC_BYTE);
+        for (i = 0; i < 16 ; i++) {
+            uart0_send_char(gamma_table.gamma_table[light_array[i + 16]] >> 2);
+        }
     }
 }
 
@@ -646,26 +677,28 @@ static void process_car_lights(void)
 
     if (global_flags.initializing) {
         process_setup_lights(setup_lights.initializing);
+        return;
     }
     if (global_flags.no_signal) {
         process_setup_lights(setup_lights.no_signal);
+        return;
     }
     if (global_flags.servo_output_setup == SERVO_OUTPUT_SETUP_LEFT) {
         process_setup_lights(setup_lights.servo_setup_left);
+        return;
     }
     if (global_flags.servo_output_setup == SERVO_OUTPUT_SETUP_CENTRE) {
         process_setup_lights(setup_lights.servo_setup_centre);
+        return;
     }
     if (global_flags.servo_output_setup == SERVO_OUTPUT_SETUP_RIGHT) {
         process_setup_lights(setup_lights.servo_setup_right);
+        return;
     }
     if (global_flags.reversing_setup != REVERSING_SETUP_OFF) {
-        if (global_flags.reversing_setup == REVERSING_SETUP_STEERING) {
-            process_setup_lights(setup_lights.reverse_setup_steering);
-        }
-        if (global_flags.reversing_setup == REVERSING_SETUP_THROTTLE) {
-            process_setup_lights(setup_lights.reverse_setup_throttle);
-        }
+        process_setup_lights_reversing(setup_lights.reverse_setup_throttle, 
+            setup_lights.reverse_setup_steering);
+        return;
     }
 
 
