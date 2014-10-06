@@ -121,11 +121,15 @@ void process_light_programs(void);
 void process_light_programs(void)
 {
     const uint32_t *program_pointer = light_programs.programs;
+
+
+    uart0_send_cstring("Parsing light_programs:\n");
+
     while (*program_pointer != 0xffffffff) {
         uart0_send_cstring("OPCODE: ");
         uart0_send_uint32_hex(*program_pointer);
         uart0_send_linefeed();
         ++program_pointer;
-    }        
+    }
 }
 

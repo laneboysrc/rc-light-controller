@@ -17,6 +17,7 @@ SECTIONS
         _etext = .;
     } > FLASH
 
+
     .data : AT (_etext)
     {
         _data = .;
@@ -26,6 +27,16 @@ SECTIONS
         _edata = .;
     } > RAM
 
+
+    /* Light programs must be located at the end of the flash memory,
+     * which is after the RAM initialization data
+     */
+    .light_programs (_etext + SIZEOF(.data)) :
+    {
+        *(.light_programs)
+    } > FLASH
+
+
     .bss :
     {
         _bss = .;
@@ -34,14 +45,6 @@ SECTIONS
         . = ALIGN(4);
         _ebss = .;
     } > RAM
- 
-    /* Light programs must be located at the end of the flash memory,
-     * which is after the RAM initialization data
-     */
-    .light_programs : AT (_etext + (_edata - _data))
-    {
-        *(.light_programs)
-    } > FLASH
-   
+
     _stacktop = ORIGIN(RAM) + LENGTH(RAM);
 }
