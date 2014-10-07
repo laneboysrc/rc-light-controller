@@ -2,7 +2,7 @@
 
 ###############################################################################
 # Configuration options for our application
-TARGET := master
+TARGET := firmware
 SOURCE_DIRS := .
 BUILD_DIR = build
 
