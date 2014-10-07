@@ -8,7 +8,9 @@ BUILD_DIR = build
 
 SYSTEM_CLOCK := 12000000
 
-SOURCE_DEPENDENCIES := makefile globals.h uart0.h utils.h
+SOURCES := $(foreach sdir, $(SOURCE_DIRS), $(wildcard $(sdir)/*.c))
+DEPENDENCIES := makefile globals.h uart0.h utils.h
+LIBS = gcc
 LINKER_SCRIPT := light_controller.ld
 
 
@@ -43,6 +45,19 @@ CONFIGURATION_VALIDATION_TOOL := $(TOOL_PATH)validate_image_file.py
 
 
 ###############################################################################
+# Target and object file setup
+OBJECTS := $(patsubst %.c, $(BUILD_DIR)/%.o, $(SOURCES))
+
+TARGET_ELF := $(addprefix $(BUILD_DIR)/, $(TARGET).elf)
+TARGET_BIN := $(addprefix $(BUILD_DIR)/, $(TARGET).bin)
+TARGET_HEX := $(addprefix $(BUILD_DIR)/, $(TARGET).hex)
+TARGET_MAP := $(addprefix $(BUILD_DIR)/, $(TARGET).map)
+
+$(OBJECTS): $(DEPENDENCIES)
+$(TARGET_MAP): $(TARGET_ELF)
+
+
+###############################################################################
 # Compiler and linker flags
 CFLAGS = -mthumb -mcpu=cortex-m0plus -mlittle-endian
 CFLAGS += -std=c99
@@ -64,19 +79,7 @@ LDFLAGS += --gc-sections -O3
 LDFLAGS += -Map=$(TARGET_MAP) --cref
 LDFLAGS += -L$(TOOLCHAIN_PATH)../lib/gcc/arm-none-eabi/4.8.4/armv6-m
 
-LDLIBS = -lgcc
-
-
-###############################################################################
-# Internal processing for rules
-SOURCES := $(foreach sdir, $(SOURCE_DIRS), $(wildcard $(sdir)/*.c))
-OBJECTS := $(patsubst %.c, $(BUILD_DIR)/%.o, $(SOURCES))
-TARGET_ELF := $(addprefix $(BUILD_DIR)/, $(TARGET).axf)
-TARGET_BIN := $(addprefix $(BUILD_DIR)/, $(TARGET).bin)
-TARGET_MAP := $(addprefix $(BUILD_DIR)/, $(TARGET).map)
-
-$(OBJECTS): $(SOURCE_DEPENDENCIES)
-$(TARGET_MAP): $(TARGET_ELF)
+LDLIBS = $(addprefix -l,$(LIBS))
 
 
 ###############################################################################
@@ -100,7 +103,7 @@ $(foreach bdir, $(BUILD_DIR), $(eval $(call compile-objects,$(bdir))))
 
 ###############################################################################
 # Rules
-all : $(TARGET_BIN)
+all : $(TARGET_BIN) $(TARGET_HEX)
 
 $(TARGET_ELF): $(OBJECTS) $(LINKER_SCRIPT)
 	$(ECHO) [LD] $@
@@ -110,6 +113,10 @@ $(TARGET_BIN): $(TARGET_ELF)
 	$(ECHO) [CP] $@
 	$(QUIET) $(OBJCOPY) $< -O binary $@
 	$(QUIET) $(CONFIGURATION_VALIDATION_TOOL) $@
+
+$(TARGET_HEX): $(TARGET_ELF)
+	$(ECHO) [CP] $@
+	$(QUIET) $(OBJCOPY) $< -O ihex $@
 
 # Create list files that include C code as well as Assembler
 list: $(OBJECTS:.o=.lst)
@@ -132,7 +139,7 @@ preprocessor-simulator:
 
 # Clean all generated files
 clean:
-	$(ECHO) [RM] $(NAME)
+	$(ECHO) [RM] $(BUILD_DIR)
 	$(QUIET) $(RM) -rf $(BUILD_DIR)
 
 
