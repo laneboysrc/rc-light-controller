@@ -1,3 +1,5 @@
+.DEFAULT_GOAL := all
+
 ###############################################################################
 # Configuration options for our application
 TARGET := master
@@ -73,43 +75,41 @@ TARGET_ELF := $(addprefix $(BUILD_DIR)/, $(TARGET).axf)
 TARGET_BIN := $(addprefix $(BUILD_DIR)/, $(TARGET).bin)
 TARGET_MAP := $(addprefix $(BUILD_DIR)/, $(TARGET).map)
 
+$(OBJECTS): $(SOURCE_DEPENDENCIES)
+$(TARGET_MAP): $(TARGET_ELF)
+
 
 ###############################################################################
-# Rules
+# Plumbing for rules
 vpath %.c $(SOURCE_DIRS)
+
+$(shell $(MKDIR_P) $(BUILD_DIR))   # Always create the build directory
 
 define compile-objects
 $1/%.o: %.c
 	$(ECHO) [CC] $$<
 	$(QUIET) $(CC) $(CFLAGS) -c $$< -o $$@
+
+$1/%.lst: %.c
+	$(ECHO) [LIST] $$<
+	$(QUIET) $(CC) -c -g -Wa,-adlhn $(CFLAGS) $$< -o /dev/null > $$@
 endef
 
 $(foreach bdir, $(BUILD_DIR), $(eval $(call compile-objects,$(bdir))))
 
+
+###############################################################################
+# Rules
 all : $(TARGET_BIN)
 
-$(OBJECTS): checkdirs
-
-checkdirs: $(BUILD_DIR)
-
-$(BUILD_DIR):
-	$(QUIET) $(MKDIR_P) $@
-
-$(TARGET_ELF): $(OBJECTS) $(LINKER_SCRIPT) $(SOURCE_DEPENDENCIES)
+$(TARGET_ELF): $(OBJECTS) $(LINKER_SCRIPT)
 	$(ECHO) [LD] $@
 	$(QUIET) $(LD) $(LDFLAGS) -o $@ $(OBJECTS) $(LDLIBS)
-
-$(TARGET_MAP): $(TARGET_ELF)
 
 $(TARGET_BIN): $(TARGET_ELF)
 	$(ECHO) [CP] $@
 	$(QUIET) $(OBJCOPY) $< -O binary $@
 	$(QUIET) $(CONFIGURATION_VALIDATION_TOOL) $@
-
-# Generate list files with mixed Assembler and C code
-%.lst: %.c
-	$(ECHO) [LIST] $@
-	$(QUIET) $(CC) -c -g -Wa,-adlhn $(CFLAGS) $< -o /dev/null > $(BUILD_DIR)/$@
 
 # Create list files that include C code as well as Assembler
 list: $(OBJECTS:.o=.lst)
@@ -137,5 +137,3 @@ clean:
 
 
 .PHONY : all clean program terminal preprocessor-simulator list summary
-.PHONY : checkdirs
-
