@@ -185,6 +185,32 @@ static void service_systick(void)
 
 
 // ****************************************************************************
+static void stack_check(void)
+{
+    #define CANARY 0xcafebabe
+
+    static uint32_t *last_found = (uint32_t *)(0x10001000 - 16);
+    uint32_t *now;
+
+    if (last_found == (uint32_t *)0x10000000) {
+        return;
+    }
+
+    now = last_found;
+    while (*now != CANARY && now > (uint32_t *)0x10000000) {
+        --now;
+    }
+
+    if (now != last_found) {
+        last_found = now;
+        uart0_send_cstring("Stack down to 0x");
+        uart0_send_uint32_hex((uint32_t)now);
+        uart0_send_linefeed();
+    }
+}
+
+
+// ****************************************************************************
 int main(void)
 {
     init_hardware();
@@ -244,5 +270,7 @@ int main(void)
                uart0_send_linefeed();
             }
         }
+
+        stack_check();
     }
 }

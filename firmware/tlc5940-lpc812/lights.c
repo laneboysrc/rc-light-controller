@@ -113,9 +113,11 @@ typedef enum {
 
 
 static uint8_t light_switch_position;
-static LED_T tlc5940_light_data[16];
+LED_T tlc5940_light_data[16];
 
-extern void process_light_programs(void);
+extern uint32_t process_light_programs(void);
+extern void init_light_programs(void);
+
 
 // ****************************************************************************
 static void send_light_data_to_tlc5940(void)
@@ -177,6 +179,8 @@ void init_lights(void)
 
     GPIO_BLANK = 0;
     GPIO_GSCLK = 1;
+
+    init_light_programs();
 }
 
 
@@ -521,11 +525,11 @@ static void process_light(const CAR_LIGHT_T *light, LED_T *led)
 
 
 // ****************************************************************************
-static void process_setup_lights_reversing(const LED_T *light_array1, 
+static void process_setup_lights_reversing(const LED_T *light_array1,
     const LED_T *light_array2)
 {
     int i;
-    
+
     for (i = 0; i < 16; i++) {
         tlc5940_light_data[i] = MAX(light_array1[i], light_array2[i]);
     }
@@ -544,10 +548,10 @@ static void process_setup_lights_reversing(const LED_T *light_array1,
 
 
 // ****************************************************************************
-static void process_setup_lights(const LED_T *light_array) 
+static void process_setup_lights(const LED_T *light_array)
 {
     int i;
-    
+
     for (i = 0; i < 16; i++) {
         tlc5940_light_data[i] = light_array[i];
     }
@@ -566,6 +570,7 @@ static void process_setup_lights(const LED_T *light_array)
 static void process_car_lights(void)
 {
     int i;
+    uint32_t leds_used;
 
     if (global_flags.initializing) {
         process_setup_lights(setup_lights.initializing);
@@ -588,15 +593,18 @@ static void process_car_lights(void)
         return;
     }
     if (global_flags.reversing_setup != REVERSING_SETUP_OFF) {
-        process_setup_lights_reversing(setup_lights.reverse_setup_throttle, 
+        process_setup_lights_reversing(setup_lights.reverse_setup_throttle,
             setup_lights.reverse_setup_steering);
         return;
     }
 
-    process_light_programs();
+    leds_used = process_light_programs();
 
     // Handle LEDs connected to the TLC5940 locally
     for (i = 0; i < local_leds.led_count ; i++) {
+        if (leds_used & (1 << i)) {
+            continue;
+        }
         process_light(&local_leds.car_lights[i], &tlc5940_light_data[i]);
     }
     send_light_data_to_tlc5940();

@@ -28,12 +28,20 @@
 // accordingly!
 #define LIGHT_SWITCH_POSITIONS 9
 
+#define MAX_LIGHT_PROGRAMS 20
 
 // Convenience functions for min/max
 #define MIN(x, y) ((x) < (y) ? x : (y))
 #define MAX(x, y) ((x) > (y) ? x : (y))
 
 
+// Opcodes for light programs
+#define OPCODE_MASK             0xff000000
+#define OPCODE_END_OF_PROGRAM   0xfe000000
+#define OPCODE_END_OF_PROGRAMS  0xff000000
+#define OPCODE_SET              0x01000000
+#define OPCODE_WAIT             0x02000000
+#define OPCODE_GOTO             0x03000000
 
 // ****************************************************************************
 typedef enum {
@@ -68,7 +76,9 @@ typedef struct {
 // ****************************************************************************
 typedef struct {
     MAGIC_T magic;
-    uint32_t programs[3];
+    int number_of_programs;
+    const uint32_t *start[MAX_LIGHT_PROGRAMS];
+    uint32_t programs[50];
 } LIGHT_PROGRAMS_T;
 
 // ****************************************************************************

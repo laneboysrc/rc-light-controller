@@ -80,32 +80,41 @@
             * RAM: variables
 
 
+    The first word of a light program is a bit-field, each bit indicating
+    whether the corresponding LED is used by the light program.
+    If a light is used that is not specified here, weird things may happen.
+
+    The second word defines the states and events that cause the program to
+    be ran.
+
     Test programs:
         Night rider with LEDs 0..3:
-            0:  SET LED0 LED3 0
-            1:  FADE    LED0    120
-            2:  FADE    LED1    120
-            3:  FADE    LED2    120
-            4:  FADE    LED3    120
-            5:  SET     LED0    255
-            6:  WAIT    120
-            7:  SET     LED0    0
-            8:  SET     LED1    255
-            9:  WAIT    120
-            10: SET     LED1    0
-            11: SET     LED2    255
-            12: WAIT    120
-            13: SET     LED2    0
-            14: SET     LED3    255
-            15: WAIT    120
-            16: SET     LED3    0
-            17: SET     LED2    255
-            18: WAIT    120
-            19: SET     LED2    0
-            20: SET     LED1    255
-            21: WAIT    120
-            22: SET     LED1    0
-            23: GOTO    5
+            0:  0x0000000f
+            1:  0x........
+            2:  SET     LED0 LED3 0
+            3:  FADE    LED0    120
+            4:  FADE    LED1    120
+            5:  FADE    LED2    120
+            6:  FADE    LED3    120
+            7:  SET     LED0    255
+            8:  WAIT    120
+            9:  SET     LED0    0
+            10: SET     LED1    255
+            11: WAIT    120
+            12: SET     LED1    0
+            13: SET     LED2    255
+            14: WAIT    120
+            15: SET     LED2    0
+            16: SET     LED3    255
+            17: WAIT    120
+            18: SET     LED3    0
+            19: SET     LED2    255
+            20: WAIT    120
+            21: SET     LED2    0
+            22: SET     LED1    255
+            23: WAIT    120
+            24: SET     LED1    0
+            25: GOTO    7
 
 
 ******************************************************************************/
@@ -115,17 +124,118 @@
 #include <globals.h>
 #include <uart0.h>
 
-void process_light_programs(void);
+typedef struct {
+    const uint32_t *PC;
+    uint32_t timer;
+    bool running;
+} LIGHT_PROGRAM_CPU_T;
+
+static LIGHT_PROGRAM_CPU_T cpu[MAX_LIGHT_PROGRAMS];
+
+extern LED_T tlc5940_light_data[16];
+
+uint32_t process_light_programs(void);
+void init_light_programs(void);
 
 
-void process_light_programs(void)
+// ****************************************************************************
+static void reset_program(int program_number)
 {
-    const uint32_t *program_pointer = light_programs.programs;
-    while (*program_pointer != 0xffffffff) {
-        uart0_send_cstring("OPCODE: ");
-        uart0_send_uint32_hex(*program_pointer);
-        uart0_send_linefeed();
-        ++program_pointer;
-    }        
+    cpu[program_number].PC = light_programs.start[program_number] + 2;
+    cpu[program_number].running = false;
+}
+
+
+// ****************************************************************************
+void init_light_programs(void)
+{
+    int i;
+
+    for (i = 0; i < light_programs.number_of_programs; i++) {
+        reset_program(i);
+    }
+}
+
+
+// ****************************************************************************
+static uint32_t get_current_state(void)
+{
+    return 0x00000001;
+}
+
+
+// ****************************************************************************
+static void execute_program(
+    int program_number, LIGHT_PROGRAM_CPU_T *c)
+{
+    uint32_t instruction;
+    uint8_t min;
+    uint8_t max;
+    uint8_t value;
+    int i;
+
+    if (c->timer) {
+        --c->timer;
+        return;
+    }
+
+    while (1) {
+        instruction = *(c->PC++);
+
+        switch (instruction & OPCODE_MASK) {
+            case OPCODE_SET:
+                max = (instruction >> 16) & 0xff;
+                min  = (instruction >> 8)  & 0xff;
+                value = (instruction >> 0)  & 0xff;
+                for (i = min; i <= max; i++) {
+                    tlc5940_light_data[i] = value;
+                }
+                break;
+
+            case OPCODE_GOTO:
+                c->PC = light_programs.start[program_number] +
+                    (instruction & ~OPCODE_MASK);
+                continue;
+
+            case OPCODE_WAIT:
+                c->timer = (instruction & ~OPCODE_MASK);
+                return;
+
+            case OPCODE_END_OF_PROGRAM:
+                --c->PC;
+                return;
+
+            default:
+                uart0_send_cstring("UNKNOWN OPCODE 0x");
+                uart0_send_uint32_hex(instruction);
+                uart0_send_linefeed();
+                reset_program(program_number);
+                return;
+        }
+    }
+}
+
+
+// ****************************************************************************
+uint32_t process_light_programs(void)
+{
+    int i;
+    uint32_t state;
+    uint32_t leds_used;
+
+    leds_used = 0;
+    state = get_current_state();
+
+    for (i = 0; i < light_programs.number_of_programs; i++) {
+        if (*light_programs.start[i] & state) {
+            leds_used |= *(light_programs.start[i] + 1);
+            execute_program(i, &cpu[i]);
+        }
+        else {
+            reset_program(i);
+        }
+    }
+
+    return leds_used;
 }
 
