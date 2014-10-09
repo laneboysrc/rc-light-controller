@@ -12,12 +12,14 @@ from __future__ import print_function
 import sys
 import struct
 import argparse
-
+from intelhex import IntelHex, HexRecordError
 
 ROM_MAGIC = 0x6372424c          # LBrc (LANE Boys RC) in little endian
 
 SECTIONS = {0x01: "Configuration", 0x02: "Gamma table", 0x30: "Light programs",
     0x10: "Local LEDs", 0x20: "Slave LEDs", 0x40: "Setup lights"}
+
+MAX_FILE_SIZE = 16 * 1024       # 16 kBytes FLASH size of the LCP812
 
 
 def parse_commandline():
@@ -56,7 +58,21 @@ def find_section(content, offset):
 
 def dump_sections(args):
     ''' Find all sections in the image file and dump their name and offset '''
-    content = args.image_file[0].read()
+    try:
+        hexfile = IntelHex()
+        hexfile.fromfile(args.image_file[0], format='hex')
+        content = hexfile.tobinarray()
+
+    except HexRecordError:
+        # Not a valid HEX file, so assume we are dealing with a binary image
+        args.image_file[0].seek(0)
+        content = args.image_file[0].read(MAX_FILE_SIZE + 1)
+
+
+    if len(content) > MAX_FILE_SIZE:
+        print('ERROR: Binary image file larger than 16 kBytes')
+        sys.exit(1)
+
 
     available_sections = dict()
     for section_name in SECTIONS.values():
