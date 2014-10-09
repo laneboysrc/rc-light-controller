@@ -109,11 +109,31 @@ const LIGHT_PROGRAMS_T light_programs = {
         .type = LIGHT_PROGRAMS,
         .version = CONFIG_VERSION
     },
-    
+
+    .number_of_programs = 2,
+    .start = {
+        &light_programs.programs[0],
+        &light_programs.programs[8]
+    },
+
     .programs = {
-        0x00000000,
         0x00000001,
-        0xffffffff
+        0x0000000f,
+        OPCODE_SET + (3 << 16) + (0 << 8) + 0,
+        OPCODE_WAIT + (250 / __SYSTICK_IN_MS),
+        OPCODE_SET + (3 << 16) + (0 << 8) + 255,
+        OPCODE_WAIT + (250 / __SYSTICK_IN_MS),
+        OPCODE_GOTO + 2,
+        OPCODE_END_OF_PROGRAM,
+        0x00000001,
+        0x000000f0,
+        OPCODE_SET + (7 << 16) + (4 << 8) + 50,
+        OPCODE_WAIT + (1100 / __SYSTICK_IN_MS),
+        OPCODE_SET + (7 << 16) + (4 << 8) + 125,
+        OPCODE_WAIT + (60 / __SYSTICK_IN_MS),
+        OPCODE_GOTO + 2,
+        OPCODE_END_OF_PROGRAM,
+        OPCODE_END_OF_PROGRAMS
     }
 };
 
