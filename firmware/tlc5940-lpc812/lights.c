@@ -92,6 +92,10 @@
 
 #define NO_LIGHT_ARRAY 0
 
+// 16 lights locally, another 16 potentially at a slave
+#define MAX_LIGHTS 32
+
+
 typedef enum {
     ALWAYS_ON,
     LIGHT_SWITCH_POSITION,
@@ -111,9 +115,10 @@ typedef enum {
     INDICATOR_RIGHT
 } CAR_LIGHT_FUNCTION_T;
 
-
-static uint8_t light_switch_position;
-LED_T tlc5940_light_data[16];
+uint8_t light_switch_position;
+LED_T light_setpoint[MAX_LIGHTS];
+LED_T light_actual[MAX_LIGHTS];
+uint8_t max_change_per_systick[MAX_LIGHTS];
 
 extern uint32_t process_light_programs(void);
 extern void init_light_programs(void);
@@ -131,7 +136,7 @@ static void send_light_data_to_tlc5940(void)
         // Wait for TXRDY
         while (!(LPC_SPI0->STAT & (1 << 1)));
 
-        LPC_SPI0->TXDAT = gamma_table.gamma_table[tlc5940_light_data[i]] >> 2;
+        LPC_SPI0->TXDAT = gamma_table.gamma_table[light_actual[i]] >> 2;
     }
 
     // Force END OF TRANSFER
@@ -305,6 +310,7 @@ static LED_T calculate_step_value(LED_T current, LED_T new, uint8_t max_change)
 
 
 // ****************************************************************************
+#if 0
 static void limit_stepsize(LED_T *led, const LED_T *current_value,
      const CAR_LIGHT_T *light)
 {
@@ -316,7 +322,7 @@ static void limit_stepsize(LED_T *led, const LED_T *current_value,
         set_light(led, &adjusted_value);
     }
 }
-
+#endif
 
 // ****************************************************************************
 static void set_car_light(LED_T *led, const CAR_LIGHT_T *light,
@@ -481,9 +487,11 @@ static void simulate_weak_ground(LED_T *led, const CAR_LIGHT_T *light)
 
 
 // ****************************************************************************
-static void process_light(const CAR_LIGHT_T *light, LED_T *led)
+static void process_light(const CAR_LIGHT_T *light, LED_T *led, uint8_t *limit)
 {
     LED_T result = 0;
+
+    *limit = light->features.max_change_per_systick;
 
     set_car_light(&result, light, ALWAYS_ON);
 
@@ -519,7 +527,6 @@ static void process_light(const CAR_LIGHT_T *light, LED_T *led)
     }
 
     simulate_weak_ground(&result, light);
-    limit_stepsize(&result, led, light);
     *led = result;
 }
 
@@ -530,9 +537,11 @@ static void process_setup_lights_reversing(const LED_T *light_array1,
 {
     int i;
 
-    for (i = 0; i < 16; i++) {
-        tlc5940_light_data[i] = MAX(light_array1[i], light_array2[i]);
+    for (i = 0; i < MAX_LIGHTS; i++) {
+        light_setpoint[i] = MAX(light_array1[i], light_array2[i]);
     }
+    
+    // FIXME: don't send here
     send_light_data_to_tlc5940();
 
     if (config.flags.slave_output) {
@@ -552,9 +561,11 @@ static void process_setup_lights(const LED_T *light_array)
 {
     int i;
 
-    for (i = 0; i < 16; i++) {
-        tlc5940_light_data[i] = light_array[i];
+    for (i = 0; i < MAX_LIGHTS; i++) {
+        light_setpoint[i] = light_array[i];
     }
+    
+    // FIXME: don't send here...
     send_light_data_to_tlc5940();
 
     if (config.flags.slave_output) {
@@ -605,21 +616,41 @@ static void process_car_lights(void)
         if (leds_used & (1 << i)) {
             continue;
         }
-        process_light(&local_leds.car_lights[i], &tlc5940_light_data[i]);
+        process_light(&local_leds.car_lights[i], &light_setpoint[i],
+            &max_change_per_systick[i]);
     }
-    send_light_data_to_tlc5940();
 
     if (config.flags.slave_output) {
-        LED_T led = 0;
-
-        uart0_send_char(SLAVE_MAGIC_BYTE);
-
         // Handle LEDs connected to a slave light controller
         for (i = 0; i < slave_leds.led_count ; i++) {
-            process_light(&slave_leds.car_lights[i], &led);
-            uart0_send_char(gamma_table.gamma_table[led] >> 2);
+            process_light(&slave_leds.car_lights[i], &light_setpoint[16 + i],
+                &max_change_per_systick[16 + i]);
         }
     }
+
+    // Apply max_change_per_systick while copying from light_setpoint to 
+    // light_actual 
+    for (i = 0; i < MAX_LIGHTS ; i++) {
+        if (max_change_per_systick[i] > 0) {
+            light_actual[i] = calculate_step_value(
+                light_actual[i], light_setpoint[i], max_change_per_systick[i]);
+        }
+        else {
+            light_actual[i] = light_setpoint[i];
+        }
+    }
+    
+    
+    send_light_data_to_tlc5940();
+    if (config.flags.slave_output) {
+        uart0_send_char(SLAVE_MAGIC_BYTE);
+
+        for (i = 0; i < slave_leds.led_count ; i++) {
+            uart0_send_char(gamma_table.gamma_table[light_actual[16 + i]] >> 2);
+        }
+    }
+
+
 }
 
 

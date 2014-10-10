@@ -42,6 +42,7 @@
 #define OPCODE_SET              0x01000000
 #define OPCODE_WAIT             0x02000000
 #define OPCODE_GOTO             0x03000000
+#define OPCODE_FADE             0x04000000
 
 // ****************************************************************************
 typedef enum {
