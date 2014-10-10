@@ -532,82 +532,10 @@ static void process_light(const CAR_LIGHT_T *light, LED_T *led, uint8_t *limit)
 
 
 // ****************************************************************************
-static void process_setup_lights_reversing(const LED_T *light_array1,
-    const LED_T *light_array2)
-{
-    int i;
-
-    for (i = 0; i < MAX_LIGHTS; i++) {
-        light_setpoint[i] = MAX(light_array1[i], light_array2[i]);
-    }
-    
-    // FIXME: don't send here
-    send_light_data_to_tlc5940();
-
-    if (config.flags.slave_output) {
-        LED_T led;
-
-        uart0_send_char(SLAVE_MAGIC_BYTE);
-        for (i = 0; i < 16 ; i++) {
-            led = MAX(light_array1[i + 16], light_array2[i + 16]);
-            uart0_send_char(gamma_table.gamma_table[led] >> 2);
-        }
-    }
-}
-
-
-// ****************************************************************************
-static void process_setup_lights(const LED_T *light_array)
-{
-    int i;
-
-    for (i = 0; i < MAX_LIGHTS; i++) {
-        light_setpoint[i] = light_array[i];
-    }
-    
-    // FIXME: don't send here...
-    send_light_data_to_tlc5940();
-
-    if (config.flags.slave_output) {
-        uart0_send_char(SLAVE_MAGIC_BYTE);
-        for (i = 0; i < 16 ; i++) {
-            uart0_send_char(gamma_table.gamma_table[light_array[i + 16]] >> 2);
-        }
-    }
-}
-
-
-// ****************************************************************************
 static void process_car_lights(void)
 {
     int i;
     uint32_t leds_used;
-
-    if (global_flags.initializing) {
-        process_setup_lights(setup_lights.initializing);
-        return;
-    }
-    if (global_flags.no_signal) {
-        process_setup_lights(setup_lights.no_signal);
-        return;
-    }
-    if (global_flags.servo_output_setup == SERVO_OUTPUT_SETUP_LEFT) {
-        process_setup_lights(setup_lights.servo_setup_left);
-        return;
-    }
-    if (global_flags.servo_output_setup == SERVO_OUTPUT_SETUP_CENTRE) {
-        process_setup_lights(setup_lights.servo_setup_centre);
-        return;
-    }
-    if (global_flags.servo_output_setup == SERVO_OUTPUT_SETUP_RIGHT) {
-        process_setup_lights(setup_lights.servo_setup_right);
-        return;
-    }
-    if (global_flags.reversing_setup != REVERSING_SETUP_OFF) {
-        process_setup_lights_reversing(setup_lights.reverse_setup_throttle,
-            setup_lights.reverse_setup_steering);
-        return;
-    }
 
     leds_used = process_light_programs();
 
@@ -628,8 +556,8 @@ static void process_car_lights(void)
         }
     }
 
-    // Apply max_change_per_systick while copying from light_setpoint to 
-    // light_actual 
+    // Apply max_change_per_systick while copying from light_setpoint to
+    // light_actual
     for (i = 0; i < MAX_LIGHTS ; i++) {
         if (max_change_per_systick[i] > 0) {
             light_actual[i] = calculate_step_value(
@@ -639,8 +567,8 @@ static void process_car_lights(void)
             light_actual[i] = light_setpoint[i];
         }
     }
-    
-    
+
+
     send_light_data_to_tlc5940();
     if (config.flags.slave_output) {
         uart0_send_char(SLAVE_MAGIC_BYTE);

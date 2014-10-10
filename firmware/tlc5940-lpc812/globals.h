@@ -44,6 +44,55 @@
 #define OPCODE_GOTO             0x03000000
 #define OPCODE_FADE             0x04000000
 
+// Offset of special position within every light program
+#define PRIORITY_STATE_OFFSET 0
+#define RUN_STATE_OFFSET 1
+#define LEDS_USED_OFFSET 2
+#define FIRST_OPCODE_OFFSET 3
+
+
+// ****************************************************************************
+typedef enum {
+    RUN_WHEN_LIGHT_SWITCH_POSITION   = (1 << 0),     // Bits 0..8
+
+    RUN_WHEN_NEUTRAL                 = (1 << 9),
+    RUN_WHEN_FORWARD                 = (1 << 10),
+    RUN_WHEN_REVERSING               = (1 << 11),
+    RUN_WHEN_BRAKING                 = (1 << 12),
+
+    RUN_WHEN_INDICATOR_LEFT          = (1 << 13),
+    RUN_WHEN_INDICATOR_RIGHT         = (1 << 14),
+    RUN_WHEN_HAZARD                  = (1 << 15),
+    RUN_WHEN_BLINK_FLAG              = (1 << 16),
+    RUN_WHEN_BLINK_LEFT              = (1 << 17),
+    RUN_WHEN_BLINK_RIGHT             = (1 << 18),
+
+    RUN_WHEN_WINCH_DISABLERD         = (1 << 19),
+    RUN_WHEN_WINCH_IDLE              = (1 << 20),
+    RUN_WHEN_WINCH_IN                = (1 << 21),
+    RUN_WHEN_WINCH_OUT               = (1 << 22),
+
+    RUN_WHEN_GEAR_1                  = (1 << 23),
+    RUN_WHEN_GEAR_2                  = (1 << 24),
+
+    RUN_ALWAYS                       = (1 << 31)
+} LIGHT_PROGRAM_RUN_STATE_T;
+
+
+// ****************************************************************************
+typedef enum {
+    RUN_WHEN_NORMAL_OPERATION           = 0,
+    RUN_WHEN_NO_SIGNAL                  = (1 << 0),
+    RUN_WHEN_INITIALIZING               = (1 << 1),
+    RUN_WHEN_SERVO_OUTPUT_SETUP_CENTRE  = (1 << 2),
+    RUN_WHEN_SERVO_OUTPUT_SETUP_LEFT    = (1 << 3),
+    RUN_WHEN_SERVO_OUTPUT_SETUP_RIGHT   = (1 << 4),
+    RUN_WHEN_REVERSING_SETUP_STEERING   = (1 << 5),
+    RUN_WHEN_REVERSING_SETUP_THROTTLE   = (1 << 6),
+    RUN_WHEN_GEAR_CHANGED               = (1 << 7),
+} LIGHT_PROGRAM_PRIORITY_STATE_T;
+
+
 // ****************************************************************************
 typedef enum {
     // By specifying this unused value we force the enmeration to fit in a
@@ -54,8 +103,7 @@ typedef enum {
     GAMMA_TABLE = 0x02,
     LOCAL_LEDS = 0x10,
     SLAVE_LEDS = 0x20,
-    LIGHT_PROGRAMS = 0x30,
-    SETUP_LIGHTS = 0x40
+    LIGHT_PROGRAMS = 0x30
 } ROM_SECTION_T;
 
 
@@ -276,7 +324,6 @@ typedef struct {    // 20-bytes packed (1 byte free)
 } CAR_LIGHT_T;
 
 
-
 typedef struct {
     MAGIC_T magic;
     uint8_t led_count;  // Number of actually used LEDs
@@ -284,23 +331,6 @@ typedef struct {
     // Pointer to the first element in an array of lights.
     const CAR_LIGHT_T *car_lights;
 } CAR_LIGHT_ARRAY_T;
-
-
-// LEDs that are on during light controller internal setup states
-
-typedef struct {
-    MAGIC_T magic;
-
-    // Each entry has 16 LEDs for the master and 16 for the slave
-    LED_T no_signal[16 + 16];
-    LED_T initializing[16 + 16];
-    LED_T reverse_setup_steering[16 + 16];
-    LED_T reverse_setup_throttle[16 + 16];
-    LED_T servo_setup_left[16 + 16];
-    LED_T servo_setup_centre[16 + 16];
-    LED_T servo_setup_right[16 + 16];
-} SETUP_LIGHTS_T;
-
 
 
 // ****************************************************************************
@@ -312,7 +342,6 @@ extern uint32_t entropy;
 extern const LIGHT_CONTROLLER_CONFIG_T config;
 extern const CAR_LIGHT_ARRAY_T local_leds;
 extern const CAR_LIGHT_ARRAY_T slave_leds;
-extern const SETUP_LIGHTS_T setup_lights;
 extern const GAMMA_TABLE_T gamma_table;
 extern const LIGHT_PROGRAMS_T light_programs;
 

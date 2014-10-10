@@ -3,7 +3,7 @@
     Light programs:
         * Bogdan's idea regarding flame simulation, depending on throttle
         * Programs reside at the end of flash space
-        * The maximum number of programs is predetermined as we need to 
+        * The maximum number of programs is predetermined as we need to
           assign memory like program counter to each program, and so far
           there is no heap (malloc)
         * Mini programming language
@@ -55,7 +55,7 @@
         * Programs states
             * Is it beneficial to do a AND and XOR mask to check for a combination
               of states, including NOT?
-        
+
             * Always
             * Winch active
             * Any of the car states
@@ -137,11 +137,11 @@
 typedef struct {
     const uint32_t *PC;
     uint32_t timer;
-    bool running;
 } LIGHT_PROGRAM_CPU_T;
 
 static LIGHT_PROGRAM_CPU_T cpu[MAX_LIGHT_PROGRAMS];
-static uint32_t environment;
+static uint32_t run_state;
+static uint32_t priority_run_state;
 
 
 extern LED_T light_setpoint[];
@@ -157,8 +157,8 @@ void init_light_programs(void);
 // ****************************************************************************
 static void reset_program(int program_number)
 {
-    cpu[program_number].PC = light_programs.start[program_number] + 2;
-    cpu[program_number].running = false;
+    cpu[program_number].PC =
+        light_programs.start[program_number] + FIRST_OPCODE_OFFSET;
 }
 
 
@@ -174,84 +174,89 @@ void init_light_programs(void)
 
 
 // ****************************************************************************
-static uint32_t get_current_environment(void)
+static void load_light_program_environment(void)
 {
-    uint32_t state;
-/*
-    Bit 0:      Always
-    Bit 1:      Winch disarmed
-    Bit 2:      Winch idle
-    Bit 3:      Winch in
-    Bit 4:      Winch out
-    Bit 5..13:  light switch position[9]
-    Bit 14:     tail light (shortcut to light switch position > 0)
-    Bit 15:     neutral
-    Bit 16:     forward
-    Bit 17:     reversing
-    Bit 18:     braking
-    Bit 19:     indicator left (static flag)
-    Bit 20:     indicator left (static flag)
-    Bit 21:     hazard (static flag)
-    Bit 22:     blink flag (toggles with 1.5 Hz)
-    Bit 23:     blink indicator left (may be indicator or hazard, combined with blink_flag)
-    Bit 24:     blink indicator right
-    Bit 25:     gear 1
-    Bit 26:     gear 2
-    
-    5 bits left (for events?)
-*/
-    state = (1 << 0);   // Run progrogram always
-    
+    priority_run_state = 0;
+
+    if (global_flags.no_signal) {
+        priority_run_state |= RUN_WHEN_NO_SIGNAL;
+    }
+
+    if (global_flags.initializing) {
+        priority_run_state |= RUN_WHEN_INITIALIZING;
+    }
+
+    if (global_flags.servo_output_setup == SERVO_OUTPUT_SETUP_CENTRE) {
+        priority_run_state |= RUN_WHEN_SERVO_OUTPUT_SETUP_CENTRE;
+    }
+
+    if (global_flags.servo_output_setup == SERVO_OUTPUT_SETUP_LEFT) {
+        priority_run_state |= RUN_WHEN_SERVO_OUTPUT_SETUP_LEFT;
+    }
+
+    if (global_flags.servo_output_setup == SERVO_OUTPUT_SETUP_RIGHT) {
+        priority_run_state |= RUN_WHEN_SERVO_OUTPUT_SETUP_RIGHT;
+    }
+
+    if (global_flags.reversing_setup & REVERSING_SETUP_STEERING) {
+        priority_run_state |= RUN_WHEN_REVERSING_SETUP_STEERING;
+    }
+
+    if (global_flags.reversing_setup & REVERSING_SETUP_THROTTLE) {
+        priority_run_state |= RUN_WHEN_REVERSING_SETUP_THROTTLE;
+    }
+
+
+    run_state = RUN_ALWAYS;
+
     if (global_flags.forward) {
-        state |= (1 << 16);
+        run_state |= RUN_WHEN_FORWARD;
     }
     else if (global_flags.reversing) {
-        state |= (1 << 17);
+        run_state |= RUN_WHEN_REVERSING;
     }
     else {
-        state |= (1 << 15);
+        run_state |= RUN_WHEN_NEUTRAL;
+    }
+
+    if (global_flags.braking) {
+        run_state |= RUN_WHEN_BRAKING;
     }
 
     if (global_flags.blink_flag) {
-        state |= (1 << 22);
+        run_state |= RUN_WHEN_BLINK_FLAG;
     }
 
     if (global_flags.blink_indicator_left) {
-        state |= (1 << 19);
+        run_state |= RUN_WHEN_INDICATOR_LEFT;
         if (global_flags.blink_flag) {
-            state |= (1 << 23);
+            run_state |= RUN_WHEN_BLINK_LEFT;
         }
     }
 
     if (global_flags.blink_indicator_right) {
-        state |= (1 << 20);
+        run_state |= RUN_WHEN_INDICATOR_RIGHT;
         if (global_flags.blink_flag) {
-            state |= (1 << 24);
+            run_state |= RUN_WHEN_BLINK_RIGHT;
         }
     }
 
     if (global_flags.blink_hazard) {
-        state |= (1 << 22);
+        run_state |= RUN_WHEN_HAZARD;
         if (global_flags.blink_flag) {
-            state |= (1 << 23);
-            state |= (1 << 24);
+            run_state |= RUN_WHEN_BLINK_LEFT;
+            run_state |= RUN_WHEN_BLINK_RIGHT;
         }
     }
 
-    if (light_switch_position > 0) {
-        state |= (1 << 14);
-    }
-
-    state |= ((1 << 5) << light_switch_position);
+    run_state |= (RUN_WHEN_LIGHT_SWITCH_POSITION << light_switch_position);
 
     if (global_flags.gear) {
-        state |= (1 << 26);
+        run_state |= RUN_WHEN_GEAR_1;
     }
     else {
-        state |= (1 << 25);
+        run_state |= RUN_WHEN_GEAR_2;
     }
-
-    return state;
 }
 
 
@@ -268,7 +273,7 @@ static void execute_program(
     int instructions_executed = 0;
 
     leds_already_used = *leds_used;
-    *leds_used |= *(light_programs.start[program_number] + 1);
+    *leds_used |= *(light_programs.start[program_number] + LEDS_USED_OFFSET);
 
     if (c->timer) {
         --c->timer;
@@ -278,8 +283,9 @@ static void execute_program(
     while (instructions_executed < MAX_INSTRUCTIONS_PER_SYSTICK) {
         ++instructions_executed;
         instruction = *(c->PC++);
-        
+
         // Fan out commonly used opcode parameters
+        // FIXME: check it is a valid LED number!
         max = (instruction >> 16) & 0xff;
         min  = (instruction >> 8)  & 0xff;
         value = (instruction >> 0)  & 0xff;
@@ -289,7 +295,7 @@ static void execute_program(
                 for (i = min; i <= max; i++) {
                     if ((leds_already_used & (1 << i)) == 0) {
                         light_setpoint[i] = value;
-                    }                    
+                    }
                 }
                 break;
 
@@ -297,7 +303,7 @@ static void execute_program(
                 for (i = min; i <= max; i++) {
                     if ((leds_already_used & (1 << i)) == 0) {
                         max_change_per_systick[i] = value;
-                    }                    
+                    }
                 }
                 break;
 
@@ -332,10 +338,30 @@ uint32_t process_light_programs(void)
     uint32_t leds_used;
 
     leds_used = 0;
-    environment = get_current_environment();
+    load_light_program_environment();
+
+    if (priority_run_state != RUN_WHEN_NORMAL_OPERATION) {
+        for (i = 0; i < light_programs.number_of_programs; i++) {
+            if (*(light_programs.start[i] + PRIORITY_STATE_OFFSET) == 0) {
+                continue;
+            }
+
+            if (*(light_programs.start[i] + PRIORITY_STATE_OFFSET) &
+                    priority_run_state) {
+                execute_program(i, &cpu[i], &leds_used);
+            }
+            else {
+                reset_program(i);
+            }
+        }
+    }
 
     for (i = 0; i < light_programs.number_of_programs; i++) {
-        if (*light_programs.start[i] & environment) {
+        if (*(light_programs.start[i] + PRIORITY_STATE_OFFSET) != 0) {
+            continue;
+        }
+
+        if (*(light_programs.start[i] + RUN_STATE_OFFSET) & run_state) {
             execute_program(i, &cpu[i], &leds_used);
         }
         else {

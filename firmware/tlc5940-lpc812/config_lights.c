@@ -3,23 +3,6 @@
 #include <globals.h>
 
 
-const SETUP_LIGHTS_T setup_lights = {
-    .magic = {
-        .magic_value = ROM_MAGIC,
-        .type = SETUP_LIGHTS,
-        .version = CONFIG_VERSION
-    },
-
-    .no_signal = {255},
-    .initializing = {0, 255},
-    .reverse_setup_steering = {0, 0, 255},
-    .reverse_setup_throttle = {0, 0, 0, 255},
-    .servo_setup_left = {0, 0, 0, 0, 255},
-    .servo_setup_centre = {0, 0, 0, 0, 0, 255},
-    .servo_setup_right = {0, 0, 0, 0, 0, 0, 255}
-};
-
-
 // ****************************************************************************
 const CAR_LIGHT_ARRAY_T local_leds = {
     .magic = {
@@ -113,25 +96,28 @@ const LIGHT_PROGRAMS_T light_programs = {
     .number_of_programs = 2,
     .start = {
         &light_programs.programs[0],
-        &light_programs.programs[8]
+        &light_programs.programs[9]
     },
 
     .programs = {
-        0x00000001,
-        0x0000000f,
-        OPCODE_SET + (3 << 16) + (0 << 8) + 0,
-        OPCODE_WAIT + (250 / __SYSTICK_IN_MS),
-        OPCODE_SET + (3 << 16) + (0 << 8) + 255,
-        OPCODE_WAIT + (250 / __SYSTICK_IN_MS),
-        OPCODE_GOTO + 2,
+        RUN_WHEN_NORMAL_OPERATION,
+        RUN_WHEN_HAZARD,
+        0x00008000,
+        OPCODE_SET + (15 << 16) + (15 << 8) + 0,
+        OPCODE_WAIT + (40 / __SYSTICK_IN_MS),
+        OPCODE_SET + (15 << 16) + (15 << 8) + 255,
+        OPCODE_WAIT + (40 / __SYSTICK_IN_MS),
+        OPCODE_GOTO + FIRST_OPCODE_OFFSET,
         OPCODE_END_OF_PROGRAM,
-        0x00000001,
+
+        RUN_WHEN_INITIALIZING,
+        0x00000000,
         0x000000f0,
         OPCODE_SET + (7 << 16) + (4 << 8) + 50,
         OPCODE_WAIT + (1100 / __SYSTICK_IN_MS),
         OPCODE_SET + (7 << 16) + (4 << 8) + 125,
         OPCODE_WAIT + (60 / __SYSTICK_IN_MS),
-        OPCODE_GOTO + 2,
+        OPCODE_GOTO + FIRST_OPCODE_OFFSET,
         OPCODE_END_OF_PROGRAM,
         OPCODE_END_OF_PROGRAMS
     }
