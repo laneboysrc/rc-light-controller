@@ -164,6 +164,8 @@
 
         var momentary_element = document.getElementById("momentary");
 
+        var connected = true;
+
         /**
          * Provides python-like string interpolation.
          * It supports value interpolation either by keys of a dictionary or
@@ -391,8 +393,7 @@
             CCSStylesheetRuleStyle(".box", "width", columnWidth + "px");
         }
 
-
-        document.addEventListener("DOMContentLoaded", function () {
+        function initialize_ui() {
             document.getElementById("throttle").value = throttle;
             document.getElementById("steering").value = steering;
             send("ST", steering);
@@ -400,9 +401,32 @@
             send("CH3", ch3);
             document.getElementById("startup_mode").checked = true
             sendStartup(true)
+        }
 
+        function ping_callback(msg) {
+            if (msg != "OK") {
+                connected = false;
+            }
+            else {
+                if (!connected) {
+                    initialize_ui();
+                }
+                connected = true;
+            }
+            setTimeout(send_ping, 3000);        
+        }
+
+        function send_ping() {
+            send("PING", 1, ping_callback);
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            initialize_ui();
+            
             window.addEventListener("resize", resizeColumns, true);
             resizeColumns();
+    
+            send_ping();            
         }, false);
 
     </script>
