@@ -59,7 +59,8 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
 
     .winch_command_repeat_time = (1000 / __SYSTICK_IN_MS),
 
-    .baudrate = 115200
+    .baudrate = 115200,
+    .no_signal_timeout = (500 / __SYSTICK_IN_MS),
 };
 
 

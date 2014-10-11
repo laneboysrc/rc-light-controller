@@ -307,6 +307,7 @@ typedef struct {
     uint16_t winch_command_repeat_time;
 
     uint32_t baudrate;
+    uint16_t no_signal_timeout;
 } LIGHT_CONTROLLER_CONFIG_T;
 
 

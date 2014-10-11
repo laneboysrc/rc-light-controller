@@ -213,11 +213,11 @@ static void stack_check(void)
 // ****************************************************************************
 static void check_no_signal(void) 
 {
-    static int no_signal_timeout = 0;
+    static uint16_t no_signal_timeout = 0;
     
     if (global_flags.new_channel_data) {
         global_flags.no_signal = false;
-        no_signal_timeout = 500 / __SYSTICK_IN_MS;
+        no_signal_timeout = config.no_signal_timeout;
     }
     
     
