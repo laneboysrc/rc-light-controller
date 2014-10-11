@@ -248,7 +248,8 @@
             xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
             xhr.setRequestHeader("Content-length", params.length);
             xhr.setRequestHeader("Connection", "close");
-
+            
+            document.getElementById("response").innerHTML = "&nbsp";
             xhr.send(params);
         }
 
