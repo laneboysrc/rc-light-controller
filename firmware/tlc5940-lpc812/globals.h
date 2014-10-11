@@ -28,7 +28,8 @@
 // accordingly!
 #define LIGHT_SWITCH_POSITIONS 9
 
-#define MAX_LIGHT_PROGRAMS 20
+#define MAX_LIGHT_PROGRAMS 25
+#define MAX_LIGHT_PROGRAM_VARIABLES 100
 
 // Convenience functions for min/max
 #define MIN(x, y) ((x) < (y) ? x : (y))
@@ -36,12 +37,33 @@
 
 
 // Opcodes for light programs
+#define OPCODE_GOTO             0x01
+#define OPCODE_SET              0x02
+#define OPCODE_SET_VARIABLE     0x03
+#define OPCODE_FADE             0x04
+#define OPCODE_FADE_VARIABLE    0x05
+#define OPCODE_WAIT             0x06
+#define OPCODE_WAIT_VARIABLE    0x07
+
+#define OPCODE_ASSIGN           0x08    // VAR =    type1=var|type2, id1, id2 
+#define OPCODE_ADD              0x09    // VAR +=   type1=var|type2, id1, id2
+#define OPCODE_SUBTRACT         0x0a    // VAR -=   type1=var|type2, id1, id2
+#define OPCODE_MULTIPL          0x0b    // VAR *=   type1=var|type2, id1, id2
+#define OPCODE_DIVIDE           0x0c    // VAR /=   type1=var|type2, id1, id2
+
+#define OPCODE_SKIP_IF_EQ       0x0d    // ==       type1|type2, id1, id2
+#define OPCODE_SKIP_IF_NE       0x0e    // !=       type1|type2, id1, id2
+#define OPCODE_SKIP_IF_GE       0x0f    // >=       type1|type2, id1, id2
+#define OPCODE_SKIP_IF_GT       0x10    // >        type1|type2, id1, id2
+#define OPCODE_SKIP_IF_LE       0x11    // <=       type1|type2, id1, id2
+#define OPCODE_SKIP_IF_LT       0x12    // <        type1|type2, id1, id2
+
+#define OPCODE_IF_ANY           0x20    // + 29 bits run_state!
+#define OPCODE_IF_ALL           0x40    // + 29 bits run_state!
+#define OPCODE_IF_NONE          0x80    // + 29 bits run_state!
+
 #define OPCODE_END_OF_PROGRAM   0xfe
 #define OPCODE_END_OF_PROGRAMS  0xff
-#define OPCODE_SET              0x01
-#define OPCODE_FADE             0x02
-#define OPCODE_WAIT             0x03
-#define OPCODE_GOTO             0x04
 
 // Instructions comprise of opcodes and parameters
 #define INSTRUCTION_END_OF_PROGRAM \

@@ -220,7 +220,6 @@ static void check_no_signal(void)
         no_signal_timeout = config.no_signal_timeout;
     }
     
-    
     if (global_flags.systick) {
         --no_signal_timeout;
         if (no_signal_timeout == 0) {

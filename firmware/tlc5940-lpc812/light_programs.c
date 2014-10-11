@@ -2,71 +2,95 @@
 
     Light programs:
         * Bogdan's idea regarding flame simulation, depending on throttle
-        * Programs reside at the end of flash space
-        * The maximum number of programs is predetermined as we need to
+        - Programs reside at the end of flash space
+        - The maximum number of programs is predetermined as we need to
           assign memory like program counter to each program, and so far
           there is no heap (malloc)
         * Mini programming language
-            * GOTO to implement loops
-            * SET start_led stop_led value
-            * FADE start_led stop_led time
-            * WAIT time
-            * IF condition (skips next instruction if false)
-                * VARIABLE == integer, VAR2
-                * VARIABLE > integer, VAR2
-                * VARIABLE < integer, VAR2
-                * VARIABLE != integer, VAR2
-                * car state: implement as AND and OR mask?
-                * ANY car state
-                * ALL car state
-                * NONE car state
-            * IF NOT condition (skips next instruction if true)
-            * VARIABLE = integer
-            * VARIABLE += integer (signed, so -= can work with same opcode!)
-            * Reading values of lights?
+            - GOTO to implement loops
+            - SET start_led stop_led value
+            - SET start_led stop_led VARIABLE
+            - FADE start_led stop_led time
+            - FADE start_led stop_led VARIABLE
+            - WAIT time
+            - WAIT VARIABLE
+            * VARIABLE = {integer, VARIABLE, LED[x], random-value}
+            * VARIABLE += {integer, VARIABLE, LED[x]}
+            * VARIABLE -= {integer, VARIABLE, LED[x]}
+            * VARIABLE *= {integer, VARIABLE, LED[x]}
+            * VARIABLE /= {integer, VARIABLE, LED[x]}
+            * SKIP IF EQUAL {integer, VARIABLE, LED[x]} {integer, VARIABLE, LED[x]} 
+            * SKIP IF NOT EQUAL {integer, VARIABLE, LED[x]} {integer, VARIABLE, LED[x]} 
+            * SKIP IF GREATER OR EQUAL {integer, VARIABLE, LED[x]} {integer, VARIABLE, LED[x]} 
+            * SKIP IF GREATER {integer, VARIABLE, LED[x]} {integer, VARIABLE, LED[x]} 
+            * SKIP IF SMALLER OR EQUAL {integer, VARIABLE, LED[x]} {integer, VARIABLE, LED[x]} 
+            * SKIP IF SMALLER {integer, VARIABLE, LED[x]} {integer, VARIABLE, LED[x]} 
+            * SKIP IF ANY {run-state-mask} (compiler shortcut: SKIP IF {single-run-state}) 
+            * SKIP IF ALL {run-state-mask} 
+            * SKIP IF NONE {run-state-mask} (compiler shortcut: SKIP IF NOT {single-run-state}) 
 
-            * Different sequence depending on gear value
-                * Gear 1/2 is one of the states
-                * Can also be read as a variable at program execution time?
-            * Different sequence depending on state of roof lights
-                * Can be done by reading actual LED values back
-            * Random value
-            * "Next sequence"
+
+        * INSTRUCTIONS and OPCODES
+            - Every instruction is 4 bytes
+            - This means that 1 byte opcode + 3 bytes parameters is feasible
+            - End-of-program marker to find different programs in the flash
             - 0x00 and 0xff should not be used (empty flash, 0 initialized)
               for opcodes
-        * Every opcode is 4 bytes
-            * This means that 1 byte command + 3 bytes parameters is feasible
-            * End-of-program marker to find different programs in the flash
-        * The lights used in a program are automatically removed from normal
+            - In order to achieve the instructions requiring run-state-mask,
+              which is a UINT32 (almost), we need to separate the highest
+              3 bits, and ensure we don't use those in run_state. Actually
+              the always_on state can stay at bit 31 as it does not make sense
+              for the program.
+              Upper 3 bits can not be 111 (assuming 000 is used for other
+              opcodes and those have at least one of the lower bits set) 
+              to ensure we don't have an issue with 0xff and 0x00.
+                 
+
+        * VARIABLES
+            * Global pool of variables, assigned at "compile time"
+            * Does it make sense to have the same variable be accessible
+              by multiple programs?
+                * Possibly, so lets make the "compiler" recognize local and
+                  global variables
+            * Variables are int16_t
+                * Because we can have immediates only be 24 bits max anyway
+            * Special variable that increments on 6 clicks * "Next sequence"
+                          
+
+        * It should be possible to "name" the variables and lights for
+          human friendly programming, and to be able to share programs between
+          projects without having to adjust each and every opcode
+
+        - The lights used in a program are automatically removed from normal
           car light processing, and from following programs
-        * Issue: how to return to the normal program if a light program has
+
+        - Issue: how to return to the normal program if a light program has
           an IF .. GOTO loop that waits for a certain condition?
             * Only execute a certain number of instructions per systick
-        * Programs are active because of an event, or because of a match state
-        * Program triggering events
+        - Programs are active because of an event, or because of a match state
+        - Program triggering events
             * Gearbox change event
             * There can only be one event active
             * New events stop currently running events
             * Event programs have priority over other programs regarding light use
-
-            * Always
-            * Winch active
+        - Program states
             * Any of the car states
-                * light switch position[9]
-                * tail light (shortcut to light switch position > 0)
-                * neutral (not available yet)
-                * forward
-                * reversing
-                * braking
-                * indicator left (static flag)
-                * indicator left (static flag)
-                * hazard (static flag)
-                * blink flag
-                * blink indicator left
-                * blink indicator right
-                * gear 1
-                * gear 2
-            * Multiple programs can be running in parallel
+                - light switch position[9]
+                - tail light (shortcut to light switch position > 0)
+                - neutral
+                - forward
+                - reversing
+                - braking
+                - indicator left (static flag)
+                - indicator left (static flag)
+                - hazard (static flag)
+                - blink flag
+                - blink indicator left
+                - blink indicator right
+                - gear 1
+                - gear 2
+                - winch states (including disabled)
+            - Multiple programs can be running in parallel
                 * If multiple programs run then the first program using a
                   particular light wins, the other can not use that light
 
@@ -128,6 +152,7 @@ static LIGHT_PROGRAM_CPU_T cpu[MAX_LIGHT_PROGRAMS];
 static uint32_t run_state;
 static uint32_t priority_run_state;
 
+static uint16_t var[MAX_LIGHT_PROGRAM_VARIABLES];
 
 extern LED_T light_setpoint[];
 extern LED_T light_actual[];
@@ -159,6 +184,12 @@ void init_light_programs(void)
     }
 }
 
+
+// ****************************************************************************
+void next_light_sequence(void)
+{
+	++var[0];
+}
 
 // ****************************************************************************
 static void load_light_program_environment(void)
