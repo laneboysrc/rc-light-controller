@@ -36,17 +36,32 @@
 
 
 // Opcodes for light programs
+#define OPCODE_END_OF_PROGRAM   0xfe
+#define OPCODE_END_OF_PROGRAMS  0xff
+#define OPCODE_SET              0x01
+#define OPCODE_FADE             0x02
+#define OPCODE_WAIT             0x03
+#define OPCODE_GOTO             0x04
 
+// Instructions comprise of opcodes and parameters
+#define INSTRUCTION_END_OF_PROGRAM \
+    (OPCODE_END_OF_PROGRAM << 24)
 
-#define OPCODE_MASK             0xff000000
-#define OPCODE_END_OF_PROGRAM   0xfe000000
-#define OPCODE_END_OF_PROGRAMS  0xff000000
-#define OPCODE_SET(start, stop, value) \
-   (0x01000000 | (stop << 16) | (start << 8) | value)
-#define OPCODE_FADE(start, stop, value) \
-   (0x02000000 | (stop << 16) | (start << 8) | value)
-#define OPCODE_WAIT(time_in_ms) (0x03000000 | (time_in_ms / __SYSTICK_IN_MS))
-#define OPCODE_GOTO(line_no)    (0x04000000 | line_no)
+#define INSTRUCTION_END_OF_PROGRAMS \
+    (OPCODE_END_OF_PROGRAMS << 24)
+
+#define INSTRUCTION_SET(start, stop, value) \
+    ((OPCODE_SET << 24) | (stop << 16) | (start << 8) | value)
+
+#define INSTRUCTION_FADE(start, stop, value) \
+    ((OPCODE_FADE << 24) | (stop << 16) | (start << 8) | value)
+
+#define INSTRUCTION_WAIT(time_in_ms) \
+    ((OPCODE_WAIT << 24) | (time_in_ms / __SYSTICK_IN_MS))
+
+#define INSTRUCTION_GOTO(line_no) \
+    ((OPCODE_GOTO << 24) | line_no)
+
 
 // Offset of special position within every light program
 #define PRIORITY_STATE_OFFSET 0

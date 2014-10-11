@@ -100,27 +100,31 @@ const LIGHT_PROGRAMS_T light_programs = {
     },
 
     .programs = {
+        // Program 0
         RUN_WHEN_NORMAL_OPERATION,
         RUN_WHEN_LIGHT_SWITCH_POSITION_2,
         LED_USED(15),
-        OPCODE_SET(15, 15, 0),
-        OPCODE_WAIT(40),
-        OPCODE_SET(15, 15, 255),
-        OPCODE_WAIT(40),
-        OPCODE_GOTO(FIRST_OPCODE_OFFSET),
-        OPCODE_END_OF_PROGRAM,
+        
+        INSTRUCTION_SET(15, 15, 0),
+        INSTRUCTION_WAIT(40),
+        INSTRUCTION_SET(15, 15, 255),
+        INSTRUCTION_WAIT(40),
+        INSTRUCTION_GOTO(0),
+        INSTRUCTION_END_OF_PROGRAM,
 
+        // Program 1
         RUN_WHEN_INITIALIZING,
         0x00000000,
         LED_USED(4) + LED_USED(5) + LED_USED(6) + LED_USED(7),
-        OPCODE_SET(4, 7, 50),
-        OPCODE_WAIT(1100),
-        OPCODE_SET(4, 7, 150),
-        OPCODE_WAIT(60),
-        OPCODE_GOTO(FIRST_OPCODE_OFFSET),
-        OPCODE_END_OF_PROGRAM,
+        
+        INSTRUCTION_SET(4, 7, 50),
+        INSTRUCTION_WAIT(1100),
+        INSTRUCTION_SET(4, 7, 150),
+        INSTRUCTION_WAIT(60),
+        INSTRUCTION_GOTO(0),
+        INSTRUCTION_END_OF_PROGRAM,
 
-        OPCODE_END_OF_PROGRAMS
+        INSTRUCTION_END_OF_PROGRAMS
     }
 };
 

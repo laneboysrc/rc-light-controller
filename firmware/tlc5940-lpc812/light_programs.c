@@ -262,9 +262,10 @@ static void load_light_program_environment(void)
 
 // ****************************************************************************
 static void execute_program(
-    int program_number, LIGHT_PROGRAM_CPU_T *c, uint32_t *leds_used)
+    const uint32_t *program, LIGHT_PROGRAM_CPU_T *c, uint32_t *leds_used)
 {
     uint32_t instruction;
+    uint8_t opcode;
     uint8_t min;
     uint8_t max;
     uint8_t value;
@@ -273,7 +274,7 @@ static void execute_program(
     int instructions_executed = 0;
 
     leds_already_used = *leds_used;
-    *leds_used |= *(light_programs.start[program_number] + LEDS_USED_OFFSET);
+    *leds_used |= *(program + LEDS_USED_OFFSET);
 
     if (c->timer) {
         --c->timer;
@@ -282,16 +283,18 @@ static void execute_program(
 
     while (instructions_executed < MAX_INSTRUCTIONS_PER_SYSTICK) {
         ++instructions_executed;
+        
         instruction = *(c->PC++);
 
+        opcode = (instruction >> 24) & 0xff;
+
         // Fan out commonly used opcode parameters
-        // FIXME: check it is a valid LED number!
         max = (instruction >> 16) & 0xff;
         min  = (instruction >> 8)  & 0xff;
         value = (instruction >> 0)  & 0xff;
 
-        switch (instruction & OPCODE_MASK) {
-            case OPCODE_SET(0, 0, 0):
+        switch (opcode) {
+            case OPCODE_SET:
                 for (i = min; i <= max; i++) {
                     if ((leds_already_used & (1 << i)) == 0) {
                         light_setpoint[i] = value;
@@ -299,7 +302,7 @@ static void execute_program(
                 }
                 break;
 
-            case OPCODE_FADE(0, 0, 0):
+            case OPCODE_FADE:
                 for (i = min; i <= max; i++) {
                     if ((leds_already_used & (1 << i)) == 0) {
                         max_change_per_systick[i] = value;
@@ -307,13 +310,13 @@ static void execute_program(
                 }
                 break;
 
-            case OPCODE_GOTO(0):
-                c->PC = light_programs.start[program_number] +
-                    (instruction & ~OPCODE_MASK);
+            case OPCODE_GOTO:
+                c->PC = 
+                    program + FIRST_OPCODE_OFFSET + (instruction & 0x00ffffff);
                 continue;
 
-            case OPCODE_WAIT(0):
-                c->timer = (instruction & ~OPCODE_MASK);
+            case OPCODE_WAIT:
+                c->timer = (instruction & 0x00ffffff);
                 return;
 
             case OPCODE_END_OF_PROGRAM:
@@ -322,9 +325,9 @@ static void execute_program(
 
             default:
                 uart0_send_cstring("UNKNOWN OPCODE 0x");
-                uart0_send_uint32_hex(instruction);
+                uart0_send_uint8_hex(opcode);
                 uart0_send_linefeed();
-                reset_program(program_number);
+                c->PC = program + FIRST_OPCODE_OFFSET;
                 return;
         }
     }
@@ -348,7 +351,7 @@ uint32_t process_light_programs(void)
 
             if (*(light_programs.start[i] + PRIORITY_STATE_OFFSET) &
                     priority_run_state) {
-                execute_program(i, &cpu[i], &leds_used);
+                execute_program(light_programs.start[i], &cpu[i], &leds_used);
             }
             else {
                 reset_program(i);
@@ -362,7 +365,7 @@ uint32_t process_light_programs(void)
         }
 
         if (*(light_programs.start[i] + RUN_STATE_OFFSET) & run_state) {
-            execute_program(i, &cpu[i], &leds_used);
+            execute_program(light_programs.start[i], &cpu[i], &leds_used);
         }
         else {
             reset_program(i);
