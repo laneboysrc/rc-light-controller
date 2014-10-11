@@ -103,14 +103,14 @@ const LIGHT_PROGRAMS_T light_programs = {
     .programs = {
         // Program 0
         RUN_WHEN_NORMAL_OPERATION,
-        RUN_WHEN_LIGHT_SWITCH_POSITION_2,
+        RUN_WHEN_LIGHT_SWITCH_POSITION,
         LED_USED(15),
         
-        INSTRUCTION_FADE(15, 15, 10),
+        INSTRUCTION_FADE(15, 15, 0),
         INSTRUCTION_SET(15, 15, 0),
-        INSTRUCTION_WAIT(100),
+        INSTRUCTION_WAIT(60),
         INSTRUCTION_SET(15, 15, 50),
-        INSTRUCTION_WAIT(100),
+        INSTRUCTION_WAIT(60),
         INSTRUCTION_GOTO(0),
         INSTRUCTION_END_OF_PROGRAM,
 
