@@ -19,12 +19,12 @@
             * VARIABLE -= {integer, VARIABLE, LED[x]}
             * VARIABLE *= {integer, VARIABLE, LED[x]}
             * VARIABLE /= {integer, VARIABLE, LED[x]}
-            * SKIP IF EQUAL {integer, VARIABLE, LED[x]} {integer, VARIABLE, LED[x]} 
-            * SKIP IF NOT EQUAL {integer, VARIABLE, LED[x]} {integer, VARIABLE, LED[x]} 
-            * SKIP IF GREATER OR EQUAL {integer, VARIABLE, LED[x]} {integer, VARIABLE, LED[x]} 
-            * SKIP IF GREATER {integer, VARIABLE, LED[x]} {integer, VARIABLE, LED[x]} 
-            * SKIP IF SMALLER OR EQUAL {integer, VARIABLE, LED[x]} {integer, VARIABLE, LED[x]} 
-            * SKIP IF SMALLER {integer, VARIABLE, LED[x]} {integer, VARIABLE, LED[x]} 
+            * SKIP IF EQUAL {VARIABLE, LED[x]} {integer, VARIABLE, LED[x]} 
+            * SKIP IF NOT EQUAL {VARIABLE, LED[x]} {integer, VARIABLE, LED[x]} 
+            * SKIP IF GREATER OR EQUAL {VARIABLE, LED[x]} {integer, VARIABLE, LED[x]} 
+            * SKIP IF GREATER {VARIABLE, LED[x]} {integer, VARIABLE, LED[x]} 
+            * SKIP IF SMALLER OR EQUAL (translated by compiler into GT)
+            * SKIP IF SMALLER (translated by compiler into GE) 
             * SKIP IF ANY {run-state-mask} (compiler shortcut: SKIP IF {single-run-state}) 
             * SKIP IF ALL {run-state-mask} 
             * SKIP IF NONE {run-state-mask} (compiler shortcut: SKIP IF NOT {single-run-state}) 
@@ -44,7 +44,9 @@
               Upper 3 bits can not be 111 (assuming 000 is used for other
               opcodes and those have at least one of the lower bits set) 
               to ensure we don't have an issue with 0xff and 0x00.
-                 
+            - For SKIP IF EQ... we need to deal with 16 bit immediates. The
+              easiest way is to make separate opcodes for immediates and LEDs,
+              and immediates and variables, and led/var led/var.     
 
         * VARIABLES
             * Global pool of variables, assigned at "compile time"
@@ -282,12 +284,6 @@ static void load_light_program_environment(void)
 static void execute_program(
     const uint32_t *program, LIGHT_PROGRAM_CPU_T *c, uint32_t *leds_used)
 {
-    uint32_t instruction;
-    uint8_t opcode;
-    uint8_t min;
-    uint8_t max;
-    uint8_t value;
-    int i;
     uint32_t leds_already_used;
     int instructions_executed = 0;
 
@@ -301,6 +297,16 @@ static void execute_program(
     }
 
     while (instructions_executed < MAX_INSTRUCTIONS_PER_SYSTICK) {
+        uint32_t instruction;
+        uint8_t opcode;
+        uint8_t min;
+        uint8_t max;
+        uint8_t value;
+        uint8_t type;
+        uint8_t id1;
+        uint8_t id2;
+        int i;
+
         ++instructions_executed;
 
         instruction = *(c->PC++);
@@ -308,9 +314,9 @@ static void execute_program(
         opcode = (instruction >> 24) & 0xff;
 
         // Fan out commonly used opcode parameters
-        max = (instruction >> 16) & 0xff;
-        min  = (instruction >> 8)  & 0xff;
-        value = (instruction >> 0)  & 0xff;
+        max = type = (instruction >> 16) & 0xff;
+        min = id1 = (instruction >> 8)  & 0xff;
+        value = id2 = (instruction >> 0)  & 0xff;
 
         switch (opcode) {
             case OPCODE_SET:

@@ -45,22 +45,40 @@
 #define OPCODE_WAIT             0x06
 #define OPCODE_WAIT_VARIABLE    0x07
 
-#define OPCODE_ASSIGN           0x08    // VAR =    type1=var|type2, id1, id2 
-#define OPCODE_ADD              0x09    // VAR +=   type1=var|type2, id1, id2
-#define OPCODE_SUBTRACT         0x0a    // VAR -=   type1=var|type2, id1, id2
-#define OPCODE_MULTIPL          0x0b    // VAR *=   type1=var|type2, id1, id2
-#define OPCODE_DIVIDE           0x0c    // VAR /=   type1=var|type2, id1, id2
+#define OPCODE_ASSIGN           0x10    // VAR =    type, id1, id2 
+#define OPCODE_ASSIGN_I         0x11    // VAR =    var, immediate 
 
-#define OPCODE_SKIP_IF_EQ       0x0d    // ==       type1|type2, id1, id2
-#define OPCODE_SKIP_IF_NE       0x0e    // !=       type1|type2, id1, id2
-#define OPCODE_SKIP_IF_GE       0x0f    // >=       type1|type2, id1, id2
-#define OPCODE_SKIP_IF_GT       0x10    // >        type1|type2, id1, id2
-#define OPCODE_SKIP_IF_LE       0x11    // <=       type1|type2, id1, id2
-#define OPCODE_SKIP_IF_LT       0x12    // <        type1|type2, id1, id2
+#define OPCODE_ADD              0x12    // VAR +=   type, id1, id2
+#define OPCODE_ADD_I            0x13    // VAR +=   var, immediate
 
-#define OPCODE_IF_ANY           0x20    // + 29 bits run_state!
-#define OPCODE_IF_ALL           0x40    // + 29 bits run_state!
-#define OPCODE_IF_NONE          0x80    // + 29 bits run_state!
+#define OPCODE_SUBTRACT         0x14    // VAR -=   type, id1, id2
+#define OPCODE_SUBTRACT_I       0x15    // VAR -=   var, immediate
+
+#define OPCODE_MULTIPLY         0x16    // VAR *=   type, id1, id2
+#define OPCODE_MULTIPLY_I       0x17    // VAR *=   var, immediate
+
+#define OPCODE_DIVIDE           0x18    // VAR /=   type, id1, id2
+#define OPCODE_DIVIDE_I         0x19    // VAR /=   var, immediate
+
+#define OPCODE_SKIP_IF_EQ       0x20    // ==       type1|type2, id1, id2
+#define OPCODE_SKIP_IF_EQ_LI    0x21    // ==       led, immediate
+#define OPCODE_SKIP_IF_EQ_VI    0x22    // ==       var, immediate
+
+#define OPCODE_SKIP_IF_NE       0x24    // !=       type1|type2, id1, id2
+#define OPCODE_SKIP_IF_NE_LI    0x25    // !=       led, immediate
+#define OPCODE_SKIP_IF_NE_VI    0x26    // !=       var, immediate6
+
+#define OPCODE_SKIP_IF_GE       0x28    // >=       type1|type2, id1, id2
+#define OPCODE_SKIP_IF_GE_LI    0x29    // >=       led, immediate
+#define OPCODE_SKIP_IF_GE_VI    0x2a    // >=       var, immediate
+
+#define OPCODE_SKIP_IF_GT       0x2c    // >        type1|type2, id1, id2
+#define OPCODE_SKIP_IF_GT_LI    0x2b    // >        led, immediate
+#define OPCODE_SKIP_IF_GT_VI    0x2d    // >        var, immediate
+
+#define OPCODE_IF_ANY           0x60    // 011 + 29 bits run_state!
+#define OPCODE_IF_ALL           0x80    // 100 + 29 bits run_state!
+#define OPCODE_IF_NONE          0xA0    // 101 + 29 bits run_state!
 
 #define OPCODE_END_OF_PROGRAM   0xfe
 #define OPCODE_END_OF_PROGRAMS  0xff
