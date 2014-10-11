@@ -277,13 +277,14 @@ static void execute_program(
     *leds_used |= *(program + LEDS_USED_OFFSET);
 
     if (c->timer) {
-        --c->timer;
-        return;
+        if (--c->timer) {
+            return;
+        }
     }
 
     while (instructions_executed < MAX_INSTRUCTIONS_PER_SYSTICK) {
         ++instructions_executed;
-        
+
         instruction = *(c->PC++);
 
         opcode = (instruction >> 24) & 0xff;
@@ -311,7 +312,7 @@ static void execute_program(
                 break;
 
             case OPCODE_GOTO:
-                c->PC = 
+                c->PC =
                     program + FIRST_OPCODE_OFFSET + (instruction & 0x00ffffff);
                 continue;
 
