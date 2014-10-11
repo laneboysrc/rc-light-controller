@@ -93,10 +93,11 @@ const LIGHT_PROGRAMS_T light_programs = {
         .version = CONFIG_VERSION
     },
 
-    .number_of_programs = 2,
+    .number_of_programs = 3,
     .start = {
         &light_programs.programs[0],
-        &light_programs.programs[9]
+        &light_programs.programs[10],
+        &light_programs.programs[20],
     },
 
     .programs = {
@@ -105,23 +106,40 @@ const LIGHT_PROGRAMS_T light_programs = {
         RUN_WHEN_LIGHT_SWITCH_POSITION_2,
         LED_USED(15),
         
+        INSTRUCTION_FADE(15, 15, 10),
         INSTRUCTION_SET(15, 15, 0),
-        INSTRUCTION_WAIT(40),
-        INSTRUCTION_SET(15, 15, 255),
-        INSTRUCTION_WAIT(40),
+        INSTRUCTION_WAIT(100),
+        INSTRUCTION_SET(15, 15, 50),
+        INSTRUCTION_WAIT(100),
         INSTRUCTION_GOTO(0),
         INSTRUCTION_END_OF_PROGRAM,
 
         // Program 1
         RUN_WHEN_INITIALIZING,
         0x00000000,
-        LED_USED(4) + LED_USED(5) + LED_USED(6) + LED_USED(7),
+        LED_USED(0),
         
-        INSTRUCTION_SET(4, 7, 50),
+        INSTRUCTION_FADE(0, 0, 0),
+        INSTRUCTION_SET(0, 0, 100),
         INSTRUCTION_WAIT(1100),
-        INSTRUCTION_SET(4, 7, 150),
+        INSTRUCTION_SET(0, 0, 255),
         INSTRUCTION_WAIT(60),
-        INSTRUCTION_GOTO(0),
+        INSTRUCTION_GOTO(1),
+        INSTRUCTION_END_OF_PROGRAM,
+
+        // Program 2
+        RUN_WHEN_GEAR_CHANGED,
+        0x00000000,
+        LED_USED(1) + LED_USED(2),
+        
+        INSTRUCTION_FADE(1, 2, 0),
+        INSTRUCTION_SET(1, 2, 50),
+        INSTRUCTION_WAIT(300),
+        INSTRUCTION_FADE(1, 2, 50),
+        INSTRUCTION_SET(1, 2, 255),
+        INSTRUCTION_WAIT(100),
+        INSTRUCTION_SET(1, 2, 50),
+        INSTRUCTION_WAIT(300),
         INSTRUCTION_END_OF_PROGRAM,
 
         INSTRUCTION_END_OF_PROGRAMS

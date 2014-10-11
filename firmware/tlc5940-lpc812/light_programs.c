@@ -41,20 +41,13 @@
           car light processing, and from following programs
         * Issue: how to return to the normal program if a light program has
           an IF .. GOTO loop that waits for a certain condition?
-            * Return if false?
-            * Detect if a GOTO lands on a IF?
-            * Return after a number of instructions?
-                * Should be feasible because we are executing in a while loop,
-                  so we can decrement a max_instructions counter
+            * Only execute a certain number of instructions per systick
         * Programs are active because of an event, or because of a match state
         * Program triggering events
             * Gearbox change event
             * There can only be one event active
             * New events stop currently running events
             * Event programs have priority over other programs regarding light use
-        * Programs states
-            * Is it beneficial to do a AND and XOR mask to check for a combination
-              of states, including NOT?
 
             * Always
             * Winch active
@@ -76,15 +69,6 @@
             * Multiple programs can be running in parallel
                 * If multiple programs run then the first program using a
                   particular light wins, the other can not use that light
-        Program metadata
-            * FLASH: State or event the program runs
-            * FLASH: LEDs used (16 + 32 + 16 + 32 = 96 bits = 12 bytes)
-            * FLASH: RAM used
-            * RAM: Shadow values for all used LEDs
-            * RAM: fade time, start time, led, start value, end value
-            * RAM: program counter
-                * Gets reset every time a program is not running
-            * RAM: variables
 
 
     The first word of a light program is a bit-field, each bit indicating
@@ -136,7 +120,8 @@
 
 typedef struct {
     const uint32_t *PC;
-    uint32_t timer;
+    uint16_t timer;
+    unsigned event : 1;
 } LIGHT_PROGRAM_CPU_T;
 
 static LIGHT_PROGRAM_CPU_T cpu[MAX_LIGHT_PROGRAMS];
@@ -150,8 +135,9 @@ extern uint8_t max_change_per_systick[];
 extern uint8_t light_switch_position;
 
 
-uint32_t process_light_programs(void);
 void init_light_programs(void);
+void process_light_program_events(void);
+uint32_t process_light_programs(void);
 
 
 // ****************************************************************************
@@ -159,6 +145,7 @@ static void reset_program(int program_number)
 {
     cpu[program_number].PC =
         light_programs.start[program_number] + FIRST_OPCODE_OFFSET;
+    cpu[program_number].event = 0;
 }
 
 
@@ -317,11 +304,12 @@ static void execute_program(
                 continue;
 
             case OPCODE_WAIT:
-                c->timer = (instruction & 0x00ffffff);
+                c->timer = (instruction & 0x0000ffff);
                 return;
 
             case OPCODE_END_OF_PROGRAM:
                 --c->PC;
+                c->event = 0;
                 return;
 
             default:
@@ -329,7 +317,29 @@ static void execute_program(
                 uart0_send_uint8_hex(opcode);
                 uart0_send_linefeed();
                 c->PC = program + FIRST_OPCODE_OFFSET;
+                c->event = 0;
                 return;
+        }
+    }
+}
+
+
+// ****************************************************************************
+void process_light_program_events(void)
+{
+    int i;
+    if (global_flags.gear_changed) {
+        uart0_send_cstring("Gear change detected!\n");
+        for (i = 0; i < light_programs.number_of_programs; i++) {
+            if (*(light_programs.start[i] + PRIORITY_STATE_OFFSET) 
+                & RUN_WHEN_GEAR_CHANGED) {
+                reset_program(i);      
+                cpu[i].event = 1;   
+                uart0_send_cstring("Starting prog ");
+                uart0_send_uint32(i);
+                uart0_send_linefeed();
+                break;
+            }
         }
     }
 }
@@ -344,24 +354,38 @@ uint32_t process_light_programs(void)
     leds_used = 0;
     load_light_program_environment();
 
-    if (priority_run_state != RUN_WHEN_NORMAL_OPERATION) {
-        for (i = 0; i < light_programs.number_of_programs; i++) {
-            if (*(light_programs.start[i] + PRIORITY_STATE_OFFSET) == 0) {
-                continue;
-            }
+    // Run all programs that were triggered by an event
+    for (i = 0; i < light_programs.number_of_programs; i++) {
+        if (cpu[i].event) {
+            uart0_send_cstring("Running prog ");
+            uart0_send_uint32(i);
+            uart0_send_linefeed();
+            execute_program(light_programs.start[i], &cpu[i], &leds_used);
+        }   
+    }
 
-            if (*(light_programs.start[i] + PRIORITY_STATE_OFFSET) &
-                    priority_run_state) {
-                execute_program(light_programs.start[i], &cpu[i], &leds_used);
-            }
-            else {
-                reset_program(i);
-            }
+    // Run all priority programs where the light controller state matches
+    for (i = 0; i < light_programs.number_of_programs; i++) {
+        if (*(light_programs.start[i] + PRIORITY_STATE_OFFSET) == RUN_WHEN_NORMAL_OPERATION) {
+            continue;
+        }
+
+        if (cpu[i].event) {
+            continue;
+        }
+
+        if (*(light_programs.start[i] + PRIORITY_STATE_OFFSET) &
+                priority_run_state) {
+            execute_program(light_programs.start[i], &cpu[i], &leds_used);
+        }
+        else {
+            reset_program(i);
         }
     }
 
+    // Run all non-event and non-priority programs
     for (i = 0; i < light_programs.number_of_programs; i++) {
-        if (*(light_programs.start[i] + PRIORITY_STATE_OFFSET) != 0) {
+        if (*(light_programs.start[i] + PRIORITY_STATE_OFFSET) != RUN_WHEN_NORMAL_OPERATION) {
             continue;
         }
 
