@@ -420,11 +420,31 @@
             send("PING", 1, ping_callback);
         }
 
+        function keydown_event_handler(event) {
+            if (event.key == 'a' || event.key == 'u' || event.key == 'x' ||
+                    event.key == 'c' || event.key == '3') {
+                sendCh3('click');
+                sendCh3('down');
+            }
+            return true;
+        }
+
+        function keyup_event_handler(event) {
+            if (event.key == 'a' || event.key == 'u' || event.key == 'x' ||
+                    event.key == 'c' || event.key == '3') {
+                sendCh3('up');
+            }
+            return true;
+        }
+
         document.addEventListener("DOMContentLoaded", function () {
             initialize_ui();
             
             window.addEventListener("resize", resizeColumns, true);
             resizeColumns();
+    
+            document.addEventListener("keydown", keydown_event_handler);
+            document.addEventListener("keyup", keyup_event_handler);
     
             send_ping();            
         }, false);
