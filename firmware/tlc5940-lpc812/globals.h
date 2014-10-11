@@ -36,13 +36,17 @@
 
 
 // Opcodes for light programs
+
+
 #define OPCODE_MASK             0xff000000
 #define OPCODE_END_OF_PROGRAM   0xfe000000
 #define OPCODE_END_OF_PROGRAMS  0xff000000
-#define OPCODE_SET              0x01000000
-#define OPCODE_WAIT             0x02000000
-#define OPCODE_GOTO             0x03000000
-#define OPCODE_FADE             0x04000000
+#define OPCODE_SET(start, stop, value) \
+   (0x01000000 | (stop << 16) | (start << 8) | value)
+#define OPCODE_FADE(start, stop, value) \
+   (0x02000000 | (stop << 16) | (start << 8) | value)
+#define OPCODE_WAIT(time_in_ms) (0x03000000 | (time_in_ms / __SYSTICK_IN_MS))
+#define OPCODE_GOTO(line_no)    (0x04000000 | line_no)
 
 // Offset of special position within every light program
 #define PRIORITY_STATE_OFFSET 0
@@ -51,9 +55,22 @@
 #define FIRST_OPCODE_OFFSET 3
 
 
+#define LED_USED(x) (1 << x)
+#define START_LED(x) (x << 16)
+#define STOP_LED(x) (x << 8)
+
+
 // ****************************************************************************
 typedef enum {
     RUN_WHEN_LIGHT_SWITCH_POSITION   = (1 << 0),     // Bits 0..8
+    RUN_WHEN_LIGHT_SWITCH_POSITION_1 = (1 << 1),
+    RUN_WHEN_LIGHT_SWITCH_POSITION_2 = (1 << 2),
+    RUN_WHEN_LIGHT_SWITCH_POSITION_3 = (1 << 3),
+    RUN_WHEN_LIGHT_SWITCH_POSITION_4 = (1 << 4),
+    RUN_WHEN_LIGHT_SWITCH_POSITION_5 = (1 << 5),
+    RUN_WHEN_LIGHT_SWITCH_POSITION_6 = (1 << 6),
+    RUN_WHEN_LIGHT_SWITCH_POSITION_7 = (1 << 7),
+    RUN_WHEN_LIGHT_SWITCH_POSITION_8 = (1 << 8),
 
     RUN_WHEN_NEUTRAL                 = (1 << 9),
     RUN_WHEN_FORWARD                 = (1 << 10),

@@ -291,7 +291,7 @@ static void execute_program(
         value = (instruction >> 0)  & 0xff;
 
         switch (instruction & OPCODE_MASK) {
-            case OPCODE_SET:
+            case OPCODE_SET(0, 0, 0):
                 for (i = min; i <= max; i++) {
                     if ((leds_already_used & (1 << i)) == 0) {
                         light_setpoint[i] = value;
@@ -299,7 +299,7 @@ static void execute_program(
                 }
                 break;
 
-            case OPCODE_FADE:
+            case OPCODE_FADE(0, 0, 0):
                 for (i = min; i <= max; i++) {
                     if ((leds_already_used & (1 << i)) == 0) {
                         max_change_per_systick[i] = value;
@@ -307,12 +307,12 @@ static void execute_program(
                 }
                 break;
 
-            case OPCODE_GOTO:
+            case OPCODE_GOTO(0):
                 c->PC = light_programs.start[program_number] +
                     (instruction & ~OPCODE_MASK);
                 continue;
 
-            case OPCODE_WAIT:
+            case OPCODE_WAIT(0):
                 c->timer = (instruction & ~OPCODE_MASK);
                 return;
 
