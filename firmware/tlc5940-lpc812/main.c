@@ -211,8 +211,29 @@ static void stack_check(void)
 
 
 // ****************************************************************************
+static void check_no_signal(void) 
+{
+    static int no_signal_timeout = 0;
+    
+    if (global_flags.new_channel_data) {
+        global_flags.no_signal = false;
+        no_signal_timeout = 500 / __SYSTICK_IN_MS;
+    }
+    
+    
+    if (global_flags.systick) {
+        --no_signal_timeout;
+        if (no_signal_timeout == 0) {
+            global_flags.no_signal = true;
+        }
+    }
+}
+
+
+// ****************************************************************************
 int main(void)
 {
+    global_flags.no_signal = true;
     init_hardware();
     init_uart0();
     load_persistent_storage();
@@ -233,11 +254,14 @@ int main(void)
         process_drive_mode();
         process_indicators();
         process_channel_reversing_setup();
-
+        check_no_signal();
+        
         process_servo_output();
         process_winch();
         process_lights();
         output_preprocessor();
+
+
 
         //if (global_flags.systick) {
         //     uart0_send_cstring("tick\n");

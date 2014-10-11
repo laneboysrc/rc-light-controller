@@ -141,11 +141,11 @@ uint32_t process_light_programs(void);
 
 
 // ****************************************************************************
-static void reset_program(int program_number)
+static void reset_program(int n)
 {
-    cpu[program_number].PC =
-        light_programs.start[program_number] + FIRST_OPCODE_OFFSET;
-    cpu[program_number].event = 0;
+    cpu[n].PC = light_programs.start[n] + FIRST_OPCODE_OFFSET;
+    cpu[n].timer = 0;
+    cpu[n].event = 0;
 }
 
 
@@ -329,15 +329,11 @@ void process_light_program_events(void)
 {
     int i;
     if (global_flags.gear_changed) {
-        uart0_send_cstring("Gear change detected!\n");
         for (i = 0; i < light_programs.number_of_programs; i++) {
             if (*(light_programs.start[i] + PRIORITY_STATE_OFFSET) 
                 & RUN_WHEN_GEAR_CHANGED) {
                 reset_program(i);      
                 cpu[i].event = 1;   
-                uart0_send_cstring("Starting prog ");
-                uart0_send_uint32(i);
-                uart0_send_linefeed();
                 break;
             }
         }
@@ -357,9 +353,6 @@ uint32_t process_light_programs(void)
     // Run all programs that were triggered by an event
     for (i = 0; i < light_programs.number_of_programs; i++) {
         if (cpu[i].event) {
-            uart0_send_cstring("Running prog ");
-            uart0_send_uint32(i);
-            uart0_send_linefeed();
             execute_program(light_programs.start[i], &cpu[i], &leds_used);
         }   
     }

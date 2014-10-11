@@ -93,11 +93,12 @@ const LIGHT_PROGRAMS_T light_programs = {
         .version = CONFIG_VERSION
     },
 
-    .number_of_programs = 3,
+    .number_of_programs = 4,
     .start = {
         &light_programs.programs[0],
         &light_programs.programs[10],
         &light_programs.programs[20],
+        &light_programs.programs[32],
     },
 
     .programs = {
@@ -140,6 +141,15 @@ const LIGHT_PROGRAMS_T light_programs = {
         INSTRUCTION_WAIT(100),
         INSTRUCTION_SET(1, 2, 50),
         INSTRUCTION_WAIT(300),
+        INSTRUCTION_END_OF_PROGRAM,
+
+        // Program 3
+        RUN_WHEN_NO_SIGNAL,
+        0x00000000,
+        LED_USED(15),
+        
+        INSTRUCTION_FADE(15, 15, 0),
+        INSTRUCTION_SET(15, 15, 24),
         INSTRUCTION_END_OF_PROGRAM,
 
         INSTRUCTION_END_OF_PROGRAMS

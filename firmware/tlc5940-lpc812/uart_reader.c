@@ -55,6 +55,8 @@ typedef enum {
 // ****************************************************************************
 void init_uart_reader(void)
 {
+    // FIXME: if not UART READER, can we move the initialization somewhere
+    // more logical?
     if (config.mode == MASTER_WITH_SERVO_READER) {
         // Turn the UART output on unless a servo output is requested
         if (!config.flags.steering_wheel_servo_output &&
