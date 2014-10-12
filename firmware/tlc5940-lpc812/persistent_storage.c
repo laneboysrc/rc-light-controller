@@ -46,7 +46,6 @@ void load_persistent_storage(void)
     defaults[OFFSET_SERVO_RIGHT] = 2000;
 
     if (defaults[0] != persistent_data[0]) {
-        uart0_send_cstring("Presistent storage: Using defaults!\n");
         ptr = defaults;
     }
     else {
