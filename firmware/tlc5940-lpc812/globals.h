@@ -121,14 +121,95 @@
 #define INSTRUCTION_SET(start, stop, value) \
     ((OPCODE_SET << 24) | (stop << 16) | (start << 8) | value)
 
+#define INSTRUCTION_SET_VARIABLE(start, stop, var) \
+    ((OPCODE_SET_VARIABLE << 24) | (stop << 16) | (start << 8) | var)
+
 #define INSTRUCTION_FADE(start, stop, value) \
     ((OPCODE_FADE << 24) | (stop << 16) | (start << 8) | value)
+
+#define INSTRUCTION_FADE_VARIABLE(start, stop, var) \
+    ((OPCODE_FADE_VARIABLE << 24) | (stop << 16) | (start << 8) | var)
 
 #define INSTRUCTION_WAIT(time_in_ms) \
     ((OPCODE_WAIT << 24) | (time_in_ms / __SYSTICK_IN_MS))
 
+#define INSTRUCTION_WAIT_VARIABLE(var) \
+    ((OPCODE_WAIT_VARIABLE << 24) | (var))
+
 #define INSTRUCTION_GOTO(line_no) \
     ((OPCODE_GOTO << 24) | line_no)
+
+#define INSTRUCTION_ASSIGN_IMMEDIATE(var, immediate) \
+    ((OPCODE_ASSIGN_I << 24) | (var << 16) | immediate)
+
+#define INSTRUCTION_ASSIGN_VARIABLE(var, source) \
+    ((OPCODE_ASSIGN << 24) | (var << 16) | (0 << 8) | source)
+
+#define INSTRUCTION_ASSIGN_LED(var, led) \
+    ((OPCODE_ASSIGN << 24) | (var << 16) | (1 << 8) | led)
+
+#define INSTRUCTION_ADD_IMMEDIATE(var, immediate) \
+    ((OPCODE_ADD_I << 24) | (var << 16) | immediate)
+
+#define INSTRUCTION_ADD_VARIABLE(var, source) \
+    ((OPCODE_ADD << 24) | (var << 16) | (0 << 8) | source)
+
+#define INSTRUCTION_ADD_LED(var, led) \
+    ((OPCODE_ADD << 24) | (var << 16) | (1 << 8) | led)
+
+#define INSTRUCTION_SUBTRACT_IMMEDIATE(var, immediate) \
+    ((OPCODE_SUBTRACT_I << 24) | (var << 16) | immediate)
+
+#define INSTRUCTION_SUBTRACT_VARIABLE(var, source) \
+    ((OPCODE_SUBTRACT << 24) | (var << 16) | (0 << 8) | source)
+
+#define INSTRUCTION_SUBTRACT_LED(var, led) \
+    ((OPCODE_SUBTRACT << 24) | (var << 16) | (1 << 8) | led)
+
+#define INSTRUCTION_MULTIPLY_IMMEDIATE(var, immediate) \
+    ((OPCODE_MULTIPLY_I << 24) | (var << 16) | immediate)
+
+#define INSTRUCTION_MULTIPLY_VARIABLE(var, source) \
+    ((OPCODE_MULTIPLY << 24) | (var << 16) | (0 << 8) | source)
+
+#define INSTRUCTION_MULTIPLY_LED(var, led) \
+    ((OPCODE_MULTIPLYs << 24) | (var << 16) | (1 << 8) | led)
+
+#define INSTRUCTION_DIVIDE_IMMEDIATE(var, immediate) \
+    ((OPCODE_DIVIDE_I << 24) | (var << 16) | immediate)
+
+#define INSTRUCTION_DIVIDE_VARIABLE(var, source) \
+    ((OPCODE_DIVIDE << 24) | (var << 16) | (0 << 8) | source)
+
+#define INSTRUCTION_DIVIDE_LED(var, led) \
+    ((OPCODE_DIVIDE << 24) | (var << 16) | (1 << 8) | led)
+
+#define INSTRUCTION_AND_IMMEDIATE(var, immediate) \
+    ((OPCODE_AND_I << 24) | (var << 16) | immediate)
+
+#define INSTRUCTION_AND_VARIABLE(var, source) \
+    ((OPCODE_AND << 24) | (var << 16) | (0 << 8) | source)
+
+#define INSTRUCTION_AND_LED(var, led) \
+    ((OPCODE_AND << 24) | (var << 16) | (1 << 8) | led)
+
+#define INSTRUCTION_OR_IMMEDIATE(var, immediate) \
+    ((OPCODE_OR_I << 24) | (var << 16) | immediate)
+
+#define INSTRUCTION_OR_VARIABLE(var, source) \
+    ((OPCODE_OR << 24) | (var << 16) | (0 << 8) | source)
+
+#define INSTRUCTION_OR_LED(var, led) \
+    ((OPCODE_OR << 24) | (var << 16) | (1 << 8) | led)
+
+#define INSTRUCTION_XOR_IMMEDIATE(var, immediate) \
+    ((OPCODE_XOR_I << 24) | (var << 16) | immediate)
+
+#define INSTRUCTION_XOR_VARIABLE(var, source) \
+    ((OPCODE_XOR << 24) | (var << 16) | (0 << 8) | source)
+
+#define INSTRUCTION_XOR_LED(var, led) \
+    ((OPCODE_XOR << 24) | (var << 16) | (1 << 8) | led)
 
 
 #define PARAMETER_TYPE_VARIABLE 0

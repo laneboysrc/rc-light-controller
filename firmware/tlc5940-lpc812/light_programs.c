@@ -493,6 +493,12 @@ static void execute_program(
             case OPCODE_ASSIGN:
             case OPCODE_ASSIGN_I:
                 var[var_id] = get_parameter_value(instruction);
+
+                // uart0_send_cstring("var[");
+                //uart0_send_uint32(var_id);
+                //uart0_send_cstring("] = ");
+                //uart0_send_uint32(var[var_id]);
+                //uart0_send_linefeed();
                 break;
                 
             case OPCODE_ADD:

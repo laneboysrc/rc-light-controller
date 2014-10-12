@@ -97,25 +97,12 @@ const LIGHT_PROGRAMS_T light_programs = {
     .start = {
         &light_programs.programs[0],
         &light_programs.programs[10],
-        &light_programs.programs[20],
-        &light_programs.programs[32],
+        &light_programs.programs[22],
+        &light_programs.programs[28],
     },
 
     .programs = {
         // Program 0
-        RUN_WHEN_NORMAL_OPERATION,
-        RUN_WHEN_LIGHT_SWITCH_POSITION,
-        LED_USED(15),
-        
-        INSTRUCTION_FADE(15, 15, 0),
-        INSTRUCTION_SET(15, 15, 0),
-        INSTRUCTION_WAIT(60),
-        INSTRUCTION_SET(15, 15, 50),
-        INSTRUCTION_WAIT(60),
-        INSTRUCTION_GOTO(0),
-        INSTRUCTION_END_OF_PROGRAM,
-
-        // Program 1
         RUN_WHEN_INITIALIZING,
         0x00000000,
         LED_USED(0),
@@ -128,7 +115,7 @@ const LIGHT_PROGRAMS_T light_programs = {
         INSTRUCTION_GOTO(1),
         INSTRUCTION_END_OF_PROGRAM,
 
-        // Program 2
+        // Program 1
         RUN_WHEN_GEAR_CHANGED,
         0x00000000,
         LED_USED(1) + LED_USED(2),
@@ -143,13 +130,27 @@ const LIGHT_PROGRAMS_T light_programs = {
         INSTRUCTION_WAIT(300),
         INSTRUCTION_END_OF_PROGRAM,
 
-        // Program 3
+        // Program 2
         RUN_WHEN_NO_SIGNAL,
         0x00000000,
+        LED_USED(14),
+        
+        INSTRUCTION_FADE(14, 14, 0),
+        INSTRUCTION_SET(14, 14, 24),
+        INSTRUCTION_END_OF_PROGRAM,
+
+        // Program 3
+        RUN_WHEN_NORMAL_OPERATION,
+        RUN_ALWAYS,
         LED_USED(15),
         
         INSTRUCTION_FADE(15, 15, 0),
-        INSTRUCTION_SET(15, 15, 24),
+        INSTRUCTION_ASSIGN_IMMEDIATE(0, 0),     // Pre-load 6-click var[0] with 0
+        INSTRUCTION_ASSIGN_VARIABLE(1, 0),      // Load 6-click incrementing var[0] into var[1]
+        INSTRUCTION_MULTIPLY_IMMEDIATE(1, 16),   // var[1] = var[1] * 16;
+        INSTRUCTION_SET_VARIABLE(15, 15, 1),
+        INSTRUCTION_WAIT(20),
+        INSTRUCTION_GOTO(2),
         INSTRUCTION_END_OF_PROGRAM,
 
         INSTRUCTION_END_OF_PROGRAMS
