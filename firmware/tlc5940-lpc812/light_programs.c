@@ -6,7 +6,7 @@
         - The maximum number of programs is predetermined as we need to
           assign memory like program counter to each program, and so far
           there is no heap (malloc)
-        * Mini programming language
+        - Mini programming language
             - GOTO to implement loops
             - SET start_led stop_led value
             - SET start_led stop_led VARIABLE
@@ -14,23 +14,25 @@
             - FADE start_led stop_led VARIABLE
             - WAIT time
             - WAIT VARIABLE
-            * VARIABLE = {integer, VARIABLE, LED[x], random-value}
-            * VARIABLE += {integer, VARIABLE, LED[x]}
-            * VARIABLE -= {integer, VARIABLE, LED[x]}
-            * VARIABLE *= {integer, VARIABLE, LED[x]}
-            * VARIABLE /= {integer, VARIABLE, LED[x]}
-            * SKIP IF EQUAL {VARIABLE, LED[x]} {integer, VARIABLE, LED[x]} 
-            * SKIP IF NOT EQUAL {VARIABLE, LED[x]} {integer, VARIABLE, LED[x]} 
-            * SKIP IF GREATER OR EQUAL {VARIABLE, LED[x]} {integer, VARIABLE, LED[x]} 
-            * SKIP IF GREATER {VARIABLE, LED[x]} {integer, VARIABLE, LED[x]} 
-            * SKIP IF SMALLER OR EQUAL (translated by compiler into GT)
-            * SKIP IF SMALLER (translated by compiler into GE) 
-            * SKIP IF ANY {run-state-mask} (compiler shortcut: SKIP IF {single-run-state}) 
-            * SKIP IF ALL {run-state-mask} 
-            * SKIP IF NONE {run-state-mask} (compiler shortcut: SKIP IF NOT {single-run-state}) 
+            * VARIABLE = abs(VARIABLE)
+            - VARIABLE = {integer, VARIABLE, LED[x], random-value, TH, ST}
+            - VARIABLE += {integer, VARIABLE, LED[x], TH, ST}
+            - VARIABLE -= {integer, VARIABLE, LED[x], TH, ST}
+            * VARIABLE = -VARIABLE
+            - VARIABLE *= {integer, VARIABLE, LED[x], TH, ST}
+            - VARIABLE /= {integer, VARIABLE, LED[x], TH, ST}
+            - SKIP IF EQUAL {VARIABLE, LED[x]} {integer, VARIABLE, LED[x]} 
+            - SKIP IF NOT EQUAL {VARIABLE, LED[x]} {integer, VARIABLE, LED[x]} 
+            - SKIP IF GREATER OR EQUAL {VARIABLE, LED[x]} {integer, VARIABLE, LED[x]} 
+            - SKIP IF GREATER {VARIABLE, LED[x]} {integer, VARIABLE, LED[x]} 
+            - SKIP IF SMALLER OR EQUAL  {VARIABLE, LED[x]} {integer, VARIABLE, LED[x]}
+            - SKIP IF SMALLER  {VARIABLE, LED[x]} {integer, VARIABLE, LED[x]}
+            - SKIP IF ANY {run-state-mask} (compiler shortcut: SKIP IF {single-run-state}) 
+            - SKIP IF ALL {run-state-mask} 
+            - SKIP IF NONE {run-state-mask} (compiler shortcut: SKIP IF NOT {single-run-state}) 
 
 
-        * INSTRUCTIONS and OPCODES
+        - INSTRUCTIONS and OPCODES
             - Every instruction is 4 bytes
             - This means that 1 byte opcode + 3 bytes parameters is feasible
             - End-of-program marker to find different programs in the flash
@@ -49,15 +51,12 @@
               and immediates and variables, and led/var led/var.     
 
         * VARIABLES
-            * Global pool of variables, assigned at "compile time"
-            * Does it make sense to have the same variable be accessible
-              by multiple programs?
-                * Possibly, so lets make the "compiler" recognize local and
-                  global variables
-            * Variables are int16_t
-                * Because we can have immediates only be 24 bits max anyway
-            * Special variable that increments on 6 clicks * "Next sequence"
-                          
+            - Global pool of variables, assigned at "compile time"
+            - Variables are accessible by multiple programs
+                * The "compiler" recognize local and global variables
+            - Variables are int16_t
+                - Because we can have immediates only be 24 bits max anyway
+            - Special variable that increments on 6 clicks * "Next sequence"
 
         * It should be possible to "name" the variables and lights for
           human friendly programming, and to be able to share programs between
@@ -68,15 +67,15 @@
 
         - Issue: how to return to the normal program if a light program has
           an IF .. GOTO loop that waits for a certain condition?
-            * Only execute a certain number of instructions per systick
+            - Only execute a certain number of instructions per systick
         - Programs are active because of an event, or because of a match state
         - Program triggering events
-            * Gearbox change event
-            * There can only be one event active
-            * New events stop currently running events
-            * Event programs have priority over other programs regarding light use
+            - Gearbox change event
+            - There can only be one event active
+            - New events stop currently running events
+            - Event programs have priority over other programs regarding light use
         - Program states
-            * Any of the car states
+            - Any of the car states
                 - light switch position[9]
                 - tail light (shortcut to light switch position > 0)
                 - neutral
@@ -93,7 +92,7 @@
                 - gear 2
                 - winch states (including disabled)
             - Multiple programs can be running in parallel
-                * If multiple programs run then the first program using a
+                - If multiple programs run then the first program using a
                   particular light wins, the other can not use that light
 
 
@@ -155,7 +154,7 @@ static LIGHT_PROGRAM_CPU_T cpu[MAX_LIGHT_PROGRAMS];
 static uint32_t run_state;
 static uint32_t priority_run_state;
 
-static uint16_t var[MAX_LIGHT_PROGRAM_VARIABLES];
+static int16_t var[MAX_LIGHT_PROGRAM_VARIABLES];
 
 extern LED_T light_setpoint[];
 extern LED_T light_actual[];
@@ -319,6 +318,12 @@ static int16_t get_parameter_value(uint32_t instruction)
             
         case PARAMETER_TYPE_RANDOM:
             return (int16_t)random_min_max(1, 0xffff); 
+
+        case PARAMETER_TYPE_STEERING:
+            return channel[ST].normalized; 
+
+        case PARAMETER_TYPE_THROTTLE:
+            return channel[TH].normalized; 
             
         default:
             uart0_send_cstring("UNKNOWN PARAMETER TYPE ");
@@ -560,6 +565,12 @@ static void execute_program(
             case OPCODE_XOR:
             case OPCODE_XOR_I:
                 var[var_id] ^= get_parameter_value(instruction);
+                break;
+
+            case OPCODE_ABS:
+                if (var[var_id] < 0) {
+                    var[var_id] = 0 - var[var_id];
+                }
                 break;
  
             case OPCODE_END_OF_PROGRAM:

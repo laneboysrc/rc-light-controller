@@ -40,6 +40,15 @@
 #define INSTRUCTION_ASSIGN_LED(var, led) \
     ((OPCODE_ASSIGN << 24) | (var << 16) | (PARAMETER_TYPE_LED << 8) | led)
 
+#define INSTRUCTION_ASSIGN_RANDOM(var) \
+    ((OPCODE_ASSIGN << 24) | (var << 16) | (PARAMETER_TYPE_RANDOM << 8))
+
+#define INSTRUCTION_ASSIGN_STEERING(var) \
+    ((OPCODE_ASSIGN << 24) | (var << 16) | (PARAMETER_TYPE_STEERING << 8))
+
+#define INSTRUCTION_ASSIGN_THROTTLE(var) \
+    ((OPCODE_ASSIGN << 24) | (var << 16) | (PARAMETER_TYPE_THROTTLE << 8))
+
 #define INSTRUCTION_ADD_IMMEDIATE(var, immediate) \
     ((OPCODE_ADD_I << 24) | (var << 16) | immediate)
 
@@ -184,6 +193,8 @@
 #define INSTRUCTION_SKIP_IF_NONE(run_state) \
     ((OPCODE_SKIP_IF_NONE << 24) | run_state)
 
+#define INSTRUCTION_ABS(var) \
+    ((OPCODE_ABS << 24) | (var << 16))
 
 // ****************************************************************************
 const CAR_LIGHT_ARRAY_T local_leds = {
@@ -332,13 +343,17 @@ const LIGHT_PROGRAMS_T light_programs = {
         INSTRUCTION_WAIT(20),
         INSTRUCTION_SKIP_IF_LE_VI(0, 1),
         INSTRUCTION_ASSIGN_IMMEDIATE(0, 0),
-        INSTRUCTION_SKIP_IF_NONE(RUN_WHEN_LIGHT_SWITCH_POSITION_1 | RUN_WHEN_LIGHT_SWITCH_POSITION_2),
-        INSTRUCTION_GOTO(9),
-        
-        INSTRUCTION_SET(15, 15, 50),
+        INSTRUCTION_SKIP_IF_ANY(RUN_WHEN_LIGHT_SWITCH_POSITION_1 | RUN_WHEN_LIGHT_SWITCH_POSITION_2),
+        INSTRUCTION_GOTO(12),
+
+        INSTRUCTION_ASSIGN_THROTTLE(1), 
+        INSTRUCTION_SKIP_IF_GE_VI(1, 0),
+        INSTRUCTION_ABS(1),
+            
+        INSTRUCTION_SET_VARIABLE(15, 15, 1),
         INSTRUCTION_GOTO(2),
         
-        INSTRUCTION_SET(15, 15, 255),
+        INSTRUCTION_SET(15, 15, 30),
         INSTRUCTION_GOTO(2),
         
         INSTRUCTION_END_OF_PROGRAM,
