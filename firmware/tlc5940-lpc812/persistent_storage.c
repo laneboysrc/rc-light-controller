@@ -19,41 +19,45 @@
 #include <uart0.h>
 
 #define PERSISTENT_DATA_VERSION 1
+#define NUMBER_OF_PERSISTENT_ELEMENTS 16
 
 __attribute__ ((section(".persistent_data")))
-volatile uint32_t persistent_data[16];
+volatile const uint32_t persistent_data[NUMBER_OF_PERSISTENT_ELEMENTS];
 
-//uint32_t *persistent_data = 0x2680;
+#define OFFSET_VERSION 0
+#define OFFSET_STEERING_REVERSED 1
+#define OFFSET_THROTTLE_REVERSED 2
+#define OFFSET_SERVO_LEFT 3
+#define OFFSET_SERVO_CENTRE 4
+#define OFFSET_SERVO_RIGHT 5
 
 
 // ****************************************************************************
 void load_persistent_storage(void)
 {
-#if 0
-    PERSISTENT_DATA_T defaults;
-    const PERSISTENT_DATA_T *ptr;
-    
-    defaults.version = PERSISTENT_DATA_VERSION;
-    defaults.steering_reversed = false;    
-    defaults.throttle_reversed = false;    
-    defaults.servo_output_endpoint.left = 1000;
-    defaults.servo_output_endpoint.centre = 1500;
-    defaults.servo_output_endpoint.right = 2000;
+    uint32_t defaults[6];
+    const volatile uint32_t *ptr;
 
-    uart0_send_cstring("read_persistent_storage\n");
+    defaults[OFFSET_VERSION] = PERSISTENT_DATA_VERSION;
+    defaults[OFFSET_STEERING_REVERSED] = false;
+    defaults[OFFSET_THROTTLE_REVERSED] = false;
+    defaults[OFFSET_SERVO_LEFT] = 1000;
+    defaults[OFFSET_SERVO_CENTRE] = 1500;
+    defaults[OFFSET_SERVO_RIGHT] = 2000;
 
-    if (defaults.version != persistent_data.version) {
-        uart0_send_cstring("Using defaults!\n");
-        ptr = &defaults;
+    if (defaults[0] != persistent_data[0]) {
+        uart0_send_cstring("Presistent storage: Using defaults!\n");
+        ptr = defaults;
     }
     else {
-        ptr = &persistent_data;
+        ptr = persistent_data;
     }
 
-    channel[ST].reversed = ptr->steering_reversed;
-    channel[TH].reversed = ptr->throttle_reversed;
-    servo_output_endpoint = ptr->servo_output_endpoint;
-    #endif
+    channel[ST].reversed = ptr[OFFSET_STEERING_REVERSED];
+    channel[TH].reversed = ptr[OFFSET_THROTTLE_REVERSED];
+    servo_output_endpoint.left = ptr[OFFSET_SERVO_LEFT];
+    servo_output_endpoint.centre = ptr[OFFSET_SERVO_CENTRE];
+    servo_output_endpoint.right = ptr[OFFSET_SERVO_RIGHT];
 }
 
 
@@ -61,82 +65,67 @@ void load_persistent_storage(void)
 void write_persistent_storage(void)
 {
     uint32_t new_data[6];
+    unsigned int param[5];
     int i;
-    
-    new_data[0] = PERSISTENT_DATA_VERSION;
-    new_data[1] = false;    
-    new_data[2] = false;    
-    new_data[3] = 1000;
-    new_data[4] = 1500;
-    new_data[5] = 2000;   
 
-    uart0_send_cstring("persistent_data is at 0x");
-    uart0_send_uint32_hex(persistent_data);
-    uart0_send_linefeed();
-
-
-
-    
-    if (new_data[0] != persistent_data[0] ||
-        new_data[1] != persistent_data[1] ||
-        new_data[2] != persistent_data[2] ||
-        new_data[3] != persistent_data[3] ||
-        new_data[4] != persistent_data[4] ||
-        new_data[5] != persistent_data[5]) {
-        
-        unsigned int param[5];
-        uart0_send_cstring("write_persistent_storage ");
-        uart0_send_uint32(((uint32_t)persistent_data)>>6);
-        uart0_send_linefeed();
-        
-        param[0] = 50;
-        param[1] = ((unsigned int)persistent_data) >> 10;
-        param[2] = ((unsigned int)persistent_data) >> 10;
-        __disable_irq();
-        iap_entry(param, param);
-        __enable_irq();
-        uart0_send_cstring("Prepare sector: ");
-        uart0_send_uint32(param[0]);
-        uart0_send_linefeed();
-
-        param[0] = 59;  // Erase page command
-        param[1] = ((unsigned int)persistent_data) >> 6; 
-        param[2] = ((unsigned int)persistent_data) >> 6;
-        param[3] = __SYSTEM_CLOCK / 1000;
-        __disable_irq();
-        iap_entry(param, param);
-        __enable_irq();
-        uart0_send_cstring("Erase page: ");
-        uart0_send_uint32(param[0]);
-        uart0_send_linefeed();
-
-        param[0] = 50;
-        param[1] = ((unsigned int)persistent_data) >> 10;
-        param[2] = ((unsigned int)persistent_data) >> 10;
-        __disable_irq();
-        iap_entry(param, param);
-        __enable_irq();
-        uart0_send_cstring("Prepare sector: ");
-        uart0_send_uint32(param[0]);
-        uart0_send_linefeed();
-
-        param[0] = 51;  // Copy RAM to Flash command
-        param[1] = (unsigned int)persistent_data; 
-        param[2] = (unsigned int)new_data;
-        param[3] = 64;
-        param[4] = __SYSTEM_CLOCK / 1000;
-        __disable_irq();
-        iap_entry(param, param);
-        __enable_irq();
-        uart0_send_cstring("Copy: ");
-        uart0_send_uint32(param[0]);
-        uart0_send_linefeed();
-    }   
+    new_data[OFFSET_VERSION] = PERSISTENT_DATA_VERSION;
+    new_data[OFFSET_STEERING_REVERSED] = channel[ST].reversed;
+    new_data[OFFSET_THROTTLE_REVERSED] = channel[TH].reversed;
+    new_data[OFFSET_SERVO_LEFT] = servo_output_endpoint.left;
+    new_data[OFFSET_SERVO_CENTRE] = servo_output_endpoint.centre;
+    new_data[OFFSET_SERVO_RIGHT] = servo_output_endpoint.right;
 
     for (i = 0; i < 6; i++) {
-        uart0_send_uint32_hex(persistent_data[i]);
-        uart0_send_cstring(" -> ");
-        uart0_send_uint32_hex(new_data[i]);
-        uart0_send_linefeed();
+        if (new_data[0] != persistent_data[0]) {
+
+            param[0] = 50;
+            param[1] = ((unsigned int)persistent_data) >> 10;
+            param[2] = ((unsigned int)persistent_data) >> 10;
+            __disable_irq();
+            iap_entry(param, param);
+            __enable_irq();
+            if (param[0] != 0) {
+                uart0_send_cstring("ERROR: prepare sector failed\n");
+                break;
+            }
+
+            param[0] = 59;  // Erase page command
+            param[1] = ((unsigned int)persistent_data) >> 6;
+            param[2] = ((unsigned int)persistent_data) >> 6;
+            param[3] = __SYSTEM_CLOCK / 1000;
+            __disable_irq();
+            iap_entry(param, param);
+            __enable_irq();
+            if (param[0] != 0) {
+                uart0_send_cstring("ERROR: erase page failed\n");
+                break;
+            }
+
+            param[0] = 50;
+            param[1] = ((unsigned int)persistent_data) >> 10;
+            param[2] = ((unsigned int)persistent_data) >> 10;
+            __disable_irq();
+            iap_entry(param, param);
+            __enable_irq();
+            if (param[0] != 0) {
+                uart0_send_cstring("ERROR: prepare sector failed\n");
+                break;
+            }
+
+            param[0] = 51;  // Copy RAM to Flash command
+            param[1] = (unsigned int)persistent_data;
+            param[2] = (unsigned int)new_data;
+            param[3] = 64;
+            param[4] = __SYSTEM_CLOCK / 1000;
+            __disable_irq();
+            iap_entry(param, param);
+            __enable_irq();
+            if (param[0] != 0) {
+                uart0_send_cstring("ERROR: copy RAM to flash failed\n");
+                break;
+            }
+
+            break;
+        }
     }
 }

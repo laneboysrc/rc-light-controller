@@ -69,7 +69,6 @@ static void process_ch3_click_timeout(void)
                 }
                 else {
                     light_switch_up();
-                    write_persistent_storage();
                 }
                 break;
 
