@@ -175,6 +175,15 @@
 #define INSTRUCTION_SKIP_IF_LE_LI(led, immediate) \
     ((OPCODE_SKIP_IF_LE_LI << 24) | (led << 16) | immediate)
 
+#define INSTRUCTION_SKIP_IF_ANY(run_state) \
+    ((OPCODE_SKIP_IF_ANY << 24) | run_state)
+
+#define INSTRUCTION_SKIP_IF_ALL(run_state) \
+    ((OPCODE_SKIP_IF_ALL << 24) | run_state)
+
+#define INSTRUCTION_SKIP_IF_NONE(run_state) \
+    ((OPCODE_SKIP_IF_NONE << 24) | run_state)
+
 
 // ****************************************************************************
 const CAR_LIGHT_ARRAY_T local_leds = {
@@ -323,7 +332,7 @@ const LIGHT_PROGRAMS_T light_programs = {
         INSTRUCTION_WAIT(20),
         INSTRUCTION_SKIP_IF_LE_VI(0, 1),
         INSTRUCTION_ASSIGN_IMMEDIATE(0, 0),
-        INSTRUCTION_SKIP_IF_EQ_VI(0, 0),
+        INSTRUCTION_SKIP_IF_NONE(RUN_WHEN_LIGHT_SWITCH_POSITION_1 | RUN_WHEN_LIGHT_SWITCH_POSITION_2),
         INSTRUCTION_GOTO(9),
         
         INSTRUCTION_SET(15, 15, 50),

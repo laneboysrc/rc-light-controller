@@ -439,6 +439,26 @@ static void execute_program(
             continue;
         }
 
+        if ((opcode & 0xe0) == OPCODE_SKIP_IF_ANY) {
+            if (instruction & run_state & 0x1fffffff) {
+                c->PC++;
+            } 
+            continue;
+        } 
+        else if ((opcode & 0xe0) == OPCODE_SKIP_IF_ALL) {
+            if ((instruction & run_state & 0x1fffffff) == 
+                    (instruction & 0x1fffffff)) {
+                c->PC++;
+            } 
+            continue;
+        } 
+        else if ((opcode & 0xe0) == OPCODE_SKIP_IF_NONE) {
+            if ((instruction & run_state & 0x1fffffff) == 0) {
+                c->PC++;
+            } 
+            continue;
+        }
+
         // Fan out commonly used opcode parameters
         max =  var_id = (instruction >> 16) & 0xff;
         min = (instruction >> 8)  & 0xff;

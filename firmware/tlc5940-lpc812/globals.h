@@ -103,9 +103,9 @@
 #define OPCODE_SKIP_IF_LT_LI    0x37    // >        led, immediate
 #define LAST_SKIP_IF_OPCODE     0x37
 
-#define OPCODE_IF_ANY           0x60    // 011 + 29 bits run_state!
-#define OPCODE_IF_ALL           0x80    // 100 + 29 bits run_state!
-#define OPCODE_IF_NONE          0xA0    // 101 + 29 bits run_state!
+#define OPCODE_SKIP_IF_ANY      0x60    // 011 + 29 bits run_state!
+#define OPCODE_SKIP_IF_ALL      0x80    // 100 + 29 bits run_state!
+#define OPCODE_SKIP_IF_NONE     0xA0    // 101 + 29 bits run_state!
 
 #define OPCODE_END_OF_PROGRAM   0xfe
 #define OPCODE_END_OF_PROGRAMS  0xff
