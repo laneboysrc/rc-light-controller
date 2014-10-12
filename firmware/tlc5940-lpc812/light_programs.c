@@ -140,6 +140,7 @@
 
 #include <globals.h>
 #include <uart0.h>
+#include <utils.h>
 
 #define MAX_INSTRUCTIONS_PER_SYSTICK 30
 
@@ -281,6 +282,124 @@ static void load_light_program_environment(void)
 
 
 // ****************************************************************************
+static int16_t get_cmp1(uint32_t instruction)
+{
+    uint8_t id;
+    
+    id = (instruction >> 16) & 0xff;
+    
+    // Bit 2 in the opcode field is cleared for VARIABLE, set for LED
+    if (instruction & 0x02000000) {
+        return light_actual[id];
+    }
+    else {
+        return var[id];
+    }
+}
+
+
+// ****************************************************************************
+static int16_t get_parameter_value(uint32_t instruction)
+{
+    uint8_t type;
+    // Odd numbered opcodes have an immediate as parameter
+    if (instruction & 0x01000000) {
+        return (int16_t)(instruction & 0xffff);
+    }
+    
+    // Even numbered opcodes have either variable, led or random as parameter,
+    // determined by param2 of the opcode
+    type = instruction >> 8;
+    switch (type) {
+        case PARAMETER_TYPE_VARIABLE:
+            return var[instruction & 0xff];
+            
+        case PARAMETER_TYPE_LED:
+            return light_actual[instruction & 0xff];
+            
+        case PARAMETER_TYPE_RANDOM:
+            return (int16_t)random_min_max(1, 0xffff); 
+            
+        default:
+            uart0_send_cstring("UNKNOWN PARAMETER TYPE ");
+            uart0_send_uint32(type);
+            uart0_send_linefeed();
+            return 0;
+    }
+}
+
+
+static void execute_skip_if(uint8_t opcode, uint32_t instruction, 
+    LIGHT_PROGRAM_CPU_T *c) 
+{
+    int16_t cmp1;
+    int16_t cmp2;
+
+    cmp1 = get_cmp1(instruction);
+    cmp2 = get_parameter_value(instruction);
+
+    switch (opcode) {               
+        case OPCODE_SKIP_IF_EQ_V:
+        case OPCODE_SKIP_IF_EQ_VI:
+        case OPCODE_SKIP_IF_EQ_L:
+        case OPCODE_SKIP_IF_EQ_LI:
+            if (cmp1 == cmp2) {
+                ++c->PC;
+            }
+            break;
+            
+        case OPCODE_SKIP_IF_NE_V:
+        case OPCODE_SKIP_IF_NE_VI:
+        case OPCODE_SKIP_IF_NE_L:
+        case OPCODE_SKIP_IF_NE_LI:
+            if (cmp1 != cmp2) {
+                ++c->PC;
+            }
+            break;
+
+        case OPCODE_SKIP_IF_GT_V:
+        case OPCODE_SKIP_IF_GT_VI:
+        case OPCODE_SKIP_IF_GT_L:
+        case OPCODE_SKIP_IF_GT_LI:
+            if (cmp1 > cmp2) {
+                ++c->PC;
+            }
+            break;
+
+        case OPCODE_SKIP_IF_GE_V:
+        case OPCODE_SKIP_IF_GE_VI:
+        case OPCODE_SKIP_IF_GE_L:
+        case OPCODE_SKIP_IF_GE_LI:
+            if (cmp1 >= cmp2) {
+                ++c->PC;
+            }
+            break;
+
+        case OPCODE_SKIP_IF_LT_V:
+        case OPCODE_SKIP_IF_LT_VI:
+        case OPCODE_SKIP_IF_LT_L:
+        case OPCODE_SKIP_IF_LT_LI:
+            if (cmp1 < cmp2) {
+                ++c->PC;
+            }
+            break;
+
+        case OPCODE_SKIP_IF_LE_V:
+        case OPCODE_SKIP_IF_LE_VI:
+        case OPCODE_SKIP_IF_LE_L:
+        case OPCODE_SKIP_IF_LE_LI:
+            if (cmp1 <= cmp2) {
+                ++c->PC;
+            }
+            break;
+            
+        default:
+            break;    
+    }
+}
+
+
+// ****************************************************************************
 static void execute_program(
     const uint32_t *program, LIGHT_PROGRAM_CPU_T *c, uint32_t *leds_used)
 {
@@ -297,14 +416,16 @@ static void execute_program(
     }
 
     while (instructions_executed < MAX_INSTRUCTIONS_PER_SYSTICK) {
-        uint32_t instruction;
-        uint8_t opcode;
-        uint8_t min;
-        uint8_t max;
-        uint8_t value;
-        uint8_t type;
-        uint8_t id1;
-        uint8_t id2;
+        static uint32_t instruction;
+        static uint8_t opcode;
+        
+        static uint8_t min;
+        static uint8_t max;
+        static uint8_t value;
+        
+        static uint8_t var_id;
+        static int16_t dividend;
+
         int i;
 
         ++instructions_executed;
@@ -313,16 +434,29 @@ static void execute_program(
 
         opcode = (instruction >> 24) & 0xff;
 
+        if (opcode >= FIRST_SKIP_IF_OPCODE && opcode <= LAST_SKIP_IF_OPCODE) {
+            execute_skip_if(opcode, instruction, c);
+            continue;
+        }
+
         // Fan out commonly used opcode parameters
-        max = type = (instruction >> 16) & 0xff;
-        min = id1 = (instruction >> 8)  & 0xff;
-        value = id2 = (instruction >> 0)  & 0xff;
+        max =  var_id = (instruction >> 16) & 0xff;
+        min = (instruction >> 8)  & 0xff;
+        value = (instruction >> 0)  & 0xff;
 
         switch (opcode) {
             case OPCODE_SET:
                 for (i = min; i <= max; i++) {
                     if ((leds_already_used & (1 << i)) == 0) {
                         light_setpoint[i] = value;
+                    }
+                }
+                break;
+
+            case OPCODE_SET_VARIABLE:
+                for (i = min; i <= max; i++) {
+                    if ((leds_already_used & (1 << i)) == 0) {
+                        light_setpoint[i] = var[value];
                     }
                 }
                 break;
@@ -335,15 +469,73 @@ static void execute_program(
                 }
                 break;
 
-            case OPCODE_GOTO:
-                c->PC =
-                    program + FIRST_OPCODE_OFFSET + (instruction & 0x00ffffff);
-                continue;
+            case OPCODE_FADE_VARIABLE:
+                for (i = min; i <= max; i++) {
+                    if ((leds_already_used & (1 << i)) == 0) {
+                        max_change_per_systick[i] = var[value];
+                    }
+                }
+                break;
 
             case OPCODE_WAIT:
                 c->timer = (instruction & 0x0000ffff);
                 return;
 
+            case OPCODE_WAIT_VARIABLE:
+                c->timer = var[value] > 0 ? var[value] : 0;
+                return;
+
+            case OPCODE_GOTO:
+                c->PC =
+                    program + FIRST_OPCODE_OFFSET + (instruction & 0x00ffffff);
+                continue;
+
+            case OPCODE_ASSIGN:
+            case OPCODE_ASSIGN_I:
+                var[var_id] = get_parameter_value(instruction);
+                break;
+                
+            case OPCODE_ADD:
+            case OPCODE_ADD_I:
+                var[var_id] += get_parameter_value(instruction);
+                break;
+                
+            case OPCODE_SUBTRACT:
+            case OPCODE_SUBTRACT_I:
+                var[var_id] -= get_parameter_value(instruction);
+                break;
+                
+            case OPCODE_MULTIPLY:
+            case OPCODE_MULTIPLY_I:
+                var[var_id] *= get_parameter_value(instruction);
+                break;
+
+            case OPCODE_DIVIDE:
+            case OPCODE_DIVIDE_I:
+                dividend = get_parameter_value(instruction);
+                if (dividend == 0) {
+                    var[var_id] = 0x7fff;   // int16_t max
+                } 
+                else {
+                    var[var_id] /= dividend;
+                    }
+                break;
+                
+            case OPCODE_AND:
+            case OPCODE_AND_I:
+                var[var_id] &= get_parameter_value(instruction);
+                break;
+                
+            case OPCODE_OR:
+            case OPCODE_OR_I:
+                var[var_id] |= get_parameter_value(instruction);
+                break;
+                
+            case OPCODE_XOR:
+            case OPCODE_XOR_I:
+                var[var_id] ^= get_parameter_value(instruction);
+                break;
+ 
             case OPCODE_END_OF_PROGRAM:
                 --c->PC;
                 c->event = 0;
