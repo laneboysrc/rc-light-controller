@@ -14,11 +14,10 @@
             - FADE start_led stop_led VARIABLE
             - WAIT time
             - WAIT VARIABLE
-            * VARIABLE = abs(VARIABLE)
+            - VARIABLE = abs(VARIABLE)
             - VARIABLE = {integer, VARIABLE, LED[x], random-value, TH, ST}
             - VARIABLE += {integer, VARIABLE, LED[x], TH, ST}
             - VARIABLE -= {integer, VARIABLE, LED[x], TH, ST}
-            * VARIABLE = -VARIABLE
             - VARIABLE *= {integer, VARIABLE, LED[x], TH, ST}
             - VARIABLE /= {integer, VARIABLE, LED[x], TH, ST}
             - SKIP IF EQUAL {VARIABLE, LED[x]} {integer, VARIABLE, LED[x]} 
