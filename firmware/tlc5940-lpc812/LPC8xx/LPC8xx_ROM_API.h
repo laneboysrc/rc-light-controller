@@ -2,7 +2,8 @@
  *
  * ROM API header file for NXP LPC800 Device Series
  *
- ***************************************************************************/#ifndef __LPC8xx_ROM_API_H__
+ ***************************************************************************/
+ #ifndef __LPC8xx_ROM_API_H__
 #define __LPC8xx_ROM_API_H__
 
 #ifdef __cplusplus
@@ -12,7 +13,7 @@ extern "C" {
 
 /****************************************************************************
  * UART ROM API
- ***************************************************************************/#ifndef __LPC8xx_ROM_API_H__
+ ***************************************************************************/
 typedef void (* UART_CALLBK_T)(void);
 typedef void *UART_HANDLE_T;
 
@@ -199,6 +200,14 @@ typedef struct _ROM_API {
 #define LPC_PWRD_API ((PWRD_API_T *) ((*(ROM_API_T * *) (ROM_DRIVER_BASE))->pPWRD))
 #define LPC_I2CD_API ((I2CD_API_T *) ((*(ROM_API_T * *) (ROM_DRIVER_BASE))->pI2CD))
 #define LPC_UART_API ((UARTD_API_T *) ((*(ROM_API_T * *) (ROM_DRIVER_BASE))->pUARTD))
+
+
+/****************************************************************************
+ * In-Application Programming of the Flash memory
+ ***************************************************************************/
+#define IAP_LOCATION 0x1FFF1FF1
+typedef void (* IAP)(unsigned int [], unsigned int[]);
+const IAP iap_entry = (IAP) IAP_LOCATION;
 
 
 #ifdef __cplusplus
