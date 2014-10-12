@@ -12,6 +12,7 @@ SECTIONS
         KEEP(*(.isr_vector))
         . = ALIGN(64);
         KEEP(*(.persistent_data))
+        . = ALIGN(64);
         KEEP(*(.after_vectors))
         *(.text*)
         *(.rodata*)

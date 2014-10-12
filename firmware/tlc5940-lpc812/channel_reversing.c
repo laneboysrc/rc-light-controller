@@ -62,7 +62,7 @@ void process_channel_reversing_setup(void)
             // If we are reading a negative value we therefore have to reverse
             // the throttle channel.
             if (channel[TH].normalized < 0) {
-                channel[TH].reversed = ~channel[ST].reversed;
+                channel[TH].reversed = ~channel[TH].reversed;
             }
             global_flags.reversing_setup &= ~REVERSING_SETUP_THROTTLE;
         }
