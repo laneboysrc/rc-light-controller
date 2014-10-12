@@ -15,6 +15,8 @@
 
 #include <globals.h>
 
+__attribute__ ((section(".persistent_data")))
+uint8_t persistent_data[64] = { 0 };
 
 // ****************************************************************************
 void load_persistent_storage(void)

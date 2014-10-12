@@ -189,7 +189,7 @@ static void stack_check(void)
 {
     #define CANARY 0xcafebabe
 
-    static uint32_t *last_found = (uint32_t *)(0x10001000 - 16);
+    static uint32_t *last_found = (uint32_t *)(0x10001000 - 48);
     uint32_t *now;
 
     if (last_found == (uint32_t *)0x10000000) {

@@ -10,6 +10,8 @@ SECTIONS
     {
         _text = .;
         KEEP(*(.isr_vector))
+        . = ALIGN(64);
+        KEEP(*(.persistent_data))
         KEEP(*(.after_vectors))
         *(.text*)
         *(.rodata*)
@@ -46,5 +48,9 @@ SECTIONS
         _ebss = .;
     } > RAM
 
-    _stacktop = ORIGIN(RAM) + LENGTH(RAM);
+    /* The stack starts 32 bytes below to of RAM as those 32 bytes are needed
+     * for the IAR ROM function that we use to write the Flash with persistent
+     * data.
+     */
+    _stacktop = ORIGIN(RAM) + LENGTH(RAM) - 32;
 }
