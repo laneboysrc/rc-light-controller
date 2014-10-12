@@ -146,11 +146,19 @@ const LIGHT_PROGRAMS_T light_programs = {
         
         INSTRUCTION_FADE(15, 15, 0),
         INSTRUCTION_ASSIGN_IMMEDIATE(0, 0),     // Pre-load 6-click var[0] with 0
-        INSTRUCTION_ASSIGN_VARIABLE(1, 0),      // Load 6-click incrementing var[0] into var[1]
-        INSTRUCTION_MULTIPLY_IMMEDIATE(1, 16),   // var[1] = var[1] * 16;
-        INSTRUCTION_SET_VARIABLE(15, 15, 1),
+
         INSTRUCTION_WAIT(20),
+        INSTRUCTION_SKIP_IF_LE_VI(0, 1),
+        INSTRUCTION_ASSIGN_IMMEDIATE(0, 0),
+        INSTRUCTION_SKIP_IF_EQ_VI(0, 0),
+        INSTRUCTION_GOTO(9),
+        
+        INSTRUCTION_SET(15, 15, 50),
         INSTRUCTION_GOTO(2),
+        
+        INSTRUCTION_SET(15, 15, 255),
+        INSTRUCTION_GOTO(2),
+        
         INSTRUCTION_END_OF_PROGRAM,
 
         INSTRUCTION_END_OF_PROGRAMS

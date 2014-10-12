@@ -211,6 +211,78 @@
 #define INSTRUCTION_XOR_LED(var, led) \
     ((OPCODE_XOR << 24) | (var << 16) | (1 << 8) | led)
 
+#define INSTRUCTION_SKIP_IF_EQ_VV(var, source) \
+    ((OPCODE_SKIP_IF_EQ_V << 24) | (var << 16) | (0 << 8) | source)
+
+#define INSTRUCTION_SKIP_IF_EQ_VL(var, led) \
+    ((OPCODE_SKIP_IF_EQ_V << 24) | (var << 16) | (1 << 8) | led)
+
+#define INSTRUCTION_SKIP_IF_EQ_VI(var, immediate) \
+    ((OPCODE_SKIP_IF_EQ_VI << 24) | (var << 16) | immediate)
+
+#define INSTRUCTION_SKIP_IF_EQ_LI(led, immediate) \
+    ((OPCODE_SKIP_IF_EQ_LI << 24) | (led << 16) | immediate)
+
+#define INSTRUCTION_SKIP_IF_NE_VV(var, source) \
+    ((OPCODE_SKIP_IF_NE_V << 24) | (var << 16) | (0 << 8) | source)
+
+#define INSTRUCTION_SKIP_IF_NE_VL(var, led) \
+    ((OPCODE_SKIP_IF_NE_V << 24) | (var << 16) | (1 << 8) | led)
+
+#define INSTRUCTION_SKIP_IF_NE_VI(var, immediate) \
+    ((OPCODE_SKIP_IF_NE_VI << 24) | (var << 16) | immediate)
+
+#define INSTRUCTION_SKIP_IF_NE_LI(led, immediate) \
+    ((OPCODE_SKIP_IF_NE_LI << 24) | (led << 16) | immediate)
+
+#define INSTRUCTION_SKIP_IF_GT_VV(var, source) \
+    ((OPCODE_SKIP_IF_NE_V << 24) | (var << 16) | (0 << 8) | source)
+
+#define INSTRUCTION_SKIP_IF_GT_VL(var, led) \
+    ((OPCODE_SKIP_IF_GT_V << 24) | (var << 16) | (1 << 8) | led)
+
+#define INSTRUCTION_SKIP_IF_GT_VI(var, immediate) \
+    ((OPCODE_SKIP_IF_GT_VI << 24) | (var << 16) | immediate)
+
+#define INSTRUCTION_SKIP_IF_GT_LI(led, immediate) \
+    ((OPCODE_SKIP_IF_GT_LI << 24) | (led << 16) | immediate)
+
+#define INSTRUCTION_SKIP_IF_GE_VV(var, source) \
+    ((OPCODE_SKIP_IF_GE_V << 24) | (var << 16) | (0 << 8) | source)
+
+#define INSTRUCTION_SKIP_IF_GE_VL(var, led) \
+    ((OPCODE_SKIP_IF_NE_V << 24) | (var << 16) | (1 << 8) | led)
+
+#define INSTRUCTION_SKIP_IF_GE_VI(var, immediate) \
+    ((OPCODE_SKIP_IF_GE_VI << 24) | (var << 16) | immediate)
+
+#define INSTRUCTION_SKIP_IF_GE_LI(led, immediate) \
+    ((OPCODE_SKIP_IF_GE_LI << 24) | (led << 16) | immediate)
+
+#define INSTRUCTION_SKIP_IF_LT_VV(var, source) \
+    ((OPCODE_SKIP_IF_LT_V << 24) | (var << 16) | (0 << 8) | source)
+
+#define INSTRUCTION_SKIP_IF_LT_VL(var, led) \
+    ((OPCODE_SKIP_IF_LT_V << 24) | (var << 16) | (1 << 8) | led)
+
+#define INSTRUCTION_SKIP_IF_LT_VI(var, immediate) \
+    ((OPCODE_SKIP_IF_LT_VI << 24) | (var << 16) | immediate)
+
+#define INSTRUCTION_SKIP_IF_LT_LI(led, immediate) \
+    ((OPCODE_SKIP_IF_LT_LI << 24) | (led << 16) | immediate)
+
+#define INSTRUCTION_SKIP_IF_LE_VV(var, source) \
+    ((OPCODE_SKIP_IF_LE_V << 24) | (var << 16) | (0 << 8) | source)
+
+#define INSTRUCTION_SKIP_IF_LE_VL(var, led) \
+    ((OPCODE_SKIP_IF_LE_V << 24) | (var << 16) | (1 << 8) | led)
+
+#define INSTRUCTION_SKIP_IF_LE_VI(var, immediate) \
+    ((OPCODE_SKIP_IF_LE_VI << 24) | (var << 16) | immediate)
+
+#define INSTRUCTION_SKIP_IF_LE_LI(led, immediate) \
+    ((OPCODE_SKIP_IF_LE_LI << 24) | (led << 16) | immediate)
+
 
 #define PARAMETER_TYPE_VARIABLE 0
 #define PARAMETER_TYPE_LED 1
