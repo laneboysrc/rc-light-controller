@@ -8,7 +8,7 @@
 
     <style type = "text/css">
         * {
-            font-size: 16px;
+            font-size: 14px;
             padding: 0;
             margin: 0;
         }
@@ -24,7 +24,7 @@
 
         h1, h1 a, h1 a:visited, h1 a:active, h1 a:hover {
             text-decoration: none;
-            font-size: 24px;
+            font-size: 1.3em;
             color: black;
         }
 
@@ -40,11 +40,11 @@
         }
 
         select, button {
-            margin-top: 12px;
+            margin-top: 0px;
         }
 
         input {
-            margin-top: 6px;
+            margin-top: 0px;
         }
 
         .column {
@@ -52,17 +52,17 @@
             width: auto;
         }
 
-        .box {
-            width: 420px;
+        .box, .widebox {
             border-radius: 10px;
             padding: 10px;
             margin: 10px;
         }
 
+        .box {
+            width: 420px;
+        }
+
         .widebox {
-            border-radius: 10px;
-            padding: 10px;
-            margin: 10px;
             margin-bottom: 0;
             clear: both;
         }
@@ -96,16 +96,24 @@
             width: 100%;
         }
 
-        #heading img {
+        #logo {
             vertical-align: middle;
             border: 1px solid #FFCF0D;
+        }
+
+        #connected {
+            float: right;
+            width: 24px;
+            height: 24px;
+            border: none;
         }
 
     </style>
 </head>
 <body>
     <div id="heading" class="widebox heading">
-        <h1><a href="/"><img width="48" height="48" title="" alt="" src="data:image/jpeg;base64,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" /> Preprocessor simulator</a></h1>
+        <img id="connected" width="24" height="24" title="" alt="" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAEEElEQVR42s2Va2wUVRTH/3dmOn1tt8u23b63BW0MQmIgQVJEVOSRSHdJSkRitFb5QqLxizF8UuojxugXY2JQE8MXXx+A2lbUNhIxKG0CJK3YYEu3S9dut/vqe7vdeV3PTMmSZcVW1MRJbu7dc885v7nnP/csw3/8sP8VYKip+agOXnvv1+0v/OuAod1eXrRxLTgTEPvVh/t6OlcVuyqna3u8vMLzAGRRAY9FkVIYfBcD2NzdvmL8ig7XvQePiY6iNte2dVBHRihChCSLCIzMIrGotG3qOv3aPwL4HmniNUe8SP3YA1ZSSRYOHpmEZHfiyi8RbO3+it0xILDvQKRwy/qyPGEKOQ/tR86OPZZdOdcD7dQJTCVyEAovhO//pr3izgB7m3lF6y6kzn0H24cdGXtzLR7kllfhylAcW7pOsb8NCO7Zz+3e7ZASIWh+P2zHT2cCnn4MUrkbc7MJ+IPz2PZtB1s1YNJ78HVWUvSK89ENUHx+GKHxbECrF5KrFjJpMuifRlLV3mjsOPnqqgChnU3c/tRuWoxaX40RmoDt/S8yfGYe3gihqh6CqkKXCnAppmLX92fYioCw9/FOuaHGk7/JDT4ehB6PQbvci+Kzv2X4xdcWQKy9G1B1yDpH//UYwkne1bwQ8/4lIHKghTsONSLZ3QFjegqCKMMYHYHjYigT0GBPA5gGyAZD1+A4nkjE2W0Bkzv2TuQ2lFfKYhjaYmp52+AwfMNw9AVvC+Aqh6QDv8cXMBCdDTy5MFWXBQi76jzaktrpfKcF6s994JJkBVsA/ygcF8YyAeudECvr0wCmGigivU4OB82s3kNz8a4MQCivlNvbnoXu66cguq2mUbsBmJlGzs4mFL70puW78PZRpL48AdFZS76aBQABRCpTMqHgzHgEh5MzLA2IuuqOweVsK3imEfrVYbII4IaxDNBpVlTqQ1dhTE4vH9teSKMYor0iA8A1jiLOcHYihmhy6aOWxdkjFmBScHD7Jy9DO/8DIEpW0jTAPEEkBNt7n0PasNkCaAOXMPdcM4Ti0nSJTAAIINBsiv5pIIjnU/OMRddU98meB7cKbomaWJx6Gc8G+K6RyOOZGtzjgFi9LgtgzrkUNjgzj/75uSiL5pVx2/EXoVw4T3dKpuRaNmCMRP7pVpFLSWT3nwLMkU+l+mxiAixaVs9t77ZC6e0lQczy6FkAJBIAtefCtz6AUFJBjW4ftNEhiI6qtAb8FoCTcn0cDBDAUT2W59nuZncJwHzyJkAzLxANWjMq29LAIAUq5t8BWH4+aSUi11EOpJZPICg3ATIV4XJ8xizR8lcUXlMzRjnccNlg0LU36O11xojDodMGpbB+m4fRuW7NKtkNgms39jVaW/4wEF1SyG4EDi/O1v0BdaNJ3oB8YjwAAAAASUVORK5CYII=" />
+        <h1><a href="/"><img id="logo" width="48" height="48" title="" alt="" src="data:image/jpeg;base64,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" /> Preprocessor simulator</a></h1>
     </div>
 
     <div class="page" id="main">
@@ -118,8 +126,6 @@
                         <button id="steering-neutral" type="button" onclick="document.getElementById('steering').value = 0; sendSteering(0);">neutral</button>
                     </div>
                 </div>
-            </form>
-            <form class="box controls">
                 <h2>Throttle</h2>
                 <div>
                     <input id="throttle" type="range" min ="-100" max="100" step ="1" value ="0" oninput="sendThrottle(this.value);" onchange="sendThrottle(this.value);"/>
@@ -132,18 +138,18 @@
 
         <div class="column">
             <form class="box features">
-                <h2>CH3 / AUX</h2>
-                <div>
-                    <button type="button" onclick="sendCh3('click');" onmousedown="sendCh3('down');" onmouseup="sendCh3('up');">CH3</button>
-                    &nbsp;&nbsp;&nbsp;
-                    <label><input id="momentary" type="checkbox" /> Momemtary</label>
-                </div>
-            </form>
-            <form class="box features">
                 <div>
                     <label><input id="startup_mode" type="checkbox" onchange="sendStartup(this.checked);" /> Startup</label>
                 </div>
             </form>
+            <form class="box features">
+                <span style="float: right;">
+                <label><input id="momentary" type="checkbox" /> Momemtary</label>
+                </span>
+                <h2>CH3 / AUX</h2>
+                <div>
+                    <button type="button" onclick="sendCh3('click');" onmousedown="sendCh3('down');" onmouseup="sendCh3('up');">CH3</button>
+                </div>
         </div>
     </div>
 
@@ -165,6 +171,9 @@
         var momentary_element = document.getElementById("momentary");
 
         var connected = true;
+
+        var minBoxWidth = 300;
+        var paddingAndMargin = 10 + 10 + 10 + 10;
 
         /**
          * Provides python-like string interpolation.
@@ -221,6 +230,25 @@
                 return CCSstyle[style] = value;
         }
 
+        function resizeColumns() {
+            var minColumnWidth = minBoxWidth + paddingAndMargin;
+
+            var availableWidth = document.getElementsByTagName('body')[0].clientWidth;
+
+            // Use bit-wise OR to truncate float to int
+            var numColumns = (availableWidth / minColumnWidth) | 0;
+            if (numColumns > 2) {
+                numColumns = 2;
+            }
+
+            var columnWidth = (availableWidth / numColumns) | 0;
+            columnWidth = columnWidth - paddingAndMargin;
+            if (columnWidth < minBoxWidth) {
+                columnWidth = minBoxWidth;
+            }
+
+            CCSStylesheetRuleStyle(".box", "width", columnWidth + "px");
+        }
 
         function createXMLHttpRequest() {
             try { return new XMLHttpRequest(); } catch(e) {}
@@ -248,7 +276,7 @@
             xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
             xhr.setRequestHeader("Content-length", params.length);
             xhr.setRequestHeader("Connection", "close");
-            
+
             document.getElementById("response").innerHTML = "&nbsp";
             xhr.send(params);
         }
@@ -372,28 +400,6 @@
             send('STARTUP_MODE', mode ? 1 : 0);
         }
 
-        function resizeColumns() {
-            var minBoxWidth = 420;
-            var paddingAndMargin = 10 + 10 + 10 + 10;
-            var minColumnWidth = minBoxWidth + paddingAndMargin;
-
-            var availableWidth = document.getElementsByTagName('body')[0].clientWidth;
-
-            // Use bit-wise OR to truncate float to int
-            var numColumns = (availableWidth / minColumnWidth) | 0;
-            if (numColumns > 2) {
-                numColumns = 2;
-            }
-
-            var columnWidth = (availableWidth / numColumns) | 0;
-            columnWidth = columnWidth - paddingAndMargin;
-            if (columnWidth < minBoxWidth) {
-                columnWidth = minBoxWidth;
-            }
-
-            CCSStylesheetRuleStyle(".box", "width", columnWidth + "px");
-        }
-
         function initialize_ui() {
             document.getElementById("throttle").value = throttle;
             document.getElementById("steering").value = steering;
@@ -407,14 +413,16 @@
         function ping_callback(msg) {
             if (msg != "OK") {
                 connected = false;
+                document.getElementById("connected").style.display = 'inline';
             }
             else {
                 if (!connected) {
                     initialize_ui();
                 }
                 connected = true;
+                document.getElementById("connected").style.display = 'none';
             }
-            setTimeout(send_ping, 3000);        
+            setTimeout(send_ping, 3000);
         }
 
         function send_ping() {
@@ -443,14 +451,14 @@
 
         document.addEventListener("DOMContentLoaded", function () {
             initialize_ui();
-            
+
             window.addEventListener("resize", resizeColumns, true);
             resizeColumns();
-    
+
             document.addEventListener("keydown", keydown_event_handler);
             document.addEventListener("keyup", keyup_event_handler);
-    
-            send_ping();            
+
+            send_ping();
         }, false);
 
     </script>
