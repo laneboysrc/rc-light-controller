@@ -49,6 +49,19 @@ slave-tlc5940: hw_tlc5940_16f1825.inc
 
 
 ##############################################################################
+# Chai's Jeep Wrangler
+##############################################################################
+.PHONY: chai
+chai: chai-master slave-tlc5940
+
+.PHONY: chai-master
+chai-master: hw_tlc5940_16f1825.inc
+	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x0f -D CH3_MOMENTARY -D ESC_FORWARD_REVERSE -D ENABLE_UART -D BAUDRATE_115200)
+	$(eval files = master servo-reader utils lights-chai-jeep)
+	$(build)
+
+
+##############################################################################
 # Tobias' Jeep Wrangler
 ##############################################################################
 .PHONY: tobias
