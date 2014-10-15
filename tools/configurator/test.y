@@ -159,7 +159,7 @@ reserved keywords:
 %token GOTO
 %token WAIT
 %token VAR
-%token UNKNOWN
+%token IDENTIFIER
 
 %%
 /* Grammar rules */
@@ -176,10 +176,11 @@ declerations:
 decleration_line:
   '\n'
 | decleration '\n'  { printf("decleration: %s\n", $1); }
+| error '\n'
 ;
 
 decleration:
-  VAR               { $$ == "var"; }
+  VAR IDENTIFIER    { $$ == $2; }
 ;
 
 code:
@@ -258,7 +259,7 @@ int yylex(void)
     if (strcmp(symbuf, "var") == 0) {
       return VAR;
     }
-    return UNKNOWN;
+    return IDENTIFIER;
   }
 }
 
