@@ -12,41 +12,41 @@ run-conditions:
   run-conditions | run-condition;
 
 run-condition:
-  - RUN_WHEN_LIGHT_SWITCH_POSITION
-  - RUN_WHEN_LIGHT_SWITCH_POSITION_1
-  - RUN_WHEN_LIGHT_SWITCH_POSITION_2
-  - RUN_WHEN_LIGHT_SWITCH_POSITION_3
-  - RUN_WHEN_LIGHT_SWITCH_POSITION_4
-  - RUN_WHEN_LIGHT_SWITCH_POSITION_5
-  - RUN_WHEN_LIGHT_SWITCH_POSITION_6
-  - RUN_WHEN_LIGHT_SWITCH_POSITION_7
-  - RUN_WHEN_LIGHT_SWITCH_POSITION_8
-  - RUN_WHEN_NEUTRAL
-  - RUN_WHEN_FORWARD
-  - RUN_WHEN_REVERSING
-  - RUN_WHEN_BRAKING
-  - RUN_WHEN_INDICATOR_LEFT
-  - RUN_WHEN_INDICATOR_RIGHT
-  - RUN_WHEN_HAZARD
-  - RUN_WHEN_BLINK_FLAG
-  - RUN_WHEN_BLINK_LEFT
-  - RUN_WHEN_BLINK_RIGHT
-  - RUN_WHEN_WINCH_DISABLERD
-  - RUN_WHEN_WINCH_IDLE
-  - RUN_WHEN_WINCH_IN
-  - RUN_WHEN_WINCH_OUT
-  - RUN_WHEN_GEAR_1
-  - RUN_WHEN_GEAR_2
-  - RUN_ALWAYS
+| RUN_WHEN_LIGHT_SWITCH_POSITION
+| RUN_WHEN_LIGHT_SWITCH_POSITION_1
+| RUN_WHEN_LIGHT_SWITCH_POSITION_2
+| RUN_WHEN_LIGHT_SWITCH_POSITION_3
+| RUN_WHEN_LIGHT_SWITCH_POSITION_4
+| RUN_WHEN_LIGHT_SWITCH_POSITION_5
+| RUN_WHEN_LIGHT_SWITCH_POSITION_6
+| RUN_WHEN_LIGHT_SWITCH_POSITION_7
+| RUN_WHEN_LIGHT_SWITCH_POSITION_8
+| RUN_WHEN_NEUTRAL
+| RUN_WHEN_FORWARD
+| RUN_WHEN_REVERSING
+| RUN_WHEN_BRAKING
+| RUN_WHEN_INDICATOR_LEFT
+| RUN_WHEN_INDICATOR_RIGHT
+| RUN_WHEN_HAZARD
+| RUN_WHEN_BLINK_FLAG
+| RUN_WHEN_BLINK_LEFT
+| RUN_WHEN_BLINK_RIGHT
+| RUN_WHEN_WINCH_DISABLERD
+| RUN_WHEN_WINCH_IDLE
+| RUN_WHEN_WINCH_IN
+| RUN_WHEN_WINCH_OUT
+| RUN_WHEN_GEAR_1
+| RUN_WHEN_GEAR_2
+| RUN_ALWAYS
 
-  - RUN_WHEN_NO_SIGNAL
-  - RUN_WHEN_INITIALIZING
-  - RUN_WHEN_SERVO_OUTPUT_SETUP_CENTRE
-  - RUN_WHEN_SERVO_OUTPUT_SETUP_LEFT
-  - RUN_WHEN_SERVO_OUTPUT_SETUP_RIGHT
-  - RUN_WHEN_REVERSING_SETUP_STEERING
-  - RUN_WHEN_REVERSING_SETUP_THROTTLE
-  - RUN_WHEN_GEAR_CHANGED
+| RUN_WHEN_NO_SIGNAL
+| RUN_WHEN_INITIALIZING
+| RUN_WHEN_SERVO_OUTPUT_SETUP_CENTRE
+| RUN_WHEN_SERVO_OUTPUT_SETUP_LEFT
+| RUN_WHEN_SERVO_OUTPUT_SETUP_RIGHT
+| RUN_WHEN_REVERSING_SETUP_STEERING
+| RUN_WHEN_REVERSING_SETUP_THROTTLE
+| RUN_WHEN_GEAR_CHANGED
 
 declerations:
   - LED name = master[0..15]|slave[0..15]
@@ -150,22 +150,132 @@ reserved keywords:
 
   int yylex(void);
   void yyerror(char const *);
+  char *make_string(char *s1, char *s2);
 %}
 
 
 /* Bison declarations */
 %define api.value.type {char *}
+
+%token LED
+%token VAR
+
 %token FADE
 %token GOTO
 %token WAIT
-%token VAR
+
+%token LABEL
+%token NUMBER
 %token IDENTIFIER
+
+%token RUN_WHEN_LIGHT_SWITCH_POSITION_0
+%token RUN_WHEN_LIGHT_SWITCH_POSITION_1
+%token RUN_WHEN_LIGHT_SWITCH_POSITION_2
+%token RUN_WHEN_LIGHT_SWITCH_POSITION_3
+%token RUN_WHEN_LIGHT_SWITCH_POSITION_4
+%token RUN_WHEN_LIGHT_SWITCH_POSITION_5
+%token RUN_WHEN_LIGHT_SWITCH_POSITION_6
+%token RUN_WHEN_LIGHT_SWITCH_POSITION_7
+%token RUN_WHEN_LIGHT_SWITCH_POSITION_8
+%token RUN_WHEN_NEUTRAL
+%token RUN_WHEN_FORWARD
+%token RUN_WHEN_REVERSING
+%token RUN_WHEN_BRAKING
+%token RUN_WHEN_INDICATOR_LEFT
+%token RUN_WHEN_INDICATOR_RIGHT
+%token RUN_WHEN_HAZARD
+%token RUN_WHEN_BLINK_FLAG
+%token RUN_WHEN_BLINK_LEFT
+%token RUN_WHEN_BLINK_RIGHT
+%token RUN_WHEN_WINCH_DISABLERD
+%token RUN_WHEN_WINCH_IDLE
+%token RUN_WHEN_WINCH_IN
+%token RUN_WHEN_WINCH_OUT
+%token RUN_WHEN_GEAR_1
+%token RUN_WHEN_GEAR_2
+%token RUN_ALWAYS
+
+%token RUN_WHEN_NO_SIGNAL
+%token RUN_WHEN_INITIALIZING
+%token RUN_WHEN_SERVO_OUTPUT_SETUP_CENTRE
+%token RUN_WHEN_SERVO_OUTPUT_SETUP_LEFT
+%token RUN_WHEN_SERVO_OUTPUT_SETUP_RIGHT
+%token RUN_WHEN_REVERSING_SETUP_STEERING
+%token RUN_WHEN_REVERSING_SETUP_THROTTLE
+%token RUN_WHEN_GEAR_CHANGED
 
 %%
 /* Grammar rules */
 
 program:
-  declerations code
+   conditions declerations code
+;
+
+conditions:
+  priority_run_conditions
+| run_conditions
+;    
+
+priority_run_conditions:
+  %empty
+| priority_run_conditions priority_run_condition_line
+;
+
+priority_run_condition_line:
+  '\n'
+| priority_run_condition '\n'  { printf("priority_run_condition: %s\n", $1); }
+| error '\n'
+;
+
+priority_run_condition:
+  RUN_WHEN_NO_SIGNAL
+| RUN_WHEN_INITIALIZING
+| RUN_WHEN_SERVO_OUTPUT_SETUP_CENTRE
+| RUN_WHEN_SERVO_OUTPUT_SETUP_LEFT
+| RUN_WHEN_SERVO_OUTPUT_SETUP_RIGHT
+| RUN_WHEN_REVERSING_SETUP_STEERING
+| RUN_WHEN_REVERSING_SETUP_THROTTLE
+| RUN_WHEN_GEAR_CHANGED
+;
+
+run_conditions:
+  %empty
+| run_conditions run_condition_line
+;
+
+run_condition_line:
+  '\n'
+| run_condition '\n'  { printf("run_condition: %s\n", $1); }
+| error '\n'
+;
+
+run_condition:
+  RUN_WHEN_LIGHT_SWITCH_POSITION_0
+| RUN_WHEN_LIGHT_SWITCH_POSITION_1
+| RUN_WHEN_LIGHT_SWITCH_POSITION_2
+| RUN_WHEN_LIGHT_SWITCH_POSITION_3
+| RUN_WHEN_LIGHT_SWITCH_POSITION_4
+| RUN_WHEN_LIGHT_SWITCH_POSITION_5
+| RUN_WHEN_LIGHT_SWITCH_POSITION_6
+| RUN_WHEN_LIGHT_SWITCH_POSITION_7
+| RUN_WHEN_LIGHT_SWITCH_POSITION_8
+| RUN_WHEN_NEUTRAL
+| RUN_WHEN_FORWARD
+| RUN_WHEN_REVERSING
+| RUN_WHEN_BRAKING
+| RUN_WHEN_INDICATOR_LEFT
+| RUN_WHEN_INDICATOR_RIGHT
+| RUN_WHEN_HAZARD
+| RUN_WHEN_BLINK_FLAG
+| RUN_WHEN_BLINK_LEFT
+| RUN_WHEN_BLINK_RIGHT
+| RUN_WHEN_WINCH_DISABLERD
+| RUN_WHEN_WINCH_IDLE
+| RUN_WHEN_WINCH_IN
+| RUN_WHEN_WINCH_OUT
+| RUN_WHEN_GEAR_1
+| RUN_WHEN_GEAR_2
+| RUN_ALWAYS
 ;
 
 declerations:
@@ -180,7 +290,8 @@ decleration_line:
 ;
 
 decleration:
-  VAR IDENTIFIER    { $$ == $2; }
+  VAR IDENTIFIER    { $$ = make_string("var", $2); }
+| LED IDENTIFIER    { $$ = make_string("led", $2); }
 ;
 
 code:
@@ -195,9 +306,11 @@ line:
 ;
 
 command:
-  GOTO    { $$ == "goto"; }
-| WAIT    { $$ == "wait"; }
-| FADE    { $$ == "fade"; }
+  IDENTIFIER ':'    { $$ = make_string("label", $1); }
+| GOTO IDENTIFIER   { $$ = make_string("goto", $2); }
+| WAIT NUMBER       { $$ = make_string("wait number=", $2); }
+| WAIT IDENTIFIER   { $$ = make_string("wait var=", $2); }
+| FADE              { $$ = "fade"; }
 ;
 
 %%
@@ -205,7 +318,14 @@ command:
 
 int yylex(void)
 {
+  static size_t length = 40;
+  static char *symbuf = NULL;
   int c;
+
+  if (symbuf == NULL){
+    symbuf = (char *) malloc(length + 1);
+    // FIXME: need to add check for malloc failed...
+  }
 
   /* Skip white space */
   while ((c = getchar ()) == ' ' || c == '\t') {
@@ -220,15 +340,34 @@ int yylex(void)
     return c;
   }
 
-  if (isalpha(c)) {
-    static size_t length = 40;
-    static char *symbuf = NULL;
-    int count = 0;
+  if (c == ':') {
+    return c;
+  }
 
-    if (symbuf == NULL){
-      symbuf = (char *) malloc(length + 1);
-      // FIXME: need to add check for malloc failed...
-    }
+  if (isdigit(c)) {
+    int count = 0;
+    
+    do {
+      if (count == length) {
+        length *= 2;
+        symbuf = (char *) realloc(symbuf, length + 1);
+        // FIXME: need to add check for malloc failed...
+      }
+
+      // Add this character to the buffer.
+      symbuf[count++] = c;
+      
+      c = getchar();
+    } while (isdigit(c));
+
+    ungetc(c, stdin);
+    symbuf[count] = '\0';
+
+    return NUMBER;
+  }
+
+  if (isalpha(c)) {
+    int count = 0;
 
     do {
       if (count == length) {
@@ -241,7 +380,7 @@ int yylex(void)
       symbuf[count++] = c;
 
       c = getchar();
-    } while (isalnum(c));
+    } while (isalnum(c) || c == '-');
 
     ungetc(c, stdin);
     symbuf[count] = '\0';
@@ -259,6 +398,15 @@ int yylex(void)
     if (strcmp(symbuf, "var") == 0) {
       return VAR;
     }
+    if (strcmp(symbuf, "led") == 0) {
+      return LED;
+    }
+    if (strcmp(symbuf, "run-always") == 0) {
+      return RUN_ALWAYS;
+    }
+    if (strcmp(symbuf, "no-signal") == 0) {
+      return RUN_WHEN_NO_SIGNAL;
+    }
     return IDENTIFIER;
   }
 }
@@ -268,6 +416,15 @@ void yyerror(char const *s)
 {
   fprintf(stderr, "ERROR: %s\n", s);
 }
+
+
+char *make_string(char *s1, char *s2)
+{
+    static char buf[256];
+    snprintf(buf, 256, "%s (%s)", s1,  s2);
+    return buf;
+}
+
 
 int main(int argc, char *argv[])
 {
