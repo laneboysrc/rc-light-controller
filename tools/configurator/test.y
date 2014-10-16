@@ -181,6 +181,12 @@ enum {
 %token NUMBER
 %token IDENTIFIER
 
+%token SKIP
+%token IF
+%token ALL
+%token NONE
+%token NOT
+
 %token RUN
 %token WHEN
 
@@ -365,17 +371,32 @@ int yylex(void)
     if (strcmp(symbuf, "goto") == 0) {
       return GOTO;
     }
-    if (strcmp(symbuf, "wait") == 0) {
-      return WAIT;
-    }
-    if (strcmp(symbuf, "fade") == 0) {
-      return FADE;
-    }
     if (strcmp(symbuf, "var") == 0) {
       return VAR;
     }
     if (strcmp(symbuf, "led") == 0) {
       return LED;
+    }
+    if (strcmp(symbuf, "wait") == 0) {
+      return WAIT;
+    }
+    if (strcmp(symbuf, "skip") == 0) {
+      return SKIP;
+    }
+    if (strcmp(symbuf, "if") == 0) {
+      return IF;
+    }
+    if (strcmp(symbuf, "all") == 0) {
+      return ALL;
+    }
+    if (strcmp(symbuf, "none") == 0) {
+      return NONE;
+    }
+    if (strcmp(symbuf, "not") == 0) {
+      return NOT;
+    }
+    if (strcmp(symbuf, "fade") == 0) {
+      return FADE;
     }
     if (strcmp(symbuf, "run") == 0) {
       return RUN;
@@ -383,6 +404,7 @@ int yylex(void)
     if (strcmp(symbuf, "when") == 0) {
       return WHEN;
     }
+
     if (strcmp(symbuf, "no-signal") == 0) {
       return RUN_WHEN_NO_SIGNAL;
     }
