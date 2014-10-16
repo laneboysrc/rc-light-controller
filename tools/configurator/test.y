@@ -159,7 +159,7 @@ char *make_string(char *s1, char *s2);
 
 enum {
   UNKNOWN = 0,
-  EXPECTING_ALWAYS,
+  EXPECTING_RUN_CONDITION_IDENTIFIER,
 } parse_state;
 
 
@@ -180,6 +180,9 @@ enum {
 %token LABEL
 %token NUMBER
 %token IDENTIFIER
+%token PRIORITY_RUN_CONDITION_IDENTIFIER
+%token RUN_CONDITION_IDENTIFIER
+%token RUN_CONDITION_IDENTIFIER_ALWAYS
 
 %token SKIP
 %token IF
@@ -189,16 +192,7 @@ enum {
 
 %token RUN
 %token WHEN
-
-
-%token RUN_WHEN_NO_SIGNAL
-%token RUN_WHEN_INITIALIZING
-%token RUN_WHEN_SERVO_OUTPUT_SETUP_CENTRE
-%token RUN_WHEN_SERVO_OUTPUT_SETUP_LEFT
-%token RUN_WHEN_SERVO_OUTPUT_SETUP_RIGHT
-%token RUN_WHEN_REVERSING_SETUP_STEERING
-%token RUN_WHEN_REVERSING_SETUP_THROTTLE
-%token RUN_WHEN_GEAR_CHANGED
+%token OR
 
 %start program
 
@@ -210,11 +204,17 @@ enum {
 program
   : condition_lines decleration_lines code_lines
   | condition_lines code_lines
+  | %empty
   ;
 
+expect_run_condition_identifier:
+  %empty  { parse_state = EXPECTING_RUN_CONDITION_IDENTIFIER; }
+;
+
 condition_lines
-  : run_condition_lines
-  | priority_run_condition_lines
+  : priority_run_condition_lines
+  | run_condition_lines
+  | run_always_condition_line
   ;
 
 priority_run_condition_lines
@@ -227,14 +227,13 @@ priority_run_condition_line
   ;
 
 priority_run_condition
-  : RUN_WHEN_NO_SIGNAL     { $$ = "RUN_WHEN_NO_SIGNAL"; }
-  | RUN_WHEN_INITIALIZING  { $$ = "RUN_WHEN_INITIALIZING"; }
-  | RUN_WHEN_SERVO_OUTPUT_SETUP_CENTRE
-  | RUN_WHEN_SERVO_OUTPUT_SETUP_LEFT
-  | RUN_WHEN_SERVO_OUTPUT_SETUP_RIGHT
-  | RUN_WHEN_REVERSING_SETUP_STEERING
-  | RUN_WHEN_REVERSING_SETUP_THROTTLE
-  | RUN_WHEN_GEAR_CHANGED
+  : RUN expect_run_condition_identifier WHEN priority_run_condition_identifiers
+  ;
+
+priority_run_condition_identifiers
+  : PRIORITY_RUN_CONDITION_IDENTIFIER
+  | priority_run_condition_identifiers PRIORITY_RUN_CONDITION_IDENTIFIER
+  | priority_run_condition_identifiers OR PRIORITY_RUN_CONDITION_IDENTIFIER
   ;
 
 run_condition_lines
@@ -243,15 +242,17 @@ run_condition_lines
   ;
 
 run_condition_line
-  : RUN IDENTIFIER '\n' {
-      printf("run always\n"); parse_state = EXPECTING_ALWAYS;
-    }
-  | RUN WHEN run_condition_identifiers '\n' { printf("run_condition: %s\n", $1); }
+  : RUN expect_run_condition_identifier WHEN run_condition_identifiers '\n' { printf("run_condition: %s\n", $1); }
   ;
 
 run_condition_identifiers
-  : IDENTIFIER
-  | run_condition_identifiers IDENTIFIER
+  : RUN_CONDITION_IDENTIFIER
+  | run_condition_identifiers RUN_CONDITION_IDENTIFIER
+  | run_condition_identifiers OR RUN_CONDITION_IDENTIFIER
+  ;
+
+run_always_condition_line
+  : RUN expect_run_condition_identifier RUN_CONDITION_IDENTIFIER_ALWAYS '\n'
   ;
 
 decleration_lines
@@ -291,6 +292,66 @@ command
 /* ========================================================================== */
 /* Epilogue */
 
+
+typedef struct {
+  const char *value;
+  const int token;
+} identifiers;
+
+const identifiers run_condition_tokens[] = {
+  {.value = "always", .token = RUN_CONDITION_IDENTIFIER_ALWAYS},
+
+  {.value = "light-switch-position-0", .token = RUN_CONDITION_IDENTIFIER},
+  {.value = "light-switch-position-1", .token = RUN_CONDITION_IDENTIFIER},
+  {.value = "light-switch-position-2", .token = RUN_CONDITION_IDENTIFIER},
+  {.value = "light-switch-position-3", .token = RUN_CONDITION_IDENTIFIER},
+  {.value = "light-switch-position-4", .token = RUN_CONDITION_IDENTIFIER},
+  {.value = "light-switch-position-5", .token = RUN_CONDITION_IDENTIFIER},
+  {.value = "light-switch-position-6", .token = RUN_CONDITION_IDENTIFIER},
+  {.value = "light-switch-position-7", .token = RUN_CONDITION_IDENTIFIER},
+  {.value = "light-switch-position-8", .token = RUN_CONDITION_IDENTIFIER},
+  {.value = "neutral", .token = RUN_CONDITION_IDENTIFIER},
+  {.value = "forward", .token = RUN_CONDITION_IDENTIFIER},
+  {.value = "reversing", .token = RUN_CONDITION_IDENTIFIER},
+  {.value = "braking", .token = RUN_CONDITION_IDENTIFIER},
+  {.value = "indicator_left", .token = RUN_CONDITION_IDENTIFIER},
+  {.value = "indicator_right", .token = RUN_CONDITION_IDENTIFIER},
+  {.value = "hazard", .token = RUN_CONDITION_IDENTIFIER},
+  {.value = "blink-flag", .token = RUN_CONDITION_IDENTIFIER},
+  {.value = "blink-left", .token = RUN_CONDITION_IDENTIFIER},
+  {.value = "blink-right", .token = RUN_CONDITION_IDENTIFIER},
+  {.value = "winch-disabled", .token = RUN_CONDITION_IDENTIFIER},
+  {.value = "winch-idle", .token = RUN_CONDITION_IDENTIFIER},
+  {.value = "winch-in", .token = RUN_CONDITION_IDENTIFIER},
+  {.value = "winch-out", .token = RUN_CONDITION_IDENTIFIER},
+  {.value = "gear-1", .token = RUN_CONDITION_IDENTIFIER},
+  {.value = "gear-2", .token = RUN_CONDITION_IDENTIFIER},
+
+  {.value = "no-signal", .token = PRIORITY_RUN_CONDITION_IDENTIFIER},
+  {.value = "initializing", .token = PRIORITY_RUN_CONDITION_IDENTIFIER},
+  {.value = "servo-output-setup-centre", .token = PRIORITY_RUN_CONDITION_IDENTIFIER},
+  {.value = "servo-output-setup-left", .token = PRIORITY_RUN_CONDITION_IDENTIFIER},
+  {.value = "servo-output-setup-right", .token = PRIORITY_RUN_CONDITION_IDENTIFIER},
+  {.value = "reversing-setup-steering", .token = PRIORITY_RUN_CONDITION_IDENTIFIER},
+  {.value = "reversing-setup-throttle", .token = PRIORITY_RUN_CONDITION_IDENTIFIER},
+  {.value = "gear-changed", .token = PRIORITY_RUN_CONDITION_IDENTIFIER},
+
+  {.value = NULL, .token = EOF},
+};
+
+
+int check_run_condition(const char *id)
+{
+  const identifiers *r = run_condition_tokens;
+  while (r->value != NULL) {
+    if (strcmp(r->value, id) == 0) {
+      return r->token;
+    }
+    ++r;
+  }
+  return EOF;
+}
+
 int yylex(void)
 {
   static size_t length = 40;
@@ -303,10 +364,6 @@ int yylex(void)
     // FIXME: need to add check for malloc failed...
   }
 
-  if (parse_state == EXPECTING_ALWAYS) {
-    printf("Expecting \"ALWAYS\"\n");
-    parse_state = UNKNOWN;
-  }
 
   /* Skip white space and empty lines */
   if (empty_line) {
@@ -323,6 +380,7 @@ int yylex(void)
   empty_line = 0;
 
   if (c == ':') {
+    parse_state = UNKNOWN;
     return c;
   }
 
@@ -345,6 +403,7 @@ int yylex(void)
     ungetc(c, stdin);
     symbuf[count] = '\0';
 
+    parse_state = UNKNOWN;
     return NUMBER;
   }
 
@@ -368,6 +427,21 @@ int yylex(void)
     symbuf[count] = '\0';
 
     yylval = symbuf;
+
+
+    if (parse_state == EXPECTING_RUN_CONDITION_IDENTIFIER) {
+      int id;
+
+      id = check_run_condition(yylval);
+      if (id != EOF) {
+        return id;
+      }
+      //printf("EXPECTING_RUN_CONDITION_IDENTIFIER token=%s\n", yylval);
+    }
+    //else {
+    //  printf ("No run codition token=%s\n", yylval);
+    //}
+
     if (strcmp(symbuf, "goto") == 0) {
       return GOTO;
     }
@@ -404,19 +478,22 @@ int yylex(void)
     if (strcmp(symbuf, "when") == 0) {
       return WHEN;
     }
-
-    if (strcmp(symbuf, "no-signal") == 0) {
-      return RUN_WHEN_NO_SIGNAL;
+    if (strcmp(symbuf, "or") == 0) {
+      return OR;
     }
+
+
     return IDENTIFIER;
   }
 
   if (c == '\n') {
     empty_line = 1;
+    parse_state = UNKNOWN;
     return c;
   }
 
   if (c == EOF) {
+    parse_state = UNKNOWN;
     return 0;
   }
 }
