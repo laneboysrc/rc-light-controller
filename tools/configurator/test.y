@@ -27,8 +27,8 @@ code:
     - ISSUE: label may never be defined, linker needs to detect!
     - IDEA: store all used locations in a list to be able to cross-reference
 
-  - led [led ...] = value
-  - led [led ...] = variable
+  - led, [led ...] = value
+  - led, [led ...] = variable
     - These translate into:
       - SET start_led stop_led value
       - SET start_led stop_led VARIABLE
@@ -163,6 +163,7 @@ char *make_string(char *s1, char *s2);
 enum {
   UNKNOWN = 0,
   EXPECTING_RUN_CONDITION_IDENTIFIER,
+  EXPECTING_LABEL,
 } parse_state;
 
 
@@ -186,8 +187,8 @@ enum {
 %token STEERING
 %token THROTTLE
 %token IDENTIFIER
-%token VARIABLE_IDENTIFIER
 %token LED_IDENTIFIER
+%token VARIABLE_IDENTIFIER
 %token CLICKS_IDENTIFIER
 %token PRIORITY_RUN_CONDITION_IDENTIFIER
 %token RUN_CONDITION_IDENTIFIER
@@ -226,9 +227,13 @@ program
   | %empty
   ;
 
-expect_run_condition_identifier:
-  %empty  { parse_state = EXPECTING_RUN_CONDITION_IDENTIFIER; }
-;
+expect_run_condition_identifier
+  : %empty  { parse_state = EXPECTING_RUN_CONDITION_IDENTIFIER; }
+  ;
+
+expect_label_identifier
+  : %empty  { parse_state = EXPECTING_LABEL; }
+  ;
 
 condition_lines
   : priority_run_condition_lines
@@ -284,8 +289,10 @@ decleration_line
   ;
 
 decleration
-  : VAR IDENTIFIER        { $$ = make_string("var ", $1); }
-  | LED IDENTIFIER        { $$ = make_string("led ", $1); }
+  : VAR IDENTIFIER
+      { $$ = make_string("var ", $1); }
+  | LED IDENTIFIER
+      { $$ = make_string("led ", $1); }
   ;
 
 code_lines
@@ -295,31 +302,49 @@ code_lines
 
 code_line
   : IDENTIFIER ':' '\n'   { printf("label: %s\n", $1); }
-  | command '\n'          { printf("command: %s\n", $1); }
+  | command '\n'     { printf("command: %s\n", $1); }
   ;
 
 command
-  : GOTO IDENTIFIER           { $$ = make_string("goto", $2); }
-  | WAIT number_or_identifier { $$ = make_string("wait", $2); }
-  | FADE                      { $$ = "fade"; }
+  : GOTO expect_label_identifier LABEL
+      { $$ = make_string("goto", $2); }
+  | WAIT number_or_identifier
+      { $$ = make_string("wait", $2); }
+  | FADE
+      { $$ = "fade"; }
   | expression
   ;
 
 expression
-  : IDENTIFIER assignment_operator number_or_identifier { $$ = make_string($2, $3); printf("1:%s 2:%s 3:%s\n", $1, $2, $3); }
+  : IDENTIFIER assignment_operator number_or_identifier
+      { $$ = make_string($2, $3); printf("1:%s 2:%s 3:%s\n", $1, $2, $3); }
   ;
 
+/*
+  : VARIABLE_IDENTIFIER assignment_operator number_or_identifier
+      { $$ = make_string($2, $3); printf("1:%s 2:%s 3:%s\n", $1, $2, $3); }
+  ;
+  | led_identifiers assignment_operator number_or_identifier
+      { $$ = make_string($2, $3); printf("1:%s 2:%s 3:%s\n", $1, $2, $3); }
+  ;
+
+led_identifiers
+  : LED_IDENTIFIER
+  | led_identifiers ',' LED_IDENTIFIER
+  ;
+*/
+
 number_or_identifier
-  : NUMBER      { $$ = $1; }
-  | IDENTIFIER  { $$ = $1; }
+  : NUMBER                { $$ = $1; }
+  | VARIABLE_IDENTIFIER   { $$ = $1; }
   ;
 
 assignment_operator
-  : '='         { $$ = "="; }
-  | MUL_ASSIGN  { $$ = "*="; }
-  | DIV_ASSIGN  { $$ = "/="; }
-  | ADD_ASSIGN  { $$ = "+="; }
-  | SUB_ASSIGN  { $$ = "-="; }
+  : '='                   { $$ = "="; }
+  | MUL_ASSIGN            { $$ = "*="; }
+  | DIV_ASSIGN            { $$ = "/="; }
+  | ADD_ASSIGN            { $$ = "+="; }
+  | SUB_ASSIGN            { $$ = "-="; }
   ;
 
 %%
@@ -453,6 +478,19 @@ int yylex(void)
     // FIXME: need to add check for malloc failed...
   }
 
+  switch (parse_state) {
+    case UNKNOWN:
+      break;
+
+    case EXPECTING_LABEL:
+      printf("Expecting label\n");
+      break;
+
+    case EXPECTING_RUN_CONDITION_IDENTIFIER:
+      printf("Expecting run condition\n");
+      break;
+  }
+
 
   /* Skip white space and empty lines */
   if (empty_line) {
@@ -528,6 +566,10 @@ int yylex(void)
     id = get_predefined_identifier(reserved_words, yylval);
     if (id != EOF) {
       return id;
+    }
+
+    if (parse_state == EXPECTING_LABEL) {
+      return LABEL;
     }
 
     return IDENTIFIER;
