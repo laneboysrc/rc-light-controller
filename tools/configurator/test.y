@@ -142,8 +142,12 @@ reserved keywords:
   FIXME: add variable identifier for sequencer!
 */
 
+
+
+/* ========================================================================== */
+/* Prologue */
+
 %{
-  /* Prologue */
   #include <stdlib.h>
   #include <stdio.h>
   #include <ctype.h>
@@ -154,6 +158,7 @@ reserved keywords:
 %}
 
 
+/* ========================================================================== */
 /* Bison declarations */
 %define api.value.type {char *}
 
@@ -204,39 +209,103 @@ reserved keywords:
 %token RUN_WHEN_REVERSING_SETUP_THROTTLE
 %token RUN_WHEN_GEAR_CHANGED
 
+%start program
+
 %%
+
+/* ========================================================================== */
 /* Grammar rules */
 
-program:
-   conditions declerations code
-;
+program
+  : condition_lines decleration_lines code_lines
+  | condition_lines code_lines
+  ;
 
-conditions:
-  priority_run_conditions
-| run_conditions
-;    
+condition_lines
+  : condition_line
+  | condition_lines condition_line
+  ;
 
-priority_run_conditions:
-  %empty
-| priority_run_conditions priority_run_condition_line
-;
+condition_line
+  : RUN_ALWAYS '\n'
+  ;
 
-priority_run_condition_line:
-  '\n'
-| priority_run_condition '\n'  { printf("priority_run_condition: %s\n", $1); }
-| error '\n'
-;
+decleration_lines
+  : decleration_line
+  | decleration_lines decleration_line
+  ;
 
-priority_run_condition:
-  RUN_WHEN_NO_SIGNAL
-| RUN_WHEN_INITIALIZING
-| RUN_WHEN_SERVO_OUTPUT_SETUP_CENTRE
-| RUN_WHEN_SERVO_OUTPUT_SETUP_LEFT
-| RUN_WHEN_SERVO_OUTPUT_SETUP_RIGHT
-| RUN_WHEN_REVERSING_SETUP_STEERING
-| RUN_WHEN_REVERSING_SETUP_THROTTLE
-| RUN_WHEN_GEAR_CHANGED
-;
+decleration_line
+  : VAR '\n'
+  ;
+
+code_lines
+  : code_line
+  | code_lines code_line
+  ;
+
+code_line
+  : FADE '\n'
+  ;
+
+
+/*
+conditions
+  : priority_run_conditions
+  | run_conditions
+  ;
+
+priority_run_conditions
+  : RUN_WHEN_NO_SIGNAL
+  | RUN_WHEN_INITIALIZING
+  ;
+
+run_conditions
+  : RUN_ALWAYS
+  | RUN_WHEN_NEUTRAL
+  ;
+
+declerations
+  : VAR
+  | LED
+  ;
+
+code
+  : code line
+  ;
+
+line
+  :'\n'
+  | command '\n'  { printf("command: %s\n", $1); }
+  ;
+
+command
+  : IDENTIFIER ':'    { $$ = make_string("label", $1); }
+  | GOTO IDENTIFIER   { $$ = make_string("goto", $2); }
+  | WAIT NUMBER       { $$ = make_string("wait number=", $2); }
+  | WAIT IDENTIFIER   { $$ = make_string("wait var=", $2); }
+  | FADE              { $$ = "fade"; }
+  ;
+priority_run_conditions
+  : priority_run_conditions priority_run_condition_line
+  ;
+
+priority_run_condition_line
+  : '\n'
+  | priority_run_condition '\n'  { printf("priority_run_condition: %s\n", $1); }
+  | error '\n'
+  ;
+
+priority_run_condition
+  : RUN_WHEN_NO_SIGNAL
+  | RUN_WHEN_INITIALIZING
+  | RUN_WHEN_SERVO_OUTPUT_SETUP_CENTRE
+  | RUN_WHEN_SERVO_OUTPUT_SETUP_LEFT
+  | RUN_WHEN_SERVO_OUTPUT_SETUP_RIGHT
+  | RUN_WHEN_REVERSING_SETUP_STEERING
+  | RUN_WHEN_REVERSING_SETUP_THROTTLE
+  | RUN_WHEN_GEAR_CHANGED
+  ;
 
 run_conditions:
   %empty
@@ -278,10 +347,10 @@ run_condition:
 | RUN_ALWAYS
 ;
 
-declerations:
-  %empty
-| declerations decleration_line
-;
+
+declerations
+  : declerations decleration_line
+  ;
 
 decleration_line:
   '\n'
@@ -294,10 +363,9 @@ decleration:
 | LED IDENTIFIER    { $$ = make_string("led", $2); }
 ;
 
-code:
-  %empty
-| code line
-;
+code
+  : code line
+  ;
 
 line:
   '\n'
@@ -313,7 +381,13 @@ command:
 | FADE              { $$ = "fade"; }
 ;
 
+*/
+
+
+
 %%
+
+/* ========================================================================== */
 /* Epilogue */
 
 int yylex(void)
@@ -321,24 +395,26 @@ int yylex(void)
   static size_t length = 40;
   static char *symbuf = NULL;
   int c;
+  static int empty_line = 1;
 
   if (symbuf == NULL){
     symbuf = (char *) malloc(length + 1);
     // FIXME: need to add check for malloc failed...
   }
 
-  /* Skip white space */
-  while ((c = getchar ()) == ' ' || c == '\t') {
-    continue;
+  /* Skip white space and empty lines */
+  if (empty_line) {
+    while ((c = getchar ()) == ' ' || c == '\t' || c == '\n') {
+      continue;
+    }
   }
+  else {
+    while ((c = getchar ()) == ' ' || c == '\t') {
+      continue;
+    }
+  };
 
-  if (c == EOF) {
-    return 0;
-  }
-
-  if (c == '\n') {
-    return c;
-  }
+  empty_line = 0;
 
   if (c == ':') {
     return c;
@@ -346,7 +422,7 @@ int yylex(void)
 
   if (isdigit(c)) {
     int count = 0;
-    
+
     do {
       if (count == length) {
         length *= 2;
@@ -356,7 +432,7 @@ int yylex(void)
 
       // Add this character to the buffer.
       symbuf[count++] = c;
-      
+
       c = getchar();
     } while (isdigit(c));
 
@@ -408,6 +484,15 @@ int yylex(void)
       return RUN_WHEN_NO_SIGNAL;
     }
     return IDENTIFIER;
+  }
+
+  if (c == '\n') {
+    empty_line = 1;
+    return c;
+  }
+
+  if (c == EOF) {
+    return 0;
   }
 }
 
