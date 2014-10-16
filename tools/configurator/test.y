@@ -11,42 +11,6 @@ program:
 run-conditions:
   run-conditions | run-condition;
 
-run-condition:
-| RUN_WHEN_LIGHT_SWITCH_POSITION
-| RUN_WHEN_LIGHT_SWITCH_POSITION_1
-| RUN_WHEN_LIGHT_SWITCH_POSITION_2
-| RUN_WHEN_LIGHT_SWITCH_POSITION_3
-| RUN_WHEN_LIGHT_SWITCH_POSITION_4
-| RUN_WHEN_LIGHT_SWITCH_POSITION_5
-| RUN_WHEN_LIGHT_SWITCH_POSITION_6
-| RUN_WHEN_LIGHT_SWITCH_POSITION_7
-| RUN_WHEN_LIGHT_SWITCH_POSITION_8
-| RUN_WHEN_NEUTRAL
-| RUN_WHEN_FORWARD
-| RUN_WHEN_REVERSING
-| RUN_WHEN_BRAKING
-| RUN_WHEN_INDICATOR_LEFT
-| RUN_WHEN_INDICATOR_RIGHT
-| RUN_WHEN_HAZARD
-| RUN_WHEN_BLINK_FLAG
-| RUN_WHEN_BLINK_LEFT
-| RUN_WHEN_BLINK_RIGHT
-| RUN_WHEN_WINCH_DISABLERD
-| RUN_WHEN_WINCH_IDLE
-| RUN_WHEN_WINCH_IN
-| RUN_WHEN_WINCH_OUT
-| RUN_WHEN_GEAR_1
-| RUN_WHEN_GEAR_2
-| RUN_ALWAYS
-
-| RUN_WHEN_NO_SIGNAL
-| RUN_WHEN_INITIALIZING
-| RUN_WHEN_SERVO_OUTPUT_SETUP_CENTRE
-| RUN_WHEN_SERVO_OUTPUT_SETUP_LEFT
-| RUN_WHEN_SERVO_OUTPUT_SETUP_RIGHT
-| RUN_WHEN_REVERSING_SETUP_STEERING
-| RUN_WHEN_REVERSING_SETUP_THROTTLE
-| RUN_WHEN_GEAR_CHANGED
 
 declerations:
   - LED name = master[0..15]|slave[0..15]
@@ -61,7 +25,7 @@ code:
     - NOTE: do not allow numbers as one line may translate to several opcodes!
     - ISSUE: needs linking due to forward decleration
     - ISSUE: label may never be defined, linker needs to detect!
-    - IDEA: store used locations in a list to be able to cross-reference
+    - IDEA: store all used locations in a list to be able to cross-reference
 
   - led [led ...] = value
   - led [led ...] = variable
@@ -109,6 +73,43 @@ code:
   - SKIP IF NOT {car-state}
     - Translates into SKIP IF NONE
 
+run-condition:
+| RUN_WHEN_LIGHT_SWITCH_POSITION
+| RUN_WHEN_LIGHT_SWITCH_POSITION_1
+| RUN_WHEN_LIGHT_SWITCH_POSITION_2
+| RUN_WHEN_LIGHT_SWITCH_POSITION_3
+| RUN_WHEN_LIGHT_SWITCH_POSITION_4
+| RUN_WHEN_LIGHT_SWITCH_POSITION_5
+| RUN_WHEN_LIGHT_SWITCH_POSITION_6
+| RUN_WHEN_LIGHT_SWITCH_POSITION_7
+| RUN_WHEN_LIGHT_SWITCH_POSITION_8
+| RUN_WHEN_NEUTRAL
+| RUN_WHEN_FORWARD
+| RUN_WHEN_REVERSING
+| RUN_WHEN_BRAKING
+| RUN_WHEN_INDICATOR_LEFT
+| RUN_WHEN_INDICATOR_RIGHT
+| RUN_WHEN_HAZARD
+| RUN_WHEN_BLINK_FLAG
+| RUN_WHEN_BLINK_LEFT
+| RUN_WHEN_BLINK_RIGHT
+| RUN_WHEN_WINCH_DISABLERD
+| RUN_WHEN_WINCH_IDLE
+| RUN_WHEN_WINCH_IN
+| RUN_WHEN_WINCH_OUT
+| RUN_WHEN_GEAR_1
+| RUN_WHEN_GEAR_2
+| RUN_ALWAYS
+
+| RUN_WHEN_NO_SIGNAL
+| RUN_WHEN_INITIALIZING
+| RUN_WHEN_SERVO_OUTPUT_SETUP_CENTRE
+| RUN_WHEN_SERVO_OUTPUT_SETUP_LEFT
+| RUN_WHEN_SERVO_OUTPUT_SETUP_RIGHT
+| RUN_WHEN_REVERSING_SETUP_STEERING
+| RUN_WHEN_REVERSING_SETUP_THROTTLE
+| RUN_WHEN_GEAR_CHANGED
+
   - car-state:
     - LIGHT_SWITCH_POSITION_0
     - LIGHT_SWITCH_POSITION_1
@@ -138,8 +139,10 @@ code:
 
 
 reserved keywords:
-  goto, var, led, wait, skip, if, all, none, not, fade, run, when,
-  FIXME: add variable identifier for sequencer!
+  goto, var, led, wait, skip, if, all, none, not, fade, run, when, or, clicks,
+  master, slave, global, random, steering, throttle
+
+  clicks: increments when 6-clicks on CH3
 */
 
 
@@ -177,22 +180,38 @@ enum {
 %token GOTO
 %token WAIT
 
-%token LABEL
 %token NUMBER
+%token LABEL
+%token RANDOM
+%token STEERING
+%token THROTTLE
 %token IDENTIFIER
+%token VARIABLE_IDENTIFIER
+%token LED_IDENTIFIER
+%token CLICKS_IDENTIFIER
 %token PRIORITY_RUN_CONDITION_IDENTIFIER
 %token RUN_CONDITION_IDENTIFIER
 %token RUN_CONDITION_IDENTIFIER_ALWAYS
+
+%token MASTER
+%token SLAVE
+%token GLOBAL
 
 %token SKIP
 %token IF
 %token ALL
 %token NONE
 %token NOT
+%token CAR_STATE
 
 %token RUN
 %token WHEN
 %token OR
+
+%token MUL_ASSIGN
+%token DIV_ASSIGN
+%token ADD_ASSIGN
+%token SUB_ASSIGN
 
 %start program
 
@@ -275,17 +294,33 @@ code_lines
   ;
 
 code_line
-  : command '\n'      { printf("command: %s\n", $1); }
+  : IDENTIFIER ':' '\n'   { printf("label: %s\n", $1); }
+  | command '\n'          { printf("command: %s\n", $1); }
   ;
 
 command
-  : IDENTIFIER ':'    { $$ = make_string("label", $1); }
-  | GOTO IDENTIFIER   { $$ = make_string("goto", $2); }
-  | WAIT NUMBER       { $$ = make_string("wait number=", $2); }
-  | WAIT IDENTIFIER   { $$ = make_string("wait var=", $2); }
-  | FADE              { $$ = "fade"; }
+  : GOTO IDENTIFIER           { $$ = make_string("goto", $2); }
+  | WAIT number_or_identifier { $$ = make_string("wait", $2); }
+  | FADE                      { $$ = "fade"; }
+  | expression
   ;
 
+expression
+  : IDENTIFIER assignment_operator number_or_identifier { $$ = make_string($2, $3); printf("1:%s 2:%s 3:%s\n", $1, $2, $3); }
+  ;
+
+number_or_identifier
+  : NUMBER      { $$ = $1; }
+  | IDENTIFIER  { $$ = $1; }
+  ;
+
+assignment_operator
+  : '='         { $$ = "="; }
+  | MUL_ASSIGN  { $$ = "*="; }
+  | DIV_ASSIGN  { $$ = "/="; }
+  | ADD_ASSIGN  { $$ = "+="; }
+  | SUB_ASSIGN  { $$ = "-="; }
+  ;
 
 %%
 
@@ -314,8 +349,8 @@ const identifiers run_condition_tokens[] = {
   {.value = "forward", .token = RUN_CONDITION_IDENTIFIER},
   {.value = "reversing", .token = RUN_CONDITION_IDENTIFIER},
   {.value = "braking", .token = RUN_CONDITION_IDENTIFIER},
-  {.value = "indicator_left", .token = RUN_CONDITION_IDENTIFIER},
-  {.value = "indicator_right", .token = RUN_CONDITION_IDENTIFIER},
+  {.value = "indicator-left", .token = RUN_CONDITION_IDENTIFIER},
+  {.value = "indicator-right", .token = RUN_CONDITION_IDENTIFIER},
   {.value = "hazard", .token = RUN_CONDITION_IDENTIFIER},
   {.value = "blink-flag", .token = RUN_CONDITION_IDENTIFIER},
   {.value = "blink-left", .token = RUN_CONDITION_IDENTIFIER},
@@ -339,12 +374,66 @@ const identifiers run_condition_tokens[] = {
   {.value = NULL, .token = EOF},
 };
 
+const identifiers car_state[] = {
+  {.value = "light-switch-position-0", .token = CAR_STATE},
+  {.value = "light-switch-position-1", .token = CAR_STATE},
+  {.value = "light-switch-position-2", .token = CAR_STATE},
+  {.value = "light-switch-position-3", .token = CAR_STATE},
+  {.value = "light-switch-position-4", .token = CAR_STATE},
+  {.value = "light-switch-position-5", .token = CAR_STATE},
+  {.value = "light-switch-position-6", .token = CAR_STATE},
+  {.value = "light-switch-position-7", .token = CAR_STATE},
+  {.value = "light-switch-position-8", .token = CAR_STATE},
+  {.value = "neutral", .token = CAR_STATE},
+  {.value = "forward", .token = CAR_STATE},
+  {.value = "reversing", .token = CAR_STATE},
+  {.value = "braking", .token = CAR_STATE},
+  {.value = "indicator-left", .token = CAR_STATE},
+  {.value = "indicator-right", .token = CAR_STATE},
+  {.value = "hazard", .token = CAR_STATE},
+  {.value = "blink-flag", .token = CAR_STATE},
+  {.value = "blink-left", .token = CAR_STATE},
+  {.value = "blink-right", .token = CAR_STATE},
+  {.value = "winch-disabled", .token = CAR_STATE},
+  {.value = "winch-idle", .token = CAR_STATE},
+  {.value = "winch-in", .token = CAR_STATE},
+  {.value = "winch-out", .token = CAR_STATE},
+  {.value = "gear-1", .token = CAR_STATE},
+  {.value = "gear-2", .token = CAR_STATE},
 
-int check_run_condition(const char *id)
+  {.value = NULL, .token = EOF},
+};
+
+const identifiers reserved_words[] = {
+  {.value = "goto", .token = GOTO},
+  {.value = "var", .token = VAR},
+  {.value = "led", .token = LED},
+  {.value = "wait", .token = WAIT},
+  {.value = "skip", .token = SKIP},
+  {.value = "if", .token = IF},
+  {.value = "all", .token = ALL},
+  {.value = "none", .token = NONE},
+  {.value = "not", .token = NOT},
+  {.value = "fade", .token = FADE},
+  {.value = "run", .token = RUN},
+  {.value = "when", .token = WHEN},
+  {.value = "or", .token = OR},
+  {.value = "clicks", .token = CLICKS_IDENTIFIER},
+  {.value = "master", .token = MASTER},
+  {.value = "slave", .token = SLAVE},
+  {.value = "global", .token = GLOBAL},
+  {.value = "random", .token = RANDOM},
+  {.value = "steering", .token = STEERING},
+  {.value = "throttle", .token = THROTTLE},
+
+  {.value = NULL, .token = EOF},
+};
+
+
+int get_predefined_identifier(const identifiers *r, const char *id)
 {
-  const identifiers *r = run_condition_tokens;
   while (r->value != NULL) {
-    if (strcmp(r->value, id) == 0) {
+    if (strcasecmp(r->value, id) == 0) {
       return r->token;
     }
     ++r;
@@ -409,6 +498,7 @@ int yylex(void)
 
   if (isalpha(c)) {
     int count = 0;
+    int id;
 
     do {
       if (count == length) {
@@ -428,60 +518,17 @@ int yylex(void)
 
     yylval = symbuf;
 
-
     if (parse_state == EXPECTING_RUN_CONDITION_IDENTIFIER) {
-      int id;
-
-      id = check_run_condition(yylval);
+      id = get_predefined_identifier(run_condition_tokens, yylval);
       if (id != EOF) {
         return id;
       }
-      //printf("EXPECTING_RUN_CONDITION_IDENTIFIER token=%s\n", yylval);
-    }
-    //else {
-    //  printf ("No run codition token=%s\n", yylval);
-    //}
-
-    if (strcmp(symbuf, "goto") == 0) {
-      return GOTO;
-    }
-    if (strcmp(symbuf, "var") == 0) {
-      return VAR;
-    }
-    if (strcmp(symbuf, "led") == 0) {
-      return LED;
-    }
-    if (strcmp(symbuf, "wait") == 0) {
-      return WAIT;
-    }
-    if (strcmp(symbuf, "skip") == 0) {
-      return SKIP;
-    }
-    if (strcmp(symbuf, "if") == 0) {
-      return IF;
-    }
-    if (strcmp(symbuf, "all") == 0) {
-      return ALL;
-    }
-    if (strcmp(symbuf, "none") == 0) {
-      return NONE;
-    }
-    if (strcmp(symbuf, "not") == 0) {
-      return NOT;
-    }
-    if (strcmp(symbuf, "fade") == 0) {
-      return FADE;
-    }
-    if (strcmp(symbuf, "run") == 0) {
-      return RUN;
-    }
-    if (strcmp(symbuf, "when") == 0) {
-      return WHEN;
-    }
-    if (strcmp(symbuf, "or") == 0) {
-      return OR;
     }
 
+    id = get_predefined_identifier(reserved_words, yylval);
+    if (id != EOF) {
+      return id;
+    }
 
     return IDENTIFIER;
   }
@@ -496,6 +543,40 @@ int yylex(void)
     parse_state = UNKNOWN;
     return 0;
   }
+
+  if (c == '+') {
+    char n;
+    if ((n = getchar()) == '=') {
+      return ADD_ASSIGN;
+    }
+    ungetc(n, stdin);
+  }
+
+  if (c == '-') {
+    char n;
+    if ((n = getchar()) == '=') {
+      return SUB_ASSIGN;
+    }
+    ungetc(n, stdin);
+  }
+
+  if (c == '*') {
+    char n;
+    if ((n = getchar()) == '=') {
+      return MUL_ASSIGN;
+    }
+    ungetc(n, stdin);
+  }
+
+  if (c == '/') {
+    char n;
+    if ((n = getchar()) == '=') {
+      return DIV_ASSIGN;
+    }
+    ungetc(n, stdin);
+  }
+
+  return c;
 }
 
 /* Called by yyparse on error.  */
@@ -508,7 +589,7 @@ void yyerror(char const *s)
 char *make_string(char *s1, char *s2)
 {
     static char buf[256];
-    snprintf(buf, 256, "%s%s", s1,  s2);
+    snprintf(buf, 256, "%s %s", s1,  s2);
     return buf;
 }
 
