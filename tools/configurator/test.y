@@ -140,7 +140,7 @@ run-condition:
 
 reserved keywords:
   goto, var, led, wait, skip, if, all, none, not, fade, run, when, or, clicks,
-  master, slave, global, random, steering, throttle
+  master, slave, global, random, steering, throttle, abs
 
   clicks: increments when 6-clicks on CH3
 */
@@ -194,6 +194,8 @@ extern identifier *symbol_table;
 /* Bison declarations */
 %define api.value.type union
 
+%locations
+
 %token <identifier *> LED
 %token <identifier *> VAR
 %token <identifier *> GLOBAL
@@ -232,11 +234,12 @@ extern identifier *symbol_table;
 %token <uint32_t> DIV_ASSIGN
 %token <uint32_t> ADD_ASSIGN
 %token <uint32_t> SUB_ASSIGN
+%token <uint32_t> ABS
 
 %type <identifier *> decleration
 %type <uint32_t> command
 %type <uint32_t> expression led_identifiers
-%type <uint32_t> assignment_operator
+%type <uint32_t> assignment_operator abs_assignment_parameter
 %type <uint32_t> variable_assignment_parameter led_assignment_parameter
 
 %start program
@@ -353,6 +356,8 @@ command
 expression
   : VARIABLE_IDENTIFIER assignment_operator variable_assignment_parameter
       { emit($2 | ($1->index << 16) | $3); }
+  | VARIABLE_IDENTIFIER assignment_operator ABS abs_assignment_parameter
+      { emit(0x40000000 | $4); }
   | led_identifiers '=' led_assignment_parameter
       { emit(0x02000000 | ($1 << 16) | ($1 << 8) | $3); }
   ;
@@ -387,6 +392,15 @@ variable_assignment_parameter
       { $$ = (PARAMETER_TYPE_RANDOM << 8); }
   ;
 
+abs_assignment_parameter
+  : VARIABLE_IDENTIFIER
+      { $$ = (PARAMETER_TYPE_VARIABLE << 8) | $1->index; }
+  | STEERING
+      { $$ = (PARAMETER_TYPE_STEERING << 8); }
+  | THROTTLE
+      { $$ = (PARAMETER_TYPE_THROTTLE << 8); }
+  ;
+
 assignment_operator
   : '='
         { $$ = 0x10000000; }
@@ -409,97 +423,98 @@ assignment_operator
 const identifier run_condition_tokens[] = {
   {.name = "always", .token = RUN_CONDITION_IDENTIFIER_ALWAYS},
 
-  {.name = "light-switch-position-0", .token = RUN_CONDITION_IDENTIFIER, .index = 0},
-  {.name = "light-switch-position-1", .token = RUN_CONDITION_IDENTIFIER, .index = 0},
-  {.name = "light-switch-position-2", .token = RUN_CONDITION_IDENTIFIER, .index = 0},
-  {.name = "light-switch-position-3", .token = RUN_CONDITION_IDENTIFIER, .index = 0},
-  {.name = "light-switch-position-4", .token = RUN_CONDITION_IDENTIFIER, .index = 0},
-  {.name = "light-switch-position-5", .token = RUN_CONDITION_IDENTIFIER, .index = 0},
-  {.name = "light-switch-position-6", .token = RUN_CONDITION_IDENTIFIER, .index = 0},
-  {.name = "light-switch-position-7", .token = RUN_CONDITION_IDENTIFIER, .index = 0},
-  {.name = "light-switch-position-8", .token = RUN_CONDITION_IDENTIFIER, .index = 0},
-  {.name = "neutral", .token = RUN_CONDITION_IDENTIFIER, .index = 0},
-  {.name = "forward", .token = RUN_CONDITION_IDENTIFIER, .index = 0},
-  {.name = "reversing", .token = RUN_CONDITION_IDENTIFIER, .index = 0},
-  {.name = "braking", .token = RUN_CONDITION_IDENTIFIER, .index = 0},
-  {.name = "indicator-left", .token = RUN_CONDITION_IDENTIFIER, .index = 0},
-  {.name = "indicator-right", .token = RUN_CONDITION_IDENTIFIER, .index = 0},
-  {.name = "hazard", .token = RUN_CONDITION_IDENTIFIER, .index = 0},
-  {.name = "blink-flag", .token = RUN_CONDITION_IDENTIFIER, .index = 0},
-  {.name = "blink-left", .token = RUN_CONDITION_IDENTIFIER, .index = 0},
-  {.name = "blink-right", .token = RUN_CONDITION_IDENTIFIER, .index = 0},
-  {.name = "winch-disabled", .token = RUN_CONDITION_IDENTIFIER, .index = 0},
-  {.name = "winch-idle", .token = RUN_CONDITION_IDENTIFIER, .index = 0},
-  {.name = "winch-in", .token = RUN_CONDITION_IDENTIFIER, .index = 0},
-  {.name = "winch-out", .token = RUN_CONDITION_IDENTIFIER, .index = 0},
-  {.name = "gear-1", .token = RUN_CONDITION_IDENTIFIER, .index = 0},
-  {.name = "gear-2", .token = RUN_CONDITION_IDENTIFIER, .index = 0},
+  {.name = "light-switch-position-0", .token = RUN_CONDITION_IDENTIFIER},
+  {.name = "light-switch-position-1", .token = RUN_CONDITION_IDENTIFIER},
+  {.name = "light-switch-position-2", .token = RUN_CONDITION_IDENTIFIER},
+  {.name = "light-switch-position-3", .token = RUN_CONDITION_IDENTIFIER},
+  {.name = "light-switch-position-4", .token = RUN_CONDITION_IDENTIFIER},
+  {.name = "light-switch-position-5", .token = RUN_CONDITION_IDENTIFIER},
+  {.name = "light-switch-position-6", .token = RUN_CONDITION_IDENTIFIER},
+  {.name = "light-switch-position-7", .token = RUN_CONDITION_IDENTIFIER},
+  {.name = "light-switch-position-8", .token = RUN_CONDITION_IDENTIFIER},
+  {.name = "neutral", .token = RUN_CONDITION_IDENTIFIER},
+  {.name = "forward", .token = RUN_CONDITION_IDENTIFIER},
+  {.name = "reversing", .token = RUN_CONDITION_IDENTIFIER},
+  {.name = "braking", .token = RUN_CONDITION_IDENTIFIER},
+  {.name = "indicator-left", .token = RUN_CONDITION_IDENTIFIER},
+  {.name = "indicator-right", .token = RUN_CONDITION_IDENTIFIER},
+  {.name = "hazard", .token = RUN_CONDITION_IDENTIFIER},
+  {.name = "blink-flag", .token = RUN_CONDITION_IDENTIFIER},
+  {.name = "blink-left", .token = RUN_CONDITION_IDENTIFIER},
+  {.name = "blink-right", .token = RUN_CONDITION_IDENTIFIER},
+  {.name = "winch-disabled", .token = RUN_CONDITION_IDENTIFIER},
+  {.name = "winch-idle", .token = RUN_CONDITION_IDENTIFIER},
+  {.name = "winch-in", .token = RUN_CONDITION_IDENTIFIER},
+  {.name = "winch-out", .token = RUN_CONDITION_IDENTIFIER},
+  {.name = "gear-1", .token = RUN_CONDITION_IDENTIFIER},
+  {.name = "gear-2", .token = RUN_CONDITION_IDENTIFIER},
 
-  {.name = "no-signal", .token = PRIORITY_RUN_CONDITION_IDENTIFIER, .index = 0},
-  {.name = "initializing", .token = PRIORITY_RUN_CONDITION_IDENTIFIER, .index = 0},
-  {.name = "servo-output-setup-centre", .token = PRIORITY_RUN_CONDITION_IDENTIFIER, .index = 0},
-  {.name = "servo-output-setup-left", .token = PRIORITY_RUN_CONDITION_IDENTIFIER, .index = 0},
-  {.name = "servo-output-setup-right", .token = PRIORITY_RUN_CONDITION_IDENTIFIER, .index = 0},
-  {.name = "reversing-setup-steering", .token = PRIORITY_RUN_CONDITION_IDENTIFIER, .index = 0},
-  {.name = "reversing-setup-throttle", .token = PRIORITY_RUN_CONDITION_IDENTIFIER, .index = 0},
-  {.name = "gear-changed", .token = PRIORITY_RUN_CONDITION_IDENTIFIER, .index = 0},
+  {.name = "no-signal", .token = PRIORITY_RUN_CONDITION_IDENTIFIER},
+  {.name = "initializing", .token = PRIORITY_RUN_CONDITION_IDENTIFIER},
+  {.name = "servo-output-setup-centre", .token = PRIORITY_RUN_CONDITION_IDENTIFIER},
+  {.name = "servo-output-setup-left", .token = PRIORITY_RUN_CONDITION_IDENTIFIER},
+  {.name = "servo-output-setup-right", .token = PRIORITY_RUN_CONDITION_IDENTIFIER},
+  {.name = "reversing-setup-steering", .token = PRIORITY_RUN_CONDITION_IDENTIFIER},
+  {.name = "reversing-setup-throttle", .token = PRIORITY_RUN_CONDITION_IDENTIFIER},
+  {.name = "gear-changed", .token = PRIORITY_RUN_CONDITION_IDENTIFIER},
 
-  {.name = NULL, .token = EOF, .index = 0},
+  {.name = NULL, .token = EOF},
 };
 
 const identifier car_state[] = {
-  {.name = "light-switch-position-0", .token = CAR_STATE, .index = 0},
-  {.name = "light-switch-position-1", .token = CAR_STATE, .index = 0},
-  {.name = "light-switch-position-2", .token = CAR_STATE, .index = 0},
-  {.name = "light-switch-position-3", .token = CAR_STATE, .index = 0},
-  {.name = "light-switch-position-4", .token = CAR_STATE, .index = 0},
-  {.name = "light-switch-position-5", .token = CAR_STATE, .index = 0},
-  {.name = "light-switch-position-6", .token = CAR_STATE, .index = 0},
-  {.name = "light-switch-position-7", .token = CAR_STATE, .index = 0},
-  {.name = "light-switch-position-8", .token = CAR_STATE, .index = 0},
-  {.name = "neutral", .token = CAR_STATE, .index = 0},
-  {.name = "forward", .token = CAR_STATE, .index = 0},
-  {.name = "reversing", .token = CAR_STATE, .index = 0},
-  {.name = "braking", .token = CAR_STATE, .index = 0},
-  {.name = "indicator-left", .token = CAR_STATE, .index = 0},
-  {.name = "indicator-right", .token = CAR_STATE, .index = 0},
-  {.name = "hazard", .token = CAR_STATE, .index = 0},
-  {.name = "blink-flag", .token = CAR_STATE, .index = 0},
-  {.name = "blink-left", .token = CAR_STATE, .index = 0},
-  {.name = "blink-right", .token = CAR_STATE, .index = 0},
-  {.name = "winch-disabled", .token = CAR_STATE, .index = 0},
-  {.name = "winch-idle", .token = CAR_STATE, .index = 0},
-  {.name = "winch-in", .token = CAR_STATE, .index = 0},
-  {.name = "winch-out", .token = CAR_STATE, .index = 0},
-  {.name = "gear-1", .token = CAR_STATE, .index = 0},
-  {.name = "gear-2", .token = CAR_STATE, .index = 0},
+  {.name = "light-switch-position-0", .token = CAR_STATE},
+  {.name = "light-switch-position-1", .token = CAR_STATE},
+  {.name = "light-switch-position-2", .token = CAR_STATE},
+  {.name = "light-switch-position-3", .token = CAR_STATE},
+  {.name = "light-switch-position-4", .token = CAR_STATE},
+  {.name = "light-switch-position-5", .token = CAR_STATE},
+  {.name = "light-switch-position-6", .token = CAR_STATE},
+  {.name = "light-switch-position-7", .token = CAR_STATE},
+  {.name = "light-switch-position-8", .token = CAR_STATE},
+  {.name = "neutral", .token = CAR_STATE},
+  {.name = "forward", .token = CAR_STATE},
+  {.name = "reversing", .token = CAR_STATE},
+  {.name = "braking", .token = CAR_STATE},
+  {.name = "indicator-left", .token = CAR_STATE},
+  {.name = "indicator-right", .token = CAR_STATE},
+  {.name = "hazard", .token = CAR_STATE},
+  {.name = "blink-flag", .token = CAR_STATE},
+  {.name = "blink-left", .token = CAR_STATE},
+  {.name = "blink-right", .token = CAR_STATE},
+  {.name = "winch-disabled", .token = CAR_STATE},
+  {.name = "winch-idle", .token = CAR_STATE},
+  {.name = "winch-in", .token = CAR_STATE},
+  {.name = "winch-out", .token = CAR_STATE},
+  {.name = "gear-1", .token = CAR_STATE},
+  {.name = "gear-2", .token = CAR_STATE},
 
-  {.name = NULL, .token = EOF, .index = 0},
+  {.name = NULL, .token = EOF},
 };
 
 const identifier reserved_words[] = {
-  {.name = "goto", .token = GOTO, .index = 0},
-  {.name = "var", .token = VAR, .index = 0},
-  {.name = "led", .token = LED, .index = 0},
-  {.name = "wait", .token = WAIT, .index = 0},
-  {.name = "skip", .token = SKIP, .index = 0},
-  {.name = "if", .token = IF, .index = 0},
-  {.name = "all", .token = ALL, .index = 0},
-  {.name = "none", .token = NONE, .index = 0},
-  {.name = "not", .token = NOT, .index = 0},
-  {.name = "fade", .token = FADE, .index = 0},
-  {.name = "run", .token = RUN, .index = 0},
-  {.name = "when", .token = WHEN, .index = 0},
-  {.name = "or", .token = OR, .index = 0},
-  {.name = "clicks", .token = CLICKS_IDENTIFIER, .index = 0},
-  {.name = "master", .token = MASTER, .index = 0},
-  {.name = "slave", .token = SLAVE, .index = 0},
-  {.name = "global", .token = GLOBAL, .index = 0},
-  {.name = "random", .token = RANDOM, .index = 0},
-  {.name = "steering", .token = STEERING, .index = 0},
-  {.name = "throttle", .token = THROTTLE, .index = 0},
+  {.name = "goto", .token = GOTO},
+  {.name = "var", .token = VAR},
+  {.name = "led", .token = LED},
+  {.name = "wait", .token = WAIT},
+  {.name = "skip", .token = SKIP},
+  {.name = "if", .token = IF},
+  {.name = "all", .token = ALL},
+  {.name = "none", .token = NONE},
+  {.name = "not", .token = NOT},
+  {.name = "fade", .token = FADE},
+  {.name = "run", .token = RUN},
+  {.name = "when", .token = WHEN},
+  {.name = "or", .token = OR},
+  {.name = "clicks", .token = CLICKS_IDENTIFIER},
+  {.name = "master", .token = MASTER},
+  {.name = "slave", .token = SLAVE},
+  {.name = "global", .token = GLOBAL},
+  {.name = "random", .token = RANDOM},
+  {.name = "steering", .token = STEERING},
+  {.name = "throttle", .token = THROTTLE},
+  {.name = "abs", .token = ABS},
 
-  {.name = NULL, .token = EOF, .index = 0},
+  {.name = NULL, .token = EOF},
 };
 
 identifier *symbol_table = NULL;
@@ -777,7 +792,7 @@ void emit(uint32_t instruction)
 int main(int argc, char *argv[])
 {
   printf("Bison test parser\n");
-  //yydebug = 1;
+  yydebug = 1;
 
   initialize_symbol_table(run_condition_tokens, &run_condition_table);
   initialize_symbol_table(reserved_words, &reserved_words_table);
