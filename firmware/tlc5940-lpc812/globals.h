@@ -38,15 +38,15 @@
 
 // Opcodes for light programs
 #define OPCODE_GOTO             0x01
-#define OPCODE_SET              0x02
-#define OPCODE_SET_VARIABLE     0x03
-#define OPCODE_FADE             0x04
-#define OPCODE_FADE_VARIABLE    0x05
-#define OPCODE_WAIT             0x06
-#define OPCODE_WAIT_VARIABLE    0x07
+#define OPCODE_SET_VARIABLE     0x02
+#define OPCODE_SET              0x03    // FIXME: Make SET and SET_I!
+#define OPCODE_FADE_VARIABLE    0x04
+#define OPCODE_FADE             0x05
+#define OPCODE_WAIT_VARIABLE    0x06
+#define OPCODE_WAIT             0x07
 
-#define OPCODE_ASSIGN           0x10    // VAR =    var, type, id 
-#define OPCODE_ASSIGN_I         0x11    // VAR =    var, immediate 
+#define OPCODE_ASSIGN           0x10    // VAR =    var, type, id
+#define OPCODE_ASSIGN_I         0x11    // VAR =    var, immediate
 
 #define OPCODE_ADD              0x12    // VAR +=   var, type, id
 #define OPCODE_ADD_I            0x13    // VAR +=   var, immediate

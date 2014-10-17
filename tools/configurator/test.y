@@ -162,6 +162,7 @@ int yylex(void);
 void yyerror(char const *);
 char *make_string(char *s1, char *s2);
 void set_label(char *name);
+void emit(uint32_t instruction);
 
 enum {
   UNKNOWN_PARSE_STATE = 0,
@@ -184,6 +185,8 @@ extern identifier *symbol_table;
 #define PARAMETER_TYPE_RANDOM 2
 #define PARAMETER_TYPE_STEERING 3
 #define PARAMETER_TYPE_THROTTLE 4
+
+
 %}
 
 
@@ -232,8 +235,9 @@ extern identifier *symbol_table;
 
 %type <identifier *> decleration
 %type <uint32_t> command
-%type <uint32_t> expression
-%type <uint32_t> assignment_operator number_or_identifier
+%type <uint32_t> expression led_identifiers
+%type <uint32_t> assignment_operator
+%type <uint32_t> variable_assignment_parameter led_assignment_parameter
 
 %start program
 
@@ -244,7 +248,9 @@ extern identifier *symbol_table;
 
 program
   : condition_lines decleration_lines code_lines
+      { emit(0xfe000000); }
   | condition_lines code_lines
+      { emit(0xfe000000); }
   | %empty
   ;
 
@@ -330,43 +336,55 @@ code_lines
 
 code_line
   : IDENTIFIER ':' '\n'
-        { printf("===========> Label: %s\n", $1->name); set_label($1->name); }
+      { printf("===========> Label: %s\n", $1->name); set_label($1->name); }
   | command '\n'
-        { printf("===========> Command: 0x%x\n", $1); }
   ;
 
 command
   : GOTO LABEL
-  | WAIT number_or_identifier
+      { emit(0x01000000 | $1); }
   | FADE
+      { emit(0x04000000); }
+  | WAIT
+      { emit(0x06000000); }
   | expression
   ;
 
 expression
-  : VARIABLE_IDENTIFIER assignment_operator number_or_identifier
-        { $$ = $2 | ($1->index << 16) | $3; }
-  ;
-
-/*
-  : VARIABLE_IDENTIFIER assignment_operator number_or_identifier
-      { $$ = make_string($2, $3); printf("1:%s 2:%s 3:%s\n", $1, $2, $3); }
-  ;
-  | led_identifiers assignment_operator number_or_identifier
-      { $$ = make_string($2, $3); printf("1:%s 2:%s 3:%s\n", $1, $2, $3); }
+  : VARIABLE_IDENTIFIER assignment_operator variable_assignment_parameter
+      { emit($2 | ($1->index << 16) | $3); }
+  | led_identifiers '=' led_assignment_parameter
+      { emit(0x02000000 | ($1 << 16) | ($1 << 8) | $3); }
   ;
 
 led_identifiers
   : LED_IDENTIFIER
+      { $$ = $1->index; }
   | led_identifiers ',' LED_IDENTIFIER
+      { $$ = $3->index; }
   ;
-*/
 
-number_or_identifier
+led_assignment_parameter
   : NUMBER
-        /* All opcodes that work with immediates have the lowest bit set */
-        { $$ = 0x01000000 | ($1 & 0xffff); }
+      /* All opcodes that work with immediates have the lowest bit set */
+      { $$ = 0x01000000 | ($1 & 0xff); }
   | VARIABLE_IDENTIFIER
-        { $$ = (PARAMETER_TYPE_VARIABLE << 8) | $1->index; }
+      { $$ = $1->index; }
+
+variable_assignment_parameter
+  : NUMBER
+      /* All opcodes that work with immediates have the lowest bit set */
+      { $$ = 0x01000000 | ($1 & 0xffff); }
+  | VARIABLE_IDENTIFIER
+      { $$ = (PARAMETER_TYPE_VARIABLE << 8) | $1->index; }
+  | LED_IDENTIFIER
+      { $$ = (PARAMETER_TYPE_LED << 8) | $1->index; }
+  | STEERING
+      { $$ = (PARAMETER_TYPE_STEERING << 8); }
+  | THROTTLE
+      { $$ = (PARAMETER_TYPE_THROTTLE << 8); }
+  | RANDOM
+      { $$ = (PARAMETER_TYPE_RANDOM << 8); }
   ;
 
 assignment_operator
@@ -742,6 +760,7 @@ int yylex(void)
   return c;
 }
 
+
 /* Called by yyparse on error.  */
 void yyerror(char const *s)
 {
@@ -749,18 +768,16 @@ void yyerror(char const *s)
 }
 
 
-char *make_string(char *s1, char *s2)
+void emit(uint32_t instruction)
 {
-    static char buf[256];
-    snprintf(buf, 256, "%s %s", s1,  s2);
-    return buf;
+  printf("===============> INSTRUCTION: 0x%08x\n", instruction);
 }
 
 
 int main(int argc, char *argv[])
 {
   printf("Bison test parser\n");
-  yydebug = 1;
+  //yydebug = 1;
 
   initialize_symbol_table(run_condition_tokens, &run_condition_table);
   initialize_symbol_table(reserved_words, &reserved_words_table);
