@@ -179,6 +179,11 @@ typedef struct _identifier {
 
 extern identifier *symbol_table;
 
+#define PARAMETER_TYPE_VARIABLE 0
+#define PARAMETER_TYPE_LED 1
+#define PARAMETER_TYPE_RANDOM 2
+#define PARAMETER_TYPE_STEERING 3
+#define PARAMETER_TYPE_THROTTLE 4
 %}
 
 
@@ -225,9 +230,10 @@ extern identifier *symbol_table;
 %token <uint32_t> ADD_ASSIGN
 %token <uint32_t> SUB_ASSIGN
 
-%type <identifier *> decleration 
-%type <uint32_t> command 
-%type <uint32_t> expression 
+%type <identifier *> decleration
+%type <uint32_t> command
+%type <uint32_t> expression
+%type <uint32_t> assignment_operator number_or_identifier
 
 %start program
 
@@ -288,7 +294,7 @@ run_condition_lines
   ;
 
 run_condition_line
-  : RUN expect_run_condition_identifier WHEN run_condition_identifiers '\n' 
+  : RUN expect_run_condition_identifier WHEN run_condition_identifiers '\n'
   ;
 
 run_condition_identifiers
@@ -298,7 +304,7 @@ run_condition_identifiers
   ;
 
 run_always_condition_line
-  : RUN expect_run_condition_identifier RUN_CONDITION_IDENTIFIER_ALWAYS '\n' 
+  : RUN expect_run_condition_identifier RUN_CONDITION_IDENTIFIER_ALWAYS '\n'
   ;
 
 decleration_lines
@@ -307,7 +313,7 @@ decleration_lines
   ;
 
 decleration_line
-  : decleration '\n'      
+  : decleration '\n'
         { printf("===========> Decleration: %s\n", $1->name); }
   ;
 
@@ -325,7 +331,7 @@ code_lines
 code_line
   : IDENTIFIER ':' '\n'
         { printf("===========> Label: %s\n", $1->name); set_label($1->name); }
-  | command '\n'    
+  | command '\n'
         { printf("===========> Command: 0x%x\n", $1); }
   ;
 
@@ -338,7 +344,7 @@ command
 
 expression
   : VARIABLE_IDENTIFIER assignment_operator number_or_identifier
-        { $$ = $2 | ; } 
+        { $$ = $2 | ($1->index << 16) | $3; }
   ;
 
 /*
@@ -357,18 +363,23 @@ led_identifiers
 
 number_or_identifier
   : NUMBER
-        { $$ = 0x01000000 | (uint16_t)$1; }     
+        /* All opcodes that work with immediates have the lowest bit set */
+        { $$ = 0x01000000 | ($1 & 0xffff); }
   | VARIABLE_IDENTIFIER
-        { $$ = 0x10000000; }     
+        { $$ = (PARAMETER_TYPE_VARIABLE << 8) | $1->index; }
   ;
 
 assignment_operator
-  : '='   
-        { $$ = 0x10000000; }     
-  | MUL_ASSIGN
-  | DIV_ASSIGN
+  : '='
+        { $$ = 0x10000000; }
   | ADD_ASSIGN
+        { $$ = 0x12000000; }
   | SUB_ASSIGN
+        { $$ = 0x14000000; }
+  | MUL_ASSIGN
+        { $$ = 0x16000000; }
+  | DIV_ASSIGN
+        { $$ = 0x18000000; }
   ;
 
 %%
@@ -492,7 +503,7 @@ identifier *add_symbol(identifier **table, char *name, int token, int index)
   ptr->index = index;
   ptr->next = *table;
   *table = ptr;
-  return ptr;    
+  return ptr;
 }
 
 
@@ -526,7 +537,7 @@ void initialize_symbol_table(const identifier *source, identifier **destination)
     while (source->name) {
         add_symbol(destination, source->name, source->token, 0);
         ++source;
-    }    
+    }
 }
 
 
@@ -579,10 +590,9 @@ int yylex(void)
 
   empty_line = 0;
 
-  if (c == ':') {
-    parse_state = UNKNOWN_PARSE_STATE;
-    return c;
-  }
+
+  // ===========================================================================
+  // NUMBERS
 
   if (isdigit(c)) {
     int count = 0;
@@ -604,8 +614,12 @@ int yylex(void)
     symbuf[count] = '\0';
 
     parse_state = UNKNOWN_PARSE_STATE;
+    yylval.NUMBER = (int16_t)strtol(symbuf, NULL, 10);
     return NUMBER;
   }
+
+  // ===========================================================================
+  // IDENTIFIERS
 
   if (isalpha(c)) {
     int count = 0;
@@ -634,7 +648,7 @@ int yylex(void)
       printf("++++++++++> Testing RUN CONDITION %s\n", symbuf);
       s = get_symbol(&run_condition_table, symbuf);
       if (s) {
-          printf("++++++++++> Found RUN CONDITION %s (%d)\n", 
+          printf("++++++++++> Found RUN CONDITION %s (%d)\n",
             s->name, s->token);
         yylval.IDENTIFIER = s;
         return s->token;
@@ -661,7 +675,7 @@ int yylex(void)
             printf("++++++++++> Added LED %s (%d)\n", s->name, s->token);
         }
         else if (parse_state == EXPECTING_VARIABLE_IDENTIFIER) {
-            s = add_symbol(&symbol_table, symbuf, VARIABLE_IDENTIFIER, 
+            s = add_symbol(&symbol_table, symbuf, VARIABLE_IDENTIFIER,
                     next_variable_index++);
             printf("++++++++++> Added VARIABLE %s (%d)\n", s->name, s->token);
         }
@@ -669,7 +683,7 @@ int yylex(void)
             s = add_symbol(&symbol_table, symbuf, IDENTIFIER, 0);
             printf("++++++++++> Added IDENTIFIER %s (%d)\n", s->name, s->token);
         }
-    }    
+    }
     else {
       printf("++++++++++> Found IDENTIFIER %s (%d)\n", s->name, s->token);
     }
@@ -681,11 +695,6 @@ int yylex(void)
     empty_line = 1;
     parse_state = UNKNOWN_PARSE_STATE;
     return c;
-  }
-
-  if (c == EOF) {
-    parse_state = UNKNOWN_PARSE_STATE;
-    return 0;
   }
 
   if (c == '+') {
@@ -720,6 +729,16 @@ int yylex(void)
     ungetc(n, stdin);
   }
 
+  if (c == ':') {
+    parse_state = UNKNOWN_PARSE_STATE;
+    return c;
+  }
+
+  if (c == EOF) {
+    parse_state = UNKNOWN_PARSE_STATE;
+    return 0;
+  }
+
   return c;
 }
 
@@ -742,10 +761,10 @@ int main(int argc, char *argv[])
 {
   printf("Bison test parser\n");
   yydebug = 1;
-  
+
   initialize_symbol_table(run_condition_tokens, &run_condition_table);
   initialize_symbol_table(reserved_words, &reserved_words_table);
   initialize_symbol_table(car_state, &car_state_table);
-  
+
   return yyparse();
 }
