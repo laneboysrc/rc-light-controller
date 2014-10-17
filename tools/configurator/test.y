@@ -14,7 +14,7 @@ run-conditions:
 
 declerations:
   - LED name = master[0..15]|slave[0..15]
-  - VAR name [GLOBAL]
+  - [GLOBAL] VAR name
 
 code:
   - LABEL: Labels for GOTO
@@ -161,11 +161,13 @@ reserved keywords:
 int yylex(void);
 void yyerror(char const *);
 char *make_string(char *s1, char *s2);
+void set_label(char *name);
 
 enum {
   UNKNOWN_PARSE_STATE = 0,
   EXPECTING_RUN_CONDITION_IDENTIFIER,
-  EXPECTING_LABEL,
+  EXPECTING_LED_IDENTIFIER,
+  EXPECTING_VARIABLE_IDENTIFIER
 } parse_state;
 
 typedef struct _identifier {
@@ -186,6 +188,9 @@ extern identifier *symbol_table;
 
 %token <identifier *> LED
 %token <identifier *> VAR
+%token <identifier *> GLOBAL
+%token <uint32_t> MASTER
+%token <uint32_t> SLAVE
 
 %token <uint32_t> FADE
 %token <uint32_t> GOTO
@@ -203,10 +208,6 @@ extern identifier *symbol_table;
 %token <uint32_t> PRIORITY_RUN_CONDITION_IDENTIFIER
 %token <uint32_t> RUN_CONDITION_IDENTIFIER
 %token <uint32_t> RUN_CONDITION_IDENTIFIER_ALWAYS
-
-%token <uint32_t> MASTER
-%token <uint32_t> SLAVE
-%token <uint32_t> GLOBAL
 
 %token <uint32_t> SKIP
 %token <uint32_t> IF
@@ -245,8 +246,12 @@ expect_run_condition_identifier
   : %empty  { parse_state = EXPECTING_RUN_CONDITION_IDENTIFIER; }
   ;
 
-expect_label_identifier
-  : %empty  { parse_state = EXPECTING_LABEL; }
+expect_variable_identifier
+  : %empty  { parse_state = EXPECTING_VARIABLE_IDENTIFIER; }
+  ;
+
+expect_led_identifier
+  : %empty  { parse_state = EXPECTING_LED_IDENTIFIER; }
   ;
 
 condition_lines
@@ -307,8 +312,9 @@ decleration_line
   ;
 
 decleration
-  : VAR IDENTIFIER
-  | LED IDENTIFIER
+  : VAR expect_variable_identifier VARIABLE_IDENTIFIER
+  | GLOBAL VAR expect_variable_identifier VARIABLE_IDENTIFIER
+  | LED expect_led_identifier LED_IDENTIFIER
   ;
 
 code_lines
@@ -318,21 +324,21 @@ code_lines
 
 code_line
   : IDENTIFIER ':' '\n'
-        { printf("===========> Label: %s\n", $1->name); }
+        { printf("===========> Label: %s\n", $1->name); set_label($1->name); }
   | command '\n'    
-        { printf("===========> Command: %u\n", (unsigned int)$1); }
+        { printf("===========> Command: 0x%x\n", $1); }
   ;
 
 command
-  : GOTO expect_label_identifier LABEL
+  : GOTO LABEL
   | WAIT number_or_identifier
   | FADE
   | expression
   ;
 
 expression
-  : IDENTIFIER assignment_operator number_or_identifier
-        { $$ = 0x01000000; } 
+  : VARIABLE_IDENTIFIER assignment_operator number_or_identifier
+        { $$ = $2 | ; } 
   ;
 
 /*
@@ -351,11 +357,14 @@ led_identifiers
 
 number_or_identifier
   : NUMBER
+        { $$ = 0x01000000 | (uint16_t)$1; }     
   | VARIABLE_IDENTIFIER
+        { $$ = 0x10000000; }     
   ;
 
 assignment_operator
-  : '='       
+  : '='   
+        { $$ = 0x10000000; }     
   | MUL_ASSIGN
   | DIV_ASSIGN
   | ADD_ASSIGN
@@ -469,7 +478,7 @@ identifier *run_condition_table = NULL;
 identifier *car_state_table = NULL;
 identifier *reserved_words_table = NULL;
 
-
+int next_variable_index = 1;
 
 
 identifier *add_symbol(identifier **table, char *name, int token, int index)
@@ -489,10 +498,8 @@ identifier *add_symbol(identifier **table, char *name, int token, int index)
 
 identifier *get_symbol(identifier **table, const char *name)
 {
-  printf("+++++++++> Symbol lookup: %s\n", name);
   identifier *ptr;
   for (ptr = *table; ptr != NULL; ptr = ptr->next) {
-      printf("+++++++++> testing: %s\n", ptr->name);
     if (strcmp(ptr->name, name) == 0) {
       return ptr;
     }
@@ -500,12 +507,23 @@ identifier *get_symbol(identifier **table, const char *name)
   return NULL;
 }
 
+void set_label(char *name)
+{
+    identifier *s;
+    s = get_symbol(&symbol_table, name);
+    if (s) {
+        s->token = LABEL;
+        printf("++++++++++> Set identifier '%s' as LABEL\n", name);
+    }
+    else {
+        printf("WARNING: label '%s' is not in symbol table?!?\n", name);
+    }
+}
+
 
 void initialize_symbol_table(const identifier *source, identifier **destination)
 {
-    printf("Initializing %p\n", source);
     while (source->name) {
-        printf("  Adding symbol %s\n", source->name);
         add_symbol(destination, source->name, source->token, 0);
         ++source;
     }    
@@ -529,12 +547,20 @@ int yylex(void)
     case UNKNOWN_PARSE_STATE:
       break;
 
-    case EXPECTING_LABEL:
-      printf("Expecting label\n");
+    case EXPECTING_RUN_CONDITION_IDENTIFIER:
+      printf("----------> Expecting run condition\n");
       break;
 
-    case EXPECTING_RUN_CONDITION_IDENTIFIER:
-      printf("Expecting run condition\n");
+    case EXPECTING_VARIABLE_IDENTIFIER:
+      printf("----------> Expecting variable identifier\n");
+      break;
+
+    case EXPECTING_LED_IDENTIFIER:
+      printf("----------> Expecting LED identifier\n");
+      break;
+
+    default:
+      printf("----------> FORGOT CASE FOR %d\n", parse_state);
       break;
   }
 
@@ -630,14 +656,19 @@ int yylex(void)
     printf("++++++++++> Testing IDENTIFIER %s\n", symbuf);
     s = get_symbol(&symbol_table, symbuf);
     if (s == NULL) {
-        int t;
-        
-        t = IDENTIFIER;
-        if (parse_state == EXPECTING_LABEL) {
-            t = LABEL;
+        if (parse_state == EXPECTING_LED_IDENTIFIER) {
+            s = add_symbol(&symbol_table, symbuf, LED_IDENTIFIER, 0);
+            printf("++++++++++> Added LED %s (%d)\n", s->name, s->token);
         }
-        s = add_symbol(&symbol_table, symbuf, t, 0);
-        printf("++++++++++> Added IDENTIFIER %s (%d)\n", s->name, s->token);
+        else if (parse_state == EXPECTING_VARIABLE_IDENTIFIER) {
+            s = add_symbol(&symbol_table, symbuf, VARIABLE_IDENTIFIER, 
+                    next_variable_index++);
+            printf("++++++++++> Added VARIABLE %s (%d)\n", s->name, s->token);
+        }
+        else {
+            s = add_symbol(&symbol_table, symbuf, IDENTIFIER, 0);
+            printf("++++++++++> Added IDENTIFIER %s (%d)\n", s->name, s->token);
+        }
     }    
     else {
       printf("++++++++++> Found IDENTIFIER %s (%d)\n", s->name, s->token);
