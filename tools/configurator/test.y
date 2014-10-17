@@ -639,5 +639,6 @@ char *make_string(char *s1, char *s2)
 int main(int argc, char *argv[])
 {
   printf("Bison test parser\n");
+  yydebug = 1;
   return yyparse();
 }
