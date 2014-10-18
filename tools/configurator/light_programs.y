@@ -194,8 +194,8 @@ reserved keywords:
 %token <i> VARIABLE
 %token <instruction> CAR_STATE
 %token <instruction> PRIORITY_RUN_CONDITION
-%token <instrucition> RUN_CONDITION
-%token <instrucition> RUN_CONDITION_ALWAYS
+%token <instruction> RUN_CONDITION
+%token <instruction> RUN_CONDITION_ALWAYS
 
 %token <instruction> SKIP
 %token <instruction> IF
@@ -231,7 +231,7 @@ reserved keywords:
 %type <immediate> master_or_slave
 %type <instruction> expression assignment_operator abs_assignment_parameter variable_assignment_parameter
 %type <instruction> led_assignment_parameter leds variable_or_number
-%type <instruction> test_parameter car_state_list
+%type <instruction> test_parameter car_state_list run_conditions
 %%
 
 /* ========================================================================== */
@@ -293,7 +293,9 @@ run_condition_line
 run_conditions
   : RUN_CONDITION
   | run_conditions RUN_CONDITION
+      { $$ = $1 | $2; }
   | run_conditions OR RUN_CONDITION
+      { $$ = $1 | $2; }
   ;
 
 run_always_condition_line
@@ -385,6 +387,7 @@ test_parameter
 car_state_list 
   : CAR_STATE
   | car_state_list CAR_STATE
+      { $$ = $1 | $2; }
   ;
   
 expression
