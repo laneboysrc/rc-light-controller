@@ -27,8 +27,8 @@ code:
     - ISSUE: label may never be defined, linker needs to detect!
     - IDEA: store all used locations in a list to be able to cross-reference
 
-  - led, [led ...] = value
-  - led, [led ...] = variable
+  - led [, led ...] = value
+  - led [, led ...] = variable
     - These translate into:
       - SET start_led stop_led value
       - SET start_led stop_led VARIABLE
@@ -40,8 +40,8 @@ code:
   - VARIABLE *= {integer, VARIABLE, LED[x], TH, ST}
   - VARIABLE /= {integer, VARIABLE, LED[x], TH, ST}
 
-  - FADE led [led ...] time
-  - FADE led [led ...] variable
+  - FADE led [, led ...] time
+  - FADE led [, led ...] variable
     - These translate into:
       - FADE start_led stop_led time
       - FADE start_led stop_led VARIABLE
@@ -139,10 +139,10 @@ run-condition:
 
 
 reserved keywords:
-  goto, var, led, wait, skip, if, all, none, not, fade, run, when, or, clicks,
+  goto, var, led, wait, skip, if, all, none, not, fade, run, when, or,
   master, slave, global, random, steering, throttle, abs
 
-  clicks: increments when 6-clicks on CH3
+  clicks: increments when 6-clicks on CH3. pre-defined global variable
 */
 
 
@@ -158,17 +158,15 @@ reserved keywords:
 #include <stdint.h>
 #include <string.h>
 
-int yylex(void);
-void yyerror(char const *);
-char *make_string(char *s1, char *s2);
-void set_label(char *name);
-void emit(uint32_t instruction);
+#define PARAMETER_TYPE_VARIABLE 0
+#define PARAMETER_TYPE_LED 1
+#define PARAMETER_TYPE_RANDOM 2
+#define PARAMETER_TYPE_STEERING 3
+#define PARAMETER_TYPE_THROTTLE 4
 
 enum {
   UNKNOWN_PARSE_STATE = 0,
-  EXPECTING_RUN_CONDITION_IDENTIFIER,
-  EXPECTING_LED_IDENTIFIER,
-  EXPECTING_VARIABLE_IDENTIFIER
+  EXPECTING_RUN_CONDITION,
 } parse_state;
 
 typedef struct _identifier {
@@ -179,12 +177,12 @@ typedef struct _identifier {
 } identifier;
 
 extern identifier *symbol_table;
+extern unsigned int pc;           // "Program Counter"
 
-#define PARAMETER_TYPE_VARIABLE 0
-#define PARAMETER_TYPE_LED 1
-#define PARAMETER_TYPE_RANDOM 2
-#define PARAMETER_TYPE_STEERING 3
-#define PARAMETER_TYPE_THROTTLE 4
+int yylex(void);
+void yyerror(char const *);
+void set_identifier(identifier *id, int token, int index);
+void emit(uint32_t instruction);
 
 
 %}
@@ -207,24 +205,23 @@ extern identifier *symbol_table;
 %token <uint32_t> WAIT
 
 %token <int16_t> NUMBER
+%token <identifier *> IDENTIFIER
 %token <identifier *> LABEL
 %token <identifier *> RANDOM
 %token <identifier *> STEERING
 %token <identifier *> THROTTLE
-%token <identifier *> IDENTIFIER
-%token <identifier *> LED_IDENTIFIER
-%token <identifier *> VARIABLE_IDENTIFIER
-%token <identifier *> CLICKS_IDENTIFIER
-%token <uint32_t> PRIORITY_RUN_CONDITION_IDENTIFIER
-%token <uint32_t> RUN_CONDITION_IDENTIFIER
-%token <uint32_t> RUN_CONDITION_IDENTIFIER_ALWAYS
+%token <identifier *> LED_ID
+%token <identifier *> VARIABLE
+%token <uint32_t> CAR_STATE
+%token <uint32_t> PRIORITY_RUN_CONDITION
+%token <uint32_t> RUN_CONDITION
+%token <uint32_t> RUN_CONDITION_ALWAYS
 
 %token <uint32_t> SKIP
 %token <uint32_t> IF
 %token <uint32_t> ALL
 %token <uint32_t> NONE
 %token <uint32_t> NOT
-%token <uint32_t> CAR_STATE
 
 %token <uint32_t> RUN
 %token <uint32_t> WHEN
@@ -238,7 +235,7 @@ extern identifier *symbol_table;
 
 %type <identifier *> decleration
 %type <uint32_t> command
-%type <uint32_t> expression led_identifiers
+%type <uint32_t> expression master_or_slave leds
 %type <uint32_t> assignment_operator abs_assignment_parameter
 %type <uint32_t> variable_assignment_parameter led_assignment_parameter
 
@@ -257,16 +254,8 @@ program
   | %empty
   ;
 
-expect_run_condition_identifier
-  : %empty  { parse_state = EXPECTING_RUN_CONDITION_IDENTIFIER; }
-  ;
-
-expect_variable_identifier
-  : %empty  { parse_state = EXPECTING_VARIABLE_IDENTIFIER; }
-  ;
-
-expect_led_identifier
-  : %empty  { parse_state = EXPECTING_LED_IDENTIFIER; }
+expect_run_condition
+  : %empty  { parse_state = EXPECTING_RUN_CONDITION; }
   ;
 
 condition_lines
@@ -288,13 +277,13 @@ priority_run_condition_line
   ;
 
 priority_run_condition
-  : RUN expect_run_condition_identifier WHEN priority_run_condition_identifiers
+  : RUN expect_run_condition WHEN priority_run_conditions
   ;
 
-priority_run_condition_identifiers
-  : PRIORITY_RUN_CONDITION_IDENTIFIER
-  | priority_run_condition_identifiers PRIORITY_RUN_CONDITION_IDENTIFIER
-  | priority_run_condition_identifiers OR PRIORITY_RUN_CONDITION_IDENTIFIER
+priority_run_conditions
+  : PRIORITY_RUN_CONDITION
+  | priority_run_conditions PRIORITY_RUN_CONDITION
+  | priority_run_conditions OR PRIORITY_RUN_CONDITION
   ;
 
 run_condition_lines
@@ -303,17 +292,17 @@ run_condition_lines
   ;
 
 run_condition_line
-  : RUN expect_run_condition_identifier WHEN run_condition_identifiers '\n'
+  : RUN expect_run_condition WHEN run_conditions '\n'
   ;
 
-run_condition_identifiers
-  : RUN_CONDITION_IDENTIFIER
-  | run_condition_identifiers RUN_CONDITION_IDENTIFIER
-  | run_condition_identifiers OR RUN_CONDITION_IDENTIFIER
+run_conditions
+  : RUN_CONDITION
+  | run_conditions RUN_CONDITION
+  | run_conditions OR RUN_CONDITION
   ;
 
 run_always_condition_line
-  : RUN expect_run_condition_identifier RUN_CONDITION_IDENTIFIER_ALWAYS '\n'
+  : RUN expect_run_condition RUN_CONDITION_ALWAYS '\n'
   ;
 
 decleration_lines
@@ -323,13 +312,22 @@ decleration_lines
 
 decleration_line
   : decleration '\n'
-        { printf("===========> Decleration: %s\n", $1->name); }
   ;
 
 decleration
-  : VAR expect_variable_identifier VARIABLE_IDENTIFIER
-  | GLOBAL VAR expect_variable_identifier VARIABLE_IDENTIFIER
-  | LED expect_led_identifier LED_IDENTIFIER
+  : VAR IDENTIFIER
+      { set_identifier($2, VARIABLE, -1); }
+  | GLOBAL VAR IDENTIFIER
+      { set_identifier($3, VARIABLE, -1); }
+  | LED IDENTIFIER '=' master_or_slave
+      { set_identifier($2, LED_ID, $4); }
+  ;
+
+master_or_slave
+  : MASTER '[' NUMBER ']'
+      { $$ = $3; }
+  | SLAVE '[' NUMBER ']'
+      { $$ = $3 + 16; }
   ;
 
 code_lines
@@ -339,7 +337,7 @@ code_lines
 
 code_line
   : IDENTIFIER ':' '\n'
-      { printf("===========> Label: %s\n", $1->name); set_label($1->name); }
+      { set_identifier($1, LABEL, pc); }
   | command '\n'
   ;
 
@@ -354,18 +352,18 @@ command
   ;
 
 expression
-  : VARIABLE_IDENTIFIER assignment_operator variable_assignment_parameter
+  : VARIABLE assignment_operator variable_assignment_parameter
       { emit($2 | ($1->index << 16) | $3); }
-  | VARIABLE_IDENTIFIER assignment_operator ABS abs_assignment_parameter
+  | VARIABLE assignment_operator ABS abs_assignment_parameter
       { emit(0x40000000 | $4); }
-  | led_identifiers '=' led_assignment_parameter
+  | leds '=' led_assignment_parameter
       { emit(0x02000000 | ($1 << 16) | ($1 << 8) | $3); }
   ;
 
-led_identifiers
-  : LED_IDENTIFIER
+leds
+  : LED_ID
       { $$ = $1->index; }
-  | led_identifiers ',' LED_IDENTIFIER
+  | leds ',' LED_ID
       { $$ = $3->index; }
   ;
 
@@ -373,16 +371,16 @@ led_assignment_parameter
   : NUMBER
       /* All opcodes that work with immediates have the lowest bit set */
       { $$ = 0x01000000 | ($1 & 0xff); }
-  | VARIABLE_IDENTIFIER
+  | VARIABLE
       { $$ = $1->index; }
 
 variable_assignment_parameter
   : NUMBER
       /* All opcodes that work with immediates have the lowest bit set */
       { $$ = 0x01000000 | ($1 & 0xffff); }
-  | VARIABLE_IDENTIFIER
+  | VARIABLE
       { $$ = (PARAMETER_TYPE_VARIABLE << 8) | $1->index; }
-  | LED_IDENTIFIER
+  | LED_ID
       { $$ = (PARAMETER_TYPE_LED << 8) | $1->index; }
   | STEERING
       { $$ = (PARAMETER_TYPE_STEERING << 8); }
@@ -393,7 +391,7 @@ variable_assignment_parameter
   ;
 
 abs_assignment_parameter
-  : VARIABLE_IDENTIFIER
+  : VARIABLE
       { $$ = (PARAMETER_TYPE_VARIABLE << 8) | $1->index; }
   | STEERING
       { $$ = (PARAMETER_TYPE_STEERING << 8); }
@@ -421,42 +419,42 @@ assignment_operator
 
 
 const identifier run_condition_tokens[] = {
-  {.name = "always", .token = RUN_CONDITION_IDENTIFIER_ALWAYS},
+  {.name = "always", .token = RUN_CONDITION_ALWAYS},
 
-  {.name = "light-switch-position-0", .token = RUN_CONDITION_IDENTIFIER},
-  {.name = "light-switch-position-1", .token = RUN_CONDITION_IDENTIFIER},
-  {.name = "light-switch-position-2", .token = RUN_CONDITION_IDENTIFIER},
-  {.name = "light-switch-position-3", .token = RUN_CONDITION_IDENTIFIER},
-  {.name = "light-switch-position-4", .token = RUN_CONDITION_IDENTIFIER},
-  {.name = "light-switch-position-5", .token = RUN_CONDITION_IDENTIFIER},
-  {.name = "light-switch-position-6", .token = RUN_CONDITION_IDENTIFIER},
-  {.name = "light-switch-position-7", .token = RUN_CONDITION_IDENTIFIER},
-  {.name = "light-switch-position-8", .token = RUN_CONDITION_IDENTIFIER},
-  {.name = "neutral", .token = RUN_CONDITION_IDENTIFIER},
-  {.name = "forward", .token = RUN_CONDITION_IDENTIFIER},
-  {.name = "reversing", .token = RUN_CONDITION_IDENTIFIER},
-  {.name = "braking", .token = RUN_CONDITION_IDENTIFIER},
-  {.name = "indicator-left", .token = RUN_CONDITION_IDENTIFIER},
-  {.name = "indicator-right", .token = RUN_CONDITION_IDENTIFIER},
-  {.name = "hazard", .token = RUN_CONDITION_IDENTIFIER},
-  {.name = "blink-flag", .token = RUN_CONDITION_IDENTIFIER},
-  {.name = "blink-left", .token = RUN_CONDITION_IDENTIFIER},
-  {.name = "blink-right", .token = RUN_CONDITION_IDENTIFIER},
-  {.name = "winch-disabled", .token = RUN_CONDITION_IDENTIFIER},
-  {.name = "winch-idle", .token = RUN_CONDITION_IDENTIFIER},
-  {.name = "winch-in", .token = RUN_CONDITION_IDENTIFIER},
-  {.name = "winch-out", .token = RUN_CONDITION_IDENTIFIER},
-  {.name = "gear-1", .token = RUN_CONDITION_IDENTIFIER},
-  {.name = "gear-2", .token = RUN_CONDITION_IDENTIFIER},
+  {.name = "light-switch-position-0", .token = RUN_CONDITION},
+  {.name = "light-switch-position-1", .token = RUN_CONDITION},
+  {.name = "light-switch-position-2", .token = RUN_CONDITION},
+  {.name = "light-switch-position-3", .token = RUN_CONDITION},
+  {.name = "light-switch-position-4", .token = RUN_CONDITION},
+  {.name = "light-switch-position-5", .token = RUN_CONDITION},
+  {.name = "light-switch-position-6", .token = RUN_CONDITION},
+  {.name = "light-switch-position-7", .token = RUN_CONDITION},
+  {.name = "light-switch-position-8", .token = RUN_CONDITION},
+  {.name = "neutral", .token = RUN_CONDITION},
+  {.name = "forward", .token = RUN_CONDITION},
+  {.name = "reversing", .token = RUN_CONDITION},
+  {.name = "braking", .token = RUN_CONDITION},
+  {.name = "indicator-left", .token = RUN_CONDITION},
+  {.name = "indicator-right", .token = RUN_CONDITION},
+  {.name = "hazard", .token = RUN_CONDITION},
+  {.name = "blink-flag", .token = RUN_CONDITION},
+  {.name = "blink-left", .token = RUN_CONDITION},
+  {.name = "blink-right", .token = RUN_CONDITION},
+  {.name = "winch-disabled", .token = RUN_CONDITION},
+  {.name = "winch-idle", .token = RUN_CONDITION},
+  {.name = "winch-in", .token = RUN_CONDITION},
+  {.name = "winch-out", .token = RUN_CONDITION},
+  {.name = "gear-1", .token = RUN_CONDITION},
+  {.name = "gear-2", .token = RUN_CONDITION},
 
-  {.name = "no-signal", .token = PRIORITY_RUN_CONDITION_IDENTIFIER},
-  {.name = "initializing", .token = PRIORITY_RUN_CONDITION_IDENTIFIER},
-  {.name = "servo-output-setup-centre", .token = PRIORITY_RUN_CONDITION_IDENTIFIER},
-  {.name = "servo-output-setup-left", .token = PRIORITY_RUN_CONDITION_IDENTIFIER},
-  {.name = "servo-output-setup-right", .token = PRIORITY_RUN_CONDITION_IDENTIFIER},
-  {.name = "reversing-setup-steering", .token = PRIORITY_RUN_CONDITION_IDENTIFIER},
-  {.name = "reversing-setup-throttle", .token = PRIORITY_RUN_CONDITION_IDENTIFIER},
-  {.name = "gear-changed", .token = PRIORITY_RUN_CONDITION_IDENTIFIER},
+  {.name = "no-signal", .token = PRIORITY_RUN_CONDITION},
+  {.name = "initializing", .token = PRIORITY_RUN_CONDITION},
+  {.name = "servo-output-setup-centre", .token = PRIORITY_RUN_CONDITION},
+  {.name = "servo-output-setup-left", .token = PRIORITY_RUN_CONDITION},
+  {.name = "servo-output-setup-right", .token = PRIORITY_RUN_CONDITION},
+  {.name = "reversing-setup-steering", .token = PRIORITY_RUN_CONDITION},
+  {.name = "reversing-setup-throttle", .token = PRIORITY_RUN_CONDITION},
+  {.name = "gear-changed", .token = PRIORITY_RUN_CONDITION},
 
   {.name = NULL, .token = EOF},
 };
@@ -505,7 +503,6 @@ const identifier reserved_words[] = {
   {.name = "run", .token = RUN},
   {.name = "when", .token = WHEN},
   {.name = "or", .token = OR},
-  {.name = "clicks", .token = CLICKS_IDENTIFIER},
   {.name = "master", .token = MASTER},
   {.name = "slave", .token = SLAVE},
   {.name = "global", .token = GLOBAL},
@@ -522,7 +519,8 @@ identifier *run_condition_table = NULL;
 identifier *car_state_table = NULL;
 identifier *reserved_words_table = NULL;
 
-int next_variable_index = 1;
+int next_variable_index = 0;
+unsigned int pc = 0;
 
 
 identifier *add_symbol(identifier **table, char *name, int token, int index)
@@ -551,17 +549,14 @@ identifier *get_symbol(identifier **table, const char *name)
   return NULL;
 }
 
-void set_label(char *name)
+
+void set_identifier(identifier *s, int token, int index)
 {
-    identifier *s;
-    s = get_symbol(&symbol_table, name);
-    if (s) {
-        s->token = LABEL;
-        printf("++++++++++> Set identifier '%s' as LABEL\n", name);
-    }
-    else {
-        printf("WARNING: label '%s' is not in symbol table?!?\n", name);
-    }
+    s->token = token;
+    s->index = (index != -1) ? index : next_variable_index++;
+
+    printf("++++++++++> Set IDENTIFIER '%s' as token=%d, index=%d\n",
+      s->name, s->token, s->index);
 }
 
 
@@ -573,6 +568,18 @@ void initialize_symbol_table(const identifier *source, identifier **destination)
     }
 }
 
+
+void emit(uint32_t instruction)
+{
+  printf("===============> INSTRUCTION: 0x%08x\n", instruction);
+  ++pc;
+}
+
+
+void yyerror(char const *s)
+{
+  fprintf(stderr, "ERROR: %s\n", s);
+}
 
 
 int yylex(void)
@@ -591,16 +598,8 @@ int yylex(void)
     case UNKNOWN_PARSE_STATE:
       break;
 
-    case EXPECTING_RUN_CONDITION_IDENTIFIER:
+    case EXPECTING_RUN_CONDITION:
       printf("----------> Expecting run condition\n");
-      break;
-
-    case EXPECTING_VARIABLE_IDENTIFIER:
-      printf("----------> Expecting variable identifier\n");
-      break;
-
-    case EXPECTING_LED_IDENTIFIER:
-      printf("----------> Expecting LED identifier\n");
       break;
 
     default:
@@ -677,7 +676,7 @@ int yylex(void)
 
     // Check RUN CONDITION special symbols if we are expecting any
 
-    if (parse_state == EXPECTING_RUN_CONDITION_IDENTIFIER) {
+    if (parse_state == EXPECTING_RUN_CONDITION) {
       printf("++++++++++> Testing RUN CONDITION %s\n", symbuf);
       s = get_symbol(&run_condition_table, symbuf);
       if (s) {
@@ -703,19 +702,8 @@ int yylex(void)
     printf("++++++++++> Testing IDENTIFIER %s\n", symbuf);
     s = get_symbol(&symbol_table, symbuf);
     if (s == NULL) {
-        if (parse_state == EXPECTING_LED_IDENTIFIER) {
-            s = add_symbol(&symbol_table, symbuf, LED_IDENTIFIER, 0);
-            printf("++++++++++> Added LED %s (%d)\n", s->name, s->token);
-        }
-        else if (parse_state == EXPECTING_VARIABLE_IDENTIFIER) {
-            s = add_symbol(&symbol_table, symbuf, VARIABLE_IDENTIFIER,
-                    next_variable_index++);
-            printf("++++++++++> Added VARIABLE %s (%d)\n", s->name, s->token);
-        }
-        else {
-            s = add_symbol(&symbol_table, symbuf, IDENTIFIER, 0);
-            printf("++++++++++> Added IDENTIFIER %s (%d)\n", s->name, s->token);
-        }
+        s = add_symbol(&symbol_table, symbuf, IDENTIFIER, 0);
+        printf("++++++++++> Added IDENTIFIER %s (%d)\n", s->name, s->token);
     }
     else {
       printf("++++++++++> Found IDENTIFIER %s (%d)\n", s->name, s->token);
@@ -776,19 +764,6 @@ int yylex(void)
 }
 
 
-/* Called by yyparse on error.  */
-void yyerror(char const *s)
-{
-  fprintf(stderr, "ERROR: %s\n", s);
-}
-
-
-void emit(uint32_t instruction)
-{
-  printf("===============> INSTRUCTION: 0x%08x\n", instruction);
-}
-
-
 int main(int argc, char *argv[])
 {
   printf("Bison test parser\n");
@@ -797,6 +772,11 @@ int main(int argc, char *argv[])
   initialize_symbol_table(run_condition_tokens, &run_condition_table);
   initialize_symbol_table(reserved_words, &reserved_words_table);
   initialize_symbol_table(car_state, &car_state_table);
+
+  // Pre-load global special variable named "clicks" that increments
+  // on every six CH3-clicks.
+  add_symbol(
+    &symbol_table, "clicks", VARIABLE, next_variable_index++);
 
   return yyparse();
 }
