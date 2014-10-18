@@ -2,6 +2,9 @@
 
 /*
 
+NUMBER
+  decimal | hexadecimal
+
 programs:
   programs | program;
 
@@ -34,11 +37,11 @@ code:
       - SET start_led stop_led VARIABLE
 
   - VARIABLE = abs(VARIABLE, TH, ST)
-  - VARIABLE = {integer, VARIABLE, LED[x], random-value, TH, ST}
-  - VARIABLE += {integer, VARIABLE, LED[x], TH, ST}
-  - VARIABLE -= {integer, VARIABLE, LED[x], TH, ST}
-  - VARIABLE *= {integer, VARIABLE, LED[x], TH, ST}
-  - VARIABLE /= {integer, VARIABLE, LED[x], TH, ST}
+  - VARIABLE = {NUMBER, VARIABLE, LED[x], random-value, TH, ST}
+  - VARIABLE += {NUMBER, VARIABLE, LED[x], TH, ST}
+  - VARIABLE -= {NUMBER, VARIABLE, LED[x], TH, ST}
+  - VARIABLE *= {NUMBER, VARIABLE, LED[x], TH, ST}
+  - VARIABLE /= {NUMBER, VARIABLE, LED[x], TH, ST}
 
   - FADE led [, led ...] time
   - FADE led [, led ...] variable
@@ -49,19 +52,19 @@ code:
   - WAIT time
   - WAIT VARIABLE
 
-  - SKIP IF {VARIABLE, LED[x]} == {integer, VARIABLE, LED[x]}
-  - SKIP IF {VARIABLE, LED[x]} != {integer, VARIABLE, LED[x]}
-  - SKIP IF {VARIABLE, LED[x]} > {integer, VARIABLE, LED[x]}
-  - SKIP IF {VARIABLE, LED[x]} >= {integer, VARIABLE, LED[x]}
-  - SKIP IF {VARIABLE, LED[x]} < {integer, VARIABLE, LED[x]}
-  - SKIP IF {VARIABLE, LED[x]} <= {integer, VARIABLE, LED[x]}
+  - SKIP IF {VARIABLE, LED[x]} == {NUMBER, VARIABLE, LED[x]}
+  - SKIP IF {VARIABLE, LED[x]} != {NUMBER, VARIABLE, LED[x]}
+  - SKIP IF {VARIABLE, LED[x]} > {NUMBER, VARIABLE, LED[x]}
+  - SKIP IF {VARIABLE, LED[x]} >= {NUMBER, VARIABLE, LED[x]}
+  - SKIP IF {VARIABLE, LED[x]} < {NUMBER, VARIABLE, LED[x]}
+  - SKIP IF {VARIABLE, LED[x]} <= {NUMBER, VARIABLE, LED[x]}
     - These translate into:
-      - SKIP IF EQUAL {VARIABLE, LED[x]} {integer, VARIABLE, LED[x]}
-      - SKIP IF NOT EQUAL {VARIABLE, LED[x]} {integer, VARIABLE, LED[x]}
-      - SKIP IF GREATER OR EQUAL {VARIABLE, LED[x]} {integer, VARIABLE, LED[x]}
-      - SKIP IF GREATER {VARIABLE, LED[x]} {integer, VARIABLE, LED[x]}
-      - SKIP IF SMALLER OR EQUAL  {VARIABLE, LED[x]} {integer, VARIABLE, LED[x]}
-      - SKIP IF SMALLER  {VARIABLE, LED[x]} {integer, VARIABLE, LED[x]}
+      - SKIP IF EQUAL {VARIABLE, LED[x]} {NUMBER, VARIABLE, LED[x]}
+      - SKIP IF NOT EQUAL {VARIABLE, LED[x]} {NUMBER, VARIABLE, LED[x]}
+      - SKIP IF GREATER OR EQUAL {VARIABLE, LED[x]} {NUMBER, VARIABLE, LED[x]}
+      - SKIP IF GREATER {VARIABLE, LED[x]} {NUMBER, VARIABLE, LED[x]}
+      - SKIP IF SMALLER OR EQUAL  {VARIABLE, LED[x]} {NUMBER, VARIABLE, LED[x]}
+      - SKIP IF SMALLER  {VARIABLE, LED[x]} {NUMBER, VARIABLE, LED[x]}
 
   - SKIP IF ANY {car-state} [{car-state} ...]
   - SKIP IF {car-state}
@@ -198,6 +201,7 @@ void emit(uint32_t instruction);
 %define api.value.type union
 
 %locations
+%token-table
 
 %token <identifier *> LED
 %token <identifier *> VAR
@@ -569,8 +573,8 @@ void set_identifier(identifier *s, int token, int index)
     s->token = token;
     s->index = (index != -1) ? index : next_variable_index++;
 
-    printf("++++++++++> Set IDENTIFIER '%s' as token=%d, index=%d\n",
-      s->name, s->token, s->index);
+    printf("++++++++++> Set IDENTIFIER '%s' as token=%s, index=%d\n",
+      s->name, yytname[s->token], s->index);
 }
 
 
@@ -639,33 +643,6 @@ int yylex(void)
 
 
   // ===========================================================================
-  // NUMBERS
-
-  if (isdigit(c)) {
-    size_t count = 0;
-
-    do {
-      if (count == length) {
-        length *= 2;
-        symbuf = (char *) realloc(symbuf, length + 1);
-        // FIXME: need to add check for malloc failed...
-      }
-
-      // Add this character to the buffer.
-      symbuf[count++] = c;
-
-      c = getchar();
-    } while (isdigit(c));
-
-    ungetc(c, stdin);
-    symbuf[count] = '\0';
-
-    parse_state = UNKNOWN_PARSE_STATE;
-    yylval.NUMBER = (int16_t)strtol(symbuf, NULL, 10);
-    return NUMBER;
-  }
-
-  // ===========================================================================
   // IDENTIFIERS
 
   if (isalpha(c)) {
@@ -694,8 +671,7 @@ int yylex(void)
       printf("++++++++++> Testing RUN CONDITION %s\n", symbuf);
       s = get_symbol(&run_condition_table, symbuf);
       if (s) {
-          printf("++++++++++> Found RUN CONDITION %s (%d)\n",
-            s->name, s->token);
+          printf("++++++++++> Found RUN CONDITION %s\n", s->name);
         yylval.IDENTIFIER = s;
         return s->token;
       }
@@ -706,7 +682,7 @@ int yylex(void)
     printf("++++++++++> Testing RESERVED WORD %s\n", symbuf);
     s = get_symbol(&reserved_words_table, symbuf);
     if (s) {
-      printf("++++++++++> Found RESERVED WORD %s (%d)\n", s->name, s->token);
+      printf("++++++++++> Found RESERVED WORD %s\n", symbuf);
       yylval.IDENTIFIER = s;
       return s->token;
     }
@@ -717,13 +693,42 @@ int yylex(void)
     s = get_symbol(&symbol_table, symbuf);
     if (s == NULL) {
         s = add_symbol(&symbol_table, symbuf, IDENTIFIER, 0);
-        printf("++++++++++> Added IDENTIFIER %s (%d)\n", s->name, s->token);
+        printf("++++++++++> Added IDENTIFIER %s (%s)\n", s->name, yytname[s->token]);
     }
     else {
-      printf("++++++++++> Found IDENTIFIER %s (%d)\n", s->name, s->token);
+      printf("++++++++++> Found IDENTIFIER %s (%s)\n", s->name, yytname[s->token]);
     }
     yylval.IDENTIFIER = s;
     return s->token;
+  }
+
+
+  // ===========================================================================
+  // NUMBERS
+
+  // FIXME: add hexadecimal support
+
+  if (isdigit(c)) {
+    size_t count = 0;
+
+    do {
+      if (count == length) {
+        length *= 2;
+        symbuf = (char *) realloc(symbuf, length + 1);
+        // FIXME: need to add check for malloc failed...
+      }
+
+      // Add this character to the buffer.
+      symbuf[count++] = c;
+
+      c = getchar();
+    } while (isdigit(c));
+
+    ungetc(c, stdin);
+    symbuf[count] = '\0';
+
+    yylval.NUMBER = (int16_t)strtol(symbuf, NULL, 10);
+    return NUMBER;
   }
 
   if (c == '\n') {
@@ -789,12 +794,10 @@ int yylex(void)
   }
 
   if (c == ':') {
-    parse_state = UNKNOWN_PARSE_STATE;
     return c;
   }
 
   if (c == EOF) {
-    parse_state = UNKNOWN_PARSE_STATE;
     return 0;
   }
 
