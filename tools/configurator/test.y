@@ -231,6 +231,9 @@ void emit(uint32_t instruction);
 %token <uint32_t> DIV_ASSIGN
 %token <uint32_t> ADD_ASSIGN
 %token <uint32_t> SUB_ASSIGN
+%token <uint32_t> AND_ASSIGN
+%token <uint32_t> OR_ASSIGN
+%token <uint32_t> XOR_ASSIGN
 %token <uint32_t> ABS
 
 %type <identifier *> decleration
@@ -410,6 +413,12 @@ assignment_operator
         { $$ = 0x16000000; }
   | DIV_ASSIGN
         { $$ = 0x18000000; }
+  | AND_ASSIGN
+        { $$ = 0x1a000000; }
+  | OR_ASSIGN
+        { $$ = 0x1c000000; }
+  | XOR_ASSIGN
+        { $$ = 0x1e000000; }
   ;
 
 %%
@@ -746,6 +755,30 @@ int yylex(void)
     char n;
     if ((n = getchar()) == '=') {
       return DIV_ASSIGN;
+    }
+    ungetc(n, stdin);
+  }
+
+  if (c == '&') {
+    char n;
+    if ((n = getchar()) == '=') {
+      return AND_ASSIGN;
+    }
+    ungetc(n, stdin);
+  }
+
+  if (c == '|') {
+    char n;
+    if ((n = getchar()) == '=') {
+      return OR_ASSIGN;
+    }
+    ungetc(n, stdin);
+  }
+
+  if (c == '^') {
+    char n;
+    if ((n = getchar()) == '=') {
+      return XOR_ASSIGN;
     }
     ungetc(n, stdin);
   }
