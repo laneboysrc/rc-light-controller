@@ -574,7 +574,7 @@ void set_identifier(identifier *s, int token, int index)
     s->index = (index != -1) ? index : next_variable_index++;
 
     printf("++++++++++> Set IDENTIFIER '%s' as token=%s, index=%d\n",
-      s->name, yytname[s->token], s->index);
+      s->name, yytname[YYTRANSLATE(s->token)], s->index);
 }
 
 
@@ -693,10 +693,12 @@ int yylex(void)
     s = get_symbol(&symbol_table, symbuf);
     if (s == NULL) {
         s = add_symbol(&symbol_table, symbuf, IDENTIFIER, 0);
-        printf("++++++++++> Added IDENTIFIER %s (%s)\n", s->name, yytname[s->token]);
+        printf("++++++++++> Added IDENTIFIER %s (%s)\n", 
+          s->name, yytname[YYTRANSLATE(s->token)]);
     }
     else {
-      printf("++++++++++> Found IDENTIFIER %s (%s)\n", s->name, yytname[s->token]);
+      printf("++++++++++> Found IDENTIFIER %s (%s)\n", 
+        s->name, yytname[YYTRANSLATE(s->token)]);
     }
     yylval.IDENTIFIER = s;
     return s->token;
