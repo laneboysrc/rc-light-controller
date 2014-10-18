@@ -186,12 +186,12 @@ reserved keywords:
 
 %token <immediate> NUMBER
 %token <i> IDENTIFIER
+%token <i> VARIABLE
+%token <i> LED_ID
 %token <i> LABEL
 %token <instruction> RANDOM
 %token <instruction> STEERING
 %token <instruction> THROTTLE
-%token <i> LED_ID
-%token <i> VARIABLE
 %token <instruction> CAR_STATE
 %token <instruction> PRIORITY_RUN_CONDITION
 %token <instruction> RUN_CONDITION
@@ -231,7 +231,7 @@ reserved keywords:
 %type <immediate> master_or_slave
 %type <instruction> expression assignment_operator abs_assignment_parameter variable_assignment_parameter
 %type <instruction> led_assignment_parameter leds variable_or_number
-%type <instruction> test_parameter car_state_list run_conditions
+%type <instruction> test_parameter car_state_list run_conditions test_operator
 %%
 
 /* ========================================================================== */
@@ -352,7 +352,10 @@ command
 
 test_expression
   : VARIABLE test_operator test_parameter
+      { emit($2 | ($1->index << 16) | $3); }
   | LED_ID test_operator test_parameter
+      /* All LED relates tests have 0x02 set in the opcode */
+      { emit($2 | 0x02000000 | ($1->index << 16) | $3); }
   | ANY expect_car_state car_state_list
       { emit($1 | $3); }
   | ALL expect_car_state car_state_list
@@ -448,19 +451,12 @@ assignment_operator
   : '='
         { $$ = 0x10000000; }
   | ADD_ASSIGN
-        { $$ = 0x12000000; }
   | SUB_ASSIGN
-        { $$ = 0x14000000; }
   | MUL_ASSIGN
-        { $$ = 0x16000000; }
   | DIV_ASSIGN
-        { $$ = 0x18000000; }
   | AND_ASSIGN
-        { $$ = 0x1a000000; }
   | OR_ASSIGN
-        { $$ = 0x1c000000; }
   | XOR_ASSIGN
-        { $$ = 0x1e000000; }
   ;
 
 %%

@@ -349,6 +349,7 @@ int yylex(void)
   if (c == '+') {
     char n;
     if ((n = getchar()) == '=') {
+      yylval.instruction = 0x12000000;
       return ADD_ASSIGN;
     }
     ungetc(n, stdin);
@@ -357,6 +358,7 @@ int yylex(void)
   if (c == '-') {
     char n;
     if ((n = getchar()) == '=') {
+      yylval.instruction = 0x14000000;
       return SUB_ASSIGN;
     }
     ungetc(n, stdin);
@@ -365,6 +367,7 @@ int yylex(void)
   if (c == '*') {
     char n;
     if ((n = getchar()) == '=') {
+      yylval.instruction = 0x16000000;
       return MUL_ASSIGN;
     }
     ungetc(n, stdin);
@@ -373,6 +376,7 @@ int yylex(void)
   if (c == '/') {
     char n;
     if ((n = getchar()) == '=') {
+      yylval.instruction = 0x18000000;
       return DIV_ASSIGN;
     }
     ungetc(n, stdin);
@@ -381,6 +385,7 @@ int yylex(void)
   if (c == '&') {
     char n;
     if ((n = getchar()) == '=') {
+      yylval.instruction = 0x1a000000;
       return AND_ASSIGN;
     }
     ungetc(n, stdin);
@@ -389,6 +394,7 @@ int yylex(void)
   if (c == '|') {
     char n;
     if ((n = getchar()) == '=') {
+      yylval.instruction = 0x1c000000;
       return OR_ASSIGN;
     }
     ungetc(n, stdin);
@@ -397,6 +403,7 @@ int yylex(void)
   if (c == '^') {
     char n;
     if ((n = getchar()) == '=') {
+      yylval.instruction = 0x1e000000;
       return XOR_ASSIGN;
     }
     ungetc(n, stdin);
@@ -405,6 +412,7 @@ int yylex(void)
   if (c == '=') {
     char n;
     if ((n = getchar()) == '=') {
+      yylval.instruction = 0x20000000;
       return EQ;
     }
     ungetc(n, stdin);
@@ -413,24 +421,29 @@ int yylex(void)
   if (c == '>') {
     char n;
     if ((n = getchar()) == '=') {
+      yylval.instruction = 0x28000000;
       return GE;
     }
     ungetc(n, stdin);
+    yylval.instruction = 0x2c000000;
     return GT;
   }
 
   if (c == '<') {
     char n;
     if ((n = getchar()) == '=') {
+      yylval.instruction = 0x30000000;
       return LE;
     }
     ungetc(n, stdin);
+    yylval.instruction = 0x34000000;
     return LT;
   }
 
   if (c == '!') {
     char n;
     if ((n = getchar()) == '=') {
+      yylval.instruction = 0x24000000;
       return NE;
     }
     ungetc(n, stdin);
