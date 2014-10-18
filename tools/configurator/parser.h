@@ -14,9 +14,9 @@
 
 
 enum {
-  UNKNOWN_PARSE_STATE = 0,
-  EXPECTING_RUN_CONDITION,
-  EXPECTING_CAR_STATE,
+    UNKNOWN_PARSE_STATE = 0,
+    EXPECTING_RUN_CONDITION,
+    EXPECTING_CAR_STATE,
 } parse_state;
 
 typedef struct _identifier {
@@ -28,7 +28,9 @@ typedef struct _identifier {
 } identifier;
 
 
+void initialize_lexer(void);
 int yylex(void);
+
 void yyerror(const char *);
 void set_identifier(identifier *id, int token, int index);
 void emit(uint32_t instruction);
