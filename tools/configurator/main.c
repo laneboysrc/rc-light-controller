@@ -95,18 +95,18 @@ identifier_initializer car_state[] = {
 };
 
 identifier_initializer reserved_words[] = {
-  {.name = "goto", .token = GOTO},
+  {.name = "goto", .token = GOTO, .opcode = 0x01000000},
   {.name = "var", .token = VAR},
   {.name = "led", .token = LED},
-  {.name = "wait", .token = WAIT},
+  {.name = "fade", .token = FADE, .opcode = 0x04000000},
+  {.name = "wait", .token = WAIT, .opcode = 0x06000000},
   {.name = "skip", .token = SKIP},
   {.name = "if", .token = IF},
-  {.name = "any", .token = ANY},
-  {.name = "all", .token = ALL},
-  {.name = "none", .token = NONE},
-  {.name = "not", .token = NOT},
-  {.name = "is", .token = IS},
-  {.name = "fade", .token = FADE},
+  {.name = "any", .token = ANY, .opcode = 0x60000000},
+  {.name = "all", .token = ALL, .opcode = 0x80000000},
+  {.name = "none", .token = NONE, .opcode = 0xa0000000},
+  {.name = "not", .token = NOT, .opcode = 0xa0000000},
+  {.name = "is", .token = IS, .opcode = 0x60000000},
   {.name = "run", .token = RUN},
   {.name = "when", .token = WHEN},
   {.name = "or", .token = OR},
@@ -267,7 +267,7 @@ int yylex(void)
       s = get_symbol(&run_condition_table, symbuf);
       if (s) {
           printf("++++++++++> Found %s %s\n", token2str(s->token), s->name);
-        yylval.i = s;
+        yylval.instruction = s->opcode;
         return s->token;
       }
     }
@@ -278,8 +278,8 @@ int yylex(void)
       printf("++++++++++> Testing CAR STATE %s\n", symbuf);
       s = get_symbol(&car_state_table, symbuf);
       if (s) {
-          printf("++++++++++> Found %s %s\n", token2str(s->token), s->name);
-        yylval.i = s;
+        printf("++++++++++> Found %s %s\n", token2str(s->token), s->name);
+        yylval.instruction = s->opcode;
         return s->token;
       }
     }
@@ -290,7 +290,7 @@ int yylex(void)
     s = get_symbol(&reserved_words_table, symbuf);
     if (s) {
       printf("++++++++++> Found RESERVED WORD %s\n", symbuf);
-      yylval.i = s;
+      yylval.instruction = s->opcode;
       return s->token;
     }
 

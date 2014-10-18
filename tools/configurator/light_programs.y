@@ -192,10 +192,10 @@ reserved keywords:
 %token <instruction> THROTTLE
 %token <i> LED_ID
 %token <i> VARIABLE
-%token <i> CAR_STATE
-%token <i> PRIORITY_RUN_CONDITION
-%token <i> RUN_CONDITION
-%token <i> RUN_CONDITION_ALWAYS
+%token <instruction> CAR_STATE
+%token <instruction> PRIORITY_RUN_CONDITION
+%token <instrucition> RUN_CONDITION
+%token <instrucition> RUN_CONDITION_ALWAYS
 
 %token <instruction> SKIP
 %token <instruction> IF
@@ -352,15 +352,15 @@ test_expression
   : VARIABLE test_operator test_parameter
   | LED_ID test_operator test_parameter
   | ANY expect_car_state car_state_list
-      { emit(0x60000000 | $3); }
+      { emit($1 | $3); }
   | ALL expect_car_state car_state_list
-      { emit(0x80000000 | $3); }
+      { emit($1 | $3); }
   | NONE expect_car_state car_state_list
-      { emit(0xa0000000 | $3); }
+      { emit($1 | $3); }
   | IS expect_car_state CAR_STATE
-      { emit(0x60000000 | $3->opcode); }
+      { emit($1 | $3); }
   | NOT expect_car_state CAR_STATE
-      { emit(0xa0000000 | $3->opcode); }
+      { emit($1 | $3); }
   ;
   
 test_operator
@@ -384,7 +384,6 @@ test_parameter
    
 car_state_list 
   : CAR_STATE
-      { $$ = $1->opcode; }
   | car_state_list CAR_STATE
   ;
   
