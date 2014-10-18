@@ -9,6 +9,11 @@
 #include "light_programs.tab.h"
 
 
+typedef struct {
+    const char *name;
+    int token;
+} identifier_initializer;
+
 identifier_initializer run_condition_tokens[] = {
   {.name = "always", .token = RUN_CONDITION_ALWAYS},
 

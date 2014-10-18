@@ -20,13 +20,6 @@ typedef struct _identifier {
     struct _identifier *next;
 } identifier;
 
-typedef struct {
-    const char *name;
-    int token;
-} identifier_initializer;
-
-extern identifier *symbol_table;
-extern unsigned int pc;           // "Program Counter"
 
 int yylex(void);
 void yyerror(const char *);
@@ -34,4 +27,5 @@ void set_identifier(identifier *id, int token, int index);
 void emit(uint32_t instruction);
 const char *token2str(int token);
 
+extern unsigned int pc;           // "Program Counter"
 

@@ -31,7 +31,6 @@ endif
 SOURCES += $(patsubst %.y, $(BUILD_DIR)/%.tab.c, $(Y_SOURCES))
 TARGET_BIN := $(addprefix $(BUILD_DIR)/, $(TARGET))
 
-
 ###############################################################################
 # Compiler and linker flags
 BISONFLAGS := -Werror -Wall -t -v --feature=caret
