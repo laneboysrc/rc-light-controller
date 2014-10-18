@@ -12,75 +12,84 @@
 typedef struct {
     const char *name;
     int token;
+    uint32_t opcode;
 } identifier_initializer;
 
 identifier_initializer run_condition_tokens[] = {
-  {.name = "always", .token = RUN_CONDITION_ALWAYS},
+  {.name = "always", .token = RUN_CONDITION_ALWAYS, .opcode = (1 << 31)},
 
-  {.name = "light-switch-position-0", .token = RUN_CONDITION},
-  {.name = "light-switch-position-1", .token = RUN_CONDITION},
-  {.name = "light-switch-position-2", .token = RUN_CONDITION},
-  {.name = "light-switch-position-3", .token = RUN_CONDITION},
-  {.name = "light-switch-position-4", .token = RUN_CONDITION},
-  {.name = "light-switch-position-5", .token = RUN_CONDITION},
-  {.name = "light-switch-position-6", .token = RUN_CONDITION},
-  {.name = "light-switch-position-7", .token = RUN_CONDITION},
-  {.name = "light-switch-position-8", .token = RUN_CONDITION},
-  {.name = "neutral", .token = RUN_CONDITION},
-  {.name = "forward", .token = RUN_CONDITION},
-  {.name = "reversing", .token = RUN_CONDITION},
-  {.name = "braking", .token = RUN_CONDITION},
-  {.name = "indicator-left", .token = RUN_CONDITION},
-  {.name = "indicator-right", .token = RUN_CONDITION},
-  {.name = "hazard", .token = RUN_CONDITION},
-  {.name = "blink-flag", .token = RUN_CONDITION},
-  {.name = "blink-left", .token = RUN_CONDITION},
-  {.name = "blink-right", .token = RUN_CONDITION},
-  {.name = "winch-disabled", .token = RUN_CONDITION},
-  {.name = "winch-idle", .token = RUN_CONDITION},
-  {.name = "winch-in", .token = RUN_CONDITION},
-  {.name = "winch-out", .token = RUN_CONDITION},
-  {.name = "gear-1", .token = RUN_CONDITION},
-  {.name = "gear-2", .token = RUN_CONDITION},
+  {.name = "light-switch-position-0", .token = RUN_CONDITION, .opcode = (1 << 0)},
+  {.name = "light-switch-position-1", .token = RUN_CONDITION, .opcode = (1 << 1)},
+  {.name = "light-switch-position-2", .token = RUN_CONDITION, .opcode = (1 << 2)},
+  {.name = "light-switch-position-3", .token = RUN_CONDITION, .opcode = (1 << 3)},
+  {.name = "light-switch-position-4", .token = RUN_CONDITION, .opcode = (1 << 4)},
+  {.name = "light-switch-position-5", .token = RUN_CONDITION, .opcode = (1 << 5)},
+  {.name = "light-switch-position-6", .token = RUN_CONDITION, .opcode = (1 << 6)},
+  {.name = "light-switch-position-7", .token = RUN_CONDITION, .opcode = (1 << 7)},
+  {.name = "light-switch-position-8", .token = RUN_CONDITION, .opcode = (1 << 8)},
+  
+  {.name = "neutral", .token = RUN_CONDITION, .opcode = (1 << 9)},
+  {.name = "forward", .token = RUN_CONDITION, .opcode = (1 << 10)},
+  {.name = "reversing", .token = RUN_CONDITION, .opcode = (1 << 11)},
+  {.name = "braking", .token = RUN_CONDITION, .opcode = (1 << 12)},
+  
+  {.name = "indicator-left", .token = RUN_CONDITION, .opcode = (1 << 13)},
+  {.name = "indicator-right", .token = RUN_CONDITION, .opcode = (1 << 14)},
+  {.name = "hazard", .token = RUN_CONDITION, .opcode = (1 << 15)},
+  {.name = "blink-flag", .token = RUN_CONDITION, .opcode = (1 << 16)},
+  {.name = "blink-left", .token = RUN_CONDITION, .opcode = (1 << 17)},
+  {.name = "blink-right", .token = RUN_CONDITION, .opcode = (1 << 18)},
 
-  {.name = "no-signal", .token = PRIORITY_RUN_CONDITION},
-  {.name = "initializing", .token = PRIORITY_RUN_CONDITION},
-  {.name = "servo-output-setup-centre", .token = PRIORITY_RUN_CONDITION},
-  {.name = "servo-output-setup-left", .token = PRIORITY_RUN_CONDITION},
-  {.name = "servo-output-setup-right", .token = PRIORITY_RUN_CONDITION},
-  {.name = "reversing-setup-steering", .token = PRIORITY_RUN_CONDITION},
-  {.name = "reversing-setup-throttle", .token = PRIORITY_RUN_CONDITION},
-  {.name = "gear-changed", .token = PRIORITY_RUN_CONDITION},
+  {.name = "winch-disabled", .token = RUN_CONDITION, .opcode = (1 << 19)},
+  {.name = "winch-idle", .token = RUN_CONDITION, .opcode = (1 << 20)},
+  {.name = "winch-in", .token = RUN_CONDITION, .opcode = (1 << 21)},
+  {.name = "winch-out", .token = RUN_CONDITION, .opcode = (1 << 22)},
+
+  {.name = "gear-1", .token = RUN_CONDITION, .opcode = (1 << 23)},
+  {.name = "gear-2", .token = RUN_CONDITION, .opcode = (1 << 24)},
+
+  {.name = "no-signal", .token = PRIORITY_RUN_CONDITION, .opcode = (1 << 0)},
+  {.name = "initializing", .token = PRIORITY_RUN_CONDITION, .opcode = (1 << 1)},
+  {.name = "servo-output-setup-centre", .token = PRIORITY_RUN_CONDITION, .opcode = (1 << 2)},
+  {.name = "servo-output-setup-left", .token = PRIORITY_RUN_CONDITION, .opcode = (1 << 3)},
+  {.name = "servo-output-setup-right", .token = PRIORITY_RUN_CONDITION, .opcode = (1 << 4)},
+  {.name = "reversing-setup-steering", .token = PRIORITY_RUN_CONDITION, .opcode = (1 << 5)},
+  {.name = "reversing-setup-throttle", .token = PRIORITY_RUN_CONDITION, .opcode = (1 << 6)},
+  {.name = "gear-changed", .token = PRIORITY_RUN_CONDITION, .opcode = (1 << 7)},
 
   {.name = NULL, .token = EOF},
 };
 
 identifier_initializer car_state[] = {
-  {.name = "light-switch-position-0", .token = CAR_STATE},
-  {.name = "light-switch-position-1", .token = CAR_STATE},
-  {.name = "light-switch-position-2", .token = CAR_STATE},
-  {.name = "light-switch-position-3", .token = CAR_STATE},
-  {.name = "light-switch-position-4", .token = CAR_STATE},
-  {.name = "light-switch-position-5", .token = CAR_STATE},
-  {.name = "light-switch-position-6", .token = CAR_STATE},
-  {.name = "light-switch-position-7", .token = CAR_STATE},
-  {.name = "light-switch-position-8", .token = CAR_STATE},
-  {.name = "neutral", .token = CAR_STATE},
-  {.name = "forward", .token = CAR_STATE},
-  {.name = "reversing", .token = CAR_STATE},
-  {.name = "braking", .token = CAR_STATE},
-  {.name = "indicator-left", .token = CAR_STATE},
-  {.name = "indicator-right", .token = CAR_STATE},
-  {.name = "hazard", .token = CAR_STATE},
-  {.name = "blink-flag", .token = CAR_STATE},
-  {.name = "blink-left", .token = CAR_STATE},
-  {.name = "blink-right", .token = CAR_STATE},
-  {.name = "winch-disabled", .token = CAR_STATE},
-  {.name = "winch-idle", .token = CAR_STATE},
-  {.name = "winch-in", .token = CAR_STATE},
-  {.name = "winch-out", .token = CAR_STATE},
-  {.name = "gear-1", .token = CAR_STATE},
-  {.name = "gear-2", .token = CAR_STATE},
+  {.name = "light-switch-position-0", .token = CAR_STATE, .opcode = (1 << 0)},
+  {.name = "light-switch-position-1", .token = CAR_STATE, .opcode = (1 << 1)},
+  {.name = "light-switch-position-2", .token = CAR_STATE, .opcode = (1 << 2)},
+  {.name = "light-switch-position-3", .token = CAR_STATE, .opcode = (1 << 3)},
+  {.name = "light-switch-position-4", .token = CAR_STATE, .opcode = (1 << 4)},
+  {.name = "light-switch-position-5", .token = CAR_STATE, .opcode = (1 << 5)},
+  {.name = "light-switch-position-6", .token = CAR_STATE, .opcode = (1 << 6)},
+  {.name = "light-switch-position-7", .token = CAR_STATE, .opcode = (1 << 7)},
+  {.name = "light-switch-position-8", .token = CAR_STATE, .opcode = (1 << 8)},
+  
+  {.name = "neutral", .token = CAR_STATE, .opcode = (1 << 9)},
+  {.name = "forward", .token = CAR_STATE, .opcode = (1 << 10)},
+  {.name = "reversing", .token = CAR_STATE, .opcode = (1 << 11)},
+  {.name = "braking", .token = CAR_STATE, .opcode = (1 << 12)},
+  
+  {.name = "indicator-left", .token = CAR_STATE, .opcode = (1 << 13)},
+  {.name = "indicator-right", .token = CAR_STATE, .opcode = (1 << 14)},
+  {.name = "hazard", .token = CAR_STATE, .opcode = (1 << 15)},
+  {.name = "blink-flag", .token = CAR_STATE, .opcode = (1 << 16)},
+  {.name = "blink-left", .token = CAR_STATE, .opcode = (1 << 17)},
+  {.name = "blink-right", .token = CAR_STATE, .opcode = (1 << 18)},
+  
+  {.name = "winch-disabled", .token = CAR_STATE, .opcode = (1 << 19)},
+  {.name = "winch-idle", .token = CAR_STATE, .opcode = (1 << 20)},
+  {.name = "winch-in", .token = CAR_STATE, .opcode = (1 << 21)},
+  {.name = "winch-out", .token = CAR_STATE, .opcode = (1 << 22)},
+  
+  {.name = "gear-1", .token = CAR_STATE, .opcode = (1 << 23)},
+  {.name = "gear-2", .token = CAR_STATE, .opcode = (1 << 24)},
 
   {.name = NULL, .token = EOF},
 };
@@ -121,7 +130,8 @@ int next_variable_index = 0;
 unsigned int pc = 0;
 
 
-static identifier *add_symbol(identifier **table, const char *name, int token, int index)
+static identifier *add_symbol(identifier **table, const char *name, int token, 
+    int index, uint32_t opcode)
 {
   identifier *ptr = (identifier *)calloc(sizeof(identifier), 1);
   //FIXME: check allocation fail
@@ -130,6 +140,7 @@ static identifier *add_symbol(identifier **table, const char *name, int token, i
   strcpy(ptr->name, name);
   ptr->token = token;
   ptr->index = index;
+  ptr->opcode = opcode;
   ptr->next = *table;
   *table = ptr;
   return ptr;
@@ -162,7 +173,7 @@ static void initialize_symbol_table(const identifier_initializer *source,
   identifier **destination)
 {
     while (source->name) {
-        add_symbol(destination, source->name, source->token, 0);
+        add_symbol(destination, source->name, source->token, 0, source->opcode);
         ++source;
     }
 }
@@ -288,7 +299,7 @@ int yylex(void)
     printf("++++++++++> Testing IDENTIFIER %s\n", symbuf);
     s = get_symbol(&symbol_table, symbuf);
     if (s == NULL) {
-        s = add_symbol(&symbol_table, symbuf, IDENTIFIER, 0);
+        s = add_symbol(&symbol_table, symbuf, IDENTIFIER, 0, 0);
         printf("++++++++++> Added IDENTIFIER %s (%s)\n", 
           s->name, token2str(s->token));
     }
@@ -452,7 +463,7 @@ int main(int argc, char *argv[])
   // Pre-load global special variable named "clicks" that increments
   // on every six CH3-clicks.
   add_symbol(
-    &symbol_table, "clicks", VARIABLE, next_variable_index++);
+    &symbol_table, "clicks", VARIABLE, next_variable_index++, 0);
 
   return yyparse();
 }

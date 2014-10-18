@@ -18,6 +18,7 @@ typedef struct _identifier {
     char *name;
     int token;
     int index;
+    uint32_t opcode;
     struct _identifier *next;
 } identifier;
 

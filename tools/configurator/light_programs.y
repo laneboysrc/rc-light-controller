@@ -231,7 +231,7 @@ reserved keywords:
 %type <immediate> master_or_slave
 %type <instruction> expression assignment_operator abs_assignment_parameter variable_assignment_parameter
 %type <instruction> led_assignment_parameter leds variable_or_number
-%type <instruction> test_parameter
+%type <instruction> test_parameter car_state_list
 %%
 
 /* ========================================================================== */
@@ -352,10 +352,15 @@ test_expression
   : VARIABLE test_operator test_parameter
   | LED_ID test_operator test_parameter
   | ANY expect_car_state car_state_list
+      { emit(0x60000000 | $3); }
   | ALL expect_car_state car_state_list
+      { emit(0x80000000 | $3); }
   | NONE expect_car_state car_state_list
+      { emit(0xa0000000 | $3); }
   | IS expect_car_state CAR_STATE
+      { emit(0x60000000 | $3->opcode); }
   | NOT expect_car_state CAR_STATE
+      { emit(0xa0000000 | $3->opcode); }
   ;
   
 test_operator
@@ -379,6 +384,7 @@ test_parameter
    
 car_state_list 
   : CAR_STATE
+      { $$ = $1->opcode; }
   | car_state_list CAR_STATE
   ;
   
