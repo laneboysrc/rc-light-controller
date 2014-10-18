@@ -345,8 +345,8 @@ code_line
   ;
 
 command
-  : GOTO LABEL
-      { emit(0x01000000 | $1); }
+  : GOTO LABEL /* FIXME: need to be able to deal with not yet defined labels */
+      { emit(0x01000000 | $2->index); }
   | FADE
       { emit(0x04000000); }
   | WAIT
