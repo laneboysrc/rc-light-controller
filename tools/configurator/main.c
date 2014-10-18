@@ -116,7 +116,7 @@ identifier_initializer reserved_words[] = {
   {.name = "random", .token = RANDOM},
   {.name = "steering", .token = STEERING},
   {.name = "throttle", .token = THROTTLE},
-  {.name = "abs", .token = ABS},
+  {.name = "abs", .token = ABS, .opcode = 0x40000000},
 
   {.name = NULL, .token = EOF},
 };
@@ -416,6 +416,8 @@ int yylex(void)
       return EQ;
     }
     ungetc(n, stdin);
+    yylval.instruction = 0x10000000;
+    return ASSIGN;
   }
 
   if (c == '>') {

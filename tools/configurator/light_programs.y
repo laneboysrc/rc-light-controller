@@ -217,6 +217,7 @@ reserved keywords:
 %token <instruction> WHEN
 %token <instruction> OR
 
+%token <instruction> ASSIGN
 %token <instruction> MUL_ASSIGN
 %token <instruction> DIV_ASSIGN
 %token <instruction> ADD_ASSIGN
@@ -239,9 +240,9 @@ reserved keywords:
 
 program
   : condition_lines decleration_lines code_lines
-      { emit(0xfe000000); }
+      { emit(INSTRUCTION_END_OF_PROGRAM); }
   | condition_lines code_lines
-      { emit(0xfe000000); }
+      { emit(INSTRUCTION_END_OF_PROGRAM); }
   | %empty
   ;
 
@@ -316,7 +317,7 @@ decleration
       { set_identifier($2, VARIABLE, -1); }
   | GLOBAL VAR IDENTIFIER
       { set_identifier($3, VARIABLE, -1); }
-  | LED IDENTIFIER '=' master_or_slave
+  | LED IDENTIFIER ASSIGN master_or_slave
       { set_identifier($2, LED_ID, $4); }
   ;
 
@@ -340,12 +341,12 @@ code_line
 
 command
   : GOTO LABEL /* FIXME: need to be able to deal with not yet defined labels */
-      { emit(0x01000000 | $2->index); }
+      { emit($1 | $2->index); }
   | FADE leds variable_or_number
       /* FIXME: deal with list of LEDs */
-      { emit(0x04000000 | ($2 << 16) | ($2 << 8) | $3); }
+      { emit($1 | ($2 << 16) | ($2 << 8) | $3); }
   | WAIT variable_or_number
-      { emit(0x06000000 | $2); }
+      { emit($1 | $2); }
   | SKIP IF test_expression
   | expression
   ;
@@ -355,7 +356,7 @@ test_expression
       { emit($2 | ($1->index << 16) | $3); }
   | LED_ID test_operator test_parameter
       /* All LED relates tests have 0x02 set in the opcode */
-      { emit($2 | 0x02000000 | ($1->index << 16) | $3); }
+      { emit($2 | INSTRUCTION_MODIFIER_LED | ($1->index << 16) | $3); }
   | ANY expect_car_state car_state_list
       { emit($1 | $3); }
   | ALL expect_car_state car_state_list
@@ -397,8 +398,8 @@ expression
   : VARIABLE assignment_operator variable_assignment_parameter
       { emit($2 | ($1->index << 16) | $3); }
   | VARIABLE assignment_operator ABS abs_assignment_parameter
-      { emit(0x40000000 | $4); }
-  | leds '=' led_assignment_parameter
+      { emit($3 | $4); }
+  | leds ASSIGN led_assignment_parameter
       /* FIXME: deal with list of LEDs */
       { emit(0x02000000 | ($1 << 16) | ($1 << 8) | $3); }
   ;
@@ -413,9 +414,9 @@ leds
 led_assignment_parameter
   : NUMBER
       /* All opcodes that work with immediates have the lowest bit set */
-      { $$ = 0x01000000 | ($1 & 0xff); }
+      { $$ = INSTRUCTION_MODIFIER_IMMEDIATE | ($1 & 0xff); }
   | VARIABLE
-       { $$ = $1->index; }
+      { $$ = $1->index; }
   ;
   
 variable_assignment_parameter
@@ -433,7 +434,7 @@ variable_assignment_parameter
 variable_or_number
   : NUMBER
       /* All opcodes that work with immediates have the lowest bit set */
-      { $$ = 0x01000000 | ($1 & 0xffff); }
+      { $$ = INSTRUCTION_MODIFIER_IMMEDIATE | ($1 & 0xffff); }
   | VARIABLE
       { $$ = (PARAMETER_TYPE_VARIABLE << 8) | $1->index; }
   ;
@@ -448,8 +449,7 @@ abs_assignment_parameter
   ;
 
 assignment_operator
-  : '='
-        { $$ = 0x10000000; }
+  : ASSIGN
   | ADD_ASSIGN
   | SUB_ASSIGN
   | MUL_ASSIGN
