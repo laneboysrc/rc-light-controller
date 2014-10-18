@@ -1,8 +1,8 @@
-/* 
+/*
 Bison grammar file for light programs
 
-Light programs are simple programs that are interpreted by the 
-LANE Boys RC light controller (TLC5940/LPC812 version) 
+Light programs are simple programs that are interpreted by the
+LANE Boys RC light controller (TLC5940/LPC812 version)
 
 */
 
@@ -230,9 +230,14 @@ reserved keywords:
 %start program
 
 %type <immediate> master_or_slave
-%type <instruction> expression assignment_operator abs_assignment_parameter variable_assignment_parameter
+%type <instruction> expression
+%type <instruction> assignment_operator
+%type <instruction> abs_assignment_parameter variable_assignment_parameter
 %type <instruction> led_assignment_parameter leds variable_or_number
-%type <instruction> test_parameter car_state_list run_conditions test_operator
+%type <instruction> test_parameter car_state_list test_operator
+%type <instruction> run_conditions priority_run_conditions
+%type <instruction> run_condition_line priority_run_condition_line
+%type <instruction> run_condition_lines priority_run_condition_lines
 %%
 
 /* ========================================================================== */
@@ -256,39 +261,47 @@ expect_car_state
 
 condition_lines
   : priority_run_condition_lines
-        { printf("===========> SET priority run\n"); }
+        { emit($1);
+          emit(0);
+        }
   | run_condition_lines
-        { printf("===========> SET run\n"); }
+        { emit(INSTRUCTION_RUN_WHEN_NORMAL_OPERATION);
+          emit($1);
+        }
   | run_always_condition_line
-        { printf("===========> SET run always\n"); }
+        { emit(INSTRUCTION_RUN_WHEN_NORMAL_OPERATION);
+          emit(INSTRUCTION_RUN_ALWAYS);
+        }
   ;
 
 priority_run_condition_lines
   : priority_run_condition_line
   | priority_run_condition_lines priority_run_condition_line
+    { $$ = $1 | $2; }
   ;
 
 priority_run_condition_line
-  : priority_run_condition '\n'
-  ;
-
-priority_run_condition
-  : RUN expect_run_condition WHEN priority_run_conditions
+  : RUN expect_run_condition WHEN priority_run_conditions '\n'
+    { $$ = $4; }
   ;
 
 priority_run_conditions
   : PRIORITY_RUN_CONDITION
   | priority_run_conditions PRIORITY_RUN_CONDITION
+    { $$ = $1 | $2; }
   | priority_run_conditions OR PRIORITY_RUN_CONDITION
+    { $$ = $1 | $3; }
   ;
 
 run_condition_lines
   : run_condition_line
   | run_condition_lines run_condition_line
+    { $$ = $1 | $2; }
   ;
 
 run_condition_line
   : RUN expect_run_condition WHEN run_conditions '\n'
+    { $$ = $4; }
   ;
 
 run_conditions
@@ -368,7 +381,7 @@ test_expression
   | NOT expect_car_state CAR_STATE
       { emit($1 | $3); }
   ;
-  
+
 test_operator
   : EQ
   | NE
@@ -377,7 +390,7 @@ test_operator
   | GE
   | LE
   ;
-  
+
 test_parameter
   : variable_or_number
   | LED_ID
@@ -387,13 +400,13 @@ test_parameter
   | THROTTLE
       { $$ = (PARAMETER_TYPE_THROTTLE << 8); }
   ;
-   
-car_state_list 
+
+car_state_list
   : CAR_STATE
   | car_state_list CAR_STATE
       { $$ = $1 | $2; }
   ;
-  
+
 expression
   : VARIABLE assignment_operator variable_assignment_parameter
       { emit($2 | ($1->index << 16) | $3); }
@@ -418,7 +431,7 @@ led_assignment_parameter
   | VARIABLE
       { $$ = $1->index; }
   ;
-  
+
 variable_assignment_parameter
   : variable_or_number
   | LED_ID
@@ -438,7 +451,7 @@ variable_or_number
   | VARIABLE
       { $$ = (PARAMETER_TYPE_VARIABLE << 8) | $1->index; }
   ;
-   
+
 abs_assignment_parameter
   : VARIABLE
       { $$ = (PARAMETER_TYPE_VARIABLE << 8) | $1->index; }
