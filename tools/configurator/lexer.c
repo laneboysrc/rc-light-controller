@@ -222,7 +222,6 @@ static int lex_identifiers(int c)
     // Check RUN CONDITION special symbols if we are expecting any
 
     if (parse_state == EXPECTING_RUN_CONDITION) {
-        printf("++++++++++> Testing RUN CONDITION %s\n", symbuf);
         s = get_symbol(&run_condition_table, symbuf);
         if (s) {
             printf("++++++++++> Found %s %s\n",
@@ -235,7 +234,6 @@ static int lex_identifiers(int c)
     // Check CAR STATE special symbols if we are expecting any
 
     if (parse_state == EXPECTING_CAR_STATE) {
-        printf("++++++++++> Testing CAR STATE %s\n", symbuf);
         s = get_symbol(&car_state_table, symbuf);
         if (s) {
             printf("++++++++++> Found %s %s\n", token2str(s->token), s->name);
@@ -246,7 +244,6 @@ static int lex_identifiers(int c)
 
     // Check reserved words
 
-    printf("++++++++++> Testing RESERVED WORD %s\n", symbuf);
     s = get_symbol(&reserved_words_table, symbuf);
     if (s) {
         printf("++++++++++> Found RESERVED WORD %s\n", symbuf);
@@ -256,7 +253,6 @@ static int lex_identifiers(int c)
 
     // Check labels, variables and LEDs
 
-    printf("++++++++++> Testing IDENTIFIER %s\n", symbuf);
     s = get_symbol(&symbol_table, symbuf);
     if (s == NULL) {
         s = add_symbol(&symbol_table, symbuf, IDENTIFIER, 0, 0);
@@ -338,7 +334,7 @@ void set_identifier(identifier *s, int token, int index)
     s->token = token;
     s->index = (index != -1) ? index : next_variable_index++;
 
-    printf("++++++++++> Set IDENTIFIER '%s' as token=%s, index=%d\n",
+    printf("++++++++++> Set '%s' as token=%s, index=%d\n",
         s->name, token2str(s->token), s->index);
 }
 
