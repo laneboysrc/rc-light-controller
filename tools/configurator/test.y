@@ -176,11 +176,16 @@ typedef struct _identifier {
     struct _identifier *next;
 } identifier;
 
+typedef struct {
+    const char *name;
+    int token;
+} identifier_initializer;
+
 extern identifier *symbol_table;
 extern unsigned int pc;           // "Program Counter"
 
 int yylex(void);
-void yyerror(char const *);
+void yyerror(const char *);
 void set_identifier(identifier *id, int token, int index);
 void emit(uint32_t instruction);
 
@@ -427,7 +432,7 @@ assignment_operator
 /* Epilogue */
 
 
-const identifier run_condition_tokens[] = {
+identifier_initializer run_condition_tokens[] = {
   {.name = "always", .token = RUN_CONDITION_ALWAYS},
 
   {.name = "light-switch-position-0", .token = RUN_CONDITION},
@@ -468,7 +473,7 @@ const identifier run_condition_tokens[] = {
   {.name = NULL, .token = EOF},
 };
 
-const identifier car_state[] = {
+identifier_initializer car_state[] = {
   {.name = "light-switch-position-0", .token = CAR_STATE},
   {.name = "light-switch-position-1", .token = CAR_STATE},
   {.name = "light-switch-position-2", .token = CAR_STATE},
@@ -498,7 +503,7 @@ const identifier car_state[] = {
   {.name = NULL, .token = EOF},
 };
 
-const identifier reserved_words[] = {
+identifier_initializer reserved_words[] = {
   {.name = "goto", .token = GOTO},
   {.name = "var", .token = VAR},
   {.name = "led", .token = LED},
@@ -532,7 +537,7 @@ int next_variable_index = 0;
 unsigned int pc = 0;
 
 
-identifier *add_symbol(identifier **table, char *name, int token, int index)
+static identifier *add_symbol(identifier **table, const char *name, int token, int index)
 {
   identifier *ptr = (identifier *)calloc(sizeof(identifier), 1);
   //FIXME: check allocation fail
@@ -547,7 +552,7 @@ identifier *add_symbol(identifier **table, char *name, int token, int index)
 }
 
 
-identifier *get_symbol(identifier **table, const char *name)
+static identifier *get_symbol(identifier **table, const char *name)
 {
   identifier *ptr;
   for (ptr = *table; ptr != NULL; ptr = ptr->next) {
@@ -569,7 +574,8 @@ void set_identifier(identifier *s, int token, int index)
 }
 
 
-void initialize_symbol_table(const identifier *source, identifier **destination)
+static void initialize_symbol_table(const identifier_initializer *source,
+  identifier **destination)
 {
     while (source->name) {
         add_symbol(destination, source->name, source->token, 0);
@@ -585,7 +591,7 @@ void emit(uint32_t instruction)
 }
 
 
-void yyerror(char const *s)
+void yyerror(const char *s)
 {
   fprintf(stderr, "ERROR: %s\n", s);
 }
@@ -636,7 +642,7 @@ int yylex(void)
   // NUMBERS
 
   if (isdigit(c)) {
-    int count = 0;
+    size_t count = 0;
 
     do {
       if (count == length) {
@@ -663,8 +669,7 @@ int yylex(void)
   // IDENTIFIERS
 
   if (isalpha(c)) {
-    int count = 0;
-    int id;
+    size_t count = 0;
     identifier *s;
 
     do {
@@ -799,6 +804,9 @@ int yylex(void)
 
 int main(int argc, char *argv[])
 {
+  (void)argc;
+  (void)argv;
+
   printf("Bison test parser\n");
   yydebug = 1;
 
