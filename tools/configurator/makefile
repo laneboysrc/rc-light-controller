@@ -4,7 +4,8 @@
 TARGET := test
 SOURCE_DIRS := .
 BUILD_DIR = build
-SOURCES := $(foreach sdir, $(SOURCE_DIRS), $(wildcard $(sdir)/*.y))
+SOURCES := $(foreach sdir, $(SOURCE_DIRS), $(wildcard $(sdir)/*.c))
+Y_SOURCES := $(foreach sdir, $(SOURCE_DIRS), $(wildcard $(sdir)/*.y))
 
 
 ###############################################################################
@@ -27,15 +28,16 @@ endif
 
 ###############################################################################
 # Target and object file setup
-C_SOURCES := $(patsubst %.y, $(BUILD_DIR)/%.tab.c, $(SOURCES))
+SOURCES += $(patsubst %.y, $(BUILD_DIR)/%.tab.c, $(Y_SOURCES))
 TARGET_BIN := $(addprefix $(BUILD_DIR)/, $(TARGET))
 
 
 ###############################################################################
 # Compiler and linker flags
-BISONFLAGS := -Werror -t -v --feature=caret
+BISONFLAGS := -Werror -Wall -t -v --feature=caret
 
 CFLAGS += -std=c99
+CFLAGS += $(foreach sdir, $(SOURCE_DIRS), -I$(sdir)) -I$(BUILD_DIR)
 CFLAGS += -W -Wall -Wextra -Wpedantic
 CFLAGS += -Wstrict-prototypes -Wshadow -Wwrite-strings
 CFLAGS += -Wdeclaration-after-statement -Waddress -Wlogical-op
@@ -65,7 +67,7 @@ $(foreach bdir, $(BUILD_DIR), $(eval $(call compile-objects,$(bdir))))
 # Rules
 all : $(TARGET_BIN)
 
-$(TARGET_BIN): $(C_SOURCES)
+$(TARGET_BIN): $(SOURCES) 
 	$(ECHO) [CC] $^
 	$(QUIET) $(CC) $(CFLAGS) $^ -o $@
 
