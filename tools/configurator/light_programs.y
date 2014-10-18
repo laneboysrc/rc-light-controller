@@ -224,7 +224,7 @@ reserved keywords:
 
 %type <immediate> master_or_slave
 %type <instruction> expression assignment_operator abs_assignment_parameter variable_assignment_parameter
-%type <instruction> led_assignment_parameter leds
+%type <instruction> led_assignment_parameter leds variable_or_number
 %%
 
 /* ========================================================================== */
@@ -328,12 +328,17 @@ code_line
 command
   : GOTO LABEL /* FIXME: need to be able to deal with not yet defined labels */
       { emit(0x01000000 | $2->index); }
-  | FADE
-      { emit(0x04000000); }
-  | WAIT
-      { emit(0x06000000); }
+  | FADE leds variable_or_number
+      /* FIXME: deal with list of LEDs */
+      { emit(0x04000000 | ($2 << 16) | ($2 << 8) | $3); }
+  | WAIT variable_or_number
+      { emit(0x06000000 | $2); }
+  | SKIP IF test_expression
   | expression
   ;
+
+test_expression
+  : %empty
 
 expression
   : VARIABLE assignment_operator variable_assignment_parameter
@@ -341,6 +346,7 @@ expression
   | VARIABLE assignment_operator ABS abs_assignment_parameter
       { emit(0x40000000 | $4); }
   | leds '=' led_assignment_parameter
+      /* FIXME: deal with list of LEDs */
       { emit(0x02000000 | ($1 << 16) | ($1 << 8) | $3); }
   ;
 
@@ -356,14 +362,11 @@ led_assignment_parameter
       /* All opcodes that work with immediates have the lowest bit set */
       { $$ = 0x01000000 | ($1 & 0xff); }
   | VARIABLE
-      { $$ = $1->index; }
-
+       { $$ = $1->index; }
+  ;
+  
 variable_assignment_parameter
-  : NUMBER
-      /* All opcodes that work with immediates have the lowest bit set */
-      { $$ = 0x01000000 | ($1 & 0xffff); }
-  | VARIABLE
-      { $$ = (PARAMETER_TYPE_VARIABLE << 8) | $1->index; }
+  : variable_or_number
   | LED_ID
       { $$ = (PARAMETER_TYPE_LED << 8) | $1->index; }
   | STEERING
@@ -374,6 +377,14 @@ variable_assignment_parameter
       { $$ = (PARAMETER_TYPE_RANDOM << 8); }
   ;
 
+variable_or_number
+  : NUMBER
+      /* All opcodes that work with immediates have the lowest bit set */
+      { $$ = 0x01000000 | ($1 & 0xffff); }
+  | VARIABLE
+      { $$ = (PARAMETER_TYPE_VARIABLE << 8) | $1->index; }
+  ;
+   
 abs_assignment_parameter
   : VARIABLE
       { $$ = (PARAMETER_TYPE_VARIABLE << 8) | $1->index; }
