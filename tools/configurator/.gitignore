@@ -1,4 +1,2 @@
-*.tab.c
-*.output
-test
+build/*
 
