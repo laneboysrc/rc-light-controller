@@ -92,9 +92,11 @@ identifier_initializer reserved_words[] = {
   {.name = "wait", .token = WAIT},
   {.name = "skip", .token = SKIP},
   {.name = "if", .token = IF},
+  {.name = "any", .token = ANY},
   {.name = "all", .token = ALL},
   {.name = "none", .token = NONE},
   {.name = "not", .token = NOT},
+  {.name = "is", .token = IS},
   {.name = "fade", .token = FADE},
   {.name = "run", .token = RUN},
   {.name = "when", .token = WHEN},
@@ -199,6 +201,10 @@ int yylex(void)
       printf("----------> Expecting run condition\n");
       break;
 
+    case EXPECTING_CAR_STATE:
+      printf("----------> Expecting car state\n");
+      break;
+
     default:
       printf("----------> FORGOT CASE FOR %d\n", parse_state);
       break;
@@ -248,6 +254,18 @@ int yylex(void)
     if (parse_state == EXPECTING_RUN_CONDITION) {
       printf("++++++++++> Testing RUN CONDITION %s\n", symbuf);
       s = get_symbol(&run_condition_table, symbuf);
+      if (s) {
+          printf("++++++++++> Found %s %s\n", token2str(s->token), s->name);
+        yylval.i = s;
+        return s->token;
+      }
+    }
+
+    // Check CAR STATE special symbols if we are expecting any
+
+    if (parse_state == EXPECTING_CAR_STATE) {
+      printf("++++++++++> Testing CAR STATE %s\n", symbuf);
+      s = get_symbol(&car_state_table, symbuf);
       if (s) {
           printf("++++++++++> Found %s %s\n", token2str(s->token), s->name);
         yylval.i = s;
@@ -373,6 +391,40 @@ int yylex(void)
     ungetc(n, stdin);
   }
 
+  if (c == '=') {
+    char n;
+    if ((n = getchar()) == '=') {
+      return EQ;
+    }
+    ungetc(n, stdin);
+  }
+
+  if (c == '>') {
+    char n;
+    if ((n = getchar()) == '=') {
+      return GE;
+    }
+    ungetc(n, stdin);
+    return GT;
+  }
+
+  if (c == '<') {
+    char n;
+    if ((n = getchar()) == '=') {
+      return LE;
+    }
+    ungetc(n, stdin);
+    return LT;
+  }
+
+  if (c == '!') {
+    char n;
+    if ((n = getchar()) == '=') {
+      return NE;
+    }
+    ungetc(n, stdin);
+  }
+  
   if (c == ':') {
     return c;
   }

@@ -72,15 +72,11 @@ code:
       - SKIP IF SMALLER OR EQUAL  {VARIABLE, LED[x]} {NUMBER, VARIABLE, LED[x]}
       - SKIP IF SMALLER  {VARIABLE, LED[x]} {NUMBER, VARIABLE, LED[x]}
 
+  - SKIP IF IS
   - SKIP IF ANY {car-state} [{car-state} ...]
-  - SKIP IF {car-state}
-    - Translates into SKIP IF ANY
-
   - SKIP IF ALL {car-state} [{car-state} ...]
-
   - SKIP IF NONE {car-state} [{car-state} ...]
   - SKIP IF NOT {car-state}
-    - Translates into SKIP IF NONE
 
 run-condition:
 | RUN_WHEN_LIGHT_SWITCH_POSITION
@@ -148,7 +144,7 @@ run-condition:
 
 
 reserved keywords:
-  goto, var, led, wait, skip, if, all, none, not, fade, run, when, or,
+  goto, var, led, wait, skip, if, any, all, none, not, fade, run, when, or,
   master, slave, global, random, steering, throttle, abs
 
   clicks: increments when 6-clicks on CH3. pre-defined global variable
@@ -203,9 +199,19 @@ reserved keywords:
 
 %token <instruction> SKIP
 %token <instruction> IF
+%token <instruction> ANY
 %token <instruction> ALL
 %token <instruction> NONE
+%token <instruction> IS
 %token <instruction> NOT
+
+%token <instruction> EQ
+%token <instruction> NE
+%token <instruction> GT
+%token <instruction> LT
+%token <instruction> GE
+%token <instruction> LE
+
 
 %token <instruction> RUN
 %token <instruction> WHEN
@@ -225,6 +231,7 @@ reserved keywords:
 %type <immediate> master_or_slave
 %type <instruction> expression assignment_operator abs_assignment_parameter variable_assignment_parameter
 %type <instruction> led_assignment_parameter leds variable_or_number
+%type <instruction> test_parameter
 %%
 
 /* ========================================================================== */
@@ -240,6 +247,10 @@ program
 
 expect_run_condition
   : %empty  { parse_state = EXPECTING_RUN_CONDITION; }
+  ;
+
+expect_car_state
+  : %empty  { parse_state = EXPECTING_CAR_STATE; }
   ;
 
 condition_lines
@@ -338,8 +349,39 @@ command
   ;
 
 test_expression
-  : %empty
-
+  : VARIABLE test_operator test_parameter
+  | LED_ID test_operator test_parameter
+  | ANY expect_car_state car_state_list
+  | ALL expect_car_state car_state_list
+  | NONE expect_car_state car_state_list
+  | IS expect_car_state CAR_STATE
+  | NOT expect_car_state CAR_STATE
+  ;
+  
+test_operator
+  : EQ
+  | NE
+  | GT
+  | LT
+  | GE
+  | LE
+  ;
+  
+test_parameter
+  : variable_or_number
+  | LED_ID
+      { $$ = (PARAMETER_TYPE_LED << 8) | $1->index; }
+  | STEERING
+      { $$ = (PARAMETER_TYPE_STEERING << 8); }
+  | THROTTLE
+      { $$ = (PARAMETER_TYPE_THROTTLE << 8); }
+  ;
+   
+car_state_list 
+  : CAR_STATE
+  | car_state_list CAR_STATE
+  ;
+  
 expression
   : VARIABLE assignment_operator variable_assignment_parameter
       { emit($2 | ($1->index << 16) | $3); }

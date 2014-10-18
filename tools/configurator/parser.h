@@ -11,6 +11,7 @@
 enum {
   UNKNOWN_PARSE_STATE = 0,
   EXPECTING_RUN_CONDITION,
+  EXPECTING_CAR_STATE,
 } parse_state;
 
 typedef struct _identifier {
