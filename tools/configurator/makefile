@@ -12,7 +12,7 @@ Y_SOURCES := $(foreach sdir, $(SOURCE_DIRS), $(wildcard $(sdir)/*.y))
 # Toolchain setup
 BISON := bison
 MKDIR_P = mkdir -p
-
+TEST_RUNNER = test/run-tests.sh
 
 ###############################################################################
 # Pretty-print setup
@@ -66,7 +66,7 @@ $(foreach bdir, $(BUILD_DIR), $(eval $(call compile-objects,$(bdir))))
 # Rules
 all : $(TARGET_BIN)
 
-$(TARGET_BIN): $(SOURCES) 
+$(TARGET_BIN): $(SOURCES)
 	$(ECHO) [CC] $^
 	$(QUIET) $(CC) $(CFLAGS) $^ -o $@
 
@@ -74,10 +74,14 @@ run: $(TARGET_BIN)
 	$(ECHO) [RUN] $<
 	$(QUIET) $<
 
+test: $(TARGET_BIN)
+	$(ECHO) [TEST] $<
+	$(QUIET) test/run-tests.sh $<
+
 # Clean all generated files
 clean:
 	$(ECHO) [RM] $(BUILD_DIR)
 	$(QUIET) $(RM) -rf $(BUILD_DIR)
 
 
-.PHONY : all clean run
+.PHONY : all clean run test

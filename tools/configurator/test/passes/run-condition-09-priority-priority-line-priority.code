@@ -1,0 +1,4 @@
+run when initializing no-signal
+run when gear-changed
+
+wait 1

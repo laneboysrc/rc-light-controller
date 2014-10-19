@@ -1,0 +1,9 @@
+run always
+
+var x
+var      y
+led light1 = master[0]
+led     light2=slave [ 15 ]
+led     light3 =master[1]
+
+wait 1

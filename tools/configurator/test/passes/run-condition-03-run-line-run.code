@@ -1,0 +1,4 @@
+run when neutral
+run when hazard
+
+wait 1
