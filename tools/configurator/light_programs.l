@@ -1,12 +1,19 @@
 /* scanner for a toy Pascal-like language */
 
 %{
-    int yywrap(void);
+    //int yywrap(void);
+    typedef int YYSTYPE;
+    typedef int YYLTYPE;
 %}
 
 DIGIT    [0-9]
 HEXDIGIT [0-9a-fA-F]
 ID       [a-z][a-z0-9]*
+
+%option bison-bridge
+%option bison-locations
+%option noyywrap
+%option warn
 
 %%
 
@@ -51,13 +58,16 @@ goto|var|led|wait|skip|if|any|all|none|not|fade|run|when|or|master|slave|global|
 
 %%
 
-int yywrap(void)
-{
-    return 1;
-}
+//int yywrap(void)
+// {
+//     return 1;
+// }
 
 int main(int argc, char **argv)
 {
+    YYSTYPE yylval_param;
+    YYLTYPE yylloc_param;
+
     /* Skip over program name */
     ++argv;
     --argc;
@@ -68,5 +78,5 @@ int main(int argc, char **argv)
         yyin = stdin;
     }
 
-    yylex();
+    yylex(&yylval_param, &yylloc_param);
 }
