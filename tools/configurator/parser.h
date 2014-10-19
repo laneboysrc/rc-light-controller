@@ -32,11 +32,13 @@ typedef struct _identifier {
 
 void initialize_lexer(void);
 int yylex(void);
-
 void yyerror(const char *);
 void set_identifier(identifier *id, int token, int index);
-void emit(uint32_t instruction);
 const char *token2str(int token);
+
+void add_led_to_list(int led_index);
+void emit(uint32_t instruction);
+void emit_led_instruction(uint32_t instruction);
 
 extern unsigned int pc;           // "Program Counter"
 
