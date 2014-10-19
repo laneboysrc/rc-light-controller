@@ -1,4 +1,5 @@
 run when initializing no-signal
+run when reversing-setup-steering or reversing-setup-throttle
 run when gear-changed
 
 wait 1

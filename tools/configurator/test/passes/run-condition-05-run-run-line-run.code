@@ -1,4 +1,5 @@
 run when neutral hazard
+run when blink-left or blink-right
 run when gear-2
 
 wait 1
