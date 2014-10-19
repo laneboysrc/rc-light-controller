@@ -1,0 +1,6 @@
+run always
+
+var x
+
+    skip if is x
+    wait 1

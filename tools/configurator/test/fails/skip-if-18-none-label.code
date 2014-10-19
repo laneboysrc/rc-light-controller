@@ -1,0 +1,5 @@
+run always
+
+label1:
+    skip if none blink_flag label1 neutral
+    wait 1

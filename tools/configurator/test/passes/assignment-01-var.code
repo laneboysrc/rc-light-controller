@@ -1,0 +1,69 @@
+run always
+
+var x
+var y
+led l = master[8]
+
+x = 42
+x = y
+x = l
+x = random
+x = clicks
+x = steering
+x = throttle
+
+x += 42
+x += y
+x += l
+x += random
+x += clicks
+x += steering
+x += throttle
+
+x -= 42
+x -= y
+x -= l
+x -= random
+x -= clicks
+x -= steering
+x -= throttle
+
+x *= 42
+x *= y
+x *= l
+x *= random
+x *= clicks
+x *= steering
+x *= throttle
+
+x /= 42
+x /= y
+x /= l
+x /= random
+x /= clicks
+x /= steering
+x /= throttle
+
+x &= 42
+x &= y
+x &= l
+x &= random
+x &= clicks
+x &= steering
+x &= throttle
+
+x |= 42
+x |= y
+x |= l
+x |= random
+x |= clicks
+x |= steering
+x |= throttle
+
+x ^= 42
+x ^= y
+x ^= l
+x ^= random
+x ^= clicks
+x ^= steering
+x ^= throttle

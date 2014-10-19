@@ -1,0 +1,4 @@
+run always
+
+    skip if all hazard indicator-left indicator-right
+    wait 1

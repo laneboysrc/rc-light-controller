@@ -1,0 +1,12 @@
+run always
+
+var x
+var y
+
+    skip if x == y
+    skip if x != y
+    skip if x > y
+    skip if x < y
+    skip if x >= y
+    skip if x <= y
+    wait 1

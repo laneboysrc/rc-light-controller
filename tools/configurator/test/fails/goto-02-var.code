@@ -1,0 +1,6 @@
+run always
+
+var x
+
+wait 1
+goto x

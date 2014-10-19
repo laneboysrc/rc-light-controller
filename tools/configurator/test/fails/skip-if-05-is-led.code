@@ -1,0 +1,6 @@
+run always
+
+led l = master[0]
+
+    skip if is l
+    wait 1

@@ -1,0 +1,6 @@
+run always
+
+var x
+
+    skip if all blink_flag x neutral
+    wait 1

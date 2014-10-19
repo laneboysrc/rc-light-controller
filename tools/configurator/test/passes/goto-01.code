@@ -1,0 +1,14 @@
+run always
+
+    wait 1
+pos1:
+    wait 2
+    goto forward_decleration
+
+pos2:
+    wait 3
+    goto pos1
+
+forward_decleration:
+    wait 4
+    goto pos2

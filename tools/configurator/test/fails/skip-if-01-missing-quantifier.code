@@ -1,0 +1,4 @@
+run always
+
+    skip if hazard
+    wait 1

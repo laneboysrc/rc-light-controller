@@ -1,0 +1,6 @@
+run always
+
+led led1 = slave[0]
+
+wait 1
+goto led1

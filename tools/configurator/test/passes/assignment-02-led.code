@@ -1,0 +1,19 @@
+run always
+
+var x
+
+led l1 = master[2]
+led l2 = master[3]
+led l3 = master[4]
+led l4 = master[5]
+
+led lx = master[7]
+
+l1 = 255
+l2 = x
+
+l1, l2, l3, l4 = 42
+l1, l2, l3 = x
+
+l1, l2, l3, lx = 47
+l1, l2, l3, lx = x
