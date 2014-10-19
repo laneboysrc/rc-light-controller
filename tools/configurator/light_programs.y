@@ -10,9 +10,12 @@ LANE Boys RC light controller (TLC5940/LPC812 version)
 
 NUMBER
   decimal | hexadecimal
+  // FIXME: add support for hex
+  // FIXME: add support for negative numbers
 
 programs:
   programs | program;
+  // FIXME: add support for multiple programs
 
 program:
   @empty | run-conditions declerations code;
@@ -24,6 +27,7 @@ run-conditions:
 declerations:
   - LED name = master[0..15]|slave[0..15]
   - [GLOBAL] VAR name
+  // FIXME: add support for globals
 
 code:
   - LABEL: Labels for GOTO
@@ -150,7 +154,7 @@ reserved keywords:
   goto, var, led, wait, skip, if, any, all, none, not, fade, run, when, or,
   master, slave, global, random, steering, throttle, abs
 
-  clicks: increments when 6-clicks on CH3. pre-defined global variable
+  clicks: Pre-defined global variable; increments when 6-clicks on CH3
 */
 
 

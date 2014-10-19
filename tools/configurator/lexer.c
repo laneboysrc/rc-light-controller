@@ -160,10 +160,22 @@ identifier_initializer single_char_tokens[] = {
 static identifier *add_symbol(identifier **table, const char *name, int token,
     int index, uint32_t opcode)
 {
-    identifier *ptr = (identifier *)calloc(sizeof(identifier), 1);
-    //FIXME: check allocation fail
+    identifier *ptr;
+
+    ptr = (identifier *)calloc(sizeof(identifier), 1);
+    if (ptr == NULL) {
+        fprintf(stderr,
+            "ERROR: Lexer: Out of memory when allocating an identifier\n");
+        exit(1);
+    }
+
     ptr->name = (char *)calloc(strlen(name) + 1, 1);
-    //FIXME: check allocation fail
+    if (ptr->name == NULL) {
+        fprintf(stderr,
+            "ERROR: Lexer: Out of memory when allocating an identifier name\n");
+        exit(1);
+    }
+
     strcpy(ptr->name, name);
     ptr->token = token;
     ptr->index = index;
@@ -207,7 +219,12 @@ static int lex_identifiers(int c)
         if (count == length) {
             length *= 2;
             symbuf = (char *) realloc(symbuf, length + 1);
-            // FIXME: need to add check for malloc failed...
+
+            if (symbuf == NULL) {
+                fprintf(stderr,
+                    "ERROR: Lexer: Out of memory when re-allocating symbuf\n");
+                exit(1);
+            }
         }
 
         // Add this character to the buffer.
@@ -224,7 +241,7 @@ static int lex_identifiers(int c)
     if (parse_state == EXPECTING_RUN_CONDITION) {
         s = get_symbol(&run_condition_table, symbuf);
         if (s) {
-            printf("++++++++++> Found %s %s\n",
+            fprintf(stderr, "++++++++++> Found %s %s\n",
                 token2str(s->token), s->name);
             yylval.instruction = s->opcode;
             return s->token;
@@ -236,7 +253,8 @@ static int lex_identifiers(int c)
     if (parse_state == EXPECTING_CAR_STATE) {
         s = get_symbol(&car_state_table, symbuf);
         if (s) {
-            printf("++++++++++> Found %s %s\n", token2str(s->token), s->name);
+            fprintf(stderr, "++++++++++> Found %s %s\n",
+                token2str(s->token), s->name);
             yylval.instruction = s->opcode;
             return s->token;
         }
@@ -246,7 +264,7 @@ static int lex_identifiers(int c)
 
     s = get_symbol(&reserved_words_table, symbuf);
     if (s) {
-        printf("++++++++++> Found RESERVED WORD %s\n", symbuf);
+       fprintf(stderr, "++++++++++> Found RESERVED WORD %s\n", symbuf);
         yylval.instruction = s->opcode;
         return s->token;
     }
@@ -259,11 +277,11 @@ static int lex_identifiers(int c)
 
         token_type = parse_state == EXPECTING_LABEL ? LABEL : IDENTIFIER;
         s = add_symbol(&symbol_table, symbuf, token_type, 0, 0);
-        printf("++++++++++> Added IDENTIFIER %s (%s)\n",
+        fprintf(stderr, "++++++++++> Added IDENTIFIER %s (%s)\n",
             s->name, token2str(s->token));
     }
     else {
-        printf("++++++++++> Found IDENTIFIER %s (%s)\n",
+        fprintf(stderr, "++++++++++> Found IDENTIFIER %s (%s)\n",
             s->name, token2str(s->token));
     }
     yylval.i = s;
@@ -281,7 +299,11 @@ static int lex_numbers(int c)
         if (count == length) {
             length *= 2;
             symbuf = (char *) realloc(symbuf, length + 1);
-            // FIXME: need to add check for malloc failed...
+            if (symbuf == NULL) {
+                fprintf(stderr,
+                    "ERROR: Lexer: Out of memory when re-allocating symbuf\n");
+                exit(1);
+            }
         }
 
       // Add this character to the buffer.
@@ -293,7 +315,7 @@ static int lex_numbers(int c)
     ungetc(c, stdin);
     symbuf[count] = '\0';
 
-    printf("++++++++++> Found NUMBER %s\n", symbuf);
+    fprintf(stderr, "++++++++++> Found NUMBER %s\n", symbuf);
 
     yylval.immediate = (int16_t)strtol(symbuf, NULL, 10);
     return NUMBER;
@@ -341,19 +363,19 @@ static void log_parse_state(void)
             break;
 
         case EXPECTING_RUN_CONDITION:
-            printf("----------> Expecting run condition\n");
+            fprintf(stderr, "----------> Expecting run condition\n");
             break;
 
         case EXPECTING_CAR_STATE:
-            printf("----------> Expecting car state\n");
+            fprintf(stderr, "----------> Expecting car state\n");
             break;
 
         case EXPECTING_LABEL:
-            printf("----------> Expecting label\n");
+            fprintf(stderr, "----------> Expecting label\n");
             break;
 
         default:
-            printf("----------> FORGOT CASE FOR %d\n", parse_state);
+            fprintf(stderr, "----------> FORGOT CASE FOR %d\n", parse_state);
             break;
     }
 }
@@ -365,7 +387,7 @@ void set_identifier(identifier *s, int token, int index)
     s->token = token;
     s->index = (index != -1) ? index : next_variable_index++;
 
-    printf("++++++++++> Set '%s' as token=%s, index=%d\n",
+   fprintf(stderr, "++++++++++> Set '%s' as token=%s, index=%d\n",
         s->name, token2str(s->token), s->index);
 }
 
@@ -392,10 +414,15 @@ int yylex(void)
 
     if (symbuf == NULL){
         symbuf = (char *)calloc(length + 1, 1);
-        // FIXME: need to add check for malloc failed...
+        if (symbuf == NULL) {
+            fprintf(stderr,
+                "ERROR: Lexer: Out of memory when allocating symbuf\n");
+            exit(1);
+        }
     }
 
     log_parse_state();
+
 
     // ===========================================================================
     // Skip white space and empty lines
@@ -434,6 +461,7 @@ int yylex(void)
         return lex_numbers(c);
     }
 
+
     // ===========================================================================
     // Token comprising of two characters
     if (1) {
@@ -450,6 +478,7 @@ int yylex(void)
 
         ungetc(n, stdin);
     }
+
 
     // ===========================================================================
     // Token comprising of a single character

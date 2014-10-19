@@ -21,7 +21,7 @@ void add_led_to_list(int led_index)
         led_list.elements[led_list.count++] = led_index;
     }
     else {
-        printf("####################> ERROR: led_list is full\n");
+        fprintf(stderr, "####################> ERROR: led_list is full\n");
         exit(1);
     }
 }
