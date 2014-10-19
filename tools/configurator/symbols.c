@@ -15,6 +15,9 @@ typedef struct {
 
 static identifier *symbol_table = NULL;
 
+int get_reserved_word(union YYSTYPE *result, const char *yytext);
+int get_symbol(union YYSTYPE *result, const char *name);
+
 
 identifier run_condition_tokens[] = {
     {.name = "always", .token = RUN_CONDITION_ALWAYS, .opcode = (1 << 31)},
@@ -140,13 +143,16 @@ void set_identifier(identifier *s, int token, int index)
 
 
 // ****************************************************************************
-int get_reserved_word(uint32_t *result, const char *yytext)
+int get_reserved_word(union YYSTYPE *result, const char *yytext)
 {
     identifier *w = reserved_words;
 
+    printf("get_reserved_word()\n");
     while (w->name != NULL) {
         if (strcmp(w->name, yytext) == 0) {
-            *result = w->opcode;
+            fprintf(stderr, "scanner: BEFORE ASSIGNMENT\n");
+            result->instruction = w->opcode;
+            fprintf(stderr, "scanner: BEFORE RETURN\n");
             return w->token;
         }
         ++w;
@@ -193,7 +199,7 @@ static int add_symbol(identifier *result, const char *name, int token, int index
 
 
 // ****************************************************************************
-int get_symbol(identifier *result, const char *name)
+int get_symbol(union YYSTYPE *result, const char *name)
 {
     identifier *ptr;
 
@@ -211,12 +217,10 @@ int get_symbol(identifier *result, const char *name)
                 ptr->token == VARIABLE  ||
                 ptr->token == LED_ID  ||
               ptr->token == LABEL) {
-                result->index = ptr->index;
-                result->token = ptr->token;
-                result->opcode = ptr->opcode;
+                result->i = ptr;
             }
             else {
-                *(uint32_t *)result = ptr->opcode;
+                result->instruction = ptr->opcode;
             }
             return ptr->token;
         }

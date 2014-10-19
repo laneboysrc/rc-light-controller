@@ -1,6 +1,9 @@
 %{
 #include "parser.h"
 #include "light_programs.tab.h"
+int get_reserved_word(union YYSTYPE *result, const char *yytext);
+int get_symbol(union YYSTYPE *result, const char *name);
+
 %}
 
 DIGIT    [0-9]
@@ -10,31 +13,46 @@ ID       [a-z][a-z0-9]*
 %option bison-bridge
 %option bison-locations
 %option noyywrap
-%option warn
 
+%option warn nodefault
+/*%option outfile="scanner.c" header-file="scanner.h"*/
+
+%option nounput noinput
+
+/*
+;    input, unput
+;    yy_push_state, yy_pop_state, yy_top_state
+;    yy_scan_buffer, yy_scan_bytes, yy_scan_string
+;
+;    yyget_extra, yyset_extra, yyget_leng, yyget_text,
+;    yyget_lineno, yyset_lineno, yyget_in, yyset_in,
+;    yyget_out, yyset_out, yyget_lval, yyset_lval,
+;    yyget_lloc, yyset_lloc, yyget_debug, yyset_debug
+
+*/
 %%
 
 "0x"{HEXDIGIT}+ {
-    yylval = (int16_t)strtol(yytext, NULL, 16);
-    fprintf(stderr, "lexer: NUMBER %d\n", yylval);
+    yylval->immediate = (int16_t)strtol(yytext, NULL, 16);
+    fprintf(stderr, "scanner: NUMBER %d\n", yylval->immediate);
     return NUMBER;
 }
 
 "-"?{DIGIT}+ {
-    yylval = (int16_t)strtol(yytext, NULL, 16);
-    fprintf(stderr, "lexer: NUMBER %d\n", yylval);
+    yylval->immediate = (int16_t)strtol(yytext, NULL, 16);
+    fprintf(stderr, "scanner: NUMBER %d\n", yylval->immediate);
     return NUMBER;
 }
 
 goto|var|led|wait|skip|if|any|all|none|not|fade|run|when|or|master|slave|global|random|steering|throttle|abs {
     int token = get_reserved_word(&yylval, yytext);
-    printf("lexer: RESERVED WORD %s (%s)\n", yytext, token2str(token));
+    printf("scanner: RESERVED WORD %s (%s)\n", yytext, token2str(token));
     return token;
 }
 
 {ID} {
     int token = get_symbol(&yylval, yytext);
-    printf("lexer: IDENTIFIER: %s (%s)\n", yytext, token2str(token));
+    printf("scanner: IDENTIFIER: %s (%s)\n", yytext, token2str(token));
     return token;
 }
 

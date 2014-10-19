@@ -33,8 +33,6 @@ void yyerror(const char *);
 
 void initialize_symbols(void);
 void set_identifier(identifier *id, int token, int index);
-int get_symbol(identifier *result, const char *name);
-int get_reserved_word(uint32_t *yylval, const char *yytext);
 const char *token2str(int token);
 
 void add_led_to_list(int led_index);
