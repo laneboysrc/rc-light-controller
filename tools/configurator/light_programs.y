@@ -78,6 +78,9 @@ code:
   - SKIP IF NONE {car-state} [{car-state} ...]
   - SKIP IF NOT {car-state}
 
+  FIXME: need to ensure there is at least one code line after SKIP IF!
+         Otherwise we are skipping the END_OF_PROGRAM...
+
 run-condition:
 | RUN_WHEN_LIGHT_SWITCH_POSITION
 | RUN_WHEN_LIGHT_SWITCH_POSITION_1
@@ -238,7 +241,6 @@ reserved keywords:
 %type <instruction> run_conditions priority_run_conditions
 %type <instruction> run_condition_line priority_run_condition_line
 %type <instruction> run_condition_lines priority_run_condition_lines
-%type <i> label
 %%
 
 /* ========================================================================== */
@@ -352,14 +354,11 @@ code_lines
   ;
 
 code_line
-  : label '\n'
+  : IDENTIFIER ':' '\n'
+      { set_identifier($1, LABEL, pc); }
+  | LABEL ':' '\n'
       { set_identifier($1, LABEL, pc); }
   | command '\n'
-  ;
-
-label
-  : IDENTIFIER ':'
-  | LABEL ':'
   ;
 
 command

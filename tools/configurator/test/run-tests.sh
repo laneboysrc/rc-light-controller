@@ -7,7 +7,7 @@ dut=$1
 
 run_test() {
 	testcase=$1
-    echo "Running test ${testcase##$DIR/} ..."
+    # echo "Running test ${testcase##$DIR/} ..."
     echo "$dut <$testcase" > $logfile
     echo "" >> $logfile
     $dut <$testcase>>$logfile 2>&1
@@ -19,7 +19,7 @@ run_all_tests() {
     do
     	run_test $t
     	if [ $? -ne 1 ]; then
-        	echo "ERROR: Test passed though it should have failed. Refer to $logfile"
+        	echo "ERROR: Test $t passed though it should have failed. Refer to $logfile"
         	exit 1
     	fi
     done
@@ -28,7 +28,7 @@ run_all_tests() {
     do
     	run_test $t
     	if [ $? -ne 0 ]; then
-        	echo "ERROR: Test failed. Refer to $logfile"
+        	echo "ERROR: Test $t failed. Refer to $logfile"
         	exit 1
     	fi
     done
