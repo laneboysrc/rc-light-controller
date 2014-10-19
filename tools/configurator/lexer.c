@@ -293,6 +293,8 @@ static int lex_numbers(int c)
     ungetc(c, stdin);
     symbuf[count] = '\0';
 
+    printf("++++++++++> Found NUMBER %s\n", symbuf);
+
     yylval.immediate = (int16_t)strtol(symbuf, NULL, 10);
     return NUMBER;
 }

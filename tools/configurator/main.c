@@ -26,13 +26,16 @@ void add_led_to_list(int led_index)
     }
 }
 
+
 // ****************************************************************************
 void emit_led_instruction(uint32_t instruction)
 {
-    printf("####################> LED instruction: 0x%08x\n", instruction);
+    printf("####################> LED instruction: 0x%08x (%d leds)\n",
+        instruction, led_list.count);
     led_list.count = 0;
     ++pc;
 }
+
 
 // ****************************************************************************
 void emit(uint32_t instruction)

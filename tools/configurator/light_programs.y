@@ -366,8 +366,7 @@ command
       /* FIXME: need to be able to deal with not yet defined labels */
       { emit($1 | $3->index); }
   | FADE leds variable_or_number
-      /* FIXME: deal with list of LEDs */
-      { emit($1 | ($2 << 16) | ($2 << 8) | $3); }
+      { emit_led_instruction($1 | ($2 << 8) | $3); }
   | WAIT variable_or_number
       { emit($1 | $2); }
   | SKIP IF test_expression
@@ -423,15 +422,14 @@ expression
   | VARIABLE assignment_operator ABS abs_assignment_parameter
       { emit($3 | $4); }
   | leds ASSIGN led_assignment_parameter
-      /* FIXME: deal with list of LEDs */
-      { emit(0x02000000 | ($1 << 16) | ($1 << 8) | $3); }
+      { emit_led_instruction(0x02000000); }
   ;
 
 leds
   : LED_ID
-      { $$ = $1->index; }
+      { add_led_to_list($1->index); }
   | leds ',' LED_ID
-      { $$ = $3->index; }
+      { add_led_to_list($3->index); }
   ;
 
 led_assignment_parameter
