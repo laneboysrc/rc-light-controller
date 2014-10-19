@@ -6,11 +6,13 @@ SOURCE_DIRS := .
 BUILD_DIR = build
 SOURCES := $(foreach sdir, $(SOURCE_DIRS), $(wildcard $(sdir)/*.c))
 Y_SOURCES := $(foreach sdir, $(SOURCE_DIRS), $(wildcard $(sdir)/*.y))
+L_SOURCES := $(foreach sdir, $(SOURCE_DIRS), $(wildcard $(sdir)/*.l))
 
 
 ###############################################################################
 # Toolchain setup
 BISON := bison
+FLEX := flex
 MKDIR_P = mkdir -p
 TEST_RUNNER = test/run-tests.sh
 
@@ -29,11 +31,14 @@ endif
 ###############################################################################
 # Target and object file setup
 SOURCES += $(patsubst %.y, $(BUILD_DIR)/%.tab.c, $(Y_SOURCES))
+SOURCES += $(patsubst %.l, $(BUILD_DIR)/%.yy.c, $(L_SOURCES))
 TARGET_BIN := $(addprefix $(BUILD_DIR)/, $(TARGET))
 
 ###############################################################################
 # Compiler and linker flags
 BISONFLAGS := -Werror -Wall -t -v --feature=caret
+
+FLEXFLAGS :=
 
 CFLAGS += -std=c99
 CFLAGS += $(foreach sdir, $(SOURCE_DIRS), -I$(sdir)) -I$(BUILD_DIR)
@@ -56,7 +61,11 @@ $(shell $(MKDIR_P) $(BUILD_DIR))   # Always create the build directory
 define compile-objects
 $1/%.tab.c: %.y
 	$(ECHO) [BISON] $$<
-	$(QUIET) $(BISON) $(BISONFLAGS) $$< -o $$@
+	$(QUIET) $(BISON) $(BISONFLAGS) -o $$@ $$<
+
+$1/%.yy.c: %.l
+	$(ECHO) [FLEX] $$<
+	$(QUIET) $(FLEX) $(FLEXFLAGS) -o $$@ $$<
 endef
 
 $(foreach bdir, $(BUILD_DIR), $(eval $(call compile-objects,$(bdir))))

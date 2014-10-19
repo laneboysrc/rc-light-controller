@@ -14,6 +14,7 @@ typedef struct {
 static led_list_t led_list;
 
 
+
 // ****************************************************************************
 void add_led_to_list(int led_index)
 {
@@ -61,7 +62,7 @@ int main(int argc, char *argv[])
     printf("Bison test parser\n");
     yydebug = 1;
 
-    initialize_lexer();
+    initialize_symbols();
     led_list.count = 0;
 
     return yyparse();

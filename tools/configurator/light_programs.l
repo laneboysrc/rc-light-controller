@@ -1,9 +1,6 @@
-/* scanner for a toy Pascal-like language */
-
 %{
-    //int yywrap(void);
-    typedef int YYSTYPE;
-    typedef int YYLTYPE;
+#include "parser.h"
+#include "light_programs.tab.h"
 %}
 
 DIGIT    [0-9]
@@ -18,65 +15,53 @@ ID       [a-z][a-z0-9]*
 %%
 
 "0x"{HEXDIGIT}+ {
-        printf("HEX: %s (%d)\n", yytext, atoi(yytext));
-    }
+    yylval = (int16_t)strtol(yytext, NULL, 16);
+    fprintf(stderr, "lexer: NUMBER %d\n", yylval);
+    return NUMBER;
+}
 
 "-"?{DIGIT}+ {
-        printf("INTEGER: %s (%d)\n", yytext, atoi(yytext));
-    }
+    yylval = (int16_t)strtol(yytext, NULL, 16);
+    fprintf(stderr, "lexer: NUMBER %d\n", yylval);
+    return NUMBER;
+}
 
 goto|var|led|wait|skip|if|any|all|none|not|fade|run|when|or|master|slave|global|random|steering|throttle|abs {
-        printf("RESERVED WORKD: %s\n", yytext);
-    }
+    int token = get_reserved_word(&yylval, yytext);
+    printf("lexer: RESERVED WORD %s (%s)\n", yytext, token2str(token));
+    return token;
+}
 
 {ID} {
-         printf("IDENTIFIER: %s\n", yytext);
-    }
+    int token = get_symbol(&yylval, yytext);
+    printf("lexer: IDENTIFIER: %s (%s)\n", yytext, token2str(token));
+    return token;
+}
 
 "="|"+="|"-="|"*="|"/="|"&="|"|="|"^=" {
-        printf("ASSIGNMENT: %s\n", yytext);
-    }
+    printf("ASSIGNMENT: %s\n", yytext);
+}
 
 "//"[^\n]*  /* eat up one-line comments */
 ";"[^\n]*   /* eat up one-line comments */
 
+[ \t]+\n    /* skip emtpy lines */
 [ \t]+      /* eat up whitespace */
 
 "["|"]" {
-        printf("BRACKETS: %s\n", yytext);
-    }
+    printf("BRACKETS: %s\n", yytext);
+}
+
 
 \n {
-        printf("New line\n");
-    }
+     parse_state = UNKNOWN_PARSE_STATE;
+     return '\n';
+}
 
 . {
-        printf("Unrecognized character: %s\n", yytext);
-    }
+    printf("Unrecognized character: %s\n", yytext);
+}
 
 
 
 %%
-
-//int yywrap(void)
-// {
-//     return 1;
-// }
-
-int main(int argc, char **argv)
-{
-    YYSTYPE yylval_param;
-    YYLTYPE yylloc_param;
-
-    /* Skip over program name */
-    ++argv;
-    --argc;
-    if ( argc > 0 ) {
-        yyin = fopen( argv[0], "r" );
-    }
-    else {
-        yyin = stdin;
-    }
-
-    yylex(&yylval_param, &yylloc_param);
-}
