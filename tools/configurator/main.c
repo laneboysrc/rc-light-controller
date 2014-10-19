@@ -26,7 +26,7 @@ int main(int argc, char *argv[])
     (void)argv;
 
     printf("Bison test parser\n");
-    // yydebug = 1;
+    yydebug = 1;
 
     initialize_lexer();
 

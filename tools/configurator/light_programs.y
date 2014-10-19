@@ -238,7 +238,7 @@ reserved keywords:
 %type <instruction> run_conditions priority_run_conditions
 %type <instruction> run_condition_line priority_run_condition_line
 %type <instruction> run_condition_lines priority_run_condition_lines
-
+%type <i> label
 %%
 
 /* ========================================================================== */
@@ -258,6 +258,10 @@ expect_run_condition
 
 expect_car_state
   : %empty  { parse_state = EXPECTING_CAR_STATE; }
+  ;
+
+expect_label
+  : %empty  { parse_state = EXPECTING_LABEL; }
   ;
 
 condition_lines
@@ -348,14 +352,20 @@ code_lines
   ;
 
 code_line
-  : IDENTIFIER ':' '\n'
+  : label '\n'
       { set_identifier($1, LABEL, pc); }
   | command '\n'
   ;
 
+label
+  : IDENTIFIER ':'
+  | LABEL ':'
+  ;
+
 command
-  : GOTO LABEL /* FIXME: need to be able to deal with not yet defined labels */
-      { emit($1 | $2->index); }
+  : GOTO expect_label LABEL
+      /* FIXME: need to be able to deal with not yet defined labels */
+      { emit($1 | $3->index); }
   | FADE leds variable_or_number
       /* FIXME: deal with list of LEDs */
       { emit($1 | ($2 << 16) | ($2 << 8) | $3); }

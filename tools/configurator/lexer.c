@@ -214,7 +214,7 @@ static int lex_identifiers(int c)
         symbuf[count++] = c;
 
         c = getchar();
-    } while (isalnum(c) || c == '-');
+    } while (isalnum(c) || c == '-' || c == '_');
 
     ungetc(c, stdin);
     symbuf[count] = '\0';
@@ -255,7 +255,10 @@ static int lex_identifiers(int c)
 
     s = get_symbol(&symbol_table, symbuf);
     if (s == NULL) {
-        s = add_symbol(&symbol_table, symbuf, IDENTIFIER, 0, 0);
+        int token_type;
+
+        token_type = parse_state == EXPECTING_LABEL ? LABEL : IDENTIFIER;
+        s = add_symbol(&symbol_table, symbuf, token_type, 0, 0);
         printf("++++++++++> Added IDENTIFIER %s (%s)\n",
             s->name, token2str(s->token));
     }
@@ -329,6 +332,32 @@ static int lex_single_char_tokens(char c)
 
 
 // ****************************************************************************
+static void log_parse_state(void)
+{
+        switch (parse_state) {
+        case UNKNOWN_PARSE_STATE:
+            break;
+
+        case EXPECTING_RUN_CONDITION:
+            printf("----------> Expecting run condition\n");
+            break;
+
+        case EXPECTING_CAR_STATE:
+            printf("----------> Expecting car state\n");
+            break;
+
+        case EXPECTING_LABEL:
+            printf("----------> Expecting label\n");
+            break;
+
+        default:
+            printf("----------> FORGOT CASE FOR %d\n", parse_state);
+            break;
+    }
+}
+
+
+// ****************************************************************************
 void set_identifier(identifier *s, int token, int index)
 {
     s->token = token;
@@ -359,30 +388,12 @@ int yylex(void)
     int c;
     static int empty_line = 1;
 
-
     if (symbuf == NULL){
         symbuf = (char *)calloc(length + 1, 1);
         // FIXME: need to add check for malloc failed...
     }
 
-
-    switch (parse_state) {
-        case UNKNOWN_PARSE_STATE:
-            break;
-
-        case EXPECTING_RUN_CONDITION:
-            printf("----------> Expecting run condition\n");
-            break;
-
-        case EXPECTING_CAR_STATE:
-            printf("----------> Expecting car state\n");
-            break;
-
-        default:
-            printf("----------> FORGOT CASE FOR %d\n", parse_state);
-            break;
-    }
-
+    log_parse_state();
 
     // ===========================================================================
     // Skip white space and empty lines
