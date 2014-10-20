@@ -6,11 +6,9 @@
 int get_reserved_word(union YYSTYPE *result, const char *yytext);
 int get_symbol(union YYSTYPE *result, const char *name);
 
-%}
+// FIXME: add location tracking
 
-DIGIT    [0-9]
-HEXDIGIT [0-9a-fA-F]
-ID       [a-z][a-z0-9_\-]*
+%}
 
 %option bison-bridge
 %option bison-locations
@@ -21,13 +19,13 @@ ID       [a-z][a-z0-9_\-]*
 
 %%
 
-"0x"{HEXDIGIT}+ {
+0[xX][[:xdigit:]]+ {
     yylval->immediate = (int16_t)strtol(yytext, NULL, 16);
     fprintf(stderr, "SCANNER: Hex-number %d\n", yylval->immediate);
     return NUMBER;
 }
 
-"-"?{DIGIT}+ {
+("-"?)[[:digit:]]+ {
     yylval->immediate = (int16_t)strtol(yytext, NULL, 10);
     fprintf(stderr, "SCANNER: Number %d\n", yylval->immediate);
     return NUMBER;
@@ -39,7 +37,7 @@ goto|var|led|wait|skip|if|is|any|all|none|not|fade|run|when|or|master|slave|glob
     return token;
 }
 
-{ID} {
+[[:alpha:]][[:alnum:]_\-]* {
     int token = get_symbol(yylval, yytext);
     printf("SCANNER: Identifier: %s (%s)\n", yytext, token2str(token));
     return token;
