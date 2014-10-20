@@ -1,3 +1,4 @@
+.DEFAULT_GOAL := all
 
 ###############################################################################
 # Configuration options for our application
@@ -11,6 +12,8 @@ L_SOURCES := $(foreach sdir, $(SOURCE_DIRS), $(wildcard $(sdir)/*.l))
 
 ###############################################################################
 # Toolchain setup
+CC = gcc
+LD = gcc
 BISON := bison
 FLEX := flex
 MKDIR_P = mkdir -p
@@ -28,11 +31,7 @@ ECHO := @true
 endif
 
 
-###############################################################################
-# Target and object file setup
-SOURCES += $(patsubst %.y, $(BUILD_DIR)/%.c, $(Y_SOURCES))
-SOURCES += $(patsubst %.l, $(BUILD_DIR)/%.c, $(L_SOURCES))
-TARGET_BIN := $(addprefix $(BUILD_DIR)/, $(TARGET))
+
 
 ###############################################################################
 # Compiler and linker flags
@@ -49,8 +48,14 @@ CFLAGS += -Wold-style-definition -Wmissing-prototypes -Wmissing-declarations
 CFLAGS += -Wmissing-field-initializers -Wdouble-promotion -Wfloat-equal
 CFLAGS += -Wswitch-enum -Wswitch-default -Wuninitialized -Wunknown-pragmas
 CFLAGS += -Wundef
-CFLAGS += -Os
+CFLAGS += -O2
 
+TOOL_CFLAGS = -std=c99 -D_POSIX_SOURCE
+TOOL_CFLAGS += $(foreach sdir, $(SOURCE_DIRS), -I$(sdir)) -I$(BUILD_DIR)
+TOOL_CFLAGS += -O2
+
+LDFLAGS :=
+LDLIBS :=
 
 ###############################################################################
 # Plumbing for rules
@@ -59,6 +64,16 @@ vpath %.c $(SOURCE_DIRS)
 $(shell $(MKDIR_P) $(BUILD_DIR))   # Always create the build directory
 
 define compile-objects
+
+$1/%.o: $1/%.c
+	$(ECHO) [CC] $$<
+	$(QUIET) $(CC) $(TOOL_CFLAGS) -c $$< -o $$@
+
+$1/%.o: %.c
+	$(ECHO) [CC] $$<
+	$(QUIET) $(CC) $(CFLAGS) -c $$< -o $$@
+
+
 $1/%.c: %.y
 	$(ECHO) [BISON] $$<
 	$(QUIET) $(BISON) $(BISONFLAGS) -o $$@ $$<
@@ -72,13 +87,25 @@ $(foreach bdir, $(BUILD_DIR), $(eval $(call compile-objects,$(bdir))))
 
 
 ###############################################################################
+# Target and object file setup
+TARGET_BIN := $(addprefix $(BUILD_DIR)/, $(TARGET))
+
+OBJECTS := $(patsubst %.c, $(BUILD_DIR)/%.o, $(SOURCES))
+OBJECTS += $(patsubst %.l, $(BUILD_DIR)/%.o, $(L_SOURCES))
+OBJECTS += $(patsubst %.y, $(BUILD_DIR)/%.o, $(Y_SOURCES))
+
+$(OBJECTS): $(patsubst %.y, $(BUILD_DIR)/%.c, $(Y_SOURCES))
+$(OBJECTS): $(patsubst %.l, $(BUILD_DIR)/%.c, $(L_SOURCES))
+
+
+###############################################################################
 # Rules
 
 all : $(TARGET_BIN)
 
-$(TARGET_BIN): $(SOURCES)
-	$(ECHO) [CC] $^
-	$(QUIET) $(CC) $(CFLAGS) $^ -o $@
+$(TARGET_BIN): $(OBJECTS)
+	$(ECHO) [LD] $@
+	$(QUIET) $(LD) $(LDFLAGS) -o $@ $(OBJECTS) $(LDLIBS)
 
 run: $(TARGET_BIN)
 	$(ECHO) [RUN] $<

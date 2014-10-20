@@ -147,12 +147,9 @@ int get_reserved_word(union YYSTYPE *result, const char *yytext)
 {
     identifier *w = reserved_words;
 
-    printf("get_reserved_word()\n");
     while (w->name != NULL) {
         if (strcmp(w->name, yytext) == 0) {
-            fprintf(stderr, "scanner: BEFORE ASSIGNMENT\n");
             result->instruction = w->opcode;
-            fprintf(stderr, "scanner: BEFORE RETURN\n");
             return w->token;
         }
         ++w;
@@ -165,7 +162,7 @@ int get_reserved_word(union YYSTYPE *result, const char *yytext)
 
 
 // ****************************************************************************
-static int add_symbol(identifier *result, const char *name, int token, int index)
+static int add_symbol(union YYSTYPE *result, const char *name, int token, int index)
 {
     identifier *ptr;
     char *name_string;
@@ -191,9 +188,7 @@ static int add_symbol(identifier *result, const char *name, int token, int index
     ptr->next = symbol_table;
     symbol_table = ptr;
 
-    // result->index = index;
-    // result->token = token;
-    // result->opcode = 0;
+    result->i = ptr;
     return token;
 }
 
@@ -233,7 +228,7 @@ int get_symbol(union YYSTYPE *result, const char *name)
 // ****************************************************************************
 void initialize_symbols(void)
 {
-    identifier dummy;
+    union YYSTYPE dummy;
 
     // Pre-load global special variable named "clicks" that increments
     // on every six CH3-clicks.

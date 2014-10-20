@@ -14,12 +14,11 @@ ID       [a-z][a-z0-9]*
 %option bison-locations
 %option noyywrap
 
-%option warn nodefault
-/*%option outfile="scanner.c" header-file="scanner.h"*/
-
-%option nounput noinput
+%option warn
+%option nodefault
 
 /*
+%option nounput noinput
 ;    input, unput
 ;    yy_push_state, yy_pop_state, yy_top_state
 ;    yy_scan_buffer, yy_scan_bytes, yy_scan_string
@@ -45,13 +44,13 @@ ID       [a-z][a-z0-9]*
 }
 
 goto|var|led|wait|skip|if|any|all|none|not|fade|run|when|or|master|slave|global|random|steering|throttle|abs {
-    int token = get_reserved_word(&yylval, yytext);
+    int token = get_reserved_word(yylval, yytext);
     printf("scanner: RESERVED WORD %s (%s)\n", yytext, token2str(token));
     return token;
 }
 
 {ID} {
-    int token = get_symbol(&yylval, yytext);
+    int token = get_symbol(yylval, yytext);
     printf("scanner: IDENTIFIER: %s (%s)\n", yytext, token2str(token));
     return token;
 }
