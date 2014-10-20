@@ -65,7 +65,7 @@ $1/%.c: %.y
 
 $1/%.c: %.l
 	$(ECHO) [FLEX] $$<
-	$(QUIET) $(FLEX) $(FLEXFLAGS) --header-file=$(patsubst %.l, $(BUILD_DIR)/%.h, $$<) -o $$@  $$<
+	$(QUIET) $(FLEX) $(FLEXFLAGS) --header-file=$$(@:.c=.h) -o $$@  $$<
 endef
 
 $(foreach bdir, $(BUILD_DIR), $(eval $(call compile-objects,$(bdir))))
@@ -73,6 +73,7 @@ $(foreach bdir, $(BUILD_DIR), $(eval $(call compile-objects,$(bdir))))
 
 ###############################################################################
 # Rules
+
 all : $(TARGET_BIN)
 
 $(TARGET_BIN): $(SOURCES)

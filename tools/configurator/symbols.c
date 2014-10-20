@@ -5,7 +5,7 @@
 #include <string.h>
 
 #include "symbols.h"
-#include "light_programs.tab.h"
+#include "parser.h"
 
 typedef struct {
     const char *name;

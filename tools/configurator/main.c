@@ -2,7 +2,7 @@
 #include <stdlib.h>
 
 #include "symbols.h"
-#include "light_programs.tab.h"
+#include "parser.h"
 
 #define NUMBER_OF_LEDS 32
 

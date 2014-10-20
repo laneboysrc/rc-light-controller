@@ -1,6 +1,6 @@
 %{
+#include "symbols.h"
 #include "parser.h"
-#include "light_programs.tab.h"
 int get_reserved_word(union YYSTYPE *result, const char *yytext);
 int get_symbol(union YYSTYPE *result, const char *name);
 
