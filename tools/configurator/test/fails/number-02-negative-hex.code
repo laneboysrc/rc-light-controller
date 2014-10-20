@@ -1,0 +1,4 @@
+run always
+var x
+
+x = -0xdead
