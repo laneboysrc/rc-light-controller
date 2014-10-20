@@ -50,6 +50,8 @@ CFLAGS += -Wswitch-enum -Wswitch-default -Wuninitialized -Wunknown-pragmas
 CFLAGS += -Wundef
 CFLAGS += -O2
 
+# For the flex/bison output we use less different CFLAGS as otherwise we get
+# a ton of unresolvable warnings
 TOOL_CFLAGS = -std=c99 -D_POSIX_SOURCE
 TOOL_CFLAGS += $(foreach sdir, $(SOURCE_DIRS), -I$(sdir)) -I$(BUILD_DIR)
 TOOL_CFLAGS += -O2
