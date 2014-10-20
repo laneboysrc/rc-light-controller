@@ -438,7 +438,7 @@ expression
   | VARIABLE assignment_operator ABS abs_assignment_parameter
       { emit($3 | $4); }
   | leds ASSIGN led_assignment_parameter
-      { emit_led_instruction(0x02000000); }
+      { emit_led_instruction(0x02000000 | $3); }
   ;
 
 leds
