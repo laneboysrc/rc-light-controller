@@ -260,7 +260,12 @@ int get_symbol(union YYSTYPE *result, const char *name)
 
     token = (parse_state == EXPECTING_LABEL) ? LABEL : IDENTIFIER;
 
-    return add_symbol(result, name, token, 0);
+    if (token == LABEL) {
+        fprintf(stderr,
+            "SYMBOLS: INFO: Forward decleration of label %s\n", name);
+    }
+
+    return add_symbol(result, name, token, -1);
 }
 
 

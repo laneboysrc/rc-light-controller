@@ -118,6 +118,7 @@ void emit_run_condition(uint32_t priority, uint32_t run)
     *last_instruction++ = run;
 }
 
+
 // ****************************************************************************
 void emit(uint32_t instruction)
 {
