@@ -5,6 +5,8 @@ var y
 led l = master[8]
 
 x = 42
+x = -1
+x = 0xbeef
 x = y
 x = l
 x = random
@@ -13,6 +15,7 @@ x = steering
 x = throttle
 
 x += 42
+x += 0xdead
 x += y
 x += l
 x += random
@@ -21,6 +24,7 @@ x += steering
 x += throttle
 
 x -= 42
+x -= 0xcafe
 x -= y
 x -= l
 x -= random
@@ -29,6 +33,7 @@ x -= steering
 x -= throttle
 
 x *= 42
+x *= 0xbabe
 x *= y
 x *= l
 x *= random
@@ -37,6 +42,7 @@ x *= steering
 x *= throttle
 
 x /= 42
+x /= 0xf00d
 x /= y
 x /= l
 x /= random
@@ -45,6 +51,7 @@ x /= steering
 x /= throttle
 
 x &= 42
+x &= 0xd00d
 x &= y
 x &= l
 x &= random
@@ -53,6 +60,7 @@ x &= steering
 x &= throttle
 
 x |= 42
+x |= 0x0
 x |= y
 x |= l
 x |= random
@@ -61,6 +69,7 @@ x |= steering
 x |= throttle
 
 x ^= 42
+x ^= 0xface
 x ^= y
 x ^= l
 x ^= random
