@@ -15,8 +15,8 @@ L_SOURCES := $(foreach sdir, $(SOURCE_DIRS), $(wildcard $(sdir)/*.l))
 # Toolchain setup
 CC = gcc
 LD = gcc
-BISON := bison
-FLEX := flex
+YACC := bison
+LEX := flex
 MKDIR_P = mkdir -p
 TEST_RUNNER = test/run-tests.sh
 
@@ -35,9 +35,7 @@ endif
 
 ###############################################################################
 # Compiler and linker flags
-BISONFLAGS := -Werror -Wall -t -v --feature=caret
-
-FLEXFLAGS :=
+YFLAGS := -Werror -Wall --debug --verbose --feature=caret
 
 CFLAGS += -std=c99
 CFLAGS += $(foreach sdir, $(SOURCE_DIRS), -I$(sdir)) -I$(BUILD_DIR)
@@ -77,12 +75,12 @@ $1/%.o: %.c
 
 
 $1/%.c: %.y
-	$(ECHO) [BISON] $$<
-	$(QUIET) $(BISON) $(BISONFLAGS) -o $$@ $$<
+	$(ECHO) [YACC] $$<
+	$(QUIET) $(YACC) $(YFLAGS) -o $$@ $$<
 
 $1/%.c: %.l
-	$(ECHO) [FLEX] $$<
-	$(QUIET) $(FLEX) $(FLEXFLAGS) --header-file=$$(@:.c=.h) -o $$@  $$<
+	$(ECHO) [LEX] $$<
+	$(QUIET) $(LEX) --header-file=$$(@:.c=.h) -o $$@  $$<
 endef
 
 $(foreach bdir, $(BUILD_DIR), $(eval $(call compile-objects,$(bdir))))
