@@ -22,8 +22,7 @@ void add_led_to_list(int led_index)
     // Discard duplicates
     for (i = 0; i < led_list.count; i++) {
         if (led_list.elements[i] == led_index) {
-            fprintf(stderr,
-                "####################> WARNING: Duplicate LED %d in list\n",
+            fprintf(stderr, "WARNING: Duplicate LED %d in list\n",
                 led_index);
             return;
         }
@@ -34,7 +33,7 @@ void add_led_to_list(int led_index)
         led_list.elements[led_list.count++] = led_index;
     }
     else {
-        fprintf(stderr, "####################> ERROR: led_list is full\n");
+        fprintf(stderr, "ERROR: led_list is full\n");
         exit(1);
     }
 }
@@ -51,11 +50,11 @@ void emit_led_instruction(uint32_t instruction)
     uint8_t stop;
     uint8_t temp;
 
-    printf("####################> LED instruction: 0x%08x (%d leds)\n",
+    fprintf(stderr, "INFO: LED instruction: 0x%08x (%d leds)\n",
         instruction, led_list.count);
 
     if (led_list.count == 0) {
-        printf("####################> ERROR: led_list.count is 0!\n");
+        fprintf(stderr, "ERROR: led_list.count is 0!\n");
         exit(1);
     }
 
@@ -101,7 +100,7 @@ void emit_led_instruction(uint32_t instruction)
 // ****************************************************************************
 void emit(uint32_t instruction)
 {
-    printf("####################> INSTRUCTION: 0x%08x\n", instruction);
+    printf("INSTRUCTION: 0x%08x\n", instruction);
     ++pc;
 }
 
@@ -109,18 +108,20 @@ void emit(uint32_t instruction)
 // ****************************************************************************
 void yyerror(const char *s)
 {
-    fprintf(stderr, "ERROR: %s\n", s);
+    fprintf(stderr, "PARSER ERROR: %s\n", s);
 }
 
 
 // ****************************************************************************
 int main(int argc, char *argv[])
 {
-    (void)argc;
     (void)argv;
 
-    printf("Bison test parser\n");
-    yydebug = 0;
+    fprintf(stderr, "DIY RC Light Controller test parser\n\n");
+
+    if (argc > 1) {
+        yydebug = 1;
+    }
 
     initialize_symbols();
     led_list.count = 0;
