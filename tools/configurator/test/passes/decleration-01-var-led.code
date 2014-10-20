@@ -3,10 +3,12 @@ run always
 var x
 var      y
 var variable_with_underscores
+var UpperAndLowerCaseName
 
 led light1 = master[0]
 led     light2=slave [ 15 ]
 led light3 =master[1]
 led roof-light-with-dash=slave[4]
+led lampFog = master[2]
 
 wait 1
