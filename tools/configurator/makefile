@@ -119,7 +119,7 @@ test: $(TARGET_BIN)
 # Clean all generated files
 clean:
 	$(ECHO) [RM] $(BUILD_DIR)
-	$(QUIET) $(RM) -rf $(BUILD_DIR)
+	$(QUIET) $(RM) -rf $(BUILD_DIR)/*
 
 
 .PHONY : all clean run test
