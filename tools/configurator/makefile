@@ -30,8 +30,8 @@ endif
 
 ###############################################################################
 # Target and object file setup
-SOURCES += $(patsubst %.y, $(BUILD_DIR)/%.tab.c, $(Y_SOURCES))
-SOURCES += $(patsubst %.l, $(BUILD_DIR)/%.yy.c, $(L_SOURCES))
+SOURCES += $(patsubst %.y, $(BUILD_DIR)/%.c, $(Y_SOURCES))
+SOURCES += $(patsubst %.l, $(BUILD_DIR)/%.c, $(L_SOURCES))
 TARGET_BIN := $(addprefix $(BUILD_DIR)/, $(TARGET))
 
 ###############################################################################
@@ -59,13 +59,13 @@ vpath %.c $(SOURCE_DIRS)
 $(shell $(MKDIR_P) $(BUILD_DIR))   # Always create the build directory
 
 define compile-objects
-$1/%.tab.c: %.y
+$1/%.c: %.y
 	$(ECHO) [BISON] $$<
 	$(QUIET) $(BISON) $(BISONFLAGS) -o $$@ $$<
 
-$1/%.yy.c: %.l
+$1/%.c: %.l
 	$(ECHO) [FLEX] $$<
-	$(QUIET) $(FLEX) $(FLEXFLAGS) -o $$@ $$<
+	$(QUIET) $(FLEX) $(FLEXFLAGS) --header-file=$(patsubst %.l, $(BUILD_DIR)/%.h, $$<) -o $$@  $$<
 endef
 
 $(foreach bdir, $(BUILD_DIR), $(eval $(call compile-objects,$(bdir))))

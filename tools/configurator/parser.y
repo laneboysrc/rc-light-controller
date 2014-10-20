@@ -164,7 +164,7 @@ reserved keywords:
 
 %{
 
-#include "parser.h"
+#include "symbols.h"
 
 %}
 

@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "parser.h"
+#include "symbols.h"
 #include "light_programs.tab.h"
 
 #define NUMBER_OF_LEDS 32

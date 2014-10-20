@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "parser.h"
+#include "symbols.h"
 #include "light_programs.tab.h"
 
 typedef struct {
