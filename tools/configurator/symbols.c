@@ -122,6 +122,21 @@ identifier reserved_words[] = {
     {.name = "throttle", .token = THROTTLE},
     {.name = "abs", .token = ABS, .opcode = 0x40000000},
 
+    {.name = "=", .token = ASSIGN, .opcode = 0x10000000},
+    {.name = ">", .token = GT, .opcode = 0x2c000000},
+    {.name = "<", .token = LT, .opcode = 0x34000000},
+    {.name = "+=", .token = ADD_ASSIGN, .opcode = 0x12000000},
+    {.name = "-=", .token = SUB_ASSIGN, .opcode = 0x14000000},
+    {.name = "*=", .token = MUL_ASSIGN, .opcode = 0x16000000},
+    {.name = "/=", .token = DIV_ASSIGN, .opcode = 0x18000000},
+    {.name = "&=", .token = AND_ASSIGN, .opcode = 0x1a000000},
+    {.name = "|=", .token = OR_ASSIGN, .opcode = 0x1c000000},
+    {.name = "^=", .token = XOR_ASSIGN, .opcode = 0x1e000000},
+    {.name = "==", .token = EQ, .opcode = 0x20000000},
+    {.name = "!=", .token = NE, .opcode = 0x24000000},
+    {.name = ">=", .token = GE, .opcode = 0x28000000},
+    {.name = "<=", .token = LE, .opcode = 0x30000000},
+
     {.name = NULL, .token = EOF},
 };
 
