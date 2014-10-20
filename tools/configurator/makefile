@@ -3,7 +3,7 @@
 
 ###############################################################################
 # Configuration options for our application
-TARGET := test
+TARGET := light_program_assembler
 SOURCE_DIRS := .
 BUILD_DIR = build
 SOURCES := $(foreach sdir, $(SOURCE_DIRS), $(wildcard $(sdir)/*.c))
