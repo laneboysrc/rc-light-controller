@@ -7,18 +7,24 @@
 #include "symbols.h"
 #include "parser.h"
 
+
+const char *token2str(int token);
+int get_reserved_word(union YYSTYPE *result, const char *yytext);
+int get_symbol(union YYSTYPE *result, const char *name);
+
+
 typedef struct {
     const char *name;
     int token;
     uint32_t opcode;
 } identifier_initializer;
 
+
 static identifier *symbol_table = NULL;
+unsigned int pc = 0;
+static int next_variable_index = 0;
 
-int get_reserved_word(union YYSTYPE *result, const char *yytext);
-int get_symbol(union YYSTYPE *result, const char *name);
-
-identifier run_condition_tokens[] = {
+static identifier run_condition_tokens[] = {
     {.name = "always", .token = RUN_CONDITION_ALWAYS, .opcode = (1 << 31)},
 
     {.name = "light-switch-position-0", .token = RUN_CONDITION, .opcode = (1 << 0)},
@@ -63,7 +69,7 @@ identifier run_condition_tokens[] = {
     {.name = NULL, .token = EOF},
 };
 
-identifier car_state[] = {
+static identifier car_state[] = {
     {.name = "light-switch-position-0", .token = CAR_STATE, .opcode = (1 << 0)},
     {.name = "light-switch-position-1", .token = CAR_STATE, .opcode = (1 << 1)},
     {.name = "light-switch-position-2", .token = CAR_STATE, .opcode = (1 << 2)},
@@ -97,7 +103,7 @@ identifier car_state[] = {
     {.name = NULL, .token = EOF},
 };
 
-identifier reserved_words[] = {
+static identifier reserved_words[] = {
     {.name = "goto", .token = GOTO, .opcode = 0x01000000},
     {.name = "var", .token = VAR},
     {.name = "led", .token = LED},
@@ -138,11 +144,6 @@ identifier reserved_words[] = {
 
     {.name = NULL, .token = EOF},
 };
-
-
-
-unsigned int pc = 0;
-static int next_variable_index = 0;
 
 
 // ****************************************************************************

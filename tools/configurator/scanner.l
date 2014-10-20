@@ -5,9 +5,12 @@
 
 int get_reserved_word(union YYSTYPE *result, const char *yytext);
 int get_symbol(union YYSTYPE *result, const char *name);
+const char *token2str(int token);
 
 // FIXME: add location tracking
 // FIXME: test if empty lines and comments fully work!
+
+
 
 %}
 

@@ -166,6 +166,9 @@ reserved keywords:
 #define YYLEX_PARAM scanner
 
 #include "symbols.h"
+#include "emitter.h"
+
+void yyerror(const char *s);
 
 %}
 
