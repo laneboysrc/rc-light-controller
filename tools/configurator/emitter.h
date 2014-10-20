@@ -20,5 +20,6 @@ void initialize_emitter(void);
 void add_led_to_list(int led_index);
 void emit(uint32_t instruction);
 void emit_led_instruction(uint32_t instruction);
+void emit_run_condition(uint32_t priority, uint32_t run);
 void output_programs(void);
 

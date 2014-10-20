@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 
+#include "symbols.h"
 #include "emitter.h"
 
 
@@ -108,6 +109,16 @@ void emit_led_instruction(uint32_t instruction)
 
 
 // ****************************************************************************
+void emit_run_condition(uint32_t priority, uint32_t run)
+{
+    fprintf(stderr, "PRIORITY   : 0x%08x\n", priority);
+    fprintf(stderr, "RUN        : 0x%08x\n", run);
+
+    *last_instruction++ = priority;
+    *last_instruction++ = run;
+}
+
+// ****************************************************************************
 void emit(uint32_t instruction)
 {
     fprintf(stderr, "INSTRUCTION: 0x%08x\n", instruction);
@@ -138,6 +149,8 @@ void initialize_emitter(void)
 void output_programs(void)
 {
     uint32_t *ptr = instruction_list;
+
+    dump_symbol_table();
 
     while (ptr != last_instruction) {
         printf("0x%08x,\n", *ptr++);

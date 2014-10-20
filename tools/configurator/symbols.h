@@ -21,4 +21,5 @@ typedef struct _identifier {
 
 void initialize_symbols(void);
 void set_identifier(identifier *id, int token, int index);
+void dump_symbol_table(void);
 

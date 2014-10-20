@@ -287,16 +287,12 @@ expect_label
 
 condition_lines
   : priority_run_condition_lines
-        { emit($1);
-          emit(0);
-        }
+        { emit_run_condition($1, 0); }
   | run_condition_lines
-        { emit(INSTRUCTION_RUN_WHEN_NORMAL_OPERATION);
-          emit($1);
-        }
+        { emit_run_condition(INSTRUCTION_RUN_WHEN_NORMAL_OPERATION, $1); }
   | run_always_condition_line
-        { emit(INSTRUCTION_RUN_WHEN_NORMAL_OPERATION);
-          emit(INSTRUCTION_RUN_ALWAYS);
+        { emit_run_condition(INSTRUCTION_RUN_WHEN_NORMAL_OPERATION,
+            INSTRUCTION_RUN_ALWAYS);
         }
   ;
 

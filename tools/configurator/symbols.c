@@ -146,6 +146,18 @@ static identifier reserved_words[] = {
 
 
 // ****************************************************************************
+void dump_symbol_table(void)
+{
+    identifier *ptr;
+
+    for (ptr = symbol_table; ptr != NULL; ptr = ptr->next) {
+        printf("name='%s', token=%s index=%d\n",
+            ptr->name, token2str(ptr->token), ptr->index);
+    }
+}
+
+
+// ****************************************************************************
 void set_identifier(identifier *s, int token, int index)
 {
     s->token = token;
