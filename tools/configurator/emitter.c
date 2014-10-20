@@ -5,6 +5,10 @@
 #include "emitter.h"
 
 
+// LPC812 has 16 Kbytes flash, 4 bytes per "instruction".
+// In reality the flash is of course only partly available...
+#define MAX_NUMBER_OF_INSTRUCTIONS (16 * 1024 / 4)
+
 #define NUMBER_OF_LEDS 32
 
 typedef struct {
@@ -12,7 +16,12 @@ typedef struct {
     uint8_t elements[NUMBER_OF_LEDS];
 } led_list_t;
 
+unsigned int pc = 0;
+
 static led_list_t led_list;
+
+static uint32_t *instruction_list;
+static uint32_t *last_instruction;
 
 
 // ****************************************************************************
@@ -101,12 +110,36 @@ void emit_led_instruction(uint32_t instruction)
 // ****************************************************************************
 void emit(uint32_t instruction)
 {
-    printf("INSTRUCTION: 0x%08x\n", instruction);
+    fprintf(stderr, "INSTRUCTION: 0x%08x\n", instruction);
+
+    *last_instruction++ = instruction;
     ++pc;
 }
+
 
 // ****************************************************************************
 void initialize_emitter(void)
 {
     led_list.count = 0;
+
+    instruction_list = (uint32_t *)calloc(
+        sizeof(uint32_t), MAX_NUMBER_OF_INSTRUCTIONS);
+
+    if (instruction_list == NULL) {
+        fprintf(stderr, "ERROR: Not enough memory to allocation instruction cache\n");
+        exit(1);
+    }
+
+    last_instruction = instruction_list;
+}
+
+
+// ****************************************************************************
+void output_programs(void)
+{
+    uint32_t *ptr = instruction_list;
+
+    while (ptr != last_instruction) {
+        printf("0x%08x,\n", *ptr++);
+    }
 }

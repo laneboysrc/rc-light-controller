@@ -21,7 +21,6 @@ typedef struct {
 
 
 static identifier *symbol_table = NULL;
-unsigned int pc = 0;
 static int next_variable_index = 0;
 
 static identifier run_condition_tokens[] = {

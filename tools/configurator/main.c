@@ -18,6 +18,8 @@ void yyerror(const char *s)
 // ****************************************************************************
 int main(int argc, char *argv[])
 {
+    int result;
+
     (void)argv;
 
     fprintf(stderr, "DIY RC Light Controller test parser\n\n");
@@ -29,5 +31,9 @@ int main(int argc, char *argv[])
     initialize_emitter();
     initialize_symbols();
 
-    return yyparse();
+    result = yyparse();
+
+    output_programs();
+
+    return result;
 }
