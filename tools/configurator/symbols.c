@@ -18,7 +18,6 @@ static identifier *symbol_table = NULL;
 int get_reserved_word(union YYSTYPE *result, const char *yytext);
 int get_symbol(union YYSTYPE *result, const char *name);
 
-
 identifier run_condition_tokens[] = {
     {.name = "always", .token = RUN_CONDITION_ALWAYS, .opcode = (1 << 31)},
 

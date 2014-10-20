@@ -1,5 +1,6 @@
 .DEFAULT_GOAL := all
 
+
 ###############################################################################
 # Configuration options for our application
 TARGET := test
@@ -19,6 +20,7 @@ FLEX := flex
 MKDIR_P = mkdir -p
 TEST_RUNNER = test/run-tests.sh
 
+
 ###############################################################################
 # Pretty-print setup
 V ?= $(VERBOSE)
@@ -29,8 +31,6 @@ else
 QUIET :=
 ECHO := @true
 endif
-
-
 
 
 ###############################################################################
@@ -100,7 +100,6 @@ $(OBJECTS): $(patsubst %.l, $(BUILD_DIR)/%.c, $(L_SOURCES))
 
 ###############################################################################
 # Rules
-
 all : $(TARGET_BIN)
 
 $(TARGET_BIN): $(OBJECTS)

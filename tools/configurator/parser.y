@@ -10,8 +10,6 @@ LANE Boys RC light controller (TLC5940/LPC812 version)
 
 NUMBER
   decimal | hexadecimal
-  // FIXME: add support for hex
-  // FIXME: add support for negative numbers
 
 programs:
   programs | program;
@@ -163,11 +161,11 @@ reserved keywords:
 /* Prologue */
 
 %{
+
 #define YYPARSE_PARAM scanner
-#define YYLEX_PARAM   scanner
+#define YYLEX_PARAM scanner
 
 #include "symbols.h"
-
 
 %}
 
@@ -177,6 +175,9 @@ reserved keywords:
 /* Bison declarations */
 
 %code {
+/* This can not go into the prologue as YYSTYPE and YYLTYPE are only available
+ * at this point!
+ */
 extern int yylex(YYSTYPE * yylval_param, YYLTYPE * yylloc_param);
 }
 

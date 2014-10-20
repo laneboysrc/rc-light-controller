@@ -14,7 +14,6 @@ typedef struct {
 static led_list_t led_list;
 
 
-
 // ****************************************************************************
 void add_led_to_list(int led_index)
 {
