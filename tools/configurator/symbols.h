@@ -29,6 +29,8 @@ typedef struct _identifier {
     struct _identifier *next;
 } identifier;
 
+extern unsigned int pc;           // "Program Counter"
+
 // FIXME: need to clean up this junk... Only identifier should be here.
 
 void yyerror(const char *);
@@ -41,4 +43,3 @@ void add_led_to_list(int led_index);
 void emit(uint32_t instruction);
 void emit_led_instruction(uint32_t instruction);
 
-extern unsigned int pc;           // "Program Counter"
