@@ -151,7 +151,7 @@ run-condition:
 
 
 reserved keywords:
-  goto, var, led, wait, skip, if, any, all, none, not, fade, run, when, or,
+  goto, var, led, wait, skip, if, is, any, all, none, not, fade, run, when, or,
   master, slave, global, random, steering, throttle, abs
 
   clicks: Pre-defined global variable; increments when 6-clicks on CH3

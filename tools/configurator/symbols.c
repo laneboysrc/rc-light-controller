@@ -212,8 +212,9 @@ static int add_symbol(union YYSTYPE *result, const char *name, int token, int in
 int get_symbol(union YYSTYPE *result, const char *name)
 {
     identifier *ptr;
+    int token;
 
-    ptr = symbol_table;
+    ptr = NULL;
     if (parse_state == EXPECTING_RUN_CONDITION) {
         ptr = run_condition_tokens;
     }
@@ -221,7 +222,17 @@ int get_symbol(union YYSTYPE *result, const char *name)
         ptr = car_state;
     }
 
-    for (; ptr != NULL; ptr = ptr->next) {
+    if (ptr) {
+        while (ptr->name != NULL) {
+            if (strcmp(ptr->name, name) == 0) {
+                result->instruction = ptr->opcode;
+                return ptr->token;
+            }
+            ++ptr;
+        }
+    }
+
+    for (ptr = symbol_table; ptr != NULL; ptr = ptr->next) {
         if (strcmp(ptr->name, name) == 0) {
             if (ptr->token == IDENTIFIER  ||
                 ptr->token == VARIABLE  ||
@@ -236,7 +247,9 @@ int get_symbol(union YYSTYPE *result, const char *name)
         }
     }
 
-    return add_symbol(result, name, IDENTIFIER, 0);
+    token = (parse_state == EXPECTING_LABEL) ? LABEL : IDENTIFIER;
+
+    return add_symbol(result, name, token, 0);
 }
 
 

@@ -9,7 +9,7 @@ int get_symbol(union YYSTYPE *result, const char *name);
 
 DIGIT    [0-9]
 HEXDIGIT [0-9a-fA-F]
-ID       [a-z][a-z0-9]*
+ID       [a-z][a-z0-9_\-]*
 
 %option bison-bridge
 %option bison-locations
@@ -32,7 +32,7 @@ ID       [a-z][a-z0-9]*
     return NUMBER;
 }
 
-goto|var|led|wait|skip|if|any|all|none|not|fade|run|when|or|master|slave|global|random|steering|throttle|abs {
+goto|var|led|wait|skip|if|is|any|all|none|not|fade|run|when|or|master|slave|global|random|steering|throttle|abs {
     int token = get_reserved_word(yylval, yytext);
     printf("SCANNER: Reserved word %s (%s)\n", yytext, token2str(token));
     return token;
@@ -56,7 +56,8 @@ goto|var|led|wait|skip|if|any|all|none|not|fade|run|when|or|master|slave|global|
     return token;
 }
 
-"["|"]" {
+"["|"]"|","|":" {
+    printf("SCANNER: '%c'\n", *yytext);
     return *yytext;
 }
 
@@ -66,13 +67,15 @@ goto|var|led|wait|skip|if|any|all|none|not|fade|run|when|or|master|slave|global|
 [ \t]+\n    /* skip emtpy lines */
 [ \t]+      /* eat up whitespace */
 
-\n {
+\n+ {       /* Fold multiple consecutive \n into a single \n */
+     printf("SCANNER: '\\n'\n");
      parse_state = UNKNOWN_PARSE_STATE;
      return *yytext;
 }
 
 . {
-    printf("Unrecognized character: %s\n", yytext);
+    printf("SCANNER: ERROR: Unrecognized character: %s\n", yytext);
+    exit(1);
 }
 
 
