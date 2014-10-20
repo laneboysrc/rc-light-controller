@@ -17,7 +17,18 @@ static led_list_t led_list;
 // ****************************************************************************
 void add_led_to_list(int led_index)
 {
-    // FIXME: discard duplicates
+    int i;
+
+    // Discard duplicates
+    for (i = 0; i < led_list.count; i++) {
+        if (led_list.elements[i] == led_index) {
+            fprintf(stderr,
+                "####################> WARNING: Duplicate LED %d in list\n",
+                led_index);
+            return;
+        }
+    }
+
 
     if (led_list.count < NUMBER_OF_LEDS) {
         led_list.elements[led_list.count++] = led_index;
@@ -48,7 +59,7 @@ void emit_led_instruction(uint32_t instruction)
         exit(1);
     }
 
-    // Step 1: Sort LEDs by their index. Simple Bubble Sort
+    // Step 1: Simple Bubble Sort to sort LEDs by their index.
     count = led_list.count;
     ptr = led_list.elements;
 
