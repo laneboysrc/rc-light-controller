@@ -9,13 +9,13 @@ LANE Boys RC light controller (TLC5940/LPC812 version)
 /*
 
 // FIXME: add error handling
+// FIXME: add support for multiple programs
 
 NUMBER
   decimal | hexadecimal
 
 programs:
   programs | program;
-  // FIXME: add support for multiple programs
 
 program:
   @empty | run-conditions declerations code;

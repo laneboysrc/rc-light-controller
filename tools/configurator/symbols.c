@@ -308,7 +308,6 @@ void add_symbol(const char *name, int token, int index)
 
     if (token == VARIABLE  ||  token == GLOBAL_VARIABLE) {
         if (index == -1) {
-            // FIXME: need to deal with fragmentation due to global variables!
             index = next_variable_index++;
         }
     }
