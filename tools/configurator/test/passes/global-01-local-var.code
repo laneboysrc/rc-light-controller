@@ -1,0 +1,7 @@
+run always
+
+global var x
+var clicks
+
+x = 3
+clicks = 17

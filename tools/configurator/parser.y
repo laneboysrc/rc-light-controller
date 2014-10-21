@@ -27,7 +27,6 @@ run-conditions:
 declerations:
   - LED name = master[0..15]|slave[0..15]
   - [GLOBAL] VAR name
-  // FIXME: add support for globals
 
 code:
   - LABEL: Labels for GOTO
@@ -346,8 +345,11 @@ decleration_line
 decleration
   : VAR UNDECLARED_IDENTIFIER
       { add_symbol($2->name, VARIABLE, -1); }
+  | VAR GLOBAL_VARIABLE
+      /* Declare the variable as local variable, overshadowing the global one */
+      { add_symbol($2->name, VARIABLE, -1); }
   | GLOBAL VAR UNDECLARED_IDENTIFIER
-      { add_symbol($3->name, GLOBAL, -1); }
+      { add_symbol($3->name, GLOBAL_VARIABLE, -1); }
   | GLOBAL VAR GLOBAL_VARIABLE
       { /* Nothing to do, global variable already declared */ }
   | LED UNDECLARED_IDENTIFIER ASSIGN master_or_slave
@@ -435,7 +437,11 @@ car_state_list
 expression
   : VARIABLE assignment_operator variable_assignment_parameter
       { emit($2 | ($1->index << 16) | $3); }
+  | GLOBAL_VARIABLE assignment_operator variable_assignment_parameter
+      { emit($2 | ($1->index << 16) | $3); }
   | VARIABLE assignment_operator ABS abs_assignment_parameter
+      { emit($3 | $4); }
+  | GLOBAL_VARIABLE assignment_operator ABS abs_assignment_parameter
       { emit($3 | $4); }
   | leds ASSIGN led_assignment_parameter
       { emit_led_instruction(0x02000000 | $3); }
@@ -482,6 +488,8 @@ variable_or_number
 
 abs_assignment_parameter
   : VARIABLE
+      { $$ = (PARAMETER_TYPE_VARIABLE << 8) | $1->index; }
+  | GLOBAL_VARIABLE
       { $$ = (PARAMETER_TYPE_VARIABLE << 8) | $1->index; }
   | STEERING
       { $$ = (PARAMETER_TYPE_STEERING << 8); }
