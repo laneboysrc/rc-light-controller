@@ -8,6 +8,8 @@ LANE Boys RC light controller (TLC5940/LPC812 version)
 
 /*
 
+// FIXME: add error handling
+
 NUMBER
   decimal | hexadecimal
 
@@ -79,9 +81,6 @@ code:
   - SKIP IF ALL {car-state} [{car-state} ...]
   - SKIP IF NONE {car-state} [{car-state} ...]
   - SKIP IF NOT {car-state}
-
-  FIXME: need to ensure there is at least one code line after SKIP IF!
-         Otherwise we are skipping the END_OF_PROGRAM...
 
 run-condition:
 | RUN_WHEN_LIGHT_SWITCH_POSITION
