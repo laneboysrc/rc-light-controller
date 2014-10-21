@@ -1,0 +1,7 @@
+run always
+
+label1:
+wait 1
+label1 = 9
+wait 2
+

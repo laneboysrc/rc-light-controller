@@ -239,6 +239,8 @@ master_or_slave
 code_lines
   : code_line
   | code_lines code_line
+  | error
+      { fprintf(stderr, "Unsupported operation\n"); }
   ;
 
 code_line
@@ -248,6 +250,8 @@ code_line
   /* Label that was already forward-declared in a GOTO */
   | LABEL ':' '\n'
       { set_symbol($1, LABEL, pc); }
+  | LABEL error
+      { fprintf(stderr, "Label used in usupported operation\n"); }
   | command '\n'
   | error '\n'
   ;

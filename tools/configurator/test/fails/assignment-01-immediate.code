@@ -1,0 +1,6 @@
+run always
+
+var x
+
+42 = x
+wait 1
