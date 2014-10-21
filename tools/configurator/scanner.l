@@ -7,9 +7,20 @@ int get_reserved_word(union YYSTYPE *result, const char *yytext);
 int get_symbol(union YYSTYPE *result, const char *name);
 const char *token2str(int token);
 
+static int offset = 1;
+extern YYLTYPE yylloc;
+
 // FIXME: add location tracking
 // FIXME: test if empty lines and comments fully work!
 
+
+#define YY_USER_ACTION \
+    fprintf(stderr, "LOCATION: yylineno=%d offset=%d\n", yylineno, offset); \
+    yylloc->first_line = yylineno; \
+    yylloc->last_line = yylineno; \
+    yylloc->first_column = offset; \
+    offset += yyleng; \
+    yylloc->last_column = offset;
 
 
 %}
@@ -68,10 +79,16 @@ goto|var|led|wait|skip|if|is|any|all|none|not|fade|run|when|or|master|slave|glob
 "//"[^\n]*  /* eat up one-line comments */
 ";"[^\n]*   /* eat up one-line comments */
 
-[ \t]+\n    /* skip emtpy lines */
+[ \t]+\n { /* skip emtpy lines */
+    offset = 1;
+     ++yylineno;
+}
+
 [ \t]+      /* eat up whitespace */
 
 \n+ {       /* Fold multiple consecutive \n into a single \n */
+     offset = 1;
+     yylineno += yyleng;
      fprintf(stderr, "SCANNER: '\\n'\n");
      parse_state = UNKNOWN_PARSE_STATE;
      return *yytext;

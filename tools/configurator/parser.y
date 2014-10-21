@@ -5,7 +5,6 @@ Light programs are simple programs that are interpreted by the
 LANE Boys RC light controller (TLC5940/LPC812 version)
 
 
-// FIXME: add error handling
 // FIXME: add support for multiple programs
 // FIXME: can we deal with empty lines (by using a different parser type?)
 
@@ -264,7 +263,8 @@ command
   | GOTO UNDECLARED_SYMBOL
       { add_symbol($2->name, LABEL, -1); emit($1); }
   | GOTO error
-      { fprintf(stderr, "'goto' not followed label\n"); }
+      { fprintf(stderr, "%d:%d 'goto' not followed by label\n",
+        @2.first_line, @2.first_column); }
   | FADE leds variable_or_number
       { emit_led_instruction($1 | $3); }
   | FADE leds error
@@ -385,7 +385,8 @@ led_assignment_parameter
   | UNDECLARED_SYMBOL error
       { fprintf(stderr, "Undeclared identifier\n"); }
   | LABEL error
-      { fprintf(stderr, "Label can not be assigned to an LED\n"); }
+      { fprintf(stderr, "%d:%d Label can not be assigned to an LED\n",
+          @2.first_line, @2.first_column); }
   ;
 
 variable_assignment_parameter
