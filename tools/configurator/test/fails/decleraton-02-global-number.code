@@ -1,0 +1,6 @@
+run always
+
+global var 4711
+
+wait 1
+

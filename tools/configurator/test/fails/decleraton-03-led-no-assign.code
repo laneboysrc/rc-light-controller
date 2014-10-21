@@ -1,0 +1,6 @@
+run always
+
+led l1
+
+l1 = 3
+

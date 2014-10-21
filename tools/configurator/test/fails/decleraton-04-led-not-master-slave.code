@@ -1,0 +1,6 @@
+run always
+
+led l1 = 42
+
+l1 = 255
+
