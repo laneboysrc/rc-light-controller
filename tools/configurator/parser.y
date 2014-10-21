@@ -4,146 +4,10 @@ Bison grammar file for light programs
 Light programs are simple programs that are interpreted by the
 LANE Boys RC light controller (TLC5940/LPC812 version)
 
-*/
-
-/*
 
 // FIXME: add error handling
 // FIXME: add support for multiple programs
-
-NUMBER
-  decimal | hexadecimal
-
-programs:
-  programs | program;
-
-program:
-  @empty | run-conditions declerations code;
-
-run-conditions:
-  run-conditions | run-condition;
-
-
-declerations:
-  - LED name = master[0..15]|slave[0..15]
-  - [GLOBAL] VAR name
-
-code:
-  - LABEL: Labels for GOTO
-    - Need to detect duplicate definitions
-    - Labels are always local to a program
-
-  - GOTO label
-    - NOTE: do not allow numbers as one line may translate to several opcodes!
-    - ISSUE: needs linking due to forward decleration
-    - ISSUE: label may never be defined, linker needs to detect!
-    - IDEA: store all used locations in a list to be able to cross-reference
-
-  - led [, led ...] = value
-  - led [, led ...] = variable
-    - These translate into:
-      - SET start_led stop_led value
-      - SET start_led stop_led VARIABLE
-
-  - VARIABLE = abs(VARIABLE, TH, ST)
-  - VARIABLE = {NUMBER, VARIABLE, LED[x], random-value, TH, ST}
-  - VARIABLE += {NUMBER, VARIABLE, LED[x], TH, ST}
-  - VARIABLE -= {NUMBER, VARIABLE, LED[x], TH, ST}
-  - VARIABLE *= {NUMBER, VARIABLE, LED[x], TH, ST}
-  - VARIABLE /= {NUMBER, VARIABLE, LED[x], TH, ST}
-
-  - FADE led [, led ...] time
-  - FADE led [, led ...] variable
-    - These translate into:
-      - FADE start_led stop_led time
-      - FADE start_led stop_led VARIABLE
-
-  - WAIT time
-  - WAIT VARIABLE
-
-  - SKIP IF {VARIABLE, LED[x]} == {NUMBER, VARIABLE, LED[x]}
-  - SKIP IF {VARIABLE, LED[x]} != {NUMBER, VARIABLE, LED[x]}
-  - SKIP IF {VARIABLE, LED[x]} > {NUMBER, VARIABLE, LED[x]}
-  - SKIP IF {VARIABLE, LED[x]} >= {NUMBER, VARIABLE, LED[x]}
-  - SKIP IF {VARIABLE, LED[x]} < {NUMBER, VARIABLE, LED[x]}
-  - SKIP IF {VARIABLE, LED[x]} <= {NUMBER, VARIABLE, LED[x]}
-    - These translate into:
-      - SKIP IF EQUAL {VARIABLE, LED[x]} {NUMBER, VARIABLE, LED[x]}
-      - SKIP IF NOT EQUAL {VARIABLE, LED[x]} {NUMBER, VARIABLE, LED[x]}
-      - SKIP IF GREATER OR EQUAL {VARIABLE, LED[x]} {NUMBER, VARIABLE, LED[x]}
-      - SKIP IF GREATER {VARIABLE, LED[x]} {NUMBER, VARIABLE, LED[x]}
-      - SKIP IF SMALLER OR EQUAL  {VARIABLE, LED[x]} {NUMBER, VARIABLE, LED[x]}
-      - SKIP IF SMALLER  {VARIABLE, LED[x]} {NUMBER, VARIABLE, LED[x]}
-
-  - SKIP IF IS
-  - SKIP IF ANY {car-state} [{car-state} ...]
-  - SKIP IF ALL {car-state} [{car-state} ...]
-  - SKIP IF NONE {car-state} [{car-state} ...]
-  - SKIP IF NOT {car-state}
-
-run-condition:
-| RUN_WHEN_LIGHT_SWITCH_POSITION
-| RUN_WHEN_LIGHT_SWITCH_POSITION_1
-| RUN_WHEN_LIGHT_SWITCH_POSITION_2
-| RUN_WHEN_LIGHT_SWITCH_POSITION_3
-| RUN_WHEN_LIGHT_SWITCH_POSITION_4
-| RUN_WHEN_LIGHT_SWITCH_POSITION_5
-| RUN_WHEN_LIGHT_SWITCH_POSITION_6
-| RUN_WHEN_LIGHT_SWITCH_POSITION_7
-| RUN_WHEN_LIGHT_SWITCH_POSITION_8
-| RUN_WHEN_NEUTRAL
-| RUN_WHEN_FORWARD
-| RUN_WHEN_REVERSING
-| RUN_WHEN_BRAKING
-| RUN_WHEN_INDICATOR_LEFT
-| RUN_WHEN_INDICATOR_RIGHT
-| RUN_WHEN_HAZARD
-| RUN_WHEN_BLINK_FLAG
-| RUN_WHEN_BLINK_LEFT
-| RUN_WHEN_BLINK_RIGHT
-| RUN_WHEN_WINCH_DISABLERD
-| RUN_WHEN_WINCH_IDLE
-| RUN_WHEN_WINCH_IN
-| RUN_WHEN_WINCH_OUT
-| RUN_WHEN_GEAR_1
-| RUN_WHEN_GEAR_2
-| RUN_ALWAYS
-
-| RUN_WHEN_NO_SIGNAL
-| RUN_WHEN_INITIALIZING
-| RUN_WHEN_SERVO_OUTPUT_SETUP_CENTRE
-| RUN_WHEN_SERVO_OUTPUT_SETUP_LEFT
-| RUN_WHEN_SERVO_OUTPUT_SETUP_RIGHT
-| RUN_WHEN_REVERSING_SETUP_STEERING
-| RUN_WHEN_REVERSING_SETUP_THROTTLE
-| RUN_WHEN_GEAR_CHANGED
-
-  - car-state:
-    - LIGHT_SWITCH_POSITION_0
-    - LIGHT_SWITCH_POSITION_1
-    - LIGHT_SWITCH_POSITION_2
-    - LIGHT_SWITCH_POSITION_3
-    - LIGHT_SWITCH_POSITION_4
-    - LIGHT_SWITCH_POSITION_5
-    - LIGHT_SWITCH_POSITION_6
-    - LIGHT_SWITCH_POSITION_7
-    - LIGHT_SWITCH_POSITION_8
-    - NEUTRAL
-    - FORWARD
-    - REVERSING
-    - BRAKING
-    - INDICATOR_LEFT
-    - INDICATOR_RIGHT
-    - HAZARD
-    - BLINK_FLAG
-    - BLINK_LEFT
-    - BLINK_RIGHT
-    - WINCH_DISABLERD
-    - WINCH_IDLE
-    - WINCH_IN
-    - WINCH_OUT
-    - GEAR_1
-    - GEAR_2
+// FIXME: can we deal with empty lines (by using a different parser type?)
 
 
 reserved keywords:
@@ -151,8 +15,8 @@ reserved keywords:
   master, slave, global, random, steering, throttle, abs
 
   clicks: Pre-defined global variable; increments when 6-clicks on CH3
-*/
 
+*/
 
 
 /* ========================================================================== */
@@ -188,7 +52,7 @@ extern int yylex(YYSTYPE * yylval_param, YYLTYPE * yylloc_param);
 %defines
 
 %union {
-    identifier *i;
+    SYMBOL_T *symbol;
     uint32_t instruction;
     int16_t immediate;
 }
@@ -204,11 +68,11 @@ extern int yylex(YYSTYPE * yylval_param, YYLTYPE * yylloc_param);
 %token <instruction> WAIT
 
 %token <immediate> NUMBER
-%token <i> UNDECLARED_IDENTIFIER
-%token <i> GLOBAL_VARIABLE
-%token <i> VARIABLE
-%token <i> LED_ID
-%token <i> LABEL
+%token <symbol> UNDECLARED_SYMBOL
+%token <symbol> GLOBAL_VARIABLE
+%token <symbol> VARIABLE
+%token <symbol> LED_ID
+%token <symbol> LABEL
 %token <instruction> RANDOM
 %token <instruction> STEERING
 %token <instruction> THROTTLE
@@ -232,7 +96,6 @@ extern int yylex(YYSTYPE * yylval_param, YYLTYPE * yylloc_param);
 %token <instruction> GE
 %token <instruction> LE
 
-
 %token <instruction> RUN
 %token <instruction> WHEN
 %token <instruction> OR
@@ -247,8 +110,6 @@ extern int yylex(YYSTYPE * yylval_param, YYLTYPE * yylloc_param);
 %token <instruction> XOR_ASSIGN
 %token <instruction> ABS
 
-%start program
-
 %type <immediate> master_or_slave
 %type <instruction> expression
 %type <instruction> assignment_operator
@@ -259,6 +120,8 @@ extern int yylex(YYSTYPE * yylval_param, YYLTYPE * yylloc_param);
 %type <instruction> run_condition_line priority_run_condition_line
 %type <instruction> run_condition_lines priority_run_condition_lines
 %type <instruction> run_always_condition_line
+
+%start program
 
 %%
 
@@ -343,16 +206,16 @@ decleration_line
   ;
 
 decleration
-  : VAR UNDECLARED_IDENTIFIER
+  : VAR UNDECLARED_SYMBOL
       { add_symbol($2->name, VARIABLE, -1); }
   | VAR GLOBAL_VARIABLE
       /* Declare the variable as local variable, overshadowing the global one */
       { add_symbol($2->name, VARIABLE, -1); }
-  | GLOBAL VAR UNDECLARED_IDENTIFIER
+  | GLOBAL VAR UNDECLARED_SYMBOL
       { add_symbol($3->name, GLOBAL_VARIABLE, -1); }
   | GLOBAL VAR GLOBAL_VARIABLE
       { /* Nothing to do, global variable already declared */ }
-  | LED UNDECLARED_IDENTIFIER ASSIGN master_or_slave
+  | LED UNDECLARED_SYMBOL ASSIGN master_or_slave
       { fprintf(stderr, "PARSER: adding LED=%s\n", $2->name); add_symbol($2->name, LED_ID, $4); }
   ;
 
@@ -370,7 +233,7 @@ code_lines
 
 code_line
   /* New label declaration */
-  : UNDECLARED_IDENTIFIER ':' '\n'
+  : UNDECLARED_SYMBOL ':' '\n'
       { add_symbol($1->name, LABEL, pc); }
   /* Label that was already forward-declared in a GOTO */
   | LABEL ':' '\n'
@@ -381,7 +244,7 @@ code_line
 command
   : GOTO LABEL
       { emit($1 | ($2->index) & 0xffffff); }
-  | GOTO UNDECLARED_IDENTIFIER
+  | GOTO UNDECLARED_SYMBOL
       { add_symbol($2->name, LABEL, -1); emit($1); }
   | FADE leds variable_or_number
       { emit_led_instruction($1 | $3); }

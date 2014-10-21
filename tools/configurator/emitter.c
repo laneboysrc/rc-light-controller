@@ -24,11 +24,11 @@
 typedef struct {
     int count;
     uint8_t elements[NUMBER_OF_LEDS];
-} led_list_t;
+} LED_LIST_T;
 
 unsigned int pc = 0;
 
-static led_list_t led_list;
+static LED_LIST_T led_list;
 
 static uint32_t *instruction_list;
 static uint32_t *last_instruction;
@@ -187,7 +187,8 @@ void initialize_emitter(void)
         sizeof(uint32_t), MAX_NUMBER_OF_INSTRUCTIONS);
 
     if (instruction_list == NULL) {
-        fprintf(stderr, "ERROR: Not enough memory to allocation instruction cache\n");
+        fprintf(stderr,
+            "ERROR: Not enough memory to allocation instruction cache\n");
         exit(1);
     }
 

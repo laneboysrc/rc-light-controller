@@ -12,7 +12,7 @@
 #define INSTRUCTION_MODIFIER_IMMEDIATE 0x01000000
 
 // "Program Counter"
-extern unsigned int pc;
+unsigned int pc;
 
 void initialize_emitter(void);
 

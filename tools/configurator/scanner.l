@@ -37,8 +37,8 @@ const char *token2str(int token);
 
 goto|var|led|wait|skip|if|is|any|all|none|not|fade|run|when|or|master|slave|global|random|steering|throttle|abs {
     int token = get_reserved_word(yylval, yytext);
-    fprintf(stderr, "SCANNER: Reserved word: %s (%s)\n",
-        yytext, token2str(token));
+    fprintf(stderr,
+        "SCANNER: Reserved word: %s (%s)\n", yytext, token2str(token));
     return token;
 }
 

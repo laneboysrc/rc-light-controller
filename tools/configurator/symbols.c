@@ -16,27 +16,21 @@ int get_symbol(union YYSTYPE *result, const char *name);
 
 typedef struct _forward {
     unsigned int location;
-    identifier *i;
+    SYMBOL_T *symbol;
     struct _forward *next;
-} forward_declaration;
+} FORWARD_DECLERATION_T;
 
 
-typedef struct {
-    const char *name;
-    int token;
-    uint32_t opcode;
-} identifier_initializer;
-
-
-static identifier *symbol_table = NULL;
-static forward_declaration *forward_declaration_table = NULL;
+static SYMBOL_T *symbol_table = NULL;
+static FORWARD_DECLERATION_T *forward_declaration_table = NULL;
 static int next_variable_index = 0;
 
-identifier undeclared_identifier = {
-    .name = NULL, .token = UNDECLARED_IDENTIFIER
+static SYMBOL_T undeclared_symbol = {
+    .name = NULL,
+    .token = UNDECLARED_SYMBOL
 };
 
-static identifier run_condition_tokens[] = {
+static SYMBOL_T run_condition_tokens[] = {
     {.name = "always", .token = RUN_CONDITION_ALWAYS, .opcode = (1 << 31)},
 
     {.name = "light-switch-position-0", .token = RUN_CONDITION, .opcode = (1 << 0)},
@@ -81,7 +75,7 @@ static identifier run_condition_tokens[] = {
     {.name = NULL, .token = EOF},
 };
 
-static identifier car_state[] = {
+static SYMBOL_T car_state[] = {
     {.name = "light-switch-position-0", .token = CAR_STATE, .opcode = (1 << 0)},
     {.name = "light-switch-position-1", .token = CAR_STATE, .opcode = (1 << 1)},
     {.name = "light-switch-position-2", .token = CAR_STATE, .opcode = (1 << 2)},
@@ -115,7 +109,7 @@ static identifier car_state[] = {
     {.name = NULL, .token = EOF},
 };
 
-static identifier reserved_words[] = {
+static SYMBOL_T reserved_words[] = {
     {.name = "goto", .token = GOTO, .opcode = 0x01000000},
     {.name = "var", .token = VAR},
     {.name = "led", .token = LED},
@@ -159,42 +153,42 @@ static identifier reserved_words[] = {
 
 
 // ****************************************************************************
-static void set_undeclared_identifier(const char *name)
+static void set_undeclared_symbol(const char *name)
 {
     char *name_string;
 
-    if (undeclared_identifier.name != NULL) {
-        free((char *)undeclared_identifier.name);
-        undeclared_identifier.name = NULL;
+    if (undeclared_symbol.name != NULL) {
+        free((char *)undeclared_symbol.name);
+        undeclared_symbol.name = NULL;
     }
 
     name_string = (char *)calloc(strlen(name), 1);
     if (name_string == NULL) {
         fprintf(stderr,
-            "SYMBOLS: ERROR: Out of memory when allocating undeclared identifier name\n");
+            "SYMBOLS: ERROR: Out of memory when allocating undeclared symbol name\n");
         exit(1);
     }
     strcpy(name_string, name);
 
-    undeclared_identifier.name = name_string;
-    undeclared_identifier.token = UNDECLARED_IDENTIFIER;
-    undeclared_identifier.index = -1;
+    undeclared_symbol.name = name_string;
+    undeclared_symbol.token = UNDECLARED_SYMBOL;
+    undeclared_symbol.index = -1;
 }
 
 
 // ****************************************************************************
-static void add_forward_declaration(identifier *i, unsigned int location)
+static void add_forward_declaration(SYMBOL_T *symbol, unsigned int location)
 {
-    forward_declaration *ptr;
+    FORWARD_DECLERATION_T *ptr;
 
-    ptr = (forward_declaration *)calloc(sizeof(forward_declaration), 1);
+    ptr = (FORWARD_DECLERATION_T *)calloc(sizeof(FORWARD_DECLERATION_T), 1);
     if (ptr == NULL) {
         fprintf(stderr,
             "SYMBOLS: ERROR: Out of memory when allocating a forward declaration\n");
         exit(1);
     }
 
-    ptr->i = i;
+    ptr->symbol = symbol;
     ptr->location = location;
     ptr->next = forward_declaration_table;
     forward_declaration_table = ptr;
@@ -204,8 +198,8 @@ static void add_forward_declaration(identifier *i, unsigned int location)
 // ****************************************************************************
 void dump_symbol_table(void)
 {
-    identifier *ptr;
-    forward_declaration *f;
+    SYMBOL_T *ptr;
+    FORWARD_DECLERATION_T *f;
 
     printf("Symbol table:\n");
     for (ptr = symbol_table; ptr != NULL; ptr = ptr->next) {
@@ -218,9 +212,11 @@ void dump_symbol_table(void)
     if (forward_declaration_table == NULL) {
         printf("(none)\n");
     }
-    for (f = forward_declaration_table; f != NULL; f = f->next) {
-        printf("label=%s location=%u index=%d\n",
-            f->i->name, f->location, f->i->index);
+    else {
+        for (f = forward_declaration_table; f != NULL; f = f->next) {
+            printf("label='%s' location=%u index=%d\n",
+                f->symbol->name, f->location, f->symbol->index);
+        }
     }
     printf("\n");
 }
@@ -229,47 +225,48 @@ void dump_symbol_table(void)
 // ****************************************************************************
 void resolve_forward_declarations(uint32_t instructions[])
 {
-    forward_declaration *f;
+    FORWARD_DECLERATION_T *f;
     for (f = forward_declaration_table; f != NULL; f = f->next) {
-        if (f->i->index < 0) {
+        if (f->symbol->index < 0) {
             fprintf(stderr,
-                "SYMBOLS: ERROR: Label '%s' used but not defined.\n", f->i->name);
+                "SYMBOLS: ERROR: Label '%s' used but not defined.\n",
+                    f->symbol->name);
             exit(1);
         }
-        else if ((unsigned int)f->i->index == f->location) {
+        else if ((unsigned int)f->symbol->index == f->location) {
             // Skip the declaration of the label
             continue;
         }
         else {
             instructions[f->location] =
                 (instructions[f->location] & 0xff000000) |
-                    (f->i->index & 0xffffff);
+                    (f->symbol->index & 0xffffff);
         }
     }
 }
 
 
 // ****************************************************************************
-void set_symbol(identifier *s, int token, int index)
+void set_symbol(SYMBOL_T *symbol, int token, int index)
 {
-    if (s->index != -1) {
+    if (symbol->index != -1) {
         fprintf(stderr,
-            "SYMBOLS: ERROR: Redefinition of symbol '%s'\n", s->name);
+            "SYMBOLS: ERROR: Redefinition of symbol '%s'\n", symbol->name);
         exit(1);
     }
 
-    s->token = token;
-    s->index = index;
+    symbol->token = token;
+    symbol->index = index;
 
     fprintf(stderr, "SYMBOLS: Set '%s' as token=%s, index=%d\n",
-        s->name, token2str(s->token), s->index);
+        symbol->name, token2str(symbol->token), symbol->index);
 }
 
 
 // ****************************************************************************
 int get_reserved_word(union YYSTYPE *result, const char *yytext)
 {
-    identifier *w = reserved_words;
+    SYMBOL_T *w = reserved_words;
 
     while (w->name != NULL) {
         if (strcmp(w->name, yytext) == 0) {
@@ -288,20 +285,20 @@ int get_reserved_word(union YYSTYPE *result, const char *yytext)
 // ****************************************************************************
 void add_symbol(const char *name, int token, int index)
 {
-    identifier *ptr;
+    SYMBOL_T *ptr;
     char *name_string;
 
-    ptr = (identifier *)calloc(sizeof(identifier), 1);
+    ptr = (SYMBOL_T *)calloc(sizeof(SYMBOL_T), 1);
     if (ptr == NULL) {
         fprintf(stderr,
-            "SYMBOLS: ERROR: Out of memory when allocating an identifier\n");
+            "SYMBOLS: ERROR: Out of memory when allocating a symbol\n");
         exit(1);
     }
 
     name_string = (char *)calloc(strlen(name), 1);
     if (name_string == NULL) {
         fprintf(stderr,
-            "SYMBOLS: ERROR: Out of memory when allocating an identifier name\n");
+            "SYMBOLS: ERROR: Out of memory when allocating a symbol name\n");
         exit(1);
     }
     strcpy(name_string, name);
@@ -332,7 +329,7 @@ void add_symbol(const char *name, int token, int index)
 // ****************************************************************************
 int get_symbol(union YYSTYPE *result, const char *name)
 {
-    identifier *ptr;
+    SYMBOL_T *ptr;
 
     ptr = NULL;
     if (parse_state == EXPECTING_RUN_CONDITION) {
@@ -359,12 +356,12 @@ int get_symbol(union YYSTYPE *result, const char *name)
         }
         if (strcmp(ptr->name, name) == 0) {
             if (ptr->token == VARIABLE  ||  ptr->token == LED_ID) {
-                result->i = ptr;
+                result->symbol = ptr;
             }
             else if (ptr->token == LABEL) {
-                result->i = ptr;
+                result->symbol = ptr;
                 if (ptr->index == -1) {
-                    add_forward_declaration(result->i, pc);
+                    add_forward_declaration(result->symbol, pc);
                     fprintf(stderr,
                         "SYMBOLS: INFO: Using forward declared label %s\n",
                         name);
@@ -383,16 +380,16 @@ int get_symbol(union YYSTYPE *result, const char *name)
             continue;
         }
         if (strcmp(ptr->name, name) == 0) {
-            result->i = ptr;
+            result->symbol = ptr;
             return ptr->token;
         }
     }
 
-    fprintf(stderr, "SYMBOLS: INFO: Undeclared identifier %s\n", name);
+    fprintf(stderr, "SYMBOLS: INFO: Undeclared symbol %s\n", name);
 
-    set_undeclared_identifier(name);
-    result->i = &undeclared_identifier;
-    return UNDECLARED_IDENTIFIER;
+    set_undeclared_symbol(name);
+    result->symbol = &undeclared_symbol;
+    return UNDECLARED_SYMBOL;
 }
 
 
