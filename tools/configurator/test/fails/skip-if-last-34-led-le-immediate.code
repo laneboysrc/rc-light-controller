@@ -1,0 +1,5 @@
+run always
+
+led x = slave[12]
+
+    skip if x <= 6

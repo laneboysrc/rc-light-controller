@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 
 #include "symbols.h"
 #include "emitter.h"
@@ -11,6 +12,14 @@
 #define MAX_NUMBER_OF_INSTRUCTIONS (16 * 1024 / 4)
 
 #define NUMBER_OF_LEDS 32
+
+// Taken from globals.h of the light controller firmware:
+#define FIRST_SKIP_IF_OPCODE    0x20
+#define LAST_SKIP_IF_OPCODE     0x37
+#define OPCODE_SKIP_IF_ANY      0x60    // 011 + 29 bits run_state!
+#define OPCODE_SKIP_IF_ALL      0x80    // 100 + 29 bits run_state!
+#define OPCODE_SKIP_IF_NONE     0xA0    // 101 + 29 bits run_state!
+
 
 typedef struct {
     int count;
@@ -23,6 +32,31 @@ static led_list_t led_list;
 
 static uint32_t *instruction_list;
 static uint32_t *last_instruction;
+
+
+// ****************************************************************************
+static bool is_skip_if(uint32_t instruction)
+{
+    uint8_t opcode;
+
+    opcode = instruction >> 24;
+
+    printf("OPCODE: 0x%x 0x%x\n", opcode, instruction);
+
+    if (opcode >= FIRST_SKIP_IF_OPCODE  &&  opcode <= LAST_SKIP_IF_OPCODE) {
+        return true;
+    }
+
+    // The skip if any/all/none opcode have only the top-most 3 bits distinct
+    // so that we can use 29 bits for 'car state'
+    if (((opcode & 0xe0) == OPCODE_SKIP_IF_ANY)  ||
+        ((opcode & 0xe0) == OPCODE_SKIP_IF_ALL)  ||
+        ((opcode & 0xe0) == OPCODE_SKIP_IF_NONE)) {
+        return true;
+    }
+
+    return false;
+}
 
 
 // ****************************************************************************
@@ -120,6 +154,21 @@ void emit_run_condition(uint32_t priority, uint32_t run)
 
 
 // ****************************************************************************
+void emit_end_of_program(void)
+{
+    fprintf(stderr, "END OF PROGRAM\n");
+
+    if (is_skip_if(*(last_instruction - 1))) {
+        fprintf(stderr,
+            "ERROR: Last instruction in a program can not be 'skip if'.\n");
+        exit(1);
+    }
+
+    *last_instruction++ = 0xfe000000;
+}
+
+
+// ****************************************************************************
 void emit(uint32_t instruction)
 {
     fprintf(stderr, "INSTRUCTION: 0x%08x\n", instruction);
@@ -153,7 +202,7 @@ void output_programs(void)
 
     dump_symbol_table();
 
-    resolve_forward_declerations(ptr + 2);
+    resolve_forward_declarations(ptr + 2);
 
     while (ptr != last_instruction) {
         printf("0x%08x,\n", *ptr++);

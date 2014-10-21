@@ -1,0 +1,6 @@
+run always
+
+var x
+led l = master[7]
+
+    skip if x == l

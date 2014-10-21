@@ -1,0 +1,6 @@
+run always
+
+led x = master[7]
+led l = master[2]
+
+    skip if x <= l

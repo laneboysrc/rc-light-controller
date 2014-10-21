@@ -167,7 +167,7 @@ void dump_symbol_table(void)
     }
     printf("\n");
 
-    printf("Foardward declerations to resolve:\n");
+    printf("Forward declarations to resolve:\n");
     if (forward_declaration_table == NULL) {
         printf("(none)\n");
     }
@@ -180,7 +180,7 @@ void dump_symbol_table(void)
 
 
 // ****************************************************************************
-void resolve_forward_declerations(uint32_t instructions[])
+void resolve_forward_declarations(uint32_t instructions[])
 {
     forward_declaration *f;
     for (f = forward_declaration_table; f != NULL; f = f->next) {
@@ -190,7 +190,7 @@ void resolve_forward_declerations(uint32_t instructions[])
             exit(1);
         }
         else if ((unsigned int)f->i->index == f->location) {
-            // Skip the decleration of the label
+            // Skip the declaration of the label
             continue;
         }
         else {
@@ -318,7 +318,7 @@ int get_symbol(union YYSTYPE *result, const char *name)
                 if (ptr->index == -1) {
                     add_forward_declaration(result->i, pc);
                     fprintf(stderr,
-                        "SYMBOLS: INFO: Uing forward declered label %s\n",
+                        "SYMBOLS: INFO: Using forward declared label %s\n",
                         name);
                 }
             }
@@ -336,7 +336,7 @@ int get_symbol(union YYSTYPE *result, const char *name)
     if (token == LABEL) {
         add_forward_declaration(result->i, pc);
         fprintf(stderr,
-            "SYMBOLS: INFO: Forward decleration of label %s\n", name);
+            "SYMBOLS: INFO: Forward declaration of label %s\n", name);
     }
 
     return token;

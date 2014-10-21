@@ -259,6 +259,7 @@ extern int yylex(YYSTYPE * yylval_param, YYLTYPE * yylloc_param);
 %type <instruction> run_conditions priority_run_conditions
 %type <instruction> run_condition_line priority_run_condition_line
 %type <instruction> run_condition_lines priority_run_condition_lines
+%type <instruction> run_always_condition_line
 
 %%
 
@@ -267,9 +268,9 @@ extern int yylex(YYSTYPE * yylval_param, YYLTYPE * yylloc_param);
 
 program
   : condition_lines decleration_lines code_lines
-      { emit(INSTRUCTION_END_OF_PROGRAM); }
+      { emit_end_of_program(); }
   | condition_lines code_lines
-      { emit(INSTRUCTION_END_OF_PROGRAM); }
+      { emit_end_of_program(); }
   | %empty
   ;
 
@@ -289,11 +290,9 @@ condition_lines
   : priority_run_condition_lines
         { emit_run_condition($1, 0); }
   | run_condition_lines
-        { emit_run_condition(INSTRUCTION_RUN_WHEN_NORMAL_OPERATION, $1); }
+        { emit_run_condition(0, $1); }
   | run_always_condition_line
-        { emit_run_condition(INSTRUCTION_RUN_WHEN_NORMAL_OPERATION,
-            INSTRUCTION_RUN_ALWAYS);
-        }
+        { emit_run_condition(0, $1); }
   ;
 
 priority_run_condition_lines
@@ -336,6 +335,7 @@ run_conditions
 
 run_always_condition_line
   : RUN expect_run_condition RUN_CONDITION_ALWAYS '\n'
+      { $$ = $3; }
   ;
 
 decleration_lines
@@ -369,8 +369,10 @@ code_lines
   ;
 
 code_line
+  /* New label declaration */
   : IDENTIFIER ':' '\n'
       { set_identifier($1, LABEL, pc); }
+  /* Label that was already forward-declared in a GOTO */
   | LABEL ':' '\n'
       { set_identifier($1, LABEL, pc); }
   | command '\n'
@@ -380,7 +382,7 @@ command
   : GOTO expect_label LABEL
       { emit($1 | ($3->index) & 0xffffff); }
   | FADE leds variable_or_number
-      { emit_led_instruction($1 | ($2 << 8) | $3); }
+      { emit_led_instruction($1 | $3); }
   | WAIT variable_or_number
       { emit($1 | $2); }
   | SKIP IF test_expression
