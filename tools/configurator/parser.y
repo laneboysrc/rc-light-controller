@@ -270,25 +270,51 @@ command
   | WAIT error
       { fprintf(stderr, "'wait' value is not variable or number\n"); }
   | SKIP IF test_expression
+  | SKIP IF error
+      { fprintf(stderr, "Illegal 'skip if' statement\n"); }
   | expression
   ;
 
 test_expression
   : VARIABLE test_operator test_parameter
       { emit($2 | ($1->index << 16) | $3); }
+  | VARIABLE test_operator error
+      { fprintf(stderr, "test parameter must be a number, variable, LED, 'steering' or 'throttle'.\n"); }
+  | VARIABLE error
+      { fprintf(stderr, "unknown test operator\n"); }
   | LED_ID test_operator test_parameter
       /* All LED relates tests have 0x02 set in the opcode */
       { emit($2 | INSTRUCTION_MODIFIER_LED | ($1->index << 16) | $3); }
   | ANY expect_car_state car_state_list
       { emit($1 | $3); }
+  | ANY expect_car_state car_state_list error
+      { fprintf(stderr, "One or more item is not a car state\n"); }
+  | ANY expect_car_state error
+      { fprintf(stderr, "One or more item is not a car state\n"); }
   | ALL expect_car_state car_state_list
       { emit($1 | $3); }
+  | ALL expect_car_state car_state_list error
+      { fprintf(stderr, "One or more item is not a car state\n"); }
+  | ALL expect_car_state error
+      { fprintf(stderr, "One or more item is not a car state\n"); }
   | NONE expect_car_state car_state_list
       { emit($1 | $3); }
+  | NONE expect_car_state car_state_list error
+      { fprintf(stderr, "One or more item is not a car state\n"); }
+  | NONE expect_car_state error
+      { fprintf(stderr, "One or more item is not a car state\n"); }
   | IS expect_car_state CAR_STATE
       { emit($1 | $3); }
+  | IS expect_car_state CAR_STATE error
+      { fprintf(stderr, "'is' must be followed by a single car-state\n"); }
+  | IS expect_car_state error
+      { fprintf(stderr, "'is' must be followed by a car-state\n"); }
   | NOT expect_car_state CAR_STATE
       { emit($1 | $3); }
+  | NOT expect_car_state CAR_STATE error
+      { fprintf(stderr, "'not' must be followed by a single car-state\n"); }
+  | NOT expect_car_state error
+      { fprintf(stderr, "'not' must be followed by a car-state\n"); }
   ;
 
 test_operator
