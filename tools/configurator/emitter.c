@@ -69,7 +69,7 @@ void emit_led_instruction(uint32_t instruction)
         exit(1);
     }
 
-    // Step 1: Simple Bubble Sort to sort LEDs by their index.
+    // Step 1: Bubble sort the LEDs by their index.
     count = led_list.count;
     ptr = led_list.elements;
 
@@ -89,7 +89,7 @@ void emit_led_instruction(uint32_t instruction)
     } while (n != 0);
 
     // Step 2: Iterate through all items. If discontinuity is found emit a
-    //         single LED statement.
+    // single LED statement.
 
     start = stop = ptr[0];
     for (i = 1; i < count; i++) {
@@ -152,6 +152,8 @@ void output_programs(void)
     uint32_t *ptr = instruction_list;
 
     dump_symbol_table();
+
+    resolve_forward_declerations(ptr + 2);
 
     while (ptr != last_instruction) {
         printf("0x%08x,\n", *ptr++);

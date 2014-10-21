@@ -1,0 +1,3 @@
+run always
+
+goto this_does_not_exist_in_this_program

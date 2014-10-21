@@ -67,11 +67,11 @@ define compile-objects
 
 $1/%.o: $1/%.c
 	$(ECHO) [CC] $$<
-	$(QUIET) $(CC) $(TOOL_CFLAGS) -c $$< -o $$@
+	$(QUIET) $(CC) -c $(TOOL_CFLAGS) $$< -o $$@
 
 $1/%.o: %.c
 	$(ECHO) [CC] $$<
-	$(QUIET) $(CC) $(CFLAGS) -c $$< -o $$@
+	$(QUIET) $(CC) -c $(CFLAGS)  $$< -o $$@
 
 
 $1/%.c: %.y

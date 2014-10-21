@@ -6,11 +6,19 @@
 
 #include "symbols.h"
 #include "parser.h"
+#include "emitter.h"
 
 
 const char *token2str(int token);
 int get_reserved_word(union YYSTYPE *result, const char *yytext);
 int get_symbol(union YYSTYPE *result, const char *name);
+
+
+typedef struct _forward {
+    unsigned int location;
+    identifier *i;
+    struct _forward *next;
+} forward_declaration;
 
 
 typedef struct {
@@ -21,6 +29,7 @@ typedef struct {
 
 
 static identifier *symbol_table = NULL;
+static forward_declaration *forward_declaration_table = NULL;
 static int next_variable_index = 0;
 
 static identifier run_condition_tokens[] = {
@@ -149,10 +158,46 @@ static identifier reserved_words[] = {
 void dump_symbol_table(void)
 {
     identifier *ptr;
+    forward_declaration *f;
 
+    printf("Symbol table:\n");
     for (ptr = symbol_table; ptr != NULL; ptr = ptr->next) {
         printf("name='%s', token=%s index=%d\n",
             ptr->name, token2str(ptr->token), ptr->index);
+    }
+    printf("\n");
+
+    printf("Foardward declerations to resolve:\n");
+    if (forward_declaration_table == NULL) {
+        printf("(none)\n");
+    }
+    for (f = forward_declaration_table; f != NULL; f = f->next) {
+        printf("label=%s location=%u index=%d\n",
+            f->i->name, f->location, f->i->index);
+    }
+    printf("\n");
+}
+
+
+// ****************************************************************************
+void resolve_forward_declerations(uint32_t instructions[])
+{
+    forward_declaration *f;
+    for (f = forward_declaration_table; f != NULL; f = f->next) {
+        if (f->i->index < 0) {
+            fprintf(stderr,
+                "SYMBOLS: ERROR: Label '%s' used but not defined.\n", f->i->name);
+            exit(1);
+        }
+        else if ((unsigned int)f->i->index == f->location) {
+            // Skip the decleration of the label
+            continue;
+        }
+        else {
+            instructions[f->location] =
+                (instructions[f->location] & 0xff000000) |
+                    (f->i->index & 0xffffff);
+        }
     }
 }
 
@@ -220,6 +265,25 @@ static int add_symbol(union YYSTYPE *result, const char *name, int token, int in
 
 
 // ****************************************************************************
+static void add_forward_declaration(identifier *i, unsigned int location)
+{
+    forward_declaration *ptr;
+
+    ptr = (forward_declaration *)calloc(sizeof(forward_declaration), 1);
+    if (ptr == NULL) {
+        fprintf(stderr,
+            "SYMBOLS: ERROR: Out of memory when allocating a forward declaration\n");
+        exit(1);
+    }
+
+    ptr->i = i;
+    ptr->location = location;
+    ptr->next = forward_declaration_table;
+    forward_declaration_table = ptr;
+}
+
+
+// ****************************************************************************
 int get_symbol(union YYSTYPE *result, const char *name)
 {
     identifier *ptr;
@@ -245,11 +309,18 @@ int get_symbol(union YYSTYPE *result, const char *name)
 
     for (ptr = symbol_table; ptr != NULL; ptr = ptr->next) {
         if (strcmp(ptr->name, name) == 0) {
-            if (ptr->token == IDENTIFIER  ||
-                ptr->token == VARIABLE  ||
-                ptr->token == LED_ID  ||
-              ptr->token == LABEL) {
+            if (ptr->token == IDENTIFIER  ||  ptr->token == VARIABLE  ||
+                    ptr->token == LED_ID) {
                 result->i = ptr;
+            }
+            else if (ptr->token == LABEL) {
+                result->i = ptr;
+                if (ptr->index == -1) {
+                    add_forward_declaration(result->i, pc);
+                    fprintf(stderr,
+                        "SYMBOLS: INFO: Uing forward declered label %s\n",
+                        name);
+                }
             }
             else {
                 result->instruction = ptr->opcode;
@@ -260,12 +331,15 @@ int get_symbol(union YYSTYPE *result, const char *name)
 
     token = (parse_state == EXPECTING_LABEL) ? LABEL : IDENTIFIER;
 
+    token = add_symbol(result, name, token, -1);
+
     if (token == LABEL) {
+        add_forward_declaration(result->i, pc);
         fprintf(stderr,
             "SYMBOLS: INFO: Forward decleration of label %s\n", name);
     }
 
-    return add_symbol(result, name, token, -1);
+    return token;
 }
 
 
