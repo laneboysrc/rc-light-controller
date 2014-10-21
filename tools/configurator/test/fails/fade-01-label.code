@@ -1,0 +1,20 @@
+run always
+
+var x
+
+led l1 = slave[2]
+led l2 = slave[3]
+led l3 = slave[4]
+led l4 = slave[5]
+
+led lx = slave[7]
+
+    fade l1 50
+    fade l2 x
+
+label1:
+    fade l1, l2, l3, l4  42
+    fade l1, l2, l3   x
+
+    fade l1, l2, l3, lx label1
+    fade l1, l2, l3, lx x

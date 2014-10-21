@@ -137,7 +137,6 @@ program
       { emit_end_of_program(); }
   | condition_lines code_lines
       { emit_end_of_program(); }
-  | error '\n'
   | %empty
   ;
 
@@ -250,6 +249,7 @@ code_line
   | LABEL ':' '\n'
       { set_symbol($1, LABEL, pc); }
   | command '\n'
+  | error '\n'
   ;
 
 command
@@ -261,8 +261,14 @@ command
       { fprintf(stderr, "'goto' not followed label\n"); }
   | FADE leds variable_or_number
       { emit_led_instruction($1 | $3); }
+  | FADE leds error
+      { fprintf(stderr, "'fade' value is not variable or number\n"); }
+  | FADE error
+      { fprintf(stderr, "'fade' is not followed by list of LED identifiers\n"); }
   | WAIT variable_or_number
       { emit($1 | $2); }
+  | WAIT error
+      { fprintf(stderr, "'wait' value is not variable or number\n"); }
   | SKIP IF test_expression
   | expression
   ;
