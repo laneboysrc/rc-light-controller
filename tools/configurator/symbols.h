@@ -14,7 +14,6 @@ typedef struct _symbol {
     const char *name;
     int token;
     int index;
-    uint32_t opcode;
     struct _symbol *next;
 } SYMBOL_T;
 

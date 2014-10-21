@@ -57,9 +57,31 @@ extern int yylex(YYSTYPE * yylval_param, YYLTYPE * yylloc_param);
     int16_t immediate;
 }
 
-%token <instruction> LED
-%token <instruction> VAR
+%token <immediate> NUMBER
+
+%token <symbol> UNDECLARED_SYMBOL
+%token <symbol> GLOBAL_VARIABLE
+%token <symbol> VARIABLE
+%token <symbol> LED_ID
+%token <symbol> LABEL
+
+%token <instruction> PRIORITY_RUN_CONDITION
+%token <instruction> RUN_CONDITION
+%token <instruction> RUN_CONDITION_ALWAYS
+
+%token <instruction> RANDOM
+%token <instruction> STEERING
+%token <instruction> THROTTLE
+
+%token <instruction> CAR_STATE
+
+%token <instruction> RUN
+%token <instruction> WHEN
+%token <instruction> OR
+
 %token <instruction> GLOBAL
+%token <instruction> VAR
+%token <instruction> LED
 %token <instruction> MASTER
 %token <instruction> SLAVE
 
@@ -67,19 +89,15 @@ extern int yylex(YYSTYPE * yylval_param, YYLTYPE * yylloc_param);
 %token <instruction> GOTO
 %token <instruction> WAIT
 
-%token <immediate> NUMBER
-%token <symbol> UNDECLARED_SYMBOL
-%token <symbol> GLOBAL_VARIABLE
-%token <symbol> VARIABLE
-%token <symbol> LED_ID
-%token <symbol> LABEL
-%token <instruction> RANDOM
-%token <instruction> STEERING
-%token <instruction> THROTTLE
-%token <instruction> CAR_STATE
-%token <instruction> PRIORITY_RUN_CONDITION
-%token <instruction> RUN_CONDITION
-%token <instruction> RUN_CONDITION_ALWAYS
+%token <instruction> ASSIGN
+%token <instruction> MUL_ASSIGN
+%token <instruction> DIV_ASSIGN
+%token <instruction> ADD_ASSIGN
+%token <instruction> SUB_ASSIGN
+%token <instruction> AND_ASSIGN
+%token <instruction> OR_ASSIGN
+%token <instruction> XOR_ASSIGN
+%token <instruction> ABS
 
 %token <instruction> SKIP
 %token <instruction> IF
@@ -95,20 +113,6 @@ extern int yylex(YYSTYPE * yylval_param, YYLTYPE * yylloc_param);
 %token <instruction> LT
 %token <instruction> GE
 %token <instruction> LE
-
-%token <instruction> RUN
-%token <instruction> WHEN
-%token <instruction> OR
-
-%token <instruction> ASSIGN
-%token <instruction> MUL_ASSIGN
-%token <instruction> DIV_ASSIGN
-%token <instruction> ADD_ASSIGN
-%token <instruction> SUB_ASSIGN
-%token <instruction> AND_ASSIGN
-%token <instruction> OR_ASSIGN
-%token <instruction> XOR_ASSIGN
-%token <instruction> ABS
 
 %type <immediate> master_or_slave
 %type <instruction> expression
@@ -216,7 +220,7 @@ decleration
   | GLOBAL VAR GLOBAL_VARIABLE
       { /* Nothing to do, global variable already declared */ }
   | LED UNDECLARED_SYMBOL ASSIGN master_or_slave
-      { fprintf(stderr, "PARSER: adding LED=%s\n", $2->name); add_symbol($2->name, LED_ID, $4); }
+      {  add_symbol($2->name, LED_ID, $4); }
   ;
 
 master_or_slave

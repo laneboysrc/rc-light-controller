@@ -1,0 +1,9 @@
+run when neutral or braking
+
+global var neutral
+var braking
+
+skip if is neutral
+braking = 3
+skip if not braking
+neutral = 17

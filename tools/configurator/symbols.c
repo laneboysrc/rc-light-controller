@@ -20,6 +20,12 @@ typedef struct _forward {
     struct _forward *next;
 } FORWARD_DECLERATION_T;
 
+typedef struct {
+    const char *name;
+    int token;
+    uint32_t opcode;
+} RESERVED_WORD_T;
+
 
 static SYMBOL_T *symbol_table = NULL;
 static FORWARD_DECLERATION_T *forward_declaration_table = NULL;
@@ -30,7 +36,7 @@ static SYMBOL_T undeclared_symbol = {
     .token = UNDECLARED_SYMBOL
 };
 
-static SYMBOL_T run_condition_tokens[] = {
+static RESERVED_WORD_T run_condition_tokens[] = {
     {.name = "always", .token = RUN_CONDITION_ALWAYS, .opcode = (1 << 31)},
 
     {.name = "light-switch-position-0", .token = RUN_CONDITION, .opcode = (1 << 0)},
@@ -75,7 +81,7 @@ static SYMBOL_T run_condition_tokens[] = {
     {.name = NULL, .token = EOF},
 };
 
-static SYMBOL_T car_state[] = {
+static RESERVED_WORD_T car_state[] = {
     {.name = "light-switch-position-0", .token = CAR_STATE, .opcode = (1 << 0)},
     {.name = "light-switch-position-1", .token = CAR_STATE, .opcode = (1 << 1)},
     {.name = "light-switch-position-2", .token = CAR_STATE, .opcode = (1 << 2)},
@@ -109,7 +115,7 @@ static SYMBOL_T car_state[] = {
     {.name = NULL, .token = EOF},
 };
 
-static SYMBOL_T reserved_words[] = {
+static RESERVED_WORD_T reserved_words[] = {
     {.name = "goto", .token = GOTO, .opcode = 0x01000000},
     {.name = "var", .token = VAR},
     {.name = "led", .token = LED},
@@ -266,14 +272,14 @@ void set_symbol(SYMBOL_T *symbol, int token, int index)
 // ****************************************************************************
 int get_reserved_word(union YYSTYPE *result, const char *yytext)
 {
-    SYMBOL_T *w = reserved_words;
+    RESERVED_WORD_T *ptr = reserved_words;
 
-    while (w->name != NULL) {
-        if (strcmp(w->name, yytext) == 0) {
-            result->instruction = w->opcode;
-            return w->token;
+    while (ptr->name != NULL) {
+        if (strcmp(ptr->name, yytext) == 0) {
+            result->instruction = ptr->opcode;
+            return ptr->token;
         }
-        ++w;
+        ++ptr;
     }
 
     fprintf(stderr,
@@ -330,24 +336,30 @@ void add_symbol(const char *name, int token, int index)
 int get_symbol(union YYSTYPE *result, const char *name)
 {
     SYMBOL_T *ptr;
+    RESERVED_WORD_T *r;
 
-    ptr = NULL;
+    // If we are expect one of the car states or run coditions then check
+    // those first. This allows us to be able to use a run condition name
+    // also as variable and LED; i.e. we don't pollute so much the reserved
+    // word space.
+    r = NULL;
     if (parse_state == EXPECTING_RUN_CONDITION) {
-        ptr = run_condition_tokens;
+        r = run_condition_tokens;
     }
     if (parse_state == EXPECTING_CAR_STATE) {
-        ptr = car_state;
+        r = car_state;
     }
 
-    if (ptr) {
-        while (ptr->name != NULL) {
-            if (strcmp(ptr->name, name) == 0) {
-                result->instruction = ptr->opcode;
-                return ptr->token;
+    if (r) {
+        while (r->name != NULL) {
+            if (strcmp(r->name, name) == 0) {
+                result->instruction = r->opcode;
+                return r->token;
             }
-            ++ptr;
+            ++r;
         }
     }
+
 
     // See if we are dealing with a LOCAL symbol
     for (ptr = symbol_table; ptr != NULL; ptr = ptr->next) {
@@ -368,11 +380,15 @@ int get_symbol(union YYSTYPE *result, const char *name)
                 }
             }
             else {
-                result->instruction = ptr->opcode;
+                fprintf(stderr,
+                    "SYMBOLS: ERROR: Unhandled token '%s' in get_symbol()\n",
+                        token2str(ptr->token));
+                exit(1);
             }
             return ptr->token;
         }
     }
+
 
     // See if we are dealing with a GLOBAL symbol
     for (ptr = symbol_table; ptr != NULL; ptr = ptr->next) {
@@ -385,7 +401,8 @@ int get_symbol(union YYSTYPE *result, const char *name)
         }
     }
 
-    fprintf(stderr, "SYMBOLS: INFO: Undeclared symbol %s\n", name);
+
+    fprintf(stderr, "SYMBOLS: INFO: Undeclared symbol '%s'\n", name);
 
     set_undeclared_symbol(name);
     result->symbol = &undeclared_symbol;
