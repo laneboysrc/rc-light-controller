@@ -2,5 +2,5 @@ run always
 
 led l = master[0]
 
-    skip if none blink_flag l neutral
+    skip if none blink-flag l neutral
     wait 1

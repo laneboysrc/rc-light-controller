@@ -8,15 +8,14 @@
 
 bool error_occured = false;
 
-void yyerror(const char *s);
+void yyerror(struct YYLTYPE *loc, const char *msg);
 
 
 // ****************************************************************************
-void yyerror(const char *s)
+void yyerror(struct YYLTYPE *loc, const char *msg)
 {
-    (void)s;
-
-    fprintf(stderr, "SYNTAX ERROR: ");
+    fprintf(stderr, "SYNTAX ERROR: %d:%d: %s\n",
+        loc->first_line, loc->first_column, msg);
     error_occured = true;
 }
 

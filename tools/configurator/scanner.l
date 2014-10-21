@@ -10,12 +10,10 @@ const char *token2str(int token);
 static int offset = 1;
 extern YYLTYPE yylloc;
 
-// FIXME: add location tracking
 // FIXME: test if empty lines and comments fully work!
 
 
 #define YY_USER_ACTION \
-    fprintf(stderr, "LOCATION: yylineno=%d offset=%d\n", yylineno, offset); \
     yylloc->first_line = yylineno; \
     yylloc->last_line = yylineno; \
     yylloc->first_column = offset; \

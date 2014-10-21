@@ -29,7 +29,6 @@ reserved keywords:
 #include "symbols.h"
 #include "emitter.h"
 
-void yyerror(const char *s);
 
 %}
 
@@ -43,12 +42,15 @@ void yyerror(const char *s);
  * at this point!
  */
 extern int yylex(YYSTYPE * yylval_param, YYLTYPE * yylloc_param);
+void yyerror(struct YYLTYPE *loc, const char *msg);
 }
 
 %locations
 %token-table
-%pure-parser
 %defines
+%define api.pure full
+%define parse.lac full
+%define parse.error verbose
 
 %union {
     SYMBOL_T *symbol;
@@ -215,17 +217,14 @@ decleration
       /* Declare the variable as local variable, overshadowing the global one */
       { add_symbol($2->name, VARIABLE, -1); }
   | VAR error
-      { fprintf(stderr, "'var' not followed by an identifier\n"); }
   | GLOBAL VAR UNDECLARED_SYMBOL
       { add_symbol($3->name, GLOBAL_VARIABLE, -1); }
   | GLOBAL VAR GLOBAL_VARIABLE
       { /* Nothing to do, global variable already declared */ }
   | GLOBAL VAR error
-      { fprintf(stderr, "'global var' not followed by an identifier\n"); }
   | LED UNDECLARED_SYMBOL ASSIGN master_or_slave
       {  add_symbol($2->name, LED_ID, $4); }
   | LED error
-      { fprintf(stderr, "'led' not followed by = <master|slave>[0..15]\n"); }
   ;
 
 master_or_slave
@@ -239,20 +238,17 @@ code_lines
   : code_line
   | code_lines code_line
   | error
-      { fprintf(stderr, "Unsupported operation\n"); }
   ;
 
 code_line
   /* New label declaration */
   : UNDECLARED_SYMBOL ':' '\n'
       { add_symbol($1->name, LABEL, pc); }
+  | UNDECLARED_SYMBOL error
   /* Label that was already forward-declared in a GOTO */
   | LABEL ':' '\n'
       { set_symbol($1, LABEL, pc); }
   | LABEL error
-      { fprintf(stderr, "Label used in unsupported operation\n"); }
-  | UNDECLARED_SYMBOL error
-      { fprintf(stderr, "Undeclared identifier\n"); }
   | command '\n'
   | error '\n'
   ;
@@ -262,65 +258,30 @@ command
       { emit($1 | ($2->index) & 0xffffff); }
   | GOTO UNDECLARED_SYMBOL
       { add_symbol($2->name, LABEL, -1); emit($1); }
-  | GOTO error
-      { fprintf(stderr, "%d:%d 'goto' not followed by label\n",
-        @2.first_line, @2.first_column); }
   | FADE leds variable_or_number
       { emit_led_instruction($1 | $3); }
-  | FADE leds error
-      { fprintf(stderr, "'fade' value is not variable or number\n"); }
-  | FADE error
-      { fprintf(stderr, "'fade' is not followed by list of LED identifiers\n"); }
   | WAIT variable_or_number
       { emit($1 | $2); }
-  | WAIT error
-      { fprintf(stderr, "'wait' value is not variable or number\n"); }
   | SKIP IF test_expression
-  | SKIP IF error
-      { fprintf(stderr, "Illegal 'skip if' statement\n"); }
   | expression
   ;
 
 test_expression
   : VARIABLE test_operator test_parameter
       { emit($2 | ($1->index << 16) | $3); }
-  | VARIABLE test_operator error
-      { fprintf(stderr, "test parameter must be a number, variable, LED, 'steering' or 'throttle'.\n"); }
-  | VARIABLE error
-      { fprintf(stderr, "unknown test operator\n"); }
   | LED_ID test_operator test_parameter
       /* All LED relates tests have 0x02 set in the opcode */
       { emit($2 | INSTRUCTION_MODIFIER_LED | ($1->index << 16) | $3); }
   | ANY expect_car_state car_state_list
       { emit($1 | $3); }
-  | ANY expect_car_state car_state_list error
-      { fprintf(stderr, "One or more item is not a car state\n"); }
-  | ANY expect_car_state error
-      { fprintf(stderr, "One or more item is not a car state\n"); }
   | ALL expect_car_state car_state_list
       { emit($1 | $3); }
-  | ALL expect_car_state car_state_list error
-      { fprintf(stderr, "One or more item is not a car state\n"); }
-  | ALL expect_car_state error
-      { fprintf(stderr, "One or more item is not a car state\n"); }
   | NONE expect_car_state car_state_list
       { emit($1 | $3); }
-  | NONE expect_car_state car_state_list error
-      { fprintf(stderr, "One or more item is not a car state\n"); }
-  | NONE expect_car_state error
-      { fprintf(stderr, "One or more item is not a car state\n"); }
   | IS expect_car_state CAR_STATE
       { emit($1 | $3); }
-  | IS expect_car_state CAR_STATE error
-      { fprintf(stderr, "'is' must be followed by a single car-state\n"); }
-  | IS expect_car_state error
-      { fprintf(stderr, "'is' must be followed by a car-state\n"); }
   | NOT expect_car_state CAR_STATE
       { emit($1 | $3); }
-  | NOT expect_car_state CAR_STATE error
-      { fprintf(stderr, "'not' must be followed by a single car-state\n"); }
-  | NOT expect_car_state error
-      { fprintf(stderr, "'not' must be followed by a car-state\n"); }
   ;
 
 test_operator
@@ -351,20 +312,14 @@ car_state_list
 expression
   : VARIABLE assignment_operator variable_assignment_parameter
       { emit($2 | ($1->index << 16) | $3); }
-  | VARIABLE assignment_operator error
-      { fprintf(stderr, "Unsupported operand\n"); }
   | GLOBAL_VARIABLE assignment_operator variable_assignment_parameter
       { emit($2 | ($1->index << 16) | $3); }
-  | GLOBAL_VARIABLE assignment_operator error
-      { fprintf(stderr, "Unsupported operand\n"); }
   | VARIABLE assignment_operator ABS abs_assignment_parameter
       { emit($3 | $4); }
   | GLOBAL_VARIABLE assignment_operator ABS abs_assignment_parameter
       { emit($3 | $4); }
   | leds ASSIGN led_assignment_parameter
       { emit_led_instruction(0x02000000 | $3); }
-  | leds error
-      { fprintf(stderr, "Unsupported operation for LEDs\n"); }
   ;
 
 leds
@@ -382,11 +337,6 @@ led_assignment_parameter
       { $$ = $1->index; }
   | GLOBAL_VARIABLE
       { $$ = $1->index; }
-  | UNDECLARED_SYMBOL error
-      { fprintf(stderr, "Undeclared identifier\n"); }
-  | LABEL error
-      { fprintf(stderr, "%d:%d Label can not be assigned to an LED\n",
-          @2.first_line, @2.first_column); }
   ;
 
 variable_assignment_parameter
