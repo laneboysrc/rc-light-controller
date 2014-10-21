@@ -1,0 +1,4 @@
+run always
+
+x = 5
+wait 1

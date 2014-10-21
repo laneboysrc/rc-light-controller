@@ -1,0 +1,8 @@
+run always
+
+led l = slave[6]
+
+label1:
+wait 1
+l = label1
+wait 2

@@ -1,0 +1,6 @@
+run always
+
+led l = slave[6]
+
+l = y
+wait 1

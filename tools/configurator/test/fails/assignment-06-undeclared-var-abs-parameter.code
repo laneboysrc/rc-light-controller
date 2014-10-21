@@ -1,0 +1,6 @@
+run always
+
+var x
+
+x = abs y
+wait 1

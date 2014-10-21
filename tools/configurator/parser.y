@@ -251,7 +251,9 @@ code_line
   | LABEL ':' '\n'
       { set_symbol($1, LABEL, pc); }
   | LABEL error
-      { fprintf(stderr, "Label used in usupported operation\n"); }
+      { fprintf(stderr, "Label used in unsupported operation\n"); }
+  | UNDECLARED_SYMBOL error
+      { fprintf(stderr, "Undeclared identifier\n"); }
   | command '\n'
   | error '\n'
   ;
@@ -349,14 +351,20 @@ car_state_list
 expression
   : VARIABLE assignment_operator variable_assignment_parameter
       { emit($2 | ($1->index << 16) | $3); }
+  | VARIABLE assignment_operator error
+      { fprintf(stderr, "Unsupported operand\n"); }
   | GLOBAL_VARIABLE assignment_operator variable_assignment_parameter
       { emit($2 | ($1->index << 16) | $3); }
+  | GLOBAL_VARIABLE assignment_operator error
+      { fprintf(stderr, "Unsupported operand\n"); }
   | VARIABLE assignment_operator ABS abs_assignment_parameter
       { emit($3 | $4); }
   | GLOBAL_VARIABLE assignment_operator ABS abs_assignment_parameter
       { emit($3 | $4); }
   | leds ASSIGN led_assignment_parameter
       { emit_led_instruction(0x02000000 | $3); }
+  | leds error
+      { fprintf(stderr, "Unsupported operation for LEDs\n"); }
   ;
 
 leds
@@ -374,6 +382,10 @@ led_assignment_parameter
       { $$ = $1->index; }
   | GLOBAL_VARIABLE
       { $$ = $1->index; }
+  | UNDECLARED_SYMBOL error
+      { fprintf(stderr, "Undeclared identifier\n"); }
+  | LABEL error
+      { fprintf(stderr, "Label can not be assigned to an LED\n"); }
   ;
 
 variable_assignment_parameter
