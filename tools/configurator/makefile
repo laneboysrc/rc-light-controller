@@ -57,6 +57,7 @@ TOOL_CFLAGS += -O2
 LDFLAGS :=
 LDLIBS :=
 
+
 ###############################################################################
 # Plumbing for rules
 vpath %.c $(SOURCE_DIRS)
@@ -96,6 +97,9 @@ OBJECTS += $(patsubst %.y, $(BUILD_DIR)/%.o, $(Y_SOURCES))
 
 $(OBJECTS): $(patsubst %.y, $(BUILD_DIR)/%.c, $(Y_SOURCES))
 $(OBJECTS): $(patsubst %.l, $(BUILD_DIR)/%.c, $(L_SOURCES))
+$(OBJECTS): makefile
+$(OBJECTS): $(foreach sdir, $(SOURCE_DIRS), $(wildcard $(sdir)/*.h))
+$(OBJECTS): $(foreach sdir, $(BUILD_DIR), $(wildcard $(sdir)/*.h))
 
 
 ###############################################################################
