@@ -378,7 +378,6 @@ code_line
 
 command
   : GOTO expect_label LABEL
-      /* FIXME: need to be able to deal with not yet defined labels */
       { emit($1 | ($3->index) & 0xffffff); }
   | FADE leds variable_or_number
       { emit_led_instruction($1 | ($2 << 8) | $3); }
