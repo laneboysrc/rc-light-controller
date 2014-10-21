@@ -20,6 +20,7 @@ typedef struct _identifier {
 
 
 void initialize_symbols(void);
-void set_identifier(identifier *id, int token, int index);
+void add_symbol(const char *name, int token, int index);
+void set_symbol(identifier *id, int token, int index);
 void dump_symbol_table(void);
 void resolve_forward_declarations(uint32_t instructions[]);

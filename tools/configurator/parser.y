@@ -205,7 +205,8 @@ extern int yylex(YYSTYPE * yylval_param, YYLTYPE * yylloc_param);
 %token <instruction> WAIT
 
 %token <immediate> NUMBER
-%token <i> IDENTIFIER
+%token <i> UNDECLARED_IDENTIFIER
+%token <i> GLOBAL_VARIABLE
 %token <i> VARIABLE
 %token <i> LED_ID
 %token <i> LABEL
@@ -281,10 +282,6 @@ expect_car_state
   : %empty  { parse_state = EXPECTING_CAR_STATE; }
   ;
 
-expect_label
-  : %empty  { parse_state = EXPECTING_LABEL; }
-  ;
-
 condition_lines
   : priority_run_condition_lines
         { emit_run_condition($1, 0); }
@@ -347,12 +344,14 @@ decleration_line
   ;
 
 decleration
-  : VAR IDENTIFIER
-      { set_identifier($2, VARIABLE, -1); }
-  | GLOBAL VAR IDENTIFIER
-      { set_identifier($3, VARIABLE, -1); }
-  | LED IDENTIFIER ASSIGN master_or_slave
-      { set_identifier($2, LED_ID, $4); }
+  : VAR UNDECLARED_IDENTIFIER
+      { add_symbol($2->name, VARIABLE, -1); }
+  | GLOBAL VAR UNDECLARED_IDENTIFIER
+      { add_symbol($3->name, GLOBAL, -1); }
+  | GLOBAL VAR GLOBAL_VARIABLE
+      { /* Nothing to do, global variable already declared */ }
+  | LED UNDECLARED_IDENTIFIER ASSIGN master_or_slave
+      { fprintf(stderr, "PARSER: adding LED=%s\n", $2->name); add_symbol($2->name, LED_ID, $4); }
   ;
 
 master_or_slave
@@ -369,17 +368,19 @@ code_lines
 
 code_line
   /* New label declaration */
-  : IDENTIFIER ':' '\n'
-      { set_identifier($1, LABEL, pc); }
+  : UNDECLARED_IDENTIFIER ':' '\n'
+      { add_symbol($1->name, LABEL, pc); }
   /* Label that was already forward-declared in a GOTO */
   | LABEL ':' '\n'
-      { set_identifier($1, LABEL, pc); }
+      { set_symbol($1, LABEL, pc); }
   | command '\n'
   ;
 
 command
-  : GOTO expect_label LABEL
-      { emit($1 | ($3->index) & 0xffffff); }
+  : GOTO LABEL
+      { emit($1 | ($2->index) & 0xffffff); }
+  | GOTO UNDECLARED_IDENTIFIER
+      { add_symbol($2->name, LABEL, -1); emit($1); }
   | FADE leds variable_or_number
       { emit_led_instruction($1 | $3); }
   | WAIT variable_or_number
@@ -453,6 +454,8 @@ led_assignment_parameter
       { $$ = INSTRUCTION_MODIFIER_IMMEDIATE | ($1 & 0xff); }
   | VARIABLE
       { $$ = $1->index; }
+  | GLOBAL_VARIABLE
+      { $$ = $1->index; }
   ;
 
 variable_assignment_parameter
@@ -472,6 +475,8 @@ variable_or_number
       /* All opcodes that work with immediates have the lowest bit set */
       { $$ = INSTRUCTION_MODIFIER_IMMEDIATE | ($1 & 0xffff); }
   | VARIABLE
+      { $$ = (PARAMETER_TYPE_VARIABLE << 8) | $1->index; }
+  | GLOBAL_VARIABLE
       { $$ = (PARAMETER_TYPE_VARIABLE << 8) | $1->index; }
   ;
 

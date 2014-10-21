@@ -32,6 +32,10 @@ static identifier *symbol_table = NULL;
 static forward_declaration *forward_declaration_table = NULL;
 static int next_variable_index = 0;
 
+identifier undeclared_identifier = {
+    .name = NULL, .token = UNDECLARED_IDENTIFIER
+};
+
 static identifier run_condition_tokens[] = {
     {.name = "always", .token = RUN_CONDITION_ALWAYS, .opcode = (1 << 31)},
 
@@ -155,6 +159,49 @@ static identifier reserved_words[] = {
 
 
 // ****************************************************************************
+static void set_undeclared_identifier(const char *name)
+{
+    char *name_string;
+
+    if (undeclared_identifier.name != NULL) {
+        free((char *)undeclared_identifier.name);
+        undeclared_identifier.name = NULL;
+    }
+
+    name_string = (char *)calloc(strlen(name), 1);
+    if (name_string == NULL) {
+        fprintf(stderr,
+            "SYMBOLS: ERROR: Out of memory when allocating undeclared identifier name\n");
+        exit(1);
+    }
+    strcpy(name_string, name);
+
+    undeclared_identifier.name = name_string;
+    undeclared_identifier.token = UNDECLARED_IDENTIFIER;
+    undeclared_identifier.index = -1;
+}
+
+
+// ****************************************************************************
+static void add_forward_declaration(identifier *i, unsigned int location)
+{
+    forward_declaration *ptr;
+
+    ptr = (forward_declaration *)calloc(sizeof(forward_declaration), 1);
+    if (ptr == NULL) {
+        fprintf(stderr,
+            "SYMBOLS: ERROR: Out of memory when allocating a forward declaration\n");
+        exit(1);
+    }
+
+    ptr->i = i;
+    ptr->location = location;
+    ptr->next = forward_declaration_table;
+    forward_declaration_table = ptr;
+}
+
+
+// ****************************************************************************
 void dump_symbol_table(void)
 {
     identifier *ptr;
@@ -203,12 +250,18 @@ void resolve_forward_declarations(uint32_t instructions[])
 
 
 // ****************************************************************************
-void set_identifier(identifier *s, int token, int index)
+void set_symbol(identifier *s, int token, int index)
 {
-    s->token = token;
-    s->index = (index != -1) ? index : next_variable_index++;
+    if (s->index != -1) {
+        fprintf(stderr,
+            "SYMBOLS: ERROR: Redefinition of symbol '%s'\n", s->name);
+        exit(1);
+    }
 
-   fprintf(stderr, "SYMBOLS: Set '%s' as token=%s, index=%d\n",
+    s->token = token;
+    s->index = index;
+
+    fprintf(stderr, "SYMBOLS: Set '%s' as token=%s, index=%d\n",
         s->name, token2str(s->token), s->index);
 }
 
@@ -233,7 +286,7 @@ int get_reserved_word(union YYSTYPE *result, const char *yytext)
 
 
 // ****************************************************************************
-static int add_symbol(union YYSTYPE *result, const char *name, int token, int index)
+void add_symbol(const char *name, int token, int index)
 {
     identifier *ptr;
     char *name_string;
@@ -245,7 +298,7 @@ static int add_symbol(union YYSTYPE *result, const char *name, int token, int in
         exit(1);
     }
 
-    name_string = (char *)calloc(strlen(name) + 1, 1);
+    name_string = (char *)calloc(strlen(name), 1);
     if (name_string == NULL) {
         fprintf(stderr,
             "SYMBOLS: ERROR: Out of memory when allocating an identifier name\n");
@@ -253,33 +306,27 @@ static int add_symbol(union YYSTYPE *result, const char *name, int token, int in
     }
     strcpy(name_string, name);
 
+    if (token == VARIABLE  ||  token == GLOBAL_VARIABLE) {
+        if (index == -1) {
+            // FIXME: need to deal with fragmentation due to global variables!
+            index = next_variable_index++;
+        }
+    }
+
     ptr->name = name_string;
     ptr->token = token;
     ptr->index = index;
     ptr->next = symbol_table;
     symbol_table = ptr;
 
-    result->i = ptr;
-    return token;
-}
-
-
-// ****************************************************************************
-static void add_forward_declaration(identifier *i, unsigned int location)
-{
-    forward_declaration *ptr;
-
-    ptr = (forward_declaration *)calloc(sizeof(forward_declaration), 1);
-    if (ptr == NULL) {
+    if (ptr->token == LABEL  &&  ptr->index == -1) {
+        add_forward_declaration(ptr, pc);
         fprintf(stderr,
-            "SYMBOLS: ERROR: Out of memory when allocating a forward declaration\n");
-        exit(1);
+            "SYMBOLS: INFO: Forward declaration of label %s\n", name);
     }
 
-    ptr->i = i;
-    ptr->location = location;
-    ptr->next = forward_declaration_table;
-    forward_declaration_table = ptr;
+    fprintf(stderr, "SYMBOLS: Added symbol '%s' token=%s, index=%d\n",
+        ptr->name, token2str(ptr->token), ptr->index);
 }
 
 
@@ -287,7 +334,6 @@ static void add_forward_declaration(identifier *i, unsigned int location)
 int get_symbol(union YYSTYPE *result, const char *name)
 {
     identifier *ptr;
-    int token;
 
     ptr = NULL;
     if (parse_state == EXPECTING_RUN_CONDITION) {
@@ -307,10 +353,13 @@ int get_symbol(union YYSTYPE *result, const char *name)
         }
     }
 
+    // See if we are dealing with a LOCAL symbol
     for (ptr = symbol_table; ptr != NULL; ptr = ptr->next) {
+        if (ptr->token == GLOBAL_VARIABLE) {
+            continue;
+        }
         if (strcmp(ptr->name, name) == 0) {
-            if (ptr->token == IDENTIFIER  ||  ptr->token == VARIABLE  ||
-                    ptr->token == LED_ID) {
+            if (ptr->token == VARIABLE  ||  ptr->token == LED_ID) {
                 result->i = ptr;
             }
             else if (ptr->token == LABEL) {
@@ -329,26 +378,29 @@ int get_symbol(union YYSTYPE *result, const char *name)
         }
     }
 
-    token = (parse_state == EXPECTING_LABEL) ? LABEL : IDENTIFIER;
-
-    token = add_symbol(result, name, token, -1);
-
-    if (token == LABEL) {
-        add_forward_declaration(result->i, pc);
-        fprintf(stderr,
-            "SYMBOLS: INFO: Forward declaration of label %s\n", name);
+    // See if we are dealing with a GLOBAL symbol
+    for (ptr = symbol_table; ptr != NULL; ptr = ptr->next) {
+        if (ptr->token != GLOBAL_VARIABLE) {
+            continue;
+        }
+        if (strcmp(ptr->name, name) == 0) {
+            result->i = ptr;
+            return ptr->token;
+        }
     }
 
-    return token;
+    fprintf(stderr, "SYMBOLS: INFO: Undeclared identifier %s\n", name);
+
+    set_undeclared_identifier(name);
+    result->i = &undeclared_identifier;
+    return UNDECLARED_IDENTIFIER;
 }
 
 
 // ****************************************************************************
 void initialize_symbols(void)
 {
-    union YYSTYPE dummy;
-
     // Pre-load global special variable named "clicks" that increments
     // on every six CH3-clicks.
-    add_symbol(&dummy, "clicks", VARIABLE, next_variable_index++);
+    add_symbol("clicks", GLOBAL_VARIABLE, next_variable_index++);
 }
