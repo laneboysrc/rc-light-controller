@@ -197,7 +197,7 @@ run_conditions
   | run_conditions RUN_CONDITION
       { $$ = $1 | $2; }
   | run_conditions OR RUN_CONDITION
-      { $$ = $1 | $2; }
+      { $$ = $1 | $3; }
   ;
 
 run_always_condition_line
