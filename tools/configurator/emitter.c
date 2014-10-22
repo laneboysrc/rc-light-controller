@@ -207,6 +207,8 @@ void emit_end_of_program(void)
     ptr = instruction_list + start_offset[number_of_programs];
     resolve_forward_declarations(ptr + 2);
 
+    // FIXME: Fill in LEDS_USED word!
+
     remove_local_symbols();
     ++number_of_programs;
     pc = 0;
@@ -220,9 +222,37 @@ void output_programs(void)
     uint32_t *ptr = instruction_list;
     int i;
 
+    const char *part1 =
+        "__attribute__ ((section(\".light_programs\")))\n"
+        "const LIGHT_PROGRAMS_T light_programs = {\n"
+        "     .magic = {\n"
+        "         .magic_value = ROM_MAGIC,\n"
+        "         .type = LIGHT_PROGRAMS,\n"
+        "         .version = CONFIG_VERSION\n"
+        "     },\n"
+        "\n"
+        "     .number_of_programs = %d,\n"
+        "     .start = {\n";
+
+    const char *part2 =
+        "        &light_programs.programs[%d],\n";
+
+    const char *part3 =
+        "     },\n"
+        "\n"
+        "     .programs = {\n";
+
+    const char *part4 =
+        "          0x%08x,\n";
+
+    const char *part5 =
+        "         }\n"
+        "}\n";
+
     // Add the "END OF PROGRAMS" instruction to mark the end
     *last_instruction++ = 0xff000000;
 
+    // Print a summary
     fprintf(stderr, "\n");
     fprintf(stderr, "Number of programs: %d\n", number_of_programs);
 
@@ -232,7 +262,24 @@ void output_programs(void)
     }
     fprintf(stderr, "\n");
 
-    while (ptr != last_instruction) {
-        printf("0x%08x,\n", *ptr++);
+
+    // Output the light programs data structure
+
+    printf(part1, number_of_programs);
+
+    for (i = 0; i < number_of_programs; i++) {
+        printf(part2, start_offset[i]);
     }
+
+    printf(part3, 0);
+
+    while (ptr != last_instruction) {
+        printf(part4, *ptr);
+        if (*ptr == 0xfe000000) {
+            printf("\n");
+        }
+        ++ptr;
+    }
+
+    printf(part5, 0);
 }
