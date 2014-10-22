@@ -24,7 +24,8 @@
 #define OPCODE_SKIP_IF_ALL      0x80    // 100 + 29 bits run_state!
 #define OPCODE_SKIP_IF_NONE     0xA0    // 101 + 29 bits run_state!
 
-
+#define LEDS_USED_OFFSET 2
+#define FIRST_INSTRUCTION_OFFSET 3
 
 typedef struct {
     int count;
@@ -156,6 +157,7 @@ void emit_run_condition(uint32_t priority, uint32_t run)
 
     *last_instruction++ = priority;
     *last_instruction++ = run;
+    *last_instruction++ = 0;    // Placeholder for "leds used"
 }
 
 
@@ -200,15 +202,18 @@ void emit_end_of_program(void)
         yyerror(NULL, "Last operation in a program can not be 'skip if'.");
     }
 
+    // Add end-of-program instruction
     *last_instruction++ = 0xfe000000;
 
     dump_symbol_table();
 
+    // Fill in LEDS_USED word!
     ptr = instruction_list + start_offset[number_of_programs];
-    resolve_forward_declarations(ptr + 2);
+    *(ptr + LEDS_USED_OFFSET) = get_leds_used();
 
-    // FIXME: Fill in LEDS_USED word!
+    resolve_forward_declarations(ptr + FIRST_INSTRUCTION_OFFSET);
 
+    // Prepare for the next program
     remove_local_symbols();
     ++number_of_programs;
     pc = 0;

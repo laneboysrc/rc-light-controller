@@ -35,6 +35,7 @@ typedef struct {
 static SYMBOL_T *symbol_table = NULL;
 static FORWARD_DECLERATION_T *forward_declaration_table = NULL;
 static int next_variable_index = 0;
+static uint32_t leds_used = 0;
 
 static SYMBOL_T undeclared_symbol = {
     .name = NULL,
@@ -166,6 +167,13 @@ static RESERVED_WORD_T reserved_words[] = {
 
 
 // ****************************************************************************
+uint32_t get_leds_used(void)
+{
+    return leds_used;
+}
+
+
+// ****************************************************************************
 static void set_undeclared_symbol(const char *name)
 {
     char *name_string;
@@ -244,6 +252,8 @@ void dump_symbol_table(void)
 // ****************************************************************************
 void remove_local_symbols(void)
 {
+    leds_used = 0;
+
     if (forward_declaration_table != NULL) {
         FORWARD_DECLERATION_T *f;
         FORWARD_DECLERATION_T *entry_to_free;
@@ -390,6 +400,19 @@ void add_symbol(const char *name, int token, int index, YYLTYPE *location)
             index = next_variable_index++;
         }
     }
+
+
+    // Check LED index in range
+    if (token == LED_ID) {
+        if (index < 0  ||  index > 31) {
+            yyerror(location, "LED index out of range (must be 0..15)");
+        }
+        else {
+            // Add LED to bit-field of leds_used
+            leds_used |= (1 << index);
+        }
+    }
+
 
     ptr->name = name_string;
     ptr->token = token;

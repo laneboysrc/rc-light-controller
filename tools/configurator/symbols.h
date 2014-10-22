@@ -26,3 +26,4 @@ void set_symbol(SYMBOL_T *symbol, int token, int index, YYLTYPE *loc);
 void dump_symbol_table(void);
 void remove_local_symbols(void);
 void resolve_forward_declarations(uint32_t instructions[]);
+uint32_t get_leds_used(void);
