@@ -163,7 +163,7 @@ void emit_end_of_program(void)
     log_message(MODULE, INFO, "END OF PROGRAM\n");
 
     if (pc > 0  &&  is_skip_if(*(last_instruction - 1))) {
-        yyerror(NULL, "Last operation in a program can not be 'skip if'.\n");
+        yyerror(NULL, "Last operation in a program can not be 'skip if'.");
     }
 
     *last_instruction++ = 0xfe000000;

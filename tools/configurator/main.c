@@ -20,10 +20,7 @@ int main(int argc, char *argv[])
 
     initialize_emitter();
     initialize_symbols();
-
     yyparse();
-
     output_programs();
-
     return has_error_occured() ? 1 : 0;
 }

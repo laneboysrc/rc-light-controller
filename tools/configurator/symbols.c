@@ -241,7 +241,7 @@ void resolve_forward_declarations(uint32_t instructions[])
     for (f = forward_declaration_table; f != NULL; f = f->next) {
         if (f->symbol->index < 0) {
             char *message;
-            const char *fmt = "Label '%s' used but not defined.\n";
+            const char *fmt = "Label '%s' used but not defined.";
 
             message = (char *)calloc(strlen(fmt) + strlen(f->symbol->name), 1);
             if (message == NULL) {
@@ -272,7 +272,7 @@ void set_symbol(SYMBOL_T *symbol, int token, int index)
 {
     if (symbol->index != -1) {
         char *message;
-        const char *fmt = "Redefinition of symbol '%s'\n";
+        const char *fmt = "Redefinition of symbol '%s'";
 
         message = (char *)calloc(strlen(fmt) + strlen(symbol->name), 1);
         if (message == NULL) {
@@ -289,7 +289,7 @@ void set_symbol(SYMBOL_T *symbol, int token, int index)
     symbol->token = token;
     symbol->index = index;
 
-    log_message(MODULE, INFO, "Set '%s' as token=%s, index=%d\n",
+    log_message(MODULE, DEBUG, "Set '%s' as token=%s, index=%d\n",
         symbol->name, token2str(symbol->token), symbol->index);
 }
 
@@ -348,10 +348,10 @@ void add_symbol(const char *name, int token, int index)
 
     if (ptr->token == LABEL  &&  ptr->index == -1) {
         add_forward_declaration(ptr, pc);
-        log_message(MODULE, INFO, "Forward declaration of label %s\n", name);
+        log_message(MODULE, DEBUG, "Forward declaration of label %s\n", name);
     }
 
-    log_message(MODULE, INFO, "Added symbol '%s' token=%s, index=%d\n",
+    log_message(MODULE, DEBUG, "Added symbol '%s' token=%s, index=%d\n",
         ptr->name, token2str(ptr->token), ptr->index);
 }
 
@@ -398,7 +398,7 @@ int get_symbol(union YYSTYPE *result, const char *name)
                 result->symbol = ptr;
                 if (ptr->index == -1) {
                     add_forward_declaration(result->symbol, pc);
-                    log_message(MODULE, INFO,
+                    log_message(MODULE, DEBUG,
                         "Using forward declared label %s\n", name);
                 }
             }
@@ -424,7 +424,7 @@ int get_symbol(union YYSTYPE *result, const char *name)
         }
     }
 
-    log_message(MODULE, INFO, "Undeclared symbol '%s'\n", name);
+    log_message(MODULE, DEBUG, "Undeclared symbol '%s'\n", name);
 
     set_undeclared_symbol(name);
     result->symbol = &undeclared_symbol;

@@ -57,10 +57,10 @@ void log_message(const char *module, LOG_TYPE_T type, const char *fmt, ...)
 void yyerror(struct YYLTYPE *loc, const char *msg)
 {
     if (loc != NULL) {
-        fprintf(stderr, "%d:%d: error: %s\n", loc->first_line, loc->first_column, msg);
+        fprintf(stderr, "%d:%d: ERROR: %s\n", loc->first_line, loc->first_column, msg);
     }
     else {
-        fprintf(stderr, "error: %s\n", msg);
+        fprintf(stderr, "ERROR: %s\n", msg);
     }
 
     error_occured = true;

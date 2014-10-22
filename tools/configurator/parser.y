@@ -6,7 +6,6 @@ LANE Boys RC light controller (TLC5940/LPC812 version)
 
 
 // FIXME: add support for multiple programs
-// FIXME: can we deal with empty lines (by using a different parser type?)
 
 reserved keywords:
   goto, var, led, wait, skip, if, is, any, all, none, not, fade, run, when, or,
@@ -30,7 +29,6 @@ reserved keywords:
 #include "log.h"
 
 %}
-
 
 
 /* ========================================================================== */
@@ -383,6 +381,7 @@ assignment_operator
   ;
 
 %%
+
 
 /* ========================================================================== */
 /* Epilogue */
