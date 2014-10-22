@@ -242,6 +242,50 @@ void dump_symbol_table(void)
 
 
 // ****************************************************************************
+void remove_local_symbols(void)
+{
+    if (forward_declaration_table != NULL) {
+        FORWARD_DECLERATION_T *f;
+        FORWARD_DECLERATION_T *entry_to_free;
+
+        f = forward_declaration_table;
+        while (f != NULL) {
+            entry_to_free = f;
+            f = f->next;
+            free(entry_to_free);
+        }
+
+        forward_declaration_table = NULL;
+    }
+
+    if (symbol_table != NULL) {
+        SYMBOL_T *ptr = symbol_table;
+        SYMBOL_T **previous = &symbol_table;
+        SYMBOL_T *entry;
+
+        while (ptr != NULL) {
+            entry = ptr;
+            ptr = ptr->next;
+
+            if (entry->token != GLOBAL_VARIABLE) {
+                if (entry->name != NULL) {
+                    free((void *)entry->name);
+                    entry->name = NULL;
+                }
+                free(entry);
+                entry = NULL;
+                *previous = NULL;
+            }
+            else {
+                *previous = entry;
+                previous = &entry->next;
+            }
+        }
+    }
+}
+
+
+// ****************************************************************************
 void resolve_forward_declarations(uint32_t instructions[])
 {
     FORWARD_DECLERATION_T *f;
@@ -260,7 +304,7 @@ void resolve_forward_declarations(uint32_t instructions[])
             yyerror(&f->location, message);
             free(message);
         }
-        else if ((unsigned int)f->symbol->index == f->pc) {
+        else if ((unsigned  int)f->symbol->index == f->pc) {
             // Skip the declaration of the label
             continue;
         }

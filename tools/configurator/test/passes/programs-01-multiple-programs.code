@@ -1,9 +1,35 @@
 run always
 
-wait 1
+var x
+global var z
+global var g
+
+label1:
+    wait 1
+    goto forward_label
+    wait 2
+    z = 47
+forward_label:
+    x = 10
+    g = x
+    goto label1
 
 __NEXT_PROGRAM__
 
 run when neutral or reversing
 
-wait 2
+var y
+var x
+global var z
+var g
+
+label2:
+    wait 2
+    g = 3
+    goto forward_label
+    wait 3
+forward_label:
+    x = 21
+    y = x
+    z = 42
+    goto label2

@@ -33,9 +33,11 @@ typedef struct {
 
 unsigned int pc = 0;
 
+static int number_of_programs = 0;
+static unsigned int start_offset[MAX_LIGHT_PROGRAMS];
+
 static LED_LIST_T led_list;
 
-static int number_of_programs = 0;
 static uint32_t *instruction_list;
 static uint32_t *last_instruction;
 
@@ -158,20 +160,6 @@ void emit_run_condition(uint32_t priority, uint32_t run)
 
 
 // ****************************************************************************
-void emit_end_of_program(void)
-{
-    ++number_of_programs;
-    log_message(MODULE, INFO, "END OF PROGRAM\n");
-
-    if (pc > 0  &&  is_skip_if(*(last_instruction - 1))) {
-        yyerror(NULL, "Last operation in a program can not be 'skip if'.");
-    }
-
-    *last_instruction++ = 0xfe000000;
-}
-
-
-// ****************************************************************************
 void emit(uint32_t instruction)
 {
     log_message(MODULE, INFO, "INSTRUCTION: 0x%08x\n", instruction);
@@ -196,17 +184,49 @@ void initialize_emitter(void)
     }
 
     last_instruction = instruction_list;
+    start_offset[number_of_programs] =
+        (last_instruction - instruction_list) / sizeof(uint32_t);
 }
+
+
+// ****************************************************************************
+void emit_end_of_program(void)
+{
+    uint32_t *ptr;
+
+    log_message(MODULE, INFO, "END OF PROGRAM\n");
+
+    if (pc > 0  &&  is_skip_if(*(last_instruction - 1))) {
+        yyerror(NULL, "Last operation in a program can not be 'skip if'.");
+    }
+
+    *last_instruction++ = 0xfe000000;
+
+    dump_symbol_table();
+
+    ptr = instruction_list + start_offset[number_of_programs];
+    resolve_forward_declarations(ptr + 2);
+
+    remove_local_symbols();
+    ++number_of_programs;
+    pc = 0;
+    start_offset[number_of_programs] = last_instruction - instruction_list;
+}
+
 
 
 // ****************************************************************************
 void output_programs(void)
 {
     uint32_t *ptr = instruction_list;
+    int i;
 
-    dump_symbol_table();
+    printf("Number of programs: %d\n", number_of_programs);
 
-    resolve_forward_declarations(ptr + 2);
+    printf("Start offset locations:\n");
+    for (i = 0; i < number_of_programs; i++) {
+        printf("  %-2d: %d\n", i, start_offset[i]);
+    }
 
     while (ptr != last_instruction) {
         printf("0x%08x,\n", *ptr++);
