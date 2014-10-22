@@ -1,0 +1,9 @@
+run always
+
+wait 1
+
+__NEXT_PROGRAM__
+
+run when neutral or reversing
+
+wait 2

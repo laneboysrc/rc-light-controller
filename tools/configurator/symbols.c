@@ -144,6 +144,8 @@ static RESERVED_WORD_T reserved_words[] = {
     {.name = "throttle", .token = THROTTLE},
     {.name = "abs", .token = ABS, .opcode = 0x40000000},
 
+    {.name = "__NEXT_PROGRAM__", .token = NEXT_PROGRAM, .opcode = 0xfe000000},
+
     {.name = "=", .token = '=', .opcode = 0x10000000},
     {.name = ">", .token = GT, .opcode = 0x2c000000},
     {.name = "<", .token = LT, .opcode = 0x34000000},

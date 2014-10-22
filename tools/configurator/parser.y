@@ -63,6 +63,8 @@ extern int yylex(YYSTYPE * yylval_param, YYLTYPE * yylloc_param);
 %token <symbol> LED_ID
 %token <symbol> LABEL
 
+%token <instruction> NEXT_PROGRAM
+
 %token <instruction> PRIORITY_RUN_CONDITION
 %token <instruction> RUN_CONDITION
 %token <instruction> RUN_CONDITION_ALWAYS
@@ -123,19 +125,24 @@ extern int yylex(YYSTYPE * yylval_param, YYLTYPE * yylloc_param);
 %type <instruction> run_condition_lines priority_run_condition_lines
 %type <instruction> run_always_condition_line
 
-%start program
+%start programs
 
 %%
 
 /* ========================================================================== */
 /* Grammar rules */
 
+programs
+  : program
+  | programs NEXT_PROGRAM '\n' program
+  | %empty
+  ;
+
 program
   : condition_lines decleration_lines code_lines
       { emit_end_of_program(); }
   | condition_lines code_lines
       { emit_end_of_program(); }
-  | %empty
   ;
 
 expect_run_condition

@@ -42,7 +42,7 @@ static int offset = 1;
     return NUMBER;
 }
 
-goto|var|led|wait|skip|if|is|any|all|none|not|fade|run|when|or|master|slave|global|random|steering|throttle|abs {
+goto|var|led|wait|skip|if|is|any|all|none|not|fade|run|when|or|master|slave|global|random|steering|throttle|abs|__NEXT_PROGRAM__ {
     int token = get_reserved_word(yylval, yytext);
     log_message(MODULE, INFO,
         "Reserved word: %s (%s)\n", yytext, token2str(token));
