@@ -5281,69 +5281,6 @@ Source: AVX .. aphvc.pdf</description>
 </deviceset>
 </devicesets>
 </library>
-<library name="diode">
-<description>&lt;b&gt;Diodes&lt;/b&gt;&lt;p&gt;
-Based on the following sources:
-&lt;ul&gt;
-&lt;li&gt;Motorola : www.onsemi.com
-&lt;li&gt;Fairchild : www.fairchildsemi.com
-&lt;li&gt;Philips : www.semiconductors.com
-&lt;li&gt;Vishay : www.vishay.de
-&lt;/ul&gt;
-&lt;author&gt;Created by librarian@cadsoft.de&lt;/author&gt;</description>
-<packages>
-<package name="SMB">
-<description>&lt;B&gt;DIODE&lt;/B&gt;</description>
-<wire x1="-2.2606" y1="1.905" x2="2.2606" y2="1.905" width="0.1016" layer="21"/>
-<wire x1="-2.2606" y1="-1.905" x2="2.2606" y2="-1.905" width="0.1016" layer="21"/>
-<wire x1="-2.2606" y1="-1.905" x2="-2.2606" y2="1.905" width="0.1016" layer="51"/>
-<wire x1="2.2606" y1="-1.905" x2="2.2606" y2="1.905" width="0.1016" layer="51"/>
-<wire x1="0.193" y1="1" x2="-0.83" y2="0" width="0.2032" layer="21"/>
-<wire x1="-0.83" y1="0" x2="0.193" y2="-1" width="0.2032" layer="21"/>
-<wire x1="0.193" y1="-1" x2="0.193" y2="1" width="0.2032" layer="21"/>
-<smd name="C" x="-2.2" y="0" dx="2.4" dy="2.4" layer="1"/>
-<smd name="A" x="2.2" y="0" dx="2.4" dy="2.4" layer="1"/>
-<text x="-2.159" y="2.159" size="1.27" layer="25">&gt;NAME</text>
-<text x="-2.159" y="-3.429" size="1.27" layer="27">&gt;VALUE</text>
-<rectangle x1="-2.794" y1="-1.0922" x2="-2.2606" y2="1.0922" layer="51"/>
-<rectangle x1="2.2606" y1="-1.0922" x2="2.794" y2="1.0922" layer="51"/>
-<rectangle x1="-1.35" y1="-1.9" x2="-0.8" y2="1.9" layer="51"/>
-</package>
-</packages>
-<symbols>
-<symbol name="D">
-<wire x1="-1.27" y1="-1.27" x2="1.27" y2="0" width="0.254" layer="94"/>
-<wire x1="1.27" y1="0" x2="-1.27" y2="1.27" width="0.254" layer="94"/>
-<wire x1="1.27" y1="1.27" x2="1.27" y2="0" width="0.254" layer="94"/>
-<wire x1="-1.27" y1="1.27" x2="-1.27" y2="-1.27" width="0.254" layer="94"/>
-<wire x1="1.27" y1="0" x2="1.27" y2="-1.27" width="0.254" layer="94"/>
-<text x="2.54" y="0.4826" size="1.778" layer="95">&gt;NAME</text>
-<text x="2.54" y="-2.3114" size="1.778" layer="96">&gt;VALUE</text>
-<pin name="A" x="-2.54" y="0" visible="off" length="short" direction="pas"/>
-<pin name="C" x="2.54" y="0" visible="off" length="short" direction="pas" rot="R180"/>
-</symbol>
-</symbols>
-<devicesets>
-<deviceset name="ES2D" prefix="D">
-<description>&lt;B&gt;DIODE&lt;/B&gt;&lt;p&gt;
-super fast rectifier, 2 A</description>
-<gates>
-<gate name="G$1" symbol="D" x="0" y="0"/>
-</gates>
-<devices>
-<device name="" package="SMB">
-<connects>
-<connect gate="G$1" pin="A" pad="A"/>
-<connect gate="G$1" pin="C" pad="C"/>
-</connects>
-<technologies>
-<technology name=""/>
-</technologies>
-</device>
-</devices>
-</deviceset>
-</devicesets>
-</library>
 <library name="frames">
 <description>&lt;b&gt;Frames for Sheet and Layout&lt;/b&gt;</description>
 <packages>
@@ -6212,11 +6149,6 @@ new: Attribute TP_SIGNAL_NAME&lt;br&gt;
 <part name="U$2" library="LPC810" deviceset="LPC812M101JDH16" device="" value="LPC812"/>
 <part name="PAD6" library="wirepad" deviceset="SDM80X120" device="" value="CH3"/>
 <part name="R6" library="rcl" deviceset="R-EU_" device="R0603" value="1k"/>
-<part name="D1" library="diode" deviceset="ES2D" device="" value="(Diode)"/>
-<part name="PAD30" library="wirepad" deviceset="SDM80X120" device="" value="GND"/>
-<part name="PAD31" library="wirepad" deviceset="SDM80X120" device="" value="+5V"/>
-<part name="PAD32" library="wirepad" deviceset="SDM80X120" device="" value="Data out"/>
-<part name="GND9" library="supply1" deviceset="GND" device=""/>
 <part name="FRAME1" library="frames" deviceset="A3L-LOC" device=""/>
 <part name="R2" library="rcl" deviceset="R-EU_" device="R0603" value="1k"/>
 <part name="TP1" library="testpad" deviceset="TP" device="TP10R" value="SWDIO"/>
@@ -6239,7 +6171,6 @@ PIO0_3  ( 5)   SWCLK</text>
 <text x="238.76" y="246.38" size="2.54" layer="97">LED driver and outputs</text>
 <text x="43.18" y="71.12" size="2.54" layer="97">Voltage regulator</text>
 <text x="160.02" y="139.7" size="2.54" layer="97">Microcontroller</text>
-<text x="279.4" y="91.44" size="2.54" layer="97">WS2812 LED output</text>
 </plain>
 <instances>
 <instance part="U2" gate="G$1" x="281.94" y="193.04"/>
@@ -6291,11 +6222,6 @@ PIO0_3  ( 5)   SWCLK</text>
 <instance part="U$2" gate="G$1" x="180.34" y="116.84"/>
 <instance part="PAD6" gate="G$1" x="35.56" y="182.88" rot="MR180"/>
 <instance part="R6" gate="G$1" x="63.5" y="182.88" rot="MR180"/>
-<instance part="D1" gate="G$1" x="297.18" y="71.12"/>
-<instance part="PAD30" gate="G$1" x="320.04" y="60.96" rot="R180"/>
-<instance part="PAD31" gate="G$1" x="320.04" y="71.12" rot="R180"/>
-<instance part="PAD32" gate="G$1" x="320.04" y="81.28" rot="R180"/>
-<instance part="GND9" gate="1" x="309.88" y="50.8"/>
 <instance part="FRAME1" gate="G$1" x="0" y="0" smashed="yes">
 <attribute name="DRAWING_NAME" x="344.17" y="15.24" size="1.27" layer="94" font="vector" ratio="10"/>
 <attribute name="LAST_DATE_TIME" x="344.17" y="10.16" size="1.27" layer="94" font="vector" ratio="10"/>
@@ -6391,12 +6317,6 @@ PIO0_3  ( 5)   SWCLK</text>
 <pinref part="U2" gate="G$1" pin="PAD"/>
 <pinref part="GND4" gate="1" pin="GND"/>
 <wire x1="266.7" y1="185.42" x2="266.7" y2="177.8" width="0.1524" layer="91"/>
-</segment>
-<segment>
-<pinref part="PAD30" gate="G$1" pin="P"/>
-<pinref part="GND9" gate="1" pin="GND"/>
-<wire x1="317.5" y1="60.96" x2="309.88" y2="60.96" width="0.1524" layer="91"/>
-<wire x1="309.88" y1="60.96" x2="309.88" y2="53.34" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="SIN" class="0">
@@ -6498,11 +6418,6 @@ PIO0_3  ( 5)   SWCLK</text>
 <pinref part="U$1" gate="A" pin="VIN"/>
 <pinref part="C1" gate="G$1" pin="1"/>
 <label x="30.48" y="55.88" size="1.778" layer="95"/>
-</segment>
-<segment>
-<pinref part="D1" gate="G$1" pin="A"/>
-<wire x1="294.64" y1="71.12" x2="279.4" y2="71.12" width="0.1524" layer="91"/>
-<label x="279.4" y="71.12" size="1.778" layer="95"/>
 </segment>
 <segment>
 <wire x1="332.74" y1="111.76" x2="314.96" y2="111.76" width="0.1524" layer="91"/>
@@ -6717,25 +6632,6 @@ PIO0_3  ( 5)   SWCLK</text>
 <wire x1="223.52" y1="114.3" x2="208.28" y2="114.3" width="0.1524" layer="91"/>
 <pinref part="U$2" gate="G$1" pin="PIO0_13"/>
 <label x="218.44" y="114.3" size="1.778" layer="95"/>
-</segment>
-</net>
-<net name="N$3" class="0">
-<segment>
-<pinref part="PAD31" gate="G$1" pin="P"/>
-<wire x1="299.72" y1="71.12" x2="317.5" y2="71.12" width="0.1524" layer="91"/>
-<pinref part="D1" gate="G$1" pin="C"/>
-</segment>
-</net>
-<net name="WS2812-DATA-OUT" class="0">
-<segment>
-<pinref part="PAD32" gate="G$1" pin="P"/>
-<wire x1="317.5" y1="81.28" x2="279.4" y2="81.28" width="0.1524" layer="91"/>
-<label x="279.4" y="81.28" size="1.778" layer="95"/>
-</segment>
-<segment>
-<pinref part="U$2" gate="G$1" pin="PIO0_9/XTALOUT"/>
-<wire x1="223.52" y1="124.46" x2="208.28" y2="124.46" width="0.1524" layer="91"/>
-<label x="218.44" y="124.46" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="N$2" class="0">
