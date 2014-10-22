@@ -5,7 +5,10 @@
 
 #include "symbols.h"
 #include "emitter.h"
+#include "log.h"
 
+
+#define MODULE "emitter"
 
 // LPC812 has 16 Kbytes flash, 4 bytes per "instruction".
 // In reality the flash is of course only partly available...
@@ -41,8 +44,6 @@ static bool is_skip_if(uint32_t instruction)
 
     opcode = instruction >> 24;
 
-    printf("OPCODE: 0x%x 0x%x\n", opcode, instruction);
-
     if (opcode >= FIRST_SKIP_IF_OPCODE  &&  opcode <= LAST_SKIP_IF_OPCODE) {
         return true;
     }
@@ -67,8 +68,8 @@ void add_led_to_list(int led_index)
     // Discard duplicates
     for (i = 0; i < led_list.count; i++) {
         if (led_list.elements[i] == led_index) {
-            fprintf(stderr, "WARNING: Duplicate LED %d in list\n",
-                led_index);
+            log_message(MODULE, WARNING,
+                "Duplicate LED %d in list\n", led_index);
             return;
         }
     }
@@ -95,10 +96,11 @@ void emit_led_instruction(uint32_t instruction)
     uint8_t stop;
     uint8_t temp;
 
-    fprintf(stderr, "INFO: LED instruction: 0x%08x (%d leds)\n",
+    log_message(MODULE, INFO, "LED instruction: 0x%08x (%d leds)\n",
         instruction, led_list.count);
 
     if (led_list.count == 0) {
+        // FIXME: use YYERROR here
         fprintf(stderr, "ERROR: led_list.count is 0!\n");
         exit(1);
     }
@@ -145,8 +147,8 @@ void emit_led_instruction(uint32_t instruction)
 // ****************************************************************************
 void emit_run_condition(uint32_t priority, uint32_t run)
 {
-    fprintf(stderr, "PRIORITY   : 0x%08x\n", priority);
-    fprintf(stderr, "RUN        : 0x%08x\n", run);
+    log_message(MODULE, INFO, "PRIORITY code: 0x%08x\n", priority);
+    log_message(MODULE, INFO, "RUN code: 0x%08x\n", run);
 
     *last_instruction++ = priority;
     *last_instruction++ = run;
@@ -156,9 +158,10 @@ void emit_run_condition(uint32_t priority, uint32_t run)
 // ****************************************************************************
 void emit_end_of_program(void)
 {
-    fprintf(stderr, "END OF PROGRAM\n");
+    log_message(MODULE, INFO, "END OF PROGRAM\n");
 
-    if (is_skip_if(*(last_instruction - 1))) {
+    if (pc > 0  &&  is_skip_if(*(last_instruction - 1))) {
+        // FIXME: use yyerror
         fprintf(stderr,
             "ERROR: Last instruction in a program can not be 'skip if'.\n");
         exit(1);
@@ -171,7 +174,7 @@ void emit_end_of_program(void)
 // ****************************************************************************
 void emit(uint32_t instruction)
 {
-    fprintf(stderr, "INSTRUCTION: 0x%08x\n", instruction);
+    log_message(MODULE, INFO, "INSTRUCTION: 0x%08x\n", instruction);
 
     *last_instruction++ = instruction;
     ++pc;

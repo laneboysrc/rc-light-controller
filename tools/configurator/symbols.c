@@ -7,6 +7,10 @@
 #include "symbols.h"
 #include "parser.h"
 #include "emitter.h"
+#include "log.h"
+
+
+#define MODULE "symbols"
 
 
 const char *token2str(int token);
@@ -139,7 +143,7 @@ static RESERVED_WORD_T reserved_words[] = {
     {.name = "throttle", .token = THROTTLE},
     {.name = "abs", .token = ABS, .opcode = 0x40000000},
 
-    {.name = "=", .token = ASSIGN, .opcode = 0x10000000},
+    {.name = "=", .token = '=', .opcode = 0x10000000},
     {.name = ">", .token = GT, .opcode = 0x2c000000},
     {.name = "<", .token = LT, .opcode = 0x34000000},
     {.name = "+=", .token = ADD_ASSIGN, .opcode = 0x12000000},
@@ -235,9 +239,10 @@ void resolve_forward_declarations(uint32_t instructions[])
     FORWARD_DECLERATION_T *f;
     for (f = forward_declaration_table; f != NULL; f = f->next) {
         if (f->symbol->index < 0) {
-            fprintf(stderr,
-                "SYMBOLS: ERROR: Label '%s' used but not defined.\n",
-                    f->symbol->name);
+            log_message(MODULE, ERROR,
+                "Label '%s' used but not defined.\n", f->symbol->name);
+            // FIXME: User YYERROR here!
+            // FIXME: track symbol with yylloc
             exit(1);
         }
         else if ((unsigned int)f->symbol->index == f->location) {
@@ -257,15 +262,16 @@ void resolve_forward_declarations(uint32_t instructions[])
 void set_symbol(SYMBOL_T *symbol, int token, int index)
 {
     if (symbol->index != -1) {
-        fprintf(stderr,
-            "SYMBOLS: ERROR: Redefinition of symbol '%s'\n", symbol->name);
+        log_message(MODULE, ERROR,
+            "Redefinition of symbol '%s'\n", symbol->name);
         exit(1);
+        //FIXME: user YYERROR
     }
 
     symbol->token = token;
     symbol->index = index;
 
-    fprintf(stderr, "SYMBOLS: Set '%s' as token=%s, index=%d\n",
+    log_message(MODULE, INFO, "Set '%s' as token=%s, index=%d\n",
         symbol->name, token2str(symbol->token), symbol->index);
 }
 
@@ -284,7 +290,7 @@ int get_reserved_word(union YYSTYPE *result, const char *yytext)
     }
 
     fprintf(stderr,
-        "SYMBOLS: ERROR: reserved word %s not in the table\n", yytext);
+        "SYMBOLS: ASSERT: reserved word %s not in the table\n", yytext);
     exit(1);
 }
 
@@ -324,11 +330,10 @@ void add_symbol(const char *name, int token, int index)
 
     if (ptr->token == LABEL  &&  ptr->index == -1) {
         add_forward_declaration(ptr, pc);
-        fprintf(stderr,
-            "SYMBOLS: INFO: Forward declaration of label %s\n", name);
+        log_message(MODULE, INFO, "Forward declaration of label %s\n", name);
     }
 
-    fprintf(stderr, "SYMBOLS: Added symbol '%s' token=%s, index=%d\n",
+    log_message(MODULE, INFO, "Added symbol '%s' token=%s, index=%d\n",
         ptr->name, token2str(ptr->token), ptr->index);
 }
 
@@ -375,14 +380,13 @@ int get_symbol(union YYSTYPE *result, const char *name)
                 result->symbol = ptr;
                 if (ptr->index == -1) {
                     add_forward_declaration(result->symbol, pc);
-                    fprintf(stderr,
-                        "SYMBOLS: INFO: Using forward declared label %s\n",
-                        name);
+                    log_message(MODULE, INFO,
+                        "Using forward declared label %s\n", name);
                 }
             }
             else {
                 fprintf(stderr,
-                    "SYMBOLS: ERROR: Unhandled token '%s' in get_symbol()\n",
+                    "SYMBOLS: ASSERT: Unhandled token '%s' in get_symbol()\n",
                         token2str(ptr->token));
                 exit(1);
             }
@@ -402,8 +406,7 @@ int get_symbol(union YYSTYPE *result, const char *name)
         }
     }
 
-
-    fprintf(stderr, "SYMBOLS: INFO: Undeclared symbol '%s'\n", name);
+    log_message(MODULE, INFO, "Undeclared symbol '%s'\n", name);
 
     set_undeclared_symbol(name);
     result->symbol = &undeclared_symbol;

@@ -8,7 +8,6 @@ LANE Boys RC light controller (TLC5940/LPC812 version)
 // FIXME: add support for multiple programs
 // FIXME: can we deal with empty lines (by using a different parser type?)
 
-
 reserved keywords:
   goto, var, led, wait, skip, if, is, any, all, none, not, fade, run, when, or,
   master, slave, global, random, steering, throttle, abs
@@ -90,7 +89,7 @@ void yyerror(struct YYLTYPE *loc, const char *msg);
 %token <instruction> GOTO
 %token <instruction> WAIT
 
-%token <instruction> ASSIGN
+%token <instruction> '='
 %token <instruction> MUL_ASSIGN
 %token <instruction> DIV_ASSIGN
 %token <instruction> ADD_ASSIGN
@@ -222,7 +221,7 @@ decleration
   | GLOBAL VAR GLOBAL_VARIABLE
       { /* Nothing to do, global variable already declared */ }
   | GLOBAL VAR error
-  | LED UNDECLARED_SYMBOL ASSIGN master_or_slave
+  | LED UNDECLARED_SYMBOL '=' master_or_slave
       {  add_symbol($2->name, LED_ID, $4); }
   | LED error
   ;
@@ -318,7 +317,7 @@ expression
       { emit($3 | $4); }
   | GLOBAL_VARIABLE assignment_operator ABS abs_assignment_parameter
       { emit($3 | $4); }
-  | leds ASSIGN led_assignment_parameter
+  | leds '=' led_assignment_parameter
       { emit_led_instruction(0x02000000 | $3); }
   ;
 
@@ -373,7 +372,7 @@ abs_assignment_parameter
   ;
 
 assignment_operator
-  : ASSIGN
+  : '='
   | ADD_ASSIGN
   | SUB_ASSIGN
   | MUL_ASSIGN
