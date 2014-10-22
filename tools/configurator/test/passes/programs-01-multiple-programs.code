@@ -23,13 +23,13 @@ var x
 global var z
 var g
 
-label2:
     wait 2
+label2:
     g = 3
     goto forward_label
     wait 3
-forward_label:
     x = 21
     y = x
+forward_label:
     z = 42
     goto label2

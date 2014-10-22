@@ -214,19 +214,23 @@ void emit_end_of_program(void)
 }
 
 
-
 // ****************************************************************************
 void output_programs(void)
 {
     uint32_t *ptr = instruction_list;
     int i;
 
-    printf("Number of programs: %d\n", number_of_programs);
+    // Add the "END OF PROGRAMS" instruction to mark the end
+    *last_instruction++ = 0xff000000;
 
-    printf("Start offset locations:\n");
+    fprintf(stderr, "\n");
+    fprintf(stderr, "Number of programs: %d\n", number_of_programs);
+
+    fprintf(stderr, "Start offset locations:\n");
     for (i = 0; i < number_of_programs; i++) {
-        printf("  %-2d: %d\n", i, start_offset[i]);
+        fprintf(stderr, "  %-2d: %d\n", i, start_offset[i]);
     }
+    fprintf(stderr, "\n");
 
     while (ptr != last_instruction) {
         printf("0x%08x,\n", *ptr++);

@@ -5,8 +5,6 @@ Light programs are simple programs that are interpreted by the
 LANE Boys RC light controller (TLC5940/LPC812 version)
 
 
-// FIXME: add support for multiple programs
-
 reserved keywords:
   goto, var, led, wait, skip, if, is, any, all, none, not, fade, run, when, or,
   master, slave, global, random, steering, throttle, abs
