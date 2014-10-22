@@ -236,14 +236,23 @@ void dump_symbol_table(void)
 // ****************************************************************************
 void resolve_forward_declarations(uint32_t instructions[])
 {
+
     FORWARD_DECLERATION_T *f;
     for (f = forward_declaration_table; f != NULL; f = f->next) {
         if (f->symbol->index < 0) {
-            log_message(MODULE, ERROR,
-                "Label '%s' used but not defined.\n", f->symbol->name);
-            // FIXME: User YYERROR here!
+            char *message;
+            const char *fmt = "Label '%s' used but not defined.\n";
+
+            message = (char *)calloc(strlen(fmt) + strlen(f->symbol->name), 1);
+            if (message == NULL) {
+                fprintf(stderr, "ERROR: out of memory in resolve_forward_declarations()\n");
+                exit(1);
+            }
+            sprintf(message, fmt, f->symbol->name);
+
             // FIXME: track symbol with yylloc
-            exit(1);
+            yyerror(NULL, message);
+            free(message);
         }
         else if ((unsigned int)f->symbol->index == f->location) {
             // Skip the declaration of the label
@@ -262,10 +271,19 @@ void resolve_forward_declarations(uint32_t instructions[])
 void set_symbol(SYMBOL_T *symbol, int token, int index)
 {
     if (symbol->index != -1) {
-        log_message(MODULE, ERROR,
-            "Redefinition of symbol '%s'\n", symbol->name);
-        exit(1);
-        //FIXME: user YYERROR
+        char *message;
+        const char *fmt = "Redefinition of symbol '%s'\n";
+
+        message = (char *)calloc(strlen(fmt) + strlen(symbol->name), 1);
+        if (message == NULL) {
+            fprintf(stderr, "ERROR: out of memory in set_symbol()\n");
+            exit(1);
+        }
+        sprintf(message, fmt, symbol->name);
+
+        // FIXME: track symbol with yylloc
+        yyerror(NULL, message);
+        free(message);
     }
 
     symbol->token = token;

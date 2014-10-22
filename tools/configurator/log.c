@@ -1,9 +1,15 @@
 #include <stdio.h>
 #include <stdarg.h>
+#include <stdbool.h>
 
 #include "log.h"
+#include "parser.h"
 
 
+static bool error_occured = false;
+
+
+// ****************************************************************************
 static const char *get_log_type_string(LOG_TYPE_T t)
 {
     switch (t) {
@@ -25,6 +31,14 @@ static const char *get_log_type_string(LOG_TYPE_T t)
 }
 
 
+// ****************************************************************************
+int has_error_occured(void)
+{
+    return error_occured ? 1 : 0;
+}
+
+
+// ****************************************************************************
 void log_message(const char *module, LOG_TYPE_T type, const char *fmt, ...)
 {
     va_list ap;
@@ -35,4 +49,19 @@ void log_message(const char *module, LOG_TYPE_T type, const char *fmt, ...)
     vfprintf(stderr, fmt, ap);
 
     va_end(ap);
+}
+
+
+
+// ****************************************************************************
+void yyerror(struct YYLTYPE *loc, const char *msg)
+{
+    if (loc != NULL) {
+        fprintf(stderr, "%d:%d: error: %s\n", loc->first_line, loc->first_column, msg);
+    }
+    else {
+        fprintf(stderr, "error: %s\n", msg);
+    }
+
+    error_occured = true;
 }

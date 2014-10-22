@@ -5,6 +5,7 @@
 
 #include "symbols.h"
 #include "emitter.h"
+//#include "parser.h"
 #include "log.h"
 
 
@@ -22,6 +23,7 @@
 #define OPCODE_SKIP_IF_ANY      0x60    // 011 + 29 bits run_state!
 #define OPCODE_SKIP_IF_ALL      0x80    // 100 + 29 bits run_state!
 #define OPCODE_SKIP_IF_NONE     0xA0    // 101 + 29 bits run_state!
+
 
 
 typedef struct {
@@ -161,10 +163,7 @@ void emit_end_of_program(void)
     log_message(MODULE, INFO, "END OF PROGRAM\n");
 
     if (pc > 0  &&  is_skip_if(*(last_instruction - 1))) {
-        // FIXME: use yyerror
-        fprintf(stderr,
-            "ERROR: Last instruction in a program can not be 'skip if'.\n");
-        exit(1);
+        yyerror(NULL, "Last operation in a program can not be 'skip if'.\n");
     }
 
     *last_instruction++ = 0xfe000000;

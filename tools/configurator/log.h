@@ -1,5 +1,8 @@
 #pragma once
 
+#include "symbols.h"
+#include "parser.h"
+
 typedef enum {
     DEBUG,
     INFO,
@@ -9,3 +12,5 @@ typedef enum {
 
 
 void log_message(const char *module, LOG_TYPE_T type, const char *fmt, ...);
+void yyerror(struct YYLTYPE *loc, const char *msg);
+int has_error_occured(void);

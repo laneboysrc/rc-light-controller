@@ -27,7 +27,7 @@ reserved keywords:
 
 #include "symbols.h"
 #include "emitter.h"
-
+#include "log.h"
 
 %}
 
@@ -41,7 +41,7 @@ reserved keywords:
  * at this point!
  */
 extern int yylex(YYSTYPE * yylval_param, YYLTYPE * yylloc_param);
-void yyerror(struct YYLTYPE *loc, const char *msg);
+
 }
 
 %locations
