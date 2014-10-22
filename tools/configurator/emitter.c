@@ -35,6 +35,7 @@ unsigned int pc = 0;
 
 static LED_LIST_T led_list;
 
+static int number_of_programs = 0;
 static uint32_t *instruction_list;
 static uint32_t *last_instruction;
 
@@ -159,6 +160,7 @@ void emit_run_condition(uint32_t priority, uint32_t run)
 // ****************************************************************************
 void emit_end_of_program(void)
 {
+    ++number_of_programs;
     log_message(MODULE, INFO, "END OF PROGRAM\n");
 
     if (pc > 0  &&  is_skip_if(*(last_instruction - 1))) {
