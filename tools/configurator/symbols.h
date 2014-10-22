@@ -17,9 +17,11 @@ typedef struct _symbol {
     struct _symbol *next;
 } SYMBOL_T;
 
+#include "parser.h"
+
 
 void initialize_symbols(void);
-void add_symbol(const char *name, int token, int index);
-void set_symbol(SYMBOL_T *symbol, int token, int index);
+void add_symbol(const char *name, int token, int index, YYLTYPE *loc);
+void set_symbol(SYMBOL_T *symbol, int token, int index, YYLTYPE *loc);
 void dump_symbol_table(void);
 void resolve_forward_declarations(uint32_t instructions[]);

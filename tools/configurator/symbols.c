@@ -15,12 +15,13 @@
 
 const char *token2str(int token);
 int get_reserved_word(union YYSTYPE *result, const char *yytext);
-int get_symbol(union YYSTYPE *result, const char *name);
+int get_symbol(union YYSTYPE *result, const char *name, YYLTYPE *location);
 
 
 typedef struct _forward {
-    unsigned int location;
+    unsigned int pc;
     SYMBOL_T *symbol;
+    YYLTYPE location;
     struct _forward *next;
 } FORWARD_DECLERATION_T;
 
@@ -187,7 +188,8 @@ static void set_undeclared_symbol(const char *name)
 
 
 // ****************************************************************************
-static void add_forward_declaration(SYMBOL_T *symbol, unsigned int location)
+static void add_forward_declaration(
+    SYMBOL_T *symbol, unsigned int decleration_pc, YYLTYPE *location)
 {
     FORWARD_DECLERATION_T *ptr;
 
@@ -199,7 +201,11 @@ static void add_forward_declaration(SYMBOL_T *symbol, unsigned int location)
     }
 
     ptr->symbol = symbol;
-    ptr->location = location;
+    ptr->pc = decleration_pc;
+    ptr->location.first_line = location->first_line;
+    ptr->location.first_column = location->first_column;
+    ptr->location.last_line = location->last_line;
+    ptr->location.last_column = location->last_column;
     ptr->next = forward_declaration_table;
     forward_declaration_table = ptr;
 }
@@ -225,8 +231,8 @@ void dump_symbol_table(void)
     }
     else {
         for (f = forward_declaration_table; f != NULL; f = f->next) {
-            printf("label='%s' location=%u index=%d\n",
-                f->symbol->name, f->location, f->symbol->index);
+            printf("label='%s' pc=%u index=%d\n",
+                f->symbol->name, f->pc, f->symbol->index);
         }
     }
     printf("\n");
@@ -236,7 +242,6 @@ void dump_symbol_table(void)
 // ****************************************************************************
 void resolve_forward_declarations(uint32_t instructions[])
 {
-
     FORWARD_DECLERATION_T *f;
     for (f = forward_declaration_table; f != NULL; f = f->next) {
         if (f->symbol->index < 0) {
@@ -250,17 +255,16 @@ void resolve_forward_declarations(uint32_t instructions[])
             }
             sprintf(message, fmt, f->symbol->name);
 
-            // FIXME: track symbol with yylloc
-            yyerror(NULL, message);
+            yyerror(&f->location, message);
             free(message);
         }
-        else if ((unsigned int)f->symbol->index == f->location) {
+        else if ((unsigned int)f->symbol->index == f->pc) {
             // Skip the declaration of the label
             continue;
         }
         else {
-            instructions[f->location] =
-                (instructions[f->location] & 0xff000000) |
+            instructions[f->pc] =
+                (instructions[f->pc] & 0xff000000) |
                     (f->symbol->index & 0xffffff);
         }
     }
@@ -268,8 +272,10 @@ void resolve_forward_declarations(uint32_t instructions[])
 
 
 // ****************************************************************************
-void set_symbol(SYMBOL_T *symbol, int token, int index)
+void set_symbol(SYMBOL_T *symbol, int token, int index, YYLTYPE *loc)
 {
+    (void)loc;
+
     if (symbol->index != -1) {
         char *message;
         const char *fmt = "Redefinition of symbol '%s'";
@@ -281,8 +287,7 @@ void set_symbol(SYMBOL_T *symbol, int token, int index)
         }
         sprintf(message, fmt, symbol->name);
 
-        // FIXME: track symbol with yylloc
-        yyerror(NULL, message);
+        yyerror(loc, message);
         free(message);
     }
 
@@ -314,7 +319,7 @@ int get_reserved_word(union YYSTYPE *result, const char *yytext)
 
 
 // ****************************************************************************
-void add_symbol(const char *name, int token, int index)
+void add_symbol(const char *name, int token, int index, YYLTYPE *location)
 {
     SYMBOL_T *ptr;
     char *name_string;
@@ -347,7 +352,7 @@ void add_symbol(const char *name, int token, int index)
     symbol_table = ptr;
 
     if (ptr->token == LABEL  &&  ptr->index == -1) {
-        add_forward_declaration(ptr, pc);
+        add_forward_declaration(ptr, pc, location);
         log_message(MODULE, DEBUG, "Forward declaration of label %s\n", name);
     }
 
@@ -357,7 +362,7 @@ void add_symbol(const char *name, int token, int index)
 
 
 // ****************************************************************************
-int get_symbol(union YYSTYPE *result, const char *name)
+int get_symbol(union YYSTYPE *result, const char *name, YYLTYPE *location)
 {
     SYMBOL_T *ptr;
     RESERVED_WORD_T *r;
@@ -397,7 +402,7 @@ int get_symbol(union YYSTYPE *result, const char *name)
             else if (ptr->token == LABEL) {
                 result->symbol = ptr;
                 if (ptr->index == -1) {
-                    add_forward_declaration(result->symbol, pc);
+                    add_forward_declaration(result->symbol, pc, location);
                     log_message(MODULE, DEBUG,
                         "Using forward declared label %s\n", name);
                 }
@@ -437,5 +442,5 @@ void initialize_symbols(void)
 {
     // Pre-load global special variable named "clicks" that increments
     // on every six CH3-clicks.
-    add_symbol("clicks", GLOBAL_VARIABLE, next_variable_index++);
+    add_symbol("clicks", GLOBAL_VARIABLE, next_variable_index++, NULL);
 }

@@ -7,7 +7,7 @@
 #define MODULE "scanner"
 
 int get_reserved_word(union YYSTYPE *result, const char *yytext);
-int get_symbol(union YYSTYPE *result, const char *name);
+int get_symbol(union YYSTYPE *result, const char *name, YYLTYPE *location);
 const char *token2str(int token);
 
 static int offset = 1;
@@ -50,7 +50,7 @@ goto|var|led|wait|skip|if|is|any|all|none|not|fade|run|when|or|master|slave|glob
 }
 
 [[:alpha:]][[:alnum:]_\-]* {
-    int token = get_symbol(yylval, yytext);
+    int token = get_symbol(yylval, yytext, yylloc);
     log_message(MODULE, INFO,
         "Identifier: %s (%s)\n", yytext, token2str(token));
     return token;

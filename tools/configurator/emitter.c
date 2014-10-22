@@ -102,8 +102,7 @@ void emit_led_instruction(uint32_t instruction)
         instruction, led_list.count);
 
     if (led_list.count == 0) {
-        // FIXME: use YYERROR here
-        fprintf(stderr, "ERROR: led_list.count is 0!\n");
+        fprintf(stderr, "ERROR: emit_led_instruction(): led_list.count is 0\n");
         exit(1);
     }
 

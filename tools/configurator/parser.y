@@ -209,18 +209,18 @@ decleration_line
 
 decleration
   : VAR UNDECLARED_SYMBOL
-      { add_symbol($2->name, VARIABLE, -1); }
+      { add_symbol($2->name, VARIABLE, -1, &@2); }
   | VAR GLOBAL_VARIABLE
       /* Declare the variable as local variable, overshadowing the global one */
-      { add_symbol($2->name, VARIABLE, -1); }
+      { add_symbol($2->name, VARIABLE, -1, &@2); }
   | VAR error
   | GLOBAL VAR UNDECLARED_SYMBOL
-      { add_symbol($3->name, GLOBAL_VARIABLE, -1); }
+      { add_symbol($3->name, GLOBAL_VARIABLE, -1, &@3); }
   | GLOBAL VAR GLOBAL_VARIABLE
       { /* Nothing to do, global variable already declared */ }
   | GLOBAL VAR error
   | LED UNDECLARED_SYMBOL '=' master_or_slave
-      {  add_symbol($2->name, LED_ID, $4); }
+      {  add_symbol($2->name, LED_ID, $4, &@2); }
   | LED error
   ;
 
@@ -240,11 +240,11 @@ code_lines
 code_line
   /* New label declaration */
   : UNDECLARED_SYMBOL ':' '\n'
-      { add_symbol($1->name, LABEL, pc); }
+      { add_symbol($1->name, LABEL, pc, &@1); }
   | UNDECLARED_SYMBOL error
   /* Label that was already forward-declared in a GOTO */
   | LABEL ':' '\n'
-      { set_symbol($1, LABEL, pc); }
+      { set_symbol($1, LABEL, pc, &@1); }
   | LABEL error
   | command '\n'
   | error '\n'
@@ -254,7 +254,7 @@ command
   : GOTO LABEL
       { emit($1 | ($2->index) & 0xffffff); }
   | GOTO UNDECLARED_SYMBOL
-      { add_symbol($2->name, LABEL, -1); emit($1); }
+      { add_symbol($2->name, LABEL, -1, &@2); emit($1); }
   | FADE leds variable_or_number
       { emit_led_instruction($1 | $3); }
   | WAIT variable_or_number
