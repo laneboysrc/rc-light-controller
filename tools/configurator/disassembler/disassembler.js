@@ -44,9 +44,40 @@ var disassembler = (function() {
 		"OR_I": 0x1d,
 		"XOR": 0x1e,
 		"XOR_I": 0x1f,
+		"ABS": 0x40,    			// VAR = |VAR| (steering, throttle)
+		"SKIP_IF_EQ_V": 0x20,    	// ==       var, type, id
+		"SKIP_IF_EQ_VI": 0x21,    	// ==       var, immediate
+		"SKIP_IF_EQ_L": 0x22,    	// ==       led, type, id
+		"SKIP_IF_EQ_LI": 0x23,    	// ==       led, immediate
+		"SKIP_IF_NE_V": 0x24,    	// !=       var, type, id
+		"SKIP_IF_NE_VI": 0x25,    	// !=       var, immediate
+		"SKIP_IF_NE_L": 0x26,    	// !=       led, type, id
+		"SKIP_IF_NE_LI": 0x27,    	// !=       led, immediate
+		"SKIP_IF_GE_V": 0x28,    	// >=       var, type, id
+		"SKIP_IF_GE_VI": 0x29,    	// >=       var, immediate
+		"SKIP_IF_GE_L": 0x2a,    	// >=       led, type, id
+		"SKIP_IF_GE_LI": 0x2b,    	// >=       led, immediate
+		"SKIP_IF_GT_V": 0x2c,    	// >        var, type, id
+		"SKIP_IF_GT_VI": 0x2d,    	// >        var, immediate
+		"SKIP_IF_GT_L": 0x2e,    	// >        led, type, id
+		"SKIP_IF_GT_LI": 0x2f,    	// >        led, immediate
+		"SKIP_IF_LE_V": 0x30,    	// >=       var, type, id
+		"SKIP_IF_LE_VI": 0x31,    	// >=       var, immediate
+		"SKIP_IF_LE_L": 0x32,    	// >=       led, type, id
+		"SKIP_IF_LE_LI": 0x33,    	// >=       led, immediate
+		"SKIP_IF_LT_V": 0x34,    	// >        var, type, id
+		"SKIP_IF_LT_VI": 0x35,    	// >        var, immediate
+		"SKIP_IF_LT_L": 0x36,    	// >        led, type, id
+		"SKIP_IF_LT_LI": 0x37,    	// >        led, immediate
 		"END_OF_PROGRAM": 0xfe,
 		"END_OF_PROGRAMS": 0xff
 	};
+
+	var FIRST_SKIP_IF_OPCODE = 0x20;
+	var LAST_SKIP_IF_OPCODE = 0x37;
+	var OPCODE_SKIP_IF_ANY = 0x60;    	// 011 + 29 bits run_state!
+	var OPCODE_SKIP_IF_ALL = 0x80;    	// 100 + 29 bits run_state!
+	var OPCODE_SKIP_IF_NONE = 0xA0;    	// 101 + 29 bits run_state!
 
 	var INSTRUCTION_MODIFIER_LED = 0x02000000;
 	var INSTRUCTION_MODIFIER_IMMEDIATE = 0x01000000;
@@ -262,14 +293,12 @@ var disassembler = (function() {
 		var index;
 
 		if (instruction & INSTRUCTION_MODIFIER_IMMEDIATE) {
-			// FIXME: handle negative numbers properly
-			// FIXME: add hexadecimal as comment?!
 			var number = instruction & 0xffff;
 			var decimal = number;
 			if (decimal >= 0x8000) {
 				decimal = -0x10000 + decimal;
 			}
-			return '' + decimal + " // 0x" + number.toString(16);
+			return '' + decimal + " // 0x" + number.toString(16).toUpperCase();
 		}
 
 		parameter_type = (instruction >> 8) & 0xff;
@@ -301,7 +330,209 @@ var disassembler = (function() {
 
 
 	// *************************************************************************
+	var decode_test_parameter = function (instruction) {
+		var parameter_type;
+		var index;
+
+		if (instruction & INSTRUCTION_MODIFIER_IMMEDIATE) {
+			var number = instruction & 0xffff;
+			var decimal = number;
+			if (decimal >= 0x8000) {
+				decimal = -0x10000 + decimal;
+			}
+			return '' + decimal + " // 0x" + number.toString(16).toUpperCase();
+		}
+
+		parameter_type = (instruction >> 8) & 0xff;
+		index = instruction & 0xff;
+
+		switch (parameter_type) {
+			case PARAMETER_TYPE_VARIABLE:
+				if (index == 0) {
+					return "clicks";
+				}
+				return "var" + index;
+
+			case PARAMETER_TYPE_LED:
+				return "led" + index;
+
+			case PARAMETER_TYPE_STEERING:
+				return "steering";
+
+			case PARAMETER_TYPE_THROTTLE:
+				return "throttle";
+
+			default:
+				return "ERROR: unknown parameter type " + parameter_type
+		}
+	};
+
+
+	// *************************************************************************
+	var decode_skip_if = function (opcode, instruction) {
+		var left;
+		var right;
+
+		if (opcode & 0x02) {
+			left = "led" + ((instruction >> 16) & 0xff);
+		}
+		else {
+			left = "var" + ((instruction >> 16) & 0xff);
+		}
+
+		right = decode_test_parameter(instruction);
+
+		switch (opcode) {
+			case opcodes["SKIP_IF_EQ_V"]:
+			case opcodes["SKIP_IF_EQ_VI"]:
+			case opcodes["SKIP_IF_EQ_L"]:
+			case opcodes["SKIP_IF_EQ_LI"]:
+				return left + ' == ' + right;
+
+			case opcodes["SKIP_IF_NE_V"]:
+			case opcodes["SKIP_IF_NE_VI"]:
+			case opcodes["SKIP_IF_NE_L"]:
+			case opcodes["SKIP_IF_NE_LI"]:
+				return left + ' != ' + right;
+
+			case opcodes["SKIP_IF_GE_V"]:
+			case opcodes["SKIP_IF_GE_VI"]:
+			case opcodes["SKIP_IF_GE_L"]:
+			case opcodes["SKIP_IF_GE_LI"]:
+				return left + ' >= ' + right;
+
+			case opcodes["SKIP_IF_GT_V"]:
+			case opcodes["SKIP_IF_GT_VI"]:
+			case opcodes["SKIP_IF_GT_L"]:
+			case opcodes["SKIP_IF_GT_LI"]:
+				return left + ' > ' + right;
+
+			case opcodes["SKIP_IF_LE_V"]:
+			case opcodes["SKIP_IF_LE_VI"]:
+			case opcodes["SKIP_IF_LE_L"]:
+			case opcodes["SKIP_IF_LE_LI"]:
+				return left + ' <= ' + right;
+
+			case opcodes["SKIP_IF_LT_V"]:
+			case opcodes["SKIP_IF_LT_VI"]:
+			case opcodes["SKIP_IF_LT_L"]:
+			case opcodes["SKIP_IF_LT_LI"]:
+				return left + ' < ' + right;
+
+			default:
+				return "ERROR: unknown 'skip if' opcode " + opcode;
+		}
+	}
+
+
+	// *************************************************************************
+	var decode_car_state = function (instruction) {
+		var result = '';
+
+	    if (instruction & RUN_WHEN_LIGHT_SWITCH_POSITION_0) {
+	    	result +=  'light-switch-position0';
+	    }
+	    if (instruction & RUN_WHEN_LIGHT_SWITCH_POSITION_1) {
+	    	result += ' light-switch-position1';
+	    }
+	    if (instruction & RUN_WHEN_LIGHT_SWITCH_POSITION_2) {
+	    	result += ' light-switch-position2';
+	    }
+	    if (instruction & RUN_WHEN_LIGHT_SWITCH_POSITION_3) {
+	    	result += ' light-switch-position3';
+	    }
+	    if (instruction & RUN_WHEN_LIGHT_SWITCH_POSITION_4) {
+	    	result += ' light-switch-position4';
+	    }
+	    if (instruction & RUN_WHEN_LIGHT_SWITCH_POSITION_5) {
+	    	result += ' light-switch-position5';
+	    }
+	    if (instruction & RUN_WHEN_LIGHT_SWITCH_POSITION_6) {
+	    	result += ' light-switch-position6';
+	    }
+	    if (instruction & RUN_WHEN_LIGHT_SWITCH_POSITION_7) {
+	    	result += ' light-switch-position7';
+	    }
+	    if (instruction & RUN_WHEN_LIGHT_SWITCH_POSITION_8) {
+	    	result += ' light-switch-position8';
+	    }
+	    if (instruction & RUN_WHEN_NEUTRAL) {
+	    	result += ' neutral';
+	    }
+	    if (instruction & RUN_WHEN_FORWARD) {
+	    	result += ' forward';
+	    }
+	    if (instruction & RUN_WHEN_REVERSING) {
+	    	result += ' reversing';
+	    }
+	    if (instruction & RUN_WHEN_BRAKING) {
+	    	result += ' braking';
+	    }
+	    if (instruction & RUN_WHEN_INDICATOR_LEFT) {
+	    	result += ' indicator-left';
+	    }
+	    if (instruction & RUN_WHEN_INDICATOR_RIGHT) {
+	    	result += ' indicator-right';
+	    }
+	    if (instruction & RUN_WHEN_HAZARD) {
+	    	result += ' hazard';
+	    }
+	    if (instruction & RUN_WHEN_BLINK_FLAG) {
+	    	result += ' blink-flag';
+	    }
+	    if (instruction & RUN_WHEN_BLINK_LEFT) {
+	    	result += ' blink-left';
+	    }
+	    if (instruction & RUN_WHEN_BLINK_RIGHT) {
+	    	result += ' blink-right';
+	    }
+	    if (instruction & RUN_WHEN_WINCH_DISABLERD) {
+	    	result += ' winch-disabled';
+	    }
+	    if (instruction & RUN_WHEN_WINCH_IDLE) {
+	    	result += ' winch-idle';
+	    }
+	    if (instruction & RUN_WHEN_WINCH_IN) {
+	    	result += ' winch-in';
+	    }
+	    if (instruction & RUN_WHEN_WINCH_OUT) {
+	    	result += ' winch-out';
+	    }
+	    if (instruction & RUN_WHEN_GEAR_1) {
+	    	result += ' gear-1';
+	    }
+	    if (instruction & RUN_WHEN_GEAR_2) {
+	    	result += ' gear-2';
+	    }
+
+	    return result;
+	};
+
+
+	// *************************************************************************
 	var process_opcode = function (opcode, instruction) {
+		if ((opcode & 0xe0) == OPCODE_SKIP_IF_ANY) {
+			asm[offset + pc++]['code'] =
+				'skip if any' + decode_car_state(instruction);
+			return STATE_PROGRAM;
+		}
+		if ((opcode & 0xe0) == OPCODE_SKIP_IF_ALL) {
+			asm[offset + pc++]['code'] =
+				'skip if all' + decode_car_state(instruction);
+			return STATE_PROGRAM;
+		}
+		if ((opcode & 0xe0) == OPCODE_SKIP_IF_NONE) {
+			asm[offset + pc++]['code'] =
+				'skip if none' + decode_car_state(instruction);
+			return STATE_PROGRAM;
+		}
+
+		if (opcode >= FIRST_SKIP_IF_OPCODE  &&  opcode <= LAST_SKIP_IF_OPCODE) {
+			asm[offset + pc++]['code'] =
+				decode_skip_if(opcode, instruction);
+			return STATE_PROGRAM;
+		}
+
 		switch (opcode) {
 			case opcodes['END_OF_PROGRAM']:
 				return STATE_END_OF_PROGRAM;
@@ -404,7 +635,6 @@ var disassembler = (function() {
 				asm[offset + pc++]['code'] =
 					'TODO 0x' + (instruction & 0xffffffff).toString(16);
 				break
-
 		}
 
 		return STATE_PROGRAM;
@@ -496,8 +726,11 @@ var disassembler = (function() {
 		return source_code;
 	};
 
+
+	// *************************************************************************
+	// API of this module:
+	// *************************************************************************
 	return {
 		disassemble: disassemble
 	}
 })();
-
