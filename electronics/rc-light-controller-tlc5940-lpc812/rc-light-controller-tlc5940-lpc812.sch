@@ -6190,7 +6190,7 @@ PIO0_3  ( 5)   SWCLK</text>
 <instance part="GND8" gate="1" x="119.38" y="106.68"/>
 <instance part="U$1" gate="A" x="68.58" y="55.88" smashed="yes">
 <attribute name="NAME" x="64.6684" y="63.4746" size="2.0828" layer="95" ratio="10" rot="SR0"/>
-<attribute name="VALUE" x="53.1876" y="40.9448" size="2.0828" layer="96" ratio="10" rot="SR0"/>
+<attribute name="VALUE" x="65.8876" y="40.9448" size="2.0828" layer="96" ratio="10" rot="SR0"/>
 </instance>
 <instance part="PAD1" gate="G$1" x="35.56" y="223.52" rot="MR180"/>
 <instance part="PAD2" gate="G$1" x="35.56" y="213.36" rot="MR180"/>
