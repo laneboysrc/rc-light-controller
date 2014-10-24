@@ -764,25 +764,11 @@ var disassembler = (function() {
 
 
 	// *************************************************************************
-	var disassemble = function (instructions) {
-		var i;
-
-		for (i = 0; i < asm.length; i++) {
-			asm[i] = {'decleration' : null, 'label' : null, 'code' : null};
-		}
-
-		state = STATE_PRIORITY;
-
-		instructions.forEach(function (instruction) {
-			process_instruction(instruction);
-		});
-
-		determine_type_of_variables();
-
+	var output_source_code = function () {
 		var source_code = ""
 		var current_program = 1;
 
-		for (i = 0; i < (offset + pc); i++) {
+		for (var i = 0; i < (offset + pc); i++) {
 			if (i == var_offsets[current_program - 1]) {
 				source_code += insert_variable_declerations(current_program);
 
@@ -801,6 +787,24 @@ var disassembler = (function() {
 		}
 
 		return source_code;
+	}
+
+
+	// *************************************************************************
+	var disassemble = function (instructions) {
+		for (var i = 0; i < asm.length; i++) {
+			asm[i] = {'decleration' : null, 'label' : null, 'code' : null};
+		}
+
+		state = STATE_PRIORITY;
+
+		instructions.forEach(function (instruction) {
+			process_instruction(instruction);
+		});
+
+		determine_type_of_variables();
+
+		return output_source_code();
 	};
 
 
