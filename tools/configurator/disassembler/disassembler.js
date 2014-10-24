@@ -4,12 +4,15 @@ var disassembler = (function() {
 	var MAX_NUMBER_OF_INSTRUCTIONS = 16 * 1024 / 4;
 
 	var asm = new Array(MAX_NUMBER_OF_INSTRUCTIONS);
+	var variables = {};
+	var var_offsets = [];
 	var labels = {};
+	var current_program = 1;
 	var next_label_index = 1;
 
 	var offset = 0;
-	var var_offset = 0;
 	var pc = 0;
+
 
 	var STATE_PRIORITY = 0;
 	var STATE_RUN = 1;
@@ -125,6 +128,16 @@ var disassembler = (function() {
     var RUN_WHEN_GEAR_2                  	= (1 << 24);
 
     var RUN_ALWAYS                       	= (1 << 31);
+
+
+	// *************************************************************************
+    var set_variable_used = function (index, current_program) {
+    	if (typeof variables[index] === "undefined") {
+    		 variables[index] = {};
+    	}
+
+    	variables[index][current_program] = 1;
+    };
 
 
 	// *************************************************************************
@@ -288,9 +301,15 @@ var disassembler = (function() {
 
 
 	// *************************************************************************
-	var decode_variable_assignment = function (instruction) {
+	var decode_variable_assignment = function (instruction, operator) {
 		var parameter_type;
 		var index;
+		var result = '';
+
+		index = (instruction >> 16) & 0xff;
+		set_variable_used(index, current_program);
+		result = 'var' + index + ' ' + operator + ' ';
+
 
 		if (instruction & INSTRUCTION_MODIFIER_IMMEDIATE) {
 			var number = instruction & 0xffff;
@@ -298,7 +317,8 @@ var disassembler = (function() {
 			if (decimal >= 0x8000) {
 				decimal = -0x10000 + decimal;
 			}
-			return '' + decimal + " // 0x" + number.toString(16).toUpperCase();
+			return result + decimal +
+				" // 0x" + number.toString(16).toUpperCase();
 		}
 
 		parameter_type = (instruction >> 8) & 0xff;
@@ -307,21 +327,24 @@ var disassembler = (function() {
 		switch (parameter_type) {
 			case PARAMETER_TYPE_VARIABLE:
 				if (index == 0) {
-					return "clicks";
+					return result + "clicks";
 				}
-				return "var" + index;
+				else {
+					set_variable_used(index, current_program);
+				}
+				return result + "var" + index;
 
 			case PARAMETER_TYPE_LED:
-				return "led" + index;
+				return result + "led" + index;
 
 			case PARAMETER_TYPE_RANDOM:
-				return "random";
+				return result + "random";
 
 			case PARAMETER_TYPE_STEERING:
-				return "steering";
+				return result + "steering";
 
 			case PARAMETER_TYPE_THROTTLE:
-				return "throttle";
+				return result + "throttle";
 
 			default:
 				return "ERROR: unknown parameter type " + parameter_type
@@ -345,11 +368,15 @@ var disassembler = (function() {
 
 		parameter_type = (instruction >> 8) & 0xff;
 		index = instruction & 0xff;
+		set_variable_used(index, current_program);
 
 		switch (parameter_type) {
 			case PARAMETER_TYPE_VARIABLE:
 				if (index == 0) {
 					return "clicks";
+				}
+				else {
+					set_variable_used(index, current_program);
 				}
 				return "var" + index;
 
@@ -377,7 +404,13 @@ var disassembler = (function() {
 			left = "led" + ((instruction >> 16) & 0xff);
 		}
 		else {
-			left = "var" + ((instruction >> 16) & 0xff);
+			var index = (instruction >> 16) & 0xff;
+
+			if (index > 0) {
+				set_variable_used(index, current_program);
+			}
+
+			left = "var" + index;
 		}
 
 		right = decode_test_parameter(instruction);
@@ -578,57 +611,49 @@ var disassembler = (function() {
 			case opcodes['ASSIGN']:
 			case opcodes['ASSIGN_I']:
 				asm[offset + pc++]['code'] =
-					'var' + ((instruction & 0x00ff0000) >> 16) + ' = ' +
-						decode_variable_assignment(instruction);
+					decode_variable_assignment(instruction, '=');
 				break;
 
 			case opcodes['ADD']:
 			case opcodes['ADD_I']:
 				asm[offset + pc++]['code'] =
-					'var' + ((instruction & 0x00ff0000) >> 16) + ' += ' +
-						decode_variable_assignment(instruction);
+					decode_variable_assignment(instruction, '+=');
 				break;
 
 			case opcodes['SUBTRACT']:
 			case opcodes['SUBTRACT_I']:
 				asm[offset + pc++]['code'] =
-					'var' + ((instruction & 0x00ff0000) >> 16) + ' -= ' +
-						decode_variable_assignment(instruction);
+					decode_variable_assignment(instruction, '-=');
 				break;
 
 			case opcodes['MULTIPLY']:
 			case opcodes['MULTIPLY_I']:
 				asm[offset + pc++]['code'] =
-					'var' + ((instruction & 0x00ff0000) >> 16) + ' *= ' +
-						decode_variable_assignment(instruction);
+					decode_variable_assignment(instruction, '*=');
 				break;
 
 			case opcodes['DIVIDE']:
 			case opcodes['DIVIDE_I']:
 				asm[offset + pc++]['code'] =
-					'var' + ((instruction & 0x00ff0000) >> 16) + ' /= ' +
-						decode_variable_assignment(instruction);
+					decode_variable_assignment(instruction, '/=');
 				break;
 
 			case opcodes['AND']:
 			case opcodes['AND_I']:
 				asm[offset + pc++]['code'] =
-					'var' + ((instruction & 0x00ff0000) >> 16) + ' &= ' +
-						decode_variable_assignment(instruction);
+					decode_variable_assignment(instruction, '&=');
 				break;
 
 			case opcodes['OR']:
 			case opcodes['OR_I']:
 				asm[offset + pc++]['code'] =
-					'var' + ((instruction & 0x00ff0000) >> 16) + ' |= ' +
-						decode_variable_assignment(instruction);
+					decode_variable_assignment(instruction, '|=');
 				break;
 
 			case opcodes['XOR']:
 			case opcodes['XOR_I']:
 				asm[offset + pc++]['code'] =
-					'var' + ((instruction & 0x00ff0000) >> 16) + ' ^= ' +
-						decode_variable_assignment(instruction);
+					decode_variable_assignment(instruction, '^=');
 				break;
 
 			default:
@@ -660,7 +685,7 @@ var disassembler = (function() {
 
 			case STATE_LEDS_USED:
 				decode_leds_used(instruction);
-				var_offset = offset;
+				var_offsets.push(offset);
 				state = STATE_PROGRAM;
 				break;
 
@@ -673,15 +698,14 @@ var disassembler = (function() {
 					state = STATE_IGNORE;
 				}
 				else {
-					// Add variables
-
 					offset += pc;
 					pc = 0;
-
 
 					asm[offset++]['decleration'] = '';	// Empty line
 					asm[offset++]['decleration'] = '__NEXT_PROGRAM__';
 					asm[offset++]['decleration'] = '';	// Empty line
+
+					++current_program;
 
 					decode_priority_run_condition(instruction);
 					state = STATE_RUN;
@@ -692,6 +716,51 @@ var disassembler = (function() {
 				break;
 		}
 	};
+
+
+	// *************************************************************************
+	var determine_type_of_variables = function () {
+		for (var index in variables) {
+        	if(variables.hasOwnProperty(index)) {
+        		var usage_count = 0;
+
+        		for (var program in variables[index]) {
+        			if(variables[index].hasOwnProperty(program)) {
+        				++usage_count;
+        			}
+        		}
+
+        		variables[index]['type'] =
+        			(usage_count) > 1 ? 'global var' : 'var';
+	        }
+    	}
+	};
+
+
+	// *************************************************************************
+	var insert_variable_declerations = function (current_program) {
+		var indexes = [];
+		var result = '';
+
+		for (var index in variables) {
+        	if(variables.hasOwnProperty(index)) {
+        		indexes.push(index);
+	        }
+    	}
+
+    	for (var i in indexes.sort()) {
+    		var index = indexes[i];
+    		if (typeof variables[index][current_program] !== "undefined") {
+    			result += variables[index]['type'] + ' var' + index + '\n';
+    		}
+    	}
+
+    	if (result != '') {
+    		result += '\n';
+    	}
+
+		return result;
+	}
 
 
 	// *************************************************************************
@@ -708,10 +777,18 @@ var disassembler = (function() {
 			process_instruction(instruction);
 		});
 
+		determine_type_of_variables();
 
 		var source_code = ""
+		var current_program = 1;
 
 		for (i = 0; i < (offset + pc); i++) {
+			if (i == var_offsets[current_program - 1]) {
+				source_code += insert_variable_declerations(current_program);
+
+				++current_program;
+			}
+
 			if (asm[i]['decleration'] != null) {
 				source_code += asm[i]['decleration'] + "\n";
 			}
