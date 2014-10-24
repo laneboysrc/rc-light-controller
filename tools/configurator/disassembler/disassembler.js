@@ -809,9 +809,36 @@ var disassembler = (function() {
 
 
 	// *************************************************************************
+	// Extract the instructions from a C source code fragment defining the
+	// light_programs data structure LIGHT_PROGRAMS_T
+	var parse_c_code = function (input) {
+		var instructions = [];
+	    var lines = input.split("\n");
+
+	    for (var index in lines) {
+	        var line = lines[index];
+	        var instruction = line.match(/(0x[0-9a-fA-F]{8})/);
+	        if (instruction) {
+	            instructions.push(instruction[0]);
+	        }
+	    }
+
+	    return instructions;
+	}
+
+
+	// *************************************************************************
 	// API of this module:
 	// *************************************************************************
 	return {
-		disassemble: disassemble
+		disassemble: disassemble,
+		parse_c_code: parse_c_code
 	}
 })();
+
+
+// node.js exports; hide from browser where exports is undefined and use strict
+// would trigger.
+if (typeof exports !== 'undefined') {
+	exports.disassembler = disassembler;
+}
