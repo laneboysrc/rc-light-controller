@@ -219,7 +219,7 @@ Init_lights
 
     BANKSEL light_data
     movwf   light_data + LED_M_INDICATOR_F_R
-    movwf   light_data + LED_M_INDICATOR_F_R
+    movwf   light_data + LED_M_INDICATOR_F_L
 
 output_lights_end
     call    TLC5940_send
@@ -242,6 +242,9 @@ Output_lights
 
     ;----------
     ; Normal operation of lights goes here
+    BANKSEL light_mode
+    btfsc   light_mode, LIGHT_MODE_PARKING
+    call    output_lights_tail
     BANKSEL light_mode
     btfsc   light_mode, LIGHT_MODE_PARKING
     call    output_lights_parking
