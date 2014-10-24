@@ -102,7 +102,8 @@ class PreprocessorApp(object):
 
     def __init__(self):
         self.args = parse_commandline()
-        self.receiver = {'ST': 0, 'TH': 0, 'CH3': 0, 'STARTUP_MODE': 1}
+        self.receiver = {
+            'ST': 0, 'TH': 0, 'CH3': 0, 'STARTUP_MODE': 1, 'PING' : 0}
         self.read_thread = None
         self.write_thread = None
         self.done = False
