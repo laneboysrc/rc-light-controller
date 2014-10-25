@@ -17,8 +17,8 @@
 //
 // PIO0_0   (16, TDO, ISP-Rx)   Steering input / Rx
 // PIO0_1   (9,  TDI)           TLC5940 GSCLK
-// PIO0_2   (6,  TMS, SWDIO)    TLC5940 XLAT
-// PIO0_3   (5,  TCK, SWCLK)    TLC5940 SCLK
+// PIO0_2   (6,  TMS, SWDIO)    TLC5940 SCLK
+// PIO0_3   (5,  TCK, SWCLK)    TLC5940 XLAT
 // PIO0_4   (4,  TRST, ISP-Tx)  Throttle input / Tx
 // PIO0_5   (3,  RESET)         NC (test point)
 // PIO0_6   (15)                TLC5940 BLANK
@@ -211,15 +211,15 @@ static void stack_check(void)
 
 
 // ****************************************************************************
-static void check_no_signal(void) 
+static void check_no_signal(void)
 {
     static uint16_t no_signal_timeout = 0;
-    
+
     if (global_flags.new_channel_data) {
         global_flags.no_signal = false;
         no_signal_timeout = config.no_signal_timeout;
     }
-    
+
     if (global_flags.systick) {
         --no_signal_timeout;
         if (no_signal_timeout == 0) {
@@ -254,7 +254,7 @@ int main(void)
         process_indicators();
         process_channel_reversing_setup();
         check_no_signal();
-        
+
         process_servo_output();
         process_winch();
         process_lights();
