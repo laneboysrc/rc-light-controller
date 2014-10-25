@@ -70,7 +70,7 @@ var app = (function () {
             var flags = get_uint16(data, offset + 2);
 
             function get_flag(bit_mask) {
-                return (flags & bit_mask) ? true : false;
+                return Boolean(flags & bit_mask);
             }
 
             result['weak_light_switch_position0'] = get_flag(1 << 0);
@@ -127,7 +127,7 @@ var app = (function () {
         var flags = get_uint32(data, offset + 4);
 
         function get_flag(bit_mask) {
-            return (flags & bit_mask) ? true : false;
+            return Boolean(flags & bit_mask);
         }
 
         config['slave_ouput'] = get_flag(1 << 0);
