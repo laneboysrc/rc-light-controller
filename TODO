@@ -1,5 +1,14 @@
 TO DO LIST for the RC Light Controller
 
+* Fix ABS assignment, streamline all opcode right-side parameters using
+  the same parameter type (even if it doesn't make sense?!)
+
+* Automate tests to check whether assembly->disassembly->assembly gets
+  the same result after both assemblies
+
+
+
+
 * Investigate whether we can detect the order of the incoming channels
   automatically.
   HK-310 and GT3B both send the servo signals in sequence (the GT3B has a 2us
@@ -9,7 +18,7 @@ TO DO LIST for the RC Light Controller
   - Futaba 4PL: outputs all channels simultanously
 
     So we have to deal with the following situations:
-    - Servos are output in sequence with no percievable gap. 
+    - Servos are output in sequence with no percievable gap.
         Order to be discovered
         Read in sequence as hard-coded right now
     - Servos are output simultanously
@@ -21,7 +30,7 @@ TO DO LIST for the RC Light Controller
         In this case just read them round-robin one in each mainloop
 
 * Fix the issue with master and slave regarding UART RX usage in master for
-  the preprocessor use case.  
+  the preprocessor use case.
 
 * Add PAGESEL statements to all calls and gotos to work properly when the code
   grows beyond one page (which happens already for the Wraith!)
