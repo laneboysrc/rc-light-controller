@@ -140,7 +140,7 @@ preprocessor-simulator:
 # Clean all generated files
 clean:
 	$(ECHO) [RM] $(BUILD_DIR)
-	$(QUIET) $(RM) -rf $(BUILD_DIR)
+	$(QUIET) $(RM) -rf $(BUILD_DIR)/*
 
 
 .PHONY : all clean program terminal preprocessor-simulator list summary
