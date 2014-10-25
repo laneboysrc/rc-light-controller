@@ -307,9 +307,13 @@ var disassembler = (function() {
 		var result = '';
 
 		index = (instruction >> 16) & 0xff;
-		set_variable_used(index, current_program);
-		result = 'var' + index + ' ' + operator + ' ';
-
+		if (index > 0) {
+			set_variable_used(index, current_program);
+			result = 'var' + index + ' ' + operator + ' ';
+		}
+		else {
+			result = 'clicks ' + operator + ' ';
+		}
 
 		if (instruction & INSTRUCTION_MODIFIER_IMMEDIATE) {
 			var number = instruction & 0xffff;
@@ -408,9 +412,11 @@ var disassembler = (function() {
 
 			if (index > 0) {
 				set_variable_used(index, current_program);
+				left = "var" + index;
 			}
-
-			left = "var" + index;
+			else {
+				left = "clicks";
+			}
 		}
 
 		right = decode_test_parameter(instruction);
@@ -562,7 +568,7 @@ var disassembler = (function() {
 
 		if (opcode >= FIRST_SKIP_IF_OPCODE  &&  opcode <= LAST_SKIP_IF_OPCODE) {
 			asm[offset + pc++]['code'] =
-				decode_skip_if(opcode, instruction);
+				'skip if ' + decode_skip_if(opcode, instruction);
 			return STATE_PROGRAM;
 		}
 
@@ -581,13 +587,13 @@ var disassembler = (function() {
 				break;
 
 			case opcodes['SET']:
-				asm[offset + pc++]['code'] = 'set ' +
-					decode_leds(instruction) + ' var' + (instruction & 0xff);
+				asm[offset + pc++]['code'] =
+					decode_leds(instruction) + ' = var' + (instruction & 0xff);
 				break;
 
 			case opcodes['SET_I']:
-				asm[offset + pc++]['code'] = 'set ' +
-					decode_leds(instruction) + ' ' + (instruction & 0xff);
+				asm[offset + pc++]['code'] =
+					decode_leds(instruction) + ' = ' + (instruction & 0xff);
 				break;
 
 			case opcodes['WAIT']:
@@ -802,6 +808,14 @@ var disassembler = (function() {
 			asm[i] = {'decleration' : null, 'label' : null, 'code' : null};
 		}
 
+		variables = {};
+		var_offsets = [];
+		labels = {};
+		current_program = 1;
+		next_label_index = 1;
+
+		offset = 0;
+		pc = 0;
 		state = STATE_PRIORITY;
 
 		instructions.forEach(function (instruction) {
