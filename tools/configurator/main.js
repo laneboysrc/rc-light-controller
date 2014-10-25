@@ -258,8 +258,24 @@ var app = (function () {
 
 
     // *************************************************************************
-    var run = function () {
-        firmware = load_firmware(default_firmware_image);
+    var load_intelhex_file_from_disk = function () {
+        if (this.files.length < 1) {
+            return;
+        }
+
+        var file = this.files[0];
+
+        var reader = new FileReader();
+        reader.onload = function (e) {
+            load_and_parse_firmware(e.target.result);
+        };
+        reader.readAsText(file);
+    }
+
+
+    // *************************************************************************
+    var load_and_parse_firmware = function (intel_hex_data) {
+        firmware = load_firmware(intel_hex_data);
         config = parse_configuration();
         local_leds = parse_leds(SECTION_LOCAL_LEDS);
         slave_leds = parse_leds(SECTION_SLAVE_LEDS);
@@ -268,12 +284,22 @@ var app = (function () {
 
 
     // *************************************************************************
+    var run = function () {
+        // load_and_parse_firmware(default_firmware_image);
+    };
+
+
+    // *************************************************************************
     return {
+        load: load_intelhex_file_from_disk,
         run: run
     };
 })();
 
 
 document.addEventListener("DOMContentLoaded", function () {
+    document.getElementById("intelhex").addEventListener(
+        "change", app.load, false);
+
     app.run();
 }, false);
