@@ -3,6 +3,8 @@
 var app = (function () {
     var firmware;
     var config;
+    var local_leds;
+    var slave_leds;
 
     var LIGHT_SWITCH_POSITIONS = 9;
     var MAX_LIGHT_PROGRAMS = 25;
@@ -48,11 +50,77 @@ var app = (function () {
 
 
     // *************************************************************************
+    var parse_leds = function (section) {
+        var data = firmware.data;
+        var offset = firmware.offset[section];
+        var result = {};
+
+        var led_count = data[offset];
+        result['led_count'] = led_count;
+
+        var car_lights_offset = get_uint32(data, offset + 4);
+        console.log('car_lights_offset=0x' + car_lights_offset.toString(16));
+
+        function parse_led (data, offset) {
+            var result = {}
+
+            result['max_change_per_systick'] = data[offset];
+            result['reduction_percent'] = data[offset + 1];
+
+            var flags = get_uint16(data, offset + 2);
+
+            function get_flag(bit_mask) {
+                return (flags & bit_mask) ? true : false;
+            }
+
+            result['weak_light_switch_position0'] = get_flag(1 << 0);
+            result['weak_light_switch_position1'] = get_flag(1 << 1);
+            result['weak_light_switch_position2'] = get_flag(1 << 2);
+            result['weak_light_switch_position3'] = get_flag(1 << 3);
+            result['weak_light_switch_position4'] = get_flag(1 << 4);
+            result['weak_light_switch_position5'] = get_flag(1 << 5);
+            result['weak_light_switch_position6'] = get_flag(1 << 6);
+            result['weak_light_switch_position7'] = get_flag(1 << 7);
+            result['weak_light_switch_position8'] = get_flag(1 << 8);
+            result['weak_tail_light'] = get_flag(1 << 9);
+            result['weak_tail_light'] = get_flag(1 << 10);
+            result['weak_reversing_light'] = get_flag(1 << 11);
+            result['weak_indicator_left'] = get_flag(1 << 12);
+            result['weak_indicator_right'] = get_flag(1 << 13);
+
+            result['always_on'] = data[offset + 4];
+            result['light_switch_position0'] = data[offset + 5];
+            result['light_switch_position1'] = data[offset + 6];
+            result['light_switch_position2'] = data[offset + 7];
+            result['light_switch_position3'] = data[offset + 8];
+            result['light_switch_position4'] = data[offset + 9];
+            result['light_switch_position5'] = data[offset + 10];
+            result['light_switch_position6'] = data[offset + 11];
+            result['light_switch_position7'] = data[offset + 12];
+            result['light_switch_position8'] = data[offset + 13];
+            result['tail_light'] = data[offset + 14];
+            result['brake_light'] = data[offset + 15];
+            result['reversing_light'] = data[offset + 16];
+            result['indicator_left'] = data[offset + 17];
+            result['indicator_right'] = data[offset + 18];
+
+            return result;
+        }
+
+        for (var i = 0; i < led_count; i++) {
+            result[i] = parse_led(data, car_lights_offset + (i * 20));
+        }
+
+        return result;
+    };
+
+
+    // *************************************************************************
     var parse_configuration = function () {
         var data = firmware.data;
         var offset = firmware.offset[SECTION_CONFIG];
 
-        config = {};
+        var config = {};
 
         config['mode'] = get_uint32(data, offset);
 
@@ -97,7 +165,7 @@ var app = (function () {
         config['baudrate'] = get_uint32(data, offset + 44);
         config['no_signal_timeout'] = get_uint16(data, offset + 48);
 
-        console.log(config);
+        return config;
     };
 
 
@@ -134,8 +202,6 @@ var app = (function () {
         var first_program_offset = offset + 4 + (4 * MAX_LIGHT_PROGRAMS);
 
         var number_of_programs = get_uint32(data, offset);
-
-        console.log("number_of_programs=" + number_of_programs);
 
         var instructions =
             uint8_array_to_uint32(data.slice(first_program_offset));
@@ -194,7 +260,9 @@ var app = (function () {
     // *************************************************************************
     var run = function () {
         firmware = load_firmware(default_firmware_image);
-        parse_configuration();
+        config = parse_configuration();
+        local_leds = parse_leds(SECTION_LOCAL_LEDS);
+        slave_leds = parse_leds(SECTION_SLAVE_LEDS);
         disassemble_light_programs();
     };
 
