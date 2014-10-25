@@ -206,8 +206,7 @@ var app = (function () {
         var instructions =
             uint8_array_to_uint32(data.slice(first_program_offset));
 
-        var code = disassembler.disassemble(instructions);
-        document.getElementById("light_programs").innerHTML = code;
+        return disassembler.disassemble(instructions);
     };
 
 
@@ -263,29 +262,40 @@ var app = (function () {
             return;
         }
 
-        var file = this.files[0];
-
         var reader = new FileReader();
         reader.onload = function (e) {
             load_and_parse_firmware(e.target.result);
         };
-        reader.readAsText(file);
+        reader.readAsText(this.files[0]);
     }
 
 
     // *************************************************************************
     var load_and_parse_firmware = function (intel_hex_data) {
-        firmware = load_firmware(intel_hex_data);
-        config = parse_configuration();
-        local_leds = parse_leds(SECTION_LOCAL_LEDS);
-        slave_leds = parse_leds(SECTION_SLAVE_LEDS);
-        disassemble_light_programs();
+        var code = "";
+
+        firmware = undefined;
+        config = undefined;
+        local_leds = undefined
+        slave_leds = undefined;
+        document.getElementById("light_programs").innerHTML = code;
+
+        try {
+            firmware = load_firmware(intel_hex_data);
+            config = parse_configuration();
+            local_leds = parse_leds(SECTION_LOCAL_LEDS);
+            slave_leds = parse_leds(SECTION_SLAVE_LEDS);
+            code = disassemble_light_programs();
+        }
+        finally {
+            document.getElementById("light_programs").innerHTML = code;
+        }
     };
 
 
     // *************************************************************************
     var run = function () {
-        // load_and_parse_firmware(default_firmware_image);
+        load_and_parse_firmware(default_firmware_image);
     };
 
 
