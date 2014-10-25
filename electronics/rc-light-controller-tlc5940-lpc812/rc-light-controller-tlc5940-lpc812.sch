@@ -6338,19 +6338,8 @@ PIO0_3  ( 5)   SWCLK</text>
 <label x="195.58" y="205.74" size="1.778" layer="95"/>
 </segment>
 <segment>
-<label x="137.16" y="114.3" size="1.778" layer="95"/>
-<wire x1="149.86" y1="114.3" x2="137.16" y2="114.3" width="0.1524" layer="91"/>
-<pinref part="U$2" gate="G$1" pin="PIO0_3/SWCLK/TCK"/>
-<wire x1="152.4" y1="114.3" x2="149.86" y2="114.3" width="0.1524" layer="91"/>
-<wire x1="149.86" y1="114.3" x2="149.86" y2="132.08" width="0.1524" layer="91"/>
-<pinref part="TP2" gate="G$1" pin="TP"/>
-<junction x="149.86" y="114.3"/>
-</segment>
-</net>
-<net name="XLAT" class="0">
-<segment>
-<label x="137.16" y="116.84" size="1.778" layer="95"/>
 <wire x1="147.32" y1="116.84" x2="137.16" y2="116.84" width="0.1524" layer="91"/>
+<label x="137.16" y="116.84" size="1.778" layer="95"/>
 <pinref part="U$2" gate="G$1" pin="PIO0_2/SWDIO/TMS"/>
 <wire x1="152.4" y1="116.84" x2="147.32" y2="116.84" width="0.1524" layer="91"/>
 <wire x1="147.32" y1="116.84" x2="147.32" y2="129.54" width="0.1524" layer="91"/>
@@ -6359,10 +6348,21 @@ PIO0_3  ( 5)   SWCLK</text>
 <wire x1="139.7" y1="129.54" x2="139.7" y2="132.08" width="0.1524" layer="91"/>
 <junction x="147.32" y="116.84"/>
 </segment>
+</net>
+<net name="XLAT" class="0">
 <segment>
 <wire x1="195.58" y1="198.12" x2="238.76" y2="198.12" width="0.1524" layer="91"/>
 <pinref part="U2" gate="G$1" pin="XLAT"/>
 <label x="195.58" y="198.12" size="1.778" layer="95"/>
+</segment>
+<segment>
+<wire x1="149.86" y1="114.3" x2="137.16" y2="114.3" width="0.1524" layer="91"/>
+<label x="137.16" y="114.3" size="1.778" layer="95"/>
+<pinref part="U$2" gate="G$1" pin="PIO0_3/SWCLK/TCK"/>
+<wire x1="152.4" y1="114.3" x2="149.86" y2="114.3" width="0.1524" layer="91"/>
+<wire x1="149.86" y1="114.3" x2="149.86" y2="132.08" width="0.1524" layer="91"/>
+<pinref part="TP2" gate="G$1" pin="TP"/>
+<junction x="149.86" y="114.3"/>
 </segment>
 </net>
 <net name="BLANK" class="0">
