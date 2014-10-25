@@ -316,9 +316,9 @@ expression
       { emit($2 | ($1->index << 16) | $3); }
   | GLOBAL_VARIABLE assignment_operator variable_assignment_parameter
       { emit($2 | ($1->index << 16) | $3); }
-  | VARIABLE assignment_operator ABS abs_assignment_parameter
+  | VARIABLE '=' ABS abs_assignment_parameter
       { emit($3 | $4); }
-  | GLOBAL_VARIABLE assignment_operator ABS abs_assignment_parameter
+  | GLOBAL_VARIABLE '=' ABS abs_assignment_parameter
       { emit($3 | $4); }
   | leds '=' led_assignment_parameter
       { emit_led_instruction(0x02000000 | $3); }

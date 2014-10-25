@@ -656,6 +656,12 @@ var disassembler = (function() {
 					decode_variable_assignment(instruction, '^=');
 				break;
 
+			case opcodes['ABS']:
+				asm[offset + pc++]['code'] =
+					decode_variable_assignment(instruction, '= abs');
+				break;
+
+
 			default:
 				asm[offset + pc++]['code'] =
 					'TODO 0x' + (instruction & 0xffffffff).toString(16);

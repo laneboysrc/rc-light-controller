@@ -20,15 +20,15 @@
             - VARIABLE -= {integer, VARIABLE, LED[x], TH, ST}
             - VARIABLE *= {integer, VARIABLE, LED[x], TH, ST}
             - VARIABLE /= {integer, VARIABLE, LED[x], TH, ST}
-            - SKIP IF EQUAL {VARIABLE, LED[x]} {integer, VARIABLE, LED[x]} 
-            - SKIP IF NOT EQUAL {VARIABLE, LED[x]} {integer, VARIABLE, LED[x]} 
-            - SKIP IF GREATER OR EQUAL {VARIABLE, LED[x]} {integer, VARIABLE, LED[x]} 
-            - SKIP IF GREATER {VARIABLE, LED[x]} {integer, VARIABLE, LED[x]} 
+            - SKIP IF EQUAL {VARIABLE, LED[x]} {integer, VARIABLE, LED[x]}
+            - SKIP IF NOT EQUAL {VARIABLE, LED[x]} {integer, VARIABLE, LED[x]}
+            - SKIP IF GREATER OR EQUAL {VARIABLE, LED[x]} {integer, VARIABLE, LED[x]}
+            - SKIP IF GREATER {VARIABLE, LED[x]} {integer, VARIABLE, LED[x]}
             - SKIP IF SMALLER OR EQUAL  {VARIABLE, LED[x]} {integer, VARIABLE, LED[x]}
             - SKIP IF SMALLER  {VARIABLE, LED[x]} {integer, VARIABLE, LED[x]}
-            - SKIP IF ANY {run-state-mask} (compiler shortcut: SKIP IF {single-run-state}) 
-            - SKIP IF ALL {run-state-mask} 
-            - SKIP IF NONE {run-state-mask} (compiler shortcut: SKIP IF NOT {single-run-state}) 
+            - SKIP IF ANY {run-state-mask} (compiler shortcut: SKIP IF {single-run-state})
+            - SKIP IF ALL {run-state-mask}
+            - SKIP IF NONE {run-state-mask} (compiler shortcut: SKIP IF NOT {single-run-state})
 
 
         - INSTRUCTIONS and OPCODES
@@ -43,11 +43,11 @@
               the always_on state can stay at bit 31 as it does not make sense
               for the program.
               Upper 3 bits can not be 111 (assuming 000 is used for other
-              opcodes and those have at least one of the lower bits set) 
+              opcodes and those have at least one of the lower bits set)
               to ensure we don't have an issue with 0xff and 0x00.
             - For SKIP IF EQ... we need to deal with 16 bit immediates. The
               easiest way is to make separate opcodes for immediates and LEDs,
-              and immediates and variables, and led/var led/var.     
+              and immediates and variables, and led/var led/var.
 
         * VARIABLES
             - Global pool of variables, assigned at "compile time"
@@ -283,9 +283,9 @@ static void load_light_program_environment(void)
 static int16_t get_cmp1(uint32_t instruction)
 {
     uint8_t id;
-    
+
     id = (instruction >> 16) & 0xff;
-    
+
     // Bit 2 in the opcode field is cleared for VARIABLE, set for LED
     if (instruction & 0x02000000) {
         return light_actual[id];
@@ -304,26 +304,26 @@ static int16_t get_parameter_value(uint32_t instruction)
     if (instruction & 0x01000000) {
         return (int16_t)(instruction & 0xffff);
     }
-    
+
     // Even numbered opcodes have either variable, led or random as parameter,
     // determined by param2 of the opcode
     type = instruction >> 8;
     switch (type) {
         case PARAMETER_TYPE_VARIABLE:
             return var[instruction & 0xff];
-            
+
         case PARAMETER_TYPE_LED:
             return light_actual[instruction & 0xff];
-            
+
         case PARAMETER_TYPE_RANDOM:
-            return (int16_t)random_min_max(1, 0xffff); 
+            return (int16_t)random_min_max(1, 0xffff);
 
         case PARAMETER_TYPE_STEERING:
-            return channel[ST].normalized; 
+            return channel[ST].normalized;
 
         case PARAMETER_TYPE_THROTTLE:
-            return channel[TH].normalized; 
-            
+            return channel[TH].normalized;
+
         default:
             uart0_send_cstring("UNKNOWN PARAMETER TYPE ");
             uart0_send_uint32(type);
@@ -333,8 +333,8 @@ static int16_t get_parameter_value(uint32_t instruction)
 }
 
 
-static void execute_skip_if(uint8_t opcode, uint32_t instruction, 
-    LIGHT_PROGRAM_CPU_T *c) 
+static void execute_skip_if(uint8_t opcode, uint32_t instruction,
+    LIGHT_PROGRAM_CPU_T *c)
 {
     int16_t cmp1;
     int16_t cmp2;
@@ -342,7 +342,7 @@ static void execute_skip_if(uint8_t opcode, uint32_t instruction,
     cmp1 = get_cmp1(instruction);
     cmp2 = get_parameter_value(instruction);
 
-    switch (opcode) {               
+    switch (opcode) {
         case OPCODE_SKIP_IF_EQ_V:
         case OPCODE_SKIP_IF_EQ_VI:
         case OPCODE_SKIP_IF_EQ_L:
@@ -351,7 +351,7 @@ static void execute_skip_if(uint8_t opcode, uint32_t instruction,
                 ++c->PC;
             }
             break;
-            
+
         case OPCODE_SKIP_IF_NE_V:
         case OPCODE_SKIP_IF_NE_VI:
         case OPCODE_SKIP_IF_NE_L:
@@ -396,9 +396,9 @@ static void execute_skip_if(uint8_t opcode, uint32_t instruction,
                 ++c->PC;
             }
             break;
-            
+
         default:
-            break;    
+            break;
     }
 }
 
@@ -422,11 +422,11 @@ static void execute_program(
     while (instructions_executed < MAX_INSTRUCTIONS_PER_SYSTICK) {
         static uint32_t instruction;
         static uint8_t opcode;
-        
+
         static uint8_t min;
         static uint8_t max;
         static uint8_t value;
-        
+
         static uint8_t var_id;
         static int16_t dividend;
 
@@ -446,20 +446,20 @@ static void execute_program(
         if ((opcode & 0xe0) == OPCODE_SKIP_IF_ANY) {
             if (instruction & run_state & 0x1fffffff) {
                 c->PC++;
-            } 
+            }
             continue;
-        } 
+        }
         else if ((opcode & 0xe0) == OPCODE_SKIP_IF_ALL) {
-            if ((instruction & run_state & 0x1fffffff) == 
+            if ((instruction & run_state & 0x1fffffff) ==
                     (instruction & 0x1fffffff)) {
                 c->PC++;
-            } 
+            }
             continue;
-        } 
+        }
         else if ((opcode & 0xe0) == OPCODE_SKIP_IF_NONE) {
             if ((instruction & run_state & 0x1fffffff) == 0) {
                 c->PC++;
-            } 
+            }
             continue;
         }
 
@@ -469,7 +469,7 @@ static void execute_program(
         value = (instruction >> 0)  & 0xff;
 
         switch (opcode) {
-            case OPCODE_SET:
+            case OPCODE_SET_I:
                 for (i = min; i <= max; i++) {
                     if ((leds_already_used & (1 << i)) == 0) {
                         light_setpoint[i] = value;
@@ -477,7 +477,7 @@ static void execute_program(
                 }
                 break;
 
-            case OPCODE_SET_VARIABLE:
+            case OPCODE_SET:
                 for (i = min; i <= max; i++) {
                     if ((leds_already_used & (1 << i)) == 0) {
                         light_setpoint[i] = var[value];
@@ -485,7 +485,7 @@ static void execute_program(
                 }
                 break;
 
-            case OPCODE_FADE:
+            case OPCODE_FADE_I:
                 for (i = min; i <= max; i++) {
                     if ((leds_already_used & (1 << i)) == 0) {
                         max_change_per_systick[i] = value;
@@ -493,7 +493,7 @@ static void execute_program(
                 }
                 break;
 
-            case OPCODE_FADE_VARIABLE:
+            case OPCODE_FADE:
                 for (i = min; i <= max; i++) {
                     if ((leds_already_used & (1 << i)) == 0) {
                         max_change_per_systick[i] = var[value];
@@ -501,11 +501,11 @@ static void execute_program(
                 }
                 break;
 
-            case OPCODE_WAIT:
+            case OPCODE_WAIT_I:
                 c->timer = (instruction & 0x0000ffff);
                 return;
 
-            case OPCODE_WAIT_VARIABLE:
+            case OPCODE_WAIT:
                 c->timer = var[value] > 0 ? var[value] : 0;
                 return;
 
@@ -524,17 +524,17 @@ static void execute_program(
                 //uart0_send_uint32(var[var_id]);
                 //uart0_send_linefeed();
                 break;
-                
+
             case OPCODE_ADD:
             case OPCODE_ADD_I:
                 var[var_id] += get_parameter_value(instruction);
                 break;
-                
+
             case OPCODE_SUBTRACT:
             case OPCODE_SUBTRACT_I:
                 var[var_id] -= get_parameter_value(instruction);
                 break;
-                
+
             case OPCODE_MULTIPLY:
             case OPCODE_MULTIPLY_I:
                 var[var_id] *= get_parameter_value(instruction);
@@ -545,22 +545,22 @@ static void execute_program(
                 dividend = get_parameter_value(instruction);
                 if (dividend == 0) {
                     var[var_id] = 0x7fff;   // int16_t max
-                } 
+                }
                 else {
                     var[var_id] /= dividend;
                     }
                 break;
-                
+
             case OPCODE_AND:
             case OPCODE_AND_I:
                 var[var_id] &= get_parameter_value(instruction);
                 break;
-                
+
             case OPCODE_OR:
             case OPCODE_OR_I:
                 var[var_id] |= get_parameter_value(instruction);
                 break;
-                
+
             case OPCODE_XOR:
             case OPCODE_XOR_I:
                 var[var_id] ^= get_parameter_value(instruction);
@@ -571,7 +571,7 @@ static void execute_program(
                     var[var_id] = 0 - var[var_id];
                 }
                 break;
- 
+
             case OPCODE_END_OF_PROGRAM:
                 --c->PC;
                 c->event = 0;
@@ -595,10 +595,10 @@ void process_light_program_events(void)
     int i;
     if (global_flags.gear_changed) {
         for (i = 0; i < light_programs.number_of_programs; i++) {
-            if (*(light_programs.start[i] + PRIORITY_STATE_OFFSET) 
+            if (*(light_programs.start[i] + PRIORITY_STATE_OFFSET)
                 & RUN_WHEN_GEAR_CHANGED) {
-                reset_program(i);      
-                cpu[i].event = 1;   
+                reset_program(i);
+                cpu[i].event = 1;
                 break;
             }
         }
@@ -619,7 +619,7 @@ uint32_t process_light_programs(void)
     for (i = 0; i < light_programs.number_of_programs; i++) {
         if (cpu[i].event) {
             execute_program(light_programs.start[i], &cpu[i], &leds_used);
-        }   
+        }
     }
 
     // Run all priority programs where the light controller state matches

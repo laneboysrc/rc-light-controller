@@ -10,23 +10,23 @@
 #define INSTRUCTION_END_OF_PROGRAMS \
     (OPCODE_END_OF_PROGRAMS << 24)
 
-#define INSTRUCTION_SET(start, stop, value) \
-    ((OPCODE_SET << 24) | (stop << 16) | (start << 8) | value)
+#define INSTRUCTION_SET_IMMEDIATE(start, stop, value) \
+    ((OPCODE_SET_I << 24) | (stop << 16) | (start << 8) | value)
 
-#define INSTRUCTION_SET_VARIABLE(start, stop, var) \
-    ((OPCODE_SET_VARIABLE << 24) | (stop << 16) | (start << 8) | var)
+#define INSTRUCTION_SET(start, stop, var) \
+    ((OPCODE_SET << 24) | (stop << 16) | (start << 8) | var)
 
-#define INSTRUCTION_FADE(start, stop, value) \
-    ((OPCODE_FADE << 24) | (stop << 16) | (start << 8) | value)
+#define INSTRUCTION_FADE_IMMEDIATE(start, stop, value) \
+    ((OPCODE_FADE_I << 24) | (stop << 16) | (start << 8) | value)
 
-#define INSTRUCTION_FADE_VARIABLE(start, stop, var) \
-    ((OPCODE_FADE_VARIABLE << 24) | (stop << 16) | (start << 8) | var)
+#define INSTRUCTION_FADE(start, stop, var) \
+    ((OPCODE_FADE << 24) | (stop << 16) | (start << 8) | var)
 
-#define INSTRUCTION_WAIT(time_in_ms) \
-    ((OPCODE_WAIT << 24) | (time_in_ms / __SYSTICK_IN_MS))
+#define INSTRUCTION_WAIT_IMMEDIATE(time_in_ms) \
+    ((OPCODE_WAIT_I << 24) | (time_in_ms / __SYSTICK_IN_MS))
 
-#define INSTRUCTION_WAIT_VARIABLE(var) \
-    ((OPCODE_WAIT_VARIABLE << 24) | (var))
+#define INSTRUCTION_WAIT(var) \
+    ((OPCODE_WAIT << 24) | (var))
 
 #define INSTRUCTION_GOTO(line_no) \
     ((OPCODE_GOTO << 24) | line_no)
@@ -193,6 +193,8 @@
 #define INSTRUCTION_SKIP_IF_NONE(run_state) \
     ((OPCODE_SKIP_IF_NONE << 24) | run_state)
 
+// FIXME: be able to use same parameters (except immediate) than assignment
+// Needs to be changed in implementation too!
 #define INSTRUCTION_ABS(var) \
     ((OPCODE_ABS << 24) | (var << 16))
 
@@ -299,12 +301,12 @@ const LIGHT_PROGRAMS_T light_programs = {
         RUN_WHEN_INITIALIZING,
         0x00000000,
         LED_USED(0),
-        
-        INSTRUCTION_FADE(0, 0, 0),
-        INSTRUCTION_SET(0, 0, 100),
-        INSTRUCTION_WAIT(1100),
-        INSTRUCTION_SET(0, 0, 255),
-        INSTRUCTION_WAIT(60),
+
+        INSTRUCTION_FADE_IMMEDIATE(0, 0, 0),
+        INSTRUCTION_SET_IMMEDIATE(0, 0, 100),
+        INSTRUCTION_WAIT_IMMEDIATE(1100),
+        INSTRUCTION_SET_IMMEDIATE(0, 0, 255),
+        INSTRUCTION_WAIT_IMMEDIATE(60),
         INSTRUCTION_GOTO(1),
         INSTRUCTION_END_OF_PROGRAM,
 
@@ -312,53 +314,53 @@ const LIGHT_PROGRAMS_T light_programs = {
         RUN_WHEN_GEAR_CHANGED,
         0x00000000,
         LED_USED(1) + LED_USED(2),
-        
-        INSTRUCTION_FADE(1, 2, 0),
-        INSTRUCTION_SET(1, 2, 50),
-        INSTRUCTION_WAIT(300),
-        INSTRUCTION_FADE(1, 2, 50),
-        INSTRUCTION_SET(1, 2, 255),
-        INSTRUCTION_WAIT(100),
-        INSTRUCTION_SET(1, 2, 50),
-        INSTRUCTION_WAIT(300),
+
+        INSTRUCTION_FADE_IMMEDIATE(1, 2, 0),
+        INSTRUCTION_SET_IMMEDIATE(1, 2, 50),
+        INSTRUCTION_WAIT_IMMEDIATE(300),
+        INSTRUCTION_FADE_IMMEDIATE(1, 2, 50),
+        INSTRUCTION_SET_IMMEDIATE(1, 2, 255),
+        INSTRUCTION_WAIT_IMMEDIATE(100),
+        INSTRUCTION_SET_IMMEDIATE(1, 2, 50),
+        INSTRUCTION_WAIT_IMMEDIATE(300),
         INSTRUCTION_END_OF_PROGRAM,
 
         // Program 2
         RUN_WHEN_NO_SIGNAL,
         0x00000000,
         LED_USED(14),
-        
-        INSTRUCTION_FADE(14, 14, 0),
-        INSTRUCTION_SET(14, 14, 24),
+
+        INSTRUCTION_FADE_IMMEDIATE(14, 14, 0),
+        INSTRUCTION_SET_IMMEDIATE(14, 14, 24),
         INSTRUCTION_END_OF_PROGRAM,
 
         // Program 3
         RUN_WHEN_NORMAL_OPERATION,
         RUN_ALWAYS,
         LED_USED(15),
-        
-        INSTRUCTION_FADE(15, 15, 0),
+
+        INSTRUCTION_FADE_IMMEDIATE(15, 15, 0),
         INSTRUCTION_ASSIGN_IMMEDIATE(0, 0),     // Pre-load 6-click var[0] with 0
 
-        INSTRUCTION_WAIT(20),
+        INSTRUCTION_WAIT_IMMEDIATE(20),
         INSTRUCTION_SKIP_IF_LE_VI(0, 1),
         INSTRUCTION_ASSIGN_IMMEDIATE(0, 0),
         INSTRUCTION_SKIP_IF_ANY(RUN_WHEN_LIGHT_SWITCH_POSITION_1 | RUN_WHEN_LIGHT_SWITCH_POSITION_2),
         INSTRUCTION_GOTO(15),
 
-        INSTRUCTION_ASSIGN_THROTTLE(1), 
+        INSTRUCTION_ASSIGN_THROTTLE(1),
         INSTRUCTION_ABS(1),
         INSTRUCTION_ASSIGN_RANDOM(2),
         INSTRUCTION_AND_IMMEDIATE(2, 0xff),
-        INSTRUCTION_MULTIPLY_VARIABLE(1, 2),     
-        INSTRUCTION_DIVIDE_IMMEDIATE(1, 256),    
-            
-        INSTRUCTION_SET_VARIABLE(15, 15, 1),
+        INSTRUCTION_MULTIPLY_VARIABLE(1, 2),
+        INSTRUCTION_DIVIDE_IMMEDIATE(1, 256),
+
+        INSTRUCTION_SET_IMMEDIATE(15, 15, 1),
         INSTRUCTION_GOTO(2),
-        
-        INSTRUCTION_SET(15, 15, 30),
+
+        INSTRUCTION_SET_IMMEDIATE(15, 15, 30),
         INSTRUCTION_GOTO(2),
-        
+
         INSTRUCTION_END_OF_PROGRAM,
 
         INSTRUCTION_END_OF_PROGRAMS
