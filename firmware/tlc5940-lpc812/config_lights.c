@@ -26,7 +26,7 @@
     ((OPCODE_WAIT_I << 24) | (time_in_ms / __SYSTICK_IN_MS))
 
 #define INSTRUCTION_WAIT(var) \
-    ((OPCODE_WAIT << 24) | (var))
+    ((OPCODE_WAIT << 24) | (PARAMETER_TYPE_VARIABLE << 8) | var)
 
 #define INSTRUCTION_GOTO(line_no) \
     ((OPCODE_GOTO << 24) | line_no)
@@ -193,10 +193,10 @@
 #define INSTRUCTION_SKIP_IF_NONE(run_state) \
     ((OPCODE_SKIP_IF_NONE << 24) | run_state)
 
-// FIXME: be able to use same parameters (except immediate) than assignment
-// Needs to be changed in implementation too!
-#define INSTRUCTION_ABS(var) \
-    ((OPCODE_ABS << 24) | (var << 16))
+#define INSTRUCTION_ABS_VARIABLE(var, source) \
+    ((OPCODE_ABS << 24) | (var << 16) | (PARAMETER_TYPE_VARIABLE << 8) | source)
+
+// FIXME: implement missing instruction variants with all parameter types
 
 // ****************************************************************************
 const CAR_LIGHT_ARRAY_T local_leds = {
@@ -349,7 +349,7 @@ const LIGHT_PROGRAMS_T light_programs = {
         INSTRUCTION_GOTO(15),
 
         INSTRUCTION_ASSIGN_THROTTLE(1),
-        INSTRUCTION_ABS(1),
+        INSTRUCTION_ABS_VARIABLE(1, 1),
         INSTRUCTION_ASSIGN_RANDOM(2),
         INSTRUCTION_AND_IMMEDIATE(2, 0xff),
         INSTRUCTION_MULTIPLY_VARIABLE(1, 2),
