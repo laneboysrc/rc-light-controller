@@ -295,6 +295,7 @@ var app = (function () {
 
     // *************************************************************************
     var run = function () {
+        console.log(gamma.make_table("2.2"));
         load_and_parse_firmware(default_firmware_image);
     };
 

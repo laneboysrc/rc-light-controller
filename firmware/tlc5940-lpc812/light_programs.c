@@ -14,18 +14,18 @@
             - FADE start_led stop_led VARIABLE
             - WAIT time
             - WAIT VARIABLE
-            - VARIABLE = abs(VARIABLE)
             - VARIABLE = {integer, VARIABLE, LED[x], random-value, TH, ST}
-            - VARIABLE += {integer, VARIABLE, LED[x], TH, ST}
-            - VARIABLE -= {integer, VARIABLE, LED[x], TH, ST}
-            - VARIABLE *= {integer, VARIABLE, LED[x], TH, ST}
-            - VARIABLE /= {integer, VARIABLE, LED[x], TH, ST}
-            - SKIP IF EQUAL {VARIABLE, LED[x]} {integer, VARIABLE, LED[x]}
-            - SKIP IF NOT EQUAL {VARIABLE, LED[x]} {integer, VARIABLE, LED[x]}
-            - SKIP IF GREATER OR EQUAL {VARIABLE, LED[x]} {integer, VARIABLE, LED[x]}
-            - SKIP IF GREATER {VARIABLE, LED[x]} {integer, VARIABLE, LED[x]}
-            - SKIP IF SMALLER OR EQUAL  {VARIABLE, LED[x]} {integer, VARIABLE, LED[x]}
-            - SKIP IF SMALLER  {VARIABLE, LED[x]} {integer, VARIABLE, LED[x]}
+            - VARIABLE = abs {integer, VARIABLE, LED[x], random-value, TH, ST}
+            - VARIABLE += {integer, VARIABLE, LED[x], random-value, TH, ST}
+            - VARIABLE -= {integer, VARIABLE, LED[x], random-value, TH, ST}
+            - VARIABLE *= {integer, VARIABLE, LED[x], random-value, TH, ST}
+            - VARIABLE /= {integer, VARIABLE, LED[x], random-value, TH, ST}
+            - SKIP IF EQUAL {VARIABLE, LED[x]} {integer, VARIABLE, LED[x], random-value, TH, ST}
+            - SKIP IF NOT EQUAL {VARIABLE, LED[x]} {integer, VARIABLE, LED[x], random-value, TH, ST}
+            - SKIP IF GREATER OR EQUAL {VARIABLE, LED[x]} {integer, VARIABLE, LED[x], random-value, TH, ST}
+            - SKIP IF GREATER {VARIABLE, LED[x]} {integer, VARIABLE, LED[x], random-value, TH, ST}
+            - SKIP IF SMALLER OR EQUAL  {VARIABLE, LED[x]} {integer, VARIABLE, LED[x], random-value, TH, ST}
+            - SKIP IF SMALLER  {VARIABLE, LED[x]} {integer, VARIABLE, LED[x], random-value, TH, ST}
             - SKIP IF ANY {run-state-mask} (compiler shortcut: SKIP IF {single-run-state})
             - SKIP IF ALL {run-state-mask}
             - SKIP IF NONE {run-state-mask} (compiler shortcut: SKIP IF NOT {single-run-state})
@@ -430,6 +430,8 @@ static void execute_program(
         static uint8_t var_id;
         static int16_t dividend;
 
+        static uint16_t parameter;
+
         int i;
 
         ++instructions_executed;
@@ -469,14 +471,6 @@ static void execute_program(
         value = (instruction >> 0)  & 0xff;
 
         switch (opcode) {
-            case OPCODE_SET_I:
-                for (i = min; i <= max; i++) {
-                    if ((leds_already_used & (1 << i)) == 0) {
-                        light_setpoint[i] = value;
-                    }
-                }
-                break;
-
             case OPCODE_SET:
                 for (i = min; i <= max; i++) {
                     if ((leds_already_used & (1 << i)) == 0) {
@@ -485,10 +479,10 @@ static void execute_program(
                 }
                 break;
 
-            case OPCODE_FADE_I:
+            case OPCODE_SET_I:
                 for (i = min; i <= max; i++) {
                     if ((leds_already_used & (1 << i)) == 0) {
-                        max_change_per_systick[i] = value;
+                        light_setpoint[i] = value;
                     }
                 }
                 break;
@@ -501,12 +495,18 @@ static void execute_program(
                 }
                 break;
 
-            case OPCODE_WAIT_I:
-                c->timer = (instruction & 0x0000ffff);
-                return;
+            case OPCODE_FADE_I:
+                for (i = min; i <= max; i++) {
+                    if ((leds_already_used & (1 << i)) == 0) {
+                        max_change_per_systick[i] = value;
+                    }
+                }
+                break;
 
             case OPCODE_WAIT:
-                c->timer = var[value] > 0 ? var[value] : 0;
+            case OPCODE_WAIT_I:
+                parameter = get_parameter_value(instruction);
+                c->timer = parameter > 0 ? parameter : 0;
                 return;
 
             case OPCODE_GOTO:
@@ -567,9 +567,12 @@ static void execute_program(
                 break;
 
             case OPCODE_ABS:
-                if (var[var_id] < 0) {
-                    var[var_id] = 0 - var[var_id];
+                parameter = get_parameter_value(instruction);
+                // int16_t requires special handling
+                if (parameter & 0x8000) {
+                    parameter = ~parameter + 1;
                 }
+                var[var_id] = parameter;
                 break;
 
             case OPCODE_END_OF_PROGRAM:
