@@ -115,9 +115,8 @@ extern int yylex(YYSTYPE * yylval_param, YYLTYPE * yylloc_param);
 %type <immediate> master_or_slave
 %type <instruction> expression
 %type <instruction> assignment_operator
-%type <instruction> abs_assignment_parameter variable_assignment_parameter
-%type <instruction> led_assignment_parameter leds variable_or_number
-%type <instruction> test_parameter car_state_list test_operator
+%type <instruction> led_assignment_parameter leds
+%type <instruction> parameter car_state_list test_operator
 %type <instruction> run_conditions priority_run_conditions
 %type <instruction> run_condition_line priority_run_condition_line
 %type <instruction> run_condition_lines priority_run_condition_lines
@@ -260,18 +259,22 @@ command
       { emit($1 | ($2->index) & 0xffffff); }
   | GOTO UNDECLARED_SYMBOL
       { add_symbol($2->name, LABEL, -1, &@2); emit($1); }
-  | FADE leds variable_or_number
-      { emit_led_instruction($1 | $3); }
-  | WAIT variable_or_number
+  | FADE leds VARIABLE
+      { emit_led_instruction($1 | $3->index); }
+  | FADE leds GLOBAL_VARIABLE
+      { emit_led_instruction($1 | $3->index); }
+  | FADE leds NUMBER
+      { emit_led_instruction($1 | ($3 & 0xff)); }
+  | WAIT parameter
       { emit($1 | $2); }
   | SKIP IF test_expression
   | expression
   ;
 
 test_expression
-  : VARIABLE test_operator test_parameter
+  : VARIABLE test_operator parameter
       { emit($2 | ($1->index << 16) | $3); }
-  | LED_ID test_operator test_parameter
+  | LED_ID test_operator parameter
       /* All LED relates tests have 0x02 set in the opcode */
       { emit($2 | INSTRUCTION_MODIFIER_LED | ($1->index << 16) | $3); }
   | ANY expect_car_state car_state_list
@@ -295,16 +298,6 @@ test_operator
   | LE
   ;
 
-test_parameter
-  : variable_or_number
-  | LED_ID
-      { $$ = (PARAMETER_TYPE_LED << 8) | $1->index; }
-  | STEERING
-      { $$ = (PARAMETER_TYPE_STEERING << 8); }
-  | THROTTLE
-      { $$ = (PARAMETER_TYPE_THROTTLE << 8); }
-  ;
-
 car_state_list
   : CAR_STATE
   | car_state_list CAR_STATE
@@ -312,14 +305,10 @@ car_state_list
   ;
 
 expression
-  : VARIABLE assignment_operator variable_assignment_parameter
+  : VARIABLE assignment_operator parameter
       { emit($2 | ($1->index << 16) | $3); }
-  | GLOBAL_VARIABLE assignment_operator variable_assignment_parameter
+  | GLOBAL_VARIABLE assignment_operator parameter
       { emit($2 | ($1->index << 16) | $3); }
-  | VARIABLE '=' ABS abs_assignment_parameter
-      { emit($3 | $4); }
-  | GLOBAL_VARIABLE '=' ABS abs_assignment_parameter
-      { emit($3 | $4); }
   | leds '=' led_assignment_parameter
       { emit_led_instruction(0x02000000 | $3); }
   ;
@@ -341,8 +330,14 @@ led_assignment_parameter
       { $$ = $1->index; }
   ;
 
-variable_assignment_parameter
-  : variable_or_number
+parameter
+  : NUMBER
+      /* All opcodes that work with immediates have the lowest bit set */
+      { $$ = INSTRUCTION_MODIFIER_IMMEDIATE | ($1 & 0xffff); }
+  | VARIABLE
+      { $$ = (PARAMETER_TYPE_VARIABLE << 8) | $1->index; }
+  | GLOBAL_VARIABLE
+      { $$ = (PARAMETER_TYPE_VARIABLE << 8) | $1->index; }
   | LED_ID
       { $$ = (PARAMETER_TYPE_LED << 8) | $1->index; }
   | STEERING
@@ -351,27 +346,6 @@ variable_assignment_parameter
       { $$ = (PARAMETER_TYPE_THROTTLE << 8); }
   | RANDOM
       { $$ = (PARAMETER_TYPE_RANDOM << 8); }
-  ;
-
-variable_or_number
-  : NUMBER
-      /* All opcodes that work with immediates have the lowest bit set */
-      { $$ = INSTRUCTION_MODIFIER_IMMEDIATE | ($1 & 0xffff); }
-  | VARIABLE
-      { $$ = (PARAMETER_TYPE_VARIABLE << 8) | $1->index; }
-  | GLOBAL_VARIABLE
-      { $$ = (PARAMETER_TYPE_VARIABLE << 8) | $1->index; }
-  ;
-
-abs_assignment_parameter
-  : VARIABLE
-      { $$ = (PARAMETER_TYPE_VARIABLE << 8) | $1->index; }
-  | GLOBAL_VARIABLE
-      { $$ = (PARAMETER_TYPE_VARIABLE << 8) | $1->index; }
-  | STEERING
-      { $$ = (PARAMETER_TYPE_STEERING << 8); }
-  | THROTTLE
-      { $$ = (PARAMETER_TYPE_THROTTLE << 8); }
   ;
 
 assignment_operator
@@ -383,6 +357,7 @@ assignment_operator
   | AND_ASSIGN
   | OR_ASSIGN
   | XOR_ASSIGN
+  | ABS '='
   ;
 
 %%
