@@ -606,12 +606,12 @@ var disassembler = (function() {
 
 			case opcodes['FADE']:
 				asm[offset + pc++]['code'] = 'fade ' +
-					decode_leds(instruction) + ' var' + (instruction & 0xff);
+					decode_leds(instruction) + ' stepsize var' + (instruction & 0xff);
 				break;
 
 			case opcodes['FADE_I']:
 				asm[offset + pc++]['code'] = 'fade ' +
-					decode_leds(instruction) + ' ' + (instruction & 0xff);
+					decode_leds(instruction) + ' stepsize ' + (instruction & 0xff);
 				break;
 
 			case opcodes['ASSIGN']:
