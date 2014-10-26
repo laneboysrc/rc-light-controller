@@ -1,12 +1,9 @@
 TO DO LIST for the RC Light Controller
 
-* Fix ABS assignment, streamline all opcode right-side parameters using
-  the same parameter type (even if it doesn't make sense?!)
-
 * Automate tests to check whether assembly->disassembly->assembly gets
   the same result after both assemblies
 
-
+* Add gamma value to the config so that we can determine what gamma was used!
 
 
 * Investigate whether we can detect the order of the incoming channels
