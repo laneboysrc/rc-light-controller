@@ -12,11 +12,56 @@
 <body>
   <h1>RC Light Controller configuration tool</h1>
   <div>
-    Upload hex: <input type="file" id="intelhex">
+    Upload hex: <input type="file" id="intelhex" />
   </div>
+
+  <h2>LED configuration</h2>
+  <h3>Master</h2>
   <div>
-    Light programs:
+    <table>
+      <tr>
+        <td>LED 0</td>
+        <td><input type="number" step="1" min="0" max="255" size="3" /></td>
+        <td><input type="number" step="1" min="0" max="255" size="3" /></td>
+        <td><input type="number" step="1" min="0" max="255" size="3" /></td>
+        <td><input type="number" step="1" min="0" max="255" size="3" /></td>
+        <td><input type="number" step="1" min="0" max="255" size="3" /></td>
+        <td><input type="number" step="1" min="0" max="255" size="3" /></td>
+        <td><input type="number" step="1" min="0" max="255" size="3" /></td>
+        <td><input type="number" step="1" min="0" max="255" size="3" /></td>
+        <td><input type="number" step="1" min="0" max="255" size="3" /></td>
+        <td><input type="number" step="1" min="0" max="255" size="3" /></td>
+        <td><input type="number" step="1" min="0" max="255" size="3" /></td>
+        <td><input type="number" step="1" min="0" max="255" size="3" /></td>
+        <td><input type="number" step="1" min="0" max="255" size="3" /></td>
+        <td><input type="number" step="1" min="0" max="255" size="3" /></td>
+      </tr>
+    </table>
   </div>
+  <h3>Slave</h2>
+  <div>
+    <table>
+      <tr>
+        <td>LED 0</td>
+        <td><input type="number" step="1" min="0" max="255" size="3" /></td>
+        <td><input type="number" step="1" min="0" max="255" size="3" /></td>
+        <td><input type="number" step="1" min="0" max="255" size="3" /></td>
+        <td><input type="number" step="1" min="0" max="255" size="3" /></td>
+        <td><input type="number" step="1" min="0" max="255" size="3" /></td>
+        <td><input type="number" step="1" min="0" max="255" size="3" /></td>
+        <td><input type="number" step="1" min="0" max="255" size="3" /></td>
+        <td><input type="number" step="1" min="0" max="255" size="3" /></td>
+        <td><input type="number" step="1" min="0" max="255" size="3" /></td>
+        <td><input type="number" step="1" min="0" max="255" size="3" /></td>
+        <td><input type="number" step="1" min="0" max="255" size="3" /></td>
+        <td><input type="number" step="1" min="0" max="255" size="3" /></td>
+        <td><input type="number" step="1" min="0" max="255" size="3" /></td>
+        <td><input type="number" step="1" min="0" max="255" size="3" /></td>
+      </tr>
+    </table>
+  </div>
+
+  <h2>Light programs:</h2>
   <pre id="light_programs"></pre>
   <script>
   </script>
