@@ -39,26 +39,44 @@
 
     <div id="config-basic" style="display: none" class="box configuration">
       <h2>Basic configuration</h2>
-      <h3>Output functions</h2>
-      <div>
-        <input type="radio" name="output" value="0"/> (no output function)<br />
-        <input type="radio" name="output" value="1"/> Slave output<br />
-        <input type="radio" name="output" value="2"/> Pre-processour output<br />
-        <input type="radio" name="output" value="3"/> Steering wheel servo output<br />
-        <input type="radio" name="output" value="4"/> Gearbox servo output<br />
-        <input type="radio" name="output" value="5"/> Winch output<br />
 
-        Baudrate: <select id="baudrate">
-          <option value="38400">38400</option>
-          <option value="115200">115200</option>
-        </select>
-
+      <div id="single-output" style="display: none">
+        <h3>Output function on OUT/ISP</h2>
+        <div>
+          <input type="radio" name="output_single" value="0"/> (no output function)<br />
+          <input type="radio" name="output_single" value="1"/> Slave output<br />
+          <input type="radio" name="output_single" value="2"/> Pre-processour output<br />
+          <input type="radio" name="output_single" value="3"/> Steering wheel servo output<br />
+          <input type="radio" name="output_single" value="4"/> Gearbox servo output<br />
+          <input type="radio" name="output_single" value="5"/> Winch output<br />
+        </div>
       </div>
+      <div id="dual-output" style="display: none">
+        <h3>Servo output function on OUT/ISP</h2>
+        <div>
+          <input type="radio" name="output_out" value="0"/> (no output function)<br />
+          <input type="radio" name="output_out" value="3"/> Steering wheel servo output<br />
+          <input type="radio" name="output_out" value="4"/> Gearbox servo output<br />
+        </div>
+        <h3>Output function on TH/Tx</h2>
+        <div>
+          <input type="radio" name="output_th" value="0"/> (no output function)<br />
+          <input type="radio" name="output_th" value="1"/> Slave output<br />
+          <input type="radio" name="output_th" value="2"/> Pre-processour output<br />
+          <input type="radio" name="output_th" value="5"/> Winch output<br />
+        </div>
+      </div>
+
+      Baudrate: <select id="baudrate">
+        <option value="38400">38400</option>
+        <option value="115200">115200</option>
+      </select>
 
       <h3>ESC type</h2>
       <div>
         <input type="radio" name="esc" value="0"/> Forward/Brake/Reverse<br />
-        <input type="radio" name="esc" value="1"/> Forward/Reverse (&quot;crawler mode&quot;)<br />
+        <input type="radio" name="esc" value="1"/> Forward/Reverse (crawler mode)<br />
+        <input type="radio" name="esc" value="2"/> Forward/Brake (racing mode)<br />
       </div>
 
       <h3>CH3/AUX function</h2>
