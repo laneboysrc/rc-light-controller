@@ -309,6 +309,60 @@ var app = (function () {
 
 
 // *****************************************************************************
+function led_config_click_handler (e) {
+    var item = e.target;
+
+    if (item.nodeName != "TD") {
+        return;
+    }
+
+    var cell = document.getElementById(item.id);
+
+    var originalValue = parseInt(cell.textContent, 10);
+    if (isNaN(originalValue) || !isFinite(originalValue)) {
+        originalValue = 0;
+    }
+
+    var input = document.createElement("input");
+    input.type = 'number';
+    input.min = 0;
+    input.max = 100;
+    input.step = 1;
+    input.value = originalValue;
+
+    while (cell.firstChild) {
+        cell.removeChild(cell.firstChild);
+    }
+
+    cell.appendChild(input);
+    input.focus();
+
+    function blur_handler (e) {
+        var input = e.target;
+        var cell = input.parentNode;
+
+        var newValue = parseInt(input.value);
+        if (newValue < input.min  ||  newValue > input.max) {
+            newValue = originalValue;
+        }
+
+        console.log(input.min, input.value, input.max, newValue)
+
+        while (cell.firstChild) {
+            cell.removeChild(cell.firstChild);
+        }
+
+        if (newValue != 0) {
+            var textNode = document.createTextNode(newValue);
+            cell.appendChild(textNode);
+        }
+    };
+
+    input.addEventListener("blur", blur_handler, false);
+}
+
+
+// *****************************************************************************
 document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("intelhex").addEventListener(
         "change", app.load, false);
@@ -320,11 +374,8 @@ document.addEventListener("DOMContentLoaded", function () {
         var fields = led_rows[led].getElementsByTagName("td");
 
         for (var i = 0; i < fields.length; i++) {
-            fields[i].name = "led" + led + "field" + i;
-            fields[i].addEventListener("click", function (e) {
-                var item = e.target;
-                console.log(item.name);
-            }, false);
+            fields[i].id = "led" + led + "field" + i;
+            fields[i].addEventListener("click", led_config_click_handler, true);
         }
     }
 

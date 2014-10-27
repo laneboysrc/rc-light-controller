@@ -74,7 +74,7 @@ input {
   text-align: center;
   vertical-align: middle;
   width: 6.25%;
-  height: 1.2em;
+  height: 2em;
   border-left: 2px solid #ffcf0d;
 }
 
@@ -83,8 +83,6 @@ input {
 }
 
 .led-table td {
-  padding-top: 0.1em;
-  padding-bottom: 0.1em;
   cursor: default;
 }
 
