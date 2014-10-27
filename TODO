@@ -13,7 +13,7 @@ TO DO LIST for the RC Light Controller
 
 * ESC mode: add forward/brake type for racing ESC!
 
-* Cache all getElementById at the begin
+* Be able to change the indicator/hazard blink frequency
 
 
 * Investigate whether we can detect the order of the incoming channels
