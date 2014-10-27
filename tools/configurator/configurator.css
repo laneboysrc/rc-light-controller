@@ -65,32 +65,33 @@ input {
   border: 1px solid #ffcf0d;
 }
 
-.ledtable {
+.led-table {
   width: 100%;
   border-collapse: collapse;
 }
 
-.ledtable td, .ledtable th {
+.led-table td, .led-table th {
   text-align: center;
-  vertical-align: center;
+  vertical-align: middle;
   width: 6.25%;
+  height: 1.2em;
   border-left: 2px solid #ffcf0d;
 }
 
-.ledtable th {
+.led-table th {
   font-size: 0.8em;
+}
+
+.led-table td {
+  padding-top: 0.1em;
+  padding-bottom: 0.1em;
+  cursor: default;
+}
+
+.led-table .odd {
   background: #e8a60c;
 }
 
-.ledtable td {
-  padding-top: 3px;
-  padding-bottom: 3px;
-}
-
-.ledtable .odd {
-  background: #e8a60c;
-}
-
-.ledtable input {
+.led-table input {
   width: 3.5em;
 }

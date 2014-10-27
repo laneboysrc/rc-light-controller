@@ -308,9 +308,25 @@ var app = (function () {
 })();
 
 
+// *****************************************************************************
 document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("intelhex").addEventListener(
         "change", app.load, false);
+
+    var led_rows =
+        document.getElementById("leds-master").getElementsByClassName("led-config");
+
+    for (var led = 0; led < led_rows.length; led++) {
+        var fields = led_rows[led].getElementsByTagName("td");
+
+        for (var i = 0; i < fields.length; i++) {
+            fields[i].name = "led" + led + "field" + i;
+            fields[i].addEventListener("click", function (e) {
+                var item = e.target;
+                console.log(item.name);
+            }, false);
+        }
+    }
 
     app.run();
 }, false);
