@@ -24,9 +24,8 @@ h3 {
   padding-top: 1em;
 }
 
-input {
+input, select {
   font-size: 1em;
-  margin-top: 0px;
 }
 
 .redborder {

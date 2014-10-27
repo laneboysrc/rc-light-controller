@@ -29,11 +29,43 @@
     <div id="config-mode" class="box configuration">
       <h2>Operating mode</h2>
       <div>
-        <select>
-          <option>Master, servo inputs
-          <option>Master, pre-processor input
-            <option>Slave
+        <select id="mode">
+          <option value="0">Master, servo inputs</option>
+          <option value="1">Master, pre-processor input</option>
+          <option value="2">Slave</option>
         </select>
+      </div>
+    </div>
+
+    <div id="config-basic" style="display: none" class="box configuration">
+      <h2>Basic configuration</h2>
+      <h3>Output functions</h2>
+      <div>
+        <input type="radio" name="output" value="0"/> (no output function)<br />
+        <input type="radio" name="output" value="1"/> Slave output<br />
+        <input type="radio" name="output" value="2"/> Pre-processour output<br />
+        <input type="radio" name="output" value="3"/> Steering wheel servo output<br />
+        <input type="radio" name="output" value="4"/> Gearbox servo output<br />
+        <input type="radio" name="output" value="5"/> Winch output<br />
+
+        Baudrate: <select id="baudrate">
+          <option value="38400">38400</option>
+          <option value="115200">115200</option>
+        </select>
+
+      </div>
+
+      <h3>ESC type</h2>
+      <div>
+        <input type="radio" name="esc" value="0"/> Forward/Brake/Reverse<br />
+        <input type="radio" name="esc" value="1"/> Forward/Reverse (&quot;crawler mode&quot;)<br />
+      </div>
+
+      <h3>CH3/AUX function</h2>
+      <div>
+        <input type="radio" name="ch3" value="0"/> CH3/AUX is a two-position switch or toggle button<br />
+        <input type="radio" name="ch3" value="1"/> CH3/AUX is a momentary push button<br />
+        <input type="radio" name="ch3" value="1"/> Push button connected to the light controller's CH3 input (i.e. a physical button, not a servo signal)<br />
       </div>
     </div>
 
@@ -689,6 +721,37 @@
       <h2>Light programs:</h2>
       <pre id="light_programs"></pre>
     </div>
+
+    <div id="config-advanced" style="display: none" class="box configuration">
+      <h2>Advanced configuration</h2>
+        auto_brake_lights_forward_enabled
+        auto_brake_lights_reverse_enabled
+        brake_disarm_timeout_enabled
+
+        auto_brake_counter_value_forward_min
+        auto_brake_counter_value_forward_max
+        auto_brake_counter_value_reverse_min
+        auto_brake_counter_value_reverse_max
+        auto_reverse_counter_value_min
+        auto_reverse_counter_value_max
+        brake_disarm_counter_value
+        blink_counter_value
+        indicator_idle_time_value
+        indicator_off_timeout_value
+
+        centre_threshold_low
+        centre_threshold
+        centre_threshold_high
+        blink_threshold
+        light_switch_positions
+        initial_endpoint_delta
+        ch3_multi_click_timeout
+        winch_command_repeat_time
+        no_signal_timeout
+
+        gamma
+    </div>
+
   </div>
 </body>
 </html>

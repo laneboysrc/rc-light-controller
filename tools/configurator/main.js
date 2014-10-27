@@ -285,6 +285,8 @@ var app = (function () {
             local_leds = parse_leds(SECTION_LOCAL_LEDS);
             slave_leds = parse_leds(SECTION_SLAVE_LEDS);
             code = disassemble_light_programs();
+
+            show_new_configuration();
         }
         finally {
             document.getElementById("light_programs").innerHTML = code;
@@ -293,7 +295,44 @@ var app = (function () {
 
 
     // *************************************************************************
+    var show_new_configuration = function () {
+        var mode_select = document.getElementById("mode");
+        mode_select.selectedIndex = config["mode"];
+        update_mode();
+    };
+
+
+    // *************************************************************************
+    var update_mode = function () {
+        var mode_select = document.getElementById("mode");
+
+        var new_mode = mode_select.options[mode_select.selectedIndex].value;
+        if (new_mode == MODE['SLAVE']) {
+            document.getElementById("config-light-programs").style.display = "none";
+            document.getElementById("config-leds").style.display = "none";
+            document.getElementById("config-basic").style.display = "none";
+            document.getElementById("config-advanced").style.display = "none";
+        }
+        else {
+            document.getElementById("config-light-programs").style.display = "block";
+            document.getElementById("config-leds").style.display = "block";
+            document.getElementById("config-basic").style.display = "block";
+            document.getElementById("config-advanced").style.display = "block";
+        }
+    };
+
+
+    // *************************************************************************
+    var init = function () {
+        var mode_select = document.getElementById("mode");
+        mode_select.addEventListener("change", update_mode, false);
+    };
+
+
+    // *************************************************************************
     var run = function () {
+        init();
+
         load_and_parse_firmware(default_firmware_image);
     };
 
@@ -463,9 +502,6 @@ document.addEventListener("DOMContentLoaded", function () {
         "the hazard light function.";
     }
 
-
-    document.getElementById("config-light-programs").style.display = "block";
-    document.getElementById("config-leds").style.display = "block";
 
     app.run();
 }, false);
