@@ -382,17 +382,31 @@ function led_config_click_handler (e) {
 
 // *****************************************************************************
 document.addEventListener("DOMContentLoaded", function () {
+    var led_rows;
+
     document.getElementById("intelhex").addEventListener(
         "change", app.load, false);
 
-    var led_rows =
-        document.getElementById("leds-master").getElementsByClassName("led-config");
+    led_rows = document.getElementById("leds-master").getElementsByClassName(
+            "led-config");
 
     for (var led = 0; led < led_rows.length; led++) {
         var fields = led_rows[led].getElementsByTagName("td");
 
         for (var i = 0; i < fields.length; i++) {
             fields[i].id = "led" + led + "field" + i;
+            fields[i].addEventListener("click", led_config_click_handler, true);
+        }
+    }
+
+    led_rows = document.getElementById("leds-slave").getElementsByClassName(
+        "led-config");
+
+    for (var led = 0; led < led_rows.length; led++) {
+        var fields = led_rows[led].getElementsByTagName("td");
+
+        for (var i = 0; i < fields.length; i++) {
+            fields[i].id = "led" + (led + 16) + "field" + i;
             fields[i].addEventListener("click", led_config_click_handler, true);
         }
     }

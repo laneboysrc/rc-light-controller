@@ -353,17 +353,16 @@
         <h3>Slave</h2>
         <div>
           <table class="led-table">
-            <tr>
+            <tr class="odd">
               <th></th>
-              <th rowspan="2">always on</th>
+              <th rowspan="2">Always on</th>
               <th colspan="9">Light switch position</th>
               <th></th>
               <th></th>
               <th></th>
-              <th></th>
-              <th></th>
+              <th colspan="2">Indicator</th>
             </tr>
-            <tr>
+            <tr class="odd">
               <th></th>
               <th>0</th>
               <th>1</th>
@@ -374,29 +373,29 @@
               <th>6</th>
               <th>7</th>
               <th>8</th>
-              <th>tail</th>
-              <th>brake</th>
-              <th>reverse</th>
+              <th>Tail</th>
+              <th>Brake</th>
+              <th>Reverse</th>
               <th>left</th>
               <th>right</th>
             </tr>
             <tr class="led-config even">
               <th>LED 0</th>
-              <td><input type="number" step="1" min="0" max="255" size="3" /></td>
-              <td><input type="number" step="1" min="0" max="255" size="3" /></td>
-              <td><input type="number" step="1" min="0" max="255" size="3" /></td>
-              <td><input type="number" step="1" min="0" max="255" size="3" /></td>
-              <td><input type="number" step="1" min="0" max="255" size="3" /></td>
-              <td><input type="number" step="1" min="0" max="255" size="3" /></td>
-              <td><input type="number" step="1" min="0" max="255" size="3" /></td>
-              <td><input type="number" step="1" min="0" max="255" size="3" /></td>
-              <td><input type="number" step="1" min="0" max="255" size="3" /></td>
-              <td><input type="number" step="1" min="0" max="255" size="3" /></td>
-              <td><input type="number" step="1" min="0" max="255" size="3" /></td>
-              <td><input type="number" step="1" min="0" max="255" size="3" /></td>
-              <td><input type="number" step="1" min="0" max="255" size="3" /></td>
-              <td><input type="number" step="1" min="0" max="255" size="3" /></td>
-              <td><input type="number" step="1" min="0" max="255" size="3" /></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
             </tr>
             <tr class="led-config odd">
               <th>LED 1</th>
@@ -418,6 +417,240 @@
             </tr>
             <tr class="led-config even">
               <th>LED 2</th>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td>33</td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr class="led-config odd">
+              <th>LED 3</th>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td>100</td>
+            </tr>
+            <tr class="led-config even">
+              <th>LED 4</th>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr class="led-config odd">
+              <th>LED 5</th>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr class="led-config even">
+              <th>LED 6</h>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr class="led-config odd">
+              <th>LED 7</th>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr class="led-config even">
+              <th>LED 8</th>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr class="led-config odd">
+              <th>LED 9</th>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr class="led-config even">
+              <th>LED 10</th>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr class="led-config odd">
+              <th>LED 11</th>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr class="led-config even">
+              <th>LED 12</th>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr class="led-config odd">
+              <th>LED 13</th>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr class="led-config even">
+              <th>LED 14</th>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr class="led-config odd">
+              <th>LED 15</th>
               <td></td>
               <td></td>
               <td></td>

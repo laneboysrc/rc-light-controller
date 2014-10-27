@@ -9,7 +9,7 @@ body {
 }
 
 h1 {
-  font-size: 1.62em;
+  font-size: 1.6em;
   color: black;
 }
 
@@ -19,7 +19,7 @@ h2 {
 }
 
 h3 {
-  font-size: 1em;
+  font-size: 1.2em;
   color: black;
   padding-top: 1em;
 }
@@ -68,6 +68,7 @@ input {
 .led-table {
   width: 100%;
   border-collapse: collapse;
+  margin-bottom: 1em;
 }
 
 .led-table td, .led-table th {
