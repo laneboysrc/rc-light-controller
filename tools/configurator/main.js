@@ -342,7 +342,8 @@ function led_config_click_handler (e) {
         var cell = input.parentNode;
 
         var newValue = parseInt(input.value);
-        if (newValue < input.min  ||  newValue > input.max) {
+        if (isNaN(newValue)  ||  !isFinite(newValue) ||
+                newValue < input.min  ||  newValue > input.max) {
             newValue = originalValue;
         }
 
@@ -359,6 +360,7 @@ function led_config_click_handler (e) {
     };
 
     input.addEventListener("blur", blur_handler, false);
+    // FIXME: can we handle the ESC and ENTER key to close the edit?
 }
 
 
