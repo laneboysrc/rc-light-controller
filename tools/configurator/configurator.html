@@ -20,42 +20,55 @@
 
   <div class="page" id="main">
     <div class="box configuration">
+      <h2>Load and Save</h2>
       <div>
         Upload hex: <input type="file" id="intelhex" />
       </div>
     </div>
 
-    <div class="box configuration">
+    <div id="config-mode" class="box configuration">
+      <h2>Operating mode</h2>
+      <div>
+        <select>
+          <option>Master, servo inputs
+          <option>Master, pre-processor input
+            <option>Slave
+        </select>
+      </div>
+    </div>
+
+    <div id="config-leds" style="display: none" class="box configuration">
       <h2>LED configuration</h2>
+      <div>Click on a field in the table to set the LED brighness value in percent for a particular function.</div>
       <div id="leds-master">
         <h3>Master</h2>
         <div>
           <table class="led-table">
             <tr class="odd">
               <th></th>
-              <th rowspan="2">Always on</th>
-              <th colspan="9">Light switch position</th>
-              <th></th>
-              <th></th>
-              <th></th>
-              <th colspan="2">Indicator</th>
+              <th name="help-led-always-on" rowspan="2">Always on</th>
+              <th name="help-led-light-switch" colspan="9">Light switch position</th>
+              <th name="help-led-tail"></th>
+              <th name="help-led-brake"></th>
+              <th name="help-led-reverse"></th>
+              <th name="help-led-indicator" colspan="2">Indicator</th>
             </tr>
             <tr class="odd">
               <th></th>
-              <th>0</th>
-              <th>1</th>
-              <th>2</th>
-              <th>3</th>
-              <th>4</th>
-              <th>5</th>
-              <th>6</th>
-              <th>7</th>
-              <th>8</th>
-              <th>Tail</th>
-              <th>Brake</th>
-              <th>Reverse</th>
-              <th>left</th>
-              <th>right</th>
+              <th name="help-led-light-switch">0</th>
+              <th name="help-led-light-switch">1</th>
+              <th name="help-led-light-switch">2</th>
+              <th name="help-led-light-switch">3</th>
+              <th name="help-led-light-switch">4</th>
+              <th name="help-led-light-switch">5</th>
+              <th name="help-led-light-switch">6</th>
+              <th name="help-led-light-switch">7</th>
+              <th name="help-led-light-switch">8</th>
+              <th name="help-led-tail">Tail</th>
+              <th name="help-led-brake">Brake</th>
+              <th name="help-led-reverse">Reverse</th>
+              <th name="help-led-indicator">left</th>
+              <th name="help-led-indicator">right</th>
             </tr>
             <tr class="led-config even">
               <th>LED 0</th>
@@ -102,7 +115,7 @@
               <td></td>
               <td></td>
               <td></td>
-              <td>33</td>
+              <td></td>
               <td></td>
               <td></td>
               <td></td>
@@ -127,7 +140,7 @@
               <td></td>
               <td></td>
               <td></td>
-              <td>100</td>
+              <td></td>
             </tr>
             <tr class="led-config even">
               <th>LED 4</th>
@@ -355,29 +368,29 @@
           <table class="led-table">
             <tr class="odd">
               <th></th>
-              <th rowspan="2">Always on</th>
-              <th colspan="9">Light switch position</th>
-              <th></th>
-              <th></th>
-              <th></th>
-              <th colspan="2">Indicator</th>
+              <th name="help-led-always-on" rowspan="2">Always on</th>
+              <th name="help-led-light-switch" colspan="9">Light switch position</th>
+              <th name="help-led-tail"></th>
+              <th name="help-led-brake"></th>
+              <th name="help-led-reverse"></th>
+              <th name="help-led-indicator" colspan="2">Indicator</th>
             </tr>
             <tr class="odd">
               <th></th>
-              <th>0</th>
-              <th>1</th>
-              <th>2</th>
-              <th>3</th>
-              <th>4</th>
-              <th>5</th>
-              <th>6</th>
-              <th>7</th>
-              <th>8</th>
-              <th>Tail</th>
-              <th>Brake</th>
-              <th>Reverse</th>
-              <th>left</th>
-              <th>right</th>
+              <th name="help-led-light-switch">0</th>
+              <th name="help-led-light-switch">1</th>
+              <th name="help-led-light-switch">2</th>
+              <th name="help-led-light-switch">3</th>
+              <th name="help-led-light-switch">4</th>
+              <th name="help-led-light-switch">5</th>
+              <th name="help-led-light-switch">6</th>
+              <th name="help-led-light-switch">7</th>
+              <th name="help-led-light-switch">8</th>
+              <th name="help-led-tail">Tail</th>
+              <th name="help-led-brake">Brake</th>
+              <th name="help-led-reverse">Reverse</th>
+              <th name="help-led-indicator">left</th>
+              <th name="help-led-indicator">right</th>
             </tr>
             <tr class="led-config even">
               <th>LED 0</th>
@@ -424,7 +437,7 @@
               <td></td>
               <td></td>
               <td></td>
-              <td>33</td>
+              <td></td>
               <td></td>
               <td></td>
               <td></td>
@@ -449,7 +462,7 @@
               <td></td>
               <td></td>
               <td></td>
-              <td>100</td>
+              <td></td>
             </tr>
             <tr class="led-config even">
               <th>LED 4</th>
@@ -672,7 +685,7 @@
       </div>
     </div>
 
-    <div class="box configuration">
+    <div id="config-light-programs" style="display: none" class="box configuration">
       <h2>Light programs:</h2>
       <pre id="light_programs"></pre>
     </div>

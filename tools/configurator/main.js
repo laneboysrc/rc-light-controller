@@ -59,7 +59,6 @@ var app = (function () {
         result['led_count'] = led_count;
 
         var car_lights_offset = get_uint32(data, offset + 4);
-        console.log('car_lights_offset=0x' + car_lights_offset.toString(16));
 
         function parse_led (data, offset) {
             var result = {}
@@ -295,7 +294,6 @@ var app = (function () {
 
     // *************************************************************************
     var run = function () {
-        console.log(gamma.make_table("2.2"));
         load_and_parse_firmware(default_firmware_image);
     };
 
@@ -395,6 +393,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         for (var i = 0; i < fields.length; i++) {
             fields[i].id = "led" + led + "field" + i;
+            fields[i].title = "Click to change";
             fields[i].addEventListener("click", led_config_click_handler, true);
         }
     }
@@ -407,9 +406,66 @@ document.addEventListener("DOMContentLoaded", function () {
 
         for (var i = 0; i < fields.length; i++) {
             fields[i].id = "led" + (led + 16) + "field" + i;
+            fields[i].title = "Click to change";
             fields[i].addEventListener("click", led_config_click_handler, true);
         }
     }
+
+
+    var tooltip;
+
+    tooltip = document.getElementsByName("help-led-light-switch");
+    for (var i = 0; i < tooltip.length; i++) {
+        tooltip[i].title = "The virtual light switch has 9 positions. " +
+        "A single click on AUX/CH3 increments the light switch position, " +
+        "a double-click decrements the light switch position.\n" +
+        "If you want an LED to be on at multiple positions simply fill in " +
+        "values at all the desired light switch positions where the LED " +
+        "should turn on.\n" +
+        "Example: For parking lights (aka positioning lights), set a value " +
+        "for light switch position 1. For main beam (aka. head lamps) set a " +
+        "value at both light switch position 1 and 2. For high beam set a " +
+        "value at light switch positions 1, 2 and 3. This way the light " +
+        "behaviour corresponds to a real car in most countries.";
+    }
+
+    tooltip = document.getElementsByName("help-led-always-on");
+    for (var i = 0; i < tooltip.length; i++) {
+        tooltip[i].title = "The LED will be always on at the given " +
+        "brightness, regardless of the car state.";
+    }
+
+    tooltip = document.getElementsByName("help-led-tail");
+    for (var i = 0; i < tooltip.length; i++) {
+        tooltip[i].title = "Tail light (aka. rear position light). This " +
+        "function applies when the light position switch is at any state " +
+        "other than 0.";
+    }
+
+    tooltip = document.getElementsByName("help-led-brake");
+    for (var i = 0; i < tooltip.length; i++) {
+        tooltip[i].title = "Brake light function.\nHint: to do a combined " +
+        "tail and brake light, set the \"tail\" entry to a low " +
+        "value (e.g. 33%), and the \"brake\" entry to a high value " +
+        "(e.g. 100%).";
+    }
+
+    tooltip = document.getElementsByName("help-led-reverse");
+    for (var i = 0; i < tooltip.length; i++) {
+        tooltip[i].title = "Reversing light function; turns on when the car " +
+        "is driving backwards.\nNote: see main configuration above to " +
+        "configure your ESC type!";
+    }
+
+    tooltip = document.getElementsByName("help-led-indicator");
+    for (var i = 0; i < tooltip.length; i++) {
+        tooltip[i].title = "Indicator, aka. turn signals.\nAlso applies to " +
+        "the hazard light function.";
+    }
+
+
+    document.getElementById("config-light-programs").style.display = "block";
+    document.getElementById("config-leds").style.display = "block";
 
     app.run();
 }, false);
