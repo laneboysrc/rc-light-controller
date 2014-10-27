@@ -23,8 +23,8 @@ Type="Board Editor"
 Loc="0 25 1679 1025"
 State=1
 Number=1
-File="rc-light-controller-tlc5940-lpc812.brd"
-View="0.698863 -1.63903 28.8583 19.1236"
+File="case-middle.brd"
+View="-5.74346 -8.09726 43.9828 25.6527"
 WireWidths=" 0 0.254 0.3048 0.6096 0.8128 1.016 1.27 1.4224 1.6764 1.778 1.9304 2.1844 2.54 3.81 6.4516 0.4064"
 PadDiameters=" 0.254 0.3048 0.4064 0.6096 0.8128 1.016 1.27 1.4224 1.6764 1.778 1.9304 2.1844 2.54 3.81 6.4516 0"
 PadDrills=" 0.5 0.6 0.7 0.9 1 1.1 1.2 1.3 1.4 1.5 1.6 2 2.2 2.8 3.2 0.8"
@@ -62,7 +62,7 @@ SwapLevel=0
 ArcDirection=0
 AddLevel=2
 PadsSameType=0
-Layer=27
+Layer=16
 
 [Win_2]
 Type="Schematic Editor"
@@ -119,7 +119,7 @@ State=1
 Number=0
 
 [Desktop]
-Screen="1680 1050"
+Screen="1920 1200"
 Window="Win_1"
 Window="Win_2"
 Window="Win_3"

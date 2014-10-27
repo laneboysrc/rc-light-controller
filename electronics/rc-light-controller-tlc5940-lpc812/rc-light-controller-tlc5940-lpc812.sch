@@ -6175,9 +6175,9 @@ PIO0_3  ( 5)   SWCLK</text>
 X7R 0603 or 0805 </text>
 <text x="60.96" y="210.82" size="1.778" layer="97">All resistors 0603</text>
 <text x="33.02" y="45.72" size="1.778" layer="97">Input voltage range:
-4.5 ... 10V</text>
-<text x="132.08" y="50.8" size="1.778" layer="97">LDO: Microchip MCP1702 
-or MCP1703</text>
+4 ... 10V</text>
+<text x="132.08" y="50.8" size="1.778" layer="97">LDO: Microchip 
+MCP1702 or MCP1703</text>
 <text x="124.46" y="116.84" size="1.778" layer="97">0603 or 0805,
 X5R or X7R</text>
 <text x="228.6" y="91.44" size="1.778" layer="97">NXP LPC812

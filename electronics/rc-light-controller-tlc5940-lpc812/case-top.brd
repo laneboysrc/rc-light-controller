@@ -6,7 +6,7 @@
 <setting alwaysvectorfont="yes"/>
 <setting verticaltext="up"/>
 </settings>
-<grid distance="25" unitdist="mil" unit="mil" style="lines" multiple="1" display="yes" altdistance="0.025" altunitdist="inch" altunit="inch"/>
+<grid distance="20" unitdist="mil" unit="mil" style="lines" multiple="1" display="yes" altdistance="0.025" altunitdist="inch" altunit="inch"/>
 <layers>
 <layer number="1" name="Top" color="4" fill="1" visible="yes" active="yes"/>
 <layer number="16" name="Bottom" color="1" fill="1" visible="yes" active="yes"/>
@@ -65,7 +65,7 @@
 <text x="9.525" y="15.24" size="1.4224" layer="21" font="vector" ratio="15" align="center-left">LANE Boys RC</text>
 <text x="9.525" y="13.335" size="0.8128" layer="21" font="vector" ratio="15" align="center-left">RC car light controller</text>
 <text x="9.525" y="8.89" size="0.8128" layer="27" font="vector" ratio="15" align="center-left">http://goo.gl/Vif9VM</text>
-<wire x1="8.255" y1="16.51" x2="8.255" y2="1.27" width="0.3048" layer="27" style="shortdash"/>
+<wire x1="8.382" y1="16.002" x2="8.382" y2="2.032" width="0.254" layer="27"/>
 <text x="9.525" y="10.16" size="0.8128" layer="27" font="vector" ratio="15" align="center-left">TLC5940 + LPC812 </text>
 <text x="9.525" y="2.54" size="0.8128" layer="27" font="vector" ratio="15" align="center-left">Rev 1</text>
 </plain>
