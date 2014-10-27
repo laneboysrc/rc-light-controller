@@ -337,7 +337,7 @@ function led_config_click_handler (e) {
     cell.appendChild(input);
     input.focus();
 
-    function blur_handler (e) {
+    function blur_handler(e) {
         var input = e.target;
         var cell = input.parentNode;
 
@@ -346,8 +346,6 @@ function led_config_click_handler (e) {
                 newValue < input.min  ||  newValue > input.max) {
             newValue = originalValue;
         }
-
-        console.log(input.min, input.value, input.max, newValue)
 
         while (cell.firstChild) {
             cell.removeChild(cell.firstChild);
@@ -359,8 +357,26 @@ function led_config_click_handler (e) {
         }
     };
 
+    function key_handler(e) {
+        var input = e.target;
+
+        switch (e.keyCode) {
+            case 27: // ESC
+                input.value = originalValue;
+                input.blur();
+                break;
+
+            case 13: // ENTER
+                input.blur();
+                break;
+
+            default:
+                break;
+        }
+    };
+
     input.addEventListener("blur", blur_handler, false);
-    // FIXME: can we handle the ESC and ENTER key to close the edit?
+    input.addEventListener("keydown", key_handler, false);
 }
 
 
