@@ -24,10 +24,10 @@
 // PIO0_6   (15)                TLC5940 BLANK
 // PIO0_7   (14)                TLC5940 SIN
 // PIO0_8   (11, XTALIN)        NC
-// PIO0_9   (10, XTALOUT)       WS2812b data out
+// PIO0_9   (10, XTALOUT)       NC
 // PIO0_10  (8,  Open drain)    NC
 // PIO0_11  (7,  Open drain)    NC
-// PIO0_12  (2,  ISP-entry)     Servo out / ISP
+// PIO0_12  (2,  ISP-entry)     OUT / ISP
 // PIO0_13  (1)                 CH3 input
 //
 // GND      (13)
