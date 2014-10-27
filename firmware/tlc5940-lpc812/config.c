@@ -12,6 +12,7 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
     },
 
     .mode = MASTER_WITH_UART_READER,
+    .esc_mode = ESC_FORWARD_BRAKE,
 
     .flags = {
         // If mode is MASTER_WITH_SERVO_READER then all *_output flags are
@@ -25,7 +26,6 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
         .steering_wheel_servo_output = false,
         .gearbox_servo_output = false,
 
-        .esc_forward_reverse = false,
         .ch3_is_local_switch = false,
         .ch3_is_momentary = false,
 

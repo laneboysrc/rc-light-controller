@@ -48,6 +48,19 @@ var app = (function () {
         SLAVE: 2
     };
 
+    var ESC_FORWARD_BRAKE_REVERSE = "Forward/Brake/Reverse";
+    var ESC_FORWARD_REVERSE = "Forward/Reverse";
+    var ESC_FORWARD_BRAKE = "Forward/Brake";
+
+    var ESC_MODE = {
+        0: ESC_FORWARD_BRAKE_REVERSE,
+        1: ESC_FORWARD_REVERSE,
+        2: ESC_FORWARD_BRAKE,
+
+        ESC_FORWARD_BRAKE_REVERSE: 0,
+        ESC_FORWARD_REVERSE: 1,
+        ESC_FORWARD_BRAKE: 2
+    };
 
     // *************************************************************************
     var parse_leds = function (section) {
@@ -121,7 +134,8 @@ var app = (function () {
 
         var config = {};
 
-        config['mode'] = get_uint32(data, offset);
+        config['mode'] = data[offset];
+        config['esc_mode'] = data[offset+1];
 
         var flags = get_uint32(data, offset + 4);
 
@@ -134,7 +148,6 @@ var app = (function () {
         config['winch_output'] = get_flag(1 << 2);
         config['steering_wheel_servo_output'] = get_flag(1 << 3);
         config['gearbox_servo_output'] = get_flag(1 << 4);
-        config['esc_forward_reverse'] = get_flag(1 << 5);
         config['ch3_is_local_switch'] = get_flag(1 << 6);
         config['ch3_is_momentary'] = get_flag(1 << 7);
         config['auto_brake_lights_forward_enabled'] = get_flag(1 << 8);

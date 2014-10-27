@@ -308,10 +308,19 @@ typedef enum {
 
 
 // ****************************************************************************
+typedef enum {
+    ESC_FORWARD_BRAKE_REVERSE,
+    ESC_FORWARD_REVERSE,
+    ESC_FORWARD_BRAKE
+} ESC_MODE_T;
+
+
+// ****************************************************************************
 typedef struct {
     MAGIC_T magic;
 
     MASTER_MODE_T mode;
+    ESC_MODE_T esc_mode;
 
     struct {
         // If mode is MASTER_WITH_SERVO_READER  then all flags are mutually
@@ -325,7 +334,6 @@ typedef struct {
         unsigned int steering_wheel_servo_output : 1;
         unsigned int gearbox_servo_output : 1;
 
-        unsigned int esc_forward_reverse : 1;
         unsigned int ch3_is_local_switch : 1;
         unsigned int ch3_is_momentary : 1;
 

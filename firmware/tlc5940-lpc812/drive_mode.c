@@ -117,7 +117,7 @@ static void throttle_not_neutral(void)
         global_flags.forward = true;
         global_flags.reversing = false;
         global_flags.braking = false;
-        if (!config.flags.esc_forward_reverse) {
+        if (config.esc_mode != ESC_FORWARD_REVERSE) {
            drive_mode.brake_armed = true;
         }
     }
