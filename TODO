@@ -7,7 +7,7 @@ TO DO LIST for the RC Light Controller
 
 * UI: make LED values in % rather than 0..255. Also for light programs?
 
-
+* Auto detect highest light switch position used (also include light programs!)
 
 
 * Investigate whether we can detect the order of the incoming channels
