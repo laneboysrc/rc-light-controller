@@ -3,6 +3,8 @@
 var app = (function () {
     var el = {};  // Cache of document.getElementById
 
+    var SYSTICK_IN_MS = 20;
+
     var firmware;
     var config;
     var local_leds;
@@ -413,6 +415,54 @@ var app = (function () {
         // LEDs
         update_led_fields();
 
+        // Update advanced settings
+        el["auto_brake_lights_forward_enabled"].checked =
+            Boolean(config["auto_brake_lights_forward_enabled"]);
+        el["auto_brake_counter_value_forward_min"].value =
+            config["auto_brake_counter_value_forward_min"] * SYSTICK_IN_MS;
+        el["auto_brake_counter_value_forward_max"].value =
+            config["auto_brake_counter_value_forward_max"] * SYSTICK_IN_MS;
+
+        el["auto_brake_lights_reverse_enabled"].checked =
+            Boolean(config["auto_brake_lights_reverse_enabled"]);
+        el["auto_brake_counter_value_reverse_min"].value =
+            config["auto_brake_counter_value_reverse_min"] * SYSTICK_IN_MS;
+        el["auto_brake_counter_value_reverse_max"].value =
+            config["auto_brake_counter_value_reverse_max"] * SYSTICK_IN_MS;
+
+        el["brake_disarm_timeout_enabled"].value =
+            config["brake_disarm_timeout_enabled"] * SYSTICK_IN_MS;
+        el["brake_disarm_counter_value"].value =
+            config["brake_disarm_counter_value"] * SYSTICK_IN_MS;
+
+        el["auto_reverse_counter_value_min"].value =
+            config["auto_reverse_counter_value_min"] * SYSTICK_IN_MS;
+        el["auto_reverse_counter_value_max"].value =
+            config["auto_reverse_counter_value_max"] * SYSTICK_IN_MS;
+
+        el["blink_counter_value"].value =
+            config["blink_counter_value"] * SYSTICK_IN_MS;
+        el["indicator_idle_time_value"].value =
+            config["indicator_idle_time_value"] * SYSTICK_IN_MS;
+        el["indicator_off_timeout_value"].value =
+            config["indicator_off_timeout_value"] * SYSTICK_IN_MS;
+        el["blink_threshold"].value =
+            config["blink_threshold"];
+
+        el["centre_threshold_low"].value =
+            config["centre_threshold_low"];
+        el["centre_threshold_high"].value =
+            config["centre_threshold_high"];
+
+        el["initial_endpoint_delta"].value =
+            config["initial_endpoint_delta"] * SYSTICK_IN_MS;
+        el["ch3_multi_click_timeout"].value =
+            config["ch3_multi_click_timeout"] * SYSTICK_IN_MS;
+        el["winch_command_repeat_time"].value =
+            config["winch_command_repeat_time"] * SYSTICK_IN_MS;
+        el["no_signal_timeout"].value =
+            config["no_signal_timeout"] * SYSTICK_IN_MS;
+
 
         // Show/hide various sections depending on the current settings
         update_section_visibility();
@@ -491,6 +541,36 @@ var app = (function () {
         el["light_programs"] = document.getElementById("light_programs");
 
         el["config_advanced"] = document.getElementById("config_advanced");
+
+        el["auto_brake_lights_forward_enabled"] = document.getElementById("auto_brake_lights_forward_enabled");
+        el["auto_brake_counter_value_forward_min"] = document.getElementById("auto_brake_counter_value_forward_min");
+        el["auto_brake_counter_value_forward_max"] = document.getElementById("auto_brake_counter_value_forward_max");
+
+        el["auto_brake_lights_reverse_enabled"] = document.getElementById("auto_brake_lights_reverse_enabled");
+        el["auto_brake_counter_value_reverse_min"] = document.getElementById("auto_brake_counter_value_reverse_min");
+        el["auto_brake_counter_value_reverse_max"] = document.getElementById("auto_brake_counter_value_reverse_max");
+
+        el["brake_disarm_timeout_enabled"] = document.getElementById("brake_disarm_timeout_enabled");
+        el["brake_disarm_counter_value"] = document.getElementById("brake_disarm_counter_value");
+
+        el["auto_reverse_counter_value_min"] = document.getElementById("auto_reverse_counter_value_min");
+        el["auto_reverse_counter_value_max"] = document.getElementById("auto_reverse_counter_value_max");
+
+        el["blink_counter_value"] = document.getElementById("blink_counter_value");
+        el["indicator_idle_time_value"] = document.getElementById("indicator_idle_time_value");
+        el["indicator_off_timeout_value"] = document.getElementById("indicator_off_timeout_value");
+        el["blink_threshold"] = document.getElementById("blink_threshold");
+
+        el["centre_threshold_low"] = document.getElementById("centre_threshold_low");
+        el["centre_threshold_high"] = document.getElementById("centre_threshold_high");
+
+
+        el["initial_endpoint_delta"] = document.getElementById("initial_endpoint_delta");
+        el["ch3_multi_click_timeout"] = document.getElementById("ch3_multi_click_timeout");
+        el["winch_command_repeat_time"] = document.getElementById("winch_command_repeat_time");
+        el["no_signal_timeout"] = document.getElementById("no_signal_timeout");
+
+
 
 
         el["mode"].addEventListener(
