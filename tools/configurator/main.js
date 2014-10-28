@@ -406,12 +406,12 @@ var app = (function () {
         el["config-advanced"] = document.getElementById("config-advanced");
         el["single-output"] = document.getElementById("single-output");
         el["dual-output"] = document.getElementById("dual-output");
-        el["config-light-programs"] = document.getElementById("config-light-programs");
-        el["baudrate"] = document.getElementById("baudrate");
-        el["esc"] = document.getElementsByName("esc");
         el["output_single"] = document.getElementsByName("output_single");
         el["output_out"] = document.getElementsByName("output_out");
         el["output_th"] = document.getElementsByName("output_th");
+        el["config-light-programs"] = document.getElementById("config-light-programs");
+        el["baudrate"] = document.getElementById("baudrate");
+        el["esc"] = document.getElementsByName("esc");
         el["ch3"] = document.getElementsByName("ch3");
 
         el["mode"].addEventListener("change", update_mode, false);
@@ -514,7 +514,7 @@ document.addEventListener("DOMContentLoaded", function () {
         var fields = led_rows[led].getElementsByTagName("td");
 
         for (var i = 0; i < fields.length; i++) {
-            fields[i].id = "led" + led + "field" + i;
+            fields[i].id = "master" + led + "field" + i;
             fields[i].title = "Click to change";
             fields[i].addEventListener("click", led_config_click_handler, true);
         }
@@ -527,7 +527,7 @@ document.addEventListener("DOMContentLoaded", function () {
         var fields = led_rows[led].getElementsByTagName("td");
 
         for (var i = 0; i < fields.length; i++) {
-            fields[i].id = "led" + (led + 16) + "field" + i;
+            fields[i].id = "slave" + led + "field" + i;
             fields[i].title = "Click to change";
             fields[i].addEventListener("click", led_config_click_handler, true);
         }
