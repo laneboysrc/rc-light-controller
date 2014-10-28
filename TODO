@@ -15,16 +15,13 @@ TO DO LIST for the RC Light Controller
 
 * ESC mode: add forward/brake type for racing ESC!
 
-* Be able to change the indicator/hazard blink frequency
-
 * Can we preserve the settings upon reflash?
 
 * Add support for 3-speed gearbox
 
-* Merge Automatic disarming of brake function into ESC mode!
-
 * Stream-line centre_threshold_low/high (TH) and centre_threshold (ST)
 
+* Add hardware test as one of the configurations
 
 
 * Investigate whether we can detect the order of the incoming channels
