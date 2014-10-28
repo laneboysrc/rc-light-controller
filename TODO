@@ -8,6 +8,8 @@ TO DO LIST for the RC Light Controller
 * Add firmware version to the config, independent from config version!
 
 * UI: make LED values in % rather than 0..255. Also for light programs!
+  Firmware uses 255, but UI and compiler uses % range
+  Compiler / Disassembler: allow % sign at end of number
 
 * Auto detect highest light switch position used (also include light programs!)
 
@@ -16,6 +18,10 @@ TO DO LIST for the RC Light Controller
 * Be able to change the indicator/hazard blink frequency
 
 * Can we preserve the settings upon reflash?
+
+* Add support for 3-speed gearbox
+
+
 
 
 * Investigate whether we can detect the order of the incoming channels
