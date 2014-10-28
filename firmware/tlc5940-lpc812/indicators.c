@@ -105,8 +105,8 @@ void process_indicators(void)
     switch (indicator_state) {
         // ---------------------------------
         case NOT_NEUTRAL:
-            if (channel[TH].absolute > config.centre_threshold ||
-                channel[ST].absolute > config.centre_threshold) {
+            if (channel[TH].absolute > config.centre_threshold_low ||
+                channel[ST].absolute > config.centre_threshold_low) {
                 return;
             }
 
@@ -116,8 +116,8 @@ void process_indicators(void)
 
         // ---------------------------------
         case NEUTRAL_WAIT:
-            if (channel[TH].absolute > config.centre_threshold ||
-                channel[ST].absolute > config.centre_threshold) {
+            if (channel[TH].absolute > config.centre_threshold_high ||
+                channel[ST].absolute > config.centre_threshold_high) {
                 set_not_neutral();
                 return;
             }
@@ -129,7 +129,7 @@ void process_indicators(void)
 
         // ---------------------------------
         case BLINK_ARMED:
-            if (channel[TH].absolute > config.centre_threshold) {
+            if (channel[TH].absolute > config.centre_threshold_high) {
                 set_not_neutral();
                 return;
             }
@@ -145,7 +145,7 @@ void process_indicators(void)
 
         // ---------------------------------
         case BLINK_ARMED_LEFT:
-            if (channel[TH].absolute > config.centre_threshold) {
+            if (channel[TH].absolute > config.centre_threshold_high) {
                 set_not_neutral();
                 return;
             }
@@ -164,7 +164,7 @@ void process_indicators(void)
 
         // ---------------------------------
         case BLINK_ARMED_RIGHT:
-            if (channel[TH].absolute > config.centre_threshold) {
+            if (channel[TH].absolute > config.centre_threshold_high) {
                 set_not_neutral();
                 return;
             }

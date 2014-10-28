@@ -40,13 +40,9 @@ static void throttle_neutral(void)
     if (global_flags.forward) {
         global_flags.forward = false;
 
-        // If ENABLE_BRAKE_DISARM_TIMEOUT is not set, the user has to go for
-        // brake, then neutral, before reverse engages. Otherwise reverse
-        // engages if the user stays in neutral for a few seconds.
-        //
-        // Tamiya ESC need this ENABLE_BRAKE_DISARM_TIMEOUT cleared.
-        // The China ESC and HPI SC-15WP need ENABLE_BRAKE_DISARM_TIMEOUT set.
-        if (config.flags.brake_disarm_timeout_enabled) {
+        // Handle ESC where reverse can be engaged after a certain time in
+        // neutral
+        if (config.esc_mode == ESC_FORWARD_BRAKE_REVERSE_TIMEOUT) {
             drive_mode.brake_disarm = true;
             brake_disarm_counter = config.brake_disarm_counter_value;
         }

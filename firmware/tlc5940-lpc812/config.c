@@ -12,7 +12,7 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
     },
 
     .mode = MASTER_WITH_UART_READER,
-    .esc_mode = ESC_FORWARD_BRAKE,
+    .esc_mode = ESC_FORWARD_BRAKE_REVERSE_TIMEOUT,
 
     .flags = {
         // If mode is MASTER_WITH_SERVO_READER then all *_output flags are
@@ -31,7 +31,6 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
 
         .auto_brake_lights_forward_enabled = true,
         .auto_brake_lights_reverse_enabled = true,
-        .brake_disarm_timeout_enabled = true,
     },
 
     .auto_brake_counter_value_forward_min = (500 / __SYSTICK_IN_MS),
@@ -47,7 +46,6 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
     .indicator_off_timeout_value = (2000 / __SYSTICK_IN_MS),
 
     .centre_threshold_low = 8,
-    .centre_threshold = 10,
     .centre_threshold_high = 12,
     .blink_threshold = 50,
 

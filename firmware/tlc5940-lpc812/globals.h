@@ -308,7 +308,15 @@ typedef enum {
 
 
 // ****************************************************************************
+// If ESC_FORWARD_BRAKE_REVERSE, the user has to go for
+// brake, then neutral, before reverse engages.
+// If ESC_FORWARD_BRAKE_REVERSE_TIMEOUT, reverse can be engaged if the user
+// stays in neutral for a few seconds.
+//
+// Tamiya ESC are of type ESC_FORWARD_BRAKE_REVERSE.
+// The China ESC and HPI SC-15WP are of type ESC_FORWARD_BRAKE_REVERSE_TIMEOUT.
 typedef enum {
+    ESC_FORWARD_BRAKE_REVERSE_TIMEOUT,
     ESC_FORWARD_BRAKE_REVERSE,
     ESC_FORWARD_REVERSE,
     ESC_FORWARD_BRAKE
@@ -339,22 +347,16 @@ typedef struct {
 
         unsigned int auto_brake_lights_forward_enabled : 1;
         unsigned int auto_brake_lights_reverse_enabled : 1;
-
-        // If ENABLE_BRAKE_DISARM_TIMEOUT is not set, the user has to go for
-        // brake, then neutral, before reverse engages. Otherwise reverse
-        // engages if the user stays in neutral for a few seconds.
-        //
-        // Tamiya ESC need this ENABLE_BRAKE_DISARM_TIMEOUT cleared.
-        // The China ESC and HPI SC-15WP need ENABLE_BRAKE_DISARM_TIMEOUT set.
-        unsigned int brake_disarm_timeout_enabled : 1;
     } flags;
 
     uint16_t auto_brake_counter_value_forward_min;
     uint16_t auto_brake_counter_value_forward_max;
     uint16_t auto_brake_counter_value_reverse_min;
     uint16_t auto_brake_counter_value_reverse_max;
+
     uint16_t auto_reverse_counter_value_min;
     uint16_t auto_reverse_counter_value_max;
+
     uint16_t brake_disarm_counter_value;
 
     uint16_t blink_counter_value;
@@ -366,7 +368,6 @@ typedef struct {
     // reverse light the CENTRE_THRESHOLD_HIGH and CENTRE_THRESHOLD_LOW provide
     // a hysteresis that we apply to the throttle when processing drive_mode.
     uint16_t centre_threshold_low;
-    uint16_t centre_threshold;
     uint16_t centre_threshold_high;
     uint16_t blink_threshold;
 
