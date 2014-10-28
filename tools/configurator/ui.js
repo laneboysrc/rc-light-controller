@@ -99,6 +99,34 @@ var ui = (function () {
 
 
     // *************************************************************************
+    var init_led_tables = function () {
+
+        function init_led_table(section, prefix) {
+            var led_section = document.getElementById(section);
+            var led_body = led_section.getElementsByTagName("tbody")[0];
+
+            for (var i = 0; i < 16; i++) {
+                var e = document.createElement("table");
+                var template = document.getElementById("led_row_template");
+
+                e.innerHTML = tmpl("led_row_template", {
+                    "even_odd": (i % 2) ? "odd" : "even",
+                    "led_number": i
+                });
+                var body = e.getElementsByTagName("tbody")[0];
+
+                while (body.childNodes[0]) {
+                    led_body.appendChild(body.childNodes[0]);
+                }
+            }
+        }
+
+        init_led_table("leds_master", "master");
+        init_led_table("leds_slave", "slave");
+    };
+
+
+    // *************************************************************************
     var init_tooltips = function () {
         var tooltip;
 
@@ -156,6 +184,7 @@ var ui = (function () {
 
     // *************************************************************************
     var init = function () {
+        init_led_tables();
         init_led_editing();
         init_tooltips();
     };
