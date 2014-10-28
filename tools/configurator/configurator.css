@@ -93,3 +93,16 @@ input, select {
 .led_table input {
   width: 3.5em;
 }
+
+.advanced_feature {
+  padding-top: 1em;
+  padding-bottom: 1em;
+}
+
+.advanced_feature input {
+  margin-bottom: 0.5em;
+}
+
+.advanced_feature label {
+  font-weight: bold;
+}

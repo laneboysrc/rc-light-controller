@@ -44,27 +44,27 @@
       <div id="single_output" style="display: none">
         <h3>Output function on OUT/ISP</h2>
         <div>
-          <input type="radio" name="single_output_out" value="0"/> (no output function)<br />
-          <input type="radio" name="single_output_out" value="1"/> Slave output<br />
-          <input type="radio" name="single_output_out" value="2"/> Pre-processour output<br />
-          <input type="radio" name="single_output_out" value="3"/> Steering wheel servo output<br />
-          <input type="radio" name="single_output_out" value="4"/> Two-speed gearbox servo output<br />
-          <input type="radio" name="single_output_out" value="5"/> Winch output<br />
+          <input type="radio" name="single_output_out" value="0"/> (no output function)<br>
+          <input type="radio" name="single_output_out" value="1"/> Slave output<br>
+          <input type="radio" name="single_output_out" value="2"/> Pre-processour output<br>
+          <input type="radio" name="single_output_out" value="3"/> Steering wheel servo output<br>
+          <input type="radio" name="single_output_out" value="4"/> Two-speed gearbox servo output<br>
+          <input type="radio" name="single_output_out" value="5"/> Winch output<br>
         </div>
       </div>
       <div id="dual_output" style="display: none">
         <h3>Servo output function on OUT/ISP</h2>
         <div>
-          <input type="radio" name="dual_output_out" value="0"/> (no output function)<br />
-          <input type="radio" name="dual_output_out" value="3"/> Steering wheel servo output<br />
-          <input type="radio" name="dual_output_out" value="4"/> Two-speed gearbox servo output<br />
+          <input type="radio" name="dual_output_out" value="0"/> (no output function)<br>
+          <input type="radio" name="dual_output_out" value="3"/> Steering wheel servo output<br>
+          <input type="radio" name="dual_output_out" value="4"/> Two-speed gearbox servo output<br>
         </div>
         <h3>Output function on TH/Tx</h2>
         <div >
-          <input type="radio" name="dual_output_th" value="0"/> (no output function)<br />
-          <input type="radio" name="dual_output_th" value="1"/> Slave output<br />
-          <input type="radio" name="dual_output_th" value="2"/> Pre-processour output<br />
-          <input type="radio" name="dual_output_th" value="5"/> Winch output<br />
+          <input type="radio" name="dual_output_th" value="0"/> (no output function)<br>
+          <input type="radio" name="dual_output_th" value="1"/> Slave output<br>
+          <input type="radio" name="dual_output_th" value="2"/> Pre-processour output<br>
+          <input type="radio" name="dual_output_th" value="5"/> Winch output<br>
         </div>
       </div>
 
@@ -75,16 +75,16 @@
 
       <h3>ESC type</h2>
       <div>
-        <input type="radio" name="esc" value="0"/> Forward/Brake/Reverse<br />
-        <input type="radio" name="esc" value="1"/> Forward/Reverse (crawler mode)<br />
-        <input type="radio" name="esc" value="2"/> Forward/Brake (racing mode)<br />
+        <input type="radio" name="esc" value="0"/> Forward/Brake/Reverse<br>
+        <input type="radio" name="esc" value="1"/> Forward/Reverse (crawler mode)<br>
+        <input type="radio" name="esc" value="2"/> Forward/Brake (racing mode)<br>
       </div>
 
       <h3>CH3/AUX function</h2>
       <div>
-        <input type="radio" name="ch3" value="0"/> CH3/AUX is a two-position switch or toggle button<br />
-        <input type="radio" name="ch3" value="1"/> CH3/AUX is a momentary push button<br />
-        <input type="radio" name="ch3" value="1"/> Push button connected to the light controller's CH3 input (i.e. a physical button, not a servo signal)<br />
+        <input type="radio" name="ch3" value="0"/> CH3/AUX is a two-position switch or toggle button<br>
+        <input type="radio" name="ch3" value="1"/> CH3/AUX is a momentary push button<br>
+        <input type="radio" name="ch3" value="1"/> Push button connected to the light controller's CH3 input (i.e. a physical button, not a servo signal)<br>
       </div>
     </div>
 
@@ -743,32 +743,269 @@
 
     <div id="config_advanced" style="display: none" class="box configuration">
       <h2>Advanced configuration</h2>
-        auto_brake_lights_forward_enabled
-        auto_brake_lights_reverse_enabled
-        brake_disarm_timeout_enabled
 
-        auto_brake_counter_value_forward_min
-        auto_brake_counter_value_forward_max
-        auto_brake_counter_value_reverse_min
-        auto_brake_counter_value_reverse_max
-        auto_reverse_counter_value_min
-        auto_reverse_counter_value_max
-        brake_disarm_counter_value
-        blink_counter_value
-        indicator_idle_time_value
-        indicator_off_timeout_value
+        <h3>Automatic brake lights</h3>
+        <div class="advanced_feature">
+          <div>
+            <input type="checkbox" id="auto_brake_lights_forward_enabled">
+            <label for="auto_brake_lights_forward_enabled">Enable automatic brake lights after going forward</label>
+          </div>
+          <div>
+            <input type=number id="auto_brake_counter_value_forward_min">
+            <label for="auto_brake_counter_value_forward_min"> .. </label>
+            <input type=number id="auto_brake_counter_value_forward_max">
+            <label for="auto_brake_counter_value_forward_max">min/max time in ms the brake lights should light up</label>
+          </div>
 
-        centre_threshold_low
-        centre_threshold
-        centre_threshold_high
-        blink_threshold
-        light_switch_positions
-        initial_endpoint_delta
-        ch3_multi_click_timeout
-        winch_command_repeat_time
-        no_signal_timeout
+          <div>
+            If enabled, the light controller turns on the brake lights for a
+            random amount of time every time the throttle input goes from
+            forward driving to neutral.<br>
+            This provides a realistic brake light effect since often the brake
+            function is not engaged in scale driving, but rather we return
+            the throttle to neutral and let the car coast to a stop.
+          </div>
+        </div>
 
-        gamma
+        <div class="advanced_feature">
+          <div>
+            <input type="checkbox" id="auto_brake_lights_reverse_enabled">
+            <label for="auto_brake_lights_reverse_enabled">Enable automatic brake   lights after reversing</label>
+          </div>
+          <div>
+            <input type=number id="auto_brake_counter_value_reverse_min">
+            <label for="auto_brake_counter_value_reverse_min"> .. </label>
+            <input type=number id="auto_brake_counter_value_reverse_max">
+            <label for="auto_brake_counter_value_reverse_max">min/max time in ms the brake lights should light up</label>
+          </div>
+
+          <div>
+            If enabled, the light controller turns on the brake lights for a
+            random amount of time every time the throttle goes to neutral
+            after reversing. This setting only takes effect when the ESC mode
+            is set to Forward/Brake/Reverse or Forward/Reverse.
+          </div>
+        </div>
+
+
+        <h3>ESC brake function</h3>
+        <div class="advanced_feature">
+          <div>
+            <input type="checkbox" id="brake_disarm_timeout_enabled">
+            <label for="brake_disarm_timeout_enabled">Enable automatic disarming of the brake function</label>
+          </div>
+          <div>
+            <input type=number id="brake_disarm_counter_value">
+            <label for="brake_disarm_counter_value">Timeout in milliseconds</label>
+          </div>
+          <div>
+            After driving the car forward, some ESC (e.g. Tamiya TEU-104BK,
+            TEU-105BK) require the user to first engage the brake function, then
+            go back to neutral, before they allow the car to drive backwards.
+            For those ESC this feature should be turned off.
+            <br>
+            Other ESC allow engaging the reverse function when the throttle
+            has been in neutral for a certain amount of time, usually a few
+            seconds. For those ESC the feature should be enabled. The value
+            in the field can be adjusted to match the ESC's timeout.<br>
+            This function applies only to ESC with a forward/reverse/brake function.
+          </div>
+        </div>
+
+
+        <h3>Reversing light extension</h3>
+        <div class="advanced_feature">
+          <div>
+            <input type=number id="auto_reverse_counter_value_min">
+            <label for="auto_reverse_counter_value_min"> .. </label>
+            <input type=number id="auto_reverse_counter_value_max">
+            <label for="auto_reverse_counter_value_max">min/max time in ms the reversing lights should be kept on</label>
+          </div>
+          <div>
+            After driving the car in reverse, the light controller keeps the reversing lights on for a random time between the specified min/max
+            after the throttle has returned to neutral. This adds realism
+            as drivers usually take a short time until they disengage reverse
+            gear.<br>
+            The reversing lights are immediately turned off when the car
+            drives forward.<br>
+            This function applies only to ESC with a forward/reverse/brake or
+            forward/reverse function.
+          </div>
+        </div>
+
+
+        <h3>Indicators</h3>
+        <div class="advanced_feature">
+          <div>
+            <input type=number id="blink_counter_value">
+            <label for="blink_counter_value">Indicator on/off time in ms</label>
+          </div>
+          <div>
+            This value sets the frequency of the indicators and hazard lights.
+            For most countries the indicator blink frequency is 1.5 Hz,
+            which means the half-period time should be 333 ms.
+          </div>
+        </div>
+
+        <div class="advanced_feature">
+          <div>
+            <input type=number id="indicator_idle_time_value">
+            <label for="indicator_idle_time_value">Idle time in ms before indicators engage</label>
+          </div>
+          <div>
+            In order to prevent the indicators coming on unintentionally during
+            driving, the throttle and steering must be in center for a
+            specified time before the indicators can be engaged by turning
+            the steering.
+          </div>
+        </div>
+
+        <div class="advanced_feature">
+          <div>
+            <input type=number id="indicator_off_timeout_value">
+            <label for="indicator_off_timeout_value">Timeout in ms before the indicators turn off</label>
+          </div>
+          <div>
+            When the indicators are engaged and steering is returned to neutral,
+            the indicators continue to blink for the specified amount of time.<br>
+            The indicators can be turned off immediately by turning the
+            steering in the opposite direction.
+          </div>
+        </div>
+
+        <div class="advanced_feature">
+          <div>
+            <input type=number id="blink_threshold">
+            <label for="blink_threshold">% steering input required to turn on the indicators</label>
+          </div>
+          <div>
+            The steering wheel must be turned for at least the specified
+            percentage of steering lock before the indicators turn on.
+          </div>
+        </div>
+
+
+        <h3>Servo input</h3>
+        <div class="advanced_feature">
+          <div>
+            <input type=number id="initial_endpoint_delta">
+            <label for="initial_endpoint_delta">Initial endpoint delta in ms</label>
+          </div>
+
+          <div>
+            The light controller features automatic detection of center and
+            endpoint for both steering and throttle.<br>
+            This value determines how much the initial endpoint left and right
+            is set from the center value after power up.<br>
+            A servo pulse is usually between 1000 and 2000 ms, with 1500 ms
+            being the centre. Dual-rate and end-point adjustments in the
+            transmitter change the minimum and maximum received pulse duration.<br>
+            A good value for the initial endpoint is 250 ms, which corresponds
+            to 50% of nominal servo travel. If the light controller sees
+            a signal larger than that, it automatically adjusts its
+            endpoint.<br>
+            If you set this value too small the lights may flicker after power
+            on until you perform steering and throttle inputs, which adjust
+            the endpoints to your transmitter.<br>
+            If you set this value too large steering and brake signals may
+            not engage properly.
+          </div>
+        </div>
+
+        <div class="advanced_feature">
+          <div>
+            <input type=number id="centre_threshold_low">
+            <label for="centre_threshold_low"> .. </label>
+            <input type=number id="centre_threshold_high">
+            <label for="centre_threshold_high">% centre threshold low/high</label>
+          </div>
+
+          <div>
+            In order to prevent flickering due to mis-detection of steering
+            and throttle inputs, a threshold is applied before steering and
+            throttle are detected as being engaged.<br>
+            When the steering/throttle is in the center, it first has to be
+            engaged past the high percent mark before the light controller
+            accepts the input.<br>
+            When returning to center, the steering/throttle value has to go
+            below the low threshold before it is recognized as being in center.<br>
+            Good values depend mostly on the throttle and ESC of your car. If
+            the values are set to high the car may be driving already long
+            before the light controller recognizes the car as being moving.
+            If the values are set too low then brake and reverse lights may
+            flicker when driving at very slow speeds.
+          </div>
+        </div>
+
+        <div class="advanced_feature">
+          <div>
+            <input type=number id="ch3_multi_click_timeout">
+            <label for="ch3_multi_click_timeout">timeout in ms before a &quot;click&quot; is accepted on CH3/AUX</label>
+          </div>
+
+          <div>
+            In order to be able to perform multiple functions on a single
+            CH3/AUX input, a method of multiple clicks -- similar to the
+            concept used on computers -- is employed.<br>
+            The timeout value determines how quickly the light controller reacts
+            to CH3/AUX. A low value means you must switch CH3/AUX quickly, but
+            also that the reaction of the function engages quickly. a high
+            value means you must wait longer until the light controller accepts
+            the input. 600 ms works well for the LANE Boys.
+          </div>
+        </div>
+
+        <div class="advanced_feature">
+          <div>
+            <input type=number id="no_signal_timeout">
+            <label for="no_signal_timeout">no signal timeout in ms</label>
+          </div>
+
+          <div>
+           If no servo signal is received within the given time, for example
+           because the transmitter is out of range, then the light controller
+           sets the no-signal flag internally, which can be used in light
+           programs to perform a certain function.<br>
+           Note that most likely this will not work well on modern digital
+           transmitters, because the failsafe function will output valid servo
+           signals even if the transmitter is out of range.
+          </div>
+        </div>
+
+
+        <h3>Winch output</h3>
+        <div class="advanced_feature">
+          <div>
+            <input type=number id="winch_command_repeat_time">
+            <label for="winch_command_repeat_time">winch command repeat time in ms</label>
+          </div>
+
+          <div>
+           This setting only applies to the
+           <a href="https://github.com/laneboysrc/rc-winch-controller" target="_blank">LANE Boys RC winch controller</a><br>
+           The value determines how often the winch commands are sent to the
+           winch controller.
+          </div>
+        </div>
+
+
+        <h3>Gamma correction</h3>
+        <div class="advanced_feature">
+          <div>
+            <input type=number id="gamma">
+            <label for="gamma">gamma value</label>
+          </div>
+
+          <div>
+            The current flowing through an LED determines its light output.
+            However, the human perception is not linear to the amount of light.
+            The light controller therefore offers a gamma correction so that
+            if you set a light value of 50%, it should be roughly perceived
+            has half as bright as the same LED set to 100%.<br>
+            Useful values are between 1.8 and 2.2.
+          </div>
+        </div>
+
     </div>
 
   </div>

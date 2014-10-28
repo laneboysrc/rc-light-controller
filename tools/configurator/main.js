@@ -321,12 +321,59 @@ var app = (function () {
 
 
     // *************************************************************************
-    var update_ui = function () {
-        el["mode"].selectedIndex = config["mode"];
-        update_mode();
+    var update_led_fields = function () {
+        function set_led_field(prefix, led_number, field_number, value) {
+            var cell = document.getElementById(
+                "" + prefix + led_number + "field" + field_number);
 
+            while (cell.firstChild) {
+                cell.removeChild(cell.firstChild);
+            }
+
+            value = Math.round(value * 100 / 255);
+
+            if (value != 0) {
+                var textNode = document.createTextNode(value);
+                cell.appendChild(textNode);
+            }
+        }
+
+        function set_led_fields(led_source, prefix) {
+            for (var i = 0; i < led_source["led_count"]; i++) {
+                var led = led_source[i];
+
+                set_led_field(prefix, i, 0, led["always_on"]);
+                set_led_field(prefix, i, 1, led["light_switch_position0"]);
+                set_led_field(prefix, i, 2, led["light_switch_position1"]);
+                set_led_field(prefix, i, 3, led["light_switch_position2"]);
+                set_led_field(prefix, i, 4, led["light_switch_position3"]);
+                set_led_field(prefix, i, 5, led["light_switch_position4"]);
+                set_led_field(prefix, i, 6, led["light_switch_position5"]);
+                set_led_field(prefix, i, 7, led["light_switch_position6"]);
+                set_led_field(prefix, i, 8, led["light_switch_position7"]);
+                set_led_field(prefix, i, 9, led["light_switch_position8"]);
+                set_led_field(prefix, i, 10, led["tail_light"]);
+                set_led_field(prefix, i, 11, led["brake_light"]);
+                set_led_field(prefix, i, 12, led["reversing_light"]);
+                set_led_field(prefix, i, 13, led["indicator_left"]);
+                set_led_field(prefix, i, 14, led["indicator_right"]);
+            }
+        }
+
+        set_led_fields(local_leds, "master");
+        set_led_fields(slave_leds, "slave");
+    }
+
+
+    // *************************************************************************
+    var update_ui = function () {
+        // Master/Slave
+        el["mode"].selectedIndex = config["mode"];
+
+        // ESC type
         el["esc"][config['esc_mode']].checked = true;
 
+        // Output functions
         el["single_output_out"][0].checked = true;
         el["dual_output_out"][0].checked = true;
         el["dual_output_th"][0].checked = true;
@@ -351,6 +398,7 @@ var app = (function () {
             el["dual_output_tx"][3].checked = true;
         }
 
+        // CH3/AUX type
         el["ch3"][0].checked = true;
         if (config['ch3_is_local_switch']) {
             el["ch3"][2].checked = true;
@@ -359,12 +407,20 @@ var app = (function () {
             el["ch3"][1].checked = true;
         }
 
+        // Baudrate
         el["baudrate"].selectedIndex = BAUDRATES[config['baudrate']];
+
+        // LEDs
+        update_led_fields();
+
+
+        // Show/hide various sections depending on the current settings
+        update_section_visibility();
     };
 
 
     // *************************************************************************
-    var update_mode = function () {
+    var update_section_visibility = function () {
         var new_mode = parseInt(
             el["mode"].options[el["mode"].selectedIndex].value, 10);
 
@@ -437,10 +493,17 @@ var app = (function () {
         el["config_advanced"] = document.getElementById("config_advanced");
 
 
-        el["mode"].addEventListener("change", update_mode, false);
-        el["single_output"].addEventListener("change", update_mode, false);
-        el["dual_output"].addEventListener("change", update_mode, false);
-        el["intelhex"].addEventListener("change", load_intelhex_file_from_disk, false);
+        el["mode"].addEventListener(
+            "change", update_section_visibility, false);
+
+        el["single_output"].addEventListener(
+            "change", update_section_visibility, false);
+
+        el["dual_output"].addEventListener(
+            "change", update_section_visibility, false);
+
+        el["intelhex"].addEventListener(
+            "change", load_intelhex_file_from_disk, false);
 
 
         load_and_parse_firmware(default_firmware_image);
