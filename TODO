@@ -23,6 +23,8 @@ TO DO LIST for the RC Light Controller
 
 * Merge Automatic disarming of brake function into ESC mode!
 
+* Stream-line centre_threshold_low/high (TH) and centre_threshold (ST)
+
 
 
 * Investigate whether we can detect the order of the incoming channels
