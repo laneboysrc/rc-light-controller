@@ -17,8 +17,6 @@ TO DO LIST for the RC Light Controller
 
 * Add support for 3-speed gearbox
 
-* Stream-line centre_threshold_low/high (TH) and centre_threshold (ST)
-
 * Add hardware test as one of the configurations
 
 
