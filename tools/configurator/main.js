@@ -9,6 +9,7 @@ var app = (function () {
     var config;
     var local_leds;
     var slave_leds;
+    var gamma;
 
     var LIGHT_SWITCH_POSITIONS = 9;
     var MAX_LIGHT_PROGRAMS = 25;
@@ -53,18 +54,21 @@ var app = (function () {
     };
 
 
-    var ESC_FORWARD_BRAKE_REVERSE = "Forward/Brake/Reverse";
+    var ESC_FORWARD_BRAKE_REVERSE_TIMEOUT = "Forward/Brake/Reverse with timeout";
+    var ESC_FORWARD_BRAKE_REVERSE = "Forward/Brake/Reverse no timeout";
     var ESC_FORWARD_REVERSE = "Forward/Reverse";
     var ESC_FORWARD_BRAKE = "Forward/Brake";
 
     var ESC_MODE = {
-        0: ESC_FORWARD_BRAKE_REVERSE,
-        1: ESC_FORWARD_REVERSE,
-        2: ESC_FORWARD_BRAKE,
+        0: ESC_FORWARD_BRAKE_REVERSE_TIMEOUT,
+        1: ESC_FORWARD_BRAKE_REVERSE,
+        2: ESC_FORWARD_REVERSE,
+        3: ESC_FORWARD_BRAKE,
 
-        ESC_FORWARD_BRAKE_REVERSE: 0,
-        ESC_FORWARD_REVERSE: 1,
-        ESC_FORWARD_BRAKE: 2
+        ESC_FORWARD_BRAKE_REVERSE_TIMEOUT: 0,
+        ESC_FORWARD_BRAKE_REVERSE: 1,
+        ESC_FORWARD_REVERSE: 2,
+        ESC_FORWARD_BRAKE: 3
     };
 
 
@@ -143,6 +147,21 @@ var app = (function () {
 
 
     // *************************************************************************
+    var parse_gamma = function () {
+        var data = firmware.data;
+        var offset = firmware.offset[SECTION_GAMMA];
+
+        var gamma = {};
+
+        gamma['gamma_value'] = String.fromCharCode(data[offset + 2]) +
+            String.fromCharCode(data[offset + 1]) +
+            String.fromCharCode(data[offset]);
+
+        return gamma;
+    }
+
+
+    // *************************************************************************
     var parse_configuration = function () {
         var data = firmware.data;
         var offset = firmware.offset[SECTION_CONFIG];
@@ -167,7 +186,6 @@ var app = (function () {
         config['ch3_is_momentary'] = get_flag(1 << 6);
         config['auto_brake_lights_forward_enabled'] = get_flag(1 << 7);
         config['auto_brake_lights_reverse_enabled'] = get_flag(1 << 8);
-        config['brake_disarm_timeout_enabled'] = get_flag(1 << 9);
 
         config['auto_brake_counter_value_forward_min'] = get_uint16(data, offset + 8);
         config['auto_brake_counter_value_forward_max'] = get_uint16(data, offset + 10);
@@ -181,13 +199,14 @@ var app = (function () {
         config['indicator_off_timeout_value'] = get_uint16(data, offset + 26);
 
         config['centre_threshold_low'] = get_uint16(data, offset + 28);
-        config['centre_threshold'] = get_uint16(data, offset + 30);
-        config['centre_threshold_high'] = get_uint16(data, offset + 32);
-        config['blink_threshold'] = get_uint16(data, offset + 34);
-        config['light_switch_positions'] = get_uint16(data, offset + 36);
-        config['initial_endpoint_delta'] = get_uint16(data, offset + 38);
-        config['ch3_multi_click_timeout'] = get_uint16(data, offset + 40);
-        config['winch_command_repeat_time'] = get_uint16(data, offset + 42);
+        config['centre_threshold_high'] = get_uint16(data, offset + 30);
+        config['blink_threshold'] = get_uint16(data, offset + 32);
+        config['light_switch_positions'] = get_uint16(data, offset + 34);
+        config['initial_endpoint_delta'] = get_uint16(data, offset + 36);
+        config['ch3_multi_click_timeout'] = get_uint16(data, offset + 38);
+        config['winch_command_repeat_time'] = get_uint16(data, offset + 40);
+
+        // 2 byte padding
 
         config['baudrate'] = get_uint32(data, offset + 44);
         config['no_signal_timeout'] = get_uint16(data, offset + 48);
@@ -305,6 +324,7 @@ var app = (function () {
         config = undefined;
         local_leds = undefined
         slave_leds = undefined;
+        gamma = undefined;
         el["light_programs"].innerHTML = code;
 
         try {
@@ -313,6 +333,7 @@ var app = (function () {
             local_leds = parse_leds(SECTION_LOCAL_LEDS);
             slave_leds = parse_leds(SECTION_SLAVE_LEDS);
             code = disassemble_light_programs();
+            gamma = parse_gamma();
 
             update_ui();
         }
@@ -412,6 +433,7 @@ var app = (function () {
         // Baudrate
         el["baudrate"].selectedIndex = BAUDRATES[config['baudrate']];
 
+
         // LEDs
         update_led_fields();
 
@@ -430,8 +452,6 @@ var app = (function () {
         el["auto_brake_counter_value_reverse_max"].value =
             config["auto_brake_counter_value_reverse_max"] * SYSTICK_IN_MS;
 
-        el["brake_disarm_timeout_enabled"].value =
-            config["brake_disarm_timeout_enabled"] * SYSTICK_IN_MS;
         el["brake_disarm_counter_value"].value =
             config["brake_disarm_counter_value"] * SYSTICK_IN_MS;
 
@@ -462,6 +482,8 @@ var app = (function () {
             config["winch_command_repeat_time"] * SYSTICK_IN_MS;
         el["no_signal_timeout"].value =
             config["no_signal_timeout"] * SYSTICK_IN_MS;
+
+        el["gamma"].value = gamma["gamma_value"];
 
 
         // Show/hide various sections depending on the current settings
@@ -570,7 +592,7 @@ var app = (function () {
         el["winch_command_repeat_time"] = document.getElementById("winch_command_repeat_time");
         el["no_signal_timeout"] = document.getElementById("no_signal_timeout");
 
-
+        el["gamma"] = document.getElementById("gamma");
 
 
         el["mode"].addEventListener(

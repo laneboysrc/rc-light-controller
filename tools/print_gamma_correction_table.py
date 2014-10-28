@@ -26,13 +26,24 @@ def main():
     except IndexError:
         gamma = 2.2
 
-    print('const uint8_t gamma_table[] = {')
+    print("""\
+const GAMMA_TABLE_T gamma_table = {
+    .magic = {
+        .magic_value = ROM_MAGIC,
+        .type = GAMMA_TABLE,
+        .version = CONFIG_VERSION
+    },
+
+""")
+    print('    .gamma_value = "{gamma_value}",'.format(gamma_value=gamma))
+    print('    .gamma_table = {')
+
 
     for level in range(256):
         step = gamma_correction(level, gamma)
         print("{step:d}, ".format(level=level, step=int(step)), end='')
         level += 1
 
-    print('\n};')
+    print('\n    }\n};')
 
 main()

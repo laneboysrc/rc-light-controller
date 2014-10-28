@@ -41,6 +41,21 @@
     <div id="config_basic" style="display: none" class="box configuration">
       <h2>Basic configuration</h2>
 
+      <h3>ESC type</h2>
+      <div>
+        <input type="radio" name="esc" value="0"/> Forward/Brake/Reverse (with timeout)<br>
+        <input type="radio" name="esc" value="1"/> Forward/Brake/Reverse (no timeout)<br>
+        <input type="radio" name="esc" value="2"/> Forward/Reverse (crawler mode)<br>
+        <input type="radio" name="esc" value="3"/> Forward/Brake (racing mode)<br>
+      </div>
+
+      <h3>CH3/AUX function</h2>
+      <div>
+        <input type="radio" name="ch3" value="0"/> CH3/AUX is a two-position switch or toggle button<br>
+        <input type="radio" name="ch3" value="1"/> CH3/AUX is a momentary push button<br>
+        <input type="radio" name="ch3" value="1"/> Push button connected to the light controller's CH3 input (i.e. a physical button, not a servo signal)<br>
+      </div>
+
       <div id="single_output" style="display: none">
         <h3>Output function on OUT/ISP</h2>
         <div>
@@ -72,20 +87,6 @@
         <option value="38400">38400</option>
         <option value="115200">115200</option>
       </select>
-
-      <h3>ESC type</h2>
-      <div>
-        <input type="radio" name="esc" value="0"/> Forward/Brake/Reverse<br>
-        <input type="radio" name="esc" value="1"/> Forward/Reverse (crawler mode)<br>
-        <input type="radio" name="esc" value="2"/> Forward/Brake (racing mode)<br>
-      </div>
-
-      <h3>CH3/AUX function</h2>
-      <div>
-        <input type="radio" name="ch3" value="0"/> CH3/AUX is a two-position switch or toggle button<br>
-        <input type="radio" name="ch3" value="1"/> CH3/AUX is a momentary push button<br>
-        <input type="radio" name="ch3" value="1"/> Push button connected to the light controller's CH3 input (i.e. a physical button, not a servo signal)<br>
-      </div>
     </div>
 
     <div id="config_leds" style="display: none" class="box configuration">
@@ -743,12 +744,13 @@
 
     <div id="config_advanced" style="display: none" class="box configuration">
       <h2>Advanced configuration</h2>
+        Note: all timing values have a resolution of 20 ms.
 
         <h3>Automatic brake lights</h3>
         <div class="advanced_feature">
           <div>
             <input type="checkbox" id="auto_brake_lights_forward_enabled">
-            <label for="auto_brake_lights_forward_enabled">Enable automatic brake lights after going forward</label>
+            <label for="auto_brake_lights_forward_enabled">Enable automatic brake lights after driving forward</label>
           </div>
           <div>
             <input type=number id="auto_brake_counter_value_forward_min">
@@ -992,7 +994,7 @@
         <h3>Gamma correction</h3>
         <div class="advanced_feature">
           <div>
-            <input type=number id="gamma">
+            <input type=number id="gamma" min="0.0" max="9.9" step="0.1">
             <label for="gamma">gamma value</label>
           </div>
 

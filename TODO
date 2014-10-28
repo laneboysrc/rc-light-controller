@@ -3,8 +3,6 @@ TO DO LIST for the RC Light Controller
 * Automate tests to check whether assembly->disassembly->assembly gets
   the same result after both assemblies
 
-* Add gamma value to the config so that we can determine what gamma was used!
-
 * Add firmware version to the config, independent from config version!
 
 * UI: make LED values in % rather than 0..255. Also for light programs!
