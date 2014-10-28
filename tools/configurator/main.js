@@ -498,22 +498,22 @@ var app = (function () {
 
         switch (new_mode) {
             case MODE['MASTER_WITH_SERVO_READER']:
-                el["config_light_programs"].style.display = "block";
-                el["config_leds"].style.display = "block";
-                el["config_basic"].style.display = "block";
-                el["config_advanced"].style.display = "block";
-                el["single_output"].style.display = "block";
+                el["config_light_programs"].style.display = "";
+                el["config_leds"].style.display = "";
+                el["config_basic"].style.display = "";
+                el["config_advanced"].style.display = "";
+                el["single_output"].style.display = "";
                 el["dual_output"].style.display = "none";
                 config["mode"] = new_mode;
                 break;
 
             case MODE['MASTER_WITH_UART_READER']:
-                el["config_light_programs"].style.display = "block";
-                el["config_leds"].style.display = "block";
-                el["config_basic"].style.display = "block";
-                el["config_advanced"].style.display = "block";
+                el["config_light_programs"].style.display = "";
+                el["config_leds"].style.display = "";
+                el["config_basic"].style.display = "";
+                el["config_advanced"].style.display = "";
                 el["single_output"].style.display = "none";
-                el["dual_output"].style.display = "block";
+                el["dual_output"].style.display = "";
                 config["mode"] = new_mode;
                 break;
 
@@ -533,7 +533,7 @@ var app = (function () {
         else if (config["mode"] == MODE["MASTER_WITH_UART_READER"]) {
             show_slave_leds = Boolean(el["dual_output_th"][1].checked);
         }
-        el["leds_slave"].style.display = show_slave_leds ? "block" : "none";
+        el["leds_slave"].style.display = show_slave_leds ? "" : "none";
 
     };
 

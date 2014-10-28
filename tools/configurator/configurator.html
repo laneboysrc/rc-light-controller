@@ -91,7 +91,12 @@
 
     <div id="config_leds" style="display: none" class="box configuration">
       <h2>LED configuration</h2>
-      <div>Click on a field in the table to set the LED brighness value in percent for a particular function.</div>
+      <div>
+        Click on a field in the table to set the LED brighness value in percent for a particular function.<br>
+        Click on the <span class="spanner"></span> icon to configure advanced parameters for simulating incadescent bulbs and weak ground connections.
+        The background of the icon turns orange when advanced features are in use.<br>
+        Hover the mouse over individual items to see an explaination about their function.
+      </div>
       <div id="leds_master">
         <h3>Master</h2>
         <div>
@@ -106,7 +111,7 @@
               <th name="help_led_indicator" colspan="2">Indicator</th>
             </tr>
             <tr class="odd">
-              <th></th>
+              <th>LED</th>
               <th name="help_led_light_switch">0</th>
               <th name="help_led_light_switch">1</th>
               <th name="help_led_light_switch">2</th>
@@ -122,294 +127,503 @@
               <th name="help_led_indicator">left</th>
               <th name="help_led_indicator">right</th>
             </tr>
+
             <tr class="led_config even">
-              <th>LED 0</th>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
+              <th name="help_spanner">0 <span class="spanner"></span></th>
+              <td></td> <td></td> <td></td> <td></td> <td></td> <td></td>
+              <td></td> <td></td> <td></td> <td></td> <td></td> <td></td>
+              <td></td> <td></td> <td></td>
             </tr>
+            <tr class="led_features even">
+              <td colspan="2">
+                <div>
+                  <input type="number" name="help_weak_ground">
+                </div>
+                <div>
+                  <input type="number" name="help_incandescent">
+                </div>
+              </td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+            </tr>
+
             <tr class="led_config odd">
-              <th>LED 1</th>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
+              <th>1 <span class="spanner"></span></th>
+              <td></td> <td></td> <td></td> <td></td> <td></td> <td></td>
+              <td></td> <td></td> <td></td> <td></td> <td></td> <td></td>
+              <td></td> <td></td> <td></td>
             </tr>
+            <tr class="led_features odd">
+              <td colspan="2">
+                <div>
+                  <input type="number" title="Weak ground simulation">
+                </div>
+                <div>
+                  <input type="number" title="Max change per systick">
+                </div>
+              </td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+
             <tr class="led_config even">
-              <th>LED 2</th>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
+              <th>2 <span class="spanner"></span></th>
+              <td></td> <td></td> <td></td> <td></td> <td></td> <td></td>
+              <td></td> <td></td> <td></td> <td></td> <td></td> <td></td>
+              <td></td> <td></td> <td></td>
             </tr>
+            <tr class="led_features even">
+              <td colspan="2">
+                <div>
+                  <input type="number" name="help_weak_ground">
+                </div>
+                <div>
+                  <input type="number" name="help_incandescent">
+                </div>
+              </td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+            </tr>
+
             <tr class="led_config odd">
-              <th>LED 3</th>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
+              <th>3 <span class="spanner"></span></th>
+              <td></td> <td></td> <td></td> <td></td> <td></td> <td></td>
+              <td></td> <td></td> <td></td> <td></td> <td></td> <td></td>
+              <td></td> <td></td> <td></td>
             </tr>
+            <tr class="led_features odd">
+              <td colspan="2">
+                <div>
+                  <input type="number" name="help_weak_ground">
+                </div>
+                <div>
+                  <input type="number" name="help_incandescent">
+                </div>
+              </td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+            </tr>
+
             <tr class="led_config even">
-              <th>LED 4</th>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
+              <th>4 <span class="spanner"></span></th>
+              <td></td> <td></td> <td></td> <td></td> <td></td> <td></td>
+              <td></td> <td></td> <td></td> <td></td> <td></td> <td></td>
+              <td></td> <td></td> <td></td>
             </tr>
+            <tr class="led_features even">
+              <td colspan="2">
+                <div>
+                  <input type="number" name="help_weak_ground">
+                </div>
+                <div>
+                  <input type="number" name="help_incandescent">
+                </div>
+              </td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+            </tr>
+
             <tr class="led_config odd">
-              <th>LED 5</th>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
+              <th>5 <span class="spanner"></span></th>
+              <td></td> <td></td> <td></td> <td></td> <td></td> <td></td>
+              <td></td> <td></td> <td></td> <td></td> <td></td> <td></td>
+              <td></td> <td></td> <td></td>
             </tr>
+            <tr class="led_features odd">
+              <td colspan="2">
+                <div>
+                  <input type="number" name="help_weak_ground">
+                </div>
+                <div>
+                  <input type="number" name="help_incandescent">
+                </div>
+              </td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+            </tr>
+
             <tr class="led_config even">
-              <th>LED 6</h>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
+              <th>6 <span class="spanner"></span></th>
+              <td></td> <td></td> <td></td> <td></td> <td></td> <td></td>
+              <td></td> <td></td> <td></td> <td></td> <td></td> <td></td>
+              <td></td> <td></td> <td></td>
             </tr>
+            <tr class="led_features even">
+              <td colspan="2">
+                <div>
+                  <input type="number" name="help_weak_ground">
+                </div>
+                <div>
+                  <input type="number" name="help_incandescent">
+                </div>
+              </td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+            </tr>
+
             <tr class="led_config odd">
-              <th>LED 7</th>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
+              <th>7 <span class="spanner"></span></th>
+              <td></td> <td></td> <td></td> <td></td> <td></td> <td></td>
+              <td></td> <td></td> <td></td> <td></td> <td></td> <td></td>
+              <td></td> <td></td> <td></td>
             </tr>
+            <tr class="led_features odd">
+              <td colspan="2">
+                <div>
+                  <input type="number" name="help_weak_ground">
+                </div>
+                <div>
+                  <input type="number" name="help_incandescent">
+                </div>
+              </td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+            </tr>
+
             <tr class="led_config even">
-              <th>LED 8</th>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
+              <th>8 <span class="spanner"></span></th>
+              <td></td> <td></td> <td></td> <td></td> <td></td> <td></td>
+              <td></td> <td></td> <td></td> <td></td> <td></td> <td></td>
+              <td></td> <td></td> <td></td>
             </tr>
+            <tr class="led_features even">
+              <td colspan="2">
+                <div>
+                  <input type="number" name="help_weak_ground">
+                </div>
+                <div>
+                  <input type="number" name="help_incandescent">
+                </div>
+              </td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+            </tr>
+
             <tr class="led_config odd">
-              <th>LED 9</th>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
+              <th>9 <span class="spanner"></span></th>
+              <td></td> <td></td> <td></td> <td></td> <td></td> <td></td>
+              <td></td> <td></td> <td></td> <td></td> <td></td> <td></td>
+              <td></td> <td></td> <td></td>
             </tr>
+            <tr class="led_features odd">
+              <td colspan="2">
+                <div>
+                  <input type="number" name="help_weak_ground">
+                </div>
+                <div>
+                  <input type="number" name="help_incandescent">
+                </div>
+              </td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+            </tr>
+
             <tr class="led_config even">
-              <th>LED 10</th>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
+              <th>10 <span class="spanner"></span></th>
+              <td></td> <td></td> <td></td> <td></td> <td></td> <td></td>
+              <td></td> <td></td> <td></td> <td></td> <td></td> <td></td>
+              <td></td> <td></td> <td></td>
             </tr>
+            <tr class="led_features even">
+              <td colspan="2">
+                <div>
+                  <input type="number" name="help_weak_ground">
+                </div>
+                <div>
+                  <input type="number" name="help_incandescent">
+                </div>
+              </td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+            </tr>
+
             <tr class="led_config odd">
-              <th>LED 11</th>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
+              <th>11 <span class="spanner"></span></th>
+              <td></td> <td></td> <td></td> <td></td> <td></td> <td></td>
+              <td></td> <td></td> <td></td> <td></td> <td></td> <td></td>
+              <td></td> <td></td> <td></td>
             </tr>
+            <tr class="led_features odd">
+              <td colspan="2">
+                <div>
+                  <input type="number" name="help_weak_ground">
+                </div>
+                <div>
+                  <input type="number" name="help_incandescent">
+                </div>
+              </td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+            </tr>
+
             <tr class="led_config even">
-              <th>LED 12</th>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
+              <th>12 <span class="spanner"></span></th>
+              <td></td> <td></td> <td></td> <td></td> <td></td> <td></td>
+              <td></td> <td></td> <td></td> <td></td> <td></td> <td></td>
+              <td></td> <td></td> <td></td>
             </tr>
+            <tr class="led_features even">
+              <td colspan="2">
+                <div>
+                  <input type="number" name="help_weak_ground">
+                </div>
+                <div>
+                  <input type="number" name="help_incandescent">
+                </div>
+              </td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+            </tr>
+
             <tr class="led_config odd">
-              <th>LED 13</th>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
+              <th>13 <span class="spanner"></span></th>
+              <td></td> <td></td> <td></td> <td></td> <td></td> <td></td>
+              <td></td> <td></td> <td></td> <td></td> <td></td> <td></td>
+              <td></td> <td></td> <td></td>
             </tr>
+            <tr class="led_features odd">
+              <td colspan="2">
+                <div>
+                  <input type="number" name="help_weak_ground">
+                </div>
+                <div>
+                  <input type="number" name="help_incandescent">
+                </div>
+              </td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+            </tr>
+
             <tr class="led_config even">
-              <th>LED 14</th>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
+              <th>14 <span class="spanner"></span></th>
+              <td></td> <td></td> <td></td> <td></td> <td></td> <td></td>
+              <td></td> <td></td> <td></td> <td></td> <td></td> <td></td>
+              <td></td> <td></td> <td></td>
             </tr>
+            <tr class="led_features even">
+              <td colspan="2">
+                <div>
+                  <input type="number" name="help_weak_ground">
+                </div>
+                <div>
+                  <input type="number" name="help_incandescent">
+                </div>
+              </td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+            </tr>
+
             <tr class="led_config odd">
-              <th>LED 15</th>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
+              <th>15 <span class="spanner"></span></th>
+              <td></td> <td></td> <td></td> <td></td> <td></td> <td></td>
+              <td></td> <td></td> <td></td> <td></td> <td></td> <td></td>
+              <td></td> <td></td> <td></td>
             </tr>
+            <tr class="led_features odd">
+              <td colspan="2">
+                <div>
+                  <input type="number" name="help_weak_ground">
+                </div>
+                <div>
+                  <input type="number" name="help_incandescent">
+                </div>
+              </td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+              <td><input type="checkbox" name="help_weak_ground"></td>
+            </tr>
+
           </table>
         </div>
       </div>
@@ -428,7 +642,7 @@
               <th name="help_led_indicator" colspan="2">Indicator</th>
             </tr>
             <tr class="odd">
-              <th></th>
+              <th>LED</th>
               <th name="help_led_light_switch">0</th>
               <th name="help_led_light_switch">1</th>
               <th name="help_led_light_switch">2</th>
@@ -445,292 +659,100 @@
               <th name="help_led_indicator">right</th>
             </tr>
             <tr class="led_config even">
-              <th>LED 0</th>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
+              <th>0 <span class="spanner"></span></th>
+              <td></td> <td></td> <td></td> <td></td> <td></td> <td></td>
+              <td></td> <td></td> <td></td> <td></td> <td></td> <td></td>
+              <td></td> <td></td> <td></td>
             </tr>
             <tr class="led_config odd">
-              <th>LED 1</th>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
+              <th>1 <span class="spanner"></span></th>
+              <td></td> <td></td> <td></td> <td></td> <td></td> <td></td>
+              <td></td> <td></td> <td></td> <td></td> <td></td> <td></td>
+              <td></td> <td></td> <td></td>
             </tr>
             <tr class="led_config even">
-              <th>LED 2</th>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
+              <th>2 <span class="spanner"></span></th>
+              <td></td> <td></td> <td></td> <td></td> <td></td> <td></td>
+              <td></td> <td></td> <td></td> <td></td> <td></td> <td></td>
+              <td></td> <td></td> <td></td>
             </tr>
             <tr class="led_config odd">
-              <th>LED 3</th>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
+              <th>3 <span class="spanner"></span></th>
+              <td></td> <td></td> <td></td> <td></td> <td></td> <td></td>
+              <td></td> <td></td> <td></td> <td></td> <td></td> <td></td>
+              <td></td> <td></td> <td></td>
             </tr>
             <tr class="led_config even">
-              <th>LED 4</th>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
+              <th>4 <span class="spanner"></span></th>
+              <td></td> <td></td> <td></td> <td></td> <td></td> <td></td>
+              <td></td> <td></td> <td></td> <td></td> <td></td> <td></td>
+              <td></td> <td></td> <td></td>
             </tr>
             <tr class="led_config odd">
-              <th>LED 5</th>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
+              <th>5 <span class="spanner"></span></th>
+              <td></td> <td></td> <td></td> <td></td> <td></td> <td></td>
+              <td></td> <td></td> <td></td> <td></td> <td></td> <td></td>
+              <td></td> <td></td> <td></td>
             </tr>
             <tr class="led_config even">
-              <th>LED 6</h>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
+              <th>6 <span class="spanner"></span></th>
+              <td></td> <td></td> <td></td> <td></td> <td></td> <td></td>
+              <td></td> <td></td> <td></td> <td></td> <td></td> <td></td>
+              <td></td> <td></td> <td></td>
             </tr>
             <tr class="led_config odd">
-              <th>LED 7</th>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
+              <th>7 <span class="spanner"></span></th>
+              <td></td> <td></td> <td></td> <td></td> <td></td> <td></td>
+              <td></td> <td></td> <td></td> <td></td> <td></td> <td></td>
+              <td></td> <td></td> <td></td>
             </tr>
             <tr class="led_config even">
-              <th>LED 8</th>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
+              <th>8 <span class="spanner"></span></th>
+              <td></td> <td></td> <td></td> <td></td> <td></td> <td></td>
+              <td></td> <td></td> <td></td> <td></td> <td></td> <td></td>
+              <td></td> <td></td> <td></td>
             </tr>
             <tr class="led_config odd">
-              <th>LED 9</th>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
+              <th>9 <span class="spanner"></span></th>
+              <td></td> <td></td> <td></td> <td></td> <td></td> <td></td>
+              <td></td> <td></td> <td></td> <td></td> <td></td> <td></td>
+              <td></td> <td></td> <td></td>
             </tr>
             <tr class="led_config even">
-              <th>LED 10</th>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
+              <th>10 <span class="spanner"></span></th>
+              <td></td> <td></td> <td></td> <td></td> <td></td> <td></td>
+              <td></td> <td></td> <td></td> <td></td> <td></td> <td></td>
+              <td></td> <td></td> <td></td>
             </tr>
             <tr class="led_config odd">
-              <th>LED 11</th>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
+              <th>11 <span class="spanner"></span></th>
+              <td></td> <td></td> <td></td> <td></td> <td></td> <td></td>
+              <td></td> <td></td> <td></td> <td></td> <td></td> <td></td>
+              <td></td> <td></td> <td></td>
             </tr>
             <tr class="led_config even">
-              <th>LED 12</th>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
+              <th>12 <span class="spanner"></span></th>
+              <td></td> <td></td> <td></td> <td></td> <td></td> <td></td>
+              <td></td> <td></td> <td></td> <td></td> <td></td> <td></td>
+              <td></td> <td></td> <td></td>
             </tr>
             <tr class="led_config odd">
-              <th>LED 13</th>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
+              <th>13 <span class="spanner"></span></th>
+              <td></td> <td></td> <td></td> <td></td> <td></td> <td></td>
+              <td></td> <td></td> <td></td> <td></td> <td></td> <td></td>
+              <td></td> <td></td> <td></td>
             </tr>
             <tr class="led_config even">
-              <th>LED 14</th>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
+              <th>14 <span class="spanner"></span></th>
+              <td></td> <td></td> <td></td> <td></td> <td></td> <td></td>
+              <td></td> <td></td> <td></td> <td></td> <td></td> <td></td>
+              <td></td> <td></td> <td></td>
             </tr>
             <tr class="led_config odd">
-              <th>LED 15</th>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
+              <th>15 <span class="spanner"></span></th>
+              <td></td> <td></td> <td></td> <td></td> <td></td> <td></td>
+              <td></td> <td></td> <td></td> <td></td> <td></td> <td></td>
+              <td></td> <td></td> <td></td>
             </tr>
           </table>
         </div>
