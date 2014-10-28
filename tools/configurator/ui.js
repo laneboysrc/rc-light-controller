@@ -103,20 +103,19 @@ var ui = (function () {
 
         function init_led_table(section, prefix) {
             var led_section = document.getElementById(section);
-            var led_body = led_section.getElementsByTagName("tbody")[0];
+            var led_tbody = led_section.getElementsByTagName("tbody")[0];
+            var template_function = tmpl("led_row_template");
 
             for (var i = 0; i < 16; i++) {
                 var e = document.createElement("table");
-                var template = document.getElementById("led_row_template");
-
-                e.innerHTML = tmpl("led_row_template", {
+                e.innerHTML = template_function({
                     "even_odd": (i % 2) ? "odd" : "even",
                     "led_number": i
                 });
                 var body = e.getElementsByTagName("tbody")[0];
 
                 while (body.childNodes[0]) {
-                    led_body.appendChild(body.childNodes[0]);
+                    led_tbody.appendChild(body.childNodes[0]);
                 }
             }
         }
