@@ -64,13 +64,13 @@ input, select {
   border: 1px solid #ffcf0d;
 }
 
-.led-table {
+.led_table {
   width: 100%;
   border-collapse: collapse;
   margin-bottom: 1em;
 }
 
-.led-table td, .led-table th {
+.led_table td, .led_table th {
   text-align: center;
   vertical-align: middle;
   width: 6.25%;
@@ -78,18 +78,18 @@ input, select {
   border-left: 2px solid #ffcf0d;
 }
 
-.led-table th {
+.led_table th {
   font-size: 0.8em;
 }
 
-.led-table td {
+.led_table td {
   cursor: default;
 }
 
-.led-table .odd {
+.led_table .odd {
   background: #e8a60c;
 }
 
-.led-table input {
+.led_table input {
   width: 3.5em;
 }
