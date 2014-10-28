@@ -414,6 +414,8 @@ var app = (function () {
     var init = function () {
         el["mode"] = document.getElementById("mode");
 
+        el["intelhex"] = document.getElementById("intelhex");
+
         el["config_leds"] = document.getElementById("config_leds");
         el["leds_master"] = document.getElementById("leds_master");
         el["leds_slave"] = document.getElementById("leds_slave");
@@ -434,9 +436,12 @@ var app = (function () {
 
         el["config_advanced"] = document.getElementById("config_advanced");
 
+
         el["mode"].addEventListener("change", update_mode, false);
         el["single_output"].addEventListener("change", update_mode, false);
         el["dual_output"].addEventListener("change", update_mode, false);
+        el["intelhex"].addEventListener("change", load_intelhex_file_from_disk, false);
+
 
         load_and_parse_firmware(default_firmware_image);
     };
@@ -451,161 +456,7 @@ var app = (function () {
 
 
 // *****************************************************************************
-function led_config_click_handler (e) {
-    var item = e.target;
-
-    if (item.nodeName != "TD") {
-        return;
-    }
-
-    var cell = document.getElementById(item.id);
-
-    var originalValue = parseInt(cell.textContent, 10);
-    if (isNaN(originalValue) || !isFinite(originalValue)) {
-        originalValue = 0;
-    }
-
-    var input = document.createElement("input");
-    input.type = 'number';
-    input.min = 0;
-    input.max = 100;
-    input.step = 1;
-    input.value = originalValue;
-
-    while (cell.firstChild) {
-        cell.removeChild(cell.firstChild);
-    }
-
-    cell.appendChild(input);
-    input.focus();
-
-    function blur_handler(e) {
-        var input = e.target;
-        var cell = input.parentNode;
-
-        var newValue = parseInt(input.value);
-        if (isNaN(newValue)  ||  !isFinite(newValue) ||
-                newValue < input.min  ||  newValue > input.max) {
-            newValue = originalValue;
-        }
-
-        while (cell.firstChild) {
-            cell.removeChild(cell.firstChild);
-        }
-
-        if (newValue != 0) {
-            var textNode = document.createTextNode(newValue);
-            cell.appendChild(textNode);
-        }
-    };
-
-    function key_handler(e) {
-        var input = e.target;
-
-        switch (e.keyCode) {
-            case 27: // ESC
-                input.value = originalValue;
-                input.blur();
-                break;
-
-            case 13: // ENTER
-                input.blur();
-                break;
-
-            default:
-                break;
-        }
-    };
-
-    input.addEventListener("blur", blur_handler, false);
-    input.addEventListener("keydown", key_handler, false);
-}
-
-
-// *****************************************************************************
 document.addEventListener("DOMContentLoaded", function () {
-    var led_rows;
-
-    document.getElementById("intelhex").addEventListener(
-        "change", app.load, false);
-
-    led_rows = document.getElementById("leds_master").getElementsByClassName(
-            "led_config");
-
-    for (var led = 0; led < led_rows.length; led++) {
-        var fields = led_rows[led].getElementsByTagName("td");
-
-        for (var i = 0; i < fields.length; i++) {
-            fields[i].id = "master" + led + "field" + i;
-            fields[i].title = "Click to change";
-            fields[i].addEventListener("click", led_config_click_handler, true);
-        }
-    }
-
-    led_rows = document.getElementById("leds_slave").getElementsByClassName(
-        "led_config");
-
-    for (var led = 0; led < led_rows.length; led++) {
-        var fields = led_rows[led].getElementsByTagName("td");
-
-        for (var i = 0; i < fields.length; i++) {
-            fields[i].id = "slave" + led + "field" + i;
-            fields[i].title = "Click to change";
-            fields[i].addEventListener("click", led_config_click_handler, true);
-        }
-    }
-
-
-    var tooltip;
-
-    tooltip = document.getElementsByName("help_led_light_switch");
-    for (var i = 0; i < tooltip.length; i++) {
-        tooltip[i].title = "The virtual light switch has 9 positions. " +
-        "A single click on AUX/CH3 increments the light switch position, " +
-        "a double-click decrements the light switch position.\n" +
-        "If you want an LED to be on at multiple positions simply fill in " +
-        "values at all the desired light switch positions where the LED " +
-        "should turn on.\n" +
-        "Example: For parking lights (aka positioning lights), set a value " +
-        "for light switch position 1. For main beam (aka. head lamps) set a " +
-        "value at both light switch position 1 and 2. For high beam set a " +
-        "value at light switch positions 1, 2 and 3. This way the light " +
-        "behaviour corresponds to a real car in most countries.";
-    }
-
-    tooltip = document.getElementsByName("help_led_always_on");
-    for (var i = 0; i < tooltip.length; i++) {
-        tooltip[i].title = "The LED will be always on at the given " +
-        "brightness, regardless of the car state.";
-    }
-
-    tooltip = document.getElementsByName("help_led_tail");
-    for (var i = 0; i < tooltip.length; i++) {
-        tooltip[i].title = "Tail light (aka. rear position light). This " +
-        "function applies when the light position switch is at any state " +
-        "other than 0.";
-    }
-
-    tooltip = document.getElementsByName("help_led_brake");
-    for (var i = 0; i < tooltip.length; i++) {
-        tooltip[i].title = "Brake light function.\nHint: to do a combined " +
-        "tail and brake light, set the \"tail\" entry to a low " +
-        "value (e.g. 33%), and the \"brake\" entry to a high value " +
-        "(e.g. 100%).";
-    }
-
-    tooltip = document.getElementsByName("help_led_reverse");
-    for (var i = 0; i < tooltip.length; i++) {
-        tooltip[i].title = "Reversing light function; turns on when the car " +
-        "is driving backwards.\nNote: see main configuration above to " +
-        "configure your ESC type!";
-    }
-
-    tooltip = document.getElementsByName("help_led_indicator");
-    for (var i = 0; i < tooltip.length; i++) {
-        tooltip[i].title = "Indicator, aka. turn signals.\nAlso applies to " +
-        "the hazard light function.";
-    }
-
+    ui.init();
     app.init();
 }, false);
