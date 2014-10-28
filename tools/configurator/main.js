@@ -327,28 +327,28 @@ var app = (function () {
 
         el["esc"][config['esc_mode']].checked = true;
 
-        el["output_single"][0].checked = true;
-        el["output_out"][0].checked = true;
-        el["output_th"][0].checked = true;
+        el["single-output-out"][0].checked = true;
+        el["dual-output-out"][0].checked = true;
+        el["dual-output-th"][0].checked = true;
         if (config['slave_ouput']) {
-            el["output_single"][1].checked = true;
-            el["output_tx"][1].checked = true;
+            el["single-output-out"][1].checked = true;
+            el["dual-output-tx"][1].checked = true;
         }
         if (config['preprocessor_output']) {
-            el["output_single"][2].checked = true;
-            el["output_tx"][2].checked = true;
+            el["single-output-out"][2].checked = true;
+            el["dual-output-tx"][2].checked = true;
         }
         if (config['steering_wheel_servo_output']) {
-            el["output_single"][3].checked = true;
-            el["output_out"][1].checked = true;
+            el["single-output-out"][3].checked = true;
+            el["dual-output-out"][1].checked = true;
         }
         if (config['gearbox_servo_output']) {
-            el["output_single"][4].checked = true;
-            el["output_out"][2].checked = true;
+            el["single-output-out"][4].checked = true;
+            el["dual-output-out"][2].checked = true;
         }
         if (config['winch_output']) {
-            el["output_single"][5].checked = true;
-            el["output_tx"][3].checked = true;
+            el["single-output-out"][5].checked = true;
+            el["dual-output-tx"][3].checked = true;
         }
 
         el["ch3"][0].checked = true;
@@ -376,6 +376,7 @@ var app = (function () {
                 el["config-advanced"].style.display = "block";
                 el["single-output"].style.display = "block";
                 el["dual-output"].style.display = "none";
+                config["mode"] = new_mode;
                 break;
 
             case MODE['MASTER_WITH_UART_READER']:
@@ -385,6 +386,7 @@ var app = (function () {
                 el["config-advanced"].style.display = "block";
                 el["single-output"].style.display = "none";
                 el["dual-output"].style.display = "block";
+                config["mode"] = new_mode;
                 break;
 
             case MODE['SLAVE']:
@@ -392,29 +394,49 @@ var app = (function () {
                 el["config-leds"].style.display = "none";
                 el["config-basic"].style.display = "none";
                 el["config-advanced"].style.display = "none";
+                config["mode"] = new_mode;
                 break;
         }
+
+        var show_slave_leds = false;
+        if (config["mode"] == MODE["MASTER_WITH_SERVO_READER"]) {
+            show_slave_leds = Boolean(el["single-output-out"][1].checked);
+        }
+        else if (config["mode"] == MODE["MASTER_WITH_UART_READER"]) {
+            show_slave_leds = Boolean(el["dual-output-th"][1].checked);
+        }
+        el["leds-slave"].style.display = show_slave_leds ? "block" : "none";
+
     };
 
 
     // *************************************************************************
     var init = function () {
-        el["light_programs"] = document.getElementById("light_programs");
         el["mode"] = document.getElementById("mode");
+
         el["config-leds"] = document.getElementById("config-leds");
+        el["leds-master"] = document.getElementById("leds-master");
+        el["leds-slave"] = document.getElementById("leds-slave");
+
         el["config-basic"] = document.getElementById("config-basic");
-        el["config-advanced"] = document.getElementById("config-advanced");
-        el["single-output"] = document.getElementById("single-output");
-        el["dual-output"] = document.getElementById("dual-output");
-        el["output_single"] = document.getElementsByName("output_single");
-        el["output_out"] = document.getElementsByName("output_out");
-        el["output_th"] = document.getElementsByName("output_th");
-        el["config-light-programs"] = document.getElementById("config-light-programs");
         el["baudrate"] = document.getElementById("baudrate");
         el["esc"] = document.getElementsByName("esc");
         el["ch3"] = document.getElementsByName("ch3");
 
+        el["single-output"] = document.getElementById("single-output");
+        el["dual-output"] = document.getElementById("dual-output");
+        el["single-output-out"] = document.getElementsByName("single-output-out");
+        el["dual-output-out"] = document.getElementsByName("dual-output-out");
+        el["dual-output-th"] = document.getElementsByName("dual-output-th");
+
+        el["config-light-programs"] = document.getElementById("config-light-programs");
+        el["light_programs"] = document.getElementById("light_programs");
+
+        el["config-advanced"] = document.getElementById("config-advanced");
+
         el["mode"].addEventListener("change", update_mode, false);
+        el["single-output"].addEventListener("change", update_mode, false);
+        el["dual-output"].addEventListener("change", update_mode, false);
 
         load_and_parse_firmware(default_firmware_image);
     };
