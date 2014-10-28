@@ -211,6 +211,7 @@ typedef struct {
 // ****************************************************************************
 typedef struct {
     MAGIC_T magic;
+    char gamma_value[4];
     uint8_t gamma_table[256];
 } GAMMA_TABLE_T;
 
