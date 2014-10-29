@@ -3,6 +3,22 @@
 var ui = (function () {
 
     // *************************************************************************
+    var led_feature_click_handler = function (e) {
+        var features_row = document.getElementById(e.target.name);
+        var visible = Boolean(features_row.style.display != "none");
+
+        var features = document.getElementsByClassName("led_features");
+        for (var i = 0; i < features.length; i++) {
+            features[i].style.display = "none";
+        }
+
+        if (!visible) {
+            features_row.style.display = "";
+        }
+    }
+
+
+    // *************************************************************************
     var led_config_click_handler = function (e) {
         var item = e.target;
 
@@ -83,18 +99,52 @@ var ui = (function () {
 
             for (var led = 0; led < led_rows.length; led++) {
                 var fields = led_rows[led].getElementsByTagName("td");
-
                 for (var i = 0; i < fields.length; i++) {
                     fields[i].id = "" + prefix + led + "field" + i;
                     fields[i].title = "Click to change";
                     fields[i].addEventListener(
                         "click", led_config_click_handler, true);
                 }
+
+                var spanner = led_rows[led].getElementsByClassName("spanner")[0];
+                spanner.name = "" + prefix + led + "features"
+                spanner.addEventListener(
+                    "click", led_feature_click_handler, true);
             }
         }
 
         init_led_section("leds_master", "master");
         init_led_section("leds_slave", "slave");
+    };
+
+
+    // *************************************************************************
+    var init_led_features = function () {
+
+        function init_led_feature(section, prefix) {
+            var elements;
+            var led_section = document.getElementById(section);
+            var led_rows = led_section.getElementsByClassName("led_features");
+
+            for (var led = 0; led < led_rows.length; led++) {
+                led_rows[led].id = "" + prefix + led + "features";
+                led_rows[led].style.display = "none";
+
+                elements = led_rows[led].getElementsByClassName("incandescent");
+                elements[0].id = "" + prefix + led + "incandescent";
+
+                elements = led_rows[led].getElementsByClassName("weak_ground");
+                elements[0].id = "" + prefix + led + "weak_ground";
+
+                elements = led_rows[led].getElementsByClassName("checkbox");
+                for (var i = 0; i < elements.length; i++) {
+                    elements[i].id = "" + prefix + led + "checkbox" + i;
+                }
+            }
+        }
+
+        init_led_feature("leds_master", "master");
+        init_led_feature("leds_slave", "slave");
     };
 
 
@@ -185,6 +235,7 @@ var ui = (function () {
     var init = function () {
         init_led_tables();
         init_led_editing();
+        init_led_features();
         init_tooltips();
     };
 

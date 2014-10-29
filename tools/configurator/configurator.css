@@ -123,10 +123,6 @@ input, select {
   display: inline-block;
 }
 
-.led_features {
-  /*display: none;*/
-}
-
 .led_features table {
   width: 100%;
 }
