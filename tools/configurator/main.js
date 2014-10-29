@@ -188,12 +188,18 @@ var app = (function () {
         config['auto_brake_lights_forward_enabled'] = get_flag(1 << 7);
         config['auto_brake_lights_reverse_enabled'] = get_flag(1 << 8);
 
-        config['auto_brake_counter_value_forward_min'] = get_uint16(data, offset + 8);
-        config['auto_brake_counter_value_forward_max'] = get_uint16(data, offset + 10);
-        config['auto_brake_counter_value_reverse_min'] = get_uint16(data, offset + 12);
-        config['auto_brake_counter_value_reverse_max'] = get_uint16(data, offset + 14);
-        config['auto_reverse_counter_value_min'] = get_uint16(data, offset + 16);
-        config['auto_reverse_counter_value_max'] = get_uint16(data, offset + 18);
+        config['auto_brake_counter_value_forward_min'] =
+            get_uint16(data, offset + 8);
+        config['auto_brake_counter_value_forward_max'] =
+            get_uint16(data, offset + 10);
+        config['auto_brake_counter_value_reverse_min'] =
+            get_uint16(data, offset + 12);
+        config['auto_brake_counter_value_reverse_max'] =
+            get_uint16(data, offset + 14);
+        config['auto_reverse_counter_value_min'] =
+            get_uint16(data, offset + 16);
+        config['auto_reverse_counter_value_max'] =
+            get_uint16(data, offset + 18);
         config['brake_disarm_counter_value'] = get_uint16(data, offset + 20);
         config['blink_counter_value'] = get_uint16(data, offset + 22);
         config['indicator_idle_time_value'] = get_uint16(data, offset + 24);
@@ -266,7 +272,8 @@ var app = (function () {
         var result = {};
 
         for (var i = 0; i < image_data.length; i++) {
-            if (image_data.slice(i, i + ROM_MAGIC_LENGTH).join() == ROM_MAGIC.join()) {
+            if (image_data.slice(i, i + ROM_MAGIC_LENGTH).join() ==
+                    ROM_MAGIC.join()) {
 
                 var section_id = (image_data[i + 5] << 8) + image_data[i + 4];
                 var version = (image_data[i + 7] << 8) + image_data[i + 6];
@@ -366,7 +373,10 @@ var app = (function () {
         var intelhex = "";
 
         var blob = new Blob([intelhex], {type: "text/plain;charset=utf-8"});
-        var filename = window.prompt('Filename for the firmware image:', 'light_controller.hex')
+
+        var filename = window.prompt(
+            'Filename for the firmware image:', 'light_controller.hex');
+
         if (filename != null  &&  filename != "") {
             saveAs(blob, filename);
         }
@@ -416,8 +426,13 @@ var app = (function () {
 
         var configuration_string = JSON.stringify(data, null, 2);
 
-        var blob = new Blob([configuration_string], {type: "text/plain;charset=utf-8"});
-        var filename = window.prompt('Filename for the configuration file:', 'light_controller.config.txt')
+        var blob = new Blob(
+            [configuration_string], {type: "text/plain;charset=utf-8"});
+
+        var filename = window.prompt(
+            'Filename for the configuration file:',
+            'light_controller.config.txt')
+
         if (filename != null  &&  filename != "") {
             saveAs(blob, filename);
         }
@@ -429,7 +444,8 @@ var app = (function () {
         function set_feature_active(led_div_id, prefix) {
             var led_div = document.getElementById(led_div_id);
             var led_config_rows = led_div.getElementsByClassName("led_config");
-            var led_feature_rows = led_div.getElementsByClassName("led_features");
+            var led_feature_rows =
+                led_div.getElementsByClassName("led_features");
 
             for (var i = 0; i < led_feature_rows.length; i++) {
                 var advanced_feature_used = false;
@@ -459,7 +475,9 @@ var app = (function () {
                 }
 
 
-                var spanner = led_config_rows[i].getElementsByClassName("spanner")[0];
+                var spanner =
+                    led_config_rows[i] .getElementsByClassName("spanner")[0];
+
                 if (advanced_feature_used) {
                     addClass(spanner, "led_feature_active");
                 }
@@ -525,22 +543,38 @@ var app = (function () {
                 set_led_field(prefix, i, 13, led["indicator_left"]);
                 set_led_field(prefix, i, 14, led["indicator_right"]);
 
-                set_led_feature(prefix, i, "incandescent", led["max_change_per_systick"]);
-                set_led_feature(prefix, i, "weak_ground", led["reduction_percent"]);
-                set_led_feature(prefix, i, "checkbox0", led["weak_light_switch_position0"]);
-                set_led_feature(prefix, i, "checkbox1", led["weak_light_switch_position1"]);
-                set_led_feature(prefix, i, "checkbox2", led["weak_light_switch_position2"]);
-                set_led_feature(prefix, i, "checkbox3", led["weak_light_switch_position3"]);
-                set_led_feature(prefix, i, "checkbox4", led["weak_light_switch_position4"]);
-                set_led_feature(prefix, i, "checkbox5", led["weak_light_switch_position5"]);
-                set_led_feature(prefix, i, "checkbox6", led["weak_light_switch_position6"]);
-                set_led_feature(prefix, i, "checkbox7", led["weak_light_switch_position7"]);
-                set_led_feature(prefix, i, "checkbox8", led["weak_light_switch_position8"]);
-                set_led_feature(prefix, i, "checkbox9", led["weak_tail_light"]);
-                set_led_feature(prefix, i, "checkbox10", led["weak_brake_light"]);
-                set_led_feature(prefix, i, "checkbox11", led["weak_reversing_light"]);
-                set_led_feature(prefix, i, "checkbox12", led["weak_indicator_left"]);
-                set_led_feature(prefix, i, "checkbox13", led["weak_indicator_right"]);
+                set_led_feature(
+                    prefix, i, "incandescent", led["max_change_per_systick"]);
+                set_led_feature(
+                    prefix, i, "weak_ground", led["reduction_percent"]);
+                set_led_feature(
+                    prefix, i, "checkbox0", led["weak_light_switch_position0"]);
+                set_led_feature(
+                    prefix, i, "checkbox1", led["weak_light_switch_position1"]);
+                set_led_feature(
+                    prefix, i, "checkbox2", led["weak_light_switch_position2"]);
+                set_led_feature(
+                    prefix, i, "checkbox3", led["weak_light_switch_position3"]);
+                set_led_feature(
+                    prefix, i, "checkbox4", led["weak_light_switch_position4"]);
+                set_led_feature(
+                    prefix, i, "checkbox5", led["weak_light_switch_position5"]);
+                set_led_feature(
+                    prefix, i, "checkbox6", led["weak_light_switch_position6"]);
+                set_led_feature(
+                    prefix, i, "checkbox7", led["weak_light_switch_position7"]);
+                set_led_feature(
+                    prefix, i, "checkbox8", led["weak_light_switch_position8"]);
+                set_led_feature(
+                    prefix, i, "checkbox9", led["weak_tail_light"]);
+                set_led_feature(
+                    prefix, i, "checkbox10", led["weak_brake_light"]);
+                set_led_feature(
+                    prefix, i, "checkbox11", led["weak_reversing_light"]);
+                set_led_feature(
+                    prefix, i, "checkbox12", led["weak_indicator_left"]);
+                set_led_feature(
+                    prefix, i, "checkbox13", led["weak_indicator_right"]);
             }
         }
 
@@ -595,22 +629,38 @@ var app = (function () {
                 led["indicator_left"] = get_led_field(prefix, i, 13);
                 led["indicator_right"] = get_led_field(prefix, i, 14);
 
-                led["max_change_per_systick"] = get_led_feature(prefix, i, "incandescent");
-                led["reduction_percent"] = get_led_feature(prefix, i, "weak_ground");
-                led["weak_light_switch_position0"] = get_led_feature(prefix, i, "checkbox0");
-                led["weak_light_switch_position1"] = get_led_feature(prefix, i, "checkbox1");
-                led["weak_light_switch_position2"] = get_led_feature(prefix, i, "checkbox2");
-                led["weak_light_switch_position3"] = get_led_feature(prefix, i, "checkbox3");
-                led["weak_light_switch_position4"] = get_led_feature(prefix, i, "checkbox4");
-                led["weak_light_switch_position5"] = get_led_feature(prefix, i, "checkbox5");
-                led["weak_light_switch_position6"] = get_led_feature(prefix, i, "checkbox6");
-                led["weak_light_switch_position7"] = get_led_feature(prefix, i, "checkbox7");
-                led["weak_light_switch_position8"] = get_led_feature(prefix, i, "checkbox8");
-                led["weak_tail_light"] = get_led_feature(prefix, i, "checkbox9");
-                led["weak_brake_light"] = get_led_feature(prefix, i, "checkbox10");
-                led["weak_reversing_light"] = get_led_feature(prefix, i, "checkbox11");
-                led["weak_indicator_left"] = get_led_feature(prefix, i, "checkbox12");
-                led["weak_indicator_right"] = get_led_feature(prefix, i, "checkbox13");
+                led["max_change_per_systick"] =
+                    get_led_feature(prefix, i, "incandescent");
+                led["reduction_percent"] =
+                    get_led_feature(prefix, i, "weak_ground");
+                led["weak_light_switch_position0"] =
+                    get_led_feature(prefix, i, "checkbox0");
+                led["weak_light_switch_position1"] =
+                    get_led_feature(prefix, i, "checkbox1");
+                led["weak_light_switch_position2"] =
+                    get_led_feature(prefix, i, "checkbox2");
+                led["weak_light_switch_position3"] =
+                    get_led_feature(prefix, i, "checkbox3");
+                led["weak_light_switch_position4"] =
+                    get_led_feature(prefix, i, "checkbox4");
+                led["weak_light_switch_position5"] =
+                    get_led_feature(prefix, i, "checkbox5");
+                led["weak_light_switch_position6"] =
+                    get_led_feature(prefix, i, "checkbox6");
+                led["weak_light_switch_position7"] =
+                    get_led_feature(prefix, i, "checkbox7");
+                led["weak_light_switch_position8"] =
+                    get_led_feature(prefix, i, "checkbox8");
+                led["weak_tail_light"] =
+                    get_led_feature(prefix, i, "checkbox9");
+                led["weak_brake_light"] =
+                    get_led_feature(prefix, i, "checkbox10");
+                led["weak_reversing_light"] =
+                    get_led_feature(prefix, i, "checkbox11");
+                led["weak_indicator_left"] =
+                    get_led_feature(prefix, i, "checkbox12");
+                led["weak_indicator_right"] =
+                    get_led_feature(prefix, i, "checkbox13");
             }
         }
 
@@ -702,25 +752,27 @@ var app = (function () {
 
 
         // Update advanced settings
-        config["auto_brake_lights_forward_enabled"] = el["auto_brake_lights_forward_enabled"].checked;
-        config["auto_brake_counter_value_forward_min"] =
-            Math.round(el["auto_brake_counter_value_forward_min"].value / SYSTICK_IN_MS);
-        config["auto_brake_counter_value_forward_max"] =
-            Math.round(el["auto_brake_counter_value_forward_max"].value / SYSTICK_IN_MS);
+        config["auto_brake_lights_forward_enabled"] =
+            el["auto_brake_lights_forward_enabled"].checked;
+        config["auto_brake_counter_value_forward_min"] = Math.round(
+            el["auto_brake_counter_value_forward_min"].value / SYSTICK_IN_MS);
+        config["auto_brake_counter_value_forward_max"] = Math.round(
+            el["auto_brake_counter_value_forward_max"].value / SYSTICK_IN_MS);
 
-        config["auto_brake_lights_reverse_enabled"] = el["auto_brake_lights_reverse_enabled"].checked;
-        config["auto_brake_counter_value_reverse_min"] =
-            Math.round(el["auto_brake_counter_value_reverse_min"].value / SYSTICK_IN_MS);
-        config["auto_brake_counter_value_reverse_max"] =
-            Math.round(el["auto_brake_counter_value_reverse_max"].value / SYSTICK_IN_MS);
+        config["auto_brake_lights_reverse_enabled"] =
+            el["auto_brake_lights_reverse_enabled"].checked;
+        config["auto_brake_counter_value_reverse_min"] = Math.round(
+            el["auto_brake_counter_value_reverse_min"].value / SYSTICK_IN_MS);
+        config["auto_brake_counter_value_reverse_max"] = Math.round(
+            el["auto_brake_counter_value_reverse_max"].value / SYSTICK_IN_MS);
 
-        config["brake_disarm_counter_value"] =
-            Math.round(el["brake_disarm_counter_value"].value / SYSTICK_IN_MS);
+        config["brake_disarm_counter_value"] = Math.round(
+            el["brake_disarm_counter_value"].value / SYSTICK_IN_MS);
 
-        config["auto_reverse_counter_value_min"] =
-            Math.round(el["auto_reverse_counter_value_min"].value / SYSTICK_IN_MS);
-        config["auto_reverse_counter_value_max"] =
-            Math.round(el["auto_reverse_counter_value_max"].value / SYSTICK_IN_MS);
+        config["auto_reverse_counter_value_min"] = Math.round(
+            el["auto_reverse_counter_value_min"].value / SYSTICK_IN_MS);
+        config["auto_reverse_counter_value_max"] = Math.round(
+            el["auto_reverse_counter_value_max"].value / SYSTICK_IN_MS);
 
         config["blink_counter_value"] =
             Math.round(el["blink_counter_value"].value / SYSTICK_IN_MS);
@@ -901,7 +953,8 @@ var app = (function () {
 
         function set_led_feature_handler(led_id, prefix) {
             var led_section = document.getElementById(led_id);
-            var feature_rows = led_section.getElementsByClassName("led_features");
+            var feature_rows =
+                led_section.getElementsByClassName("led_features");
 
             for (var row = 0; row < feature_rows.length; row++) {
                 var input_elements =
@@ -932,41 +985,61 @@ var app = (function () {
 
         el["single_output"] = document.getElementById("single_output");
         el["dual_output"] = document.getElementById("dual_output");
-        el["single_output_out"] = document.getElementsByName("single_output_out");
+        el["single_output_out"] =
+            document.getElementsByName("single_output_out");
         el["dual_output_out"] = document.getElementsByName("dual_output_out");
         el["dual_output_th"] = document.getElementsByName("dual_output_th");
 
-        el["config_light_programs"] = document.getElementById("config_light_programs");
+        el["config_light_programs"] =
+            document.getElementById("config_light_programs");
         el["light_programs"] = document.getElementById("light_programs");
 
         el["config_advanced"] = document.getElementById("config_advanced");
 
-        el["auto_brake_lights_forward_enabled"] = document.getElementById("auto_brake_lights_forward_enabled");
-        el["auto_brake_counter_value_forward_min"] = document.getElementById("auto_brake_counter_value_forward_min");
-        el["auto_brake_counter_value_forward_max"] = document.getElementById("auto_brake_counter_value_forward_max");
+        el["auto_brake_lights_forward_enabled"] =
+            document.getElementById("auto_brake_lights_forward_enabled");
+        el["auto_brake_counter_value_forward_min"] =
+            document.getElementById("auto_brake_counter_value_forward_min");
+        el["auto_brake_counter_value_forward_max"] =
+            document.getElementById("auto_brake_counter_value_forward_max");
 
-        el["auto_brake_lights_reverse_enabled"] = document.getElementById("auto_brake_lights_reverse_enabled");
-        el["auto_brake_counter_value_reverse_min"] = document.getElementById("auto_brake_counter_value_reverse_min");
-        el["auto_brake_counter_value_reverse_max"] = document.getElementById("auto_brake_counter_value_reverse_max");
+        el["auto_brake_lights_reverse_enabled"] =
+            document.getElementById("auto_brake_lights_reverse_enabled");
+        el["auto_brake_counter_value_reverse_min"] =
+            document.getElementById("auto_brake_counter_value_reverse_min");
+        el["auto_brake_counter_value_reverse_max"] =
+            document.getElementById("auto_brake_counter_value_reverse_max");
 
-        el["brake_disarm_timeout_enabled"] = document.getElementById("brake_disarm_timeout_enabled");
-        el["brake_disarm_counter_value"] = document.getElementById("brake_disarm_counter_value");
+        el["brake_disarm_timeout_enabled"] =
+            document.getElementById("brake_disarm_timeout_enabled");
+        el["brake_disarm_counter_value"] =
+            document.getElementById("brake_disarm_counter_value");
 
-        el["auto_reverse_counter_value_min"] = document.getElementById("auto_reverse_counter_value_min");
-        el["auto_reverse_counter_value_max"] = document.getElementById("auto_reverse_counter_value_max");
+        el["auto_reverse_counter_value_min"] =
+            document.getElementById("auto_reverse_counter_value_min");
+        el["auto_reverse_counter_value_max"] =
+            document.getElementById("auto_reverse_counter_value_max");
 
-        el["blink_counter_value"] = document.getElementById("blink_counter_value");
-        el["indicator_idle_time_value"] = document.getElementById("indicator_idle_time_value");
-        el["indicator_off_timeout_value"] = document.getElementById("indicator_off_timeout_value");
+        el["blink_counter_value"] =
+            document.getElementById("blink_counter_value");
+        el["indicator_idle_time_value"] =
+            document.getElementById("indicator_idle_time_value");
+        el["indicator_off_timeout_value"] =
+            document.getElementById("indicator_off_timeout_value");
         el["blink_threshold"] = document.getElementById("blink_threshold");
 
-        el["centre_threshold_low"] = document.getElementById("centre_threshold_low");
-        el["centre_threshold_high"] = document.getElementById("centre_threshold_high");
+        el["centre_threshold_low"] =
+            document.getElementById("centre_threshold_low");
+        el["centre_threshold_high"] =
+            document.getElementById("centre_threshold_high");
 
 
-        el["initial_endpoint_delta"] = document.getElementById("initial_endpoint_delta");
-        el["ch3_multi_click_timeout"] = document.getElementById("ch3_multi_click_timeout");
-        el["winch_command_repeat_time"] = document.getElementById("winch_command_repeat_time");
+        el["initial_endpoint_delta"] =
+        document.getElementById("initial_endpoint_delta");
+        el["ch3_multi_click_timeout"] =
+        document.getElementById("ch3_multi_click_timeout");
+        el["winch_command_repeat_time"] =
+        document.getElementById("winch_command_repeat_time");
         el["no_signal_timeout"] = document.getElementById("no_signal_timeout");
 
         el["gamma"] = document.getElementById("gamma");
