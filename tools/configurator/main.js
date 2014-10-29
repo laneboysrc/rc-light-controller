@@ -351,6 +351,48 @@ var app = (function () {
 
 
     // *************************************************************************
+    var load_configuration_from_disk = function () {
+        if (this.files.length < 1) {
+            return;
+        }
+
+        var reader = new FileReader();
+        reader.onload = function (e) {
+            var data = JSON.parse(e.target.result);
+
+            config = data['config'];
+            local_leds = data['local_leds'];
+            slave_leds = data['slave_leds'];
+            light_programs = data['light_programs'];
+            gamma = data['gamma'];
+
+            update_ui();
+
+            // FIXME: add error handling in case of broken configuration
+
+        };
+        reader.readAsText(this.files[0]);
+    }
+
+
+    // *************************************************************************
+    var save_configuration = function () {
+        var data = {};
+
+        data['config'] = config;
+        data['local_leds'] = local_leds;
+        data['slave_leds'] = slave_leds;
+        data['gamma'] = gamma;
+        data['light_programs'] = light_programs;
+
+        var configuration_string = JSON.stringify(data, null, 2);
+
+        var blob = new Blob([configuration_string], {type: "text/plain;charset=utf-8"});
+        saveAs(blob, "light_controller.config.txt");
+    };
+
+
+    // *************************************************************************
     var update_led_feature_usage = function () {
         function set_feature_active(led_div_id, prefix) {
             var led_div = document.getElementById(led_div_id);
@@ -631,30 +673,14 @@ var app = (function () {
 
 
     // *************************************************************************
-    var save_configuration = function () {
-        var data = {};
-
-        data['config'] = config;
-        data['local_leds'] = local_leds;
-        data['slave_leds'] = slave_leds;
-        data['gamma'] = gamma;
-        data['light_programs'] = light_programs;
-
-        var configuration_string = JSON.stringify(data, null, 2);
-
-        var blob = new Blob([configuration_string], {type: "text/plain;charset=utf-8"});
-        saveAs(blob, "light_controller.config.txt");
-    };
-
-
-    // *************************************************************************
     var init = function () {
         el["save_config"] = document.getElementById("save_config");
+        el["load_config"] = document.getElementById("load_config");
         el["save_firmware"] = document.getElementById("save_firmware");
+        el["intelhex"] = document.getElementById("intelhex");
 
         el["mode"] = document.getElementById("mode");
 
-        el["intelhex"] = document.getElementById("intelhex");
 
         el["config_leds"] = document.getElementById("config_leds");
         el["leds_master"] = document.getElementById("leds_master");
@@ -718,6 +744,9 @@ var app = (function () {
 
         el["intelhex"].addEventListener(
             "change", load_firmware_from_disk, false);
+
+        el["load_config"].addEventListener(
+            "change", load_configuration_from_disk, false);
 
         el["save_config"].addEventListener(
             "click", save_configuration, false);
