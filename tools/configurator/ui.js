@@ -101,7 +101,6 @@ var ui = (function () {
                 var fields = led_rows[led].getElementsByTagName("td");
                 for (var i = 0; i < fields.length; i++) {
                     fields[i].id = "" + prefix + led + "field" + i;
-                    fields[i].title = "Click to change";
                     fields[i].addEventListener(
                         "click", led_config_click_handler, true);
                 }
@@ -177,11 +176,15 @@ var ui = (function () {
 
     // *************************************************************************
     var init_tooltips = function () {
-        var tooltip;
+        function set_tooltip(element_name, help_text) {
+            var element = document.getElementsByName(element_name);
+            for (var i = 0; i < element.length; i++) {
+                element[i].title = help_text;
+            }
+        }
 
-        tooltip = document.getElementsByName("help_led_light_switch");
-        for (var i = 0; i < tooltip.length; i++) {
-            tooltip[i].title = "The virtual light switch has 9 positions. " +
+        set_tooltip("help_led_light_switch",
+            "The virtual light switch has 9 positions. " +
             "A single click on AUX/CH3 increments the light switch position, " +
             "a double-click decrements the light switch position.\n" +
             "If you want an LED to be on at multiple positions simply fill " +
@@ -192,52 +195,42 @@ var ui = (function () {
             "lamps) set a value at both light switch position 1 and 2. For " +
             "high beam set a value at light switch positions 1, 2 and 3. " +
             "This way the light behaviour corresponds to a real car in most " +
-            "countries.";
-        }
+            "countries.");
 
-        tooltip = document.getElementsByName("help_led_always_on");
-        for (var i = 0; i < tooltip.length; i++) {
-            tooltip[i].title = "The LED will be always on at the given " +
-            "brightness, regardless of the car state.";
-        }
+        set_tooltip("help_led_always_on",
+            "The LED will be always on at the given " +
+            "brightness, regardless of the car state.");
 
-        tooltip = document.getElementsByName("help_led_tail");
-        for (var i = 0; i < tooltip.length; i++) {
-            tooltip[i].title = "Tail light (aka. rear position light). This " +
+        set_tooltip("help_led_tail",
+            "Tail light (aka. rear position light). This " +
             "function applies when the light position switch is at any state " +
-            "other than 0.";
-        }
+            "other than 0.");
 
-        tooltip = document.getElementsByName("help_led_brake");
-        for (var i = 0; i < tooltip.length; i++) {
-            tooltip[i].title = "Brake light function.\nHint: to do a " +
+        set_tooltip("help_led_brake",
+            "Brake light function.\nHint: to do a " +
             "combined tail and brake light, set the \"tail\" entry to a low " +
             "value (e.g. 33%), and the \"brake\" entry to a high value " +
-            "(e.g. 100%).";
-        }
+            "(e.g. 100%).");
 
-        tooltip = document.getElementsByName("help_led_reverse");
-        for (var i = 0; i < tooltip.length; i++) {
-            tooltip[i].title = "Reversing light function; turns on when the " +
+        set_tooltip("help_led_reverse",
+            "Reversing light function; turns on when the " +
             "car is driving backwards.\nNote: see main configuration above " +
-            "to configure your ESC type!";
-        }
+            "to configure your ESC type!");
 
-        tooltip = document.getElementsByName("help_led_indicator");
-        for (var i = 0; i < tooltip.length; i++) {
-            tooltip[i].title = "Indicator, aka. turn signals.\nAlso applies " +
-            "to the hazard light function.";
-        }
+        set_tooltip("help_led_indicator",
+            "Indicator, aka. turn signals.\nAlso applies " +
+            "to the hazard light function.");
 
-        tooltip = document.getElementsByName("help_incandescent");
-        for (var i = 0; i < tooltip.length; i++) {
-            tooltip[i].title = "FIXME: incandescent simulation help text";
-        }
+        set_tooltip("help_click_to_change", "Click to change");
 
-        tooltip = document.getElementsByName("help_weak_ground");
-        for (var i = 0; i < tooltip.length; i++) {
-            tooltip[i].title = "FIXME: weak ground help text";
-        }
+        set_tooltip("help_toggle_features",
+            "Click to show/hide advanced LED features");
+
+        set_tooltip("help_incandescent",
+            "FIXME: incandescent simulation help text");
+
+        set_tooltip("help_weak_ground",
+            "FIXME: weak ground help text");
     };
 
 
