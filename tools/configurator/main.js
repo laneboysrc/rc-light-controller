@@ -351,6 +351,22 @@ var app = (function () {
 
 
     // *************************************************************************
+    var save_firmware = function () {
+        var data = {};
+
+        // FIXME: update data based on UI
+        // FIXME: update firmware['data']
+        // FIXME: make Intel-hex file from firmware['data']
+
+        var intelhex = "";
+
+        var blob = new Blob([intelhex], {type: "text/plain;charset=utf-8"});
+        // FIXME: prompt for a firmware name
+        saveAs(blob, "light_controller.hex");
+    };
+
+
+    // *************************************************************************
     var load_configuration_from_disk = function () {
         if (this.files.length < 1) {
             return;
@@ -679,10 +695,9 @@ var app = (function () {
         el["save_config"] = document.getElementById("save_config");
         el["load_config"] = document.getElementById("load_config");
         el["save_firmware"] = document.getElementById("save_firmware");
-        el["intelhex"] = document.getElementById("intelhex");
+        el["load_firmware"] = document.getElementById("load_firmware");
 
         el["mode"] = document.getElementById("mode");
-
 
         el["config_leds"] = document.getElementById("config_leds");
         el["leds_master"] = document.getElementById("leds_master");
@@ -744,8 +759,11 @@ var app = (function () {
         el["dual_output"].addEventListener(
             "change", update_section_visibility, false);
 
-        el["intelhex"].addEventListener(
+        el["load_firmware"].addEventListener(
             "change", load_firmware_from_disk, false);
+
+        el["save_firmware"].addEventListener(
+            "click", save_firmware, false);
 
         el["load_config"].addEventListener(
             "change", load_configuration_from_disk, false);
