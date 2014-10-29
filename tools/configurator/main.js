@@ -548,22 +548,6 @@ var app = (function () {
         if (filename != null  &&  filename != "") {
             saveAs(blob, filename);
         }
-
-
-        // TEST CODE
-        config = {};
-        local_leds = {};
-        slave_leds = {};
-        light_programs = {};
-        gamma_object = {};
-
-        config = parse_configuration();
-        local_leds = parse_leds(SECTION_LOCAL_LEDS);
-        slave_leds = parse_leds(SECTION_SLAVE_LEDS);
-        light_programs = disassemble_light_programs();
-        gamma_object = parse_gamma();
-        update_ui();
-
     };
 
 
