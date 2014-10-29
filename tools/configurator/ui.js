@@ -228,6 +228,16 @@ var ui = (function () {
             tooltip[i].title = "Indicator, aka. turn signals.\nAlso applies " +
             "to the hazard light function.";
         }
+
+        tooltip = document.getElementsByName("help_incandescent");
+        for (var i = 0; i < tooltip.length; i++) {
+            tooltip[i].title = "FIXME: incandescent simulation help text";
+        }
+
+        tooltip = document.getElementsByName("help_weak_ground");
+        for (var i = 0; i < tooltip.length; i++) {
+            tooltip[i].title = "FIXME: weak ground help text";
+        }
     };
 
 

@@ -114,7 +114,7 @@ var app = (function () {
             result['weak_light_switch_position7'] = get_flag(1 << 7);
             result['weak_light_switch_position8'] = get_flag(1 << 8);
             result['weak_tail_light'] = get_flag(1 << 9);
-            result['weak_tail_light'] = get_flag(1 << 10);
+            result['weak_brake_light'] = get_flag(1 << 10);
             result['weak_reversing_light'] = get_flag(1 << 11);
             result['weak_indicator_left'] = get_flag(1 << 12);
             result['weak_indicator_right'] = get_flag(1 << 13);
@@ -361,6 +361,18 @@ var app = (function () {
             }
         }
 
+        function set_led_feature(prefix, led_number, field_suffix, value) {
+            var cell = document.getElementById(
+                "" + prefix + led_number + field_suffix);
+
+            if (cell.type == "checkbox") {
+                cell.checked = Boolean(value);
+            }
+            else {
+                cell.value = value;
+            }
+        }
+
         function set_led_fields(led_source, prefix) {
             for (var i = 0; i < led_source["led_count"]; i++) {
                 var led = led_source[i];
@@ -380,6 +392,23 @@ var app = (function () {
                 set_led_field(prefix, i, 12, led["reversing_light"]);
                 set_led_field(prefix, i, 13, led["indicator_left"]);
                 set_led_field(prefix, i, 14, led["indicator_right"]);
+
+                set_led_feature(prefix, i, "incandescent", led["max_change_per_systick"]);
+                set_led_feature(prefix, i, "weak_ground", led["reduction_percent"]);
+                set_led_feature(prefix, i, "checkbox0", led["weak_light_switch_position0"]);
+                set_led_feature(prefix, i, "checkbox1", led["weak_light_switch_position1"]);
+                set_led_feature(prefix, i, "checkbox2", led["weak_light_switch_position2"]);
+                set_led_feature(prefix, i, "checkbox3", led["weak_light_switch_position3"]);
+                set_led_feature(prefix, i, "checkbox4", led["weak_light_switch_position4"]);
+                set_led_feature(prefix, i, "checkbox5", led["weak_light_switch_position5"]);
+                set_led_feature(prefix, i, "checkbox6", led["weak_light_switch_position6"]);
+                set_led_feature(prefix, i, "checkbox7", led["weak_light_switch_position7"]);
+                set_led_feature(prefix, i, "checkbox8", led["weak_light_switch_position8"]);
+                set_led_feature(prefix, i, "checkbox9", led["weak_tail_light"]);
+                set_led_feature(prefix, i, "checkbox10", led["weak_brake_light"]);
+                set_led_feature(prefix, i, "checkbox11", led["weak_reversing_light"]);
+                set_led_feature(prefix, i, "checkbox12", led["weak_indicator_left"]);
+                set_led_feature(prefix, i, "checkbox13", led["weak_indicator_right"]);
             }
         }
 
