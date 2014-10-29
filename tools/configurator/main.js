@@ -326,7 +326,8 @@ var app = (function () {
             update_ui();
         }
         catch (e) {
-            alert("Unable to load Intel-hex formatted firmware image:\n" + e);
+            window.alert(
+                "Unable to load Intel-hex formatted firmware image:\n" + e);
         }
         finally {
             el["light_programs"].innerHTML = light_programs;
@@ -390,7 +391,7 @@ var app = (function () {
                 gamma = data['gamma'];
             }
             catch (e) {
-                alert(
+                window.alert(
                     "Failed to load configuration.\n" +
                     "File may not be a light controller configuration file (JSON format)");
             }
