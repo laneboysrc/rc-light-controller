@@ -10,6 +10,7 @@ var app = (function () {
     var local_leds;
     var slave_leds;
     var gamma;
+    var light_programs;
 
     var LIGHT_SWITCH_POSITIONS = 9;
     var MAX_LIGHT_PROGRAMS = 25;
@@ -304,27 +305,27 @@ var app = (function () {
 
     // *************************************************************************
     var parse_firmware = function (intel_hex_data) {
-        var code = "";
-
         firmware = undefined;
         config = undefined;
         local_leds = undefined
         slave_leds = undefined;
         gamma = undefined;
-        el["light_programs"].innerHTML = code;
+        light_programs = undefined;
+
+        el["light_programs"].innerHTML = "";
 
         try {
             firmware = parse_firmware_structure(intel_hex_data);
             config = parse_configuration();
             local_leds = parse_leds(SECTION_LOCAL_LEDS);
             slave_leds = parse_leds(SECTION_SLAVE_LEDS);
-            code = disassemble_light_programs();
+            light_programs = disassemble_light_programs();
             gamma = parse_gamma();
 
             update_ui();
         }
         finally {
-            el["light_programs"].innerHTML = code;
+            el["light_programs"].innerHTML = light_programs;
         }
     };
 
@@ -626,12 +627,31 @@ var app = (function () {
             show_slave_leds = Boolean(el["dual_output_th"][1].checked);
         }
         el["leds_slave"].style.display = show_slave_leds ? "" : "none";
+    };
 
+
+    // *************************************************************************
+    var save_configuration = function () {
+        var data = {};
+
+        data['config'] = config;
+        data['local_leds'] = local_leds;
+        data['slave_leds'] = slave_leds;
+        data['gamma'] = gamma;
+        data['light_programs'] = light_programs;
+
+        var configuration_string = JSON.stringify(data, null, 2);
+
+        var blob = new Blob([configuration_string], {type: "text/plain;charset=utf-8"});
+        saveAs(blob, "light_controller.config.txt");
     };
 
 
     // *************************************************************************
     var init = function () {
+        el["save_config"] = document.getElementById("save_config");
+        el["save_firmware"] = document.getElementById("save_firmware");
+
         el["mode"] = document.getElementById("mode");
 
         el["intelhex"] = document.getElementById("intelhex");
@@ -698,6 +718,9 @@ var app = (function () {
 
         el["intelhex"].addEventListener(
             "change", load_firmware_from_disk, false);
+
+        el["save_config"].addEventListener(
+            "click", save_configuration, false);
 
 
         load_default_firmware();
