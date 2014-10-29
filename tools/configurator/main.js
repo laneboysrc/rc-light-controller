@@ -9,7 +9,7 @@ var app = (function () {
     var config;
     var local_leds;
     var slave_leds;
-    var gamma;
+    var gamma_object;
     var light_programs;
 
     var LIGHT_SWITCH_POSITIONS = 9;
@@ -154,9 +154,9 @@ var app = (function () {
 
         var gamma = {};
 
-        gamma['gamma_value'] = String.fromCharCode(data[offset + 2]) +
+        gamma['gamma_value'] = String.fromCharCode(data[offset + 0]) +
             String.fromCharCode(data[offset + 1]) +
-            String.fromCharCode(data[offset]);
+            String.fromCharCode(data[offset + 2]);
 
         return gamma;
     }
@@ -232,6 +232,22 @@ var app = (function () {
     var get_uint32 = function (data, offset) {
         return (data[offset + 3] << 24) + (data[offset + 2] << 16) +
             (data[offset + 1] << 8) + data[offset];
+    };
+
+
+    // *************************************************************************
+    var set_uint16 = function (data, offset, value) {
+        data[offset] = value & 0xff;
+        data[offset + 1] = (value >> 8) & 0xff;
+    };
+
+
+    // *************************************************************************
+    var set_uint32 = function (data, offset, value) {
+        data[offset] = value & 0xff;
+        data[offset + 1] = (value >> 8) & 0xff;
+        data[offset + 2] = (value >> 16) & 0xff;
+        data[offset + 3] = (value >> 24) & 0xff;
     };
 
 
@@ -317,7 +333,7 @@ var app = (function () {
         config = undefined;
         local_leds = undefined
         slave_leds = undefined;
-        gamma = undefined;
+        gamma_object = undefined;
         light_programs = undefined;
 
         el["light_programs"].innerHTML = "";
@@ -328,7 +344,7 @@ var app = (function () {
             local_leds = parse_leds(SECTION_LOCAL_LEDS);
             slave_leds = parse_leds(SECTION_SLAVE_LEDS);
             light_programs = disassemble_light_programs();
-            gamma = parse_gamma();
+            gamma_object = parse_gamma();
 
             update_ui();
         }
@@ -340,6 +356,158 @@ var app = (function () {
             el["light_programs"].innerHTML = light_programs;
         }
     };
+
+
+    // *************************************************************************
+    var assemble_light_programs = function (light_programs) {
+        // FIXME: add compiler
+    };
+
+
+    // *************************************************************************
+    var assemble_gamma = function (gamma_object) {
+        var data = firmware.data;
+        var offset = firmware.offset[SECTION_GAMMA];
+
+        console.log(gamma_object['gamma_value'].charCodeAt(0));
+        data[offset] = gamma_object['gamma_value'].charCodeAt(0);
+        data[offset + 1] = gamma_object['gamma_value'].charCodeAt(1);
+        data[offset + 2] = gamma_object['gamma_value'].charCodeAt(2);
+
+        var gamma_table = gamma.make_table(gamma_object['gamma_value']);
+        for (var i = 0; i < gamma_table.length; i++) {
+            data[offset + 4 + i] = gamma_table[i];
+        }
+    }
+
+
+    // *************************************************************************
+    var assemble_leds = function (section, led_object) {
+        var data = firmware.data;
+        var offset = firmware.offset[section];
+        var car_lights_offset = get_uint32(data, offset + 4);
+
+        function assemble_led(data, offset, led_object) {
+            data[offset] = led_object['max_change_per_systick'];
+            data[offset + 1] = led_object['reduction_percent'];
+
+            var flags = 0;
+
+            flags |= led_object['weak_light_switch_position0'] << 0;
+            flags |= led_object['weak_light_switch_position1'] << 1;
+            flags |= led_object['weak_light_switch_position2'] << 2;
+            flags |= led_object['weak_light_switch_position3'] << 3;
+            flags |= led_object['weak_light_switch_position4'] << 4;
+            flags |= led_object['weak_light_switch_position5'] << 5;
+            flags |= led_object['weak_light_switch_position6'] << 6;
+            flags |= led_object['weak_light_switch_position7'] << 7;
+            flags |= led_object['weak_light_switch_position8'] << 8;
+            flags |= led_object['weak_tail_light'] << 9;
+            flags |= led_object['weak_brake_light'] << 10;
+            flags |= led_object['weak_reversing_light'] << 11;
+            flags |= led_object['weak_indicator_left'] << 12;
+            flags |= led_object['weak_indicator_right'] << 13;
+
+            set_uint16(data, offset + 2, flags);
+
+            data[offset + 4] = led_object['always_on'];
+            data[offset + 5] = led_object['light_switch_position0'];
+            data[offset + 6] = led_object['light_switch_position1'];
+            data[offset + 7] = led_object['light_switch_position2'];
+            data[offset + 8] = led_object['light_switch_position3'];
+            data[offset + 9] = led_object['light_switch_position4'];
+            data[offset + 10] = led_object['light_switch_position5'];
+            data[offset + 11] = led_object['light_switch_position6'];
+            data[offset + 12] = led_object['light_switch_position7'];
+            data[offset + 13] = led_object['light_switch_position8'];
+            data[offset + 14] = led_object['tail_light'];
+            data[offset + 15] = led_object['brake_light'];
+            data[offset + 16] = led_object['reversing_light'];
+            data[offset + 17] = led_object['indicator_left'];
+            data[offset + 18] = led_object['indicator_right'];
+        }
+
+        data[offset] = led_object['led_count'];
+
+        for (var i = 0; i < led_object['led_count']; i++) {
+            assemble_led(data, car_lights_offset + (i * 20), led_object[i]);
+        }
+    };
+
+
+    // *************************************************************************
+    var assemble_configuration = function (config) {
+        var data = firmware.data;
+        var offset = firmware.offset[SECTION_CONFIG];
+
+        data[offset] = config['mode'];
+        data[offset + 1] = config['esc_mode'];
+
+        var flags = 0;
+        if (config['slave_ouput']) {
+            flags |= (1 << 0);
+        }
+        if (config['preprocessor_output']) {
+            flags |= (1 << 1);
+        }
+        if (config['winch_output']) {
+            flags |= (1 << 2);
+        }
+        if (config['steering_wheel_servo_output']) {
+            flags |= (1 << 3);
+        }
+        if (config['gearbox_servo_output']) {
+            flags |= (1 << 4);
+        }
+        if (config['ch3_is_local_switch']) {
+            flags |= (1 << 5);
+        }
+        if (config['ch3_is_momentary']) {
+            flags |= (1 << 6);
+        }
+        if (config['auto_brake_lights_forward_enabled']) {
+            flags |= (1 << 7);
+        }
+        if (config['auto_brake_lights_reverse_enabled']) {
+            flags |= (1 << 0);
+        }
+        set_uint32(data, offset + 4, flags);
+
+        set_uint16(data, offset + 8, config['auto_brake_counter_value_forward_min']);
+        set_uint16(data, offset + 10, config['auto_brake_counter_value_forward_max']);
+        set_uint16(data, offset + 12, config['auto_brake_counter_value_reverse_min']);
+        set_uint16(data, offset + 14, config['auto_brake_counter_value_reverse_max']);
+        set_uint16(data, offset + 16, config['auto_reverse_counter_value_min']);
+        set_uint16(data, offset + 18, config['auto_reverse_counter_value_max']);
+
+        set_uint16(data, offset + 20, config['brake_disarm_counter_value']);
+        set_uint16(data, offset + 22, config['blink_counter_value']);
+        set_uint16(data, offset + 24, config['indicator_idle_time_value']);
+        set_uint16(data, offset + 26, config['indicator_off_timeout_value']);
+
+        set_uint16(data, offset + 28, config['centre_threshold_low']);
+        set_uint16(data, offset + 30, config['centre_threshold_high']);
+        set_uint16(data, offset + 32, config['blink_threshold']);
+        set_uint16(data, offset + 34, config['light_switch_positions']);
+        set_uint16(data, offset + 36, config['initial_endpoint_delta']);
+        set_uint16(data, offset + 38, config['ch3_multi_click_timeout']);
+        set_uint16(data, offset + 40, config['winch_command_repeat_time']);
+
+        // 2 byte padding
+
+        set_uint32(data, offset + 44, config['baudrate']);
+        set_uint16(data, offset + 48, config['no_signal_timeout']);
+    }
+
+
+    // *************************************************************************
+    var assemble_firmware = function () {
+        assemble_configuration(config);
+        assemble_leds(SECTION_LOCAL_LEDS, local_leds);
+        assemble_leds(SECTION_SLAVE_LEDS, slave_leds);
+        assemble_light_programs(light_programs);
+        assemble_gamma(gamma_object);
+    }
 
 
     // *************************************************************************
@@ -367,9 +535,9 @@ var app = (function () {
         // Update data based on UI
         update_config();
 
-        // FIXME: update firmware['data']
-        // FIXME: make Intel-hex file from firmware['data']
+        assemble_firmware();
 
+        // FIXME: make Intel-hex file from firmware['data']
         var intelhex = "";
 
         var blob = new Blob([intelhex], {type: "text/plain;charset=utf-8"});
@@ -380,6 +548,22 @@ var app = (function () {
         if (filename != null  &&  filename != "") {
             saveAs(blob, filename);
         }
+
+
+        // TEST CODE
+        config = {};
+        local_leds = {};
+        slave_leds = {};
+        light_programs = {};
+        gamma_object = {};
+
+        config = parse_configuration();
+        local_leds = parse_leds(SECTION_LOCAL_LEDS);
+        slave_leds = parse_leds(SECTION_SLAVE_LEDS);
+        light_programs = disassemble_light_programs();
+        gamma_object = parse_gamma();
+        update_ui();
+
     };
 
 
@@ -398,7 +582,7 @@ var app = (function () {
                 local_leds = data['local_leds'];
                 slave_leds = data['slave_leds'];
                 light_programs = data['light_programs'];
-                gamma = data['gamma'];
+                gamma_object = data['gamma'];
             }
             catch (e) {
                 window.alert(
@@ -421,7 +605,7 @@ var app = (function () {
         data['config'] = config;
         data['local_leds'] = local_leds;
         data['slave_leds'] = slave_leds;
-        data['gamma'] = gamma;
+        data['gamma'] = gamma_object;
         data['light_programs'] = light_programs;
 
         var configuration_string = JSON.stringify(data, null, 2);
@@ -794,7 +978,7 @@ var app = (function () {
         config["no_signal_timeout"] =
             Math.round(el["no_signal_timeout"].value / SYSTICK_IN_MS);
 
-        gamma["gamma_value"] = el["gamma"].value;
+        gamma_object["gamma_value"] = el["gamma"].value;
     }
 
 
@@ -890,7 +1074,7 @@ var app = (function () {
         el["no_signal_timeout"].value =
             config["no_signal_timeout"] * SYSTICK_IN_MS;
 
-        el["gamma"].value = gamma["gamma_value"];
+        el["gamma"].value = gamma_object["gamma_value"];
 
 
         // Show/hide various sections depending on the current settings
