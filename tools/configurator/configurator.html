@@ -50,18 +50,36 @@
         <div class="radio_item">
           <input type="radio" name="esc" value="0" id="esc_fbr_with_timeout">
           <label for="esc_fbr_with_timeout">Forward/Brake/Reverse (with timeout)</label>
+          <br>
+          After going forward, the ESC allows going in reverse when the throttle
+          has been in neutral for a certain amount of time.
+          <br>
+          Examples: HPI SC-15WP, HobbyKing HK-SENS-60A
         </div>
         <div class="radio_item">
           <input type="radio" name="esc" value="1" id="esc_fbr_no_timeout">
           <label for="esc_fbr_no_timeout">Forward/Brake/Reverse (no timeout)</label>
+          <br>
+          After going forward, the first push backwards on the throttle is
+          always engagin the brake function, regardless whether the throttle
+          has been in neutral for a long time. The second push on the throttle
+          engages reverse function. Note: the timeout can be adjusted in the
+          advanced configuration section below.
+          <br>
+          Examples: Tamiya TEU-104BK, TEU-105BK.
         </div>
         <div class="radio_item">
           <input type="radio" name="esc" value="2" id="esc_fr">
           <label for="esc_fr">Forward/Reverse (crawler mode)</label>
+          <br>
+          Forward and reverse engage immediately when the throttle is moved
+          to the corresponding position. Many ESC call this behaviour a &quot;crawler mode&quot;
         </div>
         <div class="radio_item">
           <input type="radio" name="esc" value="3"id="esc_fb">
           <label for="esc_fb">Forward/Brake (racing mode)</label>
+          <br>
+          For racing purpose some ESC can be configured to disable reverse.
         </div>
       </div>
 
@@ -69,17 +87,31 @@
       <div>
         <div class="radio_item">
           <input type="radio" name="ch3" value="0" id="ch3_two_position">
-          <label for="ch3_two_position">CH3/AUX is a two-position switch or toggle button</label>
+          <label for="ch3_two_position">Two-position switch</label>
+          <br>
+          The CH3/AUX function on the transmitter is either a two-position
+          switch, or a toggle button that moves the servo between two endpoints.
+          <br>
+          Examples: FlySky GT3 series, HobbyKing HK310
         </div>
         <div class="radio_item">
           <input type="radio" name="ch3" value="1" id="ch3_momentary">
-          <label for="ch3_momentary">CH3/AUX is a momentary push button</label>
+          <label for="ch3_momentary">Momentary push button</label>
+          <br>
+          The CH3/AUX function on the transmitter is a push button that moves
+          the servo to the opposite endpoint while the button is pushed, but
+          moves the servo back to the original position once the button is
+          released.
+          <br>
+          Examples: Futaba 4PL
         </div>
         <div class="radio_item">
           <input type="radio" name="ch3" value="2" id="ch3_local">
           <label for="ch3_local">Push button on the light controller</label>
           <br>
-          A push button directly connected to the light controller's CH3 input (i.e.a physical button, not a servo signal). Useful for 2-channel radios.
+          A push button directly connected to the light controller's CH3 input
+          (i.e. a physical button, not a servo signal from the receiver).
+          Useful for 2-channel radios.
         </div>
       </div>
 
@@ -89,70 +121,133 @@
           <div class="radio_item">
             <input type="radio" name="single_output_out" value="0" id="single_off">
             <label for="single_off">(no output function)</label>
+            <br>
+            No signal on the OUT/ISP pin of the light controller.
           </div>
           <div class="radio_item">
             <input type="radio" name="single_output_out" value="1" id="single_slave">
             <label for="single_slave">Slave output</label>
+            <br>
+            By using a second light controller configured as &quot;slave&quot;
+            a total of 32 LEDs can be controlled. A single cable must be run
+            between the &quot;master&quot; OUT/ISP pin and the
+            &quot;slave&quot; ST/Rx pin.
+            <br>
+            When this option is selected, a second set of LED configuration
+            becomes visible below.
           </div>
           <div class="radio_item">
             <input type="radio" name="single_output_out" value="2" id="single_preprocessor">
             <label for="single_preprocessor">Pre-processour output</label>
+            <br>
+            When enabled, the light controller outputs the steering, throttle
+            and CH3/AUX signals as serial data stream. This function can be
+            useful for connecting custom hardware to the light controller.
           </div>
           <div class="radio_item">
             <input type="radio" name="single_output_out" value="3" id="single_steering">
             <label for="single_steering">Steering wheel servo output</label>
+            <br>
+            The light controller can be connected to a servo, that moves the
+            steering wheel in the cabin of the car. The output follows the
+            steering input, but the endpoints and direction can be configured
+            independently of the steering function of the car.
           </div>
           <div class="radio_item">
             <input type="radio" name="single_output_out" value="4" id="single_gearbox">
-            <label for="single_gearbox">Two-speed gearbox servo output</label>
+            <label for="single_gearbox">Gearbox servo output</label>
+            <br>
+            When enabled, a servo signal is generated that allows control of a
+            two-speed gearbox.
           </div>
           <div class="radio_item">
             <input type="radio" name="single_output_out" value="5" id="single_winch">
             <label for="single_winch">Winch output</label>
+            <br>
+            Enables control of the
+            <a href="https://github.com/laneboysrc/rc-winch-controller" target="_blank">LANE Boys RC winch controller</a><br>
           </div>
         </div>
       </div>
+
       <div id="dual_output" style="display: none">
         <h3>Servo output function on OUT/ISP</h2>
         <div>
           <div class="radio_item">
             <input type="radio" name="dual_output_out" value="0" id="dual_out_off">
-            <label for="dual_out_off">(no output function</label>
+            <label for="dual_out_off">(no output function)</label>
+            <br>
+            No signal on the OUT/ISP pin of the light controller.
           </div>
           <div class="radio_item">
             <input type="radio" name="dual_output_out" value="3" id="dual_steering">
             <label for="dual_steering">Steering wheel servo output</label>
+            <br>
+            The light controller can be connected to a servo, that moves the
+            steering wheel in the cabin of the car. The output follows the
+            steering input, but the endpoints and direction can be configured
+            independently of the steering function of the car.
           </div>
           <div class="radio_item">
             <input type="radio" name="dual_output_out" value="4" id="dual_gearbox">
-            <label for="dual_gearbox">Two-speed gearbox servo output</label>
+            <label for="dual_gearbox">Gearbox servo output</label>
+            <br>
+            When enabled, a servo signal is generated that allows control of a
+            two-speed gearbox.
           </div>
         </div>
         <h3>Output function on TH/Tx</h2>
         <div >
           <div class="radio_item">
             <input type="radio" name="dual_output_th" value="0" id="dual_th_off">
-            <label for="dual_th_off">(no output function</label>
+            <label for="dual_th_off">(no output function)</label>
+            <br>
+            No signal on the TH/Tx pin of the light controller.
           </div>
           <div class="radio_item">
             <input type="radio" name="dual_output_th" value="1" id="dual_slave">
             <label for="dual_slave">Slave output</label>
+            <br>
+            By using a second light controller configured as &quot;slave&quot;
+            a total of 32 LEDs can be controlled. A single cable must be run
+            between the &quot;master&quot; TH/Tx pin and the
+            &quot;slave&quot; ST/Rx pin.
+            <br>
+            When this option is selected, a second set of LED configuration
+            becomes visible below.
           </div>
           <div class="radio_item">
             <input type="radio" name="dual_output_th" value="2" id="dual_preprocessor">
             <label for="dual_preprocessor">Pre-processour output</label>
+            <br>
+            When enabled, the light controller outputs the steering, throttle
+            and CH3/AUX signals as serial data stream. This function can be
+            useful for connecting custom hardware to the light controller.
           </div>
           <div class="radio_item">
             <input type="radio" name="dual_output_th" value="5" id="dual_winch">
             <label for="dual_winch">Winch output</label>
+            <br>
+            Enables control of the
+            <a href="https://github.com/laneboysrc/rc-winch-controller" target="_blank">LANE Boys RC winch controller</a><br>
           </div>
         </div>
       </div>
 
-      Baudrate: <select id="baudrate">
-        <option value="38400">38400</option>
-        <option value="115200">115200</option>
-      </select>
+      <div>
+        <h3>Baudrate</h3>
+        <select id="baudrate">
+          <option value="38400">38400</option>
+          <option value="115200">115200</option>
+        </select>
+        <br>
+        The baudrate for serial input/output functions. This applies to the
+        pre-processor input and output, the slave input and output, and the winch controller.
+        <br>
+        Ensure that master and slave are using the same baudrate. Note that the
+        winch controller and the pre-processor that is based on the Microchip
+        PIC operate only at 34800 baud.
+      </div>
     </div>
 
 

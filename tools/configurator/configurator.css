@@ -28,6 +28,8 @@ input, select {
   font-size: 1em;
 }
 
+
+
 .redborder {
    border: 1px solid red;
 }
@@ -51,18 +53,25 @@ input, select {
   background-color: #ff9900;
 }
 
-.configuration {
-  background-color: #ffcf0d;
-}
-
-.centered {
-  text-align: center;
-}
-
 #logo {
   vertical-align: middle;
   border: 1px solid #ffcf0d;
 }
+
+.configuration {
+  background-color: #ffcf0d;
+}
+
+
+
+#config_basic .radio_item {
+  margin-bottom: 1em;
+}
+
+#config_basic label {
+  font-weight: bold;
+}
+
 
 .led_table {
   width: 100%;
@@ -101,6 +110,8 @@ input, select {
 .led_table input {
   width: 3.5em;
 }
+
+
 
 .advanced_feature {
   padding-top: 1em;
