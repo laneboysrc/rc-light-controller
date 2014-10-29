@@ -354,7 +354,10 @@ var app = (function () {
     var save_firmware = function () {
         var data = {};
 
-        // FIXME: update data based on UI
+
+        // Update data based on UI
+        update_config();
+
         // FIXME: update firmware['data']
         // FIXME: make Intel-hex file from firmware['data']
 
@@ -395,7 +398,8 @@ var app = (function () {
     var save_configuration = function () {
         var data = {};
 
-        // FIXME: update data based on UI!
+        // Update data based on UI
+        update_config();
 
         data['config'] = config;
         data['local_leds'] = local_leds;
@@ -483,8 +487,6 @@ var app = (function () {
             var cell = document.getElementById(
                 "" + prefix + led_number + field_suffix);
 
-            cell.addEventListener("change", update_led_feature_usage, true);
-
             if (cell.type == "checkbox") {
                 cell.checked = Boolean(value);
             }
@@ -538,6 +540,139 @@ var app = (function () {
 
 
     // *************************************************************************
+    var update_led_config = function () {
+        // TODO
+    };
+
+
+    // *************************************************************************
+    var update_config = function () {
+        // Master/Slave
+        config["mode"] = el["mode"].value;
+
+
+        // ESC mode
+        for (var i = 0; i <  el["esc"].length; i++) {
+            if (el["esc"][i].checked) {
+                config['esc_mode'] = el["esc"][i].value;
+                break;
+            }
+        }
+
+
+        // Output functions
+        config['slave_ouput'] = false;
+        config['preprocessor_output'] = false;
+        config['steering_wheel_servo_output'] = false;
+        config['gearbox_servo_output'] = false;
+        config['winch_output'] = false;
+
+        switch (MODE[config['mode']]) {
+            case MASTER_WITH_SERVO_READER:
+                if (el["single_output_out"][1].checked) {
+                    config['slave_ouput'] = true;
+                }
+                if (el["single_output_out"][2].checked) {
+                    config['preprocessor_output'] = true;
+                }
+                if (el["single_output_out"][3].checked) {
+                    config['steering_wheel_servo_output'] = true;
+                }
+                if (el["single_output_out"][4].checked) {
+                    config['gearbox_servo_output'] = true;
+                }
+                if (el["single_output_out"][5].checked) {
+                    config['winch_output'] = true;
+                }
+                break;
+
+            case MASTER_WITH_UART_READER:
+                if (el["dual_output_th"][1].checked) {
+                    config['slave_ouput'] = true;
+                }
+                if (el["dual_output_th"][2].checked) {
+                    config['preprocessor_output'] = true;
+                }
+                if (el["dual_output_out"][1].checked) {
+                    config['steering_wheel_servo_output'] = true;
+                }
+                if (el["dual_output_out"][2].checked) {
+                    config['gearbox_servo_output'] = true;
+                }
+                if (el["dual_output_th"][3].checked) {
+                    config['winch_output'] = true;
+                }
+                break;
+
+            case SLAVE:
+                break;
+        }
+
+
+        // CH3/AUX type
+        config['ch3_is_momentary'] = false;
+        config['ch3_is_local_switch'] = false;
+        if (el["ch3"][1].checked) {
+            config['ch3_is_momentary'] = true;
+        }
+        else if (el["ch3"][2].checked) {
+            config['ch3_is_local_switch'] = true;
+        }
+
+        // Baudrate
+        config['baudrate'] = el["baudrate"].value;
+
+
+        // LEDs
+        update_led_config();
+
+
+        // Update advanced settings
+        config["auto_brake_lights_forward_enabled"] = el["auto_brake_lights_forward_enabled"].checked;
+        config["auto_brake_counter_value_forward_min"] =
+            Math.round(el["auto_brake_counter_value_forward_min"].value / SYSTICK_IN_MS);
+        config["auto_brake_counter_value_forward_max"] =
+            Math.round(el["auto_brake_counter_value_forward_max"].value / SYSTICK_IN_MS);
+
+        config["auto_brake_lights_reverse_enabled"] = el["auto_brake_lights_reverse_enabled"].checked;
+        config["auto_brake_counter_value_reverse_min"] =
+            Math.round(el["auto_brake_counter_value_reverse_min"].value / SYSTICK_IN_MS);
+        config["auto_brake_counter_value_reverse_max"] =
+            Math.round(el["auto_brake_counter_value_reverse_max"].value / SYSTICK_IN_MS);
+
+        config["brake_disarm_counter_value"] =
+            Math.round(el["brake_disarm_counter_value"].value / SYSTICK_IN_MS);
+
+        config["auto_reverse_counter_value_min"] =
+            Math.round(el["auto_reverse_counter_value_min"].value / SYSTICK_IN_MS);
+        config["auto_reverse_counter_value_max"] =
+            Math.round(el["auto_reverse_counter_value_max"].value / SYSTICK_IN_MS);
+
+        config["blink_counter_value"] =
+            Math.round(el["blink_counter_value"].value / SYSTICK_IN_MS);
+        config["indicator_idle_time_value"] =
+            Math.round(el["indicator_idle_time_value"].value / SYSTICK_IN_MS);
+        config["indicator_off_timeout_value"] =
+            Math.round(el["indicator_off_timeout_value"].value / SYSTICK_IN_MS);
+        config["blink_threshold"] =
+            Math.round(el["blink_threshold"].value / SYSTICK_IN_MS);
+
+        config["centre_threshold_low"] = el["centre_threshold_low"].value;
+        config["centre_threshold_high"] = el["centre_threshold_high"].value;
+        config["initial_endpoint_delta"] = el["initial_endpoint_delta"].value;
+
+        config["ch3_multi_click_timeout"] =
+            Math.round(el["ch3_multi_click_timeout"].value / SYSTICK_IN_MS);
+        config["winch_command_repeat_time"] =
+            Math.round(el["winch_command_repeat_time"].value / SYSTICK_IN_MS);
+        config["no_signal_timeout"] =
+            Math.round(el["no_signal_timeout"].value / SYSTICK_IN_MS);
+
+        gamma["gamma_value"] = el["gamma"].value;
+    }
+
+
+    // *************************************************************************
     var update_ui = function () {
         // Master/Slave
         el["mode"].selectedIndex = config["mode"];
@@ -551,11 +686,11 @@ var app = (function () {
         el["dual_output_th"][0].checked = true;
         if (config['slave_ouput']) {
             el["single_output_out"][1].checked = true;
-            el["dual_output_tx"][1].checked = true;
+            el["dual_output_th"][1].checked = true;
         }
         if (config['preprocessor_output']) {
             el["single_output_out"][2].checked = true;
-            el["dual_output_tx"][2].checked = true;
+            el["dual_output_th"][2].checked = true;
         }
         if (config['steering_wheel_servo_output']) {
             el["single_output_out"][3].checked = true;
@@ -567,7 +702,7 @@ var app = (function () {
         }
         if (config['winch_output']) {
             el["single_output_out"][5].checked = true;
-            el["dual_output_tx"][3].checked = true;
+            el["dual_output_th"][3].checked = true;
         }
 
         // CH3/AUX type
@@ -618,13 +753,10 @@ var app = (function () {
         el["blink_threshold"].value =
             config["blink_threshold"];
 
-        el["centre_threshold_low"].value =
-            config["centre_threshold_low"];
-        el["centre_threshold_high"].value =
-            config["centre_threshold_high"];
+        el["centre_threshold_low"].value = config["centre_threshold_low"];
+        el["centre_threshold_high"].value = config["centre_threshold_high"];
+        el["initial_endpoint_delta"].value = config["initial_endpoint_delta"];
 
-        el["initial_endpoint_delta"].value =
-            config["initial_endpoint_delta"] * SYSTICK_IN_MS;
         el["ch3_multi_click_timeout"].value =
             config["ch3_multi_click_timeout"] * SYSTICK_IN_MS;
         el["winch_command_repeat_time"].value =
@@ -692,6 +824,22 @@ var app = (function () {
 
     // *************************************************************************
     var init = function () {
+
+        function set_led_feature_handler(led_id, prefix) {
+            var led_section = document.getElementById(led_id);
+            var feature_rows = led_section.getElementsByClassName("led_features");
+
+            for (var row = 0; row < feature_rows.length; row++) {
+                var input_elements =
+                    feature_rows[row].getElementsByTagName("input");
+
+                for (var i = 0; i < input_elements.length; i++) {
+                    input_elements[i].addEventListener(
+                        "change", update_led_feature_usage, true);
+                }
+            }
+        }
+
         el["save_config"] = document.getElementById("save_config");
         el["load_config"] = document.getElementById("load_config");
         el["save_firmware"] = document.getElementById("save_firmware");
@@ -758,6 +906,9 @@ var app = (function () {
 
         el["dual_output"].addEventListener(
             "change", update_section_visibility, false);
+
+        set_led_feature_handler("leds_master", "master");
+        set_led_feature_handler("leds_slave", "slave");
 
         el["load_firmware"].addEventListener(
             "change", load_firmware_from_disk, false);
