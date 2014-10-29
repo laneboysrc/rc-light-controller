@@ -289,7 +289,7 @@ var app = (function () {
 
 
     // *************************************************************************
-    var load_firmware = function (intel_hex_data) {
+    var parse_firmware_structure = function (intel_hex_data) {
         var ih = intel_hex;
 
         var image_data = ih.parse(intel_hex_data);
@@ -303,21 +303,7 @@ var app = (function () {
 
 
     // *************************************************************************
-    var load_intelhex_file_from_disk = function () {
-        if (this.files.length < 1) {
-            return;
-        }
-
-        var reader = new FileReader();
-        reader.onload = function (e) {
-            load_and_parse_firmware(e.target.result);
-        };
-        reader.readAsText(this.files[0]);
-    }
-
-
-    // *************************************************************************
-    var load_and_parse_firmware = function (intel_hex_data) {
+    var parse_firmware = function (intel_hex_data) {
         var code = "";
 
         firmware = undefined;
@@ -328,7 +314,7 @@ var app = (function () {
         el["light_programs"].innerHTML = code;
 
         try {
-            firmware = load_firmware(intel_hex_data);
+            firmware = parse_firmware_structure(intel_hex_data);
             config = parse_configuration();
             local_leds = parse_leds(SECTION_LOCAL_LEDS);
             slave_leds = parse_leds(SECTION_SLAVE_LEDS);
@@ -341,6 +327,26 @@ var app = (function () {
             el["light_programs"].innerHTML = code;
         }
     };
+
+
+    // *************************************************************************
+    var load_default_firmware = function () {
+        parse_firmware(default_firmware_image);
+    }
+
+
+    // *************************************************************************
+    var load_firmware_from_disk = function () {
+        if (this.files.length < 1) {
+            return;
+        }
+
+        var reader = new FileReader();
+        reader.onload = function (e) {
+            parse_firmware(e.target.result);
+        };
+        reader.readAsText(this.files[0]);
+    }
 
 
     // *************************************************************************
@@ -691,16 +697,16 @@ var app = (function () {
             "change", update_section_visibility, false);
 
         el["intelhex"].addEventListener(
-            "change", load_intelhex_file_from_disk, false);
+            "change", load_firmware_from_disk, false);
 
 
-        load_and_parse_firmware(default_firmware_image);
+        load_default_firmware();
     };
 
 
     // *************************************************************************
     return {
-        load: load_intelhex_file_from_disk,
+        load: load_firmware_from_disk,
         init: init
     };
 })();
