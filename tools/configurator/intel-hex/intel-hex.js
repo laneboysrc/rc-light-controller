@@ -208,6 +208,23 @@ var intel_hex = (function () {
     };
 
 
+    // intel_hex.fromArray(, start_address)
+    //
+    // data: the array to generate an Intel-hex file from
+    //
+    // start_address: the address offset to be written to the intel-Hex file.
+    //  Default: 0
+    //
+    // Returns a String representing data in Intel-hex format.
+    //
+    var fromArray = function (data, start_address=0) {
+        var result = "";
+
+
+        result += ':00000001FF';
+    };
+
+
     // *************************************************************************
     // API of this module:
     // *************************************************************************
