@@ -344,6 +344,57 @@ var app = (function () {
 
 
     // *************************************************************************
+    var update_led_feature_usage = function () {
+        function set_feature_active(led_div_id, prefix) {
+            var led_div = document.getElementById(led_div_id);
+            var led_config_rows = led_div.getElementsByClassName("led_config");
+            var led_feature_rows = led_div.getElementsByClassName("led_features");
+
+            for (var i = 0; i < led_feature_rows.length; i++) {
+                var advanced_feature_used = false;
+
+                var incandescent = parseInt(document.getElementById(
+                    prefix + i + "incandescent").value, 10);
+
+                var weak_ground = parseInt(document.getElementById(
+                    prefix + i + "weak_ground").value, 10);
+
+                var any_checkbox_ticked = false;
+                var checkboxes = led_feature_rows[i].getElementsByClassName(
+                    "checkbox");
+                for (var c = 0; c < checkboxes.length; c++) {
+                    if (checkboxes[c].checked) {
+                        any_checkbox_ticked = true;
+                        break;
+                    }
+                }
+
+                if (incandescent > 0  && incandescent < 255) {
+                    advanced_feature_used = true;
+                }
+
+                if (weak_ground > 0  &&  any_checkbox_ticked) {
+                    advanced_feature_used = true;
+                }
+
+
+                var spanner = led_config_rows[i].getElementsByClassName("spanner")[0];
+                if (advanced_feature_used) {
+                    addClass(spanner, "led_feature_active");
+                }
+                else {
+                    removeClass(spanner, "led_feature_active");
+                }
+
+            }
+        }
+
+        set_feature_active("leds_master", "master");
+        set_feature_active("leds_slave", "slave");
+    };
+
+
+    // *************************************************************************
     var update_led_fields = function () {
         function set_led_field(prefix, led_number, field_number, value) {
             var cell = document.getElementById(
@@ -364,6 +415,8 @@ var app = (function () {
         function set_led_feature(prefix, led_number, field_suffix, value) {
             var cell = document.getElementById(
                 "" + prefix + led_number + field_suffix);
+
+            cell.addEventListener("change", update_led_feature_usage, true);
 
             if (cell.type == "checkbox") {
                 cell.checked = Boolean(value);
@@ -517,6 +570,10 @@ var app = (function () {
 
         // Show/hide various sections depending on the current settings
         update_section_visibility();
+
+        // Highlight the spanner icon if incandescent of weak ground simulation
+        // is active for a LED
+        update_led_feature_usage();
     };
 
 
