@@ -379,6 +379,8 @@ var app = (function () {
     var save_configuration = function () {
         var data = {};
 
+        // FIXME: update data based on UI!
+
         data['config'] = config;
         data['local_leds'] = local_leds;
         data['slave_leds'] = slave_leds;
