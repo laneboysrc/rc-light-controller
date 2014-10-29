@@ -291,10 +291,11 @@ var app = (function () {
 
     // *************************************************************************
     var parse_firmware_structure = function (intel_hex_data) {
-        var ih = intel_hex;
+        var image_data;
+        var offset_list;
 
-        var image_data = ih.parse(intel_hex_data);
-        var offset_list = find_magic_markers(image_data.data);
+        image_data = intel_hex.parse(intel_hex_data);
+        offset_list = find_magic_markers(image_data.data);
 
         return {
             data: image_data.data,
@@ -324,6 +325,9 @@ var app = (function () {
 
             update_ui();
         }
+        catch (e) {
+            alert("Unable to load Intel-hex formatted firmware image:\n" + e);
+        }
         finally {
             el["light_programs"].innerHTML = light_programs;
         }
@@ -352,9 +356,6 @@ var app = (function () {
 
     // *************************************************************************
     var save_firmware = function () {
-        var data = {};
-
-
         // Update data based on UI
         update_config();
 
@@ -364,8 +365,10 @@ var app = (function () {
         var intelhex = "";
 
         var blob = new Blob([intelhex], {type: "text/plain;charset=utf-8"});
-        // FIXME: prompt for a firmware name
-        saveAs(blob, "light_controller.hex");
+        var filename = window.prompt('Filename for the firmware image:', 'light_controller.hex')
+        if (filename != null  &&  filename != "") {
+            saveAs(blob, filename);
+        }
     };
 
 
@@ -377,18 +380,22 @@ var app = (function () {
 
         var reader = new FileReader();
         reader.onload = function (e) {
-            var data = JSON.parse(e.target.result);
+            try {
+                var data = JSON.parse(e.target.result);
 
-            config = data['config'];
-            local_leds = data['local_leds'];
-            slave_leds = data['slave_leds'];
-            light_programs = data['light_programs'];
-            gamma = data['gamma'];
+                config = data['config'];
+                local_leds = data['local_leds'];
+                slave_leds = data['slave_leds'];
+                light_programs = data['light_programs'];
+                gamma = data['gamma'];
+            }
+            catch (e) {
+                alert(
+                    "Failed to load configuration.\n" +
+                    "File may not be a light controller configuration file (JSON format)");
+            }
 
             update_ui();
-
-            // FIXME: add error handling in case of broken configuration
-
         };
         reader.readAsText(this.files[0]);
     }
@@ -396,11 +403,10 @@ var app = (function () {
 
     // *************************************************************************
     var save_configuration = function () {
-        var data = {};
-
         // Update data based on UI
         update_config();
 
+        var data = {};
         data['config'] = config;
         data['local_leds'] = local_leds;
         data['slave_leds'] = slave_leds;
@@ -410,8 +416,10 @@ var app = (function () {
         var configuration_string = JSON.stringify(data, null, 2);
 
         var blob = new Blob([configuration_string], {type: "text/plain;charset=utf-8"});
-        // FIXME: prompt for a firmware name
-        saveAs(blob, "light_controller.config.txt");
+        var filename = window.prompt('Filename for the configuration file:', 'light_controller.config.txt')
+        if (filename != null  &&  filename != "") {
+            saveAs(blob, filename);
+        }
     };
 
 
