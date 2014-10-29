@@ -75,8 +75,19 @@ input, select {
   vertical-align: middle;
   width: 6.25%;
   height: 2em;
-  border-left: 2px solid #ffcf0d;
   cursor: default;
+}
+
+.led_table .even td, .led_table .even th {
+  border-left: 2px solid #e8a60c;
+}
+
+.led_table .even td:first-child, .led_table .even th:first-child {
+  border-left: 2px solid #ffcf0d;
+}
+
+.led_table .odd td, .led_table .odd th {
+  border-left: 2px solid #ffcf0d;
 }
 
 .led_table th {
@@ -113,20 +124,19 @@ input, select {
 }
 
 .led_features {
-  border-top: 1px solid #e8a60c;
   /*display: none;*/
 }
 
-.led_features.odd {
-  border-top: 1px solid #ffcf0d;
+.led_features table {
+  width: 100%;
 }
 
-.led_features td {
-  /*height: 3.5em;*/
-  vertical-align: top;
-  padding-top: 3px;
+.led_features table td {
+  width: 6.25%;
 }
 
-.led_features td:first-child {
-  text-align: left
+.led_features table td:first-child {
+  border: 0;
+  width: 12.5%;
+  text-align: left;
 }

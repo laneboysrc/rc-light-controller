@@ -105,72 +105,74 @@
         <h3>Master</h2>
         <div>
           <table class="led_table">
-            <tr class="odd">
-              <th></th>
-              <th name="help_led_always_on" rowspan="2">Always on</th>
-              <th name="help_led_light_switch" colspan="9">Light switch position</th>
-              <th name="help_led_tail"></th>
-              <th name="help_led_brake"></th>
-              <th name="help_led_reverse"></th>
-              <th name="help_led_indicator" colspan="2">Indicator</th>
-            </tr>
-            <tr class="odd">
-              <th>LED</th>
-              <th name="help_led_light_switch">0</th>
-              <th name="help_led_light_switch">1</th>
-              <th name="help_led_light_switch">2</th>
-              <th name="help_led_light_switch">3</th>
-              <th name="help_led_light_switch">4</th>
-              <th name="help_led_light_switch">5</th>
-              <th name="help_led_light_switch">6</th>
-              <th name="help_led_light_switch">7</th>
-              <th name="help_led_light_switch">8</th>
-              <th name="help_led_tail">Tail</th>
-              <th name="help_led_brake">Brake</th>
-              <th name="help_led_reverse">Reverse</th>
-              <th name="help_led_indicator">left</th>
-              <th name="help_led_indicator">right</th>
-            </tr>
+            <tbody>
+              <tr class="odd">
+                <th></th>
+                <th name="help_led_always_on" rowspan="2">Always on</th>
+                <th name="help_led_light_switch" colspan="9">Light switch position</th>
+                <th name="help_led_tail"></th>
+                <th name="help_led_brake"></th>
+                <th name="help_led_reverse"></th>
+                <th name="help_led_indicator" colspan="2">Indicator</th>
+              </tr>
+              <tr class="odd">
+                <th>LED</th>
+                <th name="help_led_light_switch">0</th>
+                <th name="help_led_light_switch">1</th>
+                <th name="help_led_light_switch">2</th>
+                <th name="help_led_light_switch">3</th>
+                <th name="help_led_light_switch">4</th>
+                <th name="help_led_light_switch">5</th>
+                <th name="help_led_light_switch">6</th>
+                <th name="help_led_light_switch">7</th>
+                <th name="help_led_light_switch">8</th>
+                <th name="help_led_tail">Tail</th>
+                <th name="help_led_brake">Brake</th>
+                <th name="help_led_reverse">Reverse</th>
+                <th name="help_led_indicator">left</th>
+                <th name="help_led_indicator">right</th>
+              </tr>
 
-            <!-- LED rows will be inserted here -->
+              <!-- LED rows will be inserted here -->
 
-          </table>
+            </table>
+          </div>
         </div>
-      </div>
 
-      <div id="leds_slave">
-        <h3>Slave</h2>
-        <div>
-          <table class="led_table">
-            <tr class="odd">
-              <th></th>
-              <th name="help_led_always_on" rowspan="2">Always on</th>
-              <th name="help_led_light_switch" colspan="9">Light switch position</th>
-              <th name="help_led_tail"></th>
-              <th name="help_led_brake"></th>
-              <th name="help_led_reverse"></th>
-              <th name="help_led_indicator" colspan="2">Indicator</th>
-            </tr>
-            <tr class="odd">
-              <th>LED</th>
-              <th name="help_led_light_switch">0</th>
-              <th name="help_led_light_switch">1</th>
-              <th name="help_led_light_switch">2</th>
-              <th name="help_led_light_switch">3</th>
-              <th name="help_led_light_switch">4</th>
-              <th name="help_led_light_switch">5</th>
-              <th name="help_led_light_switch">6</th>
-              <th name="help_led_light_switch">7</th>
-              <th name="help_led_light_switch">8</th>
-              <th name="help_led_tail">Tail</th>
-              <th name="help_led_brake">Brake</th>
-              <th name="help_led_reverse">Reverse</th>
-              <th name="help_led_indicator">left</th>
-              <th name="help_led_indicator">right</th>
-            </tr>
+        <div id="leds_slave">
+          <h3>Slave</h2>
+          <div>
+            <table class="led_table">
+              <tr class="odd">
+                <th></th>
+                <th name="help_led_always_on" rowspan="2">Always on</th>
+                <th name="help_led_light_switch" colspan="9">Light switch position</th>
+                <th name="help_led_tail"></th>
+                <th name="help_led_brake"></th>
+                <th name="help_led_reverse"></th>
+                <th name="help_led_indicator" colspan="2">Indicator</th>
+              </tr>
+              <tr class="odd">
+                <th>LED</th>
+                <th name="help_led_light_switch">0</th>
+                <th name="help_led_light_switch">1</th>
+                <th name="help_led_light_switch">2</th>
+                <th name="help_led_light_switch">3</th>
+                <th name="help_led_light_switch">4</th>
+                <th name="help_led_light_switch">5</th>
+                <th name="help_led_light_switch">6</th>
+                <th name="help_led_light_switch">7</th>
+                <th name="help_led_light_switch">8</th>
+                <th name="help_led_tail">Tail</th>
+                <th name="help_led_brake">Brake</th>
+                <th name="help_led_reverse">Reverse</th>
+                <th name="help_led_indicator">left</th>
+                <th name="help_led_indicator">right</th>
+              </tr>
 
-            <!-- LED rows will be inserted here -->
+              <!-- LED rows will be inserted here -->
 
+            </tbody>
           </table>
         </div>
       </div>
@@ -466,38 +468,40 @@
     </tr>
     <tr class="led_features <%=even_odd%>">
       <td colspan="16">
-        <div>
-          Weak ground simulation
-        </div>
-      </td>
-    </tr>
-    <tr class="led_features <%=even_odd%>">
-      <td colspan="2">
-        <div>
-          <input type="number" name="help_weak_ground">
-        </div>
-      </td>
-      <td><input type="checkbox" name="help_weak_ground"></td>
-      <td><input type="checkbox" name="help_weak_ground"></td>
-      <td><input type="checkbox" name="help_weak_ground"></td>
-      <td><input type="checkbox" name="help_weak_ground"></td>
-      <td><input type="checkbox" name="help_weak_ground"></td>
-      <td><input type="checkbox" name="help_weak_ground"></td>
-      <td><input type="checkbox" name="help_weak_ground"></td>
-      <td><input type="checkbox" name="help_weak_ground"></td>
-      <td><input type="checkbox" name="help_weak_ground"></td>
-      <td><input type="checkbox" name="help_weak_ground"></td>
-      <td><input type="checkbox" name="help_weak_ground"></td>
-      <td><input type="checkbox" name="help_weak_ground"></td>
-      <td><input type="checkbox" name="help_weak_ground"></td>
-      <td><input type="checkbox" name="help_weak_ground"></td>
-    </tr>
-    <tr class="led_features <%=even_odd%>">
-      <td colspan="16">
-        <div>
-          <input type="number" name="help_incandescent">
-          Incandescent light bulb simulation
-        </div>
+        <table>
+          <tbody>
+            <tr>
+              <td colspan="16">
+                <div>
+                  <input type="number" name="help_incandescent">
+                  Incandescent light bulb simulation
+                </div>
+              </td>
+            </tr>
+            <tr name="help_weak_ground">
+              <td colspan="16">
+                <input type="number"> Weak ground simulation
+              </td>
+            </tr>
+            <tr name="help_weak_ground">
+              <td colspan="2"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+              <td><input type="checkbox"></td>
+            </tr>
+          </tbody>
+        </table>
       </td>
     </tr>
   </script>
