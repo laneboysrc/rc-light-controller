@@ -410,6 +410,7 @@ var app = (function () {
         var configuration_string = JSON.stringify(data, null, 2);
 
         var blob = new Blob([configuration_string], {type: "text/plain;charset=utf-8"});
+        // FIXME: prompt for a firmware name
         saveAs(blob, "light_controller.config.txt");
     };
 
@@ -541,7 +542,71 @@ var app = (function () {
 
     // *************************************************************************
     var update_led_config = function () {
-        // TODO
+        function get_led_field(prefix, led_number, field_number) {
+            var cell = document.getElementById(
+                "" + prefix + led_number + "field" + field_number);
+
+            var value = cell.textContent;
+            if (value == "") {
+                return 0;
+            }
+
+            return Math.round(parseInt(value, 10) * 255 / 100);
+        }
+
+        function get_led_feature(prefix, led_number, field_suffix) {
+            var cell = document.getElementById(
+                "" + prefix + led_number + field_suffix);
+
+            if (cell.type == "checkbox") {
+                return cell.checked;
+            }
+            else {
+                return cell.value;
+            }
+        }
+
+        function get_led_fields(led_source, prefix) {
+            for (var i = 0; i < led_source["led_count"]; i++) {
+                var led = led_source[i];
+
+                led["always_on"] = get_led_field(prefix, i, 0);
+                led["light_switch_position0"] = get_led_field(prefix, i, 1);
+                led["light_switch_position1"] = get_led_field(prefix, i, 2);
+                led["light_switch_position2"] = get_led_field(prefix, i, 3);
+                led["light_switch_position3"] = get_led_field(prefix, i, 4);
+                led["light_switch_position4"] = get_led_field(prefix, i, 5);
+                led["light_switch_position5"] = get_led_field(prefix, i, 6);
+                led["light_switch_position6"] = get_led_field(prefix, i, 7);
+                led["light_switch_position7"] = get_led_field(prefix, i, 8);
+                led["light_switch_position8"] = get_led_field(prefix, i, 9);
+                led["tail_light"] = get_led_field(prefix, i, 10);
+                led["brake_light"] = get_led_field(prefix, i, 11);
+                led["reversing_light"] = get_led_field(prefix, i, 12);
+                led["indicator_left"] = get_led_field(prefix, i, 13);
+                led["indicator_right"] = get_led_field(prefix, i, 14);
+
+                led["max_change_per_systick"] = get_led_feature(prefix, i, "incandescent");
+                led["reduction_percent"] = get_led_feature(prefix, i, "weak_ground");
+                led["weak_light_switch_position0"] = get_led_feature(prefix, i, "checkbox0");
+                led["weak_light_switch_position1"] = get_led_feature(prefix, i, "checkbox1");
+                led["weak_light_switch_position2"] = get_led_feature(prefix, i, "checkbox2");
+                led["weak_light_switch_position3"] = get_led_feature(prefix, i, "checkbox3");
+                led["weak_light_switch_position4"] = get_led_feature(prefix, i, "checkbox4");
+                led["weak_light_switch_position5"] = get_led_feature(prefix, i, "checkbox5");
+                led["weak_light_switch_position6"] = get_led_feature(prefix, i, "checkbox6");
+                led["weak_light_switch_position7"] = get_led_feature(prefix, i, "checkbox7");
+                led["weak_light_switch_position8"] = get_led_feature(prefix, i, "checkbox8");
+                led["weak_tail_light"] = get_led_feature(prefix, i, "checkbox9");
+                led["weak_brake_light"] = get_led_feature(prefix, i, "checkbox10");
+                led["weak_reversing_light"] = get_led_feature(prefix, i, "checkbox11");
+                led["weak_indicator_left"] = get_led_feature(prefix, i, "checkbox12");
+                led["weak_indicator_right"] = get_led_feature(prefix, i, "checkbox13");
+            }
+        }
+
+        get_led_fields(local_leds, "master");
+        get_led_fields(slave_leds, "slave");
     };
 
 
