@@ -17,6 +17,7 @@ SERVO_ENDPOINTS_T servo_output_endpoint;
 
 
 // FIXME: make configurable
+// FIXME: implement it, including being able to turn it off
 #define GEARBOX_SWITCH_TIME 1
 
 
@@ -27,40 +28,43 @@ void init_servo_output(void) {
         return;
     }
 
-    LPC_SCT->CONFIG |= (1u << 18);   // Auto-limit on counter H
-    LPC_SCT->CTRL_H |= (1u << 3) |   // Clear the counter H
-                       (11u << 5);   // PRE_H[12:5] = 12-1 (SCTimer H clock 1 MHz)
+    global_flags.gear = GEAR_1;
+
+
+    LPC_SCT->CONFIG |= (1u << 18);          // Auto-limit on counter H
+    LPC_SCT->CTRL_H |= (1u << 3) |          // Clear the counter H
+                       (11u << 5);          // PRE_H[12:5] = 12-1 (SCTimer H clock 1 MHz)
     LPC_SCT->MATCHREL[0].H = 20000 - 1;     // 20 ms per overflow (50 Hz)
     LPC_SCT->MATCHREL[4].H = 1500;          // Servo pulse 1.5 ms intially
 
     LPC_SCT->EVENT[0].STATE = 0xFFFF;       // Event 0 happens in all states
     LPC_SCT->EVENT[0].CTRL = (0 << 0) |     // Match register 0
-                             (1u << 4) |     // Select H counter
-                             (0x1u << 12);   // Match condition only
+                             (1u << 4) |    // Select H counter
+                             (0x1u << 12);  // Match condition only
 
     LPC_SCT->EVENT[4].STATE = 0xFFFF;       // Event 4 happens in all states
     LPC_SCT->EVENT[4].CTRL = (4 << 0) |     // Match register 4
-                             (1u << 4) |     // Select H counter
-                             (0x1u << 12);   // Match condition only
+                             (1u << 4) |    // Select H counter
+                             (0x1u << 12);  // Match condition only
 
     // We've chosen CTOUT_1 because CTOUT_0 resides in PINASSIGN6, which
     // changing may affect CTIN_1..3 that we need.
     // CTOUT_1 is in PINASSIGN7, where no other function is needed for our
     // application.
-    LPC_SCT->OUT[1].SET = (1u << 0);         // Event 0 will set CTOUT_1
-    LPC_SCT->OUT[1].CLR = (1u << 4);         // Event 4 will clear CTOUT_1
+    LPC_SCT->OUT[1].SET = (1u << 0);        // Event 0 will set CTOUT_1
+    LPC_SCT->OUT[1].CLR = (1u << 4);        // Event 4 will clear CTOUT_1
 
     // CTOUT_1 = PIO0_12
     LPC_SWM->PINASSIGN7 = 0xffffff0c;
 
-    LPC_SCT->CTRL_H &= ~(1u << 2);           // Start the SCTimer H
+    LPC_SCT->CTRL_H &= ~(1u << 2);          // Start the SCTimer H
 }
 
 
 // ****************************************************************************
 void gearbox_action(uint8_t ch3_clicks)
 {
-    if (config.flags.gearbox_servo_output) {
+    if (!config.flags.gearbox_servo_output) {
         return;
     }
 
@@ -101,7 +105,8 @@ void servo_output_setup_action(uint8_t ch3_clicks)
     else {
         if (ch3_clicks == 1) {
             // 1 click: next setup step
-            next = true;            //global_flags.steering_wheel_servo_setup_mode = STEERING_WHEEL_SERVO_SETUP_MODE_NEXT;
+            next = true;
+            //global_flags.steering_wheel_servo_setup_mode = STEERING_WHEEL_SERVO_SETUP_MODE_NEXT;
         }
         else {
             // More than 1 click: cancel setup
@@ -128,9 +133,6 @@ void servo_output_setup_action(uint8_t ch3_clicks)
     removed e.g. if only a gearbox servo is used.
 
 ******************************************************************************/
-
-
-// ****************************************************************************
 static void calculate_servo_pulse(void)
 {
 
@@ -183,11 +185,20 @@ void process_servo_output(void)
         }
     }
     else if (config.flags.gearbox_servo_output) {
-        servo_pulse = (global_flags.gear == GEAR_1) ?
-            servo_output_endpoint.left : servo_output_endpoint.right;
+        if (global_flags.gear == GEAR_1) {
+            servo_pulse = servo_output_endpoint.left;
+        }
+        else if (global_flags.gear == GEAR_2) {
+            servo_pulse = servo_output_endpoint.centre;
+        }
+        else if (global_flags.gear == GEAR_3) {
+            servo_pulse = servo_output_endpoint.right;
+        }
     }
+    // FIXME: steering wheel servo output?
 
-    // FIXME: output servo pulse
+    // Output the servo pulse
+    LPC_SCT->MATCHREL[4].H = servo_pulse;
 }
 
 

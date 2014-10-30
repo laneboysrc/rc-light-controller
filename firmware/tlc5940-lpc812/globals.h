@@ -167,6 +167,7 @@ typedef enum {
 
     RUN_WHEN_GEAR_1                  = (1 << 23),
     RUN_WHEN_GEAR_2                  = (1 << 24),
+    RUN_WHEN_GEAR_3                  = (1 << 25),
 
     RUN_ALWAYS                       = (1 << 31)
 } LIGHT_PROGRAM_RUN_STATE_T;
@@ -244,8 +245,9 @@ typedef struct {
 
 // ****************************************************************************
 typedef enum {
-    GEAR_1 = 0,
-    GEAR_2 = 1
+    GEAR_1 = 1,
+    GEAR_2 = 2,
+    GEAR_3 = 3
 } GEAR_T;
 
 
@@ -294,7 +296,7 @@ typedef struct {
     unsigned int reversing : 1;             // Set when the car is reversing
 
     unsigned int gear_changed : 1;          // Set for one mainloop when a new gear was selected
-    unsigned int gear : 1;
+    unsigned int gear : 2;
 
     unsigned int winch_mode : 3;
 } GLOBAL_FLAGS_T;

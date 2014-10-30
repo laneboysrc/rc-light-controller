@@ -4,6 +4,7 @@ TO DO LIST for the RC Light Controller
   the same result after both assemblies
 
 * FW: Add support for 3-speed gearbox
+  Including new car state in ASM/DASM! Bit 25
 
 * FW: Can we preserve the persistent settings upon reflash?
 

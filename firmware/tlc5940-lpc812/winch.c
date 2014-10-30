@@ -19,7 +19,7 @@ void winch_action(uint8_t ch3_clicks)
     if (!config.flags.winch_output) {
         return;
     }
-    // FIXME: let the winch module handle the clicks
+
     switch (ch3_clicks) {
         case 1:
             // 1 click: winch in

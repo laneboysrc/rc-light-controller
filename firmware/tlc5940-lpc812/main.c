@@ -96,9 +96,13 @@ static void init_hardware(void)
 
     // ------------------------
     // IO configuration
-    LPC_SWM->PINENABLE0 = 0xffffffbf;   // Enable reset, all other special functions disabled
+
+    // Enable reset, all other special functions disabled
+    LPC_SWM->PINENABLE0 = 0xffffffbf;
 
     // Configure the UART input and output
+    // FIXME: Turn the TH/Tx and OUT/ISP output only on when the desired
+    // output function is requested
     if (config.mode == MASTER_WITH_SERVO_READER) {
         // Turn the UART output on unless a servo output is requested
         if (!config.flags.steering_wheel_servo_output &&
