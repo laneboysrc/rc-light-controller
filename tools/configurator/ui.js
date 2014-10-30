@@ -227,10 +227,33 @@ var ui = (function () {
             "Click to show/hide advanced LED features");
 
         set_tooltip("help_incandescent",
-            "FIXME: incandescent simulation help text");
+            "LEDs emit light instantly, while incandescent lamps gradually " +
+            "increase in brightness over a short amount of time.\n" +
+            "By setting a value greater than 0 in this field, the LED only " +
+            "changes brightness up to the given percentage in a period of " +
+            "20 ms, and therfore fading in and out rather than instantly " +
+            "turning on or off.\n" +
+            "The smaller the value, the slower the LED fades. A value of 15% " +
+            "results in a fade time of approx 130 ms from off to on, " +
+            "which is a realistic simulation for incandescent bulbs in " +
+            "vintage cars.\n" +
+            "Note that slow fading causes visible steps at lower brightness " +
+            "values due to the limited control range of the LED driver.");
 
         set_tooltip("help_weak_ground",
-            "FIXME: weak ground help text");
+            "In old cars the ground connection often corrodes, especially on " +
+            "rear light units. This causes current flow to be restricted, " +
+            "which in turn causes lights to go dim whenever other lights in " +
+            "the same fixture go on.\n" +
+            "This can be simulated by setting a reduction value and ticking " +
+            "the boxes corresponding to the light function that should cause " +
+            "dimming.\n" +
+            "Example: the tail light should be dimmed whenever the left " +
+            "indicator goes on. Configure an LED to be a tail light by " +
+            "setting a value in the Tail field. Click on the spanner of that " +
+            "LED and enter 20% reduction, and tick the checkbox in the " +
+            "left indicator column. The tail light LED will now dim by 20% " +
+            "whenever the left indicator light is on.");
     };
 
 

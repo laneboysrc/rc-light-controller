@@ -619,7 +619,7 @@ var app = (function () {
                     }
                 }
 
-                if (incandescent > 0  && incandescent < 255) {
+                if (incandescent > 0  && incandescent < 100) {
                     advanced_feature_used = true;
                 }
 
@@ -696,8 +696,8 @@ var app = (function () {
                 set_led_field(prefix, i, 13, led["indicator_left"]);
                 set_led_field(prefix, i, 14, led["indicator_right"]);
 
-                set_led_feature(
-                    prefix, i, "incandescent", led["max_change_per_systick"]);
+                set_led_feature(prefix, i, "incandescent",
+                    Math.round(led["max_change_per_systick"] * 100 / 255));
                 set_led_feature(
                     prefix, i, "weak_ground", led["reduction_percent"]);
                 set_led_feature(
@@ -782,8 +782,8 @@ var app = (function () {
                 led["indicator_left"] = get_led_field(prefix, i, 13);
                 led["indicator_right"] = get_led_field(prefix, i, 14);
 
-                led["max_change_per_systick"] =
-                    get_led_feature(prefix, i, "incandescent");
+                led["max_change_per_systick"] = Math.round(
+                    get_led_feature(prefix, i, "incandescent") * 255 / 100);
                 led["reduction_percent"] =
                     get_led_feature(prefix, i, "weak_ground");
                 led["weak_light_switch_position0"] =

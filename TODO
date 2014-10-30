@@ -3,19 +3,19 @@ TO DO LIST for the RC Light Controller
 * Automate tests to check whether assembly->disassembly->assembly gets
   the same result after both assemblies
 
-* CFG: Auto detect highest light switch position used (also include light programs!)
-
 * FW: Add support for 3-speed gearbox
 
 * FW: Can we preserve the settings upon reflash?
 
-* CFG: Add hardware test as one of the configurations. Use a light program,
+* FW, ASM, DASM: FADE value should be input in % change per systick
+
+* CFG: Auto detect highest light switch position used (also include light programs!)
+
+* CFG, Add hardware test as one of the configurations. Use a light program,
   i.e. a configuration that we load internally.
 
 * CFG: Have configurator check firmware version of loaded firmware and be able to
   "upgrade" when a HEX with old firmware is loaded
-
-* CFG: max change per systick should be in % rather than uint8
 
 * CFG: Add footer with license info, web info, etc
 
