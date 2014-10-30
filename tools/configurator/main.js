@@ -819,8 +819,22 @@ var app = (function () {
 
     // *************************************************************************
     var update_config = function () {
+
+        function update_int(key) {
+            config[key] = parseInt(el[key].value, 10);
+        }
+
+        function update_boolean(key) {
+            config[key] = Boolean(el[key].checked);
+        }
+
+        function update_time(key) {
+            config[key] = Math.round(el[key].value / SYSTICK_IN_MS);
+        }
+
+
         // Master/Slave
-        config["mode"] = parseInt(el["mode"].value, 10);
+        update_int("mode");
 
 
         // ESC mode
@@ -892,7 +906,7 @@ var app = (function () {
         }
 
         // Baudrate
-        config['baudrate'] = parseInt(el["baudrate"].value, 10);
+        update_int("baudrate")
 
 
         // LEDs
@@ -900,50 +914,31 @@ var app = (function () {
 
 
         // Update advanced settings
-        config["auto_brake_lights_forward_enabled"] =
-            Boolean(el["auto_brake_lights_forward_enabled"].checked);
-        config["auto_brake_counter_value_forward_min"] = Math.round(
-            el["auto_brake_counter_value_forward_min"].value / SYSTICK_IN_MS);
-        config["auto_brake_counter_value_forward_max"] = Math.round(
-            el["auto_brake_counter_value_forward_max"].value / SYSTICK_IN_MS);
+        update_boolean("auto_brake_lights_forward_enabled");
+        update_time("auto_brake_counter_value_forward_min");
+        update_time("auto_brake_counter_value_forward_max");
 
-        config["auto_brake_lights_reverse_enabled"] =
-            Boolean(el["auto_brake_lights_reverse_enabled"].checked);
-        config["auto_brake_counter_value_reverse_min"] = Math.round(
-            el["auto_brake_counter_value_reverse_min"].value / SYSTICK_IN_MS);
-        config["auto_brake_counter_value_reverse_max"] = Math.round(
-            el["auto_brake_counter_value_reverse_max"].value / SYSTICK_IN_MS);
+        update_boolean("auto_brake_lights_reverse_enabled");
+        update_time("auto_brake_counter_value_reverse_min");
+        update_time("auto_brake_counter_value_reverse_max");
 
-        config["brake_disarm_counter_value"] = Math.round(
-            el["brake_disarm_counter_value"].value / SYSTICK_IN_MS);
+        update_time("brake_disarm_counter_value");
 
-        config["auto_reverse_counter_value_min"] = Math.round(
-            el["auto_reverse_counter_value_min"].value / SYSTICK_IN_MS);
-        config["auto_reverse_counter_value_max"] = Math.round(
-            el["auto_reverse_counter_value_max"].value / SYSTICK_IN_MS);
+        update_time("auto_reverse_counter_value_min");
+        update_time("auto_reverse_counter_value_max");
 
-        config["blink_counter_value"] =
-            Math.round(el["blink_counter_value"].value / SYSTICK_IN_MS);
-        config["indicator_idle_time_value"] =
-            Math.round(el["indicator_idle_time_value"].value / SYSTICK_IN_MS);
-        config["indicator_off_timeout_value"] =
-            Math.round(el["indicator_off_timeout_value"].value / SYSTICK_IN_MS);
-        config["blink_threshold"] =
-            Math.round(el["blink_threshold"].value / SYSTICK_IN_MS);
+        update_time("blink_counter_value");
+        update_time("indicator_idle_time_value");
+        update_time("indicator_off_timeout_value");
+        update_int("blink_threshold");
 
-        config["centre_threshold_low"] =
-            parseInt(el["centre_threshold_low"].value, 10);
-        config["centre_threshold_high"] =
-            parseInt(el["centre_threshold_high"].value, 10);
-        config["initial_endpoint_delta"] =
-            parseInt(el["initial_endpoint_delta"].value, 10);
+        update_int("centre_threshold_low");
+        update_int("centre_threshold_high");
+        update_int("initial_endpoint_delta");
 
-        config["ch3_multi_click_timeout"] =
-            Math.round(el["ch3_multi_click_timeout"].value / SYSTICK_IN_MS);
-        config["winch_command_repeat_time"] =
-            Math.round(el["winch_command_repeat_time"].value / SYSTICK_IN_MS);
-        config["no_signal_timeout"] =
-            Math.round(el["no_signal_timeout"].value / SYSTICK_IN_MS);
+        update_time("ch3_multi_click_timeout");
+        update_time("winch_command_repeat_time");
+        update_time("no_signal_timeout");
 
         gamma_object["gamma_value"] = el["gamma"].value;
     }
