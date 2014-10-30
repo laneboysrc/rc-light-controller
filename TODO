@@ -3,8 +3,6 @@ TO DO LIST for the RC Light Controller
 * Automate tests to check whether assembly->disassembly->assembly gets
   the same result after both assemblies
 
-* Add firmware version to the config, independent from config version!
-
 * UI: make LED values in % rather than 0..255. Also for light programs!
   Firmware uses 255, but UI and compiler uses % range
   Compiler / Disassembler: allow % sign at end of number
@@ -18,6 +16,8 @@ TO DO LIST for the RC Light Controller
 * Add support for 3-speed gearbox
 
 * Add hardware test as one of the configurations
+
+* Make tool to get HEX file into the configurator
 
 
 * Investigate whether we can detect the order of the incoming channels

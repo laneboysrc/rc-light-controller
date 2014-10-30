@@ -169,8 +169,10 @@ var app = (function () {
 
         var config = {};
 
-        config['mode'] = data[offset];
-        config['esc_mode'] = data[offset+1];
+        config['firmware_version'] = data[offset];
+
+        config['mode'] = data[offset + 1];
+        config['esc_mode'] = data[offset + 2];
 
         var flags = get_uint32(data, offset + 4);
 
@@ -427,7 +429,7 @@ var app = (function () {
         }
 
         data[offset] = led_object['led_count'];
-
+`
         for (var i = 0; i < led_object['led_count']; i++) {
             assemble_led(data, car_lights_offset + (i * 20), led_object[i]);
         }
@@ -439,8 +441,9 @@ var app = (function () {
         var data = firmware.data;
         var offset = firmware.offset[SECTION_CONFIG];
 
-        data[offset] = config['mode'];
-        data[offset + 1] = config['esc_mode'];
+        data[offset] = config['firmware_version'];
+        data[offset + 1] = config['mode'];
+        data[offset + 2] = config['esc_mode'];
 
         var flags = 0;
         flags |= (config['slave_ouput'] << 0);

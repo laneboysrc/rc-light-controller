@@ -328,6 +328,8 @@ typedef enum {
 typedef struct {
     MAGIC_T magic;
 
+    uint8_t firmware_version;
+
     MASTER_MODE_T mode;
     ESC_MODE_T esc_mode;
 
