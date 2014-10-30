@@ -49,6 +49,53 @@
           <option value="2">Slave</option>
         </select>
       </div>
+      <div id="mode_master_servo" class="info">
+        <div>
+          The light controller reads servo signals from the receiver. The
+          steering signal must be connected to input <strong>ST/Rx</strong> on
+          the light controller, the throttle signal to <strong>TH/Tx</strong>
+          and the Channel 3 (AUX) signal to the <strong>CH3</strong> input.
+        </div>
+      </div>
+      <div id="mode_master_uart" class="info">
+        <div>
+          The light controller does not read servo signals directly, but from a
+          <em>pre-processor</em>. The <em>pre-processor</em> is a
+          microcontroller directly built into the receiver. It reads the servo
+          signals and converts them into a serial data stream so that the light
+          controller can be connected with a single servo extension cable. This
+          simplifies wiring of a RC car, especially when the light controller
+          resides on the body while the receiver is mounted on the chassis.
+        </div>
+        <div>
+          For more information on the preprocessor please read our blog articles:
+          <ul>
+            <li><a href="http://laneboysrc.blogspot.com/2012/12/pre-processor-for-diy-rc-light.html" target="_blank">Pre-processor for the DIY RC Light controller</a></li>
+            <li><a href="http://laneboysrc.blogspot.com/2013/01/pre-processor-miniaturization.html">pre-processor miniaturization</a></li>
+          </ul>
+        </div>
+        <div>
+          The output from the <em>pre-processor</em> must be connected to the
+          <strong>ST/Rx</strong> input of the light controller.
+        </div>
+      </div>
+      <div id="mode_slave" class="info">
+        <div>
+          In case more than 16 LEDs are required, it is possible to daisy-chain
+          two light controllers. One needs to be configured as <em>master</em>
+          and have the <em>slave output</em> activated, the other one
+          must be configured as <em>slave</em>, for a total of 32 LEDs.
+        </div>
+        <div>
+          The output from the <em>master</em> must be fed into the
+          <strong>ST/Rx</strong> input on the <em>slave</em>.
+        </div>
+        <div>
+          The <em>master</em> controls the light functions of both light
+          controllers. Ensure that the baudrate of both <em>master</em> and
+          <em>slave</em> match.
+        </div>
+      </div>
     </div>
 
 
@@ -171,12 +218,11 @@
           <input class="dual_output_th" type="radio" name="output_out" value="1" id="output_slave">
           <label for="output_slave">Slave output</label>
           <br>
-          By using a second light controller configured as &quot;slave&quot;
+          By using a second light controller configured as <em>slave</em>
           a total of 32 LEDs can be controlled. A single cable must be run
-          between the &quot;master&quot;
+          between the <em>master</em>
           <span class="single_output">OUT/ISP</span><span class="dual_output">TH/Tx</span>
-          pin and the
-          &quot;slave&quot; ST/Rx pin.
+          pin and the <em>slave</em> ST/Rx pin.
           <br>
           When this option is selected, a second set of LED configuration
           becomes visible below.

@@ -1051,6 +1051,9 @@ var app = (function () {
 
         switch (new_mode) {
             case MODE['MASTER_WITH_SERVO_READER']:
+                el["mode_master_servo"].style.display = "";
+                el["mode_master_uart"].style.display = "none";
+                el["mode_slave"].style.display = "none";
                 el["config_light_programs"].style.display = "";
                 el["config_leds"].style.display = "";
                 el["config_basic_esc_type"].style.display = "";
@@ -1064,6 +1067,9 @@ var app = (function () {
                 break;
 
             case MODE['MASTER_WITH_UART_READER']:
+                el["mode_master_servo"].style.display = "none";
+                el["mode_master_uart"].style.display = "";
+                el["mode_slave"].style.display = "none";
                 el["config_light_programs"].style.display = "";
                 el["config_leds"].style.display = "";
                 el["config_basic_esc_type"].style.display = "";
@@ -1077,6 +1083,9 @@ var app = (function () {
                 break;
 
             case MODE['SLAVE']:
+                el["mode_master_servo"].style.display = "none";
+                el["mode_master_uart"].style.display = "none";
+                el["mode_slave"].style.display = "";
                 el["config_light_programs"].style.display = "none";
                 el["config_leds"].style.display = "none";
                 el["config_basic_esc_type"].style.display = "none";
@@ -1120,6 +1129,9 @@ var app = (function () {
         el["load_firmware"] = document.getElementById("load_firmware");
 
         el["mode"] = document.getElementById("mode");
+        el["mode_master_servo"] = document.getElementById("mode_master_servo");
+        el["mode_master_uart"] = document.getElementById("mode_master_uart");
+        el["mode_slave"] = document.getElementById("mode_slave");
 
         el["config_leds"] = document.getElementById("config_leds");
         el["leds_master"] = document.getElementById("leds_master");

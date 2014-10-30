@@ -28,7 +28,9 @@ input, select, button {
   font-size: 1em;
 }
 
-
+ul {
+  margin-left: 20px;
+}
 
 .redborder {
    border: 1px solid red;
@@ -60,6 +62,11 @@ input, select, button {
 
 .configuration {
   background-color: #ffcf0d;
+}
+
+
+.info div {
+  margin-top: 1em;
 }
 
 
