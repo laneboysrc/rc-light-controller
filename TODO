@@ -7,8 +7,6 @@ TO DO LIST for the RC Light Controller
 
 * FW: Can we preserve the persistent settings upon reflash?
 
-* FW, ASM, DASM: FADE value should be input in % change per systick
-
 * CFG: Auto detect highest light switch position used (also include light programs!)
 
 * CFG, Add hardware test as one of the configurations. Use a light program,

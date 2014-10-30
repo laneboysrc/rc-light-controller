@@ -265,7 +265,11 @@ command
   | FADE leds STEPSIZE GLOBAL_VARIABLE
       { emit_led_instruction($1 | $4->index); }
   | FADE leds STEPSIZE NUMBER
-      { emit_led_instruction($1 | ($4 & 0xff)); }
+      /* Convert step size in % to uint8_t range */
+      { emit_led_instruction($1 | ($4 * 255 / 100) & 0xff); }
+  | FADE leds STEPSIZE NUMBER '%'
+      /* Convert step size in % to uint8_t range */
+      { emit_led_instruction($1 | ($4 * 255 / 100) & 0xff); }
   | WAIT parameter
       { emit($1 | $2); }
   | SKIP IF test_expression

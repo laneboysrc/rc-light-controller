@@ -612,7 +612,8 @@ var disassembler = (function() {
 
 			case opcodes['FADE_I']:
 				asm[offset + pc++]['code'] = 'fade ' +
-					decode_leds(instruction) + ' stepsize ' + (instruction & 0xff);
+					decode_leds(instruction) + ' stepsize ' +
+						Math.round((instruction & 0xff) * 100 / 255) + "%";
 				break;
 
 			case opcodes['ASSIGN']:

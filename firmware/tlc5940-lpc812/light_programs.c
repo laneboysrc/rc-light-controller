@@ -8,10 +8,10 @@
           there is no heap (malloc)
         - Mini programming language
             - GOTO to implement loops
-            - SET start_led stop_led value_in_percent
-            - SET start_led stop_led VARIABLE
-            - FADE start_led stop_led value_in_percent_per_systick
-            - FADE start_led stop_led VARIABLE
+            - SET start_led stop_led value (0..100%)
+            - SET start_led stop_led VARIABLE (0..100%)
+            - FADE start_led stop_led value (0..100%)
+            - FADE start_led stop_led VARIABLE  (0..100%)
             - WAIT time
             - WAIT VARIABLE
             - VARIABLE = {integer, VARIABLE, LED[x], random-value, TH, ST}

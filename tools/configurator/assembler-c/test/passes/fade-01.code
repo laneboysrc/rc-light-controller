@@ -10,7 +10,8 @@ led l4 = slave[5]
 led lx = slave[7]
 
 fade l1 stepsize 50
-fade l2 stepsize x
+fade l2 stepsize 17%
+fade l3 stepsize x
 
 fade l1, l2, l3, l4 stepsize 42
 fade l1, l2, l3   stepsize x
