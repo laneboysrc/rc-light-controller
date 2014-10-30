@@ -50,6 +50,9 @@ var intel_hex = (function () {
     // Number of characters of the smallest possible Intel-hex record
     var SMALLEST_LINE = 11;
 
+    // Default record length for generating a new Intel-hex record
+    var RECORD_LENGTH = 16;
+
 
     // intel_hex.parse(data)
     //
@@ -217,11 +220,58 @@ var intel_hex = (function () {
     //
     // Returns a String representing data in Intel-hex format.
     //
+    // Currently only a subset of the Intel-HEX spec is supported:
+    //  - No segmented memory
+    //  - Start address must be 0
+    //  - Only i8hex format (64 kBytes max)
+    //
     var fromArray = function (data, start_address=0) {
         var result = "";
 
+        if (start_address != 0) {
+            throw new Error("Start address other than 0 not implemented yet");
+        }
 
-        result += ':00000001FF';
+        if (data.length > 0x10000) {
+            throw new Error(
+                "Support for more than 64 Kbytes of datat not implemented yet");
+        }
+
+        for (var offset = 0; offset < data.length; offset += RECORD_LENGTH) {
+            var record = [];
+            var record_data = data.slice(offset, offset + RECORD_LENGTH);
+
+            record.push(record_data.length);
+            record.push((offset >> 8) & 0xff);
+            record.push(offset & 0xff);
+            record.push(DATA);
+
+            for (var i = 0; i < record_data.length; i++) {
+                record.push(record_data[i]);
+            }
+
+            // Calculate the checksum
+            var calcChecksum = 0;
+            for (var i = 0; i < record.length; i++) {
+                calcChecksum = (calcChecksum + record[i]) & 0xff;
+            }
+            calcChecksum = (0x100 - calcChecksum) & 0xff;
+            record.push(calcChecksum);
+
+            result += ":";
+            for (var i = 0; i < record.length; i++) {
+                if (record[i] < 0x10) {
+                    // Need to preserve the leading zero
+                    result += "0";
+                }
+                result += record[i].toString(16).toUpperCase();
+            }
+            result += "\n";
+        }
+
+        result += ':00000001FF\n';
+
+        return result;
     };
 
 
@@ -230,6 +280,7 @@ var intel_hex = (function () {
     // *************************************************************************
     return {
         parse: parse,
+        fromArray: fromArray,
     }
 })();
 
