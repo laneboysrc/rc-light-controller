@@ -8,9 +8,9 @@
           there is no heap (malloc)
         - Mini programming language
             - GOTO to implement loops
-            - SET start_led stop_led value
+            - SET start_led stop_led value_in_percent
             - SET start_led stop_led VARIABLE
-            - FADE start_led stop_led time
+            - FADE start_led stop_led value_in_percent_per_systick
             - FADE start_led stop_led VARIABLE
             - WAIT time
             - WAIT VARIABLE
@@ -101,35 +101,6 @@
 
     The second word defines the states and events that cause the program to
     be ran.
-
-    Test programs:
-        Night rider with LEDs 0..3:
-            0:  0x0000000f
-            1:  0x........
-            2:  SET     LED0 LED3 0
-            3:  FADE    LED0    120
-            4:  FADE    LED1    120
-            5:  FADE    LED2    120
-            6:  FADE    LED3    120
-            7:  SET     LED0    255
-            8:  WAIT    120
-            9:  SET     LED0    0
-            10: SET     LED1    255
-            11: WAIT    120
-            12: SET     LED1    0
-            13: SET     LED2    255
-            14: WAIT    120
-            15: SET     LED2    0
-            16: SET     LED3    255
-            17: WAIT    120
-            18: SET     LED3    0
-            19: SET     LED2    255
-            20: WAIT    120
-            21: SET     LED2    0
-            22: SET     LED1    255
-            23: WAIT    120
-            24: SET     LED1    0
-            25: GOTO    7
 
 
 ******************************************************************************/
@@ -404,6 +375,23 @@ static void execute_skip_if(uint8_t opcode, uint32_t instruction,
 
 
 // ****************************************************************************
+// Convert percentage into uint8_t 0..255.
+// Clamp input between 0 .. 100%
+static uint8_t percent_to_uint8(int percentage)
+{
+    if (percentage < 0) {
+        return 0;
+    }
+
+    if (percentage >= 100) {
+        return 255;
+    }
+
+    return percentage * 255 / 100;
+}
+
+
+// ****************************************************************************
 static void execute_program(
     const uint32_t *program, LIGHT_PROGRAM_CPU_T *c, uint32_t *leds_used)
 {
@@ -474,20 +462,7 @@ static void execute_program(
             case OPCODE_SET:
                 for (i = min; i <= max; i++) {
                     if ((leds_already_used & (1 << i)) == 0) {
-                        uint8_t setpoint = 0;
-
-                        // Convert percentage into uint8_t.
-                        // Clamp input between 0 .. 100%
-                        if (var[value] >=0) {
-                            if (var[value] >= 100) {
-                                setpoint = 255;
-                            }
-                            else {
-                                setpoint = var[value] * 255 / 100;
-                            }
-                        }
-
-                        light_setpoint[i] = setpoint;
+                        light_setpoint[i] = percent_to_uint8(var[value]);
                     }
                 }
                 break;
@@ -503,7 +478,8 @@ static void execute_program(
             case OPCODE_FADE:
                 for (i = min; i <= max; i++) {
                     if ((leds_already_used & (1 << i)) == 0) {
-                        max_change_per_systick[i] = var[value];
+                        max_change_per_systick[i] =
+                            percent_to_uint8(var[value]);
                     }
                 }
                 break;
