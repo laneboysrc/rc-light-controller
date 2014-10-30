@@ -19,6 +19,8 @@ TO DO LIST for the RC Light Controller
 
 * ASM, DASM: make time in ms, not SYSTICK based
 
+* CFG: Check if gamma 2.0 works (integer, no digit after comma)
+
 
 
 * Investigate whether we can detect the order of the incoming channels
