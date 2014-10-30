@@ -857,46 +857,20 @@ var app = (function () {
         config['steering_wheel_servo_output'] = false;
         config['gearbox_servo_output'] = false;
         config['winch_output'] = false;
-
-        switch (MODE[config['mode']]) {
-            case MASTER_WITH_SERVO_READER:
-                if (el["single_output_out"][1].checked) {
-                    config['slave_ouput'] = true;
-                }
-                if (el["single_output_out"][2].checked) {
-                    config['preprocessor_output'] = true;
-                }
-                if (el["single_output_out"][3].checked) {
-                    config['steering_wheel_servo_output'] = true;
-                }
-                if (el["single_output_out"][4].checked) {
-                    config['gearbox_servo_output'] = true;
-                }
-                if (el["single_output_out"][5].checked) {
-                    config['winch_output'] = true;
-                }
-                break;
-
-            case MASTER_WITH_UART_READER:
-                if (el["dual_output_th"][1].checked) {
-                    config['slave_ouput'] = true;
-                }
-                if (el["dual_output_th"][2].checked) {
-                    config['preprocessor_output'] = true;
-                }
-                if (el["dual_output_out"][1].checked) {
-                    config['steering_wheel_servo_output'] = true;
-                }
-                if (el["dual_output_out"][2].checked) {
-                    config['gearbox_servo_output'] = true;
-                }
-                if (el["dual_output_th"][3].checked) {
-                    config['winch_output'] = true;
-                }
-                break;
-
-            case SLAVE:
-                break;
+        if (el["output_out"][1].checked) {
+            config['slave_ouput'] = true;
+        }
+        if (el["output_out"][2].checked) {
+            config['preprocessor_output'] = true;
+        }
+        if (el["output_out"][3].checked) {
+            config['steering_wheel_servo_output'] = true;
+        }
+        if (el["output_out"][4].checked) {
+            config['gearbox_servo_output'] = true;
+        }
+        if (el["output_out"][5].checked) {
+            config['winch_output'] = true;
         }
 
 
@@ -909,6 +883,7 @@ var app = (function () {
         else if (el["ch3"][2].checked) {
             config['ch3_is_local_switch'] = true;
         }
+
 
         // Baudrate
         update_int("baudrate")
@@ -959,28 +934,21 @@ var app = (function () {
         el["esc"][config['esc_mode']].checked = true;
 
         // Output functions
-        el["single_output_out"][0].checked = true;
-        el["dual_output_out"][0].checked = true;
-        el["dual_output_th"][0].checked = true;
-        if (config['slave_ouput']) {
-            el["single_output_out"][1].checked = true;
-            el["dual_output_th"][1].checked = true;
+        el["output_out"][0].checked = true;
+        if (config['slave_output']) {
+            el["output_out"][1].checked = true;
         }
         if (config['preprocessor_output']) {
-            el["single_output_out"][2].checked = true;
-            el["dual_output_th"][2].checked = true;
+            el["output_out"][2].checked = true;
         }
         if (config['steering_wheel_servo_output']) {
-            el["single_output_out"][3].checked = true;
-            el["dual_output_out"][1].checked = true;
+            el["output_out"][3].checked = true;
         }
         if (config['gearbox_servo_output']) {
-            el["single_output_out"][4].checked = true;
-            el["dual_output_out"][2].checked = true;
+            el["output_out"][4].checked = true;
         }
         if (config['winch_output']) {
-            el["single_output_out"][5].checked = true;
-            el["dual_output_th"][3].checked = true;
+            el["output_out"][5].checked = true;
         }
 
         // CH3/AUX type
@@ -1056,6 +1024,28 @@ var app = (function () {
 
     // *************************************************************************
     var update_section_visibility = function () {
+        function set_name(elements, name) {
+            for (var i = 0; i < elements.length; i++) {
+                elements[i].name = name;
+            }
+        }
+
+        function set_visibility(elements, value) {
+            for (var i = 0; i < elements.length; i++) {
+                elements[i].style.display = value;
+            }
+        }
+
+        function ensure_one_is_checked(name) {
+            var elements = document.getElementsByName(name);
+            for (var i = 0; i < elements.length; i++) {
+                if (elements[i].checked) {
+                    return;
+                }
+            }
+            elements[0].checked = true;
+        }
+
         var new_mode = parseInt(
             el["mode"].options[el["mode"].selectedIndex].value, 10);
 
@@ -1065,8 +1055,9 @@ var app = (function () {
                 el["config_leds"].style.display = "";
                 el["config_basic"].style.display = "";
                 el["config_advanced"].style.display = "";
-                el["single_output"].style.display = "";
-                el["dual_output"].style.display = "none";
+                set_visibility(el["single_output"], "");
+                set_visibility(el["dual_output"], "none");
+                set_name(el["dual_output_th"], "output_out");
                 config["mode"] = new_mode;
                 break;
 
@@ -1075,8 +1066,9 @@ var app = (function () {
                 el["config_leds"].style.display = "";
                 el["config_basic"].style.display = "";
                 el["config_advanced"].style.display = "";
-                el["single_output"].style.display = "none";
-                el["dual_output"].style.display = "";
+                set_visibility(el["single_output"], "none");
+                set_visibility(el["dual_output"], "");
+                set_name(el["dual_output_th"], "output_th");
                 config["mode"] = new_mode;
                 break;
 
@@ -1089,14 +1081,11 @@ var app = (function () {
                 break;
         }
 
-        var show_slave_leds = false;
-        if (config["mode"] == MODE["MASTER_WITH_SERVO_READER"]) {
-            show_slave_leds = Boolean(el["single_output_out"][1].checked);
-        }
-        else if (config["mode"] == MODE["MASTER_WITH_UART_READER"]) {
-            show_slave_leds = Boolean(el["dual_output_th"][1].checked);
-        }
-        el["leds_slave"].style.display = show_slave_leds ? "" : "none";
+        ensure_one_is_checked("output_out");
+        ensure_one_is_checked("output_th");
+
+        el["leds_slave"].style.display =
+            Boolean(el["output_slave"].checked) ? "" : "none";
     };
 
 
@@ -1135,12 +1124,13 @@ var app = (function () {
         el["esc"] = document.getElementsByName("esc");
         el["ch3"] = document.getElementsByName("ch3");
 
-        el["single_output"] = document.getElementById("single_output");
-        el["dual_output"] = document.getElementById("dual_output");
-        el["single_output_out"] =
-            document.getElementsByName("single_output_out");
-        el["dual_output_out"] = document.getElementsByName("dual_output_out");
-        el["dual_output_th"] = document.getElementsByName("dual_output_th");
+        el["output_function"] = document.getElementById("output_function");
+        el["output_out"] = document.getElementsByName("output_out");
+        el["single_output"] = document.getElementsByClassName("single_output");
+        el["dual_output"] = document.getElementsByClassName("dual_output");
+        el["dual_output_th"] =
+            document.getElementsByClassName("dual_output_th");
+        el["output_slave"] = document.getElementById("output_slave");
 
         el["config_light_programs"] =
             document.getElementById("config_light_programs");
@@ -1201,10 +1191,7 @@ var app = (function () {
         el["mode"].addEventListener(
             "change", update_section_visibility, false);
 
-        el["single_output"].addEventListener(
-            "change", update_section_visibility, false);
-
-        el["dual_output"].addEventListener(
+        el["output_function"].addEventListener(
             "change", update_section_visibility, false);
 
         set_led_feature_handler("leds_master", "master");

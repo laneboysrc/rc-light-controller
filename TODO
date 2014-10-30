@@ -15,11 +15,13 @@ TO DO LIST for the RC Light Controller
 * CFG: Have configurator check firmware version of loaded firmware and be able to
   "upgrade" when a HEX with old firmware is loaded
 
-* CFG: Restructure output radio button logic. Only have one set of radio boxes but
-  hide/show surrounding elements, and set their name dynamically. This is
-  necessary for the number of gears selection.
-
 * CFG: max change per systick should be in % rather than uint8
+
+* CFG: add dynamic help text to mode selection
+
+* CFG: Move baudrate into basic config, but show it even in slave
+
+* CFG: Add footer with license info, web info, etc
 
 * Make tool to get HEX file into the configurator
 
