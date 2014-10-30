@@ -55,7 +55,7 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
 
     .initial_endpoint_delta = 250,
 
-    .ch3_multi_click_timeout = (260 / __SYSTICK_IN_MS),
+    .ch3_multi_click_timeout = (300 / __SYSTICK_IN_MS),
 
     .winch_command_repeat_time = (1000 / __SYSTICK_IN_MS),
 

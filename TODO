@@ -5,7 +5,7 @@ TO DO LIST for the RC Light Controller
 
 * FW: Add support for 3-speed gearbox
 
-* FW: Can we preserve the settings upon reflash?
+* FW: Can we preserve the persistent settings upon reflash?
 
 * FW, ASM, DASM: FADE value should be input in % change per systick
 
