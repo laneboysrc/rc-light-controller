@@ -852,26 +852,11 @@ var app = (function () {
 
 
         // Output functions
-        config['slave_ouput'] = false;
-        config['preprocessor_output'] = false;
-        config['steering_wheel_servo_output'] = false;
-        config['gearbox_servo_output'] = false;
-        config['winch_output'] = false;
-        if (el["output_out"][1].checked) {
-            config['slave_ouput'] = true;
-        }
-        if (el["output_out"][2].checked) {
-            config['preprocessor_output'] = true;
-        }
-        if (el["output_out"][3].checked) {
-            config['steering_wheel_servo_output'] = true;
-        }
-        if (el["output_out"][4].checked) {
-            config['gearbox_servo_output'] = true;
-        }
-        if (el["output_out"][5].checked) {
-            config['winch_output'] = true;
-        }
+        update_boolean('slave_output');
+        update_boolean('preprocessor_output');
+        update_boolean('steering_wheel_servo_output');
+        update_boolean('gearbox_servo_output');
+        update_boolean('winch_output');
 
 
         // CH3/AUX type
@@ -934,22 +919,15 @@ var app = (function () {
         el["esc"][config['esc_mode']].checked = true;
 
         // Output functions
-        el["output_out"][0].checked = true;
-        if (config['slave_output']) {
-            el["output_out"][1].checked = true;
-        }
-        if (config['preprocessor_output']) {
-            el["output_out"][2].checked = true;
-        }
-        if (config['steering_wheel_servo_output']) {
-            el["output_out"][3].checked = true;
-        }
-        if (config['gearbox_servo_output']) {
-            el["output_out"][4].checked = true;
-        }
-        if (config['winch_output']) {
-            el["output_out"][5].checked = true;
-        }
+        el["winch_output"].checked = Boolean(config['winch_output']);
+        el["gearbox_servo_output"].checked =
+            Boolean(config['gearbox_servo_output']);
+        el["steering_wheel_servo_output"].checked =
+            Boolean(config['steering_wheel_servo_output']);
+        el["preprocessor_output"].checked =
+            Boolean(config['preprocessor_output']);
+        el["slave_output"].checked = Boolean(config['slave_output']);
+
 
         // CH3/AUX type
         el["ch3"][0].checked = true;
@@ -1100,7 +1078,7 @@ var app = (function () {
         ensure_one_is_checked("output_th");
 
         el["leds_slave"].style.display =
-            Boolean(el["output_slave"].checked) ? "" : "none";
+            Boolean(el["slave_output"].checked) ? "" : "none";
     };
 
 
@@ -1155,7 +1133,15 @@ var app = (function () {
         el["dual_output"] = document.getElementsByClassName("dual_output");
         el["dual_output_th"] =
             document.getElementsByClassName("dual_output_th");
-        el["output_slave"] = document.getElementById("output_slave");
+
+        el["slave_output"] = document.getElementById("slave_output");
+        el["preprocessor_output"] =
+            document.getElementById("preprocessor_output");
+        el["steering_wheel_servo_output"] =
+            document.getElementById("steering_wheel_servo_output");
+        el["gearbox_servo_output"] =
+            document.getElementById("gearbox_servo_output");
+        el["winch_output"] = document.getElementById("winch_output");
 
         el["config_light_programs"] =
             document.getElementById("config_light_programs");

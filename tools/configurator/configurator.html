@@ -186,8 +186,8 @@
             No signal on the OUT/ISP pin of the light controller.
           </div>
           <div class="radio_item">
-            <input type="radio" name="output_out" value="3" id="output_steering">
-            <label for="output_steering">Steering wheel servo output</label>
+            <input type="radio" name="output_out" value="3" id="steering_wheel_servo_output">
+            <label for="steering_wheel_servo_output">Steering wheel servo output</label>
             <br>
             The light controller can be connected to a servo, that moves the
             steering wheel in the cabin of the car. The output follows the
@@ -195,8 +195,8 @@
             independently of the steering function of the car.
           </div>
           <div class="radio_item">
-            <input type="radio" name="output_out" value="4" id="output_gearbox">
-            <label for="output_gearbox">Gearbox servo output</label>
+            <input type="radio" name="output_out" value="4" id="gearbox_servo_output">
+            <label for="gearbox_servo_output">Gearbox servo output</label>
             <br>
             When enabled, a servo signal is generated that allows control of a
             two-speed gearbox.
@@ -215,8 +215,8 @@
           No signal on the TH/Tx pin of the light controller.
         </div>
         <div class="radio_item">
-          <input class="dual_output_th" type="radio" name="output_out" value="1" id="output_slave">
-          <label for="output_slave">Slave output</label>
+          <input class="dual_output_th" type="radio" name="output_out" value="1" id="slave_output">
+          <label for="slave_ouput">Slave output</label>
           <br>
           By using a second light controller configured as <em>slave</em>
           a total of 32 LEDs can be controlled. A single cable must be run
@@ -228,16 +228,16 @@
           becomes visible below.
         </div>
         <div class="radio_item">
-          <input class="dual_output_th" type="radio" name="output_out" value="2" id="output_preprocessor">
-          <label for="output_preprocessor">Pre-processour output</label>
+          <input class="dual_output_th" type="radio" name="output_out" value="2" id="preprocessor_output">
+          <label for="preprocessor_output">Pre-processour output</label>
           <br>
           When enabled, the light controller outputs the steering, throttle
           and CH3/AUX signals as serial data stream. This function can be
           useful for connecting custom hardware to the light controller.
         </div>
         <div class="radio_item">
-          <input class="dual_output_th" type="radio" name="output_out" value="5" id="output_winch">
-          <label for="output_winch">Winch output</label>
+          <input class="dual_output_th" type="radio" name="output_out" value="5" id="winch_output">
+          <label for="winch_output">Winch output</label>
           <br>
           Enables control of the
           <a href="https://github.com/laneboysrc/rc-winch-controller" target="_blank">LANE Boys RC winch controller</a><br>
