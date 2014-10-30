@@ -19,6 +19,9 @@ TO DO LIST for the RC Light Controller
 
 * Make tool to get HEX file into the configurator
 
+* Have configurator check firmware version of loaded firmware and be able to
+  "upgrade" when a HEX with old firmware is loaded
+
 
 * Investigate whether we can detect the order of the incoming channels
   automatically.
