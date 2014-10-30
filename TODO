@@ -3,26 +3,27 @@ TO DO LIST for the RC Light Controller
 * Automate tests to check whether assembly->disassembly->assembly gets
   the same result after both assemblies
 
-* UI: make LED values in % rather than 0..255. Also for light programs!
+* CFG: make LED values in % rather than 0..255. Also for light programs!
   Firmware uses 255, but UI and compiler uses % range
   Compiler / Disassembler: allow % sign at end of number
 
-* Auto detect highest light switch position used (also include light programs!)
+* CFG: Auto detect highest light switch position used (also include light programs!)
 
-* ESC mode: add forward/brake type for racing ESC!
+* FW: ESC mode: add forward/brake type for racing ESC!
 
-* Can we preserve the settings upon reflash?
+* FW: Can we preserve the settings upon reflash?
 
-* Add support for 3-speed gearbox
+* FW: Add support for 3-speed gearbox
 
-* Add hardware test as one of the configurations
+* CFG: Add hardware test as one of the configurations. Use a light program,
+  i.e. a configuration that we load internally.
 
 * Make tool to get HEX file into the configurator
 
-* Have configurator check firmware version of loaded firmware and be able to
+* CFG: Have configurator check firmware version of loaded firmware and be able to
   "upgrade" when a HEX with old firmware is loaded
 
-* Restructure output radio button logic. Only have one set of radio boxes but
+* CFG: Restructure output radio button logic. Only have one set of radio boxes but
   hide/show surrounding elements, and set their name dynamically. This is
   necessary for the number of gears selection.
 
