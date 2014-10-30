@@ -98,6 +98,19 @@ static void init_hardware(void)
     // IO configuration
     LPC_SWM->PINENABLE0 = 0xffffffbf;   // Enable reset, all other special functions disabled
 
+    // Configure the UART input and output
+    if (config.mode == MASTER_WITH_SERVO_READER) {
+        // Turn the UART output on unless a servo output is requested
+        if (!config.flags.steering_wheel_servo_output &&
+            !config.flags.gearbox_servo_output) {
+            // U0_TXT_O=PIO0_12
+            LPC_SWM->PINASSIGN0 = 0xffffff0c;
+        }
+    }
+    else {
+        // U0_TXT_O=PIO0_4, U0_RXD_I=PIO0_0
+        LPC_SWM->PINASSIGN0 = 0xffff0004;
+    }
 
     // Make the open drain ports PIO0_10, PIO0_11 outputs and pull to ground
     // to prevent them from floating.
