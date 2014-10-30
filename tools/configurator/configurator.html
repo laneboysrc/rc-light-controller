@@ -49,98 +49,86 @@
           <option value="2">Slave</option>
         </select>
       </div>
-      <div>
-        <h3>Baudrate</h3>
-        <select id="baudrate">
-          <option value="38400">38400</option>
-          <option value="115200">115200</option>
-        </select>
-        <br>
-        The baudrate for serial input/output functions. This applies to the
-        pre-processor input and output, the slave input and output, and the winch controller.
-        <br>
-        Ensure that master and slave are using the same baudrate. Note that the
-        winch controller and the pre-processor that is based on the Microchip
-        PIC operate only at 34800 baud.
-      </div>
     </div>
 
 
-    <div id="config_basic" style="display: none" class="box configuration">
+    <div id="config_basic" class="box configuration">
       <h2>Basic configuration</h2>
-
-
-      <h3>ESC type</h2>
-      <div>
-        <div class="radio_item">
-          <input type="radio" name="esc" value="0" id="esc_fbr_with_timeout">
-          <label for="esc_fbr_with_timeout">Forward/Brake/Reverse (with timeout)</label>
-          <br>
-          After going forward, the ESC allows going in reverse when the throttle
-          has been in neutral for a certain amount of time.
-          <br>
-          Examples: HPI SC-15WP, HobbyKing HK-SENS-60A
-        </div>
-        <div class="radio_item">
-          <input type="radio" name="esc" value="1" id="esc_fbr_no_timeout">
-          <label for="esc_fbr_no_timeout">Forward/Brake/Reverse (no timeout)</label>
-          <br>
-          After going forward, the first push backwards on the throttle is
-          always engagin the brake function, regardless whether the throttle
-          has been in neutral for a long time. The second push on the throttle
-          engages reverse function. Note: the timeout can be adjusted in the
-          advanced configuration section below.
-          <br>
-          Examples: Tamiya TEU-104BK, TEU-105BK.
-        </div>
-        <div class="radio_item">
-          <input type="radio" name="esc" value="2" id="esc_fr">
-          <label for="esc_fr">Forward/Reverse (crawler mode)</label>
-          <br>
-          Forward and reverse engage immediately when the throttle is moved
-          to the corresponding position. Many ESC call this behaviour a &quot;crawler mode&quot;
-        </div>
-        <div class="radio_item">
-          <input type="radio" name="esc" value="3"id="esc_fb">
-          <label for="esc_fb">Forward/Brake (racing mode)</label>
-          <br>
-          For racing purpose some ESC can be configured to disable reverse.
-        </div>
-      </div>
-
-      <h3>CH3/AUX function</h2>
-      <div>
-        <div class="radio_item">
-          <input type="radio" name="ch3" value="0" id="ch3_two_position">
-          <label for="ch3_two_position">Two-position switch</label>
-          <br>
-          The CH3/AUX function on the transmitter is either a two-position
-          switch, or a toggle button that moves the servo between two endpoints.
-          <br>
-          Examples: FlySky GT3 series, HobbyKing HK310
-        </div>
-        <div class="radio_item">
-          <input type="radio" name="ch3" value="1" id="ch3_momentary">
-          <label for="ch3_momentary">Momentary push button</label>
-          <br>
-          The CH3/AUX function on the transmitter is a push button that moves
-          the servo to the opposite endpoint while the button is pushed, but
-          moves the servo back to the original position once the button is
-          released.
-          <br>
-          Examples: Futaba 4PL
-        </div>
-        <div class="radio_item">
-          <input type="radio" name="ch3" value="2" id="ch3_local">
-          <label for="ch3_local">Push button on the light controller</label>
-          <br>
-          A push button directly connected to the light controller's CH3 input
-          (i.e. a physical button, not a servo signal from the receiver).
-          Useful for 2-channel radios.
+      <div id="config_basic_esc_type">
+        <h3>ESC type</h2>
+        <div>
+          <div class="radio_item">
+            <input type="radio" name="esc" value="0" id="esc_fbr_with_timeout">
+            <label for="esc_fbr_with_timeout">Forward/Brake/Reverse (with timeout)</label>
+            <br>
+            After going forward, the ESC allows going in reverse when the throttle
+            has been in neutral for a certain amount of time.
+            <br>
+            Examples: HPI SC-15WP, HobbyKing HK-SENS-60A
+          </div>
+          <div class="radio_item">
+            <input type="radio" name="esc" value="1" id="esc_fbr_no_timeout">
+            <label for="esc_fbr_no_timeout">Forward/Brake/Reverse (no timeout)</label>
+            <br>
+            After going forward, the first push backwards on the throttle is
+            always engagin the brake function, regardless whether the throttle
+            has been in neutral for a long time. The second push on the throttle
+            engages reverse function. Note: the timeout can be adjusted in the
+            advanced configuration section below.
+            <br>
+            Examples: Tamiya TEU-104BK, TEU-105BK.
+          </div>
+          <div class="radio_item">
+            <input type="radio" name="esc" value="2" id="esc_fr">
+            <label for="esc_fr">Forward/Reverse (crawler mode)</label>
+            <br>
+            Forward and reverse engage immediately when the throttle is moved
+            to the corresponding position. Many ESC call this behaviour a &quot;crawler mode&quot;
+          </div>
+          <div class="radio_item">
+            <input type="radio" name="esc" value="3"id="esc_fb">
+            <label for="esc_fb">Forward/Brake (racing mode)</label>
+            <br>
+            For racing purpose some ESC can be configured to disable reverse.
+          </div>
         </div>
       </div>
 
-      <div id="output_function">
+      <div id="config_basic_ch3">
+        <h3>CH3/AUX function</h2>
+        <div>
+          <div class="radio_item">
+            <input type="radio" name="ch3" value="0" id="ch3_two_position">
+            <label for="ch3_two_position">Two-position switch</label>
+            <br>
+            The CH3/AUX function on the transmitter is either a two-position
+            switch, or a toggle button that moves the servo between two endpoints.
+            <br>
+            Examples: FlySky GT3 series, HobbyKing HK310
+          </div>
+          <div class="radio_item">
+            <input type="radio" name="ch3" value="1" id="ch3_momentary">
+            <label for="ch3_momentary">Momentary push button</label>
+            <br>
+            The CH3/AUX function on the transmitter is a push button that moves
+            the servo to the opposite endpoint while the button is pushed, but
+            moves the servo back to the original position once the button is
+            released.
+            <br>
+            Examples: Futaba 4PL
+          </div>
+          <div class="radio_item">
+            <input type="radio" name="ch3" value="2" id="ch3_local">
+            <label for="ch3_local">Push button on the light controller</label>
+            <br>
+            A push button directly connected to the light controller's CH3 input
+            (i.e. a physical button, not a servo signal from the receiver).
+            Useful for 2-channel radios.
+          </div>
+        </div>
+      </div>
+
+      <div id="config_basic_output">
         <h3 class="single_output">Output function on pin OUT/ISP</h2>
         <h3 class="dual_output">Servo output function on pin OUT/ISP</h2>
         <div>
@@ -209,10 +197,25 @@
           <a href="https://github.com/laneboysrc/rc-winch-controller" target="_blank">LANE Boys RC winch controller</a><br>
         </div>
       </div>
+
+      <div id="config_basic_baudrate">
+        <h3>Baudrate</h3>
+        <select id="baudrate">
+          <option value="38400">38400</option>
+          <option value="115200">115200</option>
+        </select>
+        <br>
+        The baudrate for serial input/output functions. This applies to the
+        pre-processor input and output, the slave input and output, and the winch controller.
+        <br>
+        Ensure that master and slave are using the same baudrate. Note that the
+        winch controller and the pre-processor that is based on the Microchip
+        PIC operate only at 34800 baud.
+      </div>
     </div>
 
 
-    <div id="config_leds" style="display: none" class="box configuration">
+    <div id="config_leds" class="box configuration">
       <h2>LED configuration</h2>
       <div>
         Click on a field in the table to set the LED brighness value in percent for a particular function.<br>
@@ -298,13 +301,13 @@
     </div>
 
 
-    <div id="config_light_programs" style="display: none" class="box configuration">
+    <div id="config_light_programs" class="box configuration">
       <h2>Light programs:</h2>
       <pre id="light_programs"></pre>
     </div>
 
 
-    <div id="config_advanced" style="display: none" class="box configuration">
+    <div id="config_advanced" class="box configuration">
       <h2>Advanced configuration</h2>
         Note: all timing values have a resolution of 20 ms.
 

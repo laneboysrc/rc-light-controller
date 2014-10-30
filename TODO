@@ -19,8 +19,6 @@ TO DO LIST for the RC Light Controller
 
 * CFG: add dynamic help text to mode selection
 
-* CFG: Move baudrate into basic config, but show it even in slave
-
 * CFG: Add footer with license info, web info, etc
 
 * Make tool to get HEX file into the configurator

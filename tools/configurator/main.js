@@ -1053,7 +1053,9 @@ var app = (function () {
             case MODE['MASTER_WITH_SERVO_READER']:
                 el["config_light_programs"].style.display = "";
                 el["config_leds"].style.display = "";
-                el["config_basic"].style.display = "";
+                el["config_basic_esc_type"].style.display = "";
+                el["config_basic_ch3"].style.display = "";
+                el["config_basic_output"].style.display = "";
                 el["config_advanced"].style.display = "";
                 set_visibility(el["single_output"], "");
                 set_visibility(el["dual_output"], "none");
@@ -1064,7 +1066,9 @@ var app = (function () {
             case MODE['MASTER_WITH_UART_READER']:
                 el["config_light_programs"].style.display = "";
                 el["config_leds"].style.display = "";
-                el["config_basic"].style.display = "";
+                el["config_basic_esc_type"].style.display = "";
+                el["config_basic_ch3"].style.display = "";
+                el["config_basic_output"].style.display = "";
                 el["config_advanced"].style.display = "";
                 set_visibility(el["single_output"], "none");
                 set_visibility(el["dual_output"], "");
@@ -1075,7 +1079,9 @@ var app = (function () {
             case MODE['SLAVE']:
                 el["config_light_programs"].style.display = "none";
                 el["config_leds"].style.display = "none";
-                el["config_basic"].style.display = "none";
+                el["config_basic_esc_type"].style.display = "none";
+                el["config_basic_ch3"].style.display = "none";
+                el["config_basic_output"].style.display = "none";
                 el["config_advanced"].style.display = "none";
                 config["mode"] = new_mode;
                 break;
@@ -1120,11 +1126,18 @@ var app = (function () {
         el["leds_slave"] = document.getElementById("leds_slave");
 
         el["config_basic"] = document.getElementById("config_basic");
+        el["config_basic_esc_type"] =
+            document.getElementById("config_basic_esc_type");
+        el["config_basic_ch3"] = document.getElementById("config_basic_ch3");
+        el["config_basic_output"] =
+            document.getElementById("config_basic_output");
+        el["config_basic_baudrate"] =
+            document.getElementById("config_basic_baudrate");
+
         el["baudrate"] = document.getElementById("baudrate");
         el["esc"] = document.getElementsByName("esc");
         el["ch3"] = document.getElementsByName("ch3");
 
-        el["output_function"] = document.getElementById("output_function");
         el["output_out"] = document.getElementsByName("output_out");
         el["single_output"] = document.getElementsByClassName("single_output");
         el["dual_output"] = document.getElementsByClassName("dual_output");
@@ -1191,7 +1204,7 @@ var app = (function () {
         el["mode"].addEventListener(
             "change", update_section_visibility, false);
 
-        el["output_function"].addEventListener(
+        el["config_basic_output"].addEventListener(
             "change", update_section_visibility, false);
 
         set_led_feature_handler("leds_master", "master");
