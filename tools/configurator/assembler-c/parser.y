@@ -324,7 +324,12 @@ leds
 led_assignment_parameter
   : NUMBER
       /* All opcodes that work with immediates have the lowest bit set */
-      { $$ = INSTRUCTION_MODIFIER_IMMEDIATE | ($1 & 0xff); }
+      /* Convert LED values in % to uint8_t range */
+      { $$ = INSTRUCTION_MODIFIER_IMMEDIATE | (($1 * 255 / 100) & 0xff); }
+  | NUMBER '%'
+      /* All opcodes that work with immediates have the lowest bit set */
+      /* Convert LED values in % to uint8_t range */
+      { $$ = INSTRUCTION_MODIFIER_IMMEDIATE | (($1 * 255 / 100) & 0xff); }
   | VARIABLE
       { $$ = $1->index; }
   | GLOBAL_VARIABLE

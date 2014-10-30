@@ -69,7 +69,7 @@ goto|var|led|wait|skip|if|is|any|all|none|not|fade|stepsize|run|when|or|master|s
     return token;
 }
 
-"["|"]"|","|":" {
+"["|"]"|","|":"|"%" {
     log_message(MODULE, INFO, "'%c'\n", *yytext);
     return *yytext;
 }

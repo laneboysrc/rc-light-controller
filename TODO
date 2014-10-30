@@ -3,10 +3,6 @@ TO DO LIST for the RC Light Controller
 * Automate tests to check whether assembly->disassembly->assembly gets
   the same result after both assemblies
 
-* CFG: make LED values in % rather than 0..255. Also for light programs!
-  Firmware uses 255, but UI and compiler uses % range
-  Compiler / Disassembler: allow % sign at end of number
-
 * CFG: Auto detect highest light switch position used (also include light programs!)
 
 * FW: ESC mode: add forward/brake type for racing ESC!

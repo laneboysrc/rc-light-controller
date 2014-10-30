@@ -9,7 +9,8 @@ led l4 = master[5]
 
 led lx = master[7]
 
-l1 = 255
+l1 = 100
+l2 = 50%
 l2 = x
 
 l1, l2, l3, l4 = 11
@@ -21,5 +22,5 @@ l3, l2, l1 = x
 l1, l2, l3, lx = 47
 l1, l2, l3, l4, lx = x
 
-l1, l2, lx, l3          = 253
+l1, l2, lx, l3          = 99
 l2, lx, l4, l3, l1      = x

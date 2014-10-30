@@ -474,7 +474,20 @@ static void execute_program(
             case OPCODE_SET:
                 for (i = min; i <= max; i++) {
                     if ((leds_already_used & (1 << i)) == 0) {
-                        light_setpoint[i] = var[value];
+                        uint8_t setpoint = 0;
+
+                        // Convert percentage into uint8_t.
+                        // Clamp input between 0 .. 100%
+                        if (var[value] >=0) {
+                            if (var[value] >= 100) {
+                                setpoint = 255;
+                            }
+                            else {
+                                setpoint = var[value] * 255 / 100;
+                            }
+                        }
+
+                        light_setpoint[i] = setpoint;
                     }
                 }
                 break;

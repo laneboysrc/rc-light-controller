@@ -593,7 +593,8 @@ var disassembler = (function() {
 
 			case opcodes['SET_I']:
 				asm[offset + pc++]['code'] =
-					decode_leds(instruction) + ' = ' + (instruction & 0xff);
+					decode_leds(instruction) + ' = ' +
+						Math.round((instruction & 0xff) * 100 / 255) + "%";
 				break;
 
 			case opcodes['WAIT']:
