@@ -85,16 +85,16 @@ static void throttle_neutral(void)
 // ****************************************************************************
 static void throttle_brake_or_reverse(void)
 {
-    if (!drive_mode.brake_armed) {
+    if (config.esc_mode == ESC_FORWARD_BRAKE  ||  drive_mode.brake_armed) {
+        global_flags.braking = true;
+        global_flags.forward = false;
+        global_flags.reversing = false;
+    }
+    else {
         global_flags.reversing = true;
         global_flags.braking = false;
         global_flags.forward = false;
         drive_mode.auto_reverse = false;
-    }
-    else {
-        global_flags.braking = true;
-        global_flags.forward = false;
-        global_flags.reversing = false;
     }
 }
 

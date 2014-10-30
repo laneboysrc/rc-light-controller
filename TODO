@@ -5,16 +5,12 @@ TO DO LIST for the RC Light Controller
 
 * CFG: Auto detect highest light switch position used (also include light programs!)
 
-* FW: ESC mode: add forward/brake type for racing ESC!
+* FW: Add support for 3-speed gearbox
 
 * FW: Can we preserve the settings upon reflash?
 
-* FW: Add support for 3-speed gearbox
-
 * CFG: Add hardware test as one of the configurations. Use a light program,
   i.e. a configuration that we load internally.
-
-* Make tool to get HEX file into the configurator
 
 * CFG: Have configurator check firmware version of loaded firmware and be able to
   "upgrade" when a HEX with old firmware is loaded
@@ -24,6 +20,10 @@ TO DO LIST for the RC Light Controller
   necessary for the number of gears selection.
 
 * CFG: max change per systick should be in % rather than uint8
+
+* Make tool to get HEX file into the configurator
+
+
 
 
 * Investigate whether we can detect the order of the incoming channels
