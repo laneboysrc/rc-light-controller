@@ -369,7 +369,6 @@ var app = (function () {
         var data = firmware.data;
         var offset = firmware.offset[SECTION_GAMMA];
 
-        console.log(gamma_object['gamma_value'].charCodeAt(0));
         data[offset] = gamma_object['gamma_value'].charCodeAt(0);
         data[offset + 1] = gamma_object['gamma_value'].charCodeAt(1);
         data[offset + 2] = gamma_object['gamma_value'].charCodeAt(2);
@@ -444,33 +443,15 @@ var app = (function () {
         data[offset + 1] = config['esc_mode'];
 
         var flags = 0;
-        if (config['slave_ouput']) {
-            flags |= (1 << 0);
-        }
-        if (config['preprocessor_output']) {
-            flags |= (1 << 1);
-        }
-        if (config['winch_output']) {
-            flags |= (1 << 2);
-        }
-        if (config['steering_wheel_servo_output']) {
-            flags |= (1 << 3);
-        }
-        if (config['gearbox_servo_output']) {
-            flags |= (1 << 4);
-        }
-        if (config['ch3_is_local_switch']) {
-            flags |= (1 << 5);
-        }
-        if (config['ch3_is_momentary']) {
-            flags |= (1 << 6);
-        }
-        if (config['auto_brake_lights_forward_enabled']) {
-            flags |= (1 << 7);
-        }
-        if (config['auto_brake_lights_reverse_enabled']) {
-            flags |= (1 << 0);
-        }
+        flags |= (config['slave_ouput'] << 0);
+        flags |= (config['preprocessor_output'] << 1);
+        flags |= (config['winch_output'] << 2);
+        flags |= (config['steering_wheel_servo_output'] << 3);
+        flags |= (config['gearbox_servo_output'] << 4);
+        flags |= (config['ch3_is_local_switch'] << 5);
+        flags |= (config['ch3_is_momentary'] << 6);
+        flags |= (config['auto_brake_lights_forward_enabled'] << 7);
+        flags |= (config['auto_brake_lights_reverse_enabled'] << 8);
         set_uint32(data, offset + 4, flags);
 
         set_uint16(data, offset + 8, config['auto_brake_counter_value_forward_min']);
@@ -537,8 +518,7 @@ var app = (function () {
 
         assemble_firmware();
 
-        // FIXME: make Intel-hex file from firmware['data']
-        var intelhex = "";
+        var intelhex = intel_hex.fromArray(firmware.data);
 
         var blob = new Blob([intelhex], {type: "text/plain;charset=utf-8"});
 
@@ -770,10 +750,10 @@ var app = (function () {
                 "" + prefix + led_number + field_suffix);
 
             if (cell.type == "checkbox") {
-                return cell.checked;
+                return Boolean(cell.checked);
             }
             else {
-                return cell.value;
+                return parseInt(cell.value, 10);
             }
         }
 
@@ -840,13 +820,13 @@ var app = (function () {
     // *************************************************************************
     var update_config = function () {
         // Master/Slave
-        config["mode"] = el["mode"].value;
+        config["mode"] = parseInt(el["mode"].value, 10);
 
 
         // ESC mode
         for (var i = 0; i <  el["esc"].length; i++) {
             if (el["esc"][i].checked) {
-                config['esc_mode'] = el["esc"][i].value;
+                config['esc_mode'] = parseInt(el["esc"][i].value, 10);
                 break;
             }
         }
@@ -912,7 +892,7 @@ var app = (function () {
         }
 
         // Baudrate
-        config['baudrate'] = el["baudrate"].value;
+        config['baudrate'] = parseInt(el["baudrate"].value, 10);
 
 
         // LEDs
@@ -921,14 +901,14 @@ var app = (function () {
 
         // Update advanced settings
         config["auto_brake_lights_forward_enabled"] =
-            el["auto_brake_lights_forward_enabled"].checked;
+            Boolean(el["auto_brake_lights_forward_enabled"].checked);
         config["auto_brake_counter_value_forward_min"] = Math.round(
             el["auto_brake_counter_value_forward_min"].value / SYSTICK_IN_MS);
         config["auto_brake_counter_value_forward_max"] = Math.round(
             el["auto_brake_counter_value_forward_max"].value / SYSTICK_IN_MS);
 
         config["auto_brake_lights_reverse_enabled"] =
-            el["auto_brake_lights_reverse_enabled"].checked;
+            Boolean(el["auto_brake_lights_reverse_enabled"].checked);
         config["auto_brake_counter_value_reverse_min"] = Math.round(
             el["auto_brake_counter_value_reverse_min"].value / SYSTICK_IN_MS);
         config["auto_brake_counter_value_reverse_max"] = Math.round(
@@ -951,9 +931,12 @@ var app = (function () {
         config["blink_threshold"] =
             Math.round(el["blink_threshold"].value / SYSTICK_IN_MS);
 
-        config["centre_threshold_low"] = el["centre_threshold_low"].value;
-        config["centre_threshold_high"] = el["centre_threshold_high"].value;
-        config["initial_endpoint_delta"] = el["initial_endpoint_delta"].value;
+        config["centre_threshold_low"] =
+            parseInt(el["centre_threshold_low"].value, 10);
+        config["centre_threshold_high"] =
+            parseInt(el["centre_threshold_high"].value, 10);
+        config["initial_endpoint_delta"] =
+            parseInt(el["initial_endpoint_delta"].value, 10);
 
         config["ch3_multi_click_timeout"] =
             Math.round(el["ch3_multi_click_timeout"].value / SYSTICK_IN_MS);
