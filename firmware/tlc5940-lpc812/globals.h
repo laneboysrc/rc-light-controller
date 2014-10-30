@@ -381,6 +381,7 @@ typedef struct {
 
     uint32_t baudrate;
     uint16_t no_signal_timeout;
+    uint16_t number_of_gears;
 } LIGHT_CONTROLLER_CONFIG_T;
 
 

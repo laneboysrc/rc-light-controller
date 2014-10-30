@@ -61,6 +61,7 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
 
     .baudrate = 115200,
     .no_signal_timeout = (500 / __SYSTICK_IN_MS),
+    .number_of_gears = 2,
 };
 
 

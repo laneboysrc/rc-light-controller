@@ -219,6 +219,7 @@ var app = (function () {
 
         config['baudrate'] = get_uint32(data, offset + 44);
         config['no_signal_timeout'] = get_uint16(data, offset + 48);
+        config['number_of_gears'] = get_uint16(data, offset + 50);
 
         return config;
     };
@@ -429,7 +430,7 @@ var app = (function () {
         }
 
         data[offset] = led_object['led_count'];
-`
+
         for (var i = 0; i < led_object['led_count']; i++) {
             assemble_led(data, car_lights_offset + (i * 20), led_object[i]);
         }
@@ -481,6 +482,7 @@ var app = (function () {
 
         set_uint32(data, offset + 44, config['baudrate']);
         set_uint16(data, offset + 48, config['no_signal_timeout']);
+        set_uint16(data, offset + 50, config['number_of_gears']);
     }
 
 
@@ -942,6 +944,7 @@ var app = (function () {
         update_time("ch3_multi_click_timeout");
         update_time("winch_command_repeat_time");
         update_time("no_signal_timeout");
+        update_int("number_of_gears");
 
         gamma_object["gamma_value"] = el["gamma"].value;
     }
@@ -1025,8 +1028,7 @@ var app = (function () {
             config["indicator_idle_time_value"] * SYSTICK_IN_MS;
         el["indicator_off_timeout_value"].value =
             config["indicator_off_timeout_value"] * SYSTICK_IN_MS;
-        el["blink_threshold"].value =
-            config["blink_threshold"];
+        el["blink_threshold"].value = config["blink_threshold"];
 
         el["centre_threshold_low"].value = config["centre_threshold_low"];
         el["centre_threshold_high"].value = config["centre_threshold_high"];
@@ -1038,6 +1040,7 @@ var app = (function () {
             config["winch_command_repeat_time"] * SYSTICK_IN_MS;
         el["no_signal_timeout"].value =
             config["no_signal_timeout"] * SYSTICK_IN_MS;
+        el["number_of_gears"].value = config["number_of_gears"];
 
         el["gamma"].value = gamma_object["gamma_value"];
 
@@ -1184,12 +1187,13 @@ var app = (function () {
 
 
         el["initial_endpoint_delta"] =
-        document.getElementById("initial_endpoint_delta");
+            document.getElementById("initial_endpoint_delta");
         el["ch3_multi_click_timeout"] =
-        document.getElementById("ch3_multi_click_timeout");
+            document.getElementById("ch3_multi_click_timeout");
         el["winch_command_repeat_time"] =
-        document.getElementById("winch_command_repeat_time");
+            document.getElementById("winch_command_repeat_time");
         el["no_signal_timeout"] = document.getElementById("no_signal_timeout");
+        el["number_of_gears"] = document.getElementById("number_of_gears");
 
         el["gamma"] = document.getElementById("gamma");
 
