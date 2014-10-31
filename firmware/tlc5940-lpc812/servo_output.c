@@ -22,9 +22,23 @@ SERVO_ENDPOINTS_T servo_output_endpoint;
 
 
 // ****************************************************************************
+static bool servo_output_disabled(void)
+{
+    if (config.flags.gearbox_servo_output) {
+        return false;
+    }
+
+    if (config.flags.steering_wheel_servo_output) {
+        return false;
+    }
+
+    return true;
+}
+
+
+// ****************************************************************************
 void init_servo_output(void) {
-    if (!config.flags.steering_wheel_servo_output &&
-        !config.flags.gearbox_servo_output) {
+    if (servo_output_disabled()) {
         return;
     }
 
@@ -92,15 +106,10 @@ void servo_output_setup_action(uint8_t ch3_clicks)
     }
 
     if (global_flags.servo_output_setup == SERVO_OUTPUT_SETUP_OFF) {
-        servo_output_endpoint.left = -120;
-        servo_output_endpoint.centre = 0;
-        servo_output_endpoint.right = 120;
-        if (config.flags.gearbox_servo_output) {
-            global_flags.servo_output_setup = SERVO_OUTPUT_SETUP_LEFT;
-        }
-        else {
-            global_flags.servo_output_setup = SERVO_OUTPUT_SETUP_CENTRE;
-        }
+        servo_output_endpoint.left = 900;
+        servo_output_endpoint.centre = 1500;
+        servo_output_endpoint.right = 2100;
+        global_flags.servo_output_setup = SERVO_OUTPUT_SETUP_LEFT;
     }
     else {
         if (ch3_clicks == 1) {
@@ -152,19 +161,23 @@ static void calculate_servo_pulse(void)
 // ****************************************************************************
 void process_servo_output(void)
 {
+    if (servo_output_disabled()) {
+        return;
+    }
+
     if (global_flags.servo_output_setup != SERVO_OUTPUT_SETUP_OFF) {
         calculate_servo_pulse();
         if (next) {
             next = false;
 
             switch (global_flags.servo_output_setup) {
-                case SERVO_OUTPUT_SETUP_CENTRE:
-                    servo_setup_endpoint.centre = servo_pulse;
-                    global_flags.servo_output_setup = SERVO_OUTPUT_SETUP_LEFT;
-                    break;
-
                 case SERVO_OUTPUT_SETUP_LEFT:
                     servo_setup_endpoint.left = servo_pulse;
+                    global_flags.servo_output_setup = SERVO_OUTPUT_SETUP_CENTRE;
+                    break;
+
+                case SERVO_OUTPUT_SETUP_CENTRE:
+                    servo_setup_endpoint.centre = servo_pulse;
                     global_flags.servo_output_setup = SERVO_OUTPUT_SETUP_RIGHT;
                     break;
 
@@ -195,9 +208,10 @@ void process_servo_output(void)
             servo_pulse = servo_output_endpoint.right;
         }
     }
-    // FIXME: steering wheel servo output?
+    else if (config.flags.steering_wheel_servo_output) {
+        calculate_servo_pulse();
+    }
 
-    // Output the servo pulse
     LPC_SCT->MATCHREL[4].H = servo_pulse;
 }
 
