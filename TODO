@@ -31,6 +31,10 @@ TO DO LIST for the RC Light Controller
 * CFG: bypass decompilation by embedding the source files of light programs for
   the default firmware
 
+* ASM: Optimizer: combine subsequent fade and led= instructions into a
+  single opcode
+
+
 
 * Investigate whether we can detect the order of the incoming channels
   automatically.
