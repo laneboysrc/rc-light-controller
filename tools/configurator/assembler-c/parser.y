@@ -265,11 +265,9 @@ command
   | FADE leds STEPSIZE GLOBAL_VARIABLE
       { emit_led_instruction($1 | $4->index); }
   | FADE leds STEPSIZE NUMBER
-      /* Convert step size in % to uint8_t range */
-      { emit_led_instruction($1 | ($4 * 255 / 100) & 0xff); }
+      { emit_led_instruction($1 | ($4 & 0xff)); }
   | FADE leds STEPSIZE NUMBER '%'
-      /* Convert step size in % to uint8_t range */
-      { emit_led_instruction($1 | ($4 * 255 / 100) & 0xff); }
+      { emit_led_instruction($1 | ($4 & 0xff)); }
   | WAIT parameter
       { emit($1 | $2); }
   | SKIP IF test_expression
@@ -328,12 +326,10 @@ leds
 led_assignment_parameter
   : NUMBER
       /* All opcodes that work with immediates have the lowest bit set */
-      /* Convert LED values in % to uint8_t range */
-      { $$ = INSTRUCTION_MODIFIER_IMMEDIATE | (($1 * 255 / 100) & 0xff); }
+      { $$ = INSTRUCTION_MODIFIER_IMMEDIATE | ($1 & 0xff); }
   | NUMBER '%'
       /* All opcodes that work with immediates have the lowest bit set */
-      /* Convert LED values in % to uint8_t range */
-      { $$ = INSTRUCTION_MODIFIER_IMMEDIATE | (($1 * 255 / 100) & 0xff); }
+      { $$ = INSTRUCTION_MODIFIER_IMMEDIATE | ($1 & 0xff); }
   | VARIABLE
       { $$ = $1->index; }
   | GLOBAL_VARIABLE

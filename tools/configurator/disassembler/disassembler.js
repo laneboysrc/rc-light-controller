@@ -326,7 +326,7 @@ var disassembler = (function() {
 				decimal = -0x10000 + decimal;
 			}
 			return result + decimal +
-				" // 0x" + number.toString(16).toUpperCase();
+				"   // 0x" + number.toString(16).toUpperCase();
 		}
 
 		parameter_type = (instruction >> 8) & 0xff;
@@ -371,7 +371,7 @@ var disassembler = (function() {
 			if (decimal >= 0x8000) {
 				decimal = -0x10000 + decimal;
 			}
-			return '' + decimal + " // 0x" + number.toString(16).toUpperCase();
+			return '' + decimal + "   // 0x" + number.toString(16).toUpperCase();
 		}
 
 		parameter_type = (instruction >> 8) & 0xff;
@@ -600,8 +600,7 @@ var disassembler = (function() {
 
 			case opcodes['SET_I']:
 				asm[offset + pc++]['code'] =
-					decode_leds(instruction) + ' = ' +
-						Math.round((instruction & 0xff) * 100 / 255) + "%";
+					decode_leds(instruction) + ' = ' + (instruction & 0xff) + "%";
 				break;
 
 			case opcodes['WAIT']:
@@ -618,9 +617,16 @@ var disassembler = (function() {
 				break;
 
 			case opcodes['FADE_I']:
-				asm[offset + pc++]['code'] = 'fade ' +
-					decode_leds(instruction) + ' stepsize ' +
-						Math.round((instruction & 0xff) * 100 / 255) + "%";
+				if ((instruction & 0xff) != 0) {
+					asm[offset + pc++]['code'] = 'fade ' +
+						decode_leds(instruction) + ' stepsize ' +
+							(instruction & 0xff) + "%";
+				}
+				else {
+					asm[offset + pc++]['code'] = 'fade ' +
+						decode_leds(instruction) + ' stepsize 0   // (no fading)';
+
+				}
 				break;
 
 			case opcodes['ASSIGN']:

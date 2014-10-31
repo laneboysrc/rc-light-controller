@@ -19,8 +19,6 @@ TO DO LIST for the RC Light Controller
 
 * CFG: Use gulp workflow
 
-* ASM, DASM: make time in ms, not SYSTICK based
-
 
 
 

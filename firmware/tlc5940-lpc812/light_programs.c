@@ -12,8 +12,8 @@
             - SET start_led stop_led VARIABLE (0..100%)
             - FADE start_led stop_led value (0..100%)
             - FADE start_led stop_led VARIABLE  (0..100%)
-            - WAIT time
-            - WAIT VARIABLE
+            - WAIT time (ms)
+            - WAIT VARIABLE (ms)
             - VARIABLE = {integer, VARIABLE, LED[x], random-value, TH, ST}
             - VARIABLE = abs {integer, VARIABLE, LED[x], random-value, TH, ST}
             - VARIABLE += {integer, VARIABLE, LED[x], random-value, TH, ST}
@@ -470,7 +470,7 @@ static void execute_program(
             case OPCODE_SET_I:
                 for (i = min; i <= max; i++) {
                     if ((leds_already_used & (1 << i)) == 0) {
-                        light_setpoint[i] = value;
+                        light_setpoint[i] = percent_to_uint8(value);
                     }
                 }
                 break;
@@ -487,7 +487,7 @@ static void execute_program(
             case OPCODE_FADE_I:
                 for (i = min; i <= max; i++) {
                     if ((leds_already_used & (1 << i)) == 0) {
-                        max_change_per_systick[i] = value;
+                        max_change_per_systick[i] = percent_to_uint8(value);
                     }
                 }
                 break;
@@ -495,7 +495,7 @@ static void execute_program(
             case OPCODE_WAIT:
             case OPCODE_WAIT_I:
                 parameter = get_parameter_value(instruction);
-                c->timer = parameter > 0 ? parameter : 0;
+                c->timer = (parameter > 0) ? (parameter / 20) : 0;
                 return;
 
             case OPCODE_GOTO:
