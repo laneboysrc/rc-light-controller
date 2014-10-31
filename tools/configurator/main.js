@@ -837,6 +837,31 @@ var app = (function () {
             config[key] = Math.round(el[key].value / SYSTICK_IN_MS);
         }
 
+        function update_gamma(key) {
+            var g = parseFloat(el[key].value);
+
+            if (isNaN(g)) {
+                gamma_object[key] = "2.2";
+                return
+            }
+
+            if (g < 0.1) {
+                gamma_object[key] = "0.1";
+                return
+            }
+            if (g > 9.9) {
+                gamma_object[key] = "9.9";
+                return
+            }
+
+            g = g.toString();
+            if (g.length < 3) {
+                // Append .0 if we are dealing with an integer value
+                g += ".0";
+            }
+
+            gamma_object[key] = g
+        }
 
         // Master/Slave
         update_int("mode");
@@ -906,7 +931,7 @@ var app = (function () {
         update_time("no_signal_timeout");
         update_int("number_of_gears");
 
-        gamma_object["gamma_value"] = el["gamma"].value;
+        update_gamma("gamma_value");
     }
 
 
@@ -988,7 +1013,7 @@ var app = (function () {
             config["no_signal_timeout"] * SYSTICK_IN_MS;
         el["number_of_gears"].value = config["number_of_gears"];
 
-        el["gamma"].value = gamma_object["gamma_value"];
+        el["gamma_value"].value = gamma_object["gamma_value"];
 
 
         // Show/hide various sections depending on the current settings
@@ -1196,7 +1221,7 @@ var app = (function () {
         el["no_signal_timeout"] = document.getElementById("no_signal_timeout");
         el["number_of_gears"] = document.getElementById("number_of_gears");
 
-        el["gamma"] = document.getElementById("gamma");
+        el["gamma_value"] = document.getElementById("gamma_value");
 
 
         el["mode"].addEventListener(
