@@ -17,6 +17,8 @@ TO DO LIST for the RC Light Controller
 
 * CFG: Add footer with license info, web info, etc
 
+* CFG: Use gulp workflow
+
 * ASM, DASM: make time in ms, not SYSTICK based
 
 * ASM, DASM: Add support for 3-speed gearbox to ASM/DASM (Bit 25)
