@@ -70,6 +70,10 @@ ul {
 }
 
 
+#load_and_save div {
+  margin-top: 1em;
+}
+
 
 #config_basic .radio_item {
   margin-bottom: 1em;

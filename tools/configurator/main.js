@@ -7,6 +7,7 @@ var app = (function () {
 
     var firmware;
     var config;
+    var config_version;
     var local_leds;
     var slave_leds;
     var gamma_object;
@@ -16,7 +17,6 @@ var app = (function () {
     var MAX_LIGHT_PROGRAMS = 25;
     var MAX_LIGHT_PROGRAM_VARIABLES = 100;
 
-    var CONFIG_VERSION = 1;
 
 
     var SECTION_CONFIG = "Configuration";
@@ -295,15 +295,16 @@ var app = (function () {
                     ROM_MAGIC.join()) {
 
                 var section_id = (image_data[i + 5] << 8) + image_data[i + 4];
-                var version = (image_data[i + 7] << 8) + image_data[i + 6];
+                config_version = (image_data[i + 7] << 8) + image_data[i + 6];
 
                 if (typeof SECTIONS[section_id] === "undefined") {
                     console.log("Warning: unknown section " + i);
                     continue;
                 }
 
-                if (version != 1) {
-                    throw new Error("Unknown configuration version " + version);
+                if (config_version != 1) {
+                    throw new Error("Unknown configuration version " +
+                        config_version);
                 }
 
                 var section = SECTIONS[section_id];
@@ -940,6 +941,10 @@ var app = (function () {
         // Master/Slave
         el["mode"].selectedIndex = config["mode"];
 
+        // Firmware version
+        el["firmware_version"].innerHTML =
+            "" + config_version + "." + config['firmware_version'];
+
         // ESC type
         el["esc"][config['esc_mode']].checked = true;
 
@@ -1126,6 +1131,7 @@ var app = (function () {
             }
         }
 
+        el["firmware_version"] = document.getElementById("firmware_version");
         el["save_config"] = document.getElementById("save_config");
         el["load_config"] = document.getElementById("load_config");
         el["save_firmware"] = document.getElementById("save_firmware");
