@@ -228,6 +228,8 @@ void output_programs(void)
     int i;
 
     const char *part1 =
+        "#include <globals.h>\n"
+        "\n"
         "__attribute__ ((section(\".light_programs\")))\n"
         "const LIGHT_PROGRAMS_T light_programs = {\n"
         "    .magic = {\n"
