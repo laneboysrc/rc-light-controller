@@ -10,6 +10,8 @@ TO DO LIST for the RC Light Controller
 * CFG, Add hardware test as one of the configurations. Use a light program,
   i.e. a configuration that we load internally.
 
+* CFG: show the firmware version
+
 * CFG: Have configurator check firmware version of loaded firmware and be able to
   "upgrade" when a HEX with old firmware is loaded
 
