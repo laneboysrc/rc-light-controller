@@ -5,6 +5,14 @@ TO DO LIST for the RC Light Controller
 
 * FW: Can we preserve the persistent settings upon reflash?
 
+* FW: make a generic default configuration:
+  - Servo reader
+  - Two-position switch
+  - Light as in "generic"
+  - Steering wheel servo output
+  - Light programs for no signal, initialization, servo reversing and
+    steering wheel setup
+
 * CFG: Auto detect highest light switch position used (also include light programs!)
 
 * CFG, Add hardware test as one of the configurations. Use a light program,
