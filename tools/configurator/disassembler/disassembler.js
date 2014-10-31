@@ -126,6 +126,7 @@ var disassembler = (function() {
     var RUN_WHEN_WINCH_OUT               	= (1 << 22);
     var RUN_WHEN_GEAR_1                  	= (1 << 23);
     var RUN_WHEN_GEAR_2                  	= (1 << 24);
+    var RUN_WHEN_GEAR_3                  	= (1 << 25);
 
     var RUN_ALWAYS                       	= (1 << 31);
 
@@ -258,6 +259,9 @@ var disassembler = (function() {
 		}
 		if (instruction & RUN_WHEN_GEAR_2) {
 			asm[offset++]['decleration'] = "run when gear-2";
+		}
+		if (instruction & RUN_WHEN_GEAR_3) {
+			asm[offset++]['decleration'] = "run when gear-3";
 		}
 	};
 
@@ -542,6 +546,9 @@ var disassembler = (function() {
 	    }
 	    if (instruction & RUN_WHEN_GEAR_2) {
 	    	result += ' gear-2';
+	    }
+	    if (instruction & RUN_WHEN_GEAR_3) {
+	    	result += ' gear-3';
 	    }
 
 	    return result;

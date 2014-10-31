@@ -74,6 +74,8 @@ static RESERVED_WORD_T run_condition_tokens[] = {
 
     {.name = "gear-1", .token = RUN_CONDITION, .opcode = (1 << 23)},
     {.name = "gear-2", .token = RUN_CONDITION, .opcode = (1 << 24)},
+    {.name = "gear-3", .token = RUN_CONDITION, .opcode = (1 << 25)},
+
 
     {.name = "no-signal", .token = PRIORITY_RUN_CONDITION, .opcode = (1 << 0)},
     {.name = "initializing", .token = PRIORITY_RUN_CONDITION, .opcode = (1 << 1)},
@@ -117,6 +119,7 @@ static RESERVED_WORD_T car_state[] = {
 
     {.name = "gear-1", .token = CAR_STATE, .opcode = (1 << 23)},
     {.name = "gear-2", .token = CAR_STATE, .opcode = (1 << 24)},
+    {.name = "gear-3", .token = CAR_STATE, .opcode = (1 << 25)},
 
     {.name = NULL, .token = EOF},
 };
