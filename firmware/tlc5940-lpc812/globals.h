@@ -222,7 +222,7 @@ typedef struct {
     MAGIC_T magic;
     int number_of_programs;
     const uint32_t *start[MAX_LIGHT_PROGRAMS];
-    uint32_t programs[50];
+    uint32_t programs[80];
 } LIGHT_PROGRAMS_T;
 
 // ****************************************************************************

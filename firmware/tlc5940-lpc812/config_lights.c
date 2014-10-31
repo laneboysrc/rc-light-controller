@@ -210,57 +210,66 @@ const CAR_LIGHT_ARRAY_T local_leds = {
 
     .car_lights = (const CAR_LIGHT_T [16]) {
         // LED 0
-        {.always_on = 255, .features = {.max_change_per_systick = 3}},
+        {   .light_switch_position[1] = 255,
+            .light_switch_position[2] = 255,
+            .light_switch_position[3] = 255,
+            .light_switch_position[4] = 255
+        },
 
         // LED 1
-        {.light_switch_position[1] = 255, .light_switch_position[2] = 255},
+        {   .light_switch_position[1] = 255,
+            .light_switch_position[2] = 255,
+            .light_switch_position[3] = 255,
+            .light_switch_position[4] = 255
+        },
 
         // LED 2
-        {.light_switch_position[2] = 255},
+        {   .light_switch_position[2] = 255,
+            .light_switch_position[3] = 255,
+            .light_switch_position[4] = 255
+        },
 
         // LED 3
-        {.tail_light = 255, .features = {
-                .max_change_per_systick = 37,
-                .reduction_percent = 20,
-                .indicator_left = 1,
-            },
+        {   .light_switch_position[2] = 255,
+            .light_switch_position[3] = 255,
+            .light_switch_position[4] = 255
         },
 
         // LED 4
-        {.brake_light = 255},
+        {.light_switch_position[3] = 255, .light_switch_position[4] = 255},
 
         // LED 5
-        {.always_on = 0}, // LED not present...
+        {.light_switch_position[3] = 255, .light_switch_position[4] = 255},
 
         // LED 6
-        {.tail_light = 85, .brake_light = 255},
+        {.indicator_left = 255},
 
         // LED 7
-        {.reversing_light = 255},
+        {.indicator_right = 255},
 
         // LED 8
-        {.indicator_left = 255, .features = {.max_change_per_systick = 37}},
+        {.light_switch_position[4] = 255},
 
         // LED 9
-        {.indicator_right = 255, .features = {.max_change_per_systick = 37}},
+        {.brake_light = 255},
 
         // LED 10
-        {.always_on = 0},
+        {.tail_light = 84, .brake_light = 255},
 
         // LED 11
-        {.indicator_left = 85, .tail_light = 85, .brake_light = 255},
+        {.tail_light = 84, .brake_light = 255},
 
         // LED 12
-        {.indicator_right = 85, .tail_light = 85, .brake_light = 255},
+        {.reversing_light = 255},
 
         // LED 13
-        {.always_on = 0},
+        {.reversing_light = 255},
 
         // LED 14
-        {.always_on = 0},
+        {.indicator_left = 255},
 
         // LED 15
-        {.always_on = 0}
+        {.indicator_right = 255},
     }
 };
 
@@ -278,7 +287,7 @@ const CAR_LIGHT_ARRAY_T slave_leds = {
     .car_lights = (const CAR_LIGHT_T [16]) {{.always_on = 0}}
 };
 
-
+#if 0
 // ****************************************************************************
 __attribute__ ((section(".light_programs")))
 const LIGHT_PROGRAMS_T light_programs = {
@@ -365,5 +374,96 @@ const LIGHT_PROGRAMS_T light_programs = {
 
         INSTRUCTION_END_OF_PROGRAMS
     }
+};
+#endif
+
+__attribute__ ((section(".light_programs")))
+const LIGHT_PROGRAMS_T light_programs = {
+     .magic = {
+         .magic_value = ROM_MAGIC,
+         .type = LIGHT_PROGRAMS,
+         .version = CONFIG_VERSION
+     },
+
+     .number_of_programs = 7,
+     .start = {
+        &light_programs.programs[0],
+        &light_programs.programs[8],
+        &light_programs.programs[16],
+        &light_programs.programs[25],
+        &light_programs.programs[31],
+        &light_programs.programs[40],
+        &light_programs.programs[50],
+     },
+
+     .programs = {
+          0x00000001,
+          0x00000000,
+          0x0000ffff,
+          0x040f0000,
+          0x03050000,
+          0x030f0800,
+          0x030706ff,
+          0xfe000000,
+
+          0x00000002,
+          0x00000000,
+          0x0000ffff,
+          0x040f0000,
+          0x03010000,
+          0x030f0400,
+          0x030302ff,
+          0xfe000000,
+
+          0x00000020,
+          0x00000000,
+          0x0000ffcf,
+          0x04030000,
+          0x040f0600,
+          0x03030000,
+          0x030d0700,
+          0x030f0f00,
+          0xfe000000,
+
+          0x00000040,
+          0x00000000,
+          0x00000030,
+          0x04060400,
+          0x030504ff,
+          0xfe000000,
+
+          0x00000004,
+          0x00000000,
+          0x0000ffff,
+          0x040f0000,
+          0x03050000,
+          0x030d0800,
+          0x030706ff,
+          0x030f0eff,
+          0xfe000000,
+
+          0x00000008,
+          0x00000000,
+          0x0000ffff,
+          0x040f0000,
+          0x03050000,
+          0x030d0700,
+          0x030f0f00,
+          0x030606ff,
+          0x030e0eff,
+          0xfe000000,
+
+          0x00000010,
+          0x00000000,
+          0x0000ffff,
+          0x040f0000,
+          0x03060000,
+          0x030e0800,
+          0x030707ff,
+          0x030f0fff,
+          0xfe000000,
+
+          0xff000000,
+         }
 };
 

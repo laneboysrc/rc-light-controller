@@ -25,8 +25,8 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
         .slave_output = false,
         .preprocessor_output = false,
         .winch_output = false,
-        .steering_wheel_servo_output = false,
-        .gearbox_servo_output = true,
+        .steering_wheel_servo_output = true,
+        .gearbox_servo_output = false,
 
         .ch3_is_local_switch = false,
         .ch3_is_momentary = false,
@@ -49,9 +49,9 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
 
     .centre_threshold_low = 8,
     .centre_threshold_high = 12,
-    .blink_threshold = 50,
+    .blink_threshold = 30,
 
-    .light_switch_positions = 3,
+    .light_switch_positions = 5,
 
     .initial_endpoint_delta = 250,
 
@@ -61,7 +61,7 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
 
     .baudrate = 115200,
     .no_signal_timeout = (500 / __SYSTICK_IN_MS),
-    .number_of_gears = 3,
+    .number_of_gears = 2,
 };
 
 

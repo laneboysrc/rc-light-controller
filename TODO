@@ -5,16 +5,12 @@ TO DO LIST for the RC Light Controller
 
 * FW: Can we preserve the persistent settings upon reflash?
 
-* FW: make a generic default configuration:
-  - Servo reader
-  - Two-position switch
-  - Light as in "generic"
-  - Steering wheel servo output
-  - Light programs for no signal, initialization, servo reversing and
-    steering wheel setup
-
 * FW, ASM: Integrate ASM in the build process, to create light programs based
   on real source files
+
+* FW: no-signal does not transition into initializing
+
+* FW: reversing steering does not work with throttle at the same time
 
 * CFG: Auto detect highest light switch position used (also include light programs!)
 
@@ -43,6 +39,12 @@ TO DO LIST for the RC Light Controller
 
 * FW, ASM: priority run conditions are not part of car state, but would
   be useful
+
+* ASM: fix one extra space being output
+
+* ASM: fix missing ; at end of output
+
+* ASM: fix bug with multiple non-consecutive LED being last statement in program
 
 
 
