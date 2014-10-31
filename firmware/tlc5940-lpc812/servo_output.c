@@ -82,11 +82,34 @@ void gearbox_action(uint8_t ch3_clicks)
         return;
     }
 
-    if (ch3_clicks == 1) {
-        global_flags.gear = GEAR_1;
+    // 2-speed gearbox: one click is Gear 1; two clicks is Gear 2
+    if (config.number_of_gears == 2) {
+        if (ch3_clicks == 1) {
+            global_flags.gear = GEAR_1;
+        }
+        else {
+            global_flags.gear = GEAR_2;
+        }
     }
+
+    // 3-speed gearbox: one click switches gear up, two clicks gear down
     else {
-        global_flags.gear = GEAR_2;
+        if (ch3_clicks == 1) {
+            if (global_flags.gear == GEAR_1) {
+                global_flags.gear = GEAR_2;
+            }
+            else {
+                global_flags.gear = GEAR_3;
+            }
+        }
+        else {
+            if (global_flags.gear == GEAR_3) {
+                global_flags.gear = GEAR_2;
+            }
+            else {
+                global_flags.gear = GEAR_1;
+            }
+        }
     }
 
     // FIXME: we need to ensure this is active for one mainloop!
@@ -178,7 +201,20 @@ void process_servo_output(void)
 
                 case SERVO_OUTPUT_SETUP_CENTRE:
                     servo_setup_endpoint.centre = servo_pulse;
-                    global_flags.servo_output_setup = SERVO_OUTPUT_SETUP_RIGHT;
+
+                    // In case we are dealing with a 2-speed gearbox we only
+                    // configure left and center endpoint
+                    if (config.flags.gearbox_servo_output &&
+                            config.number_of_gears == 2) {
+                        servo_output_endpoint.centre = servo_setup_endpoint.centre;
+                        servo_output_endpoint.left = servo_setup_endpoint.left;
+                        write_persistent_storage();
+
+                        global_flags.servo_output_setup = SERVO_OUTPUT_SETUP_OFF;
+                    }
+                    else {
+                        global_flags.servo_output_setup = SERVO_OUTPUT_SETUP_RIGHT;
+                    }
                     break;
 
                 case SERVO_OUTPUT_SETUP_RIGHT:

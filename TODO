@@ -3,10 +3,9 @@ TO DO LIST for the RC Light Controller
 * Automate tests to check whether assembly->disassembly->assembly gets
   the same result after both assemblies
 
-* FW: Add support for 3-speed gearbox
-  Including new car state in ASM/DASM! Bit 25
-
 * FW: Can we preserve the persistent settings upon reflash?
+
+* FW: Check if reading LED values returns % rather than 255
 
 * CFG: Auto detect highest light switch position used (also include light programs!)
 
@@ -18,9 +17,12 @@ TO DO LIST for the RC Light Controller
 
 * CFG: Add footer with license info, web info, etc
 
+* CFG: Check if gamma 2.0 works (integer, no digit after comma)
+
 * ASM, DASM: make time in ms, not SYSTICK based
 
-* CFG: Check if gamma 2.0 works (integer, no digit after comma)
+* ASM, DASM: Add support for 3-speed gearbox to ASM/DASM (Bit 25)
+
 
 
 
