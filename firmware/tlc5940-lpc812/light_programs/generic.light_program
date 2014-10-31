@@ -78,7 +78,7 @@ led indicator-rear-r = master[15]
 
     parking-l, parking-r, main-beam-l, main-beam-r, indicator-front-r, roof, brake, tail-brake-l, tail-brake-r, reversing-l, reversing-r, indicator-rear-r = 0%
 
-    indicator-front-l, indicator-rear_l = 100%
+    indicator-front-l, indicator-rear-l = 100%
 
 __NEXT_PROGRAM__
 

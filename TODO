@@ -40,11 +40,9 @@ TO DO LIST for the RC Light Controller
 * FW, ASM: priority run conditions are not part of car state, but would
   be useful
 
-* ASM: fix one extra space being output
+* ASM: fix indention of output
 
 * ASM: fix missing ; at end of output
-
-* ASM: fix bug with multiple non-consecutive LED being last statement in program
 
 
 
