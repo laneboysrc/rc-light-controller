@@ -48,9 +48,8 @@ TO DO LIST for the RC Light Controller
 
 * ASM: accept files input and output as arguments
 
-* ASM: implement getopt or similar for argument parsing.
-  -v for verbose, 2 levels, otherwise log is and yydebug are disabled
-  -o for output file
+* ASM:
+  - implement -o for output file
   - multiple input files for concatenation?
   - use never-interactive on the scanner?
 

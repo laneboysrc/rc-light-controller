@@ -260,14 +260,14 @@ void output_programs(void)
     *last_instruction++ = 0xff000000;
 
     // Print a summary
-    fprintf(stderr, "\n");
-    fprintf(stderr, "Number of programs: %d\n", number_of_programs);
+    log_printf("\n");
+    log_printf("Number of programs: %d\n", number_of_programs);
 
-    fprintf(stderr, "Start offset locations:\n");
+    log_printf("Start offset locations:\n");
     for (i = 0; i < number_of_programs; i++) {
-        fprintf(stderr, "  %-2d: %d\n", i, start_offset[i]);
+        log_printf("  %-2d: %d\n", i, start_offset[i]);
     }
-    fprintf(stderr, "\n");
+    log_printf("\n");
 
 
     // Output the light programs data structure

@@ -7,6 +7,7 @@
 
 
 static bool error_occured = false;
+static bool log_enabled = false;
 
 
 // ****************************************************************************
@@ -32,6 +33,13 @@ static const char *get_log_type_string(LOG_TYPE_T t)
 
 
 // ****************************************************************************
+void log_enable(void)
+{
+    log_enabled = true;
+}
+
+
+// ****************************************************************************
 int has_error_occured(void)
 {
     return error_occured ? 1 : 0;
@@ -39,9 +47,30 @@ int has_error_occured(void)
 
 
 // ****************************************************************************
+void log_printf(const char *fmt, ...)
+{
+    va_list ap;
+
+    if (!log_enabled) {
+        return;
+    }
+
+    va_start(ap, fmt);
+
+    vfprintf(stderr, fmt, ap);
+
+    va_end(ap);
+}
+
+
+// ****************************************************************************
 void log_message(const char *module, LOG_TYPE_T type, const char *fmt, ...)
 {
     va_list ap;
+
+    if (!log_enabled) {
+        return;
+    }
 
     va_start(ap, fmt);
 

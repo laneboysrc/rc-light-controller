@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <getopt.h>
 
 #include "symbols.h"
 #include "emitter.h"
@@ -8,19 +9,97 @@
 
 
 // ****************************************************************************
+static void usage(void)
+{
+    fprintf(stderr,
+        "Usage: light_program_assembler [-v] -o output.file source.file\n"
+        "\n"
+        "-v:    Verbose output. Specify multiple times for more output.\n"
+        "-o:    Output file. If omitted, output is printed to stdout.\n\n");
+}
+
+
+// ****************************************************************************
+static void parse_arguments(int argc, char *argv[])
+{
+    int verbose_count = 0;
+
+    opterr = 0;
+
+    while (1) {
+        int option_index = 0;
+        int c;
+
+        static struct option long_options[] = {
+           {"help",    no_argument,       0,  'h' },
+           {"output",  required_argument, 0,  'o' },
+           {"verbose", no_argument,       0,  'v' },
+           {0,         0,                 0,  0 }
+        };
+
+        c = getopt_long(argc, argv, ":ho:v", long_options, &option_index);
+        if (c == -1)
+            break;
+
+        switch (c) {
+            case 'h':
+                usage();
+                exit(0);
+                break;
+
+            case 'o':
+                printf("Option: output \"%s\"\n", optarg);
+                break;
+
+            case 'v':
+                ++verbose_count;
+                log_enable();
+                if (verbose_count >= 2) {
+                    yydebug = 1;
+                }
+                break;
+
+            case ':':
+                fprintf(stderr, "ERROR: Missing argument for option '%c'\n\n",
+                    optopt);
+                usage();
+                exit(1);
+
+            case '?':
+                fprintf(stderr, "ERROR: Unknown option\n\n");
+                usage();
+                exit(1);
+
+            default:
+                break;
+        }
+    }
+
+    if (optind < argc) {
+        printf("non-option ARGV-elements: ");
+        while (optind < argc)
+            printf("%s ", argv[optind++]);
+        printf("\n");
+    }
+}
+
+
+
+// ****************************************************************************
 int main(int argc, char *argv[])
 {
-    (void)argv;
+    parse_arguments(argc, argv);
 
-    fprintf(stderr, "DIY RC Light Controller test parser\n\n");
-
-    if (argc > 1) {
-        yydebug = 1;
-    }
+    log_printf("DIY RC Light Controller light program assembler\n\n");
 
     initialize_emitter();
     initialize_symbols();
     yyparse();
+
+    if (has_error_occured()) {
+        return 1;
+    }
+
     output_programs();
-    return has_error_occured() ? 1 : 0;
+    return 0;
 }

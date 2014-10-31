@@ -231,25 +231,25 @@ void dump_symbol_table(void)
     SYMBOL_T *ptr;
     FORWARD_DECLERATION_T *f;
 
-    fprintf(stderr, "\n");
-    fprintf(stderr, "Symbol table:\n");
+    log_printf("\n");
+    log_printf("Symbol table:\n");
     for (ptr = symbol_table; ptr != NULL; ptr = ptr->next) {
-        fprintf(stderr, "name='%s', token=%s index=%d\n",
+        log_printf("name='%s', token=%s index=%d\n",
             ptr->name, token2str(ptr->token), ptr->index);
     }
 
-    fprintf(stderr, "\n");
-    fprintf(stderr, "Forward declarations to resolve:\n");
+    log_printf("\n");
+    log_printf("Forward declarations to resolve:\n");
     if (forward_declaration_table == NULL) {
-        fprintf(stderr, "(none)\n");
+        log_printf("(none)\n");
     }
     else {
         for (f = forward_declaration_table; f != NULL; f = f->next) {
-            fprintf(stderr, "label='%s' pc=%u index=%d\n",
+            log_printf("label='%s' pc=%u index=%d\n",
                 f->symbol->name, f->pc, f->symbol->index);
         }
     }
-    fprintf(stderr, "\n");
+    log_printf("\n");
 }
 
 
