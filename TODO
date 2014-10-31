@@ -44,10 +44,6 @@ TO DO LIST for the RC Light Controller
   be useful. Actually necessary as how else to do steering throttle reversing
   properly?!
 
-* ASM: fix indention of output
-
-* ASM: fix missing ; at end of output
-
 * FW, ASM, DASM: rename wait to sleep
 
 

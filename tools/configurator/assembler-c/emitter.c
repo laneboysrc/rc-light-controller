@@ -230,29 +230,29 @@ void output_programs(void)
     const char *part1 =
         "__attribute__ ((section(\".light_programs\")))\n"
         "const LIGHT_PROGRAMS_T light_programs = {\n"
-        "     .magic = {\n"
-        "         .magic_value = ROM_MAGIC,\n"
-        "         .type = LIGHT_PROGRAMS,\n"
-        "         .version = CONFIG_VERSION\n"
-        "     },\n"
+        "    .magic = {\n"
+        "        .magic_value = ROM_MAGIC,\n"
+        "        .type = LIGHT_PROGRAMS,\n"
+        "        .version = CONFIG_VERSION\n"
+        "    },\n"
         "\n"
-        "     .number_of_programs = %d,\n"
-        "     .start = {\n";
+        "    .number_of_programs = %d,\n"
+        "    .start = {\n";
 
     const char *part2 =
         "        &light_programs.programs[%d],\n";
 
     const char *part3 =
-        "     },\n"
+        "    },\n"
         "\n"
-        "     .programs = {\n";
+        "    .programs = {\n";
 
     const char *part4 =
-        "          0x%08x,\n";
+        "        0x%08x,\n";
 
     const char *part5 =
-        "         }\n"
-        "}\n";
+        "    }\n"
+        "};\n";
 
     // Add the "END OF PROGRAMS" instruction to mark the end
     *last_instruction++ = 0xff000000;
