@@ -8,7 +8,10 @@ TO DO LIST for the RC Light Controller
 * FW, ASM: Integrate ASM in the build process, to create light programs based
   on real source files
 
-* FW: no-signal does not transition into initializing
+* FW: When a priority program runs once, and another state takes precedence,
+  the program has no effect and after the other state disappears, the lights
+  are still wrong. Solution is to output constantly in a loop.
+  Need to think how to resolve this. Maybe just needs documenting.
 
 * FW: reversing steering does not work with throttle at the same time
 
@@ -38,11 +41,14 @@ TO DO LIST for the RC Light Controller
 * ASM: fix multiple newlines due to comment being let through by the scanner
 
 * FW, ASM: priority run conditions are not part of car state, but would
-  be useful
+  be useful. Actually necessary as how else to do steering throttle reversing
+  properly?!
 
 * ASM: fix indention of output
 
 * ASM: fix missing ; at end of output
+
+* FW, ASM, DASM: rename wait to sleep
 
 
 

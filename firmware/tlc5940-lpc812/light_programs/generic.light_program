@@ -24,9 +24,13 @@ led indicator-rear-r = master[15]
 
     fade parking-l, parking-r, main-beam-l, main-beam-r, high-beam-l,  high-beam-r, indicator-front-l, indicator-front-r, roof, brake, tail-brake-l, tail-brake-r, reversing-l, reversing-r, indicator-rear-l, indicator-rear-r   stepsize 0
 
+loop:
     parking-l, parking-r, main-beam-l, main-beam-r, high-beam-l, high-beam-r, roof, brake, tail-brake-l, tail-brake-r, reversing-l, reversing-r, indicator-rear-l, indicator-rear-r = 0%
 
     indicator-front-l, indicator-front-r = 100%
+
+    wait 0
+    goto loop
 
 __NEXT_PROGRAM__
 
@@ -51,9 +55,13 @@ led indicator-rear-r = master[15]
 
     fade parking-l, parking-r, main-beam-l, main-beam-r, high-beam-l,  high-beam-r, indicator-front-l, indicator-front-r, roof, brake, tail-brake-l, tail-brake-r, reversing-l, reversing-r, indicator-rear-l, indicator-rear-r   stepsize 0
 
-   parking-l, parking-r, high-beam-l, high-beam-r, indicator-front-l, indicator-front-r, roof, brake, tail-brake-l, tail-brake-r, reversing-l, reversing-r, indicator-rear-l, indicator-rear-r = 0%
+loop:
+    parking-l, parking-r, high-beam-l, high-beam-r, indicator-front-l, indicator-front-r, roof, brake, tail-brake-l, tail-brake-r, reversing-l, reversing-r, indicator-rear-l, indicator-rear-r = 0%
 
     main-beam-l, main-beam-r = 100%
+
+    wait 0
+    goto loop
 
 __NEXT_PROGRAM__
 
