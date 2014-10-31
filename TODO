@@ -34,6 +34,16 @@ TO DO LIST for the RC Light Controller
 * ASM: Optimizer: combine subsequent fade and led= instructions into a
   single opcode
 
+* ASM: Fix issue with SKIP IF followed by multiple LEDs commands that have been
+  automatically split due to the LEDs not being consecutive!
+
+* ASM: Make "all-leds" shortcut
+
+* ASM: fix multiple newlines due to comment being let through by the scanner
+
+* FW, ASM: priority run conditions are not part of car state, but would
+  be useful
+
 
 
 * Investigate whether we can detect the order of the incoming channels
