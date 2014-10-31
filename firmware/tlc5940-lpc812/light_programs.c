@@ -284,7 +284,7 @@ static int16_t get_parameter_value(uint32_t instruction)
             return var[instruction & 0xff];
 
         case PARAMETER_TYPE_LED:
-            return light_actual[instruction & 0xff];
+            return light_actual[instruction & 0xff] * 100 / 255;
 
         case PARAMETER_TYPE_RANDOM:
             return (int16_t)random_min_max(1, 0xffff);
