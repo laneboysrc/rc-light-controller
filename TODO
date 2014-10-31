@@ -13,6 +13,9 @@ TO DO LIST for the RC Light Controller
   - Light programs for no signal, initialization, servo reversing and
     steering wheel setup
 
+* FW, ASM: Integrate ASM in the build process, to create light programs based
+  on real source files
+
 * CFG: Auto detect highest light switch position used (also include light programs!)
 
 * CFG, Add hardware test as one of the configurations. Use a light program,
@@ -25,7 +28,8 @@ TO DO LIST for the RC Light Controller
 
 * CFG: Use gulp workflow
 
-
+* CFG: bypass decompilation by embedding the source files of light programs for
+  the default firmware
 
 
 * Investigate whether we can detect the order of the incoming channels
