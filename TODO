@@ -36,7 +36,7 @@ TO DO LIST for the RC Light Controller
 * ASM: Fix issue with SKIP IF followed by multiple LEDs commands that have been
   automatically split due to the LEDs not being consecutive!
 
-* ASM: Make "all-leds" shortcut
+* ASM: Make "all" shortcut, referencing all LEDs. For fade and set commands
 
 * ASM: fix multiple newlines due to comment being let through by the scanner
 
