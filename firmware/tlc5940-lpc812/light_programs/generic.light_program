@@ -17,11 +17,6 @@ led reversing-r = master[13]
 led indicator-rear-l = master[14]
 led indicator-rear-r = master[15]
 
-// Light programs as they are shipped with the default firmware.
-//
-// The light programs take care of no-signal condition, initialization,
-// steering and throttle reversing, and steering wheel servo setup.
-
     fade parking-l, parking-r, main-beam-l, main-beam-r, high-beam-l,  high-beam-r, indicator-front-l, indicator-front-r, roof, brake, tail-brake-l, tail-brake-r, reversing-l, reversing-r, indicator-rear-l, indicator-rear-r   stepsize 0
 
 loop:

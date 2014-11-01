@@ -42,6 +42,7 @@ TERMINAL_PROGRAM := miniterm.py -p /dev/ttyUSB0 -b 115200
 PREPROCESSOR_SIMULATOR := $(TOOL_PATH)preprocessor-simulator.py -b 115200
 MAP_SUMMARY_TOOL := $(TOOL_PATH)parse_gcc_map_file.py
 CONFIGURATION_VALIDATION_TOOL := $(TOOL_PATH)validate_image_file.py
+LIGHT_PROGRAM_ASSEMBLER_PATH := $(TOOL_PATH)light-program-assembler/
 
 
 ###############################################################################
@@ -118,6 +119,10 @@ $(TARGET_HEX): $(TARGET_ELF)
 	$(ECHO) [CP] $@
 	$(QUIET) $(OBJCOPY) $< -O ihex $@
 
+default_light_program:
+	$(ECHO) [CP] $@
+	$(QUIET) cd $(LIGHT_PROGRAM_ASSEMBLER_PATH) && $(MAKE) run RUN_OPTIONS="-o $(abspath config_light_programs.c) $(abspath light_programs/generic.light_program)"
+
 # Create list files that include C code as well as Assembler
 list: $(OBJECTS:.o=.lst)
 
@@ -143,4 +148,4 @@ clean:
 	$(QUIET) $(RM) -rf $(BUILD_DIR)/*
 
 
-.PHONY : all clean program terminal preprocessor-simulator list summary
+.PHONY : all clean default_light_program program terminal preprocessor-simulator list summary
