@@ -22,7 +22,7 @@ void initialize_emitter(char *output_filename);
 
 void add_led_to_list(int led_index);
 void emit(uint32_t instruction);
-void emit_led_instruction(uint32_t instruction);
+void emit_led_instruction(uint32_t instruction, YYLTYPE *location);
 void emit_run_condition(uint32_t priority, uint32_t run);
 void emit_end_of_program(void);
 

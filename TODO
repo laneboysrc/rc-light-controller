@@ -30,10 +30,6 @@ TO DO LIST for the RC Light Controller
 * ASM: Optimizer: combine subsequent fade and led= instructions into a
   single opcode if possible
 
-* ASM: Fix issue with SKIP IF followed by multiple LEDs commands that have been
-  automatically split due to the LEDs not being consecutive!
-  Allow only single LED.
-
 * DASM: Detect "all leds" shortcut
 
 * DASM: add line continuation character, split at column 80

@@ -263,13 +263,13 @@ command
   | GOTO UNDECLARED_SYMBOL
       { add_symbol($2->name, LABEL, -1, &@2); emit($1); }
   | FADE leds STEPSIZE VARIABLE
-      { emit_led_instruction($1 | $4->index); }
+      { emit_led_instruction($1 | $4->index, &@1); }
   | FADE leds STEPSIZE GLOBAL_VARIABLE
-      { emit_led_instruction($1 | $4->index); }
+      { emit_led_instruction($1 | $4->index, &@1); }
   | FADE leds STEPSIZE NUMBER
-      { emit_led_instruction($1 | INSTRUCTION_MODIFIER_IMMEDIATE | ($4 & 0xff)); }
+      { emit_led_instruction($1 | INSTRUCTION_MODIFIER_IMMEDIATE | ($4 & 0xff), &@1); }
   | FADE leds STEPSIZE NUMBER '%'
-      { emit_led_instruction($1 | INSTRUCTION_MODIFIER_IMMEDIATE | ($4 & 0xff)); }
+      { emit_led_instruction($1 | INSTRUCTION_MODIFIER_IMMEDIATE | ($4 & 0xff), &@1); }
   | SLEEP parameter
       { emit($1 | $2); }
   | SKIP IF test_expression
@@ -315,7 +315,7 @@ expression
   | GLOBAL_VARIABLE assignment_operator parameter
       { emit($2 | ($1->index << 16) | $3); }
   | leds '=' led_assignment_parameter
-      { emit_led_instruction(0x02000000 | $3); }
+      { emit_led_instruction(0x02000000 | $3, &@1); }
   ;
 
 leds

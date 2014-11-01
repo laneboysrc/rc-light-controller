@@ -336,8 +336,6 @@ void resolve_forward_declarations(uint32_t instructions[])
 // ****************************************************************************
 void set_symbol(SYMBOL_T *symbol, int token, int index, YYLTYPE *loc)
 {
-    (void)loc;
-
     if (symbol->index != -1) {
         char *message;
         const char *fmt = "Redefinition of symbol '%s'";

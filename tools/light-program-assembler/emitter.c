@@ -113,7 +113,7 @@ void add_led_to_list(int led_index)
 
 
 // ****************************************************************************
-void emit_led_instruction(uint32_t instruction)
+void emit_led_instruction(uint32_t instruction, YYLTYPE *location)
 {
     int i;
     int n;
@@ -127,8 +127,12 @@ void emit_led_instruction(uint32_t instruction)
         instruction, led_list.count);
 
     if (led_list.count == 0) {
-        fprintf(stderr, "ERROR: emit_led_instruction(): led_list.count is 0\n");
-        exit(1);
+        yyerror(location, "emit_led_instruction(): led_list.count is 0");
+        return;
+    }
+
+    if (led_list.count > 1  &&  is_skip_if(*(last_instruction -1))) {
+        yyerror(location, "commands using multiple LEDs can not follow 'skip if'");
     }
 
     // Step 1: Bubble sort the LEDs by their index.

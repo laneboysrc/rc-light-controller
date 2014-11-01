@@ -1,0 +1,16 @@
+run always
+
+led l1 = master[2];
+led l2 = master[3];
+
+    skip if is hazard
+    l1, l2 = 100%
+
+    skip if is indicator-left
+    fade l1, l2 stepsize 25%
+
+    skip if is indicator-right
+    all leds = 100%
+
+    skip if is braking
+    fade all leds stepsize 33
