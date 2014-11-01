@@ -1,5 +1,8 @@
 %{
 
+#include <stdio.h>
+#include <string.h>
+#include <errno.h>
 #include "symbols.h"
 #include "parser.h"
 #include "log.h"
@@ -11,6 +14,8 @@ int get_symbol(union YYSTYPE *result, const char *name, YYLTYPE *location);
 const char *token2str(int token);
 
 static int offset = 1;
+static int number_of_input_files;
+static char **input_file_list;
 
 #define YY_USER_ACTION \
     yylloc->first_line = yylineno; \
@@ -19,11 +24,34 @@ static int offset = 1;
     offset += yyleng; \
     yylloc->last_column = offset;
 
+void initialize_scanner(int count, char **files)
+{
+    FILE *f;
+
+    number_of_input_files = count;
+    input_file_list = files;
+
+    if (number_of_input_files > 1) {
+        fprintf(stderr, "ERROR: Only one input file can be assembled\n");
+        exit(1);
+    }
+
+    f = fopen(input_file_list[0], "r");
+    if (f == NULL) {
+        fprintf(stderr, "ERROR: failed to open file %s for reading: %s\n",
+            input_file_list[0], strerror(errno));
+        exit(1);
+    }
+
+    yyin = f;
+}
+
 %}
 
 %option bison-bridge
 %option bison-locations
 %option noyywrap
+%option never-interactive
 
 %option warn
 %option nodefault

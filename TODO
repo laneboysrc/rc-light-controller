@@ -46,12 +46,6 @@ TO DO LIST for the RC Light Controller
 
 * FW, ASM, DASM: rename wait to sleep
 
-* ASM: accept files input and output as arguments
-
-* ASM:
-  - implement -o for output file
-  - multiple input files for concatenation?
-  - use never-interactive on the scanner?
 
 
 * Investigate whether we can detect the order of the incoming channels

@@ -8,6 +8,15 @@
 #include "log.h"
 
 
+void initialize_scanner(int count, char **files);
+
+
+// ****************************************************************************
+static void banner(void)
+{
+    log_printf("DIY RC Light Controller light program assembler\n\n");
+}
+
 
 // ****************************************************************************
 static void usage(void)
@@ -17,13 +26,6 @@ static void usage(void)
         "\n"
         "-v:    Verbose output. Specify multiple times for more output.\n"
         "-o:    Output file. If omitted, output is printed to stdout.\n\n");
-}
-
-
-// ****************************************************************************
-static void banner(void)
-{
-    log_printf("DIY RC Light Controller light program assembler\n\n");
 }
 
 
@@ -93,7 +95,6 @@ static char * parse_arguments(int argc, char *argv[])
 }
 
 
-
 // ****************************************************************************
 int main(int argc, char *argv[])
 {
@@ -108,13 +109,14 @@ int main(int argc, char *argv[])
     banner();
     initialize_emitter(output_filename);
     initialize_symbols();
-
+    initialize_scanner(number_of_input_files, input_file_list);
     yyparse();
 
     if (has_error_occured()) {
         return 1;
     }
-
-    output_programs();
-    return 0;
+    else {
+        output_programs();
+        return 0;
+    }
 }
