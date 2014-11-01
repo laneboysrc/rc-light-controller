@@ -1,5 +1,18 @@
+// These light programs provide generic functionality desired in most
+// light controller installations.
+//
+// They handle when there is no incoming servo signal, letting the user visibly
+// know that the light controller is initializing, and guide the user through
+// steering/throttle reversing as well as the servo output endpoint setup.
+
+
+// ----------------------------------------------------------------------------
+// Light up the front indicators statically when there is no incoming servo
+// signal
+// ----------------------------------------------------------------------------
 run when no-signal
 
+// Take over all LEDs
 led parking-l = master[0]
 led parking-r = master[1]
 led main-beam-l = master[2]
@@ -18,17 +31,33 @@ led indicator-rear-l = master[14]
 led indicator-rear-r = master[15]
 
 loop:
+    // Turn fading off for all leds, we want them to switch on/off immediately
     fade parking-l, parking-r, main-beam-l, main-beam-r, high-beam-l,  high-beam-r, indicator-front-l, indicator-front-r, roof, brake, tail-brake-l, tail-brake-r, reversing-l, reversing-r, indicator-rear-l, indicator-rear-r   stepsize 0
 
+    // Turn all lights except front indicators off.
     parking-l, parking-r, main-beam-l, main-beam-r, high-beam-l, high-beam-r, roof, brake, tail-brake-l, tail-brake-r, reversing-l, reversing-r, indicator-rear-l, indicator-rear-r = 0%
 
+    // Turn the indicators at the front fully on
     indicator-front-l, indicator-front-r = 100%
 
+    // We done our bit, so yield for 20 ms to give processing time to other
+    // parts of the firmware.
     sleep 0
+
+    // Run the program in a loop so it always shows the indicators, even if
+    // after being interrupted by another light program with higher priority.
     goto loop
+
 
 __NEXT_PROGRAM__
 
+
+// ----------------------------------------------------------------------------
+// Light up the main beam lights while the light controller is initializing.
+//
+// Normally the main beam would be on only if the parking lights are already
+// on, so just the main beam lighting up is a unique identifiaction.
+// ----------------------------------------------------------------------------
 run when initializing
 
 led parking-l = master[0]
@@ -58,8 +87,25 @@ loop:
     sleep 0
     goto loop
 
+
 __NEXT_PROGRAM__
 
+
+// ----------------------------------------------------------------------------
+// Steering an throttle reversing setup
+//
+// This program runs after 7 CH3-clicks. The user is expected to turn the
+// steering wheel to the same direction as the indicators are lighting up,
+// and push the throttle forward.
+//
+// Therefore we turn the left indicators on until we detect the user having
+// given significant steering input (reversing-setup-steering goes off).
+// We also turn the high beam on until we detect significant throttle input
+// (reversing-setup-throttle goes off).
+//
+// Once both are off the light controller lights resume their normal function
+// as the condition for running this program is "false".
+// ----------------------------------------------------------------------------
 run when reversing-setup-steering or reversing-setup-throttle
 
 led parking-l = master[0]
@@ -84,22 +130,46 @@ loop:
 
     fade parking-l, parking-r, main-beam-l, main-beam-r, high-beam-l, high-beam-r, indicator-front-l, indicator-front-r, roof, brake, tail-brake-l, tail-brake-r, reversing-l, reversing-r, indicator-rear-l, indicator-rear-r   stepsize 0
 
+    // Turn all lights off, then indicators or high beam on selectivly.
+    // This won't cause any flicker as the light output is only executed
+    // when a light program executes a "sleep" statement (or at the end of
+    // a light program).
     parking-l, parking-r, main-beam-l, main-beam-r, high-beam-l, high-beam-r, indicator-front-l, indicator-front-r, roof, brake, tail-brake-l, tail-brake-r, reversing-l, reversing-r, indicator-rear-l, indicator-rear-r = 0%
 
-    skip if is reversing-setup-steering
-    goto not_steering
-    indicator-front-l, indicator-rear-l = 100%
+    skip if is reversing-setup-steering         // Steering setup?
+    goto not_steering                           // No: check throttle
+    indicator-front-l, indicator-rear-l = 100%  // Yes: light up the indicators
 
 not_steering:
-    skip if is reversing-setup-throttle
+    skip if is reversing-setup-throttle         // Throttle setup?
+    goto loop                                   // No: start over
+    high-beam-l, high-beam-r = 100%             // Yes: light up high beam
     goto loop
-    high-beam-l, high-beam-r = 100%
 
-    goto loop
 
 __NEXT_PROGRAM__
 
-run when servo-output-setup-centre or servo-output-setup-left or servo-output-setup-right
+
+// ----------------------------------------------------------------------------
+// Servo output endpoint setup
+//
+// This program runs after 8 CH3-clicks. The user can now use the steering
+// wheel on the transmitter to directly drive the servo output (i.e. the
+// servo output behaves like the servo would be connected to the steering
+// output of the receiver).
+//
+// The user can now setup what he considers "left" endpoint (or gear 1 if it
+// is a gearbox servo). Then one CH3-click switches to "center" (or gear 2).
+// Another CH3-click switches to "right" (or gear 3). A final CH3-click
+// ends the procedure, saves the endpoints and resumes normal operation.
+//
+// At any point in time during the setup two or more clicks cancel the servo
+// output setup and restore the original endpoints.
+// ----------------------------------------------------------------------------
+
+
+// Note: "or" between the conditions is optional, same meaning with or without
+run when servo-output-setup-centre servo-output-setup-left servo-output-setup-right
 
 led parking-l = master[0]
 led parking-r = master[1]
@@ -125,21 +195,25 @@ loop:
 
     parking-l, parking-r, main-beam-l, main-beam-r, high-beam-l, high-beam-r, roof, brake, tail-brake-l, tail-brake-r, reversing-l, reversing-r = 0%
 
-    skip if is servo-output-setup-centre
-    goto not_centre
+    skip if not servo-output-setup-left
+    goto left
+    skip if not servo-output-setup-right
+    goto right
+    // If it is neither left nor right, it must be centre...
+    // Otherwise the program would not be run in the first place, see RUN WHEN
+    // above!
+
+    // Centre setup: light up all four indicators
+centre:
     indicator-front-l, indicator-front-r, indicator-rear-l, indicator-rear-r = 100%
     goto loop
 
-not_centre:
-    skip if is servo-output-setup-left
-    goto not_left
-
+    // Left setup: light up all indicators on the left side
+left:
     indicator-front-l, indicator-rear-l = 100%
     goto loop
 
-not_left:
-    skip if is servo-output-setup-right
-    goto loop
-
+    // Right setup: light up all indicators on the right side
+right:
     indicator-front-r, indicator-rear-r = 100%
     goto loop
