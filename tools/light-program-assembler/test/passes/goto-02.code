@@ -1,0 +1,37 @@
+run when reversing-setup-steering or reversing-setup-throttle
+
+led parking-l = master[0]
+led parking-r = master[1]
+led main-beam-l = master[2]
+led main-beam-r = master[3]
+led high-beam-l = master[4]
+led high-beam-r = master[5]
+led indicator-front-l = master[6]
+led indicator-front-r = master[7]
+led roof = master[8]
+led brake = master[9]
+led tail-brake-l = master[10]
+led tail-brake-r = master[11]
+led reversing-l = master[12]
+led reversing-r = master[13]
+led indicator-rear-l = master[14]
+led indicator-rear-r = master[15]
+
+    sleep 0
+loop:
+    sleep 0
+
+    fade parking-l, parking-r, main-beam-l, main-beam-r, high-beam-l, high-beam-r, indicator-front-l, indicator-front-r, roof, brake, tail-brake-l, tail-brake-r, reversing-l, reversing-r, indicator-rear-l, indicator-rear-r   stepsize 0
+
+    parking-l, parking-r, main-beam-l, main-beam-r, high-beam-l, high-beam-r, indicator-front-l, indicator-front-r, roof, brake, tail-brake-l, tail-brake-r, reversing-l, reversing-r, indicator-rear-l, indicator-rear-r = 0%
+
+    skip if is reversing-setup-steering
+    goto not_steering
+    indicator-front-l, indicator-rear-l = 100%
+
+not_steering:
+    skip if is reversing-setup-throttle
+    goto loop
+    high-beam-l, high-beam-r = 100%
+
+    goto loop
