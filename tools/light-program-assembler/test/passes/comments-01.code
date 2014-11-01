@@ -1,0 +1,23 @@
+// This is a test to ensure the comment system works
+//
+
+// Another comment, with an empty line in front
+run always  // no-signal
+
+
+
+
+    sleep 1     // Sleep for 1 ms. Actually will sleep for about 20ms...
+pos1:
+    sleep 2     // Sleep for 2ms // Comment in comment
+    goto forward_decleration
+    ; Also semicolons can be used for comments
+pos2:               ; This is a comment at a label
+    sleep 3
+    goto pos1
+
+forward_decleration:
+    sleep 4
+//pos2:
+;  pos2:
+    goto pos2

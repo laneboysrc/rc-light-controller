@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
+#include <stdbool.h>
 #include "symbols.h"
 #include "parser.h"
 #include "log.h"
@@ -16,6 +17,7 @@ const char *token2str(int token);
 static int offset = 1;
 static int number_of_input_files;
 static char **input_file_list;
+static bool line_is_empty;
 
 #define YY_USER_ACTION \
     yylloc->first_line = yylineno; \
@@ -44,6 +46,7 @@ void initialize_scanner(int count, char **files)
     }
 
     yyin = f;
+    line_is_empty = true;
 }
 
 %}
@@ -59,18 +62,21 @@ void initialize_scanner(int count, char **files)
 %%
 
 0[xX][[:xdigit:]]+ {
+    line_is_empty = false;
     yylval->immediate = (int16_t)strtol(yytext, NULL, 16);
     log_message(MODULE, INFO, "Hex-number: %d\n", yylval->immediate);
     return NUMBER;
 }
 
 ("-"?)[[:digit:]]+ {
+    line_is_empty = false;
     yylval->immediate = (int16_t)strtol(yytext, NULL, 10);
     log_message(MODULE, INFO, "Number: %d\n", yylval->immediate);
     return NUMBER;
 }
 
 goto|var|led|sleep|skip|if|is|any|all|none|not|fade|stepsize|run|when|or|master|slave|global|random|steering|throttle|abs|__NEXT_PROGRAM__ {
+    line_is_empty = false;
     int token = get_reserved_word(yylval, yytext);
     log_message(MODULE, INFO,
         "Reserved word: %s (%s)\n", yytext, token2str(token));
@@ -78,6 +84,7 @@ goto|var|led|sleep|skip|if|is|any|all|none|not|fade|stepsize|run|when|or|master|
 }
 
 [[:alpha:]][[:alnum:]_\-]* {
+    line_is_empty = false;
     int token = get_symbol(yylval, yytext, yylloc);
     log_message(MODULE, INFO,
         "Identifier: %s (%s)\n", yytext, token2str(token));
@@ -85,12 +92,14 @@ goto|var|led|sleep|skip|if|is|any|all|none|not|fade|stepsize|run|when|or|master|
 }
 
 "="|"+="|"-="|"*="|"/="|"&="|"|="|"^=" {
+    line_is_empty = false;
     int token = get_reserved_word(yylval, yytext);
     log_message(MODULE, INFO, "Assignment %s (%s)\n", yytext, token2str(token));
     return token;
 }
 
 "=="|"!="|">="|"<="|">"|"<" {
+    line_is_empty = false;
     int token = get_reserved_word(yylval, yytext);
     log_message(MODULE, INFO,
         "Comparison %s (%s)\n", yytext, token2str(token));
@@ -98,26 +107,25 @@ goto|var|led|sleep|skip|if|is|any|all|none|not|fade|stepsize|run|when|or|master|
 }
 
 "["|"]"|","|":"|"%" {
+    line_is_empty = false;
     log_message(MODULE, INFO, "'%c'\n", *yytext);
     return *yytext;
 }
 
 "//"[^\n]*  /* eat up one-line comments */
 ";"[^\n]*   /* eat up one-line comments */
-
-[ \t]+\n { /* skip emtpy lines */
-    offset = 1;
-     ++yylineno;
-}
-
 [ \t]+      /* eat up whitespace */
 
 \n+ {       /* Fold multiple consecutive \n into a single \n */
+     parse_state = UNKNOWN_PARSE_STATE;
      offset = 1;
      yylineno += yyleng;
-     log_message(MODULE, INFO, "'\\n'\n");
-     parse_state = UNKNOWN_PARSE_STATE;
-     return *yytext;
+
+     if (!line_is_empty) {
+         line_is_empty = true;
+         log_message(MODULE, INFO, "'\\n'\n");
+         return *yytext;
+     }
 }
 
 . {
