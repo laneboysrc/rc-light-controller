@@ -493,95 +493,124 @@ var disassembler = (function() {
 
 
 	// *************************************************************************
-	var decode_car_state = function (instruction) {
+	var decode_car_state = function (instruction, singular, plural) {
 		var result = '';
+		var count = 0;
 
 	    if (instruction & CAR_STATE_LIGHT_SWITCH_POSITION_0) {
-	    	result +=  'light-switch-position0';
+	    	result +=  ' light-switch-position0';
+	    	++count;
 	    }
 	    if (instruction & CAR_STATE_LIGHT_SWITCH_POSITION_1) {
 	    	result += ' light-switch-position1';
+	    	++count;
 	    }
 	    if (instruction & CAR_STATE_LIGHT_SWITCH_POSITION_2) {
 	    	result += ' light-switch-position2';
+	    	++count;
 	    }
 	    if (instruction & CAR_STATE_LIGHT_SWITCH_POSITION_3) {
 	    	result += ' light-switch-position3';
+	    	++count;
 	    }
 	    if (instruction & CAR_STATE_LIGHT_SWITCH_POSITION_4) {
 	    	result += ' light-switch-position4';
+	    	++count;
 	    }
 	    if (instruction & CAR_STATE_LIGHT_SWITCH_POSITION_5) {
 	    	result += ' light-switch-position5';
+	    	++count;
 	    }
 	    if (instruction & CAR_STATE_LIGHT_SWITCH_POSITION_6) {
 	    	result += ' light-switch-position6';
+	    	++count;
 	    }
 	    if (instruction & CAR_STATE_LIGHT_SWITCH_POSITION_7) {
 	    	result += ' light-switch-position7';
+	    	++count;
 	    }
 	    if (instruction & CAR_STATE_LIGHT_SWITCH_POSITION_8) {
 	    	result += ' light-switch-position8';
+	    	++count;
 	    }
 	    if (instruction & CAR_STATE_NEUTRAL) {
 	    	result += ' neutral';
+	    	++count;
 	    }
 	    if (instruction & CAR_STATE_FORWARD) {
 	    	result += ' forward';
+	    	++count;
 	    }
 	    if (instruction & CAR_STATE_REVERSING) {
 	    	result += ' reversing';
+	    	++count;
 	    }
 	    if (instruction & CAR_STATE_BRAKING) {
 	    	result += ' braking';
+	    	++count;
 	    }
 	    if (instruction & CAR_STATE_INDICATOR_LEFT) {
 	    	result += ' indicator-left';
+	    	++count;
 	    }
 	    if (instruction & CAR_STATE_INDICATOR_RIGHT) {
 	    	result += ' indicator-right';
+	    	++count;
 	    }
 	    if (instruction & CAR_STATE_HAZARD) {
 	    	result += ' hazard';
+	    	++count;
 	    }
 	    if (instruction & CAR_STATE_BLINK_FLAG) {
 	    	result += ' blink-flag';
+	    	++count;
 	    }
 	    if (instruction & CAR_STATE_BLINK_LEFT) {
 	    	result += ' blink-left';
+	    	++count;
 	    }
 	    if (instruction & CAR_STATE_BLINK_RIGHT) {
 	    	result += ' blink-right';
+	    	++count;
 	    }
 	    if (instruction & CAR_STATE_WINCH_DISABLERD) {
 	    	result += ' winch-disabled';
+	    	++count;
 	    }
 	    if (instruction & CAR_STATE_WINCH_IDLE) {
 	    	result += ' winch-idle';
+	    	++count;
 	    }
 	    if (instruction & CAR_STATE_WINCH_IN) {
 	    	result += ' winch-in';
+	    	++count;
 	    }
 	    if (instruction & CAR_STATE_WINCH_OUT) {
 	    	result += ' winch-out';
+	    	++count;
 	    }
 	    if (instruction & CAR_STATE_SERVO_OUTPUT_SETUP_CENTRE) {
 	    	result += ' servo-output-setup-centre';
+	    	++count;
 	    }
 	    if (instruction & CAR_STATE_SERVO_OUTPUT_SETUP_LEFT) {
 	    	result += ' servo-output-setup-left';
+	    	++count;
 	    }
 	    if (instruction & CAR_STATE_SERVO_OUTPUT_SETUP_RIGHT) {
 	    	result += ' servo-output-setup-right';
+	    	++count;
 	    }
 	    if (instruction & CAR_STATE_REVERSING_SETUP_STEERING) {
 	    	result += ' reversing-setup-steering';
+	    	++count;
 	    }
 	    if (instruction & CAR_STATE_REVERSING_SETUP_THROTTLE) {
 	    	result += ' reversing-setup-throttle';
+	    	++count;
 	    }
 
-	    return result;
+    	return " " + ((count > 1) ? plural : singular) + result;
 	};
 
 
@@ -590,25 +619,27 @@ var disassembler = (function() {
 		if ((opcode & 0xe0) == OPCODE_SKIP_IF_ANY) {
 			console.log(instruction.toString(16))
 			asm[offset + pc++]['code'] =
-				'skip if any' + decode_car_state(instruction);
+				'skip if' + decode_car_state(instruction, "is", "any");
 			return STATE_PROGRAM;
 		}
 		if ((opcode & 0xe0) == OPCODE_SKIP_IF_ALL) {
 			asm[offset + pc++]['code'] =
-				'skip if all' + decode_car_state(instruction);
+				'skip if' + decode_car_state(instruction, "all", "all");
 			return STATE_PROGRAM;
 		}
 		if ((opcode & 0xe0) == OPCODE_SKIP_IF_NONE) {
 			asm[offset + pc++]['code'] =
-				'skip if none' + decode_car_state(instruction);
+				'skip if' + decode_car_state(instruction, "not", "none");
 			return STATE_PROGRAM;
 		}
+
 
 		if (opcode >= FIRST_SKIP_IF_OPCODE  &&  opcode <= LAST_SKIP_IF_OPCODE) {
 			asm[offset + pc++]['code'] =
 				'skip if ' + decode_skip_if(opcode, instruction);
 			return STATE_PROGRAM;
 		}
+
 
 		switch (opcode) {
 			case opcodes['END_OF_PROGRAM']:
