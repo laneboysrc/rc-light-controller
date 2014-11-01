@@ -131,7 +131,8 @@ void emit_led_instruction(uint32_t instruction, YYLTYPE *location)
         return;
     }
 
-    if (led_list.count > 1  &&  is_skip_if(*(last_instruction -1))) {
+    if (led_list.count > 1  &&  pc > 0  &&
+            is_skip_if(*(last_instruction -1))) {
         yyerror(location, "commands using multiple LEDs can not follow 'skip if'");
     }
 
