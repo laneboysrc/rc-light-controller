@@ -258,17 +258,17 @@ code_line
 
 command
   : GOTO LABEL
-      { emit($1 | ($2->index) & 0xffffff); }
+      { emit($1 | (($2->index) & 0xffffff)); }
   | GOTO UNDECLARED_SYMBOL
-      { emit($1); add_symbol($2->name, LABEL, -1, &@2); }
+      { add_symbol($2->name, LABEL, -1, &@2); emit($1); }
   | FADE leds STEPSIZE VARIABLE
       { emit_led_instruction($1 | $4->index); }
   | FADE leds STEPSIZE GLOBAL_VARIABLE
       { emit_led_instruction($1 | $4->index); }
   | FADE leds STEPSIZE NUMBER
-      { emit_led_instruction($1 | ($4 & 0xff)); }
+      { emit_led_instruction($1 | INSTRUCTION_MODIFIER_IMMEDIATE | ($4 & 0xff)); }
   | FADE leds STEPSIZE NUMBER '%'
-      { emit_led_instruction($1 | ($4 & 0xff)); }
+      { emit_led_instruction($1 | INSTRUCTION_MODIFIER_IMMEDIATE | ($4 & 0xff)); }
   | SLEEP parameter
       { emit($1 | $2); }
   | SKIP IF test_expression

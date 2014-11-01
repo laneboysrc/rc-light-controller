@@ -17,7 +17,6 @@ led reversing-r = master[13]
 led indicator-rear-l = master[14]
 led indicator-rear-r = master[15]
 
-    sleep 0
 loop:
     fade parking-l, parking-r, main-beam-l, main-beam-r, high-beam-l,  high-beam-r, indicator-front-l, indicator-front-r, roof, brake, tail-brake-l, tail-brake-r, reversing-l, reversing-r, indicator-rear-l, indicator-rear-r   stepsize 0
 
@@ -49,7 +48,6 @@ led reversing-r = master[13]
 led indicator-rear-l = master[14]
 led indicator-rear-r = master[15]
 
-    sleep 0
 loop:
     fade parking-l, parking-r, main-beam-l, main-beam-r, high-beam-l,  high-beam-r, indicator-front-l, indicator-front-r, roof, brake, tail-brake-l, tail-brake-r, reversing-l, reversing-r, indicator-rear-l, indicator-rear-r   stepsize 0
 
@@ -81,7 +79,6 @@ led reversing-r = master[13]
 led indicator-rear-l = master[14]
 led indicator-rear-r = master[15]
 
-    sleep 0
 loop:
     sleep 0
 
@@ -121,7 +118,6 @@ led reversing-r = master[13]
 led indicator-rear-l = master[14]
 led indicator-rear-r = master[15]
 
-    sleep 0
 loop:
     sleep 0
 

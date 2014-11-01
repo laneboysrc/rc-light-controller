@@ -120,7 +120,7 @@ $(TARGET_HEX): $(TARGET_ELF)
 	$(QUIET) $(OBJCOPY) $< -O ihex $@
 
 default_light_program:
-	$(ECHO) [CP] $@
+	$(ECHO) [ASM] $@
 	$(QUIET) cd $(LIGHT_PROGRAM_ASSEMBLER_PATH) && $(MAKE) run RUN_OPTIONS="-o $(abspath config_light_programs.c) $(abspath light_programs/generic.light_program)"
 
 # Create list files that include C code as well as Assembler

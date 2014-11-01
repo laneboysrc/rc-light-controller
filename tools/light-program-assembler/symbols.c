@@ -181,12 +181,13 @@ static void set_undeclared_symbol(const char *name)
 {
     char *name_string;
 
+
     if (undeclared_symbol.name != NULL) {
-        free((char *)undeclared_symbol.name);
+        free((void *)undeclared_symbol.name);
         undeclared_symbol.name = NULL;
     }
 
-    name_string = (char *)calloc(strlen(name), 1);
+    name_string = (char *)calloc(strlen(name) + 1, 1);
     if (name_string == NULL) {
         fprintf(stderr,
             "SYMBOLS: ERROR: Out of memory when allocating undeclared symbol name\n");
@@ -197,6 +198,7 @@ static void set_undeclared_symbol(const char *name)
     undeclared_symbol.name = name_string;
     undeclared_symbol.token = UNDECLARED_SYMBOL;
     undeclared_symbol.index = -1;
+    undeclared_symbol.next = NULL;
 }
 
 
@@ -390,7 +392,7 @@ void add_symbol(const char *name, int token, int index, YYLTYPE *location)
         exit(1);
     }
 
-    name_string = (char *)calloc(strlen(name), 1);
+    name_string = (char *)calloc(strlen(name) + 1, 1);
     if (name_string == NULL) {
         fprintf(stderr,
             "SYMBOLS: ERROR: Out of memory when allocating a symbol name\n");

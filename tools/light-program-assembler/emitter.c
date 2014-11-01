@@ -149,7 +149,6 @@ void emit_led_instruction(uint32_t instruction)
     emit(instruction | (stop << 16) | (start << 8));
 
     led_list.count = 0;
-    ++pc;
 }
 
 
