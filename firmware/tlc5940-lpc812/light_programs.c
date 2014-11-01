@@ -73,34 +73,24 @@
             - There can only be one event active
             - New events stop currently running events
             - Event programs have priority over other programs regarding light use
-        - Program states
+        - Run states
             - Any of the car states
-                - light switch position[9]
-                - tail light (shortcut to light switch position > 0)
-                - neutral
-                - forward
-                - reversing
-                - braking
-                - indicator left (static flag)
-                - indicator left (static flag)
-                - hazard (static flag)
-                - blink flag
-                - blink indicator left
-                - blink indicator right
-                - gear 1
-                - gear 2
-                - winch states (including disabled)
+            - Any of the priority states like initializing, no-signal
             - Multiple programs can be running in parallel
                 - If multiple programs run then the first program using a
                   particular light wins, the other can not use that light
 
 
-    The first word of a light program is a bit-field, each bit indicating
+    The first  word of a light program defines the priority states when the
+    program is run.
+
+    The second word of a light program defines the car states when the program
+    is run. This is mutually exclusive with the priority states.
+
+    The third word  is a bit-field, each bit indicating
     whether the corresponding LED is used by the light program.
     If a light is used that is not specified here, weird things may happen.
 
-    The second word defines the states and events that cause the program to
-    be ran.
 
 
 ******************************************************************************/
