@@ -4,6 +4,7 @@ var disassembler = (function() {
 	var MAX_NUMBER_OF_INSTRUCTIONS = 16 * 1024 / 4;
 
 	var asm = new Array(MAX_NUMBER_OF_INSTRUCTIONS);
+	var leds_used = 0;
 	var variables = {};
 	var var_offsets = [];
 	var labels = {};
@@ -289,6 +290,8 @@ var disassembler = (function() {
 		var i;
 		var any_led = false;
 
+		leds_used = instruction;
+
 		for (i = 0; i < 32; i++) {
 			if (instruction & (1 << i)) {
 				var type = (i < 16) ? 'master' : 'slave';
@@ -310,12 +313,21 @@ var disassembler = (function() {
 		var stop = (instruction & 0x00ff0000) >> 16;
 		var start = (instruction & 0x0000ff00) >> 8;
 		var result = '';
+		var led_bitmap = 0
+
 
 		while (start <= stop) {
+			led_bitmap |= (1 << start);
 			if (result != '') {
 				result += ', ';
 			}
 			result += 'led' + start++;
+		}
+
+		// If all used LEDs are used in the instruction then output "all leds"
+		// instead of a giant list of leds.
+		if (led_bitmap == leds_used) {
+			return "all leds";
 		}
 
 		return result;
@@ -617,7 +629,6 @@ var disassembler = (function() {
 	// *************************************************************************
 	var process_opcode = function (opcode, instruction) {
 		if ((opcode & 0xe0) == OPCODE_SKIP_IF_ANY) {
-			console.log(instruction.toString(16))
 			asm[offset + pc++]['code'] =
 				'skip if' + decode_car_state(instruction, "is", "any");
 			return STATE_PROGRAM;

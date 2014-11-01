@@ -5,7 +5,7 @@ TO DO LIST for the RC Light Controller
 
 * FW: Can we preserve the persistent settings upon reflash?
 
-* FW: When a priority program runs once, and another state takes precedence,
+* DOC: When a priority program runs once, and another state takes precedence,
   the program has no effect and after the other state disappears, the lights
   are still wrong. Solution is to output constantly in a loop,
   including fade commands!.
@@ -26,14 +26,6 @@ TO DO LIST for the RC Light Controller
 
 * CFG: bypass decompilation by embedding the source files of light programs for
   the default firmware
-
-* ASM: Optimizer: combine subsequent fade and led= instructions into a
-  single opcode if possible
-
-* DASM: Detect "all leds" shortcut
-
-* DASM: add line continuation character, split at column 80
-
 
 
 * Test hysteresis for drive mode
