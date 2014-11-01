@@ -113,6 +113,12 @@ static RESERVED_WORD_T car_state[] = {
     {.name = "winch-in", .token = CAR_STATE, .opcode = (1 << 21)},
     {.name = "winch-out", .token = CAR_STATE, .opcode = (1 << 22)},
 
+    {.name = "servo-output-setup-centre", .token = CAR_STATE, .opcode = (1 << 24)},
+    {.name = "servo-output-setup-left", .token = CAR_STATE, .opcode = (1 << 25)},
+    {.name = "servo-output-setup-right", .token = CAR_STATE, .opcode = (1 << 26)},
+    {.name = "reversing-setup-steering", .token = CAR_STATE, .opcode = (1 << 27)},
+    {.name = "reversing-setup-throttle", .token = CAR_STATE, .opcode = (1 << 28)},
+
     {.name = NULL, .token = EOF},
 };
 

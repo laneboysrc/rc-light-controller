@@ -38,11 +38,11 @@ TO DO LIST for the RC Light Controller
   commands
   DASM: Detect "all leds" shortcut
 
-* FW, ASM, DASM: add priority run conditions as part of car state
-
 * ASM: fix multiple newlines due to comment being let through by the scanner
 
 * ASM: line continuation using \ character
+
+* ASM: fix issue with forward decleration on generic.light_program
 
 
 

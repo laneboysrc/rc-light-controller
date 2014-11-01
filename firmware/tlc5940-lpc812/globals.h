@@ -186,6 +186,45 @@ typedef enum {
 
 // ****************************************************************************
 typedef enum {
+    CAR_STATE_LIGHT_SWITCH_POSITION     = (1 << 0),     // Bits 0..8
+    CAR_STATE_LIGHT_SWITCH_POSITION_1   = (1 << 1),
+    CAR_STATE_LIGHT_SWITCH_POSITION_2   = (1 << 2),
+    CAR_STATE_LIGHT_SWITCH_POSITION_3   = (1 << 3),
+    CAR_STATE_LIGHT_SWITCH_POSITION_4   = (1 << 4),
+    CAR_STATE_LIGHT_SWITCH_POSITION_5   = (1 << 5),
+    CAR_STATE_LIGHT_SWITCH_POSITION_6   = (1 << 6),
+    CAR_STATE_LIGHT_SWITCH_POSITION_7   = (1 << 7),
+    CAR_STATE_LIGHT_SWITCH_POSITION_8   = (1 << 8),
+
+    CAR_STATE_NEUTRAL                   = (1 << 9),
+    CAR_STATE_FORWARD                   = (1 << 10),
+    CAR_STATE_REVERSING                 = (1 << 11),
+    CAR_STATE_BRAKING                   = (1 << 12),
+
+    CAR_STATE_INDICATOR_LEFT            = (1 << 13),
+    CAR_STATE_INDICATOR_RIGHT           = (1 << 14),
+    CAR_STATE_HAZARD                    = (1 << 15),
+    CAR_STATE_BLINK_FLAG                = (1 << 16),
+    CAR_STATE_BLINK_LEFT                = (1 << 17),
+    CAR_STATE_BLINK_RIGHT               = (1 << 18),
+
+    CAR_STATE_WINCH_DISABLERD           = (1 << 19),
+    CAR_STATE_WINCH_IDLE                = (1 << 20),
+    CAR_STATE_WINCH_IN                  = (1 << 21),
+    CAR_STATE_WINCH_OUT                 = (1 << 22),
+
+    // 1 bit still free ...
+
+    CAR_STATE_SERVO_OUTPUT_SETUP_CENTRE = (1 << 24),
+    CAR_STATE_SERVO_OUTPUT_SETUP_LEFT   = (1 << 25),
+    CAR_STATE_SERVO_OUTPUT_SETUP_RIGHT  = (1 << 26),
+    CAR_STATE_REVERSING_SETUP_STEERING  = (1 << 27),
+    CAR_STATE_REVERSING_SETUP_THROTTLE  = (1 << 28),
+} LIGHT_PROGRAM_CAR_STATE_T;
+
+
+// ****************************************************************************
+typedef enum {
     // By specifying this unused value we force the enmeration to fit in a
     // uint16_t
     EMPTY = 0xffff,

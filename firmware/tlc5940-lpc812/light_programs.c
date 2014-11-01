@@ -111,6 +111,7 @@ typedef struct {
 } LIGHT_PROGRAM_CPU_T;
 
 static LIGHT_PROGRAM_CPU_T cpu[MAX_LIGHT_PROGRAMS];
+static uint32_t car_state;
 static uint32_t run_state;
 static uint32_t priority_run_state;
 
@@ -153,42 +154,36 @@ void next_light_sequence(void)
 	++var[0];
 }
 
+
 // ****************************************************************************
 static void load_light_program_environment(void)
 {
     priority_run_state = 0;
-
     if (global_flags.no_signal) {
         priority_run_state |= RUN_WHEN_NO_SIGNAL;
     }
-
     if (global_flags.initializing) {
         priority_run_state |= RUN_WHEN_INITIALIZING;
     }
-
     if (global_flags.servo_output_setup == SERVO_OUTPUT_SETUP_CENTRE) {
         priority_run_state |= RUN_WHEN_SERVO_OUTPUT_SETUP_CENTRE;
     }
-
     if (global_flags.servo_output_setup == SERVO_OUTPUT_SETUP_LEFT) {
         priority_run_state |= RUN_WHEN_SERVO_OUTPUT_SETUP_LEFT;
     }
-
     if (global_flags.servo_output_setup == SERVO_OUTPUT_SETUP_RIGHT) {
         priority_run_state |= RUN_WHEN_SERVO_OUTPUT_SETUP_RIGHT;
     }
-
     if (global_flags.reversing_setup & REVERSING_SETUP_STEERING) {
         priority_run_state |= RUN_WHEN_REVERSING_SETUP_STEERING;
     }
-
     if (global_flags.reversing_setup & REVERSING_SETUP_THROTTLE) {
         priority_run_state |= RUN_WHEN_REVERSING_SETUP_THROTTLE;
     }
 
 
     run_state = RUN_ALWAYS;
-
+    run_state |= (RUN_WHEN_LIGHT_SWITCH_POSITION << light_switch_position);
     if (global_flags.forward) {
         run_state |= RUN_WHEN_FORWARD;
     }
@@ -198,29 +193,24 @@ static void load_light_program_environment(void)
     else {
         run_state |= RUN_WHEN_NEUTRAL;
     }
-
     if (global_flags.braking) {
         run_state |= RUN_WHEN_BRAKING;
     }
-
     if (global_flags.blink_flag) {
         run_state |= RUN_WHEN_BLINK_FLAG;
     }
-
     if (global_flags.blink_indicator_left) {
         run_state |= RUN_WHEN_INDICATOR_LEFT;
         if (global_flags.blink_flag) {
             run_state |= RUN_WHEN_BLINK_LEFT;
         }
     }
-
     if (global_flags.blink_indicator_right) {
         run_state |= RUN_WHEN_INDICATOR_RIGHT;
         if (global_flags.blink_flag) {
             run_state |= RUN_WHEN_BLINK_RIGHT;
         }
     }
-
     if (global_flags.blink_hazard) {
         run_state |= RUN_WHEN_HAZARD;
         if (global_flags.blink_flag) {
@@ -229,7 +219,25 @@ static void load_light_program_environment(void)
         }
     }
 
-    run_state |= (RUN_WHEN_LIGHT_SWITCH_POSITION << light_switch_position);
+
+    // car_state is run_state (minus run-always) plus some of the priority
+    // run conditions mixed in
+    car_state = run_state & ~RUN_ALWAYS;
+    if (global_flags.servo_output_setup == SERVO_OUTPUT_SETUP_CENTRE) {
+        car_state |= CAR_STATE_SERVO_OUTPUT_SETUP_CENTRE;
+    }
+    if (global_flags.servo_output_setup == SERVO_OUTPUT_SETUP_LEFT) {
+        car_state |= CAR_STATE_SERVO_OUTPUT_SETUP_LEFT;
+    }
+    if (global_flags.servo_output_setup == SERVO_OUTPUT_SETUP_RIGHT) {
+        car_state |= CAR_STATE_SERVO_OUTPUT_SETUP_RIGHT;
+    }
+    if (global_flags.reversing_setup & REVERSING_SETUP_STEERING) {
+        car_state |= CAR_STATE_REVERSING_SETUP_STEERING;
+    }
+    if (global_flags.reversing_setup & REVERSING_SETUP_THROTTLE) {
+        car_state |= CAR_STATE_REVERSING_SETUP_THROTTLE;
+    }
 }
 
 
@@ -420,20 +428,20 @@ static void execute_program(
         }
 
         if ((opcode & 0xe0) == OPCODE_SKIP_IF_ANY) {
-            if (instruction & run_state & 0x1fffffff) {
+            if (instruction & car_state & 0x1fffffff) {
                 c->PC++;
             }
             continue;
         }
         else if ((opcode & 0xe0) == OPCODE_SKIP_IF_ALL) {
-            if ((instruction & run_state & 0x1fffffff) ==
+            if ((instruction & car_state & 0x1fffffff) ==
                     (instruction & 0x1fffffff)) {
                 c->PC++;
             }
             continue;
         }
         else if ((opcode & 0xe0) == OPCODE_SKIP_IF_NONE) {
-            if ((instruction & run_state & 0x1fffffff) == 0) {
+            if ((instruction & car_state & 0x1fffffff) == 0) {
                 c->PC++;
             }
             continue;

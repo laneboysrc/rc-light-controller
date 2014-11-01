@@ -128,6 +128,35 @@ var disassembler = (function() {
 
     var RUN_ALWAYS                       	= (1 << 31);
 
+    var CAR_STATE_LIGHT_SWITCH_POSITION_0  	= (1 << 0);
+    var CAR_STATE_LIGHT_SWITCH_POSITION_1 	= (1 << 1);
+    var CAR_STATE_LIGHT_SWITCH_POSITION_2 	= (1 << 2);
+    var CAR_STATE_LIGHT_SWITCH_POSITION_3 	= (1 << 3);
+    var CAR_STATE_LIGHT_SWITCH_POSITION_4 	= (1 << 4);
+    var CAR_STATE_LIGHT_SWITCH_POSITION_5 	= (1 << 5);
+    var CAR_STATE_LIGHT_SWITCH_POSITION_6 	= (1 << 6);
+    var CAR_STATE_LIGHT_SWITCH_POSITION_7 	= (1 << 7);
+    var CAR_STATE_LIGHT_SWITCH_POSITION_8 	= (1 << 8);
+    var CAR_STATE_NEUTRAL                 	= (1 << 9);
+    var CAR_STATE_FORWARD                 	= (1 << 10);
+    var CAR_STATE_REVERSING               	= (1 << 11);
+    var CAR_STATE_BRAKING                 	= (1 << 12);
+    var CAR_STATE_INDICATOR_LEFT          	= (1 << 13);
+    var CAR_STATE_INDICATOR_RIGHT         	= (1 << 14);
+    var CAR_STATE_HAZARD                  	= (1 << 15);
+    var CAR_STATE_BLINK_FLAG              	= (1 << 16);
+    var CAR_STATE_BLINK_LEFT              	= (1 << 17);
+    var CAR_STATE_BLINK_RIGHT             	= (1 << 18);
+    var CAR_STATE_WINCH_DISABLERD         	= (1 << 19);
+    var CAR_STATE_WINCH_IDLE              	= (1 << 20);
+    var CAR_STATE_WINCH_IN                	= (1 << 21);
+    var CAR_STATE_WINCH_OUT               	= (1 << 22);
+    var CAR_STATE_SERVO_OUTPUT_SETUP_CENTRE = (1 << 24);
+    var CAR_STATE_SERVO_OUTPUT_SETUP_LEFT   = (1 << 25);
+    var CAR_STATE_SERVO_OUTPUT_SETUP_RIGHT  = (1 << 26);
+    var CAR_STATE_REVERSING_SETUP_STEERING  = (1 << 27);
+    var CAR_STATE_REVERSING_SETUP_THROTTLE  = (1 << 28);
+
 
 	// *************************************************************************
     var set_variable_used = function (index, current_program) {
@@ -251,15 +280,6 @@ var disassembler = (function() {
 		}
 		if (instruction & RUN_WHEN_WINCH_OUT) {
 			asm[offset++]['decleration'] = "run when winch-out";
-		}
-		if (instruction & RUN_WHEN_GEAR_1) {
-			asm[offset++]['decleration'] = "run when gear-1";
-		}
-		if (instruction & RUN_WHEN_GEAR_2) {
-			asm[offset++]['decleration'] = "run when gear-2";
-		}
-		if (instruction & RUN_WHEN_GEAR_3) {
-			asm[offset++]['decleration'] = "run when gear-3";
 		}
 	};
 
@@ -476,83 +496,89 @@ var disassembler = (function() {
 	var decode_car_state = function (instruction) {
 		var result = '';
 
-	    if (instruction & RUN_WHEN_LIGHT_SWITCH_POSITION_0) {
+	    if (instruction & CAR_STATE_LIGHT_SWITCH_POSITION_0) {
 	    	result +=  'light-switch-position0';
 	    }
-	    if (instruction & RUN_WHEN_LIGHT_SWITCH_POSITION_1) {
+	    if (instruction & CAR_STATE_LIGHT_SWITCH_POSITION_1) {
 	    	result += ' light-switch-position1';
 	    }
-	    if (instruction & RUN_WHEN_LIGHT_SWITCH_POSITION_2) {
+	    if (instruction & CAR_STATE_LIGHT_SWITCH_POSITION_2) {
 	    	result += ' light-switch-position2';
 	    }
-	    if (instruction & RUN_WHEN_LIGHT_SWITCH_POSITION_3) {
+	    if (instruction & CAR_STATE_LIGHT_SWITCH_POSITION_3) {
 	    	result += ' light-switch-position3';
 	    }
-	    if (instruction & RUN_WHEN_LIGHT_SWITCH_POSITION_4) {
+	    if (instruction & CAR_STATE_LIGHT_SWITCH_POSITION_4) {
 	    	result += ' light-switch-position4';
 	    }
-	    if (instruction & RUN_WHEN_LIGHT_SWITCH_POSITION_5) {
+	    if (instruction & CAR_STATE_LIGHT_SWITCH_POSITION_5) {
 	    	result += ' light-switch-position5';
 	    }
-	    if (instruction & RUN_WHEN_LIGHT_SWITCH_POSITION_6) {
+	    if (instruction & CAR_STATE_LIGHT_SWITCH_POSITION_6) {
 	    	result += ' light-switch-position6';
 	    }
-	    if (instruction & RUN_WHEN_LIGHT_SWITCH_POSITION_7) {
+	    if (instruction & CAR_STATE_LIGHT_SWITCH_POSITION_7) {
 	    	result += ' light-switch-position7';
 	    }
-	    if (instruction & RUN_WHEN_LIGHT_SWITCH_POSITION_8) {
+	    if (instruction & CAR_STATE_LIGHT_SWITCH_POSITION_8) {
 	    	result += ' light-switch-position8';
 	    }
-	    if (instruction & RUN_WHEN_NEUTRAL) {
+	    if (instruction & CAR_STATE_NEUTRAL) {
 	    	result += ' neutral';
 	    }
-	    if (instruction & RUN_WHEN_FORWARD) {
+	    if (instruction & CAR_STATE_FORWARD) {
 	    	result += ' forward';
 	    }
-	    if (instruction & RUN_WHEN_REVERSING) {
+	    if (instruction & CAR_STATE_REVERSING) {
 	    	result += ' reversing';
 	    }
-	    if (instruction & RUN_WHEN_BRAKING) {
+	    if (instruction & CAR_STATE_BRAKING) {
 	    	result += ' braking';
 	    }
-	    if (instruction & RUN_WHEN_INDICATOR_LEFT) {
+	    if (instruction & CAR_STATE_INDICATOR_LEFT) {
 	    	result += ' indicator-left';
 	    }
-	    if (instruction & RUN_WHEN_INDICATOR_RIGHT) {
+	    if (instruction & CAR_STATE_INDICATOR_RIGHT) {
 	    	result += ' indicator-right';
 	    }
-	    if (instruction & RUN_WHEN_HAZARD) {
+	    if (instruction & CAR_STATE_HAZARD) {
 	    	result += ' hazard';
 	    }
-	    if (instruction & RUN_WHEN_BLINK_FLAG) {
+	    if (instruction & CAR_STATE_BLINK_FLAG) {
 	    	result += ' blink-flag';
 	    }
-	    if (instruction & RUN_WHEN_BLINK_LEFT) {
+	    if (instruction & CAR_STATE_BLINK_LEFT) {
 	    	result += ' blink-left';
 	    }
-	    if (instruction & RUN_WHEN_BLINK_RIGHT) {
+	    if (instruction & CAR_STATE_BLINK_RIGHT) {
 	    	result += ' blink-right';
 	    }
-	    if (instruction & RUN_WHEN_WINCH_DISABLERD) {
+	    if (instruction & CAR_STATE_WINCH_DISABLERD) {
 	    	result += ' winch-disabled';
 	    }
-	    if (instruction & RUN_WHEN_WINCH_IDLE) {
+	    if (instruction & CAR_STATE_WINCH_IDLE) {
 	    	result += ' winch-idle';
 	    }
-	    if (instruction & RUN_WHEN_WINCH_IN) {
+	    if (instruction & CAR_STATE_WINCH_IN) {
 	    	result += ' winch-in';
 	    }
-	    if (instruction & RUN_WHEN_WINCH_OUT) {
+	    if (instruction & CAR_STATE_WINCH_OUT) {
 	    	result += ' winch-out';
 	    }
-	    if (instruction & RUN_WHEN_GEAR_1) {
-	    	result += ' gear-1';
+	    if (instruction & CAR_STATE_SERVO_OUTPUT_SETUP_CENTRE) {
+	    	result += ' servo-output-setup-centre';
 	    }
-	    if (instruction & RUN_WHEN_GEAR_2) {
-	    	result += ' gear-2';
+	    if (instruction & CAR_STATE_SERVO_OUTPUT_SETUP_LEFT) {
+	    	result += ' servo-output-setup-left';
 	    }
-	    if (instruction & RUN_WHEN_GEAR_3) {
-	    	result += ' gear-3';
+	    if (instruction & CAR_STATE_SERVO_OUTPUT_SETUP_RIGHT) {
+	    	result += ' servo-output-setup-right';
+	    }
+	    if (instruction & CAR_STATE_REVERSING_SETUP_STEERING) {
+	    	result += ' reversing-setup-steering';
+	    }
+	    if (instruction & CAR_STATE_REVERSING_SETUP_THROTTLE) {
+	    	result += ' reversing-setup-throttle';
 	    }
 
 	    return result;
@@ -562,6 +588,7 @@ var disassembler = (function() {
 	// *************************************************************************
 	var process_opcode = function (opcode, instruction) {
 		if ((opcode & 0xe0) == OPCODE_SKIP_IF_ANY) {
+			console.log(instruction.toString(16))
 			asm[offset + pc++]['code'] =
 				'skip if any' + decode_car_state(instruction);
 			return STATE_PROGRAM;
@@ -686,10 +713,9 @@ var disassembler = (function() {
 					decode_variable_assignment(instruction, '= abs');
 				break;
 
-
 			default:
 				asm[offset + pc++]['code'] =
-					'TODO 0x' + (instruction & 0xffffffff).toString(16);
+					'TODO 0x' + instruction.toString(16);
 				break
 		}
 
