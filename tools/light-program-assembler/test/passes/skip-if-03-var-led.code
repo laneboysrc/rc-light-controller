@@ -9,4 +9,4 @@ led l = master[7]
     skip if x < l
     skip if x >= l
     skip if x <= l
-    wait 1
+    sleep 1

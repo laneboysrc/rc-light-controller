@@ -1,4 +1,4 @@
 run always
 
     skip if any hazard indicator-left indicator-right
-    wait 1
+    sleep 1

@@ -2,4 +2,4 @@ run always
 
 led l = master[0]
 
-    wait l
+    sleep l

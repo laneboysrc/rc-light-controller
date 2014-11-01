@@ -5,9 +5,9 @@ global var z
 global var g
 
 label1:
-    wait 1
+    sleep 1
     goto forward_label
-    wait 2
+    sleep 2
     z = 47
 forward_label:
     x = 10
@@ -23,11 +23,11 @@ var x
 global var z
 var g
 
-    wait 2
+    sleep 2
 label2:
     g = 3
     goto forward_label
-    wait 3
+    sleep 3
     x = 21
     y = x
 forward_label:

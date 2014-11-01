@@ -2,6 +2,6 @@ run always
 
 var x
 
-    wait 6
-    wait 0
-    wait x
+    sleep 6
+    sleep 0
+    sleep x

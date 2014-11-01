@@ -9,4 +9,4 @@ var y
     skip if x < y
     skip if x >= y
     skip if x <= y
-    wait 1
+    sleep 1

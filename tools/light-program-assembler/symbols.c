@@ -130,7 +130,7 @@ static RESERVED_WORD_T reserved_words[] = {
     {.name = "led", .token = LED},
     {.name = "fade", .token = FADE, .opcode = 0x04000000},
     {.name = "stepsize", .token = STEPSIZE},
-    {.name = "wait", .token = WAIT, .opcode = 0x06000000},
+    {.name = "sleep", .token = SLEEP, .opcode = 0x06000000},
     {.name = "skip", .token = SKIP},
     {.name = "if", .token = IF},
     {.name = "any", .token = ANY, .opcode = 0x60000000},

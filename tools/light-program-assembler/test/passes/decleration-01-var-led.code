@@ -11,4 +11,4 @@ led light3 =master[1]
 led roof-light-with-dash=slave[4]
 led lampFog = master[2]
 
-wait 1
+sleep 1

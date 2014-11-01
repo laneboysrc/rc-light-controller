@@ -6,7 +6,7 @@ LANE Boys RC light controller (TLC5940/LPC812 version)
 
 
 reserved keywords:
-  goto, var, led, wait, skip, if, is, any, all, none, not, fade, stepsize,
+  goto, var, led, sleep, skip, if, is, any, all, none, not, fade, stepsize,
   run, when, or, master, slave, global, random, steering, throttle, abs
 
   clicks: Pre-defined global variable; increments when 6-clicks on CH3
@@ -86,7 +86,7 @@ extern int yylex(YYSTYPE * yylval_param, YYLTYPE * yylloc_param);
 %token <instruction> FADE
 %token <instruction> STEPSIZE
 %token <instruction> GOTO
-%token <instruction> WAIT
+%token <instruction> SLEEP
 
 %token <instruction> '='
 %token <instruction> MUL_ASSIGN
@@ -268,7 +268,7 @@ command
       { emit_led_instruction($1 | ($4 & 0xff)); }
   | FADE leds STEPSIZE NUMBER '%'
       { emit_led_instruction($1 | ($4 & 0xff)); }
-  | WAIT parameter
+  | SLEEP parameter
       { emit($1 | $2); }
   | SKIP IF test_expression
   | expression

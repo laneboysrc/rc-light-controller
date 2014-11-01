@@ -2,11 +2,11 @@ run always
 
 
 label1:
-    wait 1
+    sleep 1
 
 label2:
-    wait 2
+    sleep 2
     goto label1
 
 label1:
-    wait 3
+    sleep 3

@@ -45,8 +45,8 @@
 #define OPCODE_FADE             0x04    // FADE start..stop with var
 #define OPCODE_FADE_I           0x05    // FADE start..stop with uint8_t immediate
 
-#define OPCODE_WAIT             0x06    // wait type, id
-#define OPCODE_WAIT_I           0x07    // wait immediate
+#define OPCODE_SLEEP            0x06    // SLEEP type, id (ms)
+#define OPCODE_SLEEP_I          0x07    // SLEEP immediate (ms)
 
 #define OPCODE_ASSIGN           0x10    // VAR = type, id
 #define OPCODE_ASSIGN_I         0x11    // VAR = immediate

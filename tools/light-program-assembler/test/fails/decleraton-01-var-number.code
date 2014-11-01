@@ -2,5 +2,5 @@ run always
 
 var 42
 
-wait 1
+sleep 1
 

@@ -29,8 +29,8 @@ var disassembler = (function() {
 		"SET_I": 0x03,
 		"FADE": 0x04,
 		"FADE_I": 0x05,
-		"WAIT": 0x06,
-		"WAIT_I": 0x07,
+		"SLEEP": 0x06,
+		"SLEEP_I": 0x07,
 		"ASSIGN": 0x10,
 		"ASSIGN_I": 0x11,
 		"ADD": 0x12,
@@ -603,12 +603,12 @@ var disassembler = (function() {
 					decode_leds(instruction) + ' = ' + (instruction & 0xff) + "%";
 				break;
 
-			case opcodes['WAIT']:
-				asm[offset + pc++]['code'] = 'wait var' + (instruction & 0xff);
+			case opcodes['SLEEP']:
+				asm[offset + pc++]['code'] = 'sleep var' + (instruction & 0xff);
 				break;
 
-			case opcodes['WAIT_I']:
-				asm[offset + pc++]['code'] = 'wait ' + (instruction & 0xffff);
+			case opcodes['SLEEP_I']:
+				asm[offset + pc++]['code'] = 'sleep ' + (instruction & 0xffff);
 				break;
 
 			case opcodes['FADE']:

@@ -3,4 +3,4 @@ run always
 var x
 
     skip if none blink-flag x neutral
-    wait 1
+    sleep 1

@@ -3,4 +3,4 @@ run always
 led l = master[0]
 
     skip if none blink-flag l neutral
-    wait 1
+    sleep 1

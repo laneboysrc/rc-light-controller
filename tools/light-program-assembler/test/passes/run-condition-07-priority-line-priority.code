@@ -1,4 +1,4 @@
 run when initializing
 run when gear-changed
 
-wait 1
+sleep 1

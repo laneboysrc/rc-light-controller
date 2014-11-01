@@ -12,8 +12,8 @@
             - SET start_led stop_led VARIABLE (0..100%)
             - FADE start_led stop_led value (0..100%)
             - FADE start_led stop_led VARIABLE  (0..100%)
-            - WAIT time (ms)
-            - WAIT VARIABLE (ms)
+            - SLEEP time (ms)
+            - SLEEP VARIABLE (ms)
             - VARIABLE = {integer, VARIABLE, LED[x], random-value, TH, ST}
             - VARIABLE = abs {integer, VARIABLE, LED[x], random-value, TH, ST}
             - VARIABLE += {integer, VARIABLE, LED[x], random-value, TH, ST}
@@ -492,8 +492,8 @@ static void execute_program(
                 }
                 break;
 
-            case OPCODE_WAIT:
-            case OPCODE_WAIT_I:
+            case OPCODE_SLEEP:
+            case OPCODE_SLEEP_I:
                 parameter = get_parameter_value(instruction);
                 c->timer = (parameter > 0) ? (parameter / 20) : 0;
                 return;

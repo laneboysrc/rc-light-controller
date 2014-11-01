@@ -8,4 +8,4 @@ led x = slave[12]
     skip if x < 4
     skip if x >= 5
     skip if x <= 6
-    wait 1
+    sleep 1

@@ -1,4 +1,4 @@
 run always
 
 	skip if is hazard
-	wait 1
+	sleep 1

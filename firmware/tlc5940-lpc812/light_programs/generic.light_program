@@ -24,7 +24,7 @@ loop:
 
     indicator-front-l, indicator-front-r = 100%
 
-    wait 0
+    sleep 0
     goto loop
 
 __NEXT_PROGRAM__
@@ -55,7 +55,7 @@ loop:
 
     main-beam-l, main-beam-r = 100%
 
-    wait 0
+    sleep 0
     goto loop
 
 __NEXT_PROGRAM__

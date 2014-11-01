@@ -2,5 +2,5 @@ run always
 
 var x
 
-wait 1
+sleep 1
 goto x

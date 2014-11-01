@@ -1,4 +1,4 @@
 run when no-signal gear-changed
 run always
 
-wait 1
+sleep 1
