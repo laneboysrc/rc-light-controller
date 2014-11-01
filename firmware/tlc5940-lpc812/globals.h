@@ -109,9 +109,9 @@
 #define OPCODE_ABS              0x40    // var = |type, id|
 #define OPCODE_ABS_I            0x41    // var = |immediate|
 
-#define OPCODE_SKIP_IF_ANY      0x60    // 011 + 29 bits run_state!
-#define OPCODE_SKIP_IF_ALL      0x80    // 100 + 29 bits run_state!
-#define OPCODE_SKIP_IF_NONE     0xA0    // 101 + 29 bits run_state!
+#define OPCODE_SKIP_IF_ANY      0x60    // 011 + 29 bits run_state! 0x60 .. 0x7f
+#define OPCODE_SKIP_IF_ALL      0x80    // 100 + 29 bits run_state! 0x80 .. 0x9f
+#define OPCODE_SKIP_IF_NONE     0xA0    // 101 + 29 bits run_state! 0xa0 .. 0xbf
 
 #define OPCODE_END_OF_PROGRAM   0xfe
 #define OPCODE_END_OF_PROGRAMS  0xff

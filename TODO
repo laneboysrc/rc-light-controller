@@ -7,16 +7,18 @@ TO DO LIST for the RC Light Controller
 
 * FW: When a priority program runs once, and another state takes precedence,
   the program has no effect and after the other state disappears, the lights
-  are still wrong. Solution is to output constantly in a loop.
-  Need to think how to resolve this. Maybe just needs documenting.
+  are still wrong. Solution is to output constantly in a loop,
+  including fade commands!.
+  Needs documenting.
 
-* CFG: Auto detect highest light switch position used (also include light programs!)
+* CFG: Auto detect highest light switch position used
+  Also include light programs!
 
 * CFG, Add hardware test as one of the configurations. Use a light program,
   i.e. a configuration that we load internally.
 
-* CFG: Have configurator check firmware version of loaded firmware and be able to
-  "upgrade" when a HEX with old firmware is loaded
+* CFG: Have configurator check firmware version of loaded firmware and be able
+  to "upgrade" when a HEX with old firmware is loaded
 
 * CFG: Add footer with license info, web info, etc
 
@@ -26,47 +28,30 @@ TO DO LIST for the RC Light Controller
   the default firmware
 
 * ASM: Optimizer: combine subsequent fade and led= instructions into a
-  single opcode
+  single opcode if possible
 
 * ASM: Fix issue with SKIP IF followed by multiple LEDs commands that have been
   automatically split due to the LEDs not being consecutive!
+  Allow only single LED.
 
-* ASM: Make "all" shortcut, referencing all used LEDs. For fade and set commands
-
-* ASM: fix multiple newlines due to comment being let through by the scanner
+* ASM: Make "all leds" shortcut, referencing all used LEDs. For fade and set
+  commands
+  DASM: Detect "all leds" shortcut
 
 * FW, ASM: priority run conditions are not part of car state, but would
   be useful. Actually necessary as how else to do steering throttle reversing
   properly?!
+  Idea: make gear a special variable; frees up 3 bits so we should have
+  enough to merge in the priority states
+  We loose RUN WHEN gear-1, but that is not an issue as we can use RUN ALWAYS
+  and check the variable every loop.
+
+* ASM: fix multiple newlines due to comment being let through by the scanner
+
+* ASM: line continuation using \ character
 
 
 
-
-* Investigate whether we can detect the order of the incoming channels
-  automatically.
-  HK-310 and GT3B both send the servo signals in sequence (the GT3B has a 2us
-  gap though), but the order is difference:
-  - HK-310: ST - TH - CH3
-  - GT3B: TH - ST - CH3
-  - Futaba 4PL: outputs all channels simultanously
-
-    So we have to deal with the following situations:
-    - Servos are output in sequence with no percievable gap.
-        Order to be discovered
-        Read in sequence as hard-coded right now
-    - Servos are output simultanously
-        Wait for start of one servo, start timer, capture each individual
-        channel. Can we do that without causing jitter when two servos output
-        the same value?
-    - Servos are output with gaps between them
-        No actual system seen like this, but is plausible
-        In this case just read them round-robin one in each mainloop
-
-* Fix the issue with master and slave regarding UART RX usage in master for
-  the preprocessor use case.
-
-* Add PAGESEL statements to all calls and gotos to work properly when the code
-  grows beyond one page (which happens already for the Wraith!)
 
 * Test hysteresis for drive mode
 
@@ -78,6 +63,4 @@ TO DO LIST for the RC Light Controller
     * High power switched output using MOSFET
         Use NXP PMV20XN, 4.8A in SOT23 package
     * Align all 0.1 inch connectors to 0.1 inch grid (allows mounting on a breadboard)
-
-
 

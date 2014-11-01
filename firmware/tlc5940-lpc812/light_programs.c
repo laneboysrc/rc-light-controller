@@ -26,7 +26,7 @@
             - SKIP IF GREATER {VARIABLE, LED[x]} {integer, VARIABLE, LED[x], random-value, TH, ST}
             - SKIP IF SMALLER OR EQUAL  {VARIABLE, LED[x]} {integer, VARIABLE, LED[x], random-value, TH, ST}
             - SKIP IF SMALLER  {VARIABLE, LED[x]} {integer, VARIABLE, LED[x], random-value, TH, ST}
-            - SKIP IF ANY {run-state-mask} (compiler shortcut: SKIP IF {single-run-state})
+            - SKIP IF ANY {run-state-mask} (compiler shortcut: SKIP IF IS {single-run-state})
             - SKIP IF ALL {run-state-mask}
             - SKIP IF NONE {run-state-mask} (compiler shortcut: SKIP IF NOT {single-run-state})
 
