@@ -38,9 +38,9 @@ TO DO LIST for the RC Light Controller
   commands
   DASM: Detect "all leds" shortcut
 
-* ASM: line continuation using \ character
-
 * DASM: detect only one skif if condition and use IS or NOT
+
+*  DASM: add line continuation character, split at column 80
 
 
 

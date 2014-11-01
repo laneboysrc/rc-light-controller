@@ -1,0 +1,21 @@
+// This is checks line continuation characters '\'
+//
+
+run \
+   when\
+    indicator-left or braking \
+    or \        // Comment here, should not matter ...
+    indicator-right blink-flag \
+
+// ^ That linefeed should have triggered!
+
+    sleep 0
+pos1 :
+pos2 \
+:                  // Not very readable, but correct...
+    sleep \
+        2
+        goto \
+            pos1
+    goto \
+pos2

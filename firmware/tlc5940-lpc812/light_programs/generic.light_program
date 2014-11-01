@@ -32,10 +32,17 @@ led indicator-rear-r = master[15]
 
 loop:
     // Turn fading off for all leds, we want them to switch on/off immediately
-    fade parking-l, parking-r, main-beam-l, main-beam-r, high-beam-l,  high-beam-r, indicator-front-l, indicator-front-r, roof, brake, tail-brake-l, tail-brake-r, reversing-l, reversing-r, indicator-rear-l, indicator-rear-r   stepsize 0
+    fade parking-l, parking-r, main-beam-l, main-beam-r, high-beam-l, \
+            high-beam-r, indicator-front-l, indicator-front-r, roof, brake, \
+            tail-brake-l, tail-brake-r, reversing-l, reversing-r, \
+            indicator-rear-l, indicator-rear-r \
+        stepsize 0
 
     // Turn all lights except front indicators off.
-    parking-l, parking-r, main-beam-l, main-beam-r, high-beam-l, high-beam-r, roof, brake, tail-brake-l, tail-brake-r, reversing-l, reversing-r, indicator-rear-l, indicator-rear-r = 0%
+    parking-l, parking-r, main-beam-l, main-beam-r, high-beam-l, \
+    high-beam-r, roof, brake, tail-brake-l, tail-brake-r, reversing-l, \
+    reversing-r, indicator-rear-l, indicator-rear-r \
+        = 0%
 
     // Turn the indicators at the front fully on
     indicator-front-l, indicator-front-r = 100%
@@ -78,9 +85,16 @@ led indicator-rear-l = master[14]
 led indicator-rear-r = master[15]
 
 loop:
-    fade parking-l, parking-r, main-beam-l, main-beam-r, high-beam-l,  high-beam-r, indicator-front-l, indicator-front-r, roof, brake, tail-brake-l, tail-brake-r, reversing-l, reversing-r, indicator-rear-l, indicator-rear-r   stepsize 0
+    fade parking-l, parking-r, main-beam-l, main-beam-r, high-beam-l, \
+            high-beam-r, indicator-front-l, indicator-front-r, roof, brake, \
+            tail-brake-l, tail-brake-r, reversing-l, reversing-r, \
+            indicator-rear-l, indicator-rear-r \
+        stepsize 0
 
-    parking-l, parking-r, high-beam-l, high-beam-r, indicator-front-l, indicator-front-r, roof, brake, tail-brake-l, tail-brake-r, reversing-l, reversing-r, indicator-rear-l, indicator-rear-r = 0%
+    parking-l, parking-r, high-beam-l, high-beam-r, indicator-front-l, \
+    indicator-front-r, roof, brake, tail-brake-l, tail-brake-r, reversing-l, \
+    reversing-r, indicator-rear-l, indicator-rear-r \
+        = 0%
 
     main-beam-l, main-beam-r = 100%
 
@@ -128,13 +142,21 @@ led indicator-rear-r = master[15]
 loop:
     sleep 0
 
-    fade parking-l, parking-r, main-beam-l, main-beam-r, high-beam-l, high-beam-r, indicator-front-l, indicator-front-r, roof, brake, tail-brake-l, tail-brake-r, reversing-l, reversing-r, indicator-rear-l, indicator-rear-r   stepsize 0
+    fade parking-l, parking-r, main-beam-l, main-beam-r, high-beam-l, \
+            high-beam-r, indicator-front-l, indicator-front-r, roof, brake, \
+            tail-brake-l, tail-brake-r, reversing-l, reversing-r, \
+            indicator-rear-l, indicator-rear-r \
+        stepsize 0
 
     // Turn all lights off, then indicators or high beam on selectivly.
     // This won't cause any flicker as the light output is only executed
     // when a light program executes a "sleep" statement (or at the end of
     // a light program).
-    parking-l, parking-r, main-beam-l, main-beam-r, high-beam-l, high-beam-r, indicator-front-l, indicator-front-r, roof, brake, tail-brake-l, tail-brake-r, reversing-l, reversing-r, indicator-rear-l, indicator-rear-r = 0%
+    parking-l, parking-r, main-beam-l, main-beam-r, high-beam-l, high-beam-r, \
+    indicator-front-l, indicator-front-r, roof, brake, tail-brake-l, \
+    tail-brake-r, reversing-l, reversing-r, indicator-rear-l, \
+    indicator-rear-r \
+        = 0%
 
     skip if is reversing-setup-steering         // Steering setup?
     goto not_steering                           // No: check throttle
@@ -191,9 +213,17 @@ led indicator-rear-r = master[15]
 loop:
     sleep 0
 
-    fade parking-l, parking-r, main-beam-l, main-beam-r, high-beam-l, high-beam-r, indicator-front-l, indicator-front-r, roof, brake, tail-brake-l, tail-brake-r, reversing-l, reversing-r, indicator-rear-l, indicator-rear-r   stepsize 0
+    fade parking-l, parking-r, main-beam-l, main-beam-r, high-beam-l, \
+            high-beam-r, indicator-front-l, indicator-front-r, roof, brake, \
+            tail-brake-l, tail-brake-r, reversing-l, reversing-r, \
+            indicator-rear-l, indicator-rear-r \
+        stepsize 0
 
-    parking-l, parking-r, main-beam-l, main-beam-r, high-beam-l, high-beam-r, roof, brake, tail-brake-l, tail-brake-r, reversing-l, reversing-r = 0%
+    parking-l, parking-r, main-beam-l, main-beam-r, high-beam-l, high-beam-r, \
+    indicator-front-l, indicator-front-r, roof, brake, tail-brake-l, \
+    tail-brake-r, reversing-l, reversing-r, indicator-rear-l, \
+    indicator-rear-r \
+        = 0%
 
     skip if not servo-output-setup-left
     goto left
@@ -205,7 +235,8 @@ loop:
 
     // Centre setup: light up all four indicators
 centre:
-    indicator-front-l, indicator-front-r, indicator-rear-l, indicator-rear-r = 100%
+    indicator-front-l, indicator-front-r, indicator-rear-l, indicator-rear-r \
+        = 100%
     goto loop
 
     // Left setup: light up all indicators on the left side

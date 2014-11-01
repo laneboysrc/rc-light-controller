@@ -116,16 +116,23 @@ goto|var|led|sleep|skip|if|is|any|all|none|not|fade|stepsize|run|when|or|master|
 ";"[^\n]*   /* eat up one-line comments */
 [ \t]+      /* eat up whitespace */
 
-\n+ {       /* Fold multiple consecutive \n into a single \n */
-     parse_state = UNKNOWN_PARSE_STATE;
-     offset = 1;
-     yylineno += yyleng;
+\\[ \t]*(("//"|;)[^\n]*)*\n {
+    /* eat up continuation characters '\', and the following \n */
+    /* Comments can appear in after the '\' character */
+    offset = 1;
+    ++yylineno;
+}
 
-     if (!line_is_empty) {
-         line_is_empty = true;
-         log_message(MODULE, INFO, "'\\n'\n");
-         return *yytext;
-     }
+\n {        /* Only ever give back a single in sequence \n */
+    parse_state = UNKNOWN_PARSE_STATE;
+    offset = 1;
+    ++yylineno;
+
+    if (!line_is_empty) {
+        line_is_empty = true;
+        log_message(MODULE, INFO, "'\\n'\n");
+        return *yytext;
+    }
 }
 
 . {
