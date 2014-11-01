@@ -11,9 +11,9 @@ const LIGHT_PROGRAMS_T light_programs = {
     .number_of_programs = 4,
     .start = {
         &light_programs.programs[0],
-        &light_programs.programs[10],
-        &light_programs.programs[20],
-        &light_programs.programs[35],
+        &light_programs.programs[9],
+        &light_programs.programs[18],
+        &light_programs.programs[33],
     },
 
     .programs = {
@@ -21,8 +21,7 @@ const LIGHT_PROGRAMS_T light_programs = {
         0x00000000,
         0x0000ffff,
         0x050f0000,
-        0x03050000,
-        0x030f0800,
+        0x030f0000,
         0x03070664,
         0x07000000,
         0x01000000,
@@ -32,8 +31,7 @@ const LIGHT_PROGRAMS_T light_programs = {
         0x00000000,
         0x0000ffff,
         0x050f0000,
-        0x03010000,
-        0x030f0400,
+        0x030f0000,
         0x03030264,
         0x07000000,
         0x01000000,

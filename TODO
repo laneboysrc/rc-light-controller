@@ -34,9 +34,7 @@ TO DO LIST for the RC Light Controller
   automatically split due to the LEDs not being consecutive!
   Allow only single LED.
 
-* ASM: Make "all leds" shortcut, referencing all used LEDs. For fade and set
-  commands
-  DASM: Detect "all leds" shortcut
+* DASM: Detect "all leds" shortcut
 
 * DASM: add line continuation character, split at column 80
 

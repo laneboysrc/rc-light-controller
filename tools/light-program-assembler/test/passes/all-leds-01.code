@@ -1,0 +1,14 @@
+run always
+
+var x
+
+led l1 = slave[2]
+led l2 = slave[3]
+led l3 = slave[4]
+led l4 = slave[5]
+
+led lx = slave[7]
+
+fade all leds stepsize 50
+
+all leds = 25%

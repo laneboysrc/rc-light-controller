@@ -75,6 +75,24 @@ void add_led_to_list(int led_index)
 {
     int i;
 
+    if (led_index < 0) {
+        // "All used LEDs" requested
+        uint32_t leds_used = get_leds_used();
+        led_list.count = 0;
+
+            log_message(MODULE, INFO,
+                "Adding all LEDs: 0x%08x\n", leds_used);
+
+
+        for (i = 0; i < 32; i++) {
+            if (leds_used & (1 << i)) {
+                led_list.elements[led_list.count++] = i;
+            }
+        }
+        return;
+    }
+
+
     // Discard duplicates
     for (i = 0; i < led_list.count; i++) {
         if (led_list.elements[i] == led_index) {
@@ -83,7 +101,6 @@ void add_led_to_list(int led_index)
             return;
         }
     }
-
 
     if (led_list.count < NUMBER_OF_LEDS) {
         led_list.elements[led_list.count++] = led_index;

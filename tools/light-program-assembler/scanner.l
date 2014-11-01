@@ -75,7 +75,7 @@ void initialize_scanner(int count, char **files)
     return NUMBER;
 }
 
-goto|var|led|sleep|skip|if|is|any|all|none|not|fade|stepsize|run|when|or|master|slave|global|random|steering|throttle|abs|__NEXT_PROGRAM__ {
+goto|var|led|leds|sleep|skip|if|is|any|all|none|not|fade|stepsize|run|when|or|master|slave|global|random|steering|throttle|abs|__NEXT_PROGRAM__ {
     line_is_empty = false;
     int token = get_reserved_word(yylval, yytext);
     log_message(MODULE, INFO,
