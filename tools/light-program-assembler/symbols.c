@@ -72,10 +72,6 @@ static RESERVED_WORD_T run_condition_tokens[] = {
     {.name = "winch-in", .token = RUN_CONDITION, .opcode = (1 << 21)},
     {.name = "winch-out", .token = RUN_CONDITION, .opcode = (1 << 22)},
 
-    {.name = "gear-1", .token = RUN_CONDITION, .opcode = (1 << 23)},
-    {.name = "gear-2", .token = RUN_CONDITION, .opcode = (1 << 24)},
-    {.name = "gear-3", .token = RUN_CONDITION, .opcode = (1 << 25)},
-
 
     {.name = "no-signal", .token = PRIORITY_RUN_CONDITION, .opcode = (1 << 0)},
     {.name = "initializing", .token = PRIORITY_RUN_CONDITION, .opcode = (1 << 1)},
@@ -117,10 +113,6 @@ static RESERVED_WORD_T car_state[] = {
     {.name = "winch-in", .token = CAR_STATE, .opcode = (1 << 21)},
     {.name = "winch-out", .token = CAR_STATE, .opcode = (1 << 22)},
 
-    {.name = "gear-1", .token = CAR_STATE, .opcode = (1 << 23)},
-    {.name = "gear-2", .token = CAR_STATE, .opcode = (1 << 24)},
-    {.name = "gear-3", .token = CAR_STATE, .opcode = (1 << 25)},
-
     {.name = NULL, .token = EOF},
 };
 
@@ -147,6 +139,7 @@ static RESERVED_WORD_T reserved_words[] = {
     {.name = "random", .token = RANDOM},
     {.name = "steering", .token = STEERING},
     {.name = "throttle", .token = THROTTLE},
+    {.name = "gear", .token = GEAR},
     {.name = "abs", .token = ABS, .opcode = 0x40000000},
 
     {.name = "__NEXT_PROGRAM__", .token = NEXT_PROGRAM, .opcode = 0xfe000000},

@@ -122,6 +122,7 @@
 #define PARAMETER_TYPE_RANDOM 2
 #define PARAMETER_TYPE_STEERING 3
 #define PARAMETER_TYPE_THROTTLE 4
+#define PARAMETER_TYPE_GEAR 5
 
 
 // Offset of special position within every light program
@@ -164,10 +165,6 @@ typedef enum {
     RUN_WHEN_WINCH_IDLE              = (1 << 20),
     RUN_WHEN_WINCH_IN                = (1 << 21),
     RUN_WHEN_WINCH_OUT               = (1 << 22),
-
-    RUN_WHEN_GEAR_1                  = (1 << 23),
-    RUN_WHEN_GEAR_2                  = (1 << 24),
-    RUN_WHEN_GEAR_3                  = (1 << 25),
 
     RUN_ALWAYS                       = (1 << 31)
 } LIGHT_PROGRAM_RUN_STATE_T;

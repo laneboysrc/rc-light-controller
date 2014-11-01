@@ -38,13 +38,7 @@ TO DO LIST for the RC Light Controller
   commands
   DASM: Detect "all leds" shortcut
 
-* FW, ASM: priority run conditions are not part of car state, but would
-  be useful. Actually necessary as how else to do steering throttle reversing
-  properly?!
-  Idea: make gear a special variable; frees up 3 bits so we should have
-  enough to merge in the priority states
-  We loose RUN WHEN gear-1, but that is not an issue as we can use RUN ALWAYS
-  and check the variable every loop.
+* FW, ASM, DASM: add priority run conditions as part of car state
 
 * ASM: fix multiple newlines due to comment being let through by the scanner
 

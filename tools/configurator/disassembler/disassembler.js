@@ -90,6 +90,7 @@ var disassembler = (function() {
 	var PARAMETER_TYPE_RANDOM = 2;
 	var PARAMETER_TYPE_STEERING = 3;
 	var PARAMETER_TYPE_THROTTLE = 4;
+	var PARAMETER_TYPE_GEAR = 5;
 
     var RUN_WHEN_NORMAL_OPERATION 			= 0;
     var RUN_WHEN_NO_SIGNAL 					= (1 << 0);
@@ -124,9 +125,6 @@ var disassembler = (function() {
     var RUN_WHEN_WINCH_IDLE              	= (1 << 20);
     var RUN_WHEN_WINCH_IN                	= (1 << 21);
     var RUN_WHEN_WINCH_OUT               	= (1 << 22);
-    var RUN_WHEN_GEAR_1                  	= (1 << 23);
-    var RUN_WHEN_GEAR_2                  	= (1 << 24);
-    var RUN_WHEN_GEAR_3                  	= (1 << 25);
 
     var RUN_ALWAYS                       	= (1 << 31);
 
@@ -354,6 +352,9 @@ var disassembler = (function() {
 			case PARAMETER_TYPE_THROTTLE:
 				return result + "throttle";
 
+			case PARAMETER_TYPE_GEAR:
+				return result + "gear";
+
 			default:
 				return "ERROR: unknown parameter type " + parameter_type
 		}
@@ -396,6 +397,9 @@ var disassembler = (function() {
 
 			case PARAMETER_TYPE_THROTTLE:
 				return "throttle";
+
+			case PARAMETER_TYPE_GEAR:
+				return "gear";
 
 			default:
 				return "ERROR: unknown parameter type " + parameter_type

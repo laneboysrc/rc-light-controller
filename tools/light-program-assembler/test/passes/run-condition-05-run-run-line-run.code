@@ -1,5 +1,5 @@
 run when neutral hazard
 run when blink-left or blink-right
-run when gear-2
+run when light-switch-position-6
 
 sleep 1

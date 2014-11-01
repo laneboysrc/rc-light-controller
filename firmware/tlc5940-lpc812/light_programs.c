@@ -230,13 +230,6 @@ static void load_light_program_environment(void)
     }
 
     run_state |= (RUN_WHEN_LIGHT_SWITCH_POSITION << light_switch_position);
-
-    if (global_flags.gear) {
-        run_state |= RUN_WHEN_GEAR_1;
-    }
-    else {
-        run_state |= RUN_WHEN_GEAR_2;
-    }
 }
 
 
@@ -284,6 +277,9 @@ static int16_t get_parameter_value(uint32_t instruction)
 
         case PARAMETER_TYPE_THROTTLE:
             return channel[TH].normalized;
+
+        case PARAMETER_TYPE_GEAR:
+            return global_flags.gear;
 
         default:
             uart0_send_cstring("UNKNOWN PARAMETER TYPE ");
