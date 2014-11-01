@@ -8,6 +8,7 @@
 #include "log.h"
 
 
+
 // ****************************************************************************
 static void usage(void)
 {
@@ -20,9 +21,17 @@ static void usage(void)
 
 
 // ****************************************************************************
-static void parse_arguments(int argc, char *argv[])
+static void banner(void)
+{
+    log_printf("DIY RC Light Controller light program assembler\n\n");
+}
+
+
+// ****************************************************************************
+static char * parse_arguments(int argc, char *argv[])
 {
     int verbose_count = 0;
+    char *output_filename = NULL;
 
     opterr = 0;
 
@@ -48,7 +57,7 @@ static void parse_arguments(int argc, char *argv[])
                 break;
 
             case 'o':
-                printf("Option: output \"%s\"\n", optarg);
+                output_filename = optarg;
                 break;
 
             case 'v':
@@ -75,12 +84,12 @@ static void parse_arguments(int argc, char *argv[])
         }
     }
 
-    if (optind < argc) {
-        printf("non-option ARGV-elements: ");
-        while (optind < argc)
-            printf("%s ", argv[optind++]);
-        printf("\n");
+    if (optind >= argc) {
+        fprintf(stderr, "ERROR: no input files\n");
+        exit(1);
     }
+
+    return output_filename;
 }
 
 
@@ -88,12 +97,18 @@ static void parse_arguments(int argc, char *argv[])
 // ****************************************************************************
 int main(int argc, char *argv[])
 {
-    parse_arguments(argc, argv);
+    char *output_filename;
+    int number_of_input_files;
+    char **input_file_list;
 
-    log_printf("DIY RC Light Controller light program assembler\n\n");
+    output_filename = parse_arguments(argc, argv);
+    number_of_input_files = argc - optind;
+    input_file_list = &argv[optind];
 
-    initialize_emitter();
+    banner();
+    initialize_emitter(output_filename);
     initialize_symbols();
+
     yyparse();
 
     if (has_error_occured()) {

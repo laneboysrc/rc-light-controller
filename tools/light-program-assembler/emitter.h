@@ -17,7 +17,7 @@
 // "Program Counter"
 unsigned int pc;
 
-void initialize_emitter(void);
+void initialize_emitter(char *output_filename);
 
 void add_led_to_list(int led_index);
 void emit(uint32_t instruction);

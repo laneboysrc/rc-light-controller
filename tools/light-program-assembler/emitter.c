@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <string.h>
+#include <errno.h>
 
 #include "symbols.h"
 #include "emitter.h"
@@ -41,6 +43,8 @@ static LED_LIST_T led_list;
 
 static uint32_t *instruction_list;
 static uint32_t *last_instruction;
+
+static FILE *output_file;
 
 
 // ****************************************************************************
@@ -172,8 +176,18 @@ void emit(uint32_t instruction)
 
 
 // ****************************************************************************
-void initialize_emitter(void)
+void initialize_emitter(char *output_filename)
 {
+    output_file = stdout;
+
+    if (output_filename != NULL) {
+        output_file = fopen(output_filename, "w");
+        if (output_file == NULL) {
+            fprintf(stderr, "ERROR opening ouput file: %s\n", strerror(errno));
+            exit(1);
+        }
+    }
+
     led_list.count = 0;
 
     instruction_list = (uint32_t *)calloc(
@@ -272,21 +286,21 @@ void output_programs(void)
 
     // Output the light programs data structure
 
-    printf(part1, number_of_programs);
+    fprintf(output_file, part1, number_of_programs);
 
     for (i = 0; i < number_of_programs; i++) {
-        printf(part2, start_offset[i]);
+        fprintf(output_file, part2, start_offset[i]);
     }
 
-    printf(part3, 0);
+    fprintf(output_file, part3, 0);
 
     while (ptr != last_instruction) {
-        printf(part4, *ptr);
+        fprintf(output_file, part4, *ptr);
         if (*ptr == 0xfe000000) {
-            printf("\n");
+            fprintf(output_file, "\n");
         }
         ++ptr;
     }
 
-    printf(part5, 0);
+    fprintf(output_file, part5, 0);
 }
