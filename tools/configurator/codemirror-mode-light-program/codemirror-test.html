@@ -154,18 +154,25 @@ right:
             tabSize: 4,
             lineNumbers: true,
             mode: "light-program",
-            keyMap: "sublime",
             autoCloseBrackets: true,
             matchBrackets: true,
             showCursorWhenSelecting: true,
             styleActiveLine: true,
+            keyMap: "sublime",
             theme: "monokai",
             extraKeys: {
                 "F11": function(cm) {
                     cm.setOption("fullScreen", !cm.getOption("fullScreen"));
                 },
+                "Shift-Delete": "deleteLine",
                 "Esc": function(cm) {
-                    if (cm.getOption("fullScreen")) cm.setOption("fullScreen", false);
+                    if (cm.getOption("fullScreen")) {
+                        cm.setOption("fullScreen", false);
+                    }
+                    else {
+                        var range = cm.listSelections()[0];
+                        cm.setSelection(range.anchor, range.head, {scroll: false});
+                    }
                 }
             }
         });
