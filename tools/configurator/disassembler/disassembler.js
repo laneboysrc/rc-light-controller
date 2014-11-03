@@ -654,6 +654,10 @@ var disassembler = (function() {
 
 		switch (opcode) {
 			case opcodes['END_OF_PROGRAM']:
+				asm[offset + pc++]['decleration'] = '';	// Empty line
+				asm[offset + pc++]['decleration'] = 'end';
+				asm[offset + pc++]['decleration'] = '';	// Empty line
+
 				return STATE_END_OF_PROGRAM;
 
 			case opcodes['GOTO']:
@@ -799,10 +803,6 @@ var disassembler = (function() {
 				else {
 					offset += pc;
 					pc = 0;
-
-					asm[offset++]['decleration'] = '';	// Empty line
-					asm[offset++]['decleration'] = '__NEXT_PROGRAM__';
-					asm[offset++]['decleration'] = '';	// Empty line
 
 					++current_program;
 

@@ -3,3 +3,5 @@ run always
 label1:
     skip if all blink_flag label1 neutral
     sleep 1
+
+    end

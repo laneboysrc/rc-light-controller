@@ -4,3 +4,5 @@ var x
 
 42 = x
 sleep 1
+
+end

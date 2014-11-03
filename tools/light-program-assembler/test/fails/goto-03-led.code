@@ -4,3 +4,5 @@ led led1 = slave[0]
 
 sleep 1
 goto led1
+
+end

@@ -14,7 +14,7 @@ forward_label:
     g = x
     goto label1
 
-__NEXT_PROGRAM__
+    end
 
 run when neutral or reversing
 
@@ -33,3 +33,5 @@ label2:
 forward_label:
     z = 42
     goto label2
+
+    end

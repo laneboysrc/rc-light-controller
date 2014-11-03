@@ -4,3 +4,5 @@ var x
 
     skip if none blink-flag x neutral
     sleep 1
+
+    end

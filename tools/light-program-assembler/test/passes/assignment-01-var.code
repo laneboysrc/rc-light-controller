@@ -76,3 +76,5 @@ x ^= random
 x ^= clicks
 x ^= steering
 x ^= throttle
+
+end

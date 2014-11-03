@@ -4,3 +4,5 @@ led l = master[0]
 
     skip if is l
     sleep 1
+
+    end

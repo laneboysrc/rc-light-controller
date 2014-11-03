@@ -50,8 +50,7 @@ loop:
     // after being interrupted by another light program with higher priority.
     goto loop
 
-
-__NEXT_PROGRAM__
+end
 
 
 // ----------------------------------------------------------------------------
@@ -86,8 +85,7 @@ loop:
     sleep 0
     goto loop
 
-
-__NEXT_PROGRAM__
+end
 
 
 // ----------------------------------------------------------------------------
@@ -145,8 +143,7 @@ not_steering:
     high-beam-l, high-beam-r = 100%             // Yes: light up high beam
     goto loop
 
-
-__NEXT_PROGRAM__
+end
 
 
 // ----------------------------------------------------------------------------
@@ -216,3 +213,5 @@ left:
 right:
     indicator-front-r, indicator-rear-r = 100%
     goto loop
+
+end

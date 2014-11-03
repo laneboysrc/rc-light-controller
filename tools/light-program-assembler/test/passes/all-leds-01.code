@@ -12,3 +12,5 @@ led lx = slave[7]
 fade all leds stepsize 50
 
 all leds = 25%
+
+end

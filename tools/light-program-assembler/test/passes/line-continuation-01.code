@@ -19,3 +19,5 @@ pos2 \
             pos1
     goto \
 pos2
+
+    end

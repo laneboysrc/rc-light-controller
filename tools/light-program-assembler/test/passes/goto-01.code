@@ -12,3 +12,5 @@ pos2:
 forward_decleration:
     sleep 4
     goto pos2
+
+    end

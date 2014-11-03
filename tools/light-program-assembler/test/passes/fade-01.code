@@ -18,3 +18,5 @@ fade l1, l2, l3   stepsize x
 
 fade l1, l2, l3, lx stepsize 47
 fade l1, l2, l3, lx stepsize x
+
+end

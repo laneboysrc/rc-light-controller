@@ -2,3 +2,5 @@ run always
 
     skip if not hazard
     sleep 1
+
+    end

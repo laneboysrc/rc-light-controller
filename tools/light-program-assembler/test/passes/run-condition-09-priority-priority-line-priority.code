@@ -3,3 +3,4 @@ run when reversing-setup-steering or reversing-setup-throttle
 run when gear-changed
 
 sleep 1
+end

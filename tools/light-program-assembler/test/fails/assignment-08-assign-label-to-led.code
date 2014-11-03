@@ -6,3 +6,5 @@ label1:
 sleep 1
 l = label1
 sleep 2
+
+end

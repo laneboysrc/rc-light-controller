@@ -3,3 +3,5 @@ run always
 label1:
     skip if label1 == 3
     sleep 1
+
+    end

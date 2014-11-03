@@ -1,3 +1,5 @@
 run always
 
     skip if all hazard indicator-left indicator-right
+
+    end

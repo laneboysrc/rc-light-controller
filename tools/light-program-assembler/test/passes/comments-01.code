@@ -21,3 +21,5 @@ forward_decleration:
 //pos2:
 ;  pos2:
     goto pos2
+
+    end

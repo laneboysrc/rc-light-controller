@@ -2,3 +2,5 @@ run always
 
     skip if is hazard indicator-left
     sleep 1
+
+    end

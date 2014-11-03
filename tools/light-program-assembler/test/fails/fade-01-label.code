@@ -18,3 +18,5 @@ label1:
 
     fade l1, l2, l3, lx label1
     fade l1, l2, l3, lx x
+
+end
