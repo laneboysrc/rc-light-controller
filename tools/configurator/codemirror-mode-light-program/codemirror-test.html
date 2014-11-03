@@ -1,0 +1,157 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+
+    <title>CodeMirror test</title>
+
+    <link rel="stylesheet" href="../codemirror/lib/codemirror.css">
+    <link rel="stylesheet" href="../codemirror/theme/monokai.css">
+    <style type="text/css">
+        .CodeMirror {border-top: 1px solid #eee; border-bottom: 1px solid #eee; line-height: 1.3; }
+        .CodeMirror-linenumbers { padding: 0 8px; }
+    </style>
+
+    <script src="../codemirror/lib/codemirror.js"></script>
+    <script src="./light-program.js"></script>
+    <script src="../codemirror/addon/selection/active-line.js"></script>
+    <script src="../codemirror/addon/comment/comment.js"></script>
+    <script src="../codemirror/keymap/sublime.js"></script>
+</head>
+<body>
+    <h1>CodeMirror for light-programs</h1>
+    <textarea>
+// These light programs provide generic functionality desired in most
+// light controller installations.
+
+run when reversing-setup-steering or reversing-setup-throttle
+
+
+led high-beam-l = master[4]
+led high-beam-r = master[5]
+led indicator-front-l = master[6]
+led indicator-front-r = master[7]
+led roof = master[8]
+led brake = master[9]
+
+
+loop:
+    skip if x != high-beam-l
+    sleep 0
+
+    fade all leds stepsize 0
+
+    // Turn all lights off, then indicators or high beam on selectivly.
+    // This won't cause any flicker as the light output is only executed
+    // when a light program executes a "sleep" statement (or at the end of
+    // a light program).
+    all leds = 0%
+
+    skip if is reversing-setup-steering         // Steering setup?
+    goto not_steering                           // No: check throttle
+    indicator-front-l, indicator-rear-l = 100%  // Yes: light up the indicators
+
+not_steering:
+    skip if is reversing-setup-throttle         // Throttle setup?
+    goto loop                                   // No: start over
+    high-beam-l, high-beam-r = 100%             // Yes: light up high beam
+    goto loop
+
+
+__NEXT_PROGRAM__
+
+run always
+
+var x
+var y
+led LED1a = master[8]
+
+    x = 42
+    skip if x != LED1a
+    x += 0xdead
+    skip if all hazard indicator-left indicator-right
+    x -= y
+    x *= LED1a
+    x /= random
+    skip if any hazard indicator-left indicator-right
+    x &= clicks
+    x |= steering
+    x ^= throttle
+
+__NEXT_PROGRAM__
+
+// ----------------------------------------------------------------------------
+// Servo output endpoint setup
+//
+// This program runs after 8 CH3-clicks. The user can now use the steering
+// wheel on the transmitter to directly drive the servo output (i.e. the
+// ----------------------------------------------------------------------------
+
+// Note: "or" between the conditions is optional, same meaning with or without
+run when servo-output-setup-centre servo-output-setup-left servo-output-setup-right
+
+led parking-l = master[0]
+led parking-r = master[1]
+led main-beam-l = master[2]
+led main-beam-r = master[3]
+led high-beam-l = master[4]
+led high-beam-r = master[5]
+led indicator-front-l = master[6]
+led indicator-front-r = master[7]
+led roof = master[8]
+led brake = master[9]
+led tail-brake-l = master[10]
+led tail-brake-r = master[11]
+led reversing-l = master[12]
+led reversing-r = master[13]
+led indicator-rear-l = master[14]
+led indicator-rear-r = master[15]
+
+loop:
+    sleep 0
+
+    fade all leds stepsize 0
+    all leds = 0%
+
+    skip if not servo-output-setup-left
+    goto left
+    skip if not servo-output-setup-right
+    goto right
+    // If it is neither left nor right, it must be centre...
+    // Otherwise the program would not be run in the first place, see RUN WHEN
+    // above!
+
+    // Centre setup: light up all four indicators
+centre:
+    indicator-front-l, indicator-front-r, \
+        indicator-rear-l, indicator-rear-r = 100%
+    goto loop
+
+    // Left setup: light up all indicators on the left side
+left:
+    indicator-front-l, indicator-rear-l = 100%
+    goto loop
+
+    // Right setup: light up all indicators on the right side
+right:
+    indicator-front-r, indicator-rear-r = 100%
+    goto loop
+    </textarea>
+
+    <script>
+        var myCodeMirror = CodeMirror.fromTextArea(
+            document.getElementsByTagName("textarea")[0], {
+            indentUnit: 4,
+            tabSize: 4,
+            lineNumbers: true,
+            mode: "light-program",
+            keyMap: "sublime",
+            autoCloseBrackets: true,
+            matchBrackets: true,
+            showCursorWhenSelecting: true,
+            styleActiveLine: true,
+            theme: "monokai"
+        });
+    </script>
+</body>
+</html>
