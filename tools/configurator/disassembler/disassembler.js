@@ -182,19 +182,19 @@ var disassembler = (function() {
 			asm[offset++]['decleration'] = "run when initializing";
 		}
 		if (instruction & RUN_WHEN_SERVO_OUTPUT_SETUP_CENTRE) {
-			asm[offset++]['decleration'] = "run when servo-ouput-setup-centre";
+			asm[offset++]['decleration'] = "run when servo-output-setup-centre";
 		}
 		if (instruction & RUN_WHEN_SERVO_OUTPUT_SETUP_LEFT) {
-			asm[offset++]['decleration'] = "run when servo-ouput-setup-left";
+			asm[offset++]['decleration'] = "run when servo-output-setup-left";
 		}
 		if (instruction & RUN_WHEN_SERVO_OUTPUT_SETUP_RIGHT) {
-			asm[offset++]['decleration'] = "run when servo-ouput-setup-right";
+			asm[offset++]['decleration'] = "run when servo-output-setup-right";
 		}
 		if (instruction & RUN_WHEN_REVERSING_SETUP_STEERING) {
-			asm[offset++]['decleration'] = "run when reversing_setup_steering";
+			asm[offset++]['decleration'] = "run when reversing-setup-steering";
 		}
 		if (instruction & RUN_WHEN_REVERSING_SETUP_THROTTLE) {
-			asm[offset++]['decleration'] = "run when reversing_setup_throttle";
+			asm[offset++]['decleration'] = "run when reversing-setup-throttle";
 		}
 		if (instruction & RUN_WHEN_GEAR_CHANGED) {
 			asm[offset++]['decleration'] = "run when gear-changed";
