@@ -250,11 +250,11 @@ code_lines
 code_line
   /* New label declaration */
   : UNDECLARED_SYMBOL ':' LINEFEED
-      { symbols.add_symbol($1, "LABEL", 0/*pc*/, @1); }
+      { symbols.add_symbol($1, "LABEL", emitter.pc(), @1); }
 /*  | UNDECLARED_SYMBOL error */
   /* Label that was already forward-declared in a GOTO */
   | LABEL ':' LINEFEED
-      { symbols.set_symbol($1, "LABEL", 0/*pc*/, @1); }
+      { symbols.set_symbol($1, "LABEL", emitter.pc(), @1); }
 /*  | LABEL error */
   | command LINEFEED
 /*  | error LINEFEED */
@@ -264,7 +264,8 @@ command
   : GOTO LABEL
       { emitter.emit(symbols.get_reserved_word($1).opcode | (($2) & 0xffffff)); }
   | GOTO UNDECLARED_SYMBOL
-      { symbols.add_symbol($2, "LABEL", -1, @2); emit(get_reserved_word($1).opcode); }
+      { symbols.add_symbol($2, "LABEL", -1, @2);
+        emitter.emit(symbols.get_reserved_word($1).opcode); }
   | FADE leds STEPSIZE VARIABLE
       { emitter.emit_led_instruction(symbols.get_reserved_word($1).opcode | $4, @1); }
   | FADE leds STEPSIZE GLOBAL_VARIABLE

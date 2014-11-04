@@ -23,13 +23,18 @@
 "var clicks\n" +
 "\n" +
 "x = 3\n" +
+"goto forward_label\n" +
 "loop:\n" +
 "clicks = steering\n" +
+"forward_label:\n" +
 "goto loop" +
 "\n" +
 "end" +
 "\n"
 );
+
+symbols.dump_symbol_table();
+
 </script>
 </body>
 </html>

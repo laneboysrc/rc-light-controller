@@ -1,8 +1,10 @@
 var symbols = (function () {
     "use strict";
 
-    var symbols = {};
-    var next_variable_index = 1;
+    var symbols = [];
+    var forward_declaration_table = [];
+    var next_variable_index = 0;
+    var leds_used = 0;
 
     var undeclared_symbol = {"token": "UNDECLARED_SYMBOL", "opcode": 0};
 
@@ -44,6 +46,41 @@ var symbols = (function () {
         "reversing-setup-steering": {"token": "PRIORITY_RUN_CONDITION", "opcode": (1 << 5)},
         "reversing-setup-throttle": {"token": "PRIORITY_RUN_CONDITION", "opcode": (1 << 6)},
         "gear-changed": {"token": "PRIORITY_RUN_CONDITION", "opcode": (1 << 7)}
+    };
+
+    var car_state_tokens = {
+        "light-switch-position-0": {"token": "CAR_STATE", "opcode": (1 << 0)},
+        "light-switch-position-1": {"token": "CAR_STATE", "opcode": (1 << 1)},
+        "light-switch-position-2": {"token": "CAR_STATE", "opcode": (1 << 2)},
+        "light-switch-position-3": {"token": "CAR_STATE", "opcode": (1 << 3)},
+        "light-switch-position-4": {"token": "CAR_STATE", "opcode": (1 << 4)},
+        "light-switch-position-5": {"token": "CAR_STATE", "opcode": (1 << 5)},
+        "light-switch-position-6": {"token": "CAR_STATE", "opcode": (1 << 6)},
+        "light-switch-position-7": {"token": "CAR_STATE", "opcode": (1 << 7)},
+        "light-switch-position-8": {"token": "CAR_STATE", "opcode": (1 << 8)},
+
+        "neutral": {"token": "CAR_STATE", "opcode": (1 << 9)},
+        "forward": {"token": "CAR_STATE", "opcode": (1 << 10)},
+        "reversing": {"token": "CAR_STATE", "opcode": (1 << 11)},
+        "braking": {"token": "CAR_STATE", "opcode": (1 << 12)},
+
+        "indicator-left": {"token": "CAR_STATE", "opcode": (1 << 13)},
+        "indicator-right": {"token": "CAR_STATE", "opcode": (1 << 14)},
+        "hazard": {"token": "CAR_STATE", "opcode": (1 << 15)},
+        "blink-flag": {"token": "CAR_STATE", "opcode": (1 << 16)},
+        "blink-left": {"token": "CAR_STATE", "opcode": (1 << 17)},
+        "blink-right": {"token": "CAR_STATE", "opcode": (1 << 18)},
+
+        "winch-disabled": {"token": "CAR_STATE", "opcode": (1 << 19)},
+        "winch-idle": {"token": "CAR_STATE", "opcode": (1 << 20)},
+        "winch-in": {"token": "CAR_STATE", "opcode": (1 << 21)},
+        "winch-out": {"token": "CAR_STATE", "opcode": (1 << 22)},
+
+        "servo-output-setup-centre": {"token": "CAR_STATE", "opcode": (1 << 24)},
+        "servo-output-setup-left": {"token": "CAR_STATE", "opcode": (1 << 25)},
+        "servo-output-setup-right": {"token": "CAR_STATE", "opcode": (1 << 26)},
+        "reversing-setup-steering": {"token": "CAR_STATE", "opcode": (1 << 27)},
+        "reversing-setup-throttle": {"token": "CAR_STATE", "opcode": (1 << 28)},
     };
 
     var reserved_words = {
@@ -90,6 +127,8 @@ var symbols = (function () {
         "<=": {"token": "LE", "opcode": 0x30000000},
     };
 
+
+    // *************************************************************************
     var hex = function (number) {
         var s = number.toString(16).toUpperCase();
         while (s.length < 8) {
@@ -97,30 +136,211 @@ var symbols = (function () {
         }
 
         return "0x" + s;
+    };
+
+
+    // ****************************************************************************
+    var dump_symbol_table = function () {
+        var msg = "";
+
+        msg += "Symbol table:\n";
+
+        for (var i = 0; i < symbols.length; i++) {
+            var s = symbols[i];
+            msg += "name='" + s.name + "', token=" + s.token + " index=" + s.opcode + "\n";
+        }
+
+        msg += "\n";
+        msg += "Forward declarations to resolve:\n";
+        if (forward_declaration_table.length === 0) {
+            msg += "(none)\n";
+        }
+        else {
+            for (var i = 0; i < forward_declaration_table.length; i++) {
+                var f = forward_declaration_table[i];
+                msg += "label='" + f.symbol.name + "' pc=" + f.pc + " index=" + f.symbol.opcode + "\n";
+            }
+        }
+        msg += "\n";
+        console.log(msg);
     }
 
+
+    // *************************************************************************
+    var add_forward_declaration = function (symbol, decleration_pc, location) {
+        var forward_decleration = {
+            "symbol": symbol,
+            "pc": decleration_pc,
+            "location": location
+        };
+
+        forward_declaration_table.push(forward_decleration);
+    };
+
+
+    // *************************************************************************
+    var resolve_forward_declarations = function (instruction) {
+        // FORWARD_DECLERATION_T *f;
+        // for (f = forward_declaration_table; f != NULL; f = f->next) {
+        //     if (f->symbol->index < 0) {
+        //         char *message;
+        //         const char *fmt = "Label '%s' used but not defined.";
+
+        //         message = (char *)calloc(strlen(fmt) + strlen(f->symbol->name), 1);
+        //         if (message == NULL) {
+        //             fprintf(stderr, "ERROR: out of memory in resolve_forward_declarations()\n");
+        //             exit(1);
+        //         }
+        //         sprintf(message, fmt, f->symbol->name);
+
+        //         yyerror(&f->location, message);
+        //         free(message);
+        //     }
+        //     else if ((unsigned  int)f->symbol->index == f->pc) {
+        //         // Skip the declaration of the label
+        //         continue;
+        //     }
+        //     else {
+        //         instructions[f->pc] =
+        //             (instructions[f->pc] & 0xff000000) |
+        //                 (f->symbol->index & 0xffffff);
+        //     }
+        // }
+    };
+
+
+    // *************************************************************************
+    var remove_local_symbols = function () {
+        leds_used = 0;
+
+        forward_declaration_table = [];
+
+        for (var i = symbols.length - 1; i >= 0; i--) {
+            if (symbols[i].token !== "GLOBAL_VARIABLE") {
+                array.splice(i, 1);
+            }
+        }
+    }
+
+
+    // *************************************************************************
+    var set_symbol = function (name, token, opcode, location) {
+        for (var i = 0; i < symbols.length; i++) {
+            var s = symbols[i];
+            if (s.name === name) {
+                if (s.opcode !== -1) {
+                    console.log("Redefinition of symbol " + name);
+                    //yyerror("Redefinition of symbol " + name);
+                }
+                symbols[i].token = token;
+                symbols[i].opcode = opcode;
+
+                console.log("Set '" + name +"' as token=" + token + " opcode=" + opcode);
+            }
+        }
+    };
+
+
+    // *************************************************************************
     var get_symbol = function (name, parse_state) {
         if (parse_state === "EXPECTING_RUN_CONDITION") {
             return run_condition_tokens[name] || undeclared_symbol;
         }
 
-        return symbols[name] || undeclared_symbol;
-    }
+        if (parse_state === "EXPECTING_CAR_STATE") {
+            return car_state_tokens[name] || undeclared_symbol;
+        }
 
-    var add_symbol = function (name, type, index, location) {
-        console.log("add_symbol():", name, type, index, location);
-        symbols[name] = {"token": type, "opcode": next_variable_index++};
-    }
+        // See if we are dealing with a LOCAL symbol
+        for (var i = 0; i < symbols.length; i++) {
+            var s = symbols[i];
+
+            if (s.token === "GLOBAL_VARIABLE") {
+                continue;
+            }
+
+            if (s.name === name) {
+                if (s.token === "LABEL") {
+                    if (s.opcode === -1) {
+                        add_forward_declaration(s, emitter.pc(), location);
+                        console.log("Using forward declared label " + name);
+                    }
+                }
+                return s;
+            }
+        }
+
+        // See if we are dealing with a GLOBAL symbol
+        for (var i = 0; i < symbols.length; i++) {
+            var s = symbols[i];
+
+            if (s.token !== "GLOBAL_VARIABLE") {
+                continue;
+            }
+            if (s.name === name) {
+                return s;
+            }
+        }
+
+        console.log("Undeclared symbol " + name);
+
+        return undeclared_symbol;
+    };
 
 
+    // *************************************************************************
+    var add_symbol = function (name, token, opcode, location) {
+        console.log("add_symbol():", name, token, opcode, location);
+
+        var new_symbol = {
+            "name": name,
+            "token": token,
+            "opcode": opcode
+        };
+
+        if (token === "GLOBAL_VARIABLE"  ||  token === "VARIABLE") {
+            if (opcode === -1) {
+                new_symbol.opcode =  next_variable_index++;
+            }
+        }
+
+        if (token == "LED_ID") {
+            if (opcode < 0  ||  index > 31) {
+                // FIXME
+                //yyerror(location, "LED index out of range (must be 0..15)");
+            }
+            else {
+                // Add LED to bit-field of leds_used
+                leds_used |= (1 << opcode);
+            }
+        }
+
+        symbols.push(new_symbol);
+
+        if (token == "LABEL"  &&  opcode == -1) {
+            add_forward_declaration(new_symbol, emitter.pc(), location);
+            console.log("Forward declaration of label " + name);
+        }
+    };
+
+
+    // *************************************************************************
     var get_reserved_word = function (name) {
-        return reserved_words[name] || undeclared_symbol;
-    }
+        return reserved_words[name] || console.log(
+            "SYMBOLS: ASSERT: reserved word " + name + " is not in the table");
+    };
+
+
+
+    add_symbol("clicks", "GLOBAL_VARIABLE", next_variable_index++);
 
     return {
         add_symbol: add_symbol,
         get_symbol: get_symbol,
-        get_reserved_word: get_reserved_word
+        set_symbol: set_symbol,
+        get_reserved_word: get_reserved_word,
+        remove_local_symbols: remove_local_symbols,
+        dump_symbol_table: dump_symbol_table
     };
 
 })();
