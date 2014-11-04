@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="../codemirror/lib/codemirror.css">
     <link rel="stylesheet" href="../codemirror/theme/monokai.css">
     <link rel="stylesheet" href="../codemirror/addon/display/fullscreen.css">
+    <link rel="stylesheet" href="../codemirror/addon/dialog/dialog.css">
     <style type="text/css">
         .CodeMirror {
             border-top: 1px solid #eee;
@@ -22,7 +23,11 @@
 
     <script src="../codemirror/lib/codemirror.js"></script>
     <script src="./light-program.js"></script>
+    <script src="../codemirror/addon/dialog/dialog.js"></script>
     <script src="../codemirror/addon/selection/active-line.js"></script>
+    <script src="../codemirror/addon/edit/closebrackets.js"></script>
+    <script src="../codemirror/addon/search/search.js"></script>
+    <script src="../codemirror/addon/search/searchcursor.js"></script>
     <script src="../codemirror/addon/display/fullscreen.js"></script>
     <script src="../codemirror/addon/comment/comment.js"></script>
     <script src="../codemirror/keymap/sublime.js"></script>
@@ -155,7 +160,6 @@ right:
             lineNumbers: true,
             mode: "light-program",
             autoCloseBrackets: true,
-            matchBrackets: true,
             showCursorWhenSelecting: true,
             styleActiveLine: true,
             keyMap: "sublime",
@@ -166,12 +170,15 @@ right:
                 },
                 "Shift-Delete": "deleteLine",
                 "Esc": function(cm) {
-                    if (cm.getOption("fullScreen")) {
+                    if (cm.listSelections().length > 1) {
+                        var range = cm.listSelections()[0];
+                        cm.setSelection(range.anchor, range.head, {scroll: false});
+                    }
+                    else if (cm.getOption("fullScreen")) {
                         cm.setOption("fullScreen", false);
                     }
                     else {
-                        var range = cm.listSelections()[0];
-                        cm.setSelection(range.anchor, range.head, {scroll: false});
+                        cm.execCommand("clearSearch");
                     }
                 }
             }

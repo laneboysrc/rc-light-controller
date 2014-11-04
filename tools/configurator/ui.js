@@ -1,6 +1,7 @@
 "use strict";
 
 var ui = (function () {
+    var editor;
 
     // *************************************************************************
     var led_feature_click_handler = function (e) {
@@ -258,16 +259,59 @@ var ui = (function () {
 
 
     // *************************************************************************
+    var init_editor = function () {
+        editor = CodeMirror.fromTextArea(
+            document.getElementById("light_programs"), {
+            indentUnit: 4,
+            tabSize: 4,
+            lineNumbers: true,
+            mode: "light-program",
+            autoCloseBrackets: true,
+            showCursorWhenSelecting: true,
+            styleActiveLine: true,
+            keyMap: "sublime",
+            theme: "monokai",
+            extraKeys: {
+                "F11": function(cm) {
+                    cm.setOption("fullScreen", !cm.getOption("fullScreen"));
+                },
+                "Shift-Delete": "deleteLine",
+                "Esc": function(cm) {
+                    if (cm.listSelections().length > 1) {
+                        var range = cm.listSelections()[0];
+                        cm.setSelection(range.anchor, range.head, {scroll: false});
+                    }
+                    else if (cm.getOption("fullScreen")) {
+                        cm.setOption("fullScreen", false);
+                    }
+                    else {
+                        cm.execCommand("clearSearch");
+                    }
+                }
+            }
+        });
+    }
+
+
+    // *************************************************************************
+    var update_editor = function () {
+        editor.setValue(document.getElementById("light_programs").value);
+    }
+
+
+    // *************************************************************************
     var init = function () {
         init_led_tables();
         init_led_editing();
         init_led_features();
         init_tooltips();
+        init_editor();
     };
 
 
     // *************************************************************************
     return {
-        init: init
+        init: init,
+        update_editor: update_editor
     };
 })();

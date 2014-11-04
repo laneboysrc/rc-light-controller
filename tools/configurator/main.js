@@ -338,9 +338,9 @@ var app = (function () {
         local_leds = undefined
         slave_leds = undefined;
         gamma_object = undefined;
-        light_programs = undefined;
+        light_programs = "";
 
-        el["light_programs"].innerHTML = "";
+        el["light_programs"].value = "";
 
         try {
             firmware = parse_firmware_structure(intel_hex_data);
@@ -351,13 +351,13 @@ var app = (function () {
             gamma_object = parse_gamma();
 
             update_ui();
+
+            el["light_programs"].value = light_programs;
+            ui.update_editor();
         }
         catch (e) {
             window.alert(
                 "Unable to load Intel-hex formatted firmware image:\n" + e);
-        }
-        finally {
-            el["light_programs"].innerHTML = light_programs;
         }
     };
 
