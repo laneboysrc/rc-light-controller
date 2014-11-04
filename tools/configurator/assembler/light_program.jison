@@ -56,21 +56,21 @@ reserved keywords:
 
 [a-zA-Z][a-zA-Z0-9_\-]* {
   line_is_empty = false;
-  var symbol = get_symbol(yytext, parse_state);
+  var symbol = symbols.get_symbol(yytext, parse_state);
   console.log("Identifier: " + yytext + " (" + symbol.token + "=0x" + symbol.opcode.toString(16) + ") parse_state=" + parse_state);
   return symbol.token;
 }
 
 "="|"+="|"-="|"*="|"/="|"&="|"|="|"^=" {
   line_is_empty = false;
-  var symbol = get_reserved_word(yytext);
+  var symbol = symbols.get_reserved_word(yytext);
   console.log("Assignment " + yytext + " (" + symbol.token + "=0x" + symbol.opcode.toString(16) + ")");
   return symbol.token;
 }
 
 "=="|"!="|">="|"<="|">"|"<" {
   line_is_empty = false;
-  var symbol = get_reserved_word(yytext);
+  var symbol = symbols.get_reserved_word(yytext);
   console.log("Comparison " + yytext + " (" + symbol.token + "=0x" + symbol.opcode.toString(16) + ")");
   return symbol.token;
 }
@@ -149,26 +149,18 @@ programs
 
 program
   : condition_lines decleration_lines code_lines
-      { emit_end_of_program(); }
+      { emitter.emit_end_of_program(); }
   | condition_lines code_lines
-      { emit_end_of_program(); }
-  ;
-
-expect_run_condition
-  : %empty { console.log("EXPECTING_RUN_CONDITION"); parse_state = "EXPECTING_RUN_CONDITION"; }
-  ;
-
-expect_car_state
-  : %empty { console.log("EXPECTING_CAR_STATE"); parse_state = "EXPECTING_CAR_STATE"; }
+      { emitter.emit_end_of_program(); }
   ;
 
 condition_lines
   : priority_run_condition_lines
-        { emit_run_condition($1, 0); }
+        { emitter.emit_run_condition($1, 0); }
   | run_condition_lines
-        { emit_run_condition(0, $1); }
+        { emitter.emit_run_condition(0, $1); }
   | run_always_condition_line
-        { emit_run_condition(0, $1); }
+        { emitter.emit_run_condition(0, $1); }
   ;
 
 priority_run_condition_lines
@@ -178,17 +170,17 @@ priority_run_condition_lines
   ;
 
 priority_run_condition_line
-  : RUN expect_run_condition WHEN priority_run_conditions LINEFEED
-    { $$ = $4; }
+  : RUN WHEN priority_run_conditions LINEFEED
+    { $$ = $3; }
   ;
 
 priority_run_conditions
   : PRIORITY_RUN_CONDITION
-      { $$ = get_symbol($1, "EXPECTING_RUN_CONDITION").opcode; }
+      { $$ = gsymbols.et_symbol($1, "EXPECTING_RUN_CONDITION").opcode; }
   | priority_run_conditions PRIORITY_RUN_CONDITION
-    { $$ = $1 | get_symbol($2, "EXPECTING_RUN_CONDITION").opcode; }
+    { $$ = $1 | symbols.get_symbol($2, "EXPECTING_RUN_CONDITION").opcode; }
   | priority_run_conditions OR PRIORITY_RUN_CONDITION
-    { $$ = $1 | get_symbol($3, "EXPECTING_RUN_CONDITION").opcode; }
+    { $$ = $1 | symbols.get_symbol($3, "EXPECTING_RUN_CONDITION").opcode; }
   ;
 
 run_condition_lines
@@ -198,22 +190,22 @@ run_condition_lines
   ;
 
 run_condition_line
-  : RUN expect_run_condition WHEN run_conditions LINEFEED
-    { $$ = $4; }
+  : RUN WHEN run_conditions LINEFEED
+    { $$ = $3; }
   ;
 
 run_conditions
   : RUN_CONDITION
-      { $$ = get_symbol($1, "EXPECTING_RUN_CONDITION").opcode; }
+      { $$ = symbols.get_symbol($1, "EXPECTING_RUN_CONDITION").opcode; }
   | run_conditions RUN_CONDITION
-      { $$ = $1 | get_symbol($2, "EXPECTING_RUN_CONDITION").opcode; }
+      { $$ = $1 | symbols.get_symbol($2, "EXPECTING_RUN_CONDITION").opcode; }
   | run_conditions OR RUN_CONDITION
-      { $$ = $1 | get_symbol($3, "EXPECTING_RUN_CONDITION").opcode; }
+      { $$ = $1 | symbols.get_symbol($3, "EXPECTING_RUN_CONDITION").opcode; }
   ;
 
 run_always_condition_line
   : RUN RUN_CONDITION_ALWAYS LINEFEED
-      { $$ = get_symbol($2, "EXPECTING_RUN_CONDITION").opcode; }
+      { $$ = symbols.get_symbol($2, "EXPECTING_RUN_CONDITION").opcode; }
   ;
 
 decleration_lines
@@ -227,18 +219,18 @@ decleration_line
 
 decleration
   : VAR UNDECLARED_SYMBOL
-      { add_symbol($2, "VARIABLE", -1, @2); }
+      { symbols.add_symbol($2, "VARIABLE", -1, @2); }
   | VAR GLOBAL_VARIABLE
       /* Declare the variable as local variable, overshadowing the global one */
-      { add_symbol($2, "VARIABLE", -1, @2); }
+      { symbols.add_symbol($2, "VARIABLE", -1, @2); }
 /*  | VAR error */
   | GLOBAL VAR UNDECLARED_SYMBOL
-      { add_symbol($3, "GLOBAL_VARIABLE", -1, @3); }
+      { symbols.add_symbol($3, "GLOBAL_VARIABLE", -1, @3); }
   | GLOBAL VAR GLOBAL_VARIABLE
       { /* Nothing to do, global variable already declared */ }
 /*  | GLOBAL VAR error */
   | LED UNDECLARED_SYMBOL '=' master_or_slave
-      {  add_symbol($2, "LED_ID", $4, @2); }
+      {  symbols.add_symbol($2, "LED_ID", $4, @2); }
 /*  | LED error */
   ;
 
@@ -258,11 +250,11 @@ code_lines
 code_line
   /* New label declaration */
   : UNDECLARED_SYMBOL ':' LINEFEED
-      { add_symbol($1, "LABEL", 0/*pc*/, @1); }
+      { symbols.add_symbol($1, "LABEL", 0/*pc*/, @1); }
 /*  | UNDECLARED_SYMBOL error */
   /* Label that was already forward-declared in a GOTO */
   | LABEL ':' LINEFEED
-      { set_symbol($1, "LABEL", 0/*pc*/, @1); }
+      { symbols.set_symbol($1, "LABEL", 0/*pc*/, @1); }
 /*  | LABEL error */
   | command LINEFEED
 /*  | error LINEFEED */
@@ -270,39 +262,39 @@ code_line
 
 command
   : GOTO LABEL
-      { emit(get_reserved_word($1).opcode | (($2) & 0xffffff)); }
+      { emitter.emit(symbols.get_reserved_word($1).opcode | (($2) & 0xffffff)); }
   | GOTO UNDECLARED_SYMBOL
-      { add_symbol($2, "LABEL", -1, @2); emit(get_reserved_word($1).opcode); }
+      { symbols.add_symbol($2, "LABEL", -1, @2); emit(get_reserved_word($1).opcode); }
   | FADE leds STEPSIZE VARIABLE
-      { emit_led_instruction(get_reserved_word($1).opcode | $4, @1); }
+      { emitter.emit_led_instruction(symbols.get_reserved_word($1).opcode | $4, @1); }
   | FADE leds STEPSIZE GLOBAL_VARIABLE
-      { emit_led_instruction(get_reserved_word($1).opcode | $4, @1); }
+      { emitter.emit_led_instruction(symbols.get_reserved_word($1).opcode | $4, @1); }
   | FADE leds STEPSIZE NUMBER
-      { emit_led_instruction(get_reserved_word($1).opcode | INSTRUCTION_MODIFIER_IMMEDIATE | ($4 & 0xff), @1); }
+      { emitter.emit_led_instruction(symbols.get_reserved_word($1).opcode | INSTRUCTION_MODIFIER_IMMEDIATE | ($4 & 0xff), @1); }
   | FADE leds STEPSIZE NUMBER '%'
-      { emit_led_instruction(get_reserved_word($1).opcode | INSTRUCTION_MODIFIER_IMMEDIATE | ($4 & 0xff), @1); }
+      { emitter.emit_led_instruction(symbols.get_reserved_word($1).opcode | INSTRUCTION_MODIFIER_IMMEDIATE | ($4 & 0xff), @1); }
   | SLEEP parameter
-      { emit(get_reserved_word($1).opcode | $2); }
+      { emitter.emit(symbols.get_reserved_word($1).opcode | $2); }
   | SKIP IF test_expression
   | expression
   ;
 
 test_expression
   : VARIABLE test_operator parameter
-      { emit($2 | ($1 << 16) | $3); }
+      { emitter.emit($2 | ($1 << 16) | $3); }
   | LED_ID test_operator parameter
       /* All LED relates tests have 0x02 set in the opcode */
-      { emit($2 | INSTRUCTION_MODIFIER_LED | ($1 << 16) | $3); }
-  | ANY expect_car_state car_state_list
-      { emit($1 | $3); }
-  | ALL expect_car_state car_state_list
-      { emit($1 | $3); }
-  | NONE expect_car_state car_state_list
-      { emit($1 | $3); }
-  | IS expect_car_state CAR_STATE
-      { emit($1 | $3); }
-  | NOT expect_car_state CAR_STATE
-      { emit($1 | $3); }
+      { emitter.emit($2 | INSTRUCTION_MODIFIER_LED | ($1 << 16) | $3); }
+  | ANY car_state_list
+      { emitter.emit($1 | $2); }
+  | ALL car_state_list
+      { emitter.emit($1 | $2); }
+  | NONE car_state_list
+      { emitter.emit($1 | $2); }
+  | IS CAR_STATE
+      { emitter.emit($1 | $2); }
+  | NOT CAR_STATE
+      { emitter.emit($1 | $2); }
   ;
 
 test_operator
@@ -322,24 +314,24 @@ car_state_list
 
 expression
   : VARIABLE assignment_operator parameter
-      { emit(get_reserved_word($2).opcode | (get_symbol($1).opcode << 16) | $3); }
+      { emitter.emit(symbols.get_reserved_word($2).opcode | (symbols.get_symbol($1).opcode << 16) | $3); }
   | GLOBAL_VARIABLE assignment_operator parameter
-      { emit(get_reserved_word($2).opcode | (get_symbol($1).opcode << 16) | $3); }
+      { emitter.emit(symbols.get_reserved_word($2).opcode | (symbols.get_symbol($1).opcode << 16) | $3); }
   | leds '=' led_assignment_parameter
-      { emit_led_instruction(0x02000000 | $3, @1); }
+      { emitter.emit_led_instruction(0x02000000 | $3, @1); }
   ;
 
 leds
   : ALL LEDS
-    { add_led_to_list(-1); }
+    { emitter.add_led_to_list(-1); }
   | led_list
   ;
 
 led_list
   : LED_ID
-      { add_led_to_list($1); }
+      { emitter.add_led_to_list($1); }
   | leds ',' LED_ID
-      { add_led_to_list($3); }
+      { emitter.add_led_to_list($3); }
   ;
 
 led_assignment_parameter
@@ -350,9 +342,9 @@ led_assignment_parameter
       /* All opcodes that work with immediates have the lowest bit set */
       { $$ = INSTRUCTION_MODIFIER_IMMEDIATE | (Number($1) & 0xff); }
   | VARIABLE
-      { $$ = get_symbol($1).opcode; }
+      { $$ = symbols.get_symbol($1).opcode; }
   | GLOBAL_VARIABLE
-      { $$ = get_symbol($1).opcode; }
+      { $$ = symbols.get_symbol($1).opcode; }
   ;
 
 parameter
@@ -360,11 +352,11 @@ parameter
       /* All opcodes that work with immediates have the lowest bit set */
       { $$ = INSTRUCTION_MODIFIER_IMMEDIATE | (Number($1) & 0xffff); }
   | VARIABLE
-      { $$ = (PARAMETER_TYPE_VARIABLE << 8) | get_symbol($1).opcode; }
+      { $$ = (PARAMETER_TYPE_VARIABLE << 8) | symbols.get_symbol($1).opcode; }
   | GLOBAL_VARIABLE
-      { $$ = (PARAMETER_TYPE_VARIABLE << 8) | get_symbol($1).opcode; }
+      { $$ = (PARAMETER_TYPE_VARIABLE << 8) | symbols.get_symbol($1).opcode; }
   | LED_ID
-      { $$ = (PARAMETER_TYPE_LED << 8) | get_symbol($1).opcode; }
+      { $$ = (PARAMETER_TYPE_LED << 8) | symbols.get_symbol($1).opcode; }
   | STEERING
       { $$ = (PARAMETER_TYPE_STEERING << 8); }
   | THROTTLE
