@@ -148,7 +148,7 @@ var emitter = (function () {
         // single LED statement.
 
         start = stop = led_list[0];
-        for (i = 1; i < led_list.length; i++) {
+        for (var i = 1; i < led_list.length; i++) {
             if (led_list[i] != (stop + 1)) {
                 emit(instruction | (stop << 16) | (start << 8));
                 start = stop = led_list[i];
