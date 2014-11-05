@@ -22,14 +22,14 @@ reserved keywords:
 %%
 "0"[xX][\da-fA-F]+ {
   line_is_empty = false;
-  console.log("Hex-number: ", yytext);
+  console.log("[LEX]     Hex-number: ", yytext);
   yytext = parseInt(yytext, 16);
   return "NUMBER";
 }
 
 ("-"?)[\d]+ {
   line_is_empty = false;
-  console.log("Number: ", yytext);
+  console.log("[LEX]     Number: ", yytext);
   yytext = parseInt(yytext, 10);
   return "NUMBER";
 }
@@ -37,47 +37,47 @@ reserved keywords:
 "run" {
   line_is_empty = false;
   parse_state = "EXPECTING_RUN_CONDITION";
-  console.log("Reserved word: " + yytext);
+  console.log("[LEX]     Reserved word: " + yytext);
   return yytext.toUpperCase();
 }
 
 "is"|"any"|"all"|"none"|"not" {
   line_is_empty = false;
   parse_state = "EXPECTING_CAR_STATE";
-  console.log("Reserved word: " + yytext);
+  console.log("[LEX]     Reserved word: " + yytext);
   return yytext.toUpperCase();
 }
 
 "goto"|"var"|"led"|"leds"|"sleep"|"skip"|"if"|"fade"|"stepsize"|"when"|"or"|"master"|"slave"|"global"|"random"|"steering"|"throttle"|"abs"|"end" {
   line_is_empty = false;
-  console.log("Reserved word: " + yytext);
+  console.log("[LEX]     Reserved word: " + yytext);
   return yytext.toUpperCase();
 }
 
 [a-zA-Z][a-zA-Z0-9_\-]* {
   line_is_empty = false;
   var symbol = symbols.get_symbol(yytext, parse_state);
-  console.log("Identifier: " + yytext + " (" + symbol.token + "=0x" + symbol.opcode.toString(16) + ") parse_state=" + parse_state);
+  console.log("[LEX]     Identifier: " + yytext + " (" + symbol.token + "=0x" + symbol.opcode.toString(16) + ") parse_state=" + parse_state);
   return symbol.token;
 }
 
 "="|"+="|"-="|"*="|"/="|"&="|"|="|"^=" {
   line_is_empty = false;
   var symbol = symbols.get_reserved_word(yytext);
-  console.log("Assignment " + yytext + " (" + symbol.token + "=0x" + symbol.opcode.toString(16) + ")");
+  console.log("[LEX]     Assignment " + yytext + " (" + symbol.token + "=0x" + symbol.opcode.toString(16) + ")");
   return symbol.token;
 }
 
 "=="|"!="|">="|"<="|">"|"<" {
   line_is_empty = false;
   var symbol = symbols.get_reserved_word(yytext);
-  console.log("Comparison " + yytext + " (" + symbol.token + "=0x" + symbol.opcode.toString(16) + ")");
+  console.log("[LEX]     Comparison " + yytext + " (" + symbol.token + "=0x" + symbol.opcode.toString(16) + ")");
   return symbol.token;
 }
 
 "["|"]"|","|":"|"%" {
   line_is_empty = false;
-  console.log("'" + yytext + "'");
+  console.log("[LEX]     '" + yytext + "'");
   return yytext;
 }
 
@@ -100,13 +100,13 @@ reserved keywords:
 
   if (!line_is_empty) {
     line_is_empty = true;
-    console.log("linefeed");
+    console.log("[LEX]     linefeed");
     return "LINEFEED";
   }
 }
 
 . {
-  console.log("Unrecognized character " + yytext);
+  console.log("[LEX]     Unrecognized character " + yytext);
   return yytext;
 }
 
@@ -134,6 +134,9 @@ var INSTRUCTION_MODIFIER_IMMEDIATE = 0x01000000;
 var line_is_empty = true;
 var parse_state = "UNKNOWN_PARSE_STATE";
 
+var symbols = require("./symbols").symbols;
+var emitter = require("./emitter").emitter;
+
 %}
 
 
@@ -141,6 +144,11 @@ var parse_state = "UNKNOWN_PARSE_STATE";
 
 /* ========================================================================== */
 /* Grammar rules */
+
+parse_entity
+  : programs
+    { return emitter.output_programs(); }
+  ;
 
 programs
   : program END LINEFEED
@@ -176,7 +184,7 @@ priority_run_condition_line
 
 priority_run_conditions
   : PRIORITY_RUN_CONDITION
-      { $$ = gsymbols.et_symbol($1, "EXPECTING_RUN_CONDITION").opcode; }
+      { $$ = symbols.get_symbol($1, "EXPECTING_RUN_CONDITION").opcode; }
   | priority_run_conditions PRIORITY_RUN_CONDITION
     { $$ = $1 | symbols.get_symbol($2, "EXPECTING_RUN_CONDITION").opcode; }
   | priority_run_conditions OR PRIORITY_RUN_CONDITION
@@ -330,9 +338,9 @@ leds
 
 led_list
   : LED_ID
-      { emitter.add_led_to_list($1); }
+      { emitter.add_led_to_list(symbols.get_symbol($1).opcode); }
   | leds ',' LED_ID
-      { emitter.add_led_to_list($3); }
+      { emitter.add_led_to_list(symbols.get_symbol($3).opcode); }
   ;
 
 led_assignment_parameter

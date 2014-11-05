@@ -1,7 +1,10 @@
+var emitter = require("./emitter").emitter;
+
+
 var symbols = (function () {
     "use strict";
 
-    var symbols = [];
+    var symbol_table = [];
     var forward_declaration_table = [];
     var next_variable_index = 0;
     var leds_used = 0;
@@ -141,12 +144,12 @@ var symbols = (function () {
 
     // ****************************************************************************
     var dump_symbol_table = function () {
-        var msg = "";
+        var msg = "\n";
 
         msg += "Symbol table:\n";
 
-        for (var i = 0; i < symbols.length; i++) {
-            var s = symbols[i];
+        for (var i = 0; i < symbol_table.length; i++) {
+            var s = symbol_table[i];
             msg += "name='" + s.name + "', token=" + s.token + " index=" + s.opcode + "\n";
         }
 
@@ -179,33 +182,8 @@ var symbols = (function () {
 
 
     // *************************************************************************
-    var resolve_forward_declarations = function (instruction) {
-        // FORWARD_DECLERATION_T *f;
-        // for (f = forward_declaration_table; f != NULL; f = f->next) {
-        //     if (f->symbol->index < 0) {
-        //         char *message;
-        //         const char *fmt = "Label '%s' used but not defined.";
-
-        //         message = (char *)calloc(strlen(fmt) + strlen(f->symbol->name), 1);
-        //         if (message == NULL) {
-        //             fprintf(stderr, "ERROR: out of memory in resolve_forward_declarations()\n");
-        //             exit(1);
-        //         }
-        //         sprintf(message, fmt, f->symbol->name);
-
-        //         yyerror(&f->location, message);
-        //         free(message);
-        //     }
-        //     else if ((unsigned  int)f->symbol->index == f->pc) {
-        //         // Skip the declaration of the label
-        //         continue;
-        //     }
-        //     else {
-        //         instructions[f->pc] =
-        //             (instructions[f->pc] & 0xff000000) |
-        //                 (f->symbol->index & 0xffffff);
-        //     }
-        // }
+    var get_forward_declerations = function () {
+        return forward_declaration_table;
     };
 
 
@@ -215,9 +193,9 @@ var symbols = (function () {
 
         forward_declaration_table = [];
 
-        for (var i = symbols.length - 1; i >= 0; i--) {
-            if (symbols[i].token !== "GLOBAL_VARIABLE") {
-                array.splice(i, 1);
+        for (var i = symbol_table.length - 1; i >= 0; i--) {
+            if (symbol_table[i].token !== "GLOBAL_VARIABLE") {
+                symbol_table.splice(i, 1);
             }
         }
     }
@@ -225,24 +203,24 @@ var symbols = (function () {
 
     // *************************************************************************
     var set_symbol = function (name, token, opcode, location) {
-        for (var i = 0; i < symbols.length; i++) {
-            var s = symbols[i];
+        for (var i = 0; i < symbol_table.length; i++) {
+            var s = symbol_table[i];
             if (s.name === name) {
                 if (s.opcode !== -1) {
-                    console.log("Redefinition of symbol " + name);
+                    console.log("[SYMBOLS] Redefinition of symbol " + name);
                     //yyerror("Redefinition of symbol " + name);
                 }
-                symbols[i].token = token;
-                symbols[i].opcode = opcode;
+                symbol_table[i].token = token;
+                symbol_table[i].opcode = opcode;
 
-                console.log("Set '" + name +"' as token=" + token + " opcode=" + opcode);
+                console.log("[SYMBOLS] Set '" + name +"' as token=" + token + " opcode=" + opcode);
             }
         }
     };
 
 
     // *************************************************************************
-    var get_symbol = function (name, parse_state) {
+    var get_symbol = function (name, parse_state, location) {
         if (parse_state === "EXPECTING_RUN_CONDITION") {
             return run_condition_tokens[name] || undeclared_symbol;
         }
@@ -252,8 +230,8 @@ var symbols = (function () {
         }
 
         // See if we are dealing with a LOCAL symbol
-        for (var i = 0; i < symbols.length; i++) {
-            var s = symbols[i];
+        for (var i = 0; i < symbol_table.length; i++) {
+            var s = symbol_table[i];
 
             if (s.token === "GLOBAL_VARIABLE") {
                 continue;
@@ -263,7 +241,7 @@ var symbols = (function () {
                 if (s.token === "LABEL") {
                     if (s.opcode === -1) {
                         add_forward_declaration(s, emitter.pc(), location);
-                        console.log("Using forward declared label " + name);
+                        console.log("[SYMBOLS] Using forward declared label " + name);
                     }
                 }
                 return s;
@@ -271,8 +249,8 @@ var symbols = (function () {
         }
 
         // See if we are dealing with a GLOBAL symbol
-        for (var i = 0; i < symbols.length; i++) {
-            var s = symbols[i];
+        for (var i = 0; i < symbol_table.length; i++) {
+            var s = symbol_table[i];
 
             if (s.token !== "GLOBAL_VARIABLE") {
                 continue;
@@ -282,7 +260,7 @@ var symbols = (function () {
             }
         }
 
-        console.log("Undeclared symbol " + name);
+        console.log("[SYMBOLS] Undeclared symbol " + name);
 
         return undeclared_symbol;
     };
@@ -290,8 +268,6 @@ var symbols = (function () {
 
     // *************************************************************************
     var add_symbol = function (name, token, opcode, location) {
-        console.log("add_symbol():", name, token, opcode, location);
-
         var new_symbol = {
             "name": name,
             "token": token,
@@ -305,7 +281,7 @@ var symbols = (function () {
         }
 
         if (token == "LED_ID") {
-            if (opcode < 0  ||  index > 31) {
+            if (opcode < 0  ||  opcode > 31) {
                 // FIXME
                 //yyerror(location, "LED index out of range (must be 0..15)");
             }
@@ -315,11 +291,11 @@ var symbols = (function () {
             }
         }
 
-        symbols.push(new_symbol);
+        symbol_table.push(new_symbol);
 
         if (token == "LABEL"  &&  opcode == -1) {
             add_forward_declaration(new_symbol, emitter.pc(), location);
-            console.log("Forward declaration of label " + name);
+            console.log("[SYMBOLS] Forward declaration of label " + name);
         }
     };
 
@@ -327,11 +303,17 @@ var symbols = (function () {
     // *************************************************************************
     var get_reserved_word = function (name) {
         return reserved_words[name] || console.log(
-            "SYMBOLS: ASSERT: reserved word " + name + " is not in the table");
+            "[SYMBOLS] ASSERT: reserved word " + name + " is not in the table");
     };
 
 
+    // *************************************************************************
+    var get_leds_used = function () {
+        return leds_used;
+    };
 
+
+    // *************************************************************************
     add_symbol("clicks", "GLOBAL_VARIABLE", next_variable_index++);
 
     return {
@@ -339,8 +321,16 @@ var symbols = (function () {
         get_symbol: get_symbol,
         set_symbol: set_symbol,
         get_reserved_word: get_reserved_word,
+        get_leds_used: get_leds_used,
+        get_forward_declerations: get_forward_declerations,
         remove_local_symbols: remove_local_symbols,
         dump_symbol_table: dump_symbol_table
     };
 
 })();
+
+// node.js exports; hide from browser where exports is undefined and use strict
+// would trigger.
+if (typeof exports !== 'undefined') {
+    exports.symbols = symbols;
+}
