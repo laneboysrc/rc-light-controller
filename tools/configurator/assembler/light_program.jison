@@ -89,15 +89,11 @@ reserved keywords:
 \\[ \t]*(("//"|;)[^\n]*)*\n {
   /* eat up continuation characters '\', and the following \n */
   /* Comments can appear in after the '\' character */
-  //offset = 1;
-  ++yylineno;
   yy.logger.log(MODULE, "DEBUG", "emtpy line");
 }
 
 \n %{        /* Only ever give back a single in sequence \n */
   parse_state = "UNKNOWN_PARSE_STATE";
-  //offset = 1;
-  ++yylineno;
 
   if (!line_is_empty) {
     line_is_empty = true;
