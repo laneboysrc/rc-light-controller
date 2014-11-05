@@ -62,11 +62,13 @@ var emitter = (function () {
         for (var i = 0; i < forward_declarations.length; i++) {
             var f = forward_declarations[i];
 
-            if (f.index < 0) {
-                console.log("[EMIT]    Label '" + f.label + "' used but not defined.");
+            console.log(f)
+
+            if (f.symbol.opcode < 0) {
+                throw new Error("[EMIT]    Label '" + f.symbol.name + "' used but not defined.");
                 // yyerror
             }
-            else if (f.index == f.pc) {
+            else if (f.symbol.opcode == f.pc) {
                 // Skip the declaration of the label
                 continue;
             }
@@ -77,7 +79,7 @@ var emitter = (function () {
 
                 instruction_list[offset] =
                     (instruction_list[offset] & 0xff000000) |
-                        (f.index & 0x00ffffff);
+                        (f.symbol.opcode & 0x00ffffff);
             }
         }
     };
@@ -113,7 +115,7 @@ var emitter = (function () {
             led_list.push(led_index);
         }
         else {
-            console.log("[EMIT]    ERROR: led_list is full");
+            throw new Error("[EMIT]    ERROR: led_list is full");
             // yyerror
         }
     }
@@ -128,14 +130,14 @@ var emitter = (function () {
             " (" + led_list.length + " leds)");
 
         if (led_list.length === 0) {
-            console.log("[EMIT]    emit_led_instruction(): led_list.length is 0");
+            throw new Error("[EMIT]    emit_led_instruction(): led_list.length is 0");
             //yyerror(location, "emit_led_instruction(): led_list.length is 0");
             return;
         }
 
         if (led_list.length > 1  &&  pc > 0  &&
-                is_skip_if(instruction_list[-1])) {
-            console.log("[EMIT]    commands using multiple LEDs can not follow 'skip if'");
+                is_skip_if(instruction_list[instruction_list.length - 1])) {
+            throw new Error("[EMIT]    commands using multiple LEDs can not follow 'skip if'");
             // yyerror(location, "commands using multiple LEDs can not follow 'skip if'");
         }
 
@@ -176,9 +178,10 @@ var emitter = (function () {
     var emit_end_of_program = function () {
         console.log("[EMIT]    emit_end_of_program()");
 
-        if (pc > 0  &&  is_skip_if(instruction_list[-1])) {
+        if (pc > 0  &&
+            is_skip_if(instruction_list[instruction_list.length - 1])) {
             //yyerror(NULL, "Last operation in a program can not be 'skip if'.");
-            console.log("[EMIT]    Last operation in a program can not be 'skip if'.");
+            throw new Error("[EMIT]    Last operation in a program can not be 'skip if'.");
         }
 
         // Add end-of-program instruction

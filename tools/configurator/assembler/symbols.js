@@ -149,7 +149,7 @@ var symbols = (function () {
 
         for (var i = 0; i < symbol_table.length; i++) {
             var s = symbol_table[i];
-            msg += "name='" + s.name + "', token=" + s.token + " index=" + s.opcode + "\n";
+            msg += "name='" + s.name + "', token=" + s.token + " opcode=" + s.opcode + "\n";
         }
 
         msg += "\n";
@@ -160,7 +160,7 @@ var symbols = (function () {
         else {
             for (var i = 0; i < forward_declaration_table.length; i++) {
                 var f = forward_declaration_table[i];
-                msg += "label='" + f.symbol.name + "' pc=" + f.pc + " index=" + f.symbol.opcode + "\n";
+                msg += "label='" + f.symbol.name + "' pc=" + f.pc + " opcode=" + f.symbol.opcode + "\n";
             }
         }
         msg += "\n";
@@ -206,7 +206,7 @@ var symbols = (function () {
             var s = symbol_table[i];
             if (s.name === name) {
                 if (s.opcode !== -1) {
-                    console.log("[SYMBOLS] Redefinition of symbol " + name);
+                    throw new Error("[SYMBOLS] Redefinition of symbol " + name);
                     //yyerror("Redefinition of symbol " + name);
                 }
                 symbol_table[i].token = token;
@@ -281,7 +281,7 @@ var symbols = (function () {
 
         if (token == "LED_ID") {
             if (opcode < 0  ||  opcode > 31) {
-                // FIXME
+                throw new Error("LED index out of range (must be 0..15)");
                 //yyerror(location, "LED index out of range (must be 0..15)");
             }
             else {

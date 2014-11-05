@@ -18,6 +18,7 @@ reserved keywords:
 
 %lex
 
+%options flex
 
 %%
 "0"[xX][\da-fA-F]+ {
@@ -48,7 +49,7 @@ reserved keywords:
   return yytext.toUpperCase();
 }
 
-"goto"|"var"|"led"|"leds"|"sleep"|"skip"|"if"|"fade"|"stepsize"|"when"|"or"|"master"|"slave"|"global"|"random"|"steering"|"throttle"|"abs"|"end" {
+"goto"|"var"|"leds"|"led"|"sleep"|"skip"|"if"|"fade"|"stepsize"|"when"|"or"|"master"|"slave"|"global"|"random"|"steering"|"throttle"|"abs"|"end" {
   line_is_empty = false;
   console.log("[LEX]     Reserved word: " + yytext);
   return yytext.toUpperCase();
@@ -288,20 +289,20 @@ command
 
 test_expression
   : VARIABLE test_operator parameter
-      { yy.emitter.emit($2 | ($1 << 16) | $3); }
+      { yy.emitter.emit(yy.symbols.get_reserved_word($2).opcode | ($1 << 16) | $3); }
   | LED_ID test_operator parameter
       /* All LED relates tests have 0x02 set in the opcode */
-      { yy.emitter.emit($2 | INSTRUCTION_MODIFIER_LED | ($1 << 16) | $3); }
+      { yy.emitter.emit(yy.symbols.get_reserved_word($2).opcode | INSTRUCTION_MODIFIER_LED | ($1 << 16) | $3); }
   | ANY car_state_list
-      { yy.emitter.emit($1 | $2); }
+      { yy.emitter.emit(yy.symbols.get_reserved_word($1).opcode | yy.symbols.get_symbol($2, "EXPECTING_CAR_STATE").opcode); }
   | ALL car_state_list
-      { yy.emitter.emit($1 | $2); }
+      { yy.emitter.emit(yy.symbols.get_reserved_word($1).opcode | yy.symbols.get_symbol($2, "EXPECTING_CAR_STATE").opcode); }
   | NONE car_state_list
-      { yy.emitter.emit($1 | $2); }
+      { yy.emitter.emit(yy.symbols.get_reserved_word($1).opcode | yy.symbols.get_symbol($2, "EXPECTING_CAR_STATE").opcode); }
   | IS CAR_STATE
-      { yy.emitter.emit($1 | $2); }
+      { yy.emitter.emit(yy.symbols.get_reserved_word($1).opcode | yy.symbols.get_symbol($2, "EXPECTING_CAR_STATE").opcode); }
   | NOT CAR_STATE
-      { yy.emitter.emit($1 | $2); }
+      { yy.emitter.emit(yy.symbols.get_reserved_word($1).opcode | yy.symbols.get_symbol($2, "EXPECTING_CAR_STATE").opcode); }
   ;
 
 test_operator
