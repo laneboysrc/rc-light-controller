@@ -8,7 +8,7 @@ var symbols = (function () {
 
     var undeclared_symbol = {"token": "UNDECLARED_SYMBOL", "opcode": 0};
 
-    var emitter;
+    var parser;
 
     var run_condition_tokens = {
         "always": {"token": "RUN_CONDITION_ALWAYS", "opcode": 0x80000000},
@@ -129,6 +129,8 @@ var symbols = (function () {
         "<=": {"token": "LE", "opcode": 0x30000000},
     };
 
+    var MODULE = "SYMBOL";
+
 
     // *************************************************************************
     var hex = function (number) {
@@ -164,7 +166,7 @@ var symbols = (function () {
             }
         }
         msg += "\n";
-        console.log(msg);
+        parser.yy.logger.log(MODULE, "INFO", msg);
     }
 
 
@@ -212,7 +214,7 @@ var symbols = (function () {
                 symbol_table[i].token = token;
                 symbol_table[i].opcode = opcode;
 
-                console.log("[SYMBOLS] Set '" + name +"' as token=" + token + " opcode=" + opcode);
+                parser.yy.logger.log(MODULE, "INFO", "Set '" + name +"' as token=" + token + " opcode=" + opcode);
             }
         }
     };
@@ -239,8 +241,8 @@ var symbols = (function () {
             if (s.name === name) {
                 if (s.token === "LABEL") {
                     if (s.opcode === -1) {
-                        add_forward_declaration(s, emitter.pc(), location);
-                        console.log("[SYMBOLS] Using forward declared label " + name);
+                        add_forward_declaration(s, parser.yy.emitter.pc(), location);
+                        parser.yy.logger.log(MODULE, "INFO", "Using forward declared label " + name);
                     }
                 }
                 return s;
@@ -259,7 +261,7 @@ var symbols = (function () {
             }
         }
 
-        console.log("[SYMBOLS] Undeclared symbol " + name);
+        parser.yy.logger.log(MODULE, "INFO", "Undeclared symbol " + name);
 
         return undeclared_symbol;
     };
@@ -293,16 +295,16 @@ var symbols = (function () {
         symbol_table.push(new_symbol);
 
         if (token == "LABEL"  &&  opcode == -1) {
-            add_forward_declaration(new_symbol, emitter.pc(), location);
-            console.log("[SYMBOLS] Forward declaration of label " + name);
+            add_forward_declaration(new_symbol, parser.yy.emitter.pc(), location);
+            parser.yy.logger.log(MODULE, "INFO", "Forward declaration of label " + name);
         }
     };
 
 
     // *************************************************************************
     var get_reserved_word = function (name) {
-        return reserved_words[name] || console.log(
-            "[SYMBOLS] ASSERT: reserved word " + name + " is not in the table");
+        return reserved_words[name] ||
+            parser.yy.logger.log(MODULE, "FATAL", "ASSERT: reserved word " + name + " is not in the table");
     };
 
 
@@ -313,8 +315,8 @@ var symbols = (function () {
 
 
     // *************************************************************************
-    var set_emitter = function (e) {
-        emitter = e;
+    var set_parser = function (e) {
+        parser = e;
     }
 
 
@@ -322,7 +324,7 @@ var symbols = (function () {
     add_symbol("clicks", "GLOBAL_VARIABLE", next_variable_index++);
 
     return {
-        set_emitter: set_emitter,
+        set_parser: set_parser,
         add_symbol: add_symbol,
         get_symbol: get_symbol,
         set_symbol: set_symbol,

@@ -6,6 +6,7 @@
   <script type="text/javascript" src="light_program.js"></script>
   <script type="text/javascript" src="symbols.js"></script>
   <script type="text/javascript" src="emitter.js"></script>
+  <script type="text/javascript" src="log.js"></script>
 </head>
 <body>
 <pre id="code"></pre>
@@ -15,12 +16,13 @@
 
 
 parser.yy = {
-    "symbols": symbols,
-    "emitter": emitter,
+    symbols: symbols,
+    emitter: emitter,
+    logger: logger
 }
 
-symbols.set_emitter(emitter);
-emitter.set_symbols(symbols);
+emitter.set_parser(parser);
+symbols.set_parser(parser);
 
   parser.parse("" +
 "run when neutral or forward\n" +

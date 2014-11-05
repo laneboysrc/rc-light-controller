@@ -3,6 +3,7 @@
 var parser = require("./light_program").parser;
 var symbols = require("./symbols").symbols;
 var emitter = require("./emitter").emitter;
+var logger = require("./log").logger;
 
 // Ugly hack...
 // We need parser, symbols and emitter know of each-other.
@@ -13,13 +14,17 @@ var emitter = require("./emitter").emitter;
 // and have them pull out the other one via yy. This way we also should get
 // access to error functions of the parser
 
+
+logger.set_log_level("INFO");
+
 parser.yy = {
-    "symbols": symbols,
-    "emitter": emitter,
+    symbols: symbols,
+    emitter: emitter,
+    logger: logger
 }
 
-symbols.set_emitter(emitter);
-emitter.set_symbols(symbols);
+emitter.set_parser(parser);
+symbols.set_parser(parser);
 
 
 if (!process.argv[2]) {

@@ -22,7 +22,9 @@ var emitter = (function () {
     var pc = 0;
     var led_list = [];
 
-    var symbols;
+    var parser;
+
+    var MODULE = "EMIT";
 
     // *************************************************************************
     var hex = function (number) {
@@ -57,7 +59,7 @@ var emitter = (function () {
 
     // *************************************************************************
     var resolve_forward_declarations = function () {
-        var forward_declarations = symbols.get_forward_declerations();
+        var forward_declarations = parser.yy.symbols.get_forward_declerations();
 
         for (var i = 0; i < forward_declarations.length; i++) {
             var f = forward_declarations[i];
@@ -87,10 +89,10 @@ var emitter = (function () {
     var add_led_to_list = function (led_index) {
         if (led_index < 0) {
             // "All used LEDs" requested
-            var leds_used = symbols.get_leds_used();
+            var leds_used = parser.yy.symbols.get_leds_used();
             led_list = [];
 
-            console.log("[EMIT]    Adding all LEDs: " + hex(leds_used));
+            parser.yy.logger.log(MODULE, "INFO", "Adding all LEDs: " + hex(leds_used));
 
             for (var i = 0; i < NUMBER_OF_LEDS; i++) {
                 if (leds_used & (1 << i)) {
@@ -103,7 +105,7 @@ var emitter = (function () {
         // Discard duplicates
         for (var i = 0; i < led_list.length; i++) {
             if (led_list[i] === led_index) {
-                console.log("[EMIT]    WARNING: Duplicate LED " + led_index +
+                parser.yy.logger.log(MODULE, "WARNING", "Duplicate LED " + led_index +
                     " in list");
                 return;
             }
@@ -124,7 +126,7 @@ var emitter = (function () {
         var start;
         var stop;
 
-        console.log("[EMIT]    LED instruction: " + hex(instruction) +
+        parser.yy.logger.log(MODULE, "INFO", "LED instruction: " + hex(instruction) +
             " (" + led_list.length + " leds)");
 
         if (led_list.length === 0) {
@@ -163,8 +165,8 @@ var emitter = (function () {
 
     // *************************************************************************
     var emit_run_condition = function (priority_run_condition, run_condition) {
-        console.log("[EMIT]    PRIORITY code: " + hex(priority_run_condition));
-        console.log("[EMIT]    RUN code: " + hex(run_condition));
+        parser.yy.logger.log(MODULE, "INFO", "PRIORITY code: " + hex(priority_run_condition));
+        parser.yy.logger.log(MODULE, "INFO", "RUN code: " + hex(run_condition));
 
         instruction_list.push(priority_run_condition);
         instruction_list.push(run_condition);
@@ -174,7 +176,7 @@ var emitter = (function () {
 
     // *************************************************************************
     var emit_end_of_program = function () {
-        console.log("[EMIT]    emit_end_of_program()");
+        parser.yy.logger.log(MODULE, "INFO", "emit_end_of_program()");
 
         if (pc > 0  &&
             is_skip_if(instruction_list[instruction_list.length - 1])) {
@@ -185,16 +187,16 @@ var emitter = (function () {
         // Add end-of-program instruction
         instruction_list.push(0xfe000000);
 
-        symbols.dump_symbol_table();
+        parser.yy.symbols.dump_symbol_table();
 
         // Fill in LEDS_USED word!
         instruction_list[start_offset[number_of_programs] + LEDS_USED_OFFSET] =
-            symbols.get_leds_used();
+            parser.yy.symbols.get_leds_used();
 
         resolve_forward_declarations();
 
         // Prepare for the next program
-        symbols.remove_local_symbols();
+        parser.yy.symbols.remove_local_symbols();
         ++number_of_programs;
         pc = 0;
         start_offset[number_of_programs] = instruction_list.length - 1;
@@ -203,7 +205,7 @@ var emitter = (function () {
 
     // *************************************************************************
     var emit = function (instruction) {
-        console.log("[EMIT]    INSTRUCTION: " + hex(instruction));
+        parser.yy.logger.log(MODULE, "INFO", "INSTRUCTION: " + hex(instruction));
 
         instruction_list.push(instruction);
         ++pc;
@@ -228,9 +230,10 @@ var emitter = (function () {
         };
     }
 
+
     // *************************************************************************
-    var set_symbols = function (s) {
-        symbols = s;
+    var set_parser = function (p) {
+        parser = p;
     }
 
 
@@ -240,7 +243,7 @@ var emitter = (function () {
     }
 
     return {
-        set_symbols: set_symbols,
+        set_parser: set_parser,
         emit: emit,
         emit_run_condition: emit_run_condition,
         emit_led_instruction: emit_led_instruction,
