@@ -1,0 +1,134 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>JISON-generated parser test</title>
+  <script type="text/javascript" src="light_program.js"></script>
+  <script type="text/javascript" src="symbols.js"></script>
+  <script type="text/javascript" src="emitter.js"></script>
+  <script type="text/javascript" src="log.js"></script>
+</head>
+<body>
+  <pre id="code"></pre>
+
+  <script>
+    "use strict";
+
+
+    // *************************************************************************
+    var hex = function (number) {
+        var s = number.toString(16).toUpperCase();
+        while (s.length < 8) {
+            s = "0" + s;
+        }
+        return "0x" + s;
+    }
+
+
+    // *************************************************************************
+    function make_c_output(programs) {
+        var part1 =
+            "#include <globals.h>\n" +
+            "\n" +
+            "__attribute__ ((section(\".light_programs\")))\n" +
+            "const LIGHT_PROGRAMS_T light_programs = {\n" +
+            "    .magic = {\n" +
+            "        .magic_value = ROM_MAGIC,\n" +
+            "        .type = LIGHT_PROGRAMS,\n" +
+            "        .version = CONFIG_VERSION\n" +
+            "    },\n" +
+            "\n" +
+            "    .number_of_programs = ";
+
+        var part1b =
+            ",\n" +
+            "    .start = {\n";
+
+        var part2 =
+            "        &light_programs.programs[";
+
+        var part2b =
+            "],\n";
+
+        var part3 =
+            "    },\n" +
+            "\n" +
+            "    .programs = {\n";
+
+        var part4 =
+            "        ";
+
+        var part4b =
+            ",\n";
+
+        var part5 =
+            "    }\n" +
+            "};\n";
+
+        // Output the light programs data structure
+
+        var number_of_programs = programs.number_of_programs;
+        var start_offset = programs.start_offset;
+        var instructions = programs.instructions;
+
+        var msg = "";
+
+        msg += part1;
+        msg += number_of_programs.toString();
+        msg += part1b;
+
+        for (i = 0; i < number_of_programs; i++) {
+            msg += part2;
+            msg += start_offset[i].toString();
+            msg += part2b;
+        }
+
+        msg += part3;
+
+        for (var i = 0; i < instructions.length; i++) {
+            msg += part4;
+            msg += hex(instructions[i]);
+            msg += part4b;
+            if (instructions[i] == 0xfe000000) {
+                msg += "\n";
+            }
+        }
+
+        msg += part5;
+
+        document.getElementById("code").innerHTML = msg;
+    }
+
+
+    parser.yy = {
+        symbols: symbols,
+        emitter: emitter,
+        logger: logger
+    }
+
+    emitter.set_parser(parser);
+    symbols.set_parser(parser);
+
+    var programs = parser.parse(
+      "run when neutral or forward\n" +
+      "\n" +
+      "var x\n" +
+      "var clicks\n" +
+      "\n" +
+      "x = 3\n" +
+      "goto forward_label\n" +
+      "loop:\n" +
+      "clicks = steering\n" +
+      "forward_label:\n" +
+      "goto loop" +
+      "\n" +
+      "end" +
+      "\n"
+    );
+
+    make_c_output(programs);
+
+  </script>
+
+</body>
+</html>
