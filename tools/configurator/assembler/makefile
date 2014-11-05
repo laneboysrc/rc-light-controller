@@ -43,7 +43,7 @@ define compile-objects
 
 
 
-$1/%.js: %.y
+$1/%.js: %.y scanner.l
 	$(ECHO) [YACC] $$<
 	$(QUIET) $(YACC) $(YFLAGS) -o $$@ $$< scanner.l
 
