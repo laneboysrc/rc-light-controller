@@ -199,7 +199,7 @@ var emitter = (function () {
         parser.yy.symbols.remove_local_symbols();
         ++number_of_programs;
         pc = 0;
-        start_offset[number_of_programs] = instruction_list.length - 1;
+        start_offset[number_of_programs] = instruction_list.length;
     }
 
 
@@ -222,6 +222,17 @@ var emitter = (function () {
     var output_programs = function () {
         // Add the "END OF PROGRAMS" instruction to mark the end
         instruction_list.push(0xff000000);
+
+        // Print a summary
+        var msg = "\n";
+        msg += "Number of programs: " + number_of_programs + "\n";
+
+        msg += "Start offset locations:\n";
+        for (var i = 0; i < number_of_programs; i++) {
+            msg += i + ": " + start_offset[i] + "\n";
+        }
+        msg += "\n";
+        parser.yy.logger.log(MODULE, "INFO", msg);
 
         return {
             "number_of_programs": number_of_programs,
