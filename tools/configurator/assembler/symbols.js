@@ -1,6 +1,3 @@
-var emitter = require("./emitter").emitter;
-
-
 var symbols = (function () {
     "use strict";
 
@@ -10,6 +7,8 @@ var symbols = (function () {
     var leds_used = 0;
 
     var undeclared_symbol = {"token": "UNDECLARED_SYMBOL", "opcode": 0};
+
+    var emitter;
 
     var run_condition_tokens = {
         "always": {"token": "RUN_CONDITION_ALWAYS", "opcode": 0x80000000},
@@ -314,9 +313,16 @@ var symbols = (function () {
 
 
     // *************************************************************************
+    var set_emitter = function (e) {
+        emitter = e;
+    }
+
+
+    // *************************************************************************
     add_symbol("clicks", "GLOBAL_VARIABLE", next_variable_index++);
 
     return {
+        set_emitter: set_emitter,
         add_symbol: add_symbol,
         get_symbol: get_symbol,
         set_symbol: set_symbol,

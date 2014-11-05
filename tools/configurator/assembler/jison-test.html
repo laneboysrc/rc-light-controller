@@ -14,7 +14,13 @@
   "use strict";
 
 
+parser.yy = {
+    "symbols": symbols,
+    "emitter": emitter,
+}
 
+symbols.set_emitter(emitter);
+emitter.set_symbols(symbols);
 
   parser.parse("" +
 "run when neutral or forward\n" +

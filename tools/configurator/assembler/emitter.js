@@ -1,5 +1,3 @@
-var symbols = require('./symbols').symbols;
-
 var emitter = (function () {
     "use strict";
 
@@ -24,7 +22,7 @@ var emitter = (function () {
     var pc = 0;
     var led_list = [];
 
-    // var symbols;
+    var symbols;
 
     // *************************************************************************
     var hex = function (number) {
@@ -59,9 +57,6 @@ var emitter = (function () {
 
     // *************************************************************************
     var resolve_forward_declarations = function () {
-        // FIXME: why is this necessary?
-        var symbols = require('./symbols').symbols;
-
         var forward_declarations = symbols.get_forward_declerations();
 
         for (var i = 0; i < forward_declarations.length; i++) {
@@ -189,11 +184,6 @@ var emitter = (function () {
         // Add end-of-program instruction
         instruction_list.push(0xfe000000);
 
-
-        // FIXME: why is this necessary?
-        var symbols = require('./symbols').symbols;
-
-
         symbols.dump_symbol_table();
 
         // Fill in LEDS_USED word!
@@ -237,6 +227,11 @@ var emitter = (function () {
         };
     }
 
+    // *************************************************************************
+    var set_symbols = function (s) {
+        symbols = s;
+    }
+
 
     // *************************************************************************
     for (var i = 0; i < start_offset.length; i++) {
@@ -244,6 +239,7 @@ var emitter = (function () {
     }
 
     return {
+        set_symbols: set_symbols,
         emit: emit,
         emit_run_condition: emit_run_condition,
         emit_led_instruction: emit_led_instruction,
