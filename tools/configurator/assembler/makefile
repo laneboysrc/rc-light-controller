@@ -67,7 +67,7 @@ $(TARGET_BIN): $(OBJECTS)
 
 run: $(TARGET_BIN)
 	$(ECHO) [RUN] $<
-	$(QUIET) $< $(RUN_OPTIONS)
+	$(QUIET) ./$< $(RUN_OPTIONS)
 
 test: $(TARGET_BIN)
 	$(ECHO) [TEST] $<
