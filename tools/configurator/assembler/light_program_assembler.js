@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 var parser = require("./light_program").parser;
 var symbols = require("./symbols").symbols;
 var emitter = require("./emitter").emitter;
