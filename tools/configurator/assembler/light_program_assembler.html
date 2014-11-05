@@ -9,7 +9,25 @@
   <script type="text/javascript" src="log.js"></script>
 </head>
 <body>
-  <pre id="code"></pre>
+  <h1>Source code:</h1>
+  <textarea id="source" style="width: 100%; height: 200px;">
+run when neutral or forward
+
+var x
+var clicks
+
+  x = 3
+  goto forward_label
+loop:
+  clicks = steering
+forward_label:
+  goto loop
+
+  end
+  </textarea>
+  <button id="go">Assemble</button>
+  <h1>Assembler output:</h1>
+  <textarea id="code" style="width: 100%; height: 800px;"></textarea>
 
   <script>
     "use strict";
@@ -17,7 +35,7 @@
 
     // *************************************************************************
     var hex = function (number) {
-        var s = number.toString(16).toUpperCase();
+        var s = number.toString(16).toLowerCase();
         while (s.length < 8) {
             s = "0" + s;
         }
@@ -96,7 +114,7 @@
 
         msg += part5;
 
-        document.getElementById("code").innerHTML = msg;
+        document.getElementById("code").value = msg;
     }
 
 
@@ -109,24 +127,16 @@
     emitter.set_parser(parser);
     symbols.set_parser(parser);
 
-    var programs = parser.parse(
-      "run when neutral or forward\n" +
-      "\n" +
-      "var x\n" +
-      "var clicks\n" +
-      "\n" +
-      "x = 3\n" +
-      "goto forward_label\n" +
-      "loop:\n" +
-      "clicks = steering\n" +
-      "forward_label:\n" +
-      "goto loop" +
-      "\n" +
-      "end" +
-      "\n"
-    );
 
-    make_c_output(programs);
+    document.getElementById("go").addEventListener("click", function () {
+      // If we run multiple times, we need to reset the modules inbetween,
+      // especially if there was an error before.
+      symbols.reset();
+      emitter.reset();
+      var programs = parser.parse(document.getElementById("source").value);
+      make_c_output(programs);
+    });
+
 
   </script>
 

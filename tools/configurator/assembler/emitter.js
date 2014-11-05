@@ -234,11 +234,14 @@ var emitter = (function () {
         msg += "\n";
         parser.yy.logger.log(MODULE, "INFO", msg);
 
-        return {
+
+        var result = {
             "number_of_programs": number_of_programs,
             "start_offset": start_offset,
             "instructions": instruction_list
-        };
+        }
+
+        return result;
     }
 
 
@@ -249,9 +252,17 @@ var emitter = (function () {
 
 
     // *************************************************************************
-    for (var i = 0; i < start_offset.length; i++) {
-        start_offset[i] = 0;
+    var reset = function () {
+        number_of_programs = 0;
+        for (var i = 0; i < start_offset.length; i++) {
+            start_offset[i] = 0;
+        }
+        instruction_list = [];
     }
+
+
+    // *************************************************************************
+    reset();
 
     return {
         set_parser: set_parser,
@@ -261,7 +272,8 @@ var emitter = (function () {
         emit_end_of_program: emit_end_of_program,
         add_led_to_list: add_led_to_list,
         pc: get_pc,
-        output_programs: output_programs
+        output_programs: output_programs,
+        reset: reset
     };
 
 })();

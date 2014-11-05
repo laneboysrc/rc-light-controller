@@ -133,6 +133,17 @@ var symbols = (function () {
 
 
     // *************************************************************************
+    var reset = function () {
+        symbol_table = [];
+        forward_declaration_table = [];
+        next_variable_index = 0;
+        leds_used = 0;
+
+        add_symbol("clicks", "GLOBAL_VARIABLE", next_variable_index++);
+    }
+
+
+    // *************************************************************************
     var hex = function (number) {
         var s = number.toString(16).toUpperCase();
         while (s.length < 8) {
@@ -323,7 +334,7 @@ var symbols = (function () {
 
 
     // *************************************************************************
-    add_symbol("clicks", "GLOBAL_VARIABLE", next_variable_index++);
+    reset();
 
     return {
         set_parser: set_parser,
@@ -334,7 +345,8 @@ var symbols = (function () {
         get_leds_used: get_leds_used,
         get_forward_declerations: get_forward_declerations,
         remove_local_symbols: remove_local_symbols,
-        dump_symbol_table: dump_symbol_table
+        dump_symbol_table: dump_symbol_table,
+        reset: reset
     };
 
 })();
