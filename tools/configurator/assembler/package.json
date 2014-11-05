@@ -1,0 +1,16 @@
+{
+  "name": "light-program-assembler",
+  "version": "1.0.0",
+  "description": "DIY RC Light Controller light program assembler",
+  "main": "light_program_assembler.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "make test"
+  },
+  "author": "LANE Boys RC",
+  "devDependencies": {
+    "commander": "~2.5.0"
+  }
+}

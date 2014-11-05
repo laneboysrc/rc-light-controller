@@ -2,10 +2,16 @@
 
 "use strict";
 
+var program = require('commander');
+var fs = require('fs');
+var path = require('path');
+
 var parser = require("./build/parser").parser;
 var symbols = require("./symbols").symbols;
 var emitter = require("./emitter").emitter;
 var logger = require("./log").logger;
+
+var output_file = 1;    // File handle of stdout
 
 
 // *****************************************************************************
@@ -64,30 +70,33 @@ function make_c_output(output_file, programs) {
     var start_offset = programs.start_offset;
     var instructions = programs.instructions;
 
-    output_file.write(part1);
-    output_file.write(number_of_programs.toString());
-    output_file.write(part1b);
+    fs.writeSync(output_file, part1);
+    fs.writeSync(output_file, number_of_programs.toString());
+    fs.writeSync(output_file, part1b);
 
     for (i = 0; i < number_of_programs; i++) {
-        output_file.write(part2);
-        output_file.write(start_offset[i].toString());
-        output_file.write(part2b);
+        fs.writeSync(output_file, part2);
+        fs.writeSync(output_file, start_offset[i].toString());
+        fs.writeSync(output_file, part2b);
     }
 
-    output_file.write(part3);
+    fs.writeSync(output_file, part3);
 
     for (var i = 0; i < instructions.length; i++) {
-        output_file.write(part4);
-        output_file.write(hex(instructions[i]));
-        output_file.write(part4b);
+        fs.writeSync(output_file, part4);
+        fs.writeSync(output_file, hex(instructions[i]));
+        fs.writeSync(output_file, part4b);
         if (instructions[i] == 0xfe000000) {
-            output_file.write("\n");
+            fs.writeSync(output_file, "\n");
         }
     }
 
-    output_file.write(part5);
+    fs.writeSync(output_file, part5);
 }
 
+function increaseVerbosity(v, total) {
+  return total + 1;
+}
 
 // Ugly hack...
 // We need parser, symbols, emitter and logger know of each-other.
@@ -99,21 +108,34 @@ parser.yy = {
     emitter: emitter,
     logger: logger
 }
-
 emitter.set_parser(parser);
 symbols.set_parser(parser);
 
-//logger.set_log_level("INFO");
 
-if (!process.argv[2]) {
-    console.log('Usage: ' + process.argv[1] + ' <light-program-file>');
+program
+  .version('1.0.0')
+  .usage('[options] <source>')
+  .option('-o, --output <value>', 'Output file. If omitted, output is printed to stdout.')
+  .option('-v, --verbose', 'Verbose output. Specify multiple times for more output.', increaseVerbosity, 0)
+  .parse(process.argv);
+
+var sources = program.args;
+
+if (sources.length !== 1) {
+    console.error("No source file given.");
     process.exit(1);
 }
 
-var source =
-    require('fs').readFileSync(require('path').normalize(process.argv[2]), "utf8");
+program.verbose = program.verbose || 0;
+if (program.verbose < 1) {
+    logger.set_log_level("FATAL");
+}
 
-var programs = parser.parse(source);
-var output_file = process.stdout;
+if (program.output) {
+    output_file = fs.openSync(program.output, "w");
+}
 
+var sourcecode = fs.readFileSync(path.normalize(sources[0]), "utf8");
+var programs = parser.parse(sourcecode);
 make_c_output(output_file, programs);
+fs.close(output_file);
