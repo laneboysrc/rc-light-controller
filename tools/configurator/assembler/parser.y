@@ -20,7 +20,6 @@ reserved keywords:
 /* Prologue */
 
 %{
-"use strict";
 
 var PARAMETER_TYPE_VARIABLE = 0;
 var PARAMETER_TYPE_LED = 1;
@@ -31,9 +30,6 @@ var PARAMETER_TYPE_GEAR = 5;
 
 var INSTRUCTION_MODIFIER_LED = 0x02000000;
 var INSTRUCTION_MODIFIER_IMMEDIATE = 0x01000000;
-
-var line_is_empty = true;
-var parse_state = "UNKNOWN_PARSE_STATE";
 
 var MODULE = "LEX";
 
@@ -333,4 +329,6 @@ assignment_operator
 
 
 %%
+
+
 

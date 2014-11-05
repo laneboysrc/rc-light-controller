@@ -121,7 +121,7 @@ forward_label:
     parser.yy = {
         symbols: symbols,
         emitter: emitter,
-        logger: logger
+        logger: logger,
     }
 
     emitter.set_parser(parser);
@@ -133,6 +133,7 @@ forward_label:
       // especially if there was an error before.
       symbols.reset();
       emitter.reset();
+
       try {
         var programs = parser.parse(document.getElementById("source").value);
         make_c_output(programs);

@@ -111,7 +111,6 @@ parser.yy = {
 emitter.set_parser(parser);
 symbols.set_parser(parser);
 
-
 program
   .version('1.0.0')
   .usage('[options] <source>')

@@ -133,17 +133,6 @@ var symbols = (function () {
 
 
     // *************************************************************************
-    var reset = function () {
-        symbol_table = [];
-        forward_declaration_table = [];
-        next_variable_index = 0;
-        leds_used = 0;
-
-        add_symbol("clicks", "GLOBAL_VARIABLE", next_variable_index++);
-    }
-
-
-    // *************************************************************************
     var hex = function (number) {
         var s = number.toString(16).toUpperCase();
         while (s.length < 8) {
@@ -330,12 +319,27 @@ var symbols = (function () {
     // *************************************************************************
     var set_parser = function (e) {
         parser = e;
+        reset();
     }
 
 
     // *************************************************************************
-    reset();
+    var reset = function () {
+        symbol_table = [];
+        forward_declaration_table = [];
+        next_variable_index = 0;
+        leds_used = 0;
 
+        if (typeof parser !== "undefined") {
+            parser.yy.line_is_empty = true;
+            parser.yy.parse_state = "UNKNOWN_PARSE_STATE";
+        }
+
+        add_symbol("clicks", "GLOBAL_VARIABLE", next_variable_index++);
+    }
+
+
+    // *************************************************************************
     return {
         set_parser: set_parser,
         add_symbol: add_symbol,

@@ -248,6 +248,7 @@ var emitter = (function () {
     // *************************************************************************
     var set_parser = function (p) {
         parser = p;
+        reset();
     }
 
 
@@ -262,8 +263,6 @@ var emitter = (function () {
 
 
     // *************************************************************************
-    reset();
-
     return {
         set_parser: set_parser,
         emit: emit,
