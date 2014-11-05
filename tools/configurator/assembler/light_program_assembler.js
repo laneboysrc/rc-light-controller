@@ -10,7 +10,7 @@ var logger = require("./log").logger;
 
 // *****************************************************************************
 var hex = function (number) {
-    var s = number.toString(16).toUpperCase();
+    var s = number.toString(16).toLowerCase();
     while (s.length < 8) {
         s = "0" + s;
     }

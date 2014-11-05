@@ -217,6 +217,8 @@ var symbols = (function () {
                 parser.yy.logger.log(MODULE, "INFO", "Set '" + name +"' as token=" + token + " opcode=" + opcode);
             }
         }
+
+        parser.yy.logger.log(MODULE, "ERROR", "Could not find '" + name +"'");
     };
 
 
@@ -288,7 +290,7 @@ var symbols = (function () {
             }
             else {
                 // Add LED to bit-field of leds_used
-                leds_used |= (1 << opcode);
+                leds_used += Math.pow(2, opcode);
             }
         }
 

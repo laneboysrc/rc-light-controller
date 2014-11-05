@@ -95,7 +95,7 @@ var emitter = (function () {
             parser.yy.logger.log(MODULE, "INFO", "Adding all LEDs: " + hex(leds_used));
 
             for (var i = 0; i < NUMBER_OF_LEDS; i++) {
-                if (leds_used & (1 << i)) {
+                if (leds_used & Math.pow(2, i)) {
                     led_list.push(i);
                 }
             }
