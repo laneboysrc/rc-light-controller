@@ -13,6 +13,20 @@ var logger = (function () {
 
     var log_level_strings = ["DEBUG  ", "INFO   ", "WARNING", "ERROR  ", "FATAL  "];
 
+    var log_function;
+
+
+    // *************************************************************************
+    var console_output = function (msg) {
+        console.log(msg);
+    };
+
+
+    // *************************************************************************
+    var stderr_output = function (msg) {
+        process.stderr.write(msg + "\n");
+    };
+
 
     // *************************************************************************
     var log = function (module, level, message) {
@@ -26,8 +40,7 @@ var logger = (function () {
             module += " ";
         }
 
-        console.log(module + " [" + log_level_strings[level] + "] " + message);
-
+        log_function(module + " [" + log_level_strings[level] + "] " + message);
     };
 
 
@@ -39,6 +52,16 @@ var logger = (function () {
 
 
     // *************************************************************************
+
+    if (typeof process !== "undefined" &&
+        typeof process.stderr !== "undefined" &&
+        typeof process.stderr.write !== "undefined") {
+        log_function = stderr_output;
+    }
+    else {
+        log_function = console_output;
+    }
+
     return {
         log: log,
         set_log_level: set_log_level
