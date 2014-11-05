@@ -43,8 +43,9 @@ run_all_tests() {
             echo "ERROR: Output of program $t differs"
             exit 1
         fi
-
     done
+
+    rm $logfile $logfile2
 }
 
 
