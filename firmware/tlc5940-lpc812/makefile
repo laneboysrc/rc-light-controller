@@ -42,7 +42,7 @@ TERMINAL_PROGRAM := miniterm.py -p /dev/ttyUSB0 -b 115200
 PREPROCESSOR_SIMULATOR := $(TOOL_PATH)preprocessor-simulator.py -b 115200
 MAP_SUMMARY_TOOL := $(TOOL_PATH)parse_gcc_map_file.py
 CONFIGURATION_VALIDATION_TOOL := $(TOOL_PATH)validate_image_file.py
-LIGHT_PROGRAM_ASSEMBLER_PATH := $(TOOL_PATH)light-program-assembler/
+LIGHT_PROGRAM_ASSEMBLER_PATH := $(TOOL_PATH)configurator/assembler
 
 
 ###############################################################################
