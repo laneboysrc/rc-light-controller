@@ -2,7 +2,7 @@
 
 "use strict";
 
-var parser = require("./light_program").parser;
+var parser = require("./build/parser").parser;
 var symbols = require("./symbols").symbols;
 var emitter = require("./emitter").emitter;
 var logger = require("./log").logger;
