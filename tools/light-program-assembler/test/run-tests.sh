@@ -18,7 +18,7 @@ run_all_tests() {
     for t in $DIR/fails/*
     do
     	run_test $t
-    	if [ $? -ne 1 ]; then
+    	if [ $? -eq 0 ]; then
         	echo "ERROR: Test $t passed though it should have failed. Refer to $logfile"
         	exit 1
     	fi
