@@ -133,8 +133,13 @@ forward_label:
       // especially if there was an error before.
       symbols.reset();
       emitter.reset();
-      var programs = parser.parse(document.getElementById("source").value);
-      make_c_output(programs);
+      try {
+        var programs = parser.parse(document.getElementById("source").value);
+        make_c_output(programs);
+      }
+      catch (e) {
+        document.getElementById("code").value = e.message;
+      }
     });
 
 

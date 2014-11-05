@@ -97,8 +97,8 @@ reserved keywords:
 
   if (!line_is_empty) {
     line_is_empty = true;
-    yy.logger.log(MODULE, "DEBUG", "linefeed");
-    return "LINEFEED";
+    yy.logger.log(MODULE, "DEBUG", "NEWLINE");
+    return "NEWLINE";
   }
 %}
 
@@ -147,8 +147,8 @@ parse_entity
   ;
 
 programs
-  : program END LINEFEED
-  | programs program END LINEFEED
+  : program END NEWLINE
+  | programs program END NEWLINE
   ;
 
 program
@@ -174,7 +174,7 @@ priority_run_condition_lines
   ;
 
 priority_run_condition_line
-  : RUN WHEN priority_run_conditions LINEFEED
+  : RUN WHEN priority_run_conditions NEWLINE
       { $$ = $3; }
   ;
 
@@ -194,7 +194,7 @@ run_condition_lines
   ;
 
 run_condition_line
-  : RUN WHEN run_conditions LINEFEED
+  : RUN WHEN run_conditions NEWLINE
     { $$ = $3; }
   ;
 
@@ -208,7 +208,7 @@ run_conditions
   ;
 
 run_always_condition_line
-  : RUN RUN_CONDITION_ALWAYS LINEFEED
+  : RUN RUN_CONDITION_ALWAYS NEWLINE
       { $$ = yy.symbols.get_symbol($2, "EXPECTING_RUN_CONDITION").opcode; }
   ;
 
@@ -218,7 +218,7 @@ decleration_lines
   ;
 
 decleration_line
-  : decleration LINEFEED
+  : decleration NEWLINE
   ;
 
 decleration
@@ -253,15 +253,15 @@ code_lines
 
 code_line
   /* New label declaration */
-  : UNDECLARED_SYMBOL ':' LINEFEED
+  : UNDECLARED_SYMBOL ':' NEWLINE
       { yy.symbols.add_symbol($1, "LABEL", yy.emitter.pc(), @1); }
 /*  | UNDECLARED_SYMBOL error */
   /* Label that was already forward-declared in a GOTO */
-  | LABEL ':' LINEFEED
+  | LABEL ':' NEWLINE
       { yy.symbols.set_symbol($1, "LABEL", yy.emitter.pc(), @1); }
 /*  | LABEL error */
-  | command LINEFEED
-/*  | error LINEFEED */
+  | command NEWLINE
+/*  | error NEWLINE */
   ;
 
 command
