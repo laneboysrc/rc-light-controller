@@ -87,24 +87,24 @@ reserved keywords:
 [ \t]+      /* eat up whitespace */
 
 \\[ \t]*(("//"|;)[^\n]*)*\n {
-    /* eat up continuation characters '\', and the following \n */
-    /* Comments can appear in after the '\' character */
-    //offset = 1;
-    //++yylineno;
-  console.log("emtpy line");
+  /* eat up continuation characters '\', and the following \n */
+  /* Comments can appear in after the '\' character */
+  //offset = 1;
+  ++yylineno;
+  console.log("[LEX]     emtpy line");
 }
 
-\n {        /* Only ever give back a single in sequence \n */
+\n %{        /* Only ever give back a single in sequence \n */
   parse_state = "UNKNOWN_PARSE_STATE";
   //offset = 1;
-  //++yylineno;
+  ++yylineno;
 
   if (!line_is_empty) {
     line_is_empty = true;
     console.log("[LEX]     linefeed");
     return "LINEFEED";
   }
-}
+%}
 
 . {
   console.log("[LEX]     Unrecognized character " + yytext);

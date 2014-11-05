@@ -62,8 +62,6 @@ var emitter = (function () {
         for (var i = 0; i < forward_declarations.length; i++) {
             var f = forward_declarations[i];
 
-            console.log(f)
-
             if (f.symbol.opcode < 0) {
                 throw new Error("[EMIT]    Label '" + f.symbol.name + "' used but not defined.");
                 // yyerror
