@@ -3,10 +3,10 @@
 <head>
   <meta charset="utf-8">
   <title>JISON-generated parser test</title>
-  <script type="text/javascript" src="build/parser.js"></script>
-  <script type="text/javascript" src="symbols.js"></script>
-  <script type="text/javascript" src="emitter.js"></script>
-  <script type="text/javascript" src="log.js"></script>
+  <script type="text/javascript" src="../build/parser.js"></script>
+  <script type="text/javascript" src="../symbols.js"></script>
+  <script type="text/javascript" src="../emitter.js"></script>
+  <script type="text/javascript" src="../log.js"></script>
 </head>
 <body>
   <h1>Source code:</h1>
@@ -119,9 +119,9 @@ forward_label:
 
 
     parser.yy = {
-        symbols: symbols,
-        emitter: emitter,
-        logger: logger,
+      symbols: symbols,
+      emitter: emitter,
+      logger: logger,
     }
 
     emitter.set_parser(parser);
@@ -139,7 +139,17 @@ forward_label:
         make_c_output(programs);
       }
       catch (e) {
-        document.getElementById("code").value = e.message;
+        var msg = "Errors occured while assembling light programs\n";
+
+        var errors = emitter.get_errors();
+        if (errors.length > 0) {
+          msg += "\n";
+          for (var i = 0; i < errors.length; i++) {
+            msg += errors[i].str + "\n\n";
+          }
+        }
+
+        document.getElementById("code").value = msg;
       }
     });
 

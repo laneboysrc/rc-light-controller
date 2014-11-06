@@ -373,15 +373,43 @@ var app = (function () {
         symbols.reset();
         emitter.reset();
 
+        ui.update_errors([]);
+
         try {
             var machine_code = parser.parse(light_programs);
             el["light_programs_ok"].style.display = "";
             return machine_code;
         }
         catch (e) {
-            el['light_programs_errors'].innerHTML = e;
+            var msg = "Errors occured while assembling light programs\n";
+
+            var errors = emitter.get_errors();
+
+            var cm_errors = [];
+
+            if (errors.length > 0) {
+                msg += "\n";
+                for (var i = 0; i < errors.length; i++) {
+                    msg += errors[i].str + "\n\n";
+
+                    if (errors[i].hash  &&  errors[i].hash.loc) {
+                        var loc = errors[i].hash.loc;
+                        var cm_error = {
+                            message: errors[i].str,
+                            from: CodeMirror.Pos(loc.first_line - 1, loc.first_column),
+                            to: CodeMirror.Pos(loc.last_line - 1, loc.last_column),
+                        }
+                        cm_errors.push(cm_error);
+                    }
+                }
+            }
+
+            el['light_programs_errors'].innerHTML = msg;
             el['light_programs_errors'].style.display = '';
-            throw new Error(e);
+
+            ui.update_errors(cm_errors);
+
+            throw new Error("Errors occured while assembling light programs");
         }
     };
 
@@ -575,8 +603,7 @@ var app = (function () {
         }
         catch (e) {
             window.alert(
-                "Failed to assemble the firmware.\n" +
-                "Please check the light programs for correctness.\n" + e);
+                "Failed to assemble the firmware. Reason:\n\n" + e.message);
             return;
         }
 

@@ -2,6 +2,7 @@
 
 var ui = (function () {
     var editor;
+    var light_program_errors = [];
 
     // *************************************************************************
     var led_feature_click_handler = function (e) {
@@ -271,6 +272,8 @@ var ui = (function () {
             styleActiveLine: true,
             keyMap: "sublime",
             theme: "monokai",
+            gutters: ["CodeMirror-lint-markers"],
+            lint: false,
             extraKeys: {
                 "F11": function(cm) {
                     cm.setOption("fullScreen", !cm.getOption("fullScreen"));
@@ -290,6 +293,20 @@ var ui = (function () {
                 }
             }
         });
+    }
+
+
+    // *************************************************************************
+    var update_errors = function (errors) {
+        light_program_errors = errors;
+        if (light_program_errors.length > 0) {
+            editor.setOption("lint", function () {
+                return light_program_errors;
+            });
+        }
+        else {
+            editor.setOption("lint", false);
+        }
     }
 
 
@@ -319,6 +336,7 @@ var ui = (function () {
     return {
         init: init,
         update_editor: update_editor,
+        update_errors: update_errors,
         get_editor_content: get_editor_content
     };
 })();
