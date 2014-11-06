@@ -176,6 +176,10 @@ ul {
   padding: 0 8px;
 }
 
+.CodeMirror-placeholder {
+  color: #75715E !important;
+}
+
 
 .editor {
   padding-top: 1em;
