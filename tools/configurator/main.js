@@ -366,6 +366,7 @@ var app = (function () {
     // *************************************************************************
     var parse_light_program_code = function (light_programs) {
         el['light_programs_errors'].style.display = 'none';
+        el["light_programs_ok"].style.display = "none";
 
         // If we run multiple times, we need to reset the modules inbetween,
         // especially if there was an error before.
@@ -374,6 +375,7 @@ var app = (function () {
 
         try {
             var machine_code = parser.parse(light_programs);
+            el["light_programs_ok"].style.display = "";
             return machine_code;
         }
         catch (e) {
@@ -1181,6 +1183,8 @@ var app = (function () {
 
         emitter.set_parser(parser);
         symbols.set_parser(parser);
+
+        el["light_programs_ok"].style.display = "none";
     }
 
 
@@ -1253,6 +1257,7 @@ var app = (function () {
             document.getElementById("light_programs_errors");
         el["light_programs_assembler"] =
             document.getElementById("light_programs_assembler");
+        el["light_programs_ok"] = document.getElementById("light_programs_ok");
 
 
         el["config_advanced"] = document.getElementById("config_advanced");
