@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "DIY RC Light Controller light program assembler",
   "main": "light_program_assembler.js",
+  "repository": "https://github.com/laneboysrc/rc-light-controller.git",
   "directories": {
     "test": "test"
   },
