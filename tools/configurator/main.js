@@ -372,6 +372,8 @@ var app = (function () {
         symbols.reset();
         emitter.reset();
 
+        ui.update_errors([]);
+
         try {
             var machine_code = parser.parse(light_programs);
             return machine_code;
@@ -380,15 +382,30 @@ var app = (function () {
             var msg = "Errors occured while assembling light programs\n";
 
             var errors = emitter.get_errors();
+
+            var cm_errors = [];
+
             if (errors.length > 0) {
                 msg += "\n";
                 for (var i = 0; i < errors.length; i++) {
                     msg += errors[i].str + "\n\n";
+
+                    if (errors[i].hash  &&  errors[i].hash.loc) {
+                        var loc = errors[i].hash.loc;
+                        var cm_error = {
+                            message: errors[i].str,
+                            from: CodeMirror.Pos(loc.first_line - 1, loc.first_column),
+                            to: CodeMirror.Pos(loc.last_line - 1, loc.last_column),
+                        }
+                        cm_errors.push(cm_error);
+                    }
                 }
             }
 
             el['light_programs_errors'].innerHTML = msg;
             el['light_programs_errors'].style.display = '';
+
+            ui.update_errors(cm_errors);
 
             throw new Error("Errors occured while assembling light programs");
         }

@@ -66,6 +66,8 @@ var emitter = (function () {
             var f = forward_declarations[i];
 
             if (f.symbol.opcode < 0) {
+                // FIXME: can we add location to the forward decleration to
+                // provide good hints?
                 yyerror("Label '" + f.symbol.name + "' used but not defined.", {});
             }
             else if (f.symbol.opcode == f.pc) {
