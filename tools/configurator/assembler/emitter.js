@@ -22,6 +22,7 @@ var emitter = (function () {
     var pc = 0;
     var led_list = [];
     var errors = [];
+    var last_location;
 
     var parser;
 
@@ -182,9 +183,9 @@ var emitter = (function () {
 
         if (pc > 0  &&
             is_skip_if(instruction_list[instruction_list.length - 1])) {
-            // FIXME: can we store the location of the last emit, and use it
-            // here?
-            yyerror("Last operation in a program can not be 'skip if'.", {});
+            yyerror("Last operation in a program can not be 'skip if'.", {
+                loc: last_location
+            });
         }
 
         // Add end-of-program instruction
@@ -207,8 +208,10 @@ var emitter = (function () {
 
 
     // *************************************************************************
-    var emit = function (instruction) {
+    var emit = function (instruction, location) {
         parser.yy.logger.log(MODULE, "INFO", "INSTRUCTION: " + hex(instruction));
+
+        last_location = location;
 
         instruction_list.push(instruction);
         ++pc;

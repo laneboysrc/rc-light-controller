@@ -168,11 +168,11 @@ command
   : GOTO LABEL
       { yy.emitter.emit(
           yy.symbols.get_reserved_word($1).opcode +
-          (yy.symbols.get_symbol($2).opcode & 0xffffff));
+          (yy.symbols.get_symbol($2).opcode & 0xffffff), @1);
       }
   | GOTO UNDECLARED_SYMBOL
       { yy.symbols.add_symbol($2, "LABEL", -1, @2);
-        yy.emitter.emit(yy.symbols.get_reserved_word($1).opcode);
+        yy.emitter.emit(yy.symbols.get_reserved_word($1).opcode, @1);
       }
   | FADE leds STEPSIZE VARIABLE
       { yy.emitter.emit_led_instruction(
@@ -197,47 +197,40 @@ command
           ($4 & 0xff), @1);
       }
   | SLEEP parameter
-      { yy.emitter.emit(yy.symbols.get_reserved_word($1).opcode + $2); }
+      { yy.emitter.emit(yy.symbols.get_reserved_word($1).opcode + $2, @1); }
   | SKIP IF test_expression
+      { yy.emitter.emit($3, @1); }
   | expression
   ;
 
 test_expression
   : VARIABLE test_operator parameter
-      { yy.emitter.emit(
-          yy.symbols.get_reserved_word($2).opcode + (yy.symbols.get_symbol($1).opcode * 65536) + $3);
+      { $$ = yy.symbols.get_reserved_word($2).opcode +
+          (yy.symbols.get_symbol($1).opcode * 65536) + $3;
       }
   | GLOBAL_VARIABLE test_operator parameter
-      { yy.emitter.emit(
-          yy.symbols.get_reserved_word($2).opcode + (yy.symbols.get_symbol($1).opcode * 65536) + $3);
+      { $$ = yy.symbols.get_reserved_word($2).opcode +
+          (yy.symbols.get_symbol($1).opcode * 65536) + $3;
       }
   | LED_ID test_operator parameter
       /* All LED relates tests have 0x02 set in the opcode */
-      { yy.emitter.emit(
-          yy.symbols.get_reserved_word($2).opcode +
-          INSTRUCTION_MODIFIER_LED + (yy.symbols.get_symbol($1).opcode * 65536) + $3);
+      { $$ = yy.symbols.get_reserved_word($2).opcode +
+          INSTRUCTION_MODIFIER_LED +
+          (yy.symbols.get_symbol($1).opcode * 65536) + $3;
       }
   | ANY car_state_list
-      { yy.emitter.emit(
-          yy.symbols.get_reserved_word($1).opcode + $2);
-      }
+      { $$ = yy.symbols.get_reserved_word($1).opcode + $2; }
   | ALL car_state_list
-      { yy.emitter.emit(
-          yy.symbols.get_reserved_word($1).opcode + $2);
-      }
+      { $$ = yy.symbols.get_reserved_word($1).opcode + $2; }
   | NONE car_state_list
-      { yy.emitter.emit(
-          yy.symbols.get_reserved_word($1).opcode + $2);
-      }
+      { $$ = yy.symbols.get_reserved_word($1).opcode + $2; }
   | IS CAR_STATE
-      { yy.emitter.emit(
-          yy.symbols.get_reserved_word($1).opcode +
-          yy.symbols.get_symbol($2, "EXPECTING_CAR_STATE").opcode);
+      { $$ = yy.symbols.get_reserved_word($1).opcode +
+          yy.symbols.get_symbol($2, "EXPECTING_CAR_STATE").opcode;
       }
   | NOT CAR_STATE
-      { yy.emitter.emit(
-          yy.symbols.get_reserved_word($1).opcode +
-          yy.symbols.get_symbol($2, "EXPECTING_CAR_STATE").opcode);
+      { $$ = yy.symbols.get_reserved_word($1).opcode +
+          yy.symbols.get_symbol($2, "EXPECTING_CAR_STATE").opcode;
       }
   ;
 
