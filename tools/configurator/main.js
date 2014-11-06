@@ -364,7 +364,7 @@ var app = (function () {
 
 
     // *************************************************************************
-    var assemble_light_programs = function (light_programs) {
+    var parse_light_program_code = function (light_programs) {
         el['light_programs_errors'].style.display = 'none';
 
         // If we run multiple times, we need to reset the modules inbetween,
@@ -373,11 +373,13 @@ var app = (function () {
         emitter.reset();
 
         try {
-            var programs = parser.parse(light_programs);
+            var machine_code = parser.parse(light_programs);
+            return machine_code;
         }
         catch (e) {
             el['light_programs_errors'].innerHTML = e;
             el['light_programs_errors'].style.display = '';
+            throw new Error(e);
         }
     };
 
@@ -502,6 +504,36 @@ var app = (function () {
 
 
     // *************************************************************************
+    var assemble_light_programs = function (light_programs) {
+        var machine_code = parse_light_program_code(light_programs);
+
+        var code_size = 4 + (4 * MAX_LIGHT_PROGRAMS) +
+            (4 * machine_code.instructions.length);
+
+        var code = new Array(code_size);
+
+        set_uint32(code, 0, machine_code.number_of_programs);
+        for (var i = 0; i < MAX_LIGHT_PROGRAMS; i++) {
+            set_uint32(code, 4 + (4 * i), machine_code.start_offset[i]);
+        }
+
+        var first_program_offset = 4 + (4 * MAX_LIGHT_PROGRAMS);
+
+        for (var i = 0; i < machine_code.instructions.length; i++) {
+            set_uint32(code, first_program_offset + (4 * i),
+                machine_code.instructions[i]);
+        }
+
+        var data = firmware.data;
+        var offset = firmware.offset[SECTION_LIGHT_PROGRAMS];
+
+        firmware.data = data.slice(0, offset).concat(code);
+
+
+    }
+
+
+    // *************************************************************************
     var assemble_firmware = function () {
         assemble_configuration(config);
         assemble_leds(SECTION_LOCAL_LEDS, local_leds);
@@ -536,7 +568,15 @@ var app = (function () {
         // Update data based on UI
         update_config();
 
-        assemble_firmware();
+        try {
+            assemble_firmware();
+        }
+        catch (e) {
+            window.alert(
+                "Failed to assemble the firmware.\n" +
+                "Please check the light programs for correctness.\n" + e);
+            return;
+        }
 
         var intelhex = intel_hex.fromArray(firmware.data);
 
@@ -1137,6 +1177,8 @@ var app = (function () {
             logger: logger,
         }
 
+        logger.set_log_level("ERROR");
+
         emitter.set_parser(parser);
         symbols.set_parser(parser);
     }
@@ -1288,7 +1330,9 @@ var app = (function () {
 
         el["light_programs_assembler"].addEventListener(
             "click", function () {
-                assemble_light_programs(ui.get_editor_content());
+                parse_light_program_code(ui.get_editor_content());
+                // FIXME: add message that assembly succeeded
+                console.log("Assembly successful.");
             } , false);
 
         init_assembler();
