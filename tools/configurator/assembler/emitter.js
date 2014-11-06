@@ -21,6 +21,7 @@ var emitter = (function () {
     var instruction_list = [];
     var pc = 0;
     var led_list = [];
+    var errors = [];
 
     var parser;
 
@@ -65,8 +66,7 @@ var emitter = (function () {
             var f = forward_declarations[i];
 
             if (f.symbol.opcode < 0) {
-                throw new Error("[EMIT]    Label '" + f.symbol.name + "' used but not defined.");
-                // yyerror
+                yyerror("Label '" + f.symbol.name + "' used but not defined.", {});
             }
             else if (f.symbol.opcode == f.pc) {
                 // Skip the declaration of the label
@@ -115,8 +115,7 @@ var emitter = (function () {
             led_list.push(led_index);
         }
         else {
-            throw new Error("[EMIT]    ERROR: led_list is full");
-            // yyerror
+            throw new Error("led_list is full");
         }
     }
 
@@ -130,15 +129,13 @@ var emitter = (function () {
             " (" + led_list.length + " leds)");
 
         if (led_list.length === 0) {
-            throw new Error("[EMIT]    emit_led_instruction(): led_list.length is 0");
-            //yyerror(location, "emit_led_instruction(): led_list.length is 0");
+            yyerror("emit_led_instruction(): led_list.length is 0", {});
             return;
         }
 
         if (led_list.length > 1  &&  pc > 0  &&
                 is_skip_if(instruction_list[instruction_list.length - 1])) {
-            throw new Error("[EMIT]    commands using multiple LEDs can not follow 'skip if'");
-            // yyerror(location, "commands using multiple LEDs can not follow 'skip if'");
+            yyerror("Commands using multiple LEDs can not follow 'skip if'", {});
         }
 
         // Step 1: sort the LEDs by their index.
@@ -180,8 +177,7 @@ var emitter = (function () {
 
         if (pc > 0  &&
             is_skip_if(instruction_list[instruction_list.length - 1])) {
-            //yyerror(NULL, "Last operation in a program can not be 'skip if'.");
-            throw new Error("[EMIT]    Last operation in a program can not be 'skip if'.");
+            yyerror("Last operation in a program can not be 'skip if'.", {});
         }
 
         // Add end-of-program instruction
@@ -234,6 +230,10 @@ var emitter = (function () {
         msg += "\n";
         parser.yy.logger.log(MODULE, "INFO", msg);
 
+        if (errors.length != 0) {
+            throw new Error("Errors occured while assembling light programs");
+        }
+
 
         var result = {
             "number_of_programs": number_of_programs,
@@ -246,8 +246,26 @@ var emitter = (function () {
 
 
     // *************************************************************************
+    var yyerror = function (str, hash) {
+        parser.yy.logger.log(MODULE, "ERROR", str);
+
+        errors.push({
+            str: str,
+            hash: hash
+        });
+    }
+
+
+    // *************************************************************************
+    var get_errors = function () {
+        return errors;
+    }
+
+
+    // *************************************************************************
     var set_parser = function (p) {
         parser = p;
+        parser.yy.parseError = yyerror;
         reset();
     }
 
@@ -259,12 +277,14 @@ var emitter = (function () {
             start_offset[i] = 0;
         }
         instruction_list = [];
+        errors = [];
     }
 
 
     // *************************************************************************
     return {
         set_parser: set_parser,
+        get_errors: get_errors,
         emit: emit,
         emit_run_condition: emit_run_condition,
         emit_led_instruction: emit_led_instruction,

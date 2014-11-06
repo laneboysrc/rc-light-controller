@@ -103,7 +103,7 @@ reserved keywords:
   return yytext;
 }
 
-/* <<EOF>>               return 'EOF'; */
+<<EOF>>  return 'EOF';
 
 
 

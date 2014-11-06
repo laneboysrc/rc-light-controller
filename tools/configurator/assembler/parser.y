@@ -42,7 +42,7 @@ var MODULE = "LEX";
 /* Grammar rules */
 
 parse_entity
-  : programs
+  : programs EOF
     { return yy.emitter.output_programs(); }
   ;
 
@@ -127,15 +127,15 @@ decleration
   | VAR GLOBAL_VARIABLE
       /* Declare the variable as local variable, overshadowing the global one */
       { yy.symbols.add_symbol($2, "VARIABLE", -1, @2); }
-/*  | VAR error */
+  | VAR error
   | GLOBAL VAR UNDECLARED_SYMBOL
       { yy.symbols.add_symbol($3, "GLOBAL_VARIABLE", -1, @3); }
   | GLOBAL VAR GLOBAL_VARIABLE
       { /* Nothing to do, global variable already declared */ }
-/*  | GLOBAL VAR error */
+  | GLOBAL VAR error
   | LED UNDECLARED_SYMBOL '=' master_or_slave
       {  yy.symbols.add_symbol($2, "LED_ID", $4, @2); }
-/*  | LED error */
+  | LED error
   ;
 
 master_or_slave
@@ -148,20 +148,20 @@ master_or_slave
 code_lines
   : code_line
   | code_lines code_line
-/*  | error */
+  | error
   ;
 
 code_line
   /* New label declaration */
   : UNDECLARED_SYMBOL ':' NEWLINE
       { yy.symbols.add_symbol($1, "LABEL", yy.emitter.pc(), @1); }
-/*  | UNDECLARED_SYMBOL error */
+  | UNDECLARED_SYMBOL error
   /* Label that was already forward-declared in a GOTO */
   | LABEL ':' NEWLINE
       { yy.symbols.set_symbol($1, "LABEL", yy.emitter.pc(), @1); }
-/*  | LABEL error */
+  | LABEL error
   | command NEWLINE
-/*  | error NEWLINE */
+  | error NEWLINE
   ;
 
 command
