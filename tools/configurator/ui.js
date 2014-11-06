@@ -300,6 +300,12 @@ var ui = (function () {
 
 
     // *************************************************************************
+    var get_editor_content = function () {
+        return editor.getValue();
+    }
+
+
+    // *************************************************************************
     var init = function () {
         init_led_tables();
         init_led_editing();
@@ -312,6 +318,7 @@ var ui = (function () {
     // *************************************************************************
     return {
         init: init,
-        update_editor: update_editor
+        update_editor: update_editor,
+        get_editor_content: get_editor_content
     };
 })();

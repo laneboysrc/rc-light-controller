@@ -23,9 +23,15 @@
   <script inline src="codemirror/addon/comment/comment.js"></script>
   <script inline src="codemirror/keymap/sublime.js"></script>
 
+  <script inline src="assembler/build/parser.js"></script>
+  <script inline src="assembler/symbols.js"></script>
+  <script inline src="assembler/emitter.js"></script>
+  <script inline src="assembler/log.js"></script>
+
+  <script inline src="disassembler/disassembler.js"></script>
+
   <script inline src="FileSaver.js/FileSaver.js"></script>
   <script inline src="class_manipulation.js"></script>
-  <script inline src="disassembler/disassembler.js"></script>
   <script inline src="intel-hex/intel-hex.js"></script>
   <script inline src="gamma.js"></script>
   <script inline src="default_firmware_image.js"></script>
@@ -369,7 +375,17 @@
 
     <div id="config_light_programs" class="box configuration">
       <h2>Light programs:</h2>
-      <textarea id="light_programs"></textarea>
+      <div>
+        TODO insert helptext here. Describe F11, describe keyboard layout
+      </div>
+      <div class="editor">
+        <textarea id="light_programs"></textarea>
+      </div>
+      <div>
+        <button id="light_programs_assembler">Check...</button>
+      </div>
+      <pre class="box error" id="light_programs_errors">
+      </pre>
     </div>
 
 

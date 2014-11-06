@@ -341,6 +341,7 @@ var app = (function () {
         light_programs = "";
 
         el["light_programs"].value = "";
+        el['light_programs_errors'].style.display = "none";
 
         try {
             firmware = parse_firmware_structure(intel_hex_data);
@@ -364,7 +365,20 @@ var app = (function () {
 
     // *************************************************************************
     var assemble_light_programs = function (light_programs) {
-        // FIXME: add compiler
+        el['light_programs_errors'].style.display = 'none';
+
+        // If we run multiple times, we need to reset the modules inbetween,
+        // especially if there was an error before.
+        symbols.reset();
+        emitter.reset();
+
+        try {
+            var programs = parser.parse(light_programs);
+        }
+        catch (e) {
+            el['light_programs_errors'].innerHTML = e;
+            el['light_programs_errors'].style.display = '';
+        }
     };
 
 
@@ -560,6 +574,7 @@ var app = (function () {
                     "File may not be a light controller configuration file (JSON format)");
             }
 
+            ui.update_editor();
             update_ui();
         };
         reader.readAsText(this.files[0]);
@@ -933,6 +948,8 @@ var app = (function () {
         update_int("number_of_gears");
 
         update_gamma("gamma_value");
+
+        light_programs = ui.get_editor_content();
     }
 
 
@@ -1113,6 +1130,19 @@ var app = (function () {
 
 
     // *************************************************************************
+    var init_assembler = function () {
+        parser.yy = {
+            symbols: symbols,
+            emitter: emitter,
+            logger: logger,
+        }
+
+        emitter.set_parser(parser);
+        symbols.set_parser(parser);
+    }
+
+
+    // *************************************************************************
     var init = function () {
 
         function set_led_feature_handler(led_id, prefix) {
@@ -1177,6 +1207,11 @@ var app = (function () {
         el["config_light_programs"] =
             document.getElementById("config_light_programs");
         el["light_programs"] = document.getElementById("light_programs");
+        el["light_programs_errors"] =
+            document.getElementById("light_programs_errors");
+        el["light_programs_assembler"] =
+            document.getElementById("light_programs_assembler");
+
 
         el["config_advanced"] = document.getElementById("config_advanced");
 
@@ -1251,7 +1286,12 @@ var app = (function () {
         el["save_config"].addEventListener(
             "click", save_configuration, false);
 
+        el["light_programs_assembler"].addEventListener(
+            "click", function () {
+                assemble_light_programs(ui.get_editor_content());
+            } , false);
 
+        init_assembler();
         load_default_firmware();
     };
 

@@ -176,3 +176,13 @@ ul {
 .CodeMirror-linenumbers {
   padding: 0 8px;
 }
+
+
+.editor {
+  padding-top: 1em;
+  padding-bottom: 1em;
+}
+
+.error {
+  background-color: #e44;
+}
