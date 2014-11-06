@@ -135,6 +135,26 @@ if (program.output) {
 }
 
 var sourcecode = fs.readFileSync(path.normalize(sources[0]), "utf8");
-var programs = parser.parse(sourcecode);
-make_c_output(output_file, programs);
-fs.close(output_file);
+try {
+    var programs = parser.parse(sourcecode);
+    make_c_output(output_file, programs);
+}
+catch (e) {
+    var msg = "Errors occured while processing the light programs:\n";
+
+    var errors = emitter.get_errors();
+    if (errors.length > 0) {
+        msg += "\n";
+        for (var i = 0; i < errors.length; i++) {
+            msg += errors[i].str + "\n\n";
+        }
+    }
+
+    process.stderr.write(msg);
+
+    fs.close(output_file);
+    process.exit(1);
+}
+finally {
+    fs.close(output_file);
+}

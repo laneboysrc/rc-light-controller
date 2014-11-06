@@ -231,7 +231,7 @@ var emitter = (function () {
         parser.yy.logger.log(MODULE, "INFO", msg);
 
         if (errors.length != 0) {
-            throw new Error("Errors occured while assembling light programs");
+            throw new Error("Errors occured while processing the light programs:");
         }
 
 

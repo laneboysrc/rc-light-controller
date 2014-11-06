@@ -139,11 +139,11 @@ forward_label:
         make_c_output(programs);
       }
       catch (e) {
-        var msg = "Errors occured while assembling light programs";
+        var msg = "Errors occured while assembling light programs\n";
 
         var errors = emitter.get_errors();
         if (errors.length > 0) {
-          msg += "\n\n";
+          msg += "\n";
           for (var i = 0; i < errors.length; i++) {
             msg += errors[i].str + "\n\n";
           }
