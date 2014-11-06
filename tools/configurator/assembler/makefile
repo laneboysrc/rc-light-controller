@@ -14,6 +14,7 @@ Y_SOURCES := $(foreach sdir, $(SOURCE_DIRS), $(wildcard $(sdir)/*.y))
 YACC := jison
 MKDIR_P = mkdir -p
 TEST_RUNNER = test/run-tests.sh
+NPM = npm
 
 
 ###############################################################################
@@ -64,6 +65,7 @@ OBJECTS += $(patsubst %.y, $(BUILD_DIR)/%.js, $(Y_SOURCES))
 all : $(TARGET_BIN)
 
 $(TARGET_BIN): $(OBJECTS)
+	$(QUIET) $(NPM) install
 
 run: $(TARGET_BIN)
 	$(ECHO) [RUN] $<
