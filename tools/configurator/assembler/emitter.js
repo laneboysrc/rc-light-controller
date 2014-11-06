@@ -65,10 +65,11 @@ var emitter = (function () {
         for (var i = 0; i < forward_declarations.length; i++) {
             var f = forward_declarations[i];
 
+
             if (f.symbol.opcode < 0) {
-                // FIXME: can we add location to the forward decleration to
-                // provide good hints?
-                yyerror("Label '" + f.symbol.name + "' used but not defined.", {});
+                yyerror("Label '" + f.symbol.name + "' used but not defined.", {
+                    loc: f.location
+                });
             }
             else if (f.symbol.opcode == f.pc) {
                 // Skip the declaration of the label
@@ -131,13 +132,15 @@ var emitter = (function () {
             " (" + led_list.length + " leds)");
 
         if (led_list.length === 0) {
-            yyerror("emit_led_instruction(): led_list.length is 0", {});
+            throw new Error("Internal parser error: led_list.length is 0");
             return;
         }
 
         if (led_list.length > 1  &&  pc > 0  &&
                 is_skip_if(instruction_list[instruction_list.length - 1])) {
-            yyerror("Commands using multiple LEDs can not follow 'skip if'", {});
+            yyerror("Commands using multiple LEDs can not follow 'skip if'", {
+                loc: location
+            });
         }
 
         // Step 1: sort the LEDs by their index.
@@ -179,6 +182,8 @@ var emitter = (function () {
 
         if (pc > 0  &&
             is_skip_if(instruction_list[instruction_list.length - 1])) {
+            // FIXME: can we store the location of the last emit, and use it
+            // here?
             yyerror("Last operation in a program can not be 'skip if'.", {});
         }
 
