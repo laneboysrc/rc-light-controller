@@ -15,15 +15,6 @@ run_test() {
 
 
 run_all_tests() {
-    for t in $DIR/fails/*
-    do
-    	run_test $t
-    	if [ $? -eq 0 ]; then
-        	echo "ERROR: Test $t passed though it should have failed. Refer to $logfile"
-        	exit 1
-    	fi
-    done
-
     for t in $DIR/passes/*
     do
     	run_test $t
@@ -31,6 +22,15 @@ run_all_tests() {
         	echo "ERROR: Test $t failed. Refer to $logfile"
         	exit 1
     	fi
+    done
+
+    for t in $DIR/fails/*
+    do
+        run_test $t
+        if [ $? -eq 0 ]; then
+            echo "ERROR: Test $t passed though it should have failed. Refer to $logfile"
+            exit 1
+        fi
     done
 
     rm -f $logfile
