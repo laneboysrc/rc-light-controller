@@ -45,7 +45,7 @@ reserved keywords:
   return yytext.toUpperCase();
 }
 
-"goto"|"var"|"leds"|"led"|"sleep"|"skip"|"if"|"fade"|"stepsize"|"when"|"or"|"master"|"slave"|"global"|"random"|"steering"|"throttle"|"abs"|"end" {
+"goto"|"var"|"leds"|"led"|"sleep"|"skip"|"if"|"fade"|"stepsize"|"when"|"or"|"master"|"slave"|"global"|"random"|"steering"|"throttle"|"gear"|"abs"|"end" {
   yy.line_is_empty = false;
   yy.logger.log(MODULE, "DEBUG", "Reserved word: " + yytext);
   return yytext.toUpperCase();

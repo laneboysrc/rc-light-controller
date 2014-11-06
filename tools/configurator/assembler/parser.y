@@ -306,7 +306,7 @@ parameter
   | THROTTLE
       { $$ = (PARAMETER_TYPE_THROTTLE * 256); }
   | GEAR
-      { $$ = (PARAMETER_TYPE_GEAR * 2568); }
+      { $$ = (PARAMETER_TYPE_GEAR * 256); }
   | RANDOM
       { $$ = (PARAMETER_TYPE_RANDOM * 256); }
   ;
