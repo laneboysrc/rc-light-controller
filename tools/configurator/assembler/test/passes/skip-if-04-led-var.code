@@ -2,13 +2,14 @@ run always
 
 led x = master[9]
 var y
+global var z
 
     skip if x == y
     skip if x != y
     skip if x > y
-    skip if x < y
-    skip if x >= y
-    skip if x <= y
+    skip if x < z
+    skip if x >= z
+    skip if x <= z
     sleep 1
 
     end

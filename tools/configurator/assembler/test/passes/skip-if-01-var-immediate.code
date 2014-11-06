@@ -1,11 +1,12 @@
 run always
 
 var x
+global var y
 
     skip if x == 1
     skip if x != 2
     skip if x > 3
-    skip if x < 4
+    skip if y < 4
     skip if x >= 5
     skip if x <= 6
     sleep 1

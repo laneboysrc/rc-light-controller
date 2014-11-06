@@ -207,6 +207,10 @@ test_expression
       { yy.emitter.emit(
           yy.symbols.get_reserved_word($2).opcode + (yy.symbols.get_symbol($1).opcode * 65536) + $3);
       }
+  | GLOBAL_VARIABLE test_operator parameter
+      { yy.emitter.emit(
+          yy.symbols.get_reserved_word($2).opcode + (yy.symbols.get_symbol($1).opcode * 65536) + $3);
+      }
   | LED_ID test_operator parameter
       /* All LED relates tests have 0x02 set in the opcode */
       { yy.emitter.emit(

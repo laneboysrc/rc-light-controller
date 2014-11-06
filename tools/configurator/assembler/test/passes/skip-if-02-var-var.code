@@ -2,12 +2,14 @@ run always
 
 var x
 var y
+global var a
+global var b
 
     skip if x == y
     skip if x != y
-    skip if x > y
-    skip if x < y
-    skip if x >= y
+    skip if x > a
+    skip if a < y
+    skip if a >= b
     skip if x <= y
     sleep 1
 

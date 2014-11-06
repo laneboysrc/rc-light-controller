@@ -1,12 +1,13 @@
 run always
 
 var x
+global var y
 led l = master[7]
 
     skip if x == l
     skip if x != l
     skip if x > l
-    skip if x < l
+    skip if y < l
     skip if x >= l
     skip if x <= l
     sleep 1
