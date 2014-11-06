@@ -27,6 +27,10 @@ TO DO LIST for the RC Light Controller
 * CFG: bypass decompilation by embedding the source files of light programs for
   the default firmware
 
+* CFG: Add error handling and gutter marking to assembler and editor
+
+
+
 
 * Test hysteresis for drive mode
 
