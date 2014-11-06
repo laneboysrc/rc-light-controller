@@ -377,9 +377,20 @@ var app = (function () {
             return machine_code;
         }
         catch (e) {
-            el['light_programs_errors'].innerHTML = e;
+            var msg = "Errors occured while assembling light programs\n";
+
+            var errors = emitter.get_errors();
+            if (errors.length > 0) {
+                msg += "\n";
+                for (var i = 0; i < errors.length; i++) {
+                    msg += errors[i].str + "\n\n";
+                }
+            }
+
+            el['light_programs_errors'].innerHTML = msg;
             el['light_programs_errors'].style.display = '';
-            throw new Error(e);
+
+            throw new Error("Errors occured while assembling light programs");
         }
     };
 
@@ -573,8 +584,7 @@ var app = (function () {
         }
         catch (e) {
             window.alert(
-                "Failed to assemble the firmware.\n" +
-                "Please check the light programs for correctness.\n" + e);
+                "Failed to assemble the firmware. Reason:\n\n" + e.message);
             return;
         }
 
