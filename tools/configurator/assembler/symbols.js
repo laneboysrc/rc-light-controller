@@ -215,6 +215,7 @@ var symbols = (function () {
                 symbol_table[i].opcode = opcode;
 
                 parser.yy.logger.log(MODULE, "INFO", "Set '" + name +"' as token=" + token + " opcode=" + opcode);
+                return;
             }
         }
 
