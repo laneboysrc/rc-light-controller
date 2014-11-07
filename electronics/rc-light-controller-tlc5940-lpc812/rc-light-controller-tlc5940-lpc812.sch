@@ -6140,7 +6140,7 @@ new: Attribute TP_SIGNAL_NAME&lt;br&gt;
 <part name="PAD63" library="wirepad" deviceset="SMD50X100" device=""/>
 <part name="PAD64" library="wirepad" deviceset="SMD50X100" device=""/>
 <part name="PAD65" library="wirepad" deviceset="SMD50X100" device=""/>
-<part name="PAD37" library="wirepad" deviceset="SMD50X100" device=""/>
+<part name="PAD67" library="wirepad" deviceset="SMD50X100" device=""/>
 <part name="PAD66" library="wirepad" deviceset="SMD50X100" device=""/>
 <part name="GND4" library="supply1" deviceset="GND" device=""/>
 <part name="C1" library="rcl" deviceset="C-EU" device="C0805" value="1u"/>
@@ -6154,6 +6154,8 @@ new: Attribute TP_SIGNAL_NAME&lt;br&gt;
 <part name="TP1" library="testpad" deviceset="TP" device="TP10R" value="SWDIO"/>
 <part name="TP2" library="testpad" deviceset="TP" device="TP10R" value="SWCLK"/>
 <part name="TP3" library="testpad" deviceset="TP" device="TP10R" value="RESET"/>
+<part name="PAD68" library="wirepad" deviceset="SMD50X100" device=""/>
+<part name="GND9" library="supply1" deviceset="GND" device=""/>
 </parts>
 <sheets>
 <sheet>
@@ -6225,7 +6227,7 @@ ARM Cortex-M0
 <instance part="PAD63" gate="1" x="335.28" y="142.24" rot="R180"/>
 <instance part="PAD64" gate="1" x="335.28" y="134.62" rot="R180"/>
 <instance part="PAD65" gate="1" x="335.28" y="127" rot="R180"/>
-<instance part="PAD37" gate="1" x="335.28" y="111.76" rot="R180"/>
+<instance part="PAD67" gate="1" x="335.28" y="111.76" rot="R180"/>
 <instance part="PAD66" gate="1" x="335.28" y="119.38" rot="R180"/>
 <instance part="GND4" gate="1" x="266.7" y="175.26"/>
 <instance part="C1" gate="G$1" x="73.66" y="45.72"/>
@@ -6243,6 +6245,8 @@ ARM Cortex-M0
 <instance part="TP1" gate="G$1" x="170.18" y="134.62"/>
 <instance part="TP2" gate="G$1" x="180.34" y="134.62"/>
 <instance part="TP3" gate="G$1" x="177.8" y="99.06" rot="R180"/>
+<instance part="PAD68" gate="1" x="335.28" y="104.14" rot="R180"/>
+<instance part="GND9" gate="1" x="322.58" y="93.98"/>
 </instances>
 <busses>
 </busses>
@@ -6329,6 +6333,12 @@ ARM Cortex-M0
 <pinref part="U2" gate="G$1" pin="PAD"/>
 <pinref part="GND4" gate="1" pin="GND"/>
 <wire x1="266.7" y1="185.42" x2="266.7" y2="177.8" width="0.1524" layer="91"/>
+</segment>
+<segment>
+<pinref part="PAD68" gate="1" pin="P"/>
+<pinref part="GND9" gate="1" pin="GND"/>
+<wire x1="332.74" y1="104.14" x2="322.58" y2="104.14" width="0.1524" layer="91"/>
+<wire x1="322.58" y1="104.14" x2="322.58" y2="96.52" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="SIN" class="0">
@@ -6433,7 +6443,7 @@ ARM Cortex-M0
 </segment>
 <segment>
 <wire x1="332.74" y1="111.76" x2="314.96" y2="111.76" width="0.1524" layer="91"/>
-<pinref part="PAD37" gate="1" pin="P"/>
+<pinref part="PAD67" gate="1" pin="P"/>
 <label x="320.04" y="111.76" size="1.778" layer="95" rot="R180"/>
 </segment>
 <segment>
