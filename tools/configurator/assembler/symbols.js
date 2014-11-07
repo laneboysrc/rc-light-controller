@@ -5,6 +5,7 @@ var symbols = (function () {
     var forward_declaration_table = [];
     var next_variable_index = 0;
     var leds_used = 0;
+    var number_of_light_switch_position = 0;
 
     var undeclared_symbol = {"token": "UNDECLARED_SYMBOL", "opcode": 0};
 
@@ -171,6 +172,28 @@ var symbols = (function () {
 
 
     // *************************************************************************
+    var check_for_light_switch_position = function (name) {
+        var positions = {
+            "light-switch-position-0": 1,
+            "light-switch-position-1": 2,
+            "light-switch-position-2": 3,
+            "light-switch-position-3": 4,
+            "light-switch-position-4": 5,
+            "light-switch-position-5": 6,
+            "light-switch-position-6": 7,
+            "light-switch-position-7": 8,
+            "light-switch-position-8": 9
+        }
+
+        if (positions[name]) {
+            if (number_of_light_switch_position < positions[name]) {
+                number_of_light_switch_position = positions[name];
+            }
+        }
+    }
+
+
+    // *************************************************************************
     var add_forward_declaration = function (symbol, decleration_pc, location) {
         var forward_decleration = {
             "symbol": symbol,
@@ -226,10 +249,12 @@ var symbols = (function () {
     // *************************************************************************
     var get_symbol = function (name, parse_state, location) {
         if (parse_state === "EXPECTING_RUN_CONDITION") {
+            check_for_light_switch_position(name);
             return run_condition_tokens[name] || undeclared_symbol;
         }
 
         if (parse_state === "EXPECTING_CAR_STATE") {
+            check_for_light_switch_position(name);
             return car_state_tokens[name] || undeclared_symbol;
         }
 
@@ -318,6 +343,13 @@ var symbols = (function () {
 
 
     // *************************************************************************
+    var get_number_of_light_switch_position = function () {
+        return number_of_light_switch_position;
+    };
+
+
+
+    // *************************************************************************
     var set_parser = function (e) {
         parser = e;
         reset();
@@ -330,6 +362,7 @@ var symbols = (function () {
         forward_declaration_table = [];
         next_variable_index = 0;
         leds_used = 0;
+        number_of_light_switch_position = 0;
 
         if (typeof parser !== "undefined") {
             parser.yy.line_is_empty = true;
@@ -347,6 +380,7 @@ var symbols = (function () {
         get_symbol: get_symbol,
         set_symbol: set_symbol,
         get_reserved_word: get_reserved_word,
+        get_number_of_light_switch_position: get_number_of_light_switch_position,
         get_leds_used: get_leds_used,
         get_forward_declerations: get_forward_declerations,
         remove_local_symbols: remove_local_symbols,
