@@ -598,6 +598,7 @@ var app = (function () {
 
     // *************************************************************************
     var load_default_firmware = function () {
+        parse_firmware(default_firmware_image);
         el["light_programs"].value = default_light_program;
         ui.update_editor();
     }
