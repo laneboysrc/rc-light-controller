@@ -5,6 +5,9 @@ TO DO LIST for the RC Light Controller
 
 * FW: Can we preserve the persistent settings upon reflash?
 
+* FW: Add switching output option
+  No fading or gamma correction. 0 = off, any other value = on
+
 * DOC: When a priority program runs once, and another state takes precedence,
   the program has no effect and after the other state disappears, the lights
   are still wrong. Solution is to output constantly in a loop,
