@@ -1,8 +1,5 @@
 TO DO LIST for the RC Light Controller
 
-* Automate tests to check whether assembly->disassembly->assembly gets
-  the same result after both assemblies
-
 * FW: Can we preserve the persistent settings upon reflash?
 
 * FW, CFG: Add switching output option
