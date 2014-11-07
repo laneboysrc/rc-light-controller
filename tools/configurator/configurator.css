@@ -6,6 +6,7 @@
 body {
   font-family: sans-serif;
   color: black;
+  font-size: 100%;
 }
 
 h1 {
@@ -58,6 +59,25 @@ ul {
 #logo {
   vertical-align: middle;
   border: 1px solid #ffcf0d;
+}
+
+.footer {
+  background-color: #FFEDA5;
+  color: gray;
+  margin-bottom: 1em;
+  font-size: 0.8em;
+}
+
+.footer a {
+  color: gray;
+  text-decoration: none;
+  font-size: 0.9em;
+  font-style: italic;
+  padding-left: 1em;
+}
+
+.footer > div {
+  padding-bottom: 1em;
 }
 
 .configuration {

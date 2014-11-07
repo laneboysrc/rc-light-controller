@@ -379,7 +379,16 @@
     <div id="config_light_programs" class="box configuration">
       <h2>Light programs:</h2>
       <div>
-        TODO insert helptext here. Describe F11, describe keyboard layout
+        <div>
+          Press <strong>F11</strong> to toggle fullscreen mode within your browser
+          window. The <a href="http://codemirror.net/demo/sublime.html">keybindings</a>
+          are similar to the Sublime Text editor.
+      </div>
+      <div>
+        Use the <em>Check...</em> button below the editor to perform a syntax
+        check on the light programs.
+      </div>
+
       </div>
       <div class="editor">
         <textarea id="light_programs" placeholder="Enter light programs here..."></textarea>
@@ -650,6 +659,50 @@
 
     </div>
 
+    <div class="widebox footer">
+      <div>
+        This tool would not have been possible without these awesome software components:
+      </div>
+      <div>
+        <strong>CodeMirror</strong> <a href="http://codemirror.net/">http://codemirror.net/</a><br>
+        A text editor in JavaScript. Very easy to use, yet extremely powerful.
+        With little effort I could build custom syntax highlighting, and
+        had error messages after the assembly process shown in the gutter.
+      </div>
+      <div>
+        <strong>JISON</strong> <a href="https://zaach.github.io/jison/docs/">https://zaach.github.io/jison/docs/</a><br>
+        Parser and scanner generator for JavaScript. It was very easy to adapt
+        a prototype written in Bison/Flex to JISON.
+      </div>
+      <div>
+        <strong>FileSaver.js</strong> <a href="https://github.com/eligrey/FileSaver.js/"></a><br>
+        Allowed us to save generated JSON and Intel-hex files from within the
+        browser.
+      </div>
+      <div>
+        <strong>node.js</strong> <a href="http://nodejs.org">http://nodejs.org</a><br>
+        Fantastic to have the same code work in the browser, and with the help
+        of node.js also be able to use from the command-line.
+      </div>
+      <div>
+        <strong>gulp.js</strong> <a href="http://gulpjs.com/">http://gulpjs.com/</a><br>
+        Build system that made it very easy to in-line and compress JavaScript
+        and CSS files, so that this tool is now a single HTML file.
+      </div>
+      <div>
+        <strong>intel-hex</strong> <a href="https://github.com/bminer/intel-hex.js">https://github.com/bminer/intel-hex.js</a><br>
+        Good starting point for parsing Intel-hex files. I made it
+        browser-compatible and added the missing write functions.
+      </div>
+      <div>
+        <strong>Simple JavaScript Templating</strong> <a href="http://ejohn.org/">http://ejohn.org/</a><br>
+        As the name says: a very simple templating engine.
+      </div>
+      <div>
+        <strong>DOM class manipulation</strong> <a href="http://www.openjs.com/scripts/dom/class_manipulation.php">http://www.openjs.com/scripts/dom/class_manipulation.php</a><br>
+        Old, simple, effective methods for adding and removing class names to
+        DOM elements.
+      </div>
   </div>
 
   <!--

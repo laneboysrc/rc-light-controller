@@ -1,5 +1,5 @@
 // Source:
-// http://stackoverflow.com/questions/5169017/how-to-remove-class-attribute-from-div
+// http://www.openjs.com/scripts/dom/class_manipulation.php
 
 function hasClass(ele, cls) {
     return ele.className.match(new RegExp('(\\s|^)' + cls + '(\\s|$)'));
