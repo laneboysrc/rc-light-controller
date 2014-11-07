@@ -244,17 +244,14 @@ var emitter = (function () {
             throw new Error("Errors occured while processing the light programs:");
         }
 
-        var number_of_light_switch_position =
-            parser.yy.symbols.get_number_of_light_switch_position();
-
-        console.log("Number of light switch positions: " +
-            number_of_light_switch_position);
+        var light_switch_positions =
+            parser.yy.symbols.get_number_of_light_switch_positions();
 
         var result = {
             "number_of_programs": number_of_programs,
             "start_offset": start_offset,
             "instructions": instruction_list,
-            "number_of_light_switch_position": number_of_light_switch_position
+            "light_switch_positions": light_switch_positions
         }
 
         return result;

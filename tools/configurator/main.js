@@ -13,11 +13,11 @@ var app = (function () {
     var gamma_object;
     var light_programs;
 
-    var LIGHT_SWITCH_POSITIONS = 9;
     var MAX_LIGHT_PROGRAMS = 25;
     var MAX_LIGHT_PROGRAM_VARIABLES = 100;
 
-
+    var LIGHT_SWITCH_POSITIONS = 9;
+    var light_switch_positions;
 
     var SECTION_CONFIG = "Configuration";
     var SECTION_GAMMA = "Gamma table";
@@ -441,6 +441,7 @@ var app = (function () {
             data[offset + 1] = led_object['reduction_percent'];
 
             var flags = 0;
+            var positions = 0;
 
             flags |= led_object['weak_light_switch_position0'] << 0;
             flags |= led_object['weak_light_switch_position1'] << 1;
@@ -474,6 +475,20 @@ var app = (function () {
             data[offset + 16] = led_object['reversing_light'];
             data[offset + 17] = led_object['indicator_left'];
             data[offset + 18] = led_object['indicator_right'];
+
+            led_object['light_switch_position0'] && (positions = 1);
+            led_object['light_switch_position1'] && (positions = 2);
+            led_object['light_switch_position2'] && (positions = 3);
+            led_object['light_switch_position3'] && (positions = 4);
+            led_object['light_switch_position4'] && (positions = 5);
+            led_object['light_switch_position5'] && (positions = 6);
+            led_object['light_switch_position6'] && (positions = 7);
+            led_object['light_switch_position7'] && (positions = 8);
+            led_object['light_switch_position8'] && (positions = 9);
+
+            if (positions > light_switch_positions) {
+                light_switch_positions = positions;
+            }
         }
 
         data[offset] = led_object['led_count'];
@@ -488,6 +503,8 @@ var app = (function () {
     var assemble_configuration = function (config) {
         var data = firmware.data;
         var offset = firmware.offset[SECTION_CONFIG];
+
+        config['light_switch_positions'] = light_switch_positions;
 
         data[offset] = config['firmware_version'];
         data[offset + 1] = config['mode'];
@@ -537,6 +554,10 @@ var app = (function () {
     var assemble_light_programs = function (light_programs) {
         var machine_code = parse_light_program_code(light_programs);
 
+        if (machine_code.light_switch_positions > light_switch_positions) {
+            light_switch_positions = machine_code.light_switch_positions;
+        }
+
         var code_size = 4 + (4 * MAX_LIGHT_PROGRAMS) +
             (4 * machine_code.instructions.length);
 
@@ -565,11 +586,15 @@ var app = (function () {
 
     // *************************************************************************
     var assemble_firmware = function () {
-        assemble_configuration(config);
+        light_switch_positions = 1;
+
         assemble_leds(SECTION_LOCAL_LEDS, local_leds);
         assemble_leds(SECTION_SLAVE_LEDS, slave_leds);
         assemble_light_programs(light_programs);
         assemble_gamma(gamma_object);
+
+        // This has to be last so we can do light_switch_positions
+        assemble_configuration(config);
     }
 
 
@@ -1363,8 +1388,6 @@ var app = (function () {
         el["light_programs_assembler"].addEventListener(
             "click", function () {
                 parse_light_program_code(ui.get_editor_content());
-                // FIXME: add message that assembly succeeded
-                console.log("Assembly successful.");
             } , false);
 
         init_assembler();

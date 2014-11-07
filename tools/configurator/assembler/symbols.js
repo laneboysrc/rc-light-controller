@@ -5,7 +5,7 @@ var symbols = (function () {
     var forward_declaration_table = [];
     var next_variable_index = 0;
     var leds_used = 0;
-    var number_of_light_switch_position = 0;
+    var number_of_light_switch_positions = 0;
 
     var undeclared_symbol = {"token": "UNDECLARED_SYMBOL", "opcode": 0};
 
@@ -186,8 +186,8 @@ var symbols = (function () {
         }
 
         if (positions[name]) {
-            if (number_of_light_switch_position < positions[name]) {
-                number_of_light_switch_position = positions[name];
+            if (number_of_light_switch_positions < positions[name]) {
+                number_of_light_switch_positions = positions[name];
             }
         }
     }
@@ -343,8 +343,8 @@ var symbols = (function () {
 
 
     // *************************************************************************
-    var get_number_of_light_switch_position = function () {
-        return number_of_light_switch_position;
+    var get_number_of_light_switch_positions = function () {
+        return number_of_light_switch_positions;
     };
 
 
@@ -362,7 +362,7 @@ var symbols = (function () {
         forward_declaration_table = [];
         next_variable_index = 0;
         leds_used = 0;
-        number_of_light_switch_position = 0;
+        number_of_light_switch_positions = 0;
 
         if (typeof parser !== "undefined") {
             parser.yy.line_is_empty = true;
@@ -380,7 +380,7 @@ var symbols = (function () {
         get_symbol: get_symbol,
         set_symbol: set_symbol,
         get_reserved_word: get_reserved_word,
-        get_number_of_light_switch_position: get_number_of_light_switch_position,
+        get_number_of_light_switch_positions: get_number_of_light_switch_positions,
         get_leds_used: get_leds_used,
         get_forward_declerations: get_forward_declerations,
         remove_local_symbols: remove_local_symbols,
