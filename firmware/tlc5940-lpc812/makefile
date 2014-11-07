@@ -43,7 +43,7 @@ PREPROCESSOR_SIMULATOR := $(TOOL_PATH)preprocessor-simulator.py -b 115200
 MAP_SUMMARY_TOOL := $(TOOL_PATH)parse_gcc_map_file.py
 CONFIGURATION_VALIDATION_TOOL := $(TOOL_PATH)validate_image_file.py
 LIGHT_PROGRAM_ASSEMBLER_PATH := $(TOOL_PATH)configurator/assembler
-DEFAULT_FIRMWARE_IMAGE_JS := $(TOOL_PATH)configurator/default_firmware_image.js
+DEFAULT_FIRMWARE_IMAGE_JS := $(TOOL_PATH)configurator/src/default_firmware_image.js
 TEXT2JS := $(TOOL_PATH)text2js.py
 
 
