@@ -127,7 +127,7 @@ var disassembler = (function() {
     var RUN_WHEN_WINCH_IN                	= (1 << 21);
     var RUN_WHEN_WINCH_OUT               	= (1 << 22);
 
-    var RUN_ALWAYS                       	= (1 << 31);
+    var RUN_ALWAYS                       	= 0x80000000;
 
     var CAR_STATE_LIGHT_SWITCH_POSITION_0  	= (1 << 0);
     var CAR_STATE_LIGHT_SWITCH_POSITION_1 	= (1 << 1);
@@ -214,31 +214,31 @@ var disassembler = (function() {
 		}
 
 		if (instruction & RUN_WHEN_LIGHT_SWITCH_POSITION_0) {
-			asm[offset++]['decleration'] = "run when light-switch-position0";
+			asm[offset++]['decleration'] = "run when light-switch-position-0";
 		}
 		if (instruction & RUN_WHEN_LIGHT_SWITCH_POSITION_1) {
-			asm[offset++]['decleration'] = "run when light-switch-position1";
+			asm[offset++]['decleration'] = "run when light-switch-position-1";
 		}
 		if (instruction & RUN_WHEN_LIGHT_SWITCH_POSITION_2) {
-			asm[offset++]['decleration'] = "run when light-switch-position2";
+			asm[offset++]['decleration'] = "run when light-switch-position-2";
 		}
 		if (instruction & RUN_WHEN_LIGHT_SWITCH_POSITION_3) {
-			asm[offset++]['decleration'] = "run when light-switch-position3";
+			asm[offset++]['decleration'] = "run when light-switch-position-3";
 		}
 		if (instruction & RUN_WHEN_LIGHT_SWITCH_POSITION_4) {
-			asm[offset++]['decleration'] = "run when light-switch-position4";
+			asm[offset++]['decleration'] = "run when light-switch-position-4";
 		}
 		if (instruction & RUN_WHEN_LIGHT_SWITCH_POSITION_5) {
-			asm[offset++]['decleration'] = "run when light-switch-position5";
+			asm[offset++]['decleration'] = "run when light-switch-position-5";
 		}
 		if (instruction & RUN_WHEN_LIGHT_SWITCH_POSITION_6) {
-			asm[offset++]['decleration'] = "run when light-switch-position6";
+			asm[offset++]['decleration'] = "run when light-switch-position-6";
 		}
 		if (instruction & RUN_WHEN_LIGHT_SWITCH_POSITION_7) {
-			asm[offset++]['decleration'] = "run when light-switch-position7";
+			asm[offset++]['decleration'] = "run when light-switch-position-7";
 		}
 		if (instruction & RUN_WHEN_LIGHT_SWITCH_POSITION_8) {
-			asm[offset++]['decleration'] = "run when light-switch-position8";
+			asm[offset++]['decleration'] = "run when light-switch-position-8";
 		}
 		if (instruction & RUN_WHEN_NEUTRAL) {
 			asm[offset++]['decleration'] = "run when neutral";
@@ -335,8 +335,45 @@ var disassembler = (function() {
 
 
 	// *************************************************************************
-	var decode_variable_assignment = function (instruction, operator) {
+	var decode_right_parameter = function (instruction) {
 		var parameter_type;
+		var index;
+
+		parameter_type = (instruction >> 8) & 0xff;
+		index = instruction & 0xff;
+
+		switch (parameter_type) {
+			case PARAMETER_TYPE_VARIABLE:
+				if (index == 0) {
+					return "clicks";
+				}
+				else {
+					set_variable_used(index, current_program);
+				}
+				return "var" + index;
+
+			case PARAMETER_TYPE_LED:
+				return "led" + index;
+
+			case PARAMETER_TYPE_RANDOM:
+				return "random";
+
+			case PARAMETER_TYPE_STEERING:
+				return "steering";
+
+			case PARAMETER_TYPE_THROTTLE:
+				return "throttle";
+
+			case PARAMETER_TYPE_GEAR:
+				return "gear";
+
+			default:
+				return "ERROR: unknown parameter type " + parameter_type
+		}
+	}
+
+	// *************************************************************************
+	var decode_variable_assignment = function (instruction, operator) {
 		var index;
 		var result = '';
 
@@ -359,37 +396,7 @@ var disassembler = (function() {
 				"   // 0x" + number.toString(16).toUpperCase();
 		}
 
-		parameter_type = (instruction >> 8) & 0xff;
-		index = instruction & 0xff;
-
-		switch (parameter_type) {
-			case PARAMETER_TYPE_VARIABLE:
-				if (index == 0) {
-					return result + "clicks";
-				}
-				else {
-					set_variable_used(index, current_program);
-				}
-				return result + "var" + index;
-
-			case PARAMETER_TYPE_LED:
-				return result + "led" + index;
-
-			case PARAMETER_TYPE_RANDOM:
-				return result + "random";
-
-			case PARAMETER_TYPE_STEERING:
-				return result + "steering";
-
-			case PARAMETER_TYPE_THROTTLE:
-				return result + "throttle";
-
-			case PARAMETER_TYPE_GEAR:
-				return result + "gear";
-
-			default:
-				return "ERROR: unknown parameter type " + parameter_type
-		}
+		return result + decode_right_parameter(instruction);
 	};
 
 
@@ -672,7 +679,11 @@ var disassembler = (function() {
 
 			case opcodes['SET']:
 				asm[offset + pc++]['code'] =
-					decode_leds(instruction) + ' = var' + (instruction & 0xff);
+					decode_leds(instruction) + ' = ' +
+						// SET is slightly different, only allows var.
+						// So we mask the rest off as to not misinterprete
+						// the other fields
+						decode_right_parameter(instruction & 0xff);
 				break;
 
 			case opcodes['SET_I']:
@@ -681,7 +692,7 @@ var disassembler = (function() {
 				break;
 
 			case opcodes['SLEEP']:
-				asm[offset + pc++]['code'] = 'sleep var' + (instruction & 0xff);
+				asm[offset + pc++]['code'] = 'sleep ' + decode_right_parameter(instruction);;
 				break;
 
 			case opcodes['SLEEP_I']:
@@ -690,7 +701,8 @@ var disassembler = (function() {
 
 			case opcodes['FADE']:
 				asm[offset + pc++]['code'] = 'fade ' +
-					decode_leds(instruction) + ' stepsize var' + (instruction & 0xff);
+					decode_leds(instruction) + ' stepsize ' +
+						decode_right_parameter(instruction & 0xff);
 				break;
 
 			case opcodes['FADE_I']:
