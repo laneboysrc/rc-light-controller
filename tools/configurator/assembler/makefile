@@ -15,6 +15,7 @@ YACC := jison
 MKDIR_P = mkdir -p
 TEST_RUNNER = test/run-tests.sh
 NPM = npm
+DISASSEMBLER = ../disassembler/test/test-disassembler.js
 
 
 ###############################################################################
@@ -73,7 +74,12 @@ run: $(TARGET_BIN)
 
 test: $(TARGET_BIN)
 	$(ECHO) [TEST] $<
-	$(QUIET) test/run-tests.sh ./$<
+	$(QUIET) $(TEST_RUNNER) ./$<
+
+test-reassembly: $(TARGET_BIN)
+	$(ECHO) [TEST ASM-DASM-ASM] $<
+	$(QUIET) test/run-test-reassembly.sh ./$< $(DISASSEMBLER)
+
 
 # Clean all generated files
 clean:
