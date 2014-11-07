@@ -1,0 +1,12 @@
+{
+  "name": "light-program-configurator",
+  "version": "1.0.0",
+  "description": "DIY RC Light Controller configuration tool",
+  "main": "configurator.html",
+  "repository": "https://github.com/laneboysrc/rc-light-controller.git",
+  "author": "LANE Boys RC",
+  "devDependencies": {
+    "gulp": "~3.8.10",
+    "gulp-inline-source": "~1.1.0"
+  }
+}
