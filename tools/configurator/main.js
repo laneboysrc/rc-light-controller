@@ -579,8 +579,6 @@ var app = (function () {
         var offset = firmware.offset[SECTION_LIGHT_PROGRAMS];
 
         firmware.data = data.slice(0, offset).concat(code);
-
-
     }
 
 
@@ -600,7 +598,8 @@ var app = (function () {
 
     // *************************************************************************
     var load_default_firmware = function () {
-        parse_firmware(default_firmware_image);
+        el["light_programs"].value = default_light_program;
+        ui.update_editor();
     }
 
 
@@ -1389,6 +1388,8 @@ var app = (function () {
             "click", function () {
                 parse_light_program_code(ui.get_editor_content());
             } , false);
+
+        el['light_programs_errors'].style.display = "none";
 
         init_assembler();
         load_default_firmware();

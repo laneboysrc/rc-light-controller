@@ -24,8 +24,6 @@ TO DO LIST for the RC Light Controller
 
 * CFG: Use gulp workflow
 
-* CFG: bypass decompilation by embedding the source files of light programs for
-  the default firmware
 
 
 

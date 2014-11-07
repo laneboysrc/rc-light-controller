@@ -12,7 +12,7 @@ SOURCES := $(foreach sdir, $(SOURCE_DIRS), $(wildcard $(sdir)/*.c))
 DEPENDENCIES := makefile globals.h uart0.h utils.h
 LIBS = gcc
 LINKER_SCRIPT := light_controller.ld
-
+DEFAULT_LIGHT_PROGRAM := light_programs/generic.light_program
 
 ###############################################################################
 # Pretty-print setup
@@ -43,6 +43,8 @@ PREPROCESSOR_SIMULATOR := $(TOOL_PATH)preprocessor-simulator.py -b 115200
 MAP_SUMMARY_TOOL := $(TOOL_PATH)parse_gcc_map_file.py
 CONFIGURATION_VALIDATION_TOOL := $(TOOL_PATH)validate_image_file.py
 LIGHT_PROGRAM_ASSEMBLER_PATH := $(TOOL_PATH)configurator/assembler
+DEFAULT_FIRMWARE_IMAGE_JS := $(TOOL_PATH)configurator/default_firmware_image.js
+TEXT2JS := $(TOOL_PATH)text2js.py
 
 
 ###############################################################################
@@ -121,7 +123,13 @@ $(TARGET_HEX): $(TARGET_ELF)
 
 default_light_program:
 	$(ECHO) [ASM] $@
-	$(QUIET) cd $(LIGHT_PROGRAM_ASSEMBLER_PATH) && $(MAKE) run RUN_OPTIONS="-o $(abspath config_light_programs.c) $(abspath light_programs/generic.light_program)"
+	$(QUIET) cd $(LIGHT_PROGRAM_ASSEMBLER_PATH) && $(MAKE) run RUN_OPTIONS="-o $(abspath config_light_programs.c) $(abspath $(DEFAULT_LIGHT_PROGRAM))"
+
+default_firmware_image: $(TARGET_HEX)
+	$(ECHO) [TEXT2JS] $<
+	$(QUIET) $(TEXT2JS) $< default_firmware_image >$(DEFAULT_FIRMWARE_IMAGE_JS)
+	$(ECHO) [TEXT2JS] $(DEFAULT_LIGHT_PROGRAM)
+	$(QUIET) $(TEXT2JS) $(DEFAULT_LIGHT_PROGRAM) default_light_program >>$(DEFAULT_FIRMWARE_IMAGE_JS)
 
 # Create list files that include C code as well as Assembler
 list: $(OBJECTS:.o=.lst)
@@ -148,4 +156,4 @@ clean:
 	$(QUIET) $(RM) -rf $(BUILD_DIR)/*
 
 
-.PHONY : all clean default_light_program program terminal preprocessor-simulator list summary
+.PHONY : all clean default_light_program default_firmware_image program terminal preprocessor-simulator list summary

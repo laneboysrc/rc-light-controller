@@ -671,3 +671,222 @@ var default_firmware_image =
 ":1029C4000000000000000000000000000000000003\n" +
 ":00000001FF\n" +
 "";
+var default_light_program =
+"// These light programs provide generic functionality desired in most\n" +
+"// light controller installations.\n" +
+"//\n" +
+"// They handle when there is no incoming servo signal, letting the user visibly\n" +
+"// know that the light controller is initializing, and guide the user through\n" +
+"// steering/throttle reversing as well as the servo output endpoint setup.\n" +
+"\n" +
+"\n" +
+"// ----------------------------------------------------------------------------\n" +
+"// Light up the front indicators statically when there is no incoming servo\n" +
+"// signal\n" +
+"// ----------------------------------------------------------------------------\n" +
+"run when no-signal\n" +
+"\n" +
+"// Take over all LEDs\n" +
+"led parking-l = master[0]\n" +
+"led parking-r = master[1]\n" +
+"led main-beam-l = master[2]\n" +
+"led main-beam-r = master[3]\n" +
+"led high-beam-l = master[4]\n" +
+"led high-beam-r = master[5]\n" +
+"led indicator-front-l = master[6]\n" +
+"led indicator-front-r = master[7]\n" +
+"led roof = master[8]\n" +
+"led brake = master[9]\n" +
+"led tail-brake-l = master[10]\n" +
+"led tail-brake-r = master[11]\n" +
+"led reversing-l = master[12]\n" +
+"led reversing-r = master[13]\n" +
+"led indicator-rear-l = master[14]\n" +
+"led indicator-rear-r = master[15]\n" +
+"\n" +
+"loop:\n" +
+"    // Turn fading off for all leds, we want them to switch on/off immediately\n" +
+"    fade all leds stepsize 0\n" +
+"\n" +
+"    // Turn all lights\n" +
+"    // Turn all lights off, then the indicators on the front full on.\n" +
+"    // This won't cause any flicker as the light output is only executed\n" +
+"    // when a light program executes a \"sleep\" statement (or at the end of\n" +
+"    // a light program).\n" +
+"    all leds = 0%\n" +
+"    indicator-front-l, indicator-front-r = 100%\n" +
+"\n" +
+"    // We done our bit, so yield for 20 ms to give processing time to other\n" +
+"    // parts of the firmware.\n" +
+"    sleep 0\n" +
+"\n" +
+"    // Run the program in a loop so it always shows the indicators, even if\n" +
+"    // after being interrupted by another light program with higher priority.\n" +
+"    goto loop\n" +
+"\n" +
+"end\n" +
+"\n" +
+"\n" +
+"// ----------------------------------------------------------------------------\n" +
+"// Light up the main beam lights while the light controller is initializing.\n" +
+"//\n" +
+"// Normally the main beam would be on only if the parking lights are already\n" +
+"// on, so just the main beam lighting up is a unique identifiaction.\n" +
+"// ----------------------------------------------------------------------------\n" +
+"run when initializing\n" +
+"\n" +
+"led parking-l = master[0]\n" +
+"led parking-r = master[1]\n" +
+"led main-beam-l = master[2]\n" +
+"led main-beam-r = master[3]\n" +
+"led high-beam-l = master[4]\n" +
+"led high-beam-r = master[5]\n" +
+"led indicator-front-l = master[6]\n" +
+"led indicator-front-r = master[7]\n" +
+"led roof = master[8]\n" +
+"led brake = master[9]\n" +
+"led tail-brake-l = master[10]\n" +
+"led tail-brake-r = master[11]\n" +
+"led reversing-l = master[12]\n" +
+"led reversing-r = master[13]\n" +
+"led indicator-rear-l = master[14]\n" +
+"led indicator-rear-r = master[15]\n" +
+"\n" +
+"loop:\n" +
+"    fade all leds stepsize 0\n" +
+"    all leds = 0%\n" +
+"    main-beam-l, main-beam-r = 100%\n" +
+"    sleep 0\n" +
+"    goto loop\n" +
+"\n" +
+"end\n" +
+"\n" +
+"\n" +
+"// ----------------------------------------------------------------------------\n" +
+"// Steering an throttle reversing setup\n" +
+"//\n" +
+"// This program runs after 7 CH3-clicks. The user is expected to turn the\n" +
+"// steering wheel to the same direction as the indicators are lighting up,\n" +
+"// and push the throttle forward.\n" +
+"//\n" +
+"// Therefore we turn the left indicators on until we detect the user having\n" +
+"// given significant steering input (reversing-setup-steering goes off).\n" +
+"// We also turn the high beam on until we detect significant throttle input\n" +
+"// (reversing-setup-throttle goes off).\n" +
+"//\n" +
+"// Once both are off the light controller lights resume their normal function\n" +
+"// as the condition for running this program is \"false\".\n" +
+"// ----------------------------------------------------------------------------\n" +
+"run when reversing-setup-steering or reversing-setup-throttle\n" +
+"\n" +
+"led parking-l = master[0]\n" +
+"led parking-r = master[1]\n" +
+"led main-beam-l = master[2]\n" +
+"led main-beam-r = master[3]\n" +
+"led high-beam-l = master[4]\n" +
+"led high-beam-r = master[5]\n" +
+"led indicator-front-l = master[6]\n" +
+"led indicator-front-r = master[7]\n" +
+"led roof = master[8]\n" +
+"led brake = master[9]\n" +
+"led tail-brake-l = master[10]\n" +
+"led tail-brake-r = master[11]\n" +
+"led reversing-l = master[12]\n" +
+"led reversing-r = master[13]\n" +
+"led indicator-rear-l = master[14]\n" +
+"led indicator-rear-r = master[15]\n" +
+"\n" +
+"loop:\n" +
+"    sleep 0\n" +
+"\n" +
+"    fade all leds stepsize 0\n" +
+"\n" +
+"    // Turn all lights off, then indicators or high beam on selectivly.\n" +
+"    // This won't cause any flicker as the light output is only executed\n" +
+"    // when a light program executes a \"sleep\" statement (or at the end of\n" +
+"    // a light program).\n" +
+"    all leds = 0%\n" +
+"\n" +
+"    skip if is reversing-setup-steering         // Steering setup?\n" +
+"    goto not_steering                           // No: check throttle\n" +
+"    indicator-front-l, indicator-rear-l = 100%  // Yes: light up the indicators\n" +
+"\n" +
+"not_steering:\n" +
+"    skip if is reversing-setup-throttle         // Throttle setup?\n" +
+"    goto loop                                   // No: start over\n" +
+"    high-beam-l, high-beam-r = 100%             // Yes: light up high beam\n" +
+"    goto loop\n" +
+"\n" +
+"end\n" +
+"\n" +
+"\n" +
+"// ----------------------------------------------------------------------------\n" +
+"// Servo output endpoint setup\n" +
+"//\n" +
+"// This program runs after 8 CH3-clicks. The user can now use the steering\n" +
+"// wheel on the transmitter to directly drive the servo output (i.e. the\n" +
+"// servo output behaves like the servo would be connected to the steering\n" +
+"// output of the receiver).\n" +
+"//\n" +
+"// The user can now setup what he considers \"left\" endpoint (or gear 1 if it\n" +
+"// is a gearbox servo). Then one CH3-click switches to \"center\" (or gear 2).\n" +
+"// Another CH3-click switches to \"right\" (or gear 3). A final CH3-click\n" +
+"// ends the procedure, saves the endpoints and resumes normal operation.\n" +
+"//\n" +
+"// At any point in time during the setup two or more clicks cancel the servo\n" +
+"// output setup and restore the original endpoints.\n" +
+"// ----------------------------------------------------------------------------\n" +
+"\n" +
+"\n" +
+"// Note: \"or\" between the conditions is optional, same meaning with or without\n" +
+"run when servo-output-setup-centre servo-output-setup-left servo-output-setup-right\n" +
+"\n" +
+"led parking-l = master[0]\n" +
+"led parking-r = master[1]\n" +
+"led main-beam-l = master[2]\n" +
+"led main-beam-r = master[3]\n" +
+"led high-beam-l = master[4]\n" +
+"led high-beam-r = master[5]\n" +
+"led indicator-front-l = master[6]\n" +
+"led indicator-front-r = master[7]\n" +
+"led roof = master[8]\n" +
+"led brake = master[9]\n" +
+"led tail-brake-l = master[10]\n" +
+"led tail-brake-r = master[11]\n" +
+"led reversing-l = master[12]\n" +
+"led reversing-r = master[13]\n" +
+"led indicator-rear-l = master[14]\n" +
+"led indicator-rear-r = master[15]\n" +
+"\n" +
+"loop:\n" +
+"    sleep 0\n" +
+"\n" +
+"    fade all leds stepsize 0\n" +
+"    all leds = 0%\n" +
+"\n" +
+"    skip if not servo-output-setup-left\n" +
+"    goto left\n" +
+"    skip if not servo-output-setup-right\n" +
+"    goto right\n" +
+"    // If it is neither left nor right, it must be centre...\n" +
+"    // Otherwise the program would not be run in the first place, see RUN WHEN\n" +
+"    // above!\n" +
+"\n" +
+"    // Centre setup: light up all four indicators\n" +
+"centre:\n" +
+"    indicator-front-l, indicator-front-r, \\\n" +
+"        indicator-rear-l, indicator-rear-r = 100%\n" +
+"    goto loop\n" +
+"\n" +
+"    // Left setup: light up all indicators on the left side\n" +
+"left:\n" +
+"    indicator-front-l, indicator-rear-l = 100%\n" +
+"    goto loop\n" +
+"\n" +
+"    // Right setup: light up all indicators on the right side\n" +
+"right:\n" +
+"    indicator-front-r, indicator-rear-r = 100%\n" +
+"    goto loop\n" +
+"\n" +
+"end\n" +
+"";
