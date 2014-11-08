@@ -16,30 +16,30 @@
 <layer number="20" name="Dimension" color="15" fill="1" visible="yes" active="yes"/>
 <layer number="21" name="tPlace" color="7" fill="1" visible="no" active="yes"/>
 <layer number="22" name="bPlace" color="7" fill="1" visible="no" active="yes"/>
-<layer number="23" name="tOrigins" color="15" fill="1" visible="yes" active="yes"/>
-<layer number="24" name="bOrigins" color="15" fill="1" visible="no" active="yes"/>
+<layer number="23" name="tOrigins" color="15" fill="1" visible="no" active="yes"/>
+<layer number="24" name="bOrigins" color="15" fill="1" visible="yes" active="yes"/>
 <layer number="25" name="tNames" color="7" fill="1" visible="no" active="yes"/>
 <layer number="26" name="bNames" color="7" fill="1" visible="no" active="yes"/>
 <layer number="27" name="tValues" color="7" fill="1" visible="yes" active="yes"/>
-<layer number="28" name="bValues" color="7" fill="1" visible="no" active="yes"/>
+<layer number="28" name="bValues" color="7" fill="1" visible="yes" active="yes"/>
 <layer number="29" name="tStop" color="7" fill="3" visible="yes" active="yes"/>
-<layer number="30" name="bStop" color="7" fill="6" visible="no" active="yes"/>
+<layer number="30" name="bStop" color="7" fill="6" visible="yes" active="yes"/>
 <layer number="31" name="tCream" color="7" fill="4" visible="yes" active="yes"/>
-<layer number="32" name="bCream" color="7" fill="5" visible="no" active="yes"/>
+<layer number="32" name="bCream" color="7" fill="5" visible="yes" active="yes"/>
 <layer number="33" name="tFinish" color="6" fill="3" visible="no" active="yes"/>
 <layer number="34" name="bFinish" color="6" fill="6" visible="no" active="yes"/>
 <layer number="35" name="tGlue" color="7" fill="4" visible="no" active="yes"/>
 <layer number="36" name="bGlue" color="7" fill="5" visible="no" active="yes"/>
 <layer number="37" name="tTest" color="7" fill="1" visible="no" active="yes"/>
 <layer number="38" name="bTest" color="7" fill="1" visible="no" active="yes"/>
-<layer number="39" name="tKeepout" color="4" fill="11" visible="no" active="yes"/>
-<layer number="40" name="bKeepout" color="1" fill="11" visible="no" active="yes"/>
-<layer number="41" name="tRestrict" color="4" fill="10" visible="no" active="yes"/>
-<layer number="42" name="bRestrict" color="1" fill="10" visible="no" active="yes"/>
+<layer number="39" name="tKeepout" color="4" fill="11" visible="yes" active="yes"/>
+<layer number="40" name="bKeepout" color="1" fill="11" visible="yes" active="yes"/>
+<layer number="41" name="tRestrict" color="4" fill="10" visible="yes" active="yes"/>
+<layer number="42" name="bRestrict" color="1" fill="10" visible="yes" active="yes"/>
 <layer number="43" name="vRestrict" color="2" fill="10" visible="no" active="yes"/>
 <layer number="44" name="Drills" color="7" fill="1" visible="no" active="yes"/>
 <layer number="45" name="Holes" color="7" fill="1" visible="no" active="yes"/>
-<layer number="46" name="Milling" color="3" fill="1" visible="yes" active="yes"/>
+<layer number="46" name="Milling" color="3" fill="1" visible="no" active="yes"/>
 <layer number="47" name="Measures" color="7" fill="1" visible="no" active="yes"/>
 <layer number="48" name="Document" color="7" fill="1" visible="no" active="yes"/>
 <layer number="49" name="Reference" color="7" fill="1" visible="no" active="yes"/>
@@ -147,11 +147,11 @@
 <wire x1="8.89" y1="3.302" x2="23.114" y2="3.302" width="1" layer="46"/>
 <wire x1="23.114" y1="3.302" x2="23.114" y2="1.27" width="1" layer="46"/>
 <text x="24.13" y="3.302" size="0.8128" layer="28" rot="MR90" align="top-center">4...10V</text>
-<text x="15.748" y="16.129" size="1.27" layer="28" font="vector" ratio="15" rot="MR0" align="center-left">-</text>
 <rectangle x1="2.6" y1="16.7" x2="3.8" y2="17.5" layer="29"/>
 <rectangle x1="2.6" y1="0.5" x2="3.8" y2="1.3" layer="29"/>
 <rectangle x1="17.8" y1="0.5" x2="20.2" y2="2" layer="29"/>
-<rectangle x1="17.1" y1="16.3" x2="18.3" y2="17.5" layer="29"/>
+<rectangle x1="17.5" y1="16.7" x2="20" y2="17.5" layer="29"/>
+<rectangle x1="0.5" y1="7.4" x2="1.1" y2="10.6" layer="29"/>
 </plain>
 <libraries>
 <library name="tlc5940">
@@ -489,6 +489,28 @@ new: Attribute TP_SIGNAL_NAME&lt;br&gt;
 </package>
 </packages>
 </library>
+<library name="zetex">
+<description>&lt;b&gt;Zetex Power MOS FETs, Bridges, Diodes&lt;/b&gt;&lt;p&gt;
+http://www.zetex.com&lt;p&gt;
+&lt;author&gt;Created by librarian@cadsoft.de&lt;/author&gt;</description>
+<packages>
+<package name="SOT-23">
+<description>&lt;b&gt;Small Outline Transistor&lt;/b&gt;</description>
+<wire x1="-1.4224" y1="0.381" x2="1.4732" y2="0.381" width="0.1524" layer="21"/>
+<wire x1="1.4732" y1="0.381" x2="1.4732" y2="-0.381" width="0.1524" layer="21"/>
+<wire x1="1.4732" y1="-0.381" x2="-1.4224" y2="-0.381" width="0.1524" layer="21"/>
+<wire x1="-1.4224" y1="-0.381" x2="-1.4224" y2="0.381" width="0.1524" layer="21"/>
+<smd name="3" x="0.9906" y="1.016" dx="0.7874" dy="0.889" layer="1"/>
+<smd name="2" x="-0.9398" y="1.016" dx="0.7874" dy="0.889" layer="1"/>
+<smd name="1" x="0.0254" y="-1.016" dx="0.7874" dy="0.889" layer="1"/>
+<text x="-1.397" y="1.778" size="1.27" layer="27" ratio="10">&gt;VALUE</text>
+<text x="-1.397" y="3.302" size="1.27" layer="25" ratio="10">&gt;NAME</text>
+<rectangle x1="0.7874" y1="0.4318" x2="1.1684" y2="0.9398" layer="51"/>
+<rectangle x1="-1.143" y1="0.4318" x2="-0.762" y2="0.9398" layer="51"/>
+<rectangle x1="-0.1778" y1="-0.9398" x2="0.2032" y2="-0.4318" layer="51"/>
+</package>
+</packages>
+</library>
 </libraries>
 <attributes>
 </attributes>
@@ -784,7 +806,13 @@ design rules under a new name.</description>
 <attribute name="NAME" x="14.9939" y="15.7899" size="1.27" layer="25"/>
 <attribute name="VALUE" x="15.494" y="16.002" size="0.7112" layer="27" font="vector" ratio="15" align="bottom-center"/>
 </element>
-<element name="PAD68" library="wirepad" package="SMD50X100" value="" x="17.018" y="16.129" rot="MR0"/>
+<element name="PAD70" library="wirepad" package="SMD50X100" value="" x="14.224" y="16.129" rot="MR0"/>
+<element name="T1" library="zetex" package="SOT-23" value="" x="16.786" y="15.8" rot="MR180">
+<attribute name="OC_NEWARK" value="unknown" x="16.786" y="15.8" size="0.8128" layer="28" rot="MR180" display="off"/>
+<attribute name="MPN" value="" x="16.786" y="15.8" size="0.8128" layer="28" rot="MR180" display="off"/>
+<attribute name="MF" value="" x="16.786" y="15.8" size="0.8128" layer="28" rot="MR180" display="off"/>
+<attribute name="OC_FARNELL" value="unknown" x="16.786" y="15.8" size="0.8128" layer="28" rot="MR180" display="off"/>
+</element>
 </elements>
 <signals>
 <signal name="+3V3">
@@ -881,7 +909,7 @@ design rules under a new name.</description>
 <wire x1="11.557" y1="2.413" x2="12.192" y2="1.778" width="0.2032" layer="1"/>
 <via x="17.018" y="9.144" extent="1-16" drill="0.5" shape="square"/>
 <via x="18.034" y="9.144" extent="1-16" drill="0.5" shape="square"/>
-<contactref element="PAD68" pad="1"/>
+<contactref element="T1" pad="2"/>
 </signal>
 <signal name="SIN">
 <contactref element="U2" pad="5"/>
@@ -1162,14 +1190,6 @@ design rules under a new name.</description>
 <wire x1="20.409" y1="12.831" x2="20.409" y2="13.639" width="0.3048" layer="1"/>
 <wire x1="20.409" y1="13.639" x2="21.844" y2="15.074" width="0.3048" layer="1"/>
 </signal>
-<signal name="N$2">
-<contactref element="PAD7" pad="1"/>
-<contactref element="R2" pad="1"/>
-<wire x1="18.923" y1="16.256" x2="24.384" y2="16.256" width="0.3048" layer="1"/>
-<wire x1="24.384" y1="16.256" x2="24.892" y2="16.002" width="0.3048" layer="1"/>
-<wire x1="18.327" y1="14.986" x2="18.327" y2="15.66" width="0.3048" layer="1"/>
-<wire x1="18.327" y1="15.66" x2="18.923" y2="16.256" width="0.3048" layer="1"/>
-</signal>
 <signal name="N$4">
 <contactref element="U$2" pad="3"/>
 <contactref element="TP3" pad="TP"/>
@@ -1178,6 +1198,27 @@ design rules under a new name.</description>
 <wire x1="18.542" y1="13.97" x2="17.78" y2="13.97" width="0.3048" layer="1"/>
 <wire x1="17.78" y1="13.97" x2="16.51" y2="15.24" width="0.3048" layer="1"/>
 <wire x1="16.51" y1="15.24" x2="15.494" y2="15.24" width="0.3048" layer="1"/>
+</signal>
+<signal name="N$3">
+<contactref element="PAD70" pad="1"/>
+<contactref element="T1" pad="1"/>
+<wire x1="16.8114" y1="16.816" x2="14.224" y2="16.816" width="0.6096" layer="16"/>
+<wire x1="14.224" y1="16.816" x2="14.224" y2="16.129" width="0.6096" layer="16"/>
+</signal>
+<signal name="N$2">
+<contactref element="T1" pad="3"/>
+<contactref element="PAD7" pad="1"/>
+<contactref element="R2" pad="1"/>
+<wire x1="18.923" y1="16.256" x2="24.384" y2="16.256" width="0.3048" layer="1"/>
+<wire x1="24.384" y1="16.256" x2="24.892" y2="16.002" width="0.3048" layer="1"/>
+<wire x1="18.327" y1="14.986" x2="18.327" y2="15.66" width="0.3048" layer="1"/>
+<wire x1="18.327" y1="15.66" x2="18.923" y2="16.256" width="0.3048" layer="1"/>
+<wire x1="17.7766" y1="14.784" x2="17.78" y2="14.784" width="0.3048" layer="16"/>
+<via x="18.034" y="16.002" extent="1-16" drill="0.5" shape="square"/>
+<wire x1="18.034" y1="16.002" x2="18.327" y2="15.709" width="0.3048" layer="1"/>
+<wire x1="18.327" y1="15.709" x2="18.327" y2="14.986" width="0.3048" layer="1"/>
+<wire x1="17.78" y1="14.784" x2="17.78" y2="15.748" width="0.3048" layer="16"/>
+<wire x1="17.78" y1="15.748" x2="18.034" y2="16.002" width="0.3048" layer="16"/>
 </signal>
 </signals>
 </board>
