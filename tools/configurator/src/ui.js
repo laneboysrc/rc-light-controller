@@ -260,6 +260,26 @@ var ui = (function () {
 
 
     // *************************************************************************
+    var init_keyhandler = function () {
+        document.addEventListener('keydown', function (e) {
+            // Ctrl-S is "save configuration"
+            if (e.ctrlKey && e.which === 83) {
+                document.getElementById("save_config").click();
+                e.preventDefault();
+                return false;
+            }
+
+            // Ctrl-H is "save firmware image"
+            if (e.ctrlKey && e.which === 72) {
+                document.getElementById("save_firmware").click();
+                e.preventDefault();
+                return false;
+            }
+        });
+    }
+
+
+    // *************************************************************************
     var init_editor = function () {
         editor = CodeMirror.fromTextArea(
             document.getElementById("light_programs"), {
@@ -331,6 +351,7 @@ var ui = (function () {
         init_led_features();
         init_tooltips();
         init_editor();
+        init_keyhandler();
     };
 
 
