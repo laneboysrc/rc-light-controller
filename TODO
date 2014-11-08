@@ -19,6 +19,9 @@ TO DO LIST for the RC Light Controller
 
 * CFG: Ctrl-S saves configuration, Ctrl-H saves Intel-hex
 
+* CFG: Fix slave output not being saved properly
+
+
 
 * Test hysteresis for drive mode
 
