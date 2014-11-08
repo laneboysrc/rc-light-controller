@@ -278,8 +278,6 @@ var app = (function () {
 
         var number_of_programs = get_uint32(data, offset);
 
-        console.log(data.slice(offset));
-
         var instructions =
             uint8_array_to_uint32(data.slice(first_program_offset));
 
