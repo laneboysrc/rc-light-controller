@@ -225,8 +225,12 @@ var intel_hex = (function () {
     //  - Start address must be 0
     //  - Only i8hex format (64 kBytes max)
     //
-    var fromArray = function (data, start_address=0) {
+    var fromArray = function (data, start_address) {
         var result = "";
+
+        if (typeof start_address === 'undefined') {
+            start_address = 0;
+        }
 
         if (start_address != 0) {
             throw new Error("Start address other than 0 not implemented yet");
