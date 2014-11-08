@@ -17,7 +17,7 @@ TO DO LIST for the RC Light Controller
   including fade commands!.
   Needs documenting.
 
-
+* CFG: Ctrl-S saves configuration, Ctrl-H saves Intel-hex
 
 
 * Test hysteresis for drive mode
