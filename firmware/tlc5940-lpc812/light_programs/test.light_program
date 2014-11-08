@@ -1,0 +1,109 @@
+// Test program
+//
+// This light controller firmware is designed to test the hardware.
+// As soon as power is applied it runs a test pattern on all LEDs.
+
+run always
+
+led led0 = master[0]
+led led1 = master[1]
+led led2 = master[2]
+led led3 = master[3]
+led led4 = master[4]
+led led5 = master[5]
+led led6 = master[6]
+led led7 = master[7]
+led led8 = master[8]
+led led9 = master[9]
+led led10 = master[10]
+led led11 = master[11]
+led led12 = master[12]
+led led13 = master[13]
+led led14 = master[14]
+led led15 = master[15]
+
+var brightness
+var delay_time
+
+restart:
+    fade all leds stepsize 0
+    brightness = 100    // percent
+    delay_time = 100    // milliseconds
+
+    // STEP 1: running lights, 100ms per LED, with decresing brightness in 5 steps
+chase:
+    led0 = brightness
+    sleep delay_time
+    led0 = 0
+    led1 = brightness
+    sleep delay_time
+    led1 = 0
+    led2 = brightness
+    sleep delay_time
+    led2 = 0
+    led3 = brightness
+    sleep delay_time
+    led3 = 0
+    led4 = brightness
+    sleep delay_time
+    led4 = 0
+    led5 = brightness
+    sleep delay_time
+    led5 = 0
+    led6 = brightness
+    sleep delay_time
+    led6 = 0
+    led7 = brightness
+    sleep delay_time
+    led7 = 0
+    led8 = brightness
+    sleep delay_time
+    led8 = 0
+    led9 = brightness
+    sleep delay_time
+    led9 = 0
+    led10 = brightness
+    sleep delay_time
+    led10 = 0
+    led11 = brightness
+    sleep delay_time
+    led11 = 0
+    led12 = brightness
+    sleep delay_time
+    led12 = 0
+    led13 = brightness
+    sleep delay_time
+    led13 = 0
+    led14 = brightness
+    sleep delay_time
+    led14 = 0
+    led15 = brightness
+    sleep delay_time
+    led15 = 0
+
+    brightness -= 20
+    skip if brightness < 20
+    goto chase
+
+
+    // STEP2: All leds on for 5 seconds
+    all leds = 100%
+    sleep 5000
+
+
+    // STEP3: All leds increasing brightness for 1 second
+    all leds = 20%
+    sleep 1000
+    all leds = 30%
+    sleep 1000
+    all leds = 60%
+    sleep 1000
+    all leds = 80%
+    sleep 1000
+    all leds = 100%
+    sleep 1000
+
+    // And start all-over...
+    goto restart
+
+    end
