@@ -27,6 +27,7 @@ var delay_time
 
 restart:
     fade all leds stepsize 0
+    all leds = 0%
     brightness = 100    // percent
     delay_time = 100    // milliseconds
 
@@ -103,7 +104,6 @@ chase:
     all leds = 100%
     sleep 1000
 
-    // And start all-over...
     goto restart
 
     end

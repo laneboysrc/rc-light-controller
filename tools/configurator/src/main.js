@@ -278,6 +278,8 @@ var app = (function () {
 
         var number_of_programs = get_uint32(data, offset);
 
+        console.log(data.slice(offset));
+
         var instructions =
             uint8_array_to_uint32(data.slice(first_program_offset));
 
@@ -562,6 +564,8 @@ var app = (function () {
             light_switch_positions = machine_code.light_switch_positions;
         }
 
+        var first_program_offset = 4 + (4 * MAX_LIGHT_PROGRAMS);
+
         var code_size = 4 + (4 * MAX_LIGHT_PROGRAMS) +
             (4 * machine_code.instructions.length);
 
@@ -569,10 +573,10 @@ var app = (function () {
 
         set_uint32(code, 0, machine_code.number_of_programs);
         for (var i = 0; i < MAX_LIGHT_PROGRAMS; i++) {
-            set_uint32(code, 4 + (4 * i), machine_code.start_offset[i]);
+            var offset = machine_code.start_offset[i] + first_program_offset +
+                firmware.offset[SECTION_LIGHT_PROGRAMS];
+            set_uint32(code, 4 + (4 * i), offset);
         }
-
-        var first_program_offset = 4 + (4 * MAX_LIGHT_PROGRAMS);
 
         for (var i = 0; i < machine_code.instructions.length; i++) {
             set_uint32(code, first_program_offset + (4 * i),
@@ -609,7 +613,9 @@ var app = (function () {
         // sourcecode with comments and original variable names.
         // This is achieved by running "make defaul_firmware_image" in
         // the firmware/tlc5940-lpc812 directory.
-        el["light_programs"].value = default_light_program;
+        light_programs = default_light_program;
+
+        el["light_programs"].value = light_programs;
         ui.update_editor();
     }
 
@@ -689,8 +695,10 @@ var app = (function () {
                     "File may not be a light controller configuration file (JSON format)");
             }
 
-            ui.update_editor();
             update_ui();
+
+            el["light_programs"].value = light_programs;
+            ui.update_editor();
         };
         reader.readAsText(this.files[0]);
     }
