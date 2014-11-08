@@ -278,7 +278,9 @@ var ui = (function () {
                 "F11": function(cm) {
                     cm.setOption("fullScreen", !cm.getOption("fullScreen"));
                 },
-                "Shift-Delete": "deleteLine",
+                "Shift-Ctrl-A": function(cm) {
+                    document.getElementById("light_programs_assembler").click();
+                },
                 "Esc": function(cm) {
                     if (cm.listSelections().length > 1) {
                         var range = cm.listSelections()[0];
