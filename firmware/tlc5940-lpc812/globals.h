@@ -376,12 +376,13 @@ typedef struct {
         // exculsive.
         // If mode is MASTER_WITH_UART_READER then there can be one UART output
         // (slave, preprocessor or winch) and one servo output (steering wheel
-        // or gearbox servo)
+        // or gearbox servo; or switched light output)
         unsigned int slave_output : 1;
         unsigned int preprocessor_output : 1;
         unsigned int winch_output : 1;
         unsigned int steering_wheel_servo_output : 1;
         unsigned int gearbox_servo_output : 1;
+        unsigned int switched_light_output : 1;
 
         unsigned int ch3_is_local_switch : 1;
         unsigned int ch3_is_momentary : 1;

@@ -89,6 +89,7 @@
 #define GPIO_XLAT LPC_GPIO_PORT->W0[3]
 #define GPIO_SCK LPC_GPIO_PORT->W0[2]
 #define GPIO_SIN LPC_GPIO_PORT->W0[7]
+#define GPIO_OUT_ISP LPC_GPIO_PORT->W0[12]
 
 #define NO_LIGHT_ARRAY 0
 
@@ -130,6 +131,13 @@ extern uint32_t process_light_programs(void);
 static void send_light_data_to_tlc5940(void)
 {
     volatile int i;
+
+    // If the switched_light_output configuration option is requested
+    // then mirror the output of LED0 onto the OUT/ISP pin.
+    // Fading is not applied. 0 turns the output off, any other value on.
+    if (config.flags.switched_light_output) {
+        GPIO_OUT_ISP = light_setpoint[0] ? 1 : 0;
+    }
 
     // Wait for MSTIDLE
     while (!(LPC_SPI0->STAT & (1 << 8)));

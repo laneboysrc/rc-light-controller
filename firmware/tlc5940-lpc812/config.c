@@ -27,6 +27,7 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
         .winch_output = false,
         .steering_wheel_servo_output = true,
         .gearbox_servo_output = false,
+        .switched_light_output = false,
 
         .ch3_is_local_switch = false,
         .ch3_is_momentary = false,
