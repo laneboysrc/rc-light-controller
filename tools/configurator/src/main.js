@@ -45,15 +45,18 @@ var app = (function () {
     var MASTER_WITH_SERVO_READER = "Master, servo inputs";
     var MASTER_WITH_UART_READER = "Master, pre-processor input";
     var SLAVE = "Slave";
+    var TEST = "Hardware test";
 
     var MODE = {
         0: MASTER_WITH_SERVO_READER,
         1: MASTER_WITH_UART_READER,
         2: SLAVE,
+        3: TEST,
 
         MASTER_WITH_SERVO_READER: 0,
         MASTER_WITH_UART_READER: 1,
-        SLAVE: 2
+        SLAVE: 2,
+        TEST: 3
     };
 
 
@@ -589,16 +592,17 @@ var app = (function () {
 
 
     // *************************************************************************
-    var assemble_firmware = function () {
+    var assemble_firmware = function (configuration) {
         light_switch_positions = 1;
 
-        assemble_leds(SECTION_LOCAL_LEDS, local_leds);
-        assemble_leds(SECTION_SLAVE_LEDS, slave_leds);
-        assemble_light_programs(light_programs);
-        assemble_gamma(gamma_object);
+        assemble_leds(SECTION_LOCAL_LEDS, configuration["local_leds"]);
+        assemble_leds(SECTION_SLAVE_LEDS, configuration["slave_leds"]);
+        assemble_light_programs(configuration["light_programs"]);
+
+        assemble_gamma(configuration["gamma"]);
 
         // This has to be last so we can do light_switch_positions
-        assemble_configuration(config);
+        assemble_configuration(configuration["config"]);
     }
 
 
@@ -646,10 +650,10 @@ var app = (function () {
     // *************************************************************************
     var save_firmware = function () {
         // Update data based on UI
-        update_config();
+        var data = get_config();
 
         try {
-            assemble_firmware();
+            assemble_firmware(data);
         }
         catch (e) {
             window.alert(
@@ -704,15 +708,8 @@ var app = (function () {
 
     // *************************************************************************
     var save_configuration = function () {
-        // Update data based on UI
-        update_config();
-
-        var data = {};
-        data['config'] = config;
-        data['local_leds'] = local_leds;
-        data['slave_leds'] = slave_leds;
-        data['gamma'] = gamma_object;
-        data['light_programs'] = light_programs;
+        // Retrieve the settings based on the UI
+        var data = get_config();
 
         var configuration_string = JSON.stringify(data, null, 2);
 
@@ -960,7 +957,7 @@ var app = (function () {
 
 
     // *************************************************************************
-    var update_config = function () {
+    var get_config = function () {
 
         function update_int(key) {
             config[key] = parseInt(el[key].value, 10);
@@ -999,6 +996,14 @@ var app = (function () {
 
             gamma_object[key] = g
         }
+
+
+        // If the test firmware is requested return the special configuration
+        // that is stored as part of this tool.
+        if (parseInt(el["mode"].value, 10) == MODE["TEST"]) {
+            return hardware_test_configuration;
+        }
+
 
         // Master/Slave
         update_int("mode");
@@ -1072,6 +1077,15 @@ var app = (function () {
         update_gamma("gamma_value");
 
         light_programs = ui.get_editor_content();
+
+        var data = {};
+        data['config'] = config;
+        data['local_leds'] = local_leds;
+        data['slave_leds'] = slave_leds;
+        data['gamma'] = gamma_object;
+        data['light_programs'] = light_programs;
+
+        return data;
     }
 
 
@@ -1202,8 +1216,10 @@ var app = (function () {
                 el["mode_master_servo"].style.display = "";
                 el["mode_master_uart"].style.display = "none";
                 el["mode_slave"].style.display = "none";
+                el["mode_test"].style.display = "none";
                 el["config_light_programs"].style.display = "";
                 el["config_leds"].style.display = "";
+                el["config_basic"].style.display = "";
                 el["config_basic_esc_type"].style.display = "";
                 el["config_basic_ch3"].style.display = "";
                 el["config_basic_output"].style.display = "";
@@ -1218,8 +1234,11 @@ var app = (function () {
                 el["mode_master_servo"].style.display = "none";
                 el["mode_master_uart"].style.display = "";
                 el["mode_slave"].style.display = "none";
+                el["mode_test"].style.display = "none";
+                el["config_basic"].style.display = "";
                 el["config_light_programs"].style.display = "";
                 el["config_leds"].style.display = "";
+                el["config_basic"].style.display = "";
                 el["config_basic_esc_type"].style.display = "";
                 el["config_basic_ch3"].style.display = "";
                 el["config_basic_output"].style.display = "";
@@ -1234,11 +1253,25 @@ var app = (function () {
                 el["mode_master_servo"].style.display = "none";
                 el["mode_master_uart"].style.display = "none";
                 el["mode_slave"].style.display = "";
+                el["mode_test"].style.display = "none";
                 el["config_light_programs"].style.display = "none";
                 el["config_leds"].style.display = "none";
+                el["config_basic"].style.display = "";
                 el["config_basic_esc_type"].style.display = "none";
                 el["config_basic_ch3"].style.display = "none";
                 el["config_basic_output"].style.display = "none";
+                el["config_advanced"].style.display = "none";
+                config["mode"] = new_mode;
+                break;
+
+            case MODE['TEST']:
+                el["mode_master_servo"].style.display = "none";
+                el["mode_master_uart"].style.display = "none";
+                el["mode_slave"].style.display = "none";
+                el["mode_test"].style.display = "";
+                el["config_light_programs"].style.display = "none";
+                el["config_leds"].style.display = "none";
+                el["config_basic"].style.display = "none";
                 el["config_advanced"].style.display = "none";
                 config["mode"] = new_mode;
                 break;
@@ -1298,6 +1331,7 @@ var app = (function () {
         el["mode_master_servo"] = document.getElementById("mode_master_servo");
         el["mode_master_uart"] = document.getElementById("mode_master_uart");
         el["mode_slave"] = document.getElementById("mode_slave");
+        el["mode_test"] = document.getElementById("mode_test");
 
         el["config_leds"] = document.getElementById("config_leds");
         el["leds_master"] = document.getElementById("leds_master");

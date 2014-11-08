@@ -40,6 +40,7 @@
   <script inline src="src/class_manipulation.js"></script>
   <script inline src="src/gamma.js"></script>
   <script inline src="src/default_firmware_image.js"></script>
+  <script inline src="src/hardware_test.js"></script>
   <script inline src="src/templating.js"></script>
   <script inline src="src/ui.js"></script>
   <script inline src="src/main.js"></script>
@@ -78,6 +79,7 @@
           <option value="0">Master, servo inputs</option>
           <option value="1">Master, pre-processor input</option>
           <option value="2">Slave</option>
+          <option value="3">Hardware test</option>
         </select>
       </div>
       <div id="mode_master_servo" class="info">
@@ -125,6 +127,12 @@
           The <em>master</em> controls the light functions of both light
           controllers. Ensure that the baudrate of both <em>master</em> and
           <em>slave</em> match.
+        </div>
+      </div>
+      <div id="mode_test" class="info">
+        <div>
+          Generates a firmware image suitable for hardware test. As soon as
+          power is applied the LEDs flash in certain patterns.
         </div>
       </div>
     </div>
