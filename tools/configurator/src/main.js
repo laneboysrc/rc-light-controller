@@ -182,7 +182,7 @@ var app = (function () {
             return Boolean(flags & bit_mask);
         }
 
-        config['slave_ouput'] = get_flag(1 << 0);
+        config['slave_output'] = get_flag(1 << 0);
         config['preprocessor_output'] = get_flag(1 << 1);
         config['winch_output'] = get_flag(1 << 2);
         config['steering_wheel_servo_output'] = get_flag(1 << 3);
@@ -513,7 +513,7 @@ var app = (function () {
         data[offset + 2] = config['esc_mode'];
 
         var flags = 0;
-        flags |= (config['slave_ouput'] << 0);
+        flags |= (config['slave_output'] << 0);
         flags |= (config['preprocessor_output'] << 1);
         flags |= (config['winch_output'] << 2);
         flags |= (config['steering_wheel_servo_output'] << 3);
@@ -1087,7 +1087,6 @@ var app = (function () {
         el["preprocessor_output"].checked =
             Boolean(config['preprocessor_output']);
         el["slave_output"].checked = Boolean(config['slave_output']);
-
 
         // CH3/AUX type
         el["ch3"][0].checked = true;
