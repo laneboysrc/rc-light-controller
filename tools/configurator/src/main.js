@@ -13,6 +13,8 @@ var app = (function () {
     var gamma_object;
     var light_programs;
 
+    var default_firmware_version;
+
     var MAX_LIGHT_PROGRAMS = 25;
     var MAX_LIGHT_PROGRAM_VARIABLES = 100;
 
@@ -599,6 +601,12 @@ var app = (function () {
     // *************************************************************************
     var load_default_firmware = function () {
         parse_firmware(default_firmware_image);
+        default_firmware_version = config['firmware_version'];
+
+        // Instead of using the disassebled source code, we use the original
+        // sourcecode with comments and original variable names.
+        // This is achieved by running "make defaul_firmware_image" in
+        // the firmware/tlc5940-lpc812 directory.
         el["light_programs"].value = default_light_program;
         ui.update_editor();
     }
@@ -613,6 +621,17 @@ var app = (function () {
         var reader = new FileReader();
         reader.onload = function (e) {
             parse_firmware(e.target.result);
+
+            if (default_firmware_version > config['firmware_version']) {
+                var msg = "A new firmware version is available.\n";
+                msg += "Click OK to update the firmware, keeping your settings.\n";
+                msg += "Click Cancel to keep the original firmware.\n";
+                if (window.confirm(msg)) {
+                    firmware = parse_firmware_structure(default_firmware_image);
+                    config['firmware_version'] = default_firmware_version;
+                    update_ui();
+                }
+            }
         };
         reader.readAsText(this.files[0]);
     }
