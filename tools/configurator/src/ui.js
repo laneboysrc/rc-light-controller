@@ -7,24 +7,25 @@ var ui = (function () {
     // *************************************************************************
     var led_feature_click_handler = function (e) {
         var features_row = document.getElementById(e.target.name);
-        var visible = Boolean(features_row.style.display != "none");
+        var visible = Boolean(features_row.style.display !== "none");
+        var i;
 
         var features = document.getElementsByClassName("led_features");
-        for (var i = 0; i < features.length; i++) {
+        for (i = 0; i < features.length; i++) {
             features[i].style.display = "none";
         }
 
         if (!visible) {
             features_row.style.display = "";
         }
-    }
+    };
 
 
     // *************************************************************************
     var led_config_click_handler = function (e) {
         var item = e.target;
 
-        if (item.nodeName != "TD") {
+        if (item.nodeName !== "TD") {
             return;
         }
 
@@ -50,42 +51,41 @@ var ui = (function () {
         input.focus();
 
         function blur_handler(e) {
-            var input = e.target;
-            var cell = input.parentNode;
+            var blur_cell = e.target.parentNode;
 
-            var newValue = parseInt(input.value);
+            var newValue = parseInt(input.value, 10);
             if (isNaN(newValue)  ||  !isFinite(newValue) ||
                     newValue < input.min  ||  newValue > input.max) {
                 newValue = originalValue;
             }
 
-            while (cell.firstChild) {
-                cell.removeChild(cell.firstChild);
+            while (blur_cell.firstChild) {
+                blur_cell.removeChild(cell.firstChild);
             }
 
-            if (newValue != 0) {
+            if (newValue !== 0) {
                 var textNode = document.createTextNode(newValue);
-                cell.appendChild(textNode);
+                blur_cell.appendChild(textNode);
             }
-        };
+        }
 
         function key_handler(e) {
-            var input = e.target;
+            var target = e.target;
 
             switch (e.keyCode) {
-                case 27: // ESC
-                    input.value = originalValue;
-                    input.blur();
-                    break;
+            case 27: // ESC
+                target.value = originalValue;
+                target.blur();
+                break;
 
-                case 13: // ENTER
-                    input.blur();
-                    break;
+            case 13: // ENTER
+                target.blur();
+                break;
 
-                default:
-                    break;
+            default:
+                break;
             }
-        };
+        }
 
         input.addEventListener("blur", blur_handler, false);
         input.addEventListener("keydown", key_handler, false);
@@ -98,19 +98,23 @@ var ui = (function () {
         function init_led_section(section, prefix) {
             var led_section = document.getElementById(section);
             var led_rows = led_section.getElementsByClassName("led_config");
+            var led;
+            var fields;
+            var i;
+            var spanner;
 
-            for (var led = 0; led < led_rows.length; led++) {
-                var fields = led_rows[led].getElementsByTagName("td");
-                for (var i = 0; i < fields.length; i++) {
-                    fields[i].id = "" + prefix + led + "field" + i;
-                    fields[i].addEventListener(
-                        "click", led_config_click_handler, true);
+            for (led = 0; led < led_rows.length; led++) {
+                fields = led_rows[led].getElementsByTagName("td");
+                for (i = 0; i < fields.length; i++) {
+                    fields[i].id = prefix + led + "field" + i;
+                    fields[i].addEventListener("click",
+                        led_config_click_handler, true);
                 }
 
-                var spanner = led_rows[led].getElementsByClassName("spanner")[0];
-                spanner.name = "" + prefix + led + "features"
-                spanner.addEventListener(
-                    "click", led_feature_click_handler, true);
+                spanner = led_rows[led].getElementsByClassName("spanner")[0];
+                spanner.name = prefix + led + "features";
+                spanner.addEventListener("click",
+                    led_feature_click_handler, true);
             }
         }
 
@@ -126,20 +130,22 @@ var ui = (function () {
             var elements;
             var led_section = document.getElementById(section);
             var led_rows = led_section.getElementsByClassName("led_features");
+            var led;
+            var i;
 
-            for (var led = 0; led < led_rows.length; led++) {
-                led_rows[led].id = "" + prefix + led + "features";
+            for (led = 0; led < led_rows.length; led++) {
+                led_rows[led].id = prefix + led + "features";
                 led_rows[led].style.display = "none";
 
                 elements = led_rows[led].getElementsByClassName("incandescent");
-                elements[0].id = "" + prefix + led + "incandescent";
+                elements[0].id = prefix + led + "incandescent";
 
                 elements = led_rows[led].getElementsByClassName("weak_ground");
-                elements[0].id = "" + prefix + led + "weak_ground";
+                elements[0].id = prefix + led + "weak_ground";
 
                 elements = led_rows[led].getElementsByClassName("checkbox");
-                for (var i = 0; i < elements.length; i++) {
-                    elements[i].id = "" + prefix + led + "checkbox" + i;
+                for (i = 0; i < elements.length; i++) {
+                    elements[i].id = prefix + led + "checkbox" + i;
                 }
             }
         }
@@ -152,18 +158,21 @@ var ui = (function () {
     // *************************************************************************
     var init_led_tables = function () {
 
-        function init_led_table(section, prefix) {
+        function init_led_table(section) {
             var led_section = document.getElementById(section);
             var led_tbody = led_section.getElementsByTagName("tbody")[0];
             var template_function = tmpl("led_row_template");
+            var i;
+            var e;
+            var body;
 
-            for (var i = 0; i < 16; i++) {
-                var e = document.createElement("table");
+            for (i = 0; i < 16; i++) {
+                e = document.createElement("table");
                 e.innerHTML = template_function({
                     "even_odd": (i % 2) ? "odd" : "even",
                     "led_number": i
                 });
-                var body = e.getElementsByTagName("tbody")[0];
+                body = e.getElementsByTagName("tbody")[0];
 
                 while (body.childNodes[0]) {
                     led_tbody.appendChild(body.childNodes[0]);
@@ -171,16 +180,18 @@ var ui = (function () {
             }
         }
 
-        init_led_table("leds_master", "master");
-        init_led_table("leds_slave", "slave");
+        init_led_table("leds_master");
+        init_led_table("leds_slave");
     };
 
 
     // *************************************************************************
     var init_tooltips = function () {
         function set_tooltip(element_name, help_text) {
+            var i;
             var element = document.getElementsByName(element_name);
-            for (var i = 0; i < element.length; i++) {
+
+            for (i = 0; i < element.length; i++) {
                 element[i].title = help_text;
             }
         }
@@ -276,46 +287,45 @@ var ui = (function () {
                 return false;
             }
         });
-    }
+    };
 
 
     // *************************************************************************
     var init_editor = function () {
-        editor = CodeMirror.fromTextArea(
-            document.getElementById("light_programs"), {
-            indentUnit: 4,
-            tabSize: 4,
-            lineNumbers: true,
-            mode: "light-program",
-            autoCloseBrackets: true,
-            showCursorWhenSelecting: true,
-            styleActiveLine: true,
-            keyMap: "sublime",
-            theme: "monokai",
-            gutters: ["CodeMirror-lint-markers"],
-            lint: false,
-            extraKeys: {
-                "F11": function(cm) {
-                    cm.setOption("fullScreen", !cm.getOption("fullScreen"));
-                },
-                "Shift-Ctrl-A": function(cm) {
-                    document.getElementById("light_programs_assembler").click();
-                },
-                "Esc": function(cm) {
-                    if (cm.listSelections().length > 1) {
-                        var range = cm.listSelections()[0];
-                        cm.setSelection(range.anchor, range.head, {scroll: false});
-                    }
-                    else if (cm.getOption("fullScreen")) {
-                        cm.setOption("fullScreen", false);
-                    }
-                    else {
-                        cm.execCommand("clearSearch");
+        editor = CodeMirror.fromTextArea(document.getElementById("light_programs"),
+            {
+                indentUnit: 4,
+                tabSize: 4,
+                lineNumbers: true,
+                mode: "light-program",
+                autoCloseBrackets: true,
+                showCursorWhenSelecting: true,
+                styleActiveLine: true,
+                keyMap: "sublime",
+                theme: "monokai",
+                gutters: ["CodeMirror-lint-markers"],
+                lint: false,
+                extraKeys: {
+                    "Shift-Delete": "deleteLine",
+                    "F11": function (cm) {
+                        cm.setOption("fullScreen", !cm.getOption("fullScreen"));
+                    },
+                    "Shift-Ctrl-A": function () {
+                        document.getElementById("light_programs_assembler").click();
+                    },
+                    "Esc": function (cm) {
+                        if (cm.listSelections().length > 1) {
+                            var range = cm.listSelections()[0];
+                            cm.setSelection(range.anchor, range.head, {scroll: false});
+                        } else if (cm.getOption("fullScreen")) {
+                            cm.setOption("fullScreen", false);
+                        } else {
+                            cm.execCommand("clearSearch");
+                        }
                     }
                 }
-            }
-        });
-    }
+            });
+    };
 
 
     // *************************************************************************
@@ -325,23 +335,22 @@ var ui = (function () {
             editor.setOption("lint", function () {
                 return light_program_errors;
             });
-        }
-        else {
+        } else {
             editor.setOption("lint", false);
         }
-    }
+    };
 
 
     // *************************************************************************
     var update_editor = function () {
         editor.setValue(document.getElementById("light_programs").value);
-    }
+    };
 
 
     // *************************************************************************
     var get_editor_content = function () {
         return editor.getValue();
-    }
+    };
 
 
     // *************************************************************************
