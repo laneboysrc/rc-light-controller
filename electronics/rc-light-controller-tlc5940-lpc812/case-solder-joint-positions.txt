@@ -1,0 +1,17 @@
+These are the locations where the solder mask on the ground
+plane is removed to provide a solder point to solder the 
+case together.
+
+All dimensions in mm
+
+Layers: tStop, bStop
+Circle 0.5, on .25 grid
+
+3.5/17
+12.5/17
+20/17
+.75/13.25
+.75/4.75
+3.5/1
+12.5/1
+19/1
