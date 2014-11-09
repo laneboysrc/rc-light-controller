@@ -12,12 +12,12 @@
 <layer number="16" name="Bottom" color="1" fill="1" visible="yes" active="yes"/>
 <layer number="17" name="Pads" color="2" fill="1" visible="yes" active="yes"/>
 <layer number="18" name="Vias" color="2" fill="1" visible="yes" active="yes"/>
-<layer number="19" name="Unrouted" color="6" fill="1" visible="yes" active="yes"/>
+<layer number="19" name="Unrouted" color="6" fill="1" visible="no" active="yes"/>
 <layer number="20" name="Dimension" color="15" fill="1" visible="yes" active="yes"/>
 <layer number="21" name="tPlace" color="7" fill="1" visible="no" active="yes"/>
 <layer number="22" name="bPlace" color="7" fill="1" visible="no" active="yes"/>
-<layer number="23" name="tOrigins" color="15" fill="1" visible="yes" active="yes"/>
-<layer number="24" name="bOrigins" color="15" fill="1" visible="yes" active="yes"/>
+<layer number="23" name="tOrigins" color="15" fill="1" visible="no" active="yes"/>
+<layer number="24" name="bOrigins" color="15" fill="1" visible="no" active="yes"/>
 <layer number="25" name="tNames" color="7" fill="1" visible="no" active="yes"/>
 <layer number="26" name="bNames" color="7" fill="1" visible="no" active="yes"/>
 <layer number="27" name="tValues" color="7" fill="1" visible="yes" active="yes"/>
@@ -440,46 +440,46 @@
 <circle x="55" y="27" radius="0.25" width="0.5" layer="29"/>
 <circle x="48.5" y="27" radius="0.25" width="0.5" layer="29"/>
 <circle x="36.75" y="39.25" radius="0.25" width="0.5" layer="30"/>
-<text x="66.27" y="28.54" size="1.6764" layer="27" font="vector" ratio="15" align="center-left">-</text>
-<text x="66.27" y="31.08" size="1.778" layer="27" font="vector" ratio="15" align="center-left">+</text>
-<text x="66.27" y="33.62" size="1.016" layer="27" font="vector" ratio="15" align="center-left">ST/Rx</text>
-<text x="66.27" y="36.16" size="1.016" layer="27" font="vector" ratio="15" align="center-left">TH/Tx</text>
-<text x="66.27" y="38.7" size="1.016" layer="27" font="vector" ratio="15" align="center-left">CH3</text>
-<text x="66.27" y="41.24" size="1.016" layer="27" font="vector" ratio="15" align="center-left">OUT/ISP</text>
-<text x="74.525" y="41.24" size="1.4224" layer="27" font="vector" ratio="15" align="center-left">LANE Boys RC</text>
-<text x="74.525" y="39.335" size="0.8128" layer="27" font="vector" ratio="15" align="center-left">RC car light controller</text>
-<text x="74.525" y="34.89" size="0.8128" layer="27" font="vector" ratio="15" align="center-left">http://goo.gl/Vif9VM</text>
-<wire x1="73.382" y1="42.002" x2="73.382" y2="28.032" width="0.254" layer="27"/>
-<text x="74.525" y="36.16" size="0.8128" layer="27" font="vector" ratio="15" align="center-left">TLC5940 + LPC812 </text>
-<text x="74.525" y="28.54" size="0.8128" layer="27" font="vector" ratio="15" align="center-left">Rev 1</text>
-<circle x="72" y="43" radius="0.25" width="0.5" layer="30"/>
-<circle x="79.5" y="43" radius="0.25" width="0.5" layer="30"/>
-<circle x="88.5" y="43" radius="0.25" width="0.5" layer="30"/>
-<circle x="91.25" y="39.25" radius="0.25" width="0.5" layer="30"/>
-<circle x="91.25" y="30.25" radius="0.25" width="0.5" layer="30"/>
-<circle x="88.5" y="27" radius="0.25" width="0.5" layer="30"/>
-<circle x="73" y="27" radius="0.25" width="0.5" layer="30"/>
-<circle x="79.5" y="27" radius="0.25" width="0.5" layer="30"/>
-<text x="66.27" y="8.54" size="1.6764" layer="27" font="vector" ratio="15" align="center-left">-</text>
-<text x="66.27" y="11.08" size="1.778" layer="27" font="vector" ratio="15" align="center-left">+</text>
-<text x="66.27" y="13.62" size="1.016" layer="27" font="vector" ratio="15" align="center-left">ST/Rx</text>
-<text x="66.27" y="16.16" size="1.016" layer="27" font="vector" ratio="15" align="center-left">TH/Tx</text>
-<text x="66.27" y="18.7" size="1.016" layer="27" font="vector" ratio="15" align="center-left">CH3</text>
-<text x="66.27" y="21.24" size="1.016" layer="27" font="vector" ratio="15" align="center-left">OUT/ISP</text>
-<text x="74.525" y="21.24" size="1.4224" layer="27" font="vector" ratio="15" align="center-left">LANE Boys RC</text>
-<text x="74.525" y="19.335" size="0.8128" layer="27" font="vector" ratio="15" align="center-left">RC car light controller</text>
-<text x="74.525" y="14.89" size="0.8128" layer="27" font="vector" ratio="15" align="center-left">http://goo.gl/Vif9VM</text>
-<wire x1="73.382" y1="22.002" x2="73.382" y2="8.032" width="0.254" layer="27"/>
-<text x="74.525" y="16.16" size="0.8128" layer="27" font="vector" ratio="15" align="center-left">TLC5940 + LPC812 </text>
-<text x="74.525" y="8.54" size="0.8128" layer="27" font="vector" ratio="15" align="center-left">Rev 1</text>
-<circle x="72" y="23" radius="0.25" width="0.5" layer="30"/>
-<circle x="79.5" y="23" radius="0.25" width="0.5" layer="30"/>
-<circle x="88.5" y="23" radius="0.25" width="0.5" layer="30"/>
-<circle x="91.25" y="19.25" radius="0.25" width="0.5" layer="30"/>
-<circle x="91.25" y="10.25" radius="0.25" width="0.5" layer="30"/>
-<circle x="88.5" y="7" radius="0.25" width="0.5" layer="30"/>
-<circle x="73" y="7" radius="0.25" width="0.5" layer="30"/>
-<circle x="79.5" y="7" radius="0.25" width="0.5" layer="30"/>
+<text x="90.4" y="28.54" size="1.6764" layer="27" font="vector" ratio="15" align="center-right">-</text>
+<text x="90.4" y="31.08" size="1.778" layer="27" font="vector" ratio="15" align="center-right">+</text>
+<text x="90.4" y="33.62" size="1.016" layer="27" font="vector" ratio="15" align="center-right">ST/Rx</text>
+<text x="90.4" y="36.16" size="1.016" layer="27" font="vector" ratio="15" align="center-right">TH/Tx</text>
+<text x="90.4" y="38.7" size="1.016" layer="27" font="vector" ratio="15" align="center-right">CH3</text>
+<text x="90.4" y="41.24" size="1.016" layer="27" font="vector" ratio="15" align="center-right">OUT/ISP</text>
+<text x="66.397" y="41.24" size="1.4224" layer="27" font="vector" ratio="15" align="center-left">LANE Boys RC</text>
+<text x="66.397" y="39.335" size="0.8128" layer="27" font="vector" ratio="15" align="center-left">RC car light controller</text>
+<text x="66.397" y="34.89" size="0.8128" layer="27" font="vector" ratio="15" align="center-left">http://goo.gl/Vif9VM</text>
+<wire x1="83.034" y1="42.002" x2="83.034" y2="28.032" width="0.254" layer="27"/>
+<text x="66.397" y="36.16" size="0.8128" layer="27" font="vector" ratio="15" align="center-left">TLC5940 + LPC812 </text>
+<text x="66.397" y="28.54" size="0.8128" layer="27" font="vector" ratio="15" align="center-left">Rev 1</text>
+<circle x="68.5" y="43" radius="0.25" width="0.5" layer="30"/>
+<circle x="77.5" y="43" radius="0.25" width="0.5" layer="30"/>
+<circle x="85.25" y="43" radius="0.25" width="0.5" layer="30"/>
+<circle x="65.958" y="39.25" radius="0.25" width="0.5" layer="30"/>
+<circle x="65.75" y="30.75" radius="0.25" width="0.5" layer="30"/>
+<circle x="84" y="27" radius="0.25" width="0.5" layer="30"/>
+<circle x="68.75" y="27" radius="0.25" width="0.5" layer="30"/>
+<circle x="77.5" y="27" radius="0.25" width="0.5" layer="30"/>
+<text x="90.4" y="8.54" size="1.6764" layer="27" font="vector" ratio="15" align="center-right">-</text>
+<text x="90.4" y="11.08" size="1.778" layer="27" font="vector" ratio="15" align="center-right">+</text>
+<text x="90.4" y="13.62" size="1.016" layer="27" font="vector" ratio="15" align="center-right">ST/Rx</text>
+<text x="90.4" y="16.16" size="1.016" layer="27" font="vector" ratio="15" align="center-right">TH/Tx</text>
+<text x="90.4" y="18.7" size="1.016" layer="27" font="vector" ratio="15" align="center-right">CH3</text>
+<text x="90.4" y="21.24" size="1.016" layer="27" font="vector" ratio="15" align="center-right">OUT/ISP</text>
+<text x="66.397" y="21.24" size="1.4224" layer="27" font="vector" ratio="15" align="center-left">LANE Boys RC</text>
+<text x="66.397" y="19.335" size="0.8128" layer="27" font="vector" ratio="15" align="center-left">RC car light controller</text>
+<text x="66.397" y="14.89" size="0.8128" layer="27" font="vector" ratio="15" align="center-left">http://goo.gl/Vif9VM</text>
+<wire x1="83.034" y1="22.002" x2="83.034" y2="8.032" width="0.254" layer="27"/>
+<text x="66.397" y="16.16" size="0.8128" layer="27" font="vector" ratio="15" align="center-left">TLC5940 + LPC812 </text>
+<text x="66.397" y="8.54" size="0.8128" layer="27" font="vector" ratio="15" align="center-left">Rev 1</text>
+<circle x="68.5" y="23" radius="0.25" width="0.5" layer="30"/>
+<circle x="77.5" y="23" radius="0.25" width="0.5" layer="30"/>
+<circle x="85.25" y="23" radius="0.25" width="0.5" layer="30"/>
+<circle x="65.958" y="19.25" radius="0.25" width="0.5" layer="30"/>
+<circle x="65.75" y="10.75" radius="0.25" width="0.5" layer="30"/>
+<circle x="84" y="7" radius="0.25" width="0.5" layer="30"/>
+<circle x="68.75" y="7" radius="0.25" width="0.5" layer="30"/>
+<circle x="77.5" y="7" radius="0.25" width="0.5" layer="30"/>
 </plain>
 <libraries>
 <library name="tlc5940">
