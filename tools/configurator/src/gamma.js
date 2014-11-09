@@ -11,10 +11,11 @@ var gamma = (function () {
     // *************************************************************************
     var calculate_gamma_table = function (gamma_value) {
         var gamma_table = [];
+        var i;
 
         gamma_value = parseFloat(gamma_value);
 
-        for (var i = 0; i < 256; i++) {
+        for (i = 0; i < 256; i++) {
             gamma_table.push(calculate_single_value(i, gamma_value));
         }
         return gamma_table;
