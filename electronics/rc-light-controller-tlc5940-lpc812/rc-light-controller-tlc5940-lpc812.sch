@@ -6763,16 +6763,22 @@ e.g. NXP PMV16UN</text>
 <wire x1="50.8" y1="121.92" x2="50.8" y2="127" width="0.1524" layer="91"/>
 </segment>
 </net>
-<net name="N$2" class="0">
+<net name="N$5" class="0">
+<segment>
+<pinref part="R2" gate="G$1" pin="1"/>
+<pinref part="PAD7" gate="G$1" pin="P"/>
+<wire x1="76.2" y1="175.26" x2="96.52" y2="175.26" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="OUT-SWITCHED" class="0">
+<segment>
+<pinref part="U$2" gate="G$1" pin="PIO0_9/XTALOUT"/>
+<wire x1="261.62" y1="121.92" x2="276.86" y2="121.92" width="0.1524" layer="91"/>
+<label x="271.78" y="121.92" size="1.778" layer="95"/>
+</segment>
 <segment>
 <pinref part="T1" gate="A" pin="G"/>
 <wire x1="55.88" y1="114.3" x2="83.82" y2="114.3" width="0.1524" layer="91"/>
-<pinref part="PAD7" gate="G$1" pin="P"/>
-<pinref part="R2" gate="G$1" pin="1"/>
-<wire x1="76.2" y1="175.26" x2="83.82" y2="175.26" width="0.1524" layer="91"/>
-<wire x1="83.82" y1="175.26" x2="96.52" y2="175.26" width="0.1524" layer="91"/>
-<wire x1="83.82" y1="114.3" x2="83.82" y2="175.26" width="0.1524" layer="91"/>
-<junction x="83.82" y="175.26"/>
 </segment>
 </net>
 </nets>

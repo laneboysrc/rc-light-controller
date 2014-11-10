@@ -107,18 +107,18 @@
 <text x="25.4" y="10.16" size="1.016" layer="27" font="vector" ratio="15" align="center-right">TH/Tx</text>
 <text x="25.4" y="12.7" size="1.016" layer="27" font="vector" ratio="15" align="center-right">CH3</text>
 <text x="25.4" y="15.24" size="1.016" layer="27" font="vector" ratio="15" align="center-right">OUT/ISP</text>
-<text x="1.397" y="15.24" size="1.4224" layer="27" font="vector" ratio="15" align="center-left">LANE Boys RC</text>
-<text x="1.397" y="13.335" size="0.8128" layer="27" font="vector" ratio="15" align="center-left">RC car light controller</text>
-<text x="1.397" y="8.89" size="0.8128" layer="27" font="vector" ratio="15" align="center-left">http://goo.gl/Vif9VM</text>
+<text x="1.016" y="15.24" size="1.4224" layer="27" font="vector" ratio="15" align="center-left">LANE Boys RC</text>
+<text x="1.016" y="13.208" size="0.8636" layer="27" font="vector" ratio="15" align="center-left">RC car light controller</text>
+<text x="1.016" y="8.128" size="1.016" layer="27" font="vector" ratio="15" align="center-left">http://goo.gl/Vif9VM</text>
 <wire x1="18.034" y1="16.002" x2="18.034" y2="2.032" width="0.254" layer="27"/>
-<text x="1.397" y="10.16" size="0.8128" layer="27" font="vector" ratio="15" align="center-left">TLC5940 + LPC812 </text>
-<text x="1.397" y="2.54" size="0.8128" layer="27" font="vector" ratio="15" align="center-left">Rev 1</text>
+<text x="1.016" y="9.652" size="1.016" layer="27" font="vector" ratio="15" align="center-left">TLC5940 + LPC812 </text>
+<text x="0.889" y="1.524" size="0.8128" layer="27" font="vector" ratio="15" align="center-left">Rev 1</text>
 <circle x="3.5" y="17" radius="0.25" width="0.5" layer="30"/>
 <circle x="12.5" y="17" radius="0.25" width="0.5" layer="30"/>
 <circle x="20.25" y="17" radius="0.25" width="0.5" layer="30"/>
 <circle x="0.958" y="13.25" radius="0.25" width="0.5" layer="30"/>
 <circle x="0.75" y="4.75" radius="0.25" width="0.5" layer="30"/>
-<circle x="19" y="1" radius="0.25" width="0.5" layer="30"/>
+<circle x="20" y="1" radius="0.25" width="0.5" layer="30"/>
 <circle x="3.75" y="1" radius="0.25" width="0.5" layer="30"/>
 <circle x="12.5" y="1" radius="0.25" width="0.5" layer="30"/>
 </plain>
