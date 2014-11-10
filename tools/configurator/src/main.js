@@ -1,5 +1,5 @@
 "use strict";
-/*jslint browser: true, bitwise: true, ass: true */
+/*jslint browser: true, bitwise: true, vars: true */
 /*global emitter, symbols, CodeMirror, ui, gamma, disassembler, assembler,
     intel_hex, parser, default_firmware_image, default_light_program,
     FileReader, Blob, saveAs, addClass, removeClass,
@@ -148,10 +148,10 @@ var app = (function () {
         var car_lights_offset = get_uint32(data, offset + 4);
 
         function parse_led(data, offset) {
-            var result = {};
+            var led = {};
 
-            result.max_change_per_systick = data[offset];
-            result.reduction_percent = data[offset + 1];
+            led.max_change_per_systick = data[offset];
+            led.reduction_percent = data[offset + 1];
 
             var flags = get_uint16(data, offset + 2);
 
@@ -159,41 +159,41 @@ var app = (function () {
                 return Boolean(flags & bit_mask);
             }
 
-            result.weak_light_switch_position0 = get_flag(0x0001);
-            result.weak_light_switch_position1 = get_flag(0x0002);
-            result.weak_light_switch_position2 = get_flag(0x0004);
-            result.weak_light_switch_position3 = get_flag(0x0008);
-            result.weak_light_switch_position4 = get_flag(0x0010);
-            result.weak_light_switch_position5 = get_flag(0x0020);
-            result.weak_light_switch_position6 = get_flag(0x0040);
-            result.weak_light_switch_position7 = get_flag(0x0080);
-            result.weak_light_switch_position8 = get_flag(0x0100);
-            result.weak_tail_light = get_flag(0x0200);
-            result.weak_brake_light = get_flag(0x0400);
-            result.weak_reversing_light = get_flag(0x0800);
-            result.weak_indicator_left = get_flag(0x1000);
-            result.weak_indicator_right = get_flag(0x2000);
+            led.weak_light_switch_position0 = get_flag(0x0001);
+            led.weak_light_switch_position1 = get_flag(0x0002);
+            led.weak_light_switch_position2 = get_flag(0x0004);
+            led.weak_light_switch_position3 = get_flag(0x0008);
+            led.weak_light_switch_position4 = get_flag(0x0010);
+            led.weak_light_switch_position5 = get_flag(0x0020);
+            led.weak_light_switch_position6 = get_flag(0x0040);
+            led.weak_light_switch_position7 = get_flag(0x0080);
+            led.weak_light_switch_position8 = get_flag(0x0100);
+            led.weak_tail_light = get_flag(0x0200);
+            led.weak_brake_light = get_flag(0x0400);
+            led.weak_reversing_light = get_flag(0x0800);
+            led.weak_indicator_left = get_flag(0x1000);
+            led.weak_indicator_right = get_flag(0x2000);
 
-            result.always_on = data[offset + 4];
-            result.light_switch_position0 = data[offset + 5];
-            result.light_switch_position1 = data[offset + 6];
-            result.light_switch_position2 = data[offset + 7];
-            result.light_switch_position3 = data[offset + 8];
-            result.light_switch_position4 = data[offset + 9];
-            result.light_switch_position5 = data[offset + 10];
-            result.light_switch_position6 = data[offset + 11];
-            result.light_switch_position7 = data[offset + 12];
-            result.light_switch_position8 = data[offset + 13];
-            result.tail_light = data[offset + 14];
-            result.brake_light = data[offset + 15];
-            result.reversing_light = data[offset + 16];
-            result.indicator_left = data[offset + 17];
-            result.indicator_right = data[offset + 18];
+            led.always_on = data[offset + 4];
+            led.light_switch_position0 = data[offset + 5];
+            led.light_switch_position1 = data[offset + 6];
+            led.light_switch_position2 = data[offset + 7];
+            led.light_switch_position3 = data[offset + 8];
+            led.light_switch_position4 = data[offset + 9];
+            led.light_switch_position5 = data[offset + 10];
+            led.light_switch_position6 = data[offset + 11];
+            led.light_switch_position7 = data[offset + 12];
+            led.light_switch_position8 = data[offset + 13];
+            led.tail_light = data[offset + 14];
+            led.brake_light = data[offset + 15];
+            led.reversing_light = data[offset + 16];
+            led.indicator_left = data[offset + 17];
+            led.indicator_right = data[offset + 18];
 
-            return result;
+            return led;
         }
 
-        for (i = 0; i < led_count; i++) {
+        for (i = 0; i < led_count; i += 1) {
             result[i] = parse_led(data, car_lights_offset + (i * 20));
         }
 
@@ -221,12 +221,12 @@ var app = (function () {
         var data = firmware.data;
         var offset = firmware.offset[SECTION_CONFIG];
 
-        var config = {};
+        var new_config = {};
 
-        config.firmware_version = data[offset];
+        new_config.firmware_version = data[offset];
 
-        config.mode = data[offset + 1];
-        config.esc_mode = data[offset + 2];
+        new_config.mode = data[offset + 1];
+        new_config.esc_mode = data[offset + 2];
 
         var flags = get_uint32(data, offset + 4);
 
@@ -234,49 +234,49 @@ var app = (function () {
             return Boolean(flags & bit_mask);
         }
 
-        config.slave_output = get_flag(0x0001);
-        config.preprocessor_output = get_flag(0x0002);
-        config.winch_output = get_flag(0x0004);
-        config.steering_wheel_servo_output = get_flag(0x0008);
-        config.gearbox_servo_output = get_flag(0x0010);
-        config.switched_light_output = get_flag(0x0020);
-        config.ch3_is_local_switch = get_flag(0x0040);
-        config.ch3_is_momentary = get_flag(0x0080);
-        config.auto_brake_lights_forward_enabled = get_flag(0x0100);
-        config.auto_brake_lights_reverse_enabled = get_flag(0x0200);
+        new_config.slave_output = get_flag(0x0001);
+        new_config.preprocessor_output = get_flag(0x0002);
+        new_config.winch_output = get_flag(0x0004);
+        new_config.steering_wheel_servo_output = get_flag(0x0008);
+        new_config.gearbox_servo_output = get_flag(0x0010);
+        new_config.switched_light_output = get_flag(0x0020);
+        new_config.ch3_is_local_switch = get_flag(0x0040);
+        new_config.ch3_is_momentary = get_flag(0x0080);
+        new_config.auto_brake_lights_forward_enabled = get_flag(0x0100);
+        new_config.auto_brake_lights_reverse_enabled = get_flag(0x0200);
 
-        config.auto_brake_counter_value_forward_min =
+        new_config.auto_brake_counter_value_forward_min =
             get_uint16(data, offset + 8);
-        config.auto_brake_counter_value_forward_max =
+        new_config.auto_brake_counter_value_forward_max =
             get_uint16(data, offset + 10);
-        config.auto_brake_counter_value_reverse_min =
+        new_config.auto_brake_counter_value_reverse_min =
             get_uint16(data, offset + 12);
-        config.auto_brake_counter_value_reverse_max =
+        new_config.auto_brake_counter_value_reverse_max =
             get_uint16(data, offset + 14);
-        config.auto_reverse_counter_value_min =
+        new_config.auto_reverse_counter_value_min =
             get_uint16(data, offset + 16);
-        config.auto_reverse_counter_value_max =
+        new_config.auto_reverse_counter_value_max =
             get_uint16(data, offset + 18);
-        config.brake_disarm_counter_value = get_uint16(data, offset + 20);
-        config.blink_counter_value = get_uint16(data, offset + 22);
-        config.indicator_idle_time_value = get_uint16(data, offset + 24);
-        config.indicator_off_timeout_value = get_uint16(data, offset + 26);
+        new_config.brake_disarm_counter_value = get_uint16(data, offset + 20);
+        new_config.blink_counter_value = get_uint16(data, offset + 22);
+        new_config.indicator_idle_time_value = get_uint16(data, offset + 24);
+        new_config.indicator_off_timeout_value = get_uint16(data, offset + 26);
 
-        config.centre_threshold_low = get_uint16(data, offset + 28);
-        config.centre_threshold_high = get_uint16(data, offset + 30);
-        config.blink_threshold = get_uint16(data, offset + 32);
-        config.light_switch_positions = get_uint16(data, offset + 34);
-        config.initial_endpoint_delta = get_uint16(data, offset + 36);
-        config.ch3_multi_click_timeout = get_uint16(data, offset + 38);
-        config.winch_command_repeat_time = get_uint16(data, offset + 40);
+        new_config.centre_threshold_low = get_uint16(data, offset + 28);
+        new_config.centre_threshold_high = get_uint16(data, offset + 30);
+        new_config.blink_threshold = get_uint16(data, offset + 32);
+        new_config.light_switch_positions = get_uint16(data, offset + 34);
+        new_config.initial_endpoint_delta = get_uint16(data, offset + 36);
+        new_config.ch3_multi_click_timeout = get_uint16(data, offset + 38);
+        new_config.winch_command_repeat_time = get_uint16(data, offset + 40);
 
         // 2 byte padding
 
-        config.baudrate = get_uint32(data, offset + 44);
-        config.no_signal_timeout = get_uint16(data, offset + 48);
-        config.number_of_gears = get_uint16(data, offset + 50);
+        new_config.baudrate = get_uint32(data, offset + 44);
+        new_config.no_signal_timeout = get_uint16(data, offset + 48);
+        new_config.number_of_gears = get_uint16(data, offset + 50);
 
-        return config;
+        return new_config;
     };
 
 
@@ -305,7 +305,7 @@ var app = (function () {
         var section_id;
         var section;
 
-        for (i = 0; i < image_data.length; i++) {
+        for (i = 0; i < image_data.length; i += 1) {
             if (image_data.slice(i, i + ROM_MAGIC_LENGTH).join() ===
                     ROM_MAGIC.join()) {
 
@@ -314,16 +314,15 @@ var app = (function () {
 
                 if (SECTIONS[section_id] === undefined) {
                     console.log("Warning: unknown section " + i);
-                    continue;
-                }
+                } else {
+                    if (config_version !== 1) {
+                        throw new Error("Unknown configuration version " +
+                            config_version);
+                    }
 
-                if (config_version !== 1) {
-                    throw new Error("Unknown configuration version " +
-                        config_version);
+                    section = SECTIONS[section_id];
+                    result[section] = i + 8;
                 }
-
-                section = SECTIONS[section_id];
-                result[section] = i + 8;
             }
         }
 
@@ -366,7 +365,7 @@ var app = (function () {
             var i;
             var led;
 
-            for (i = 0; i < led_source.led_count; i++) {
+            for (i = 0; i < led_source.led_count; i += 1) {
                 led = led_source[i];
 
                 set_led_field(prefix, i, 0, led.always_on);
@@ -414,14 +413,14 @@ var app = (function () {
     var update_section_visibility = function () {
         function set_name(elements, name) {
             var i;
-            for (i = 0; i < elements.length; i++) {
+            for (i = 0; i < elements.length; i += 1) {
                 elements[i].name = name;
             }
         }
 
         function set_visibility(elements, value) {
             var i;
-            for (i = 0; i < elements.length; i++) {
+            for (i = 0; i < elements.length; i += 1) {
                 elements[i].style.display = value;
             }
         }
@@ -429,7 +428,7 @@ var app = (function () {
         function ensure_one_is_checked(name) {
             var i;
             var elements = document.getElementsByName(name);
-            for (i = 0; i < elements.length; i++) {
+            for (i = 0; i < elements.length; i += 1) {
                 if (elements[i].checked) {
                     return;
                 }
@@ -531,7 +530,7 @@ var app = (function () {
             var led_feature_rows =
                 led_div.getElementsByClassName("led_features");
 
-            for (i = 0; i < led_feature_rows.length; i++) {
+            for (i = 0; i < led_feature_rows.length; i += 1) {
                 advanced_feature_used = false;
 
                 incandescent = parseInt(document.getElementById(prefix + i +
@@ -545,7 +544,7 @@ var app = (function () {
                     "checkbox"
                 );
 
-                for (c = 0; c < checkboxes.length; c++) {
+                for (c = 0; c < checkboxes.length; c += 1) {
                     if (checkboxes[c].checked) {
                         any_checkbox_ticked = true;
                         break;
@@ -743,7 +742,7 @@ var app = (function () {
 
             if (errors.length > 0) {
                 msg += "\n";
-                for (i = 0; i < errors.length; i++) {
+                for (i = 0; i < errors.length; i += 1) {
                     msg += errors[i].str + "\n\n";
 
                     if (errors[i].hash  &&  errors[i].hash.loc) {
@@ -780,7 +779,7 @@ var app = (function () {
         data[offset + 2] = gamma_object.gamma_value.charCodeAt(2);
 
         gamma_table = gamma.make_table(gamma_object.gamma_value);
-        for (i = 0; i < gamma_table.length; i++) {
+        for (i = 0; i < gamma_table.length; i += 1) {
             data[offset + 4 + i] = gamma_table[i];
         }
     };
@@ -850,7 +849,7 @@ var app = (function () {
 
         data[offset] = led_object.led_count;
 
-        for (i = 0; i < led_object.led_count; i++) {
+        for (i = 0; i < led_object.led_count; i += 1) {
             assemble_led(data, car_lights_offset + (i * 20), led_object[i]);
         }
     };
@@ -924,16 +923,22 @@ var app = (function () {
         var code_size = 4 + (4 * MAX_LIGHT_PROGRAMS) +
             (4 * machine_code.instructions.length);
 
-        var code = new Array(code_size);
+        // Create an array with length code_size. We could use
+        // "new Array(code_size)", but JSLint doesn't like that as Array could
+        // have been redefined.
+        var code = [];
+        for (i = 0; i < code_size; i += 1) {
+            code.push(0);
+        }
 
         set_uint32(code, 0, machine_code.number_of_programs);
-        for (i = 0; i < MAX_LIGHT_PROGRAMS; i++) {
+        for (i = 0; i < MAX_LIGHT_PROGRAMS; i += 1) {
             offset = machine_code.start_offset[i] + first_program_offset +
                 firmware.offset[SECTION_LIGHT_PROGRAMS];
             set_uint32(code, 4 + (4 * i), offset);
         }
 
-        for (i = 0; i < machine_code.instructions.length; i++) {
+        for (i = 0; i < machine_code.instructions.length; i += 1) {
             set_uint32(code, first_program_offset + (4 * i),
                 machine_code.instructions[i]);
         }
@@ -1032,7 +1037,7 @@ var app = (function () {
             var i;
             var led;
 
-            for (i = 0; i < led_source.led_count; i++) {
+            for (i = 0; i < led_source.led_count; i += 1) {
                 led = led_source[i];
 
                 led.always_on = get_led_field(prefix, i, 0);
@@ -1132,7 +1137,7 @@ var app = (function () {
 
 
         // ESC mode
-        for (i = 0; i <  el.esc.length; i++) {
+        for (i = 0; i <  el.esc.length; i += 1) {
             if (el.esc[i].checked) {
                 config.esc_mode = parseInt(el.esc[i].value, 10);
                 break;
@@ -1318,11 +1323,11 @@ var app = (function () {
             var feature_rows =
                 led_section.getElementsByClassName("led_features");
 
-            for (row = 0; row < feature_rows.length; row++) {
+            for (row = 0; row < feature_rows.length; row += 1) {
                 input_elements =
                     feature_rows[row].getElementsByTagName("input");
 
-                for (i = 0; i < input_elements.length; i++) {
+                for (i = 0; i < input_elements.length; i += 1) {
                     input_elements[i].addEventListener("change",
                         update_led_feature_usage, true
                         );
