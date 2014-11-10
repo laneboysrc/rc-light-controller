@@ -1,4 +1,4 @@
-/*jslint browser: true, indent: 2, ass: true */
+/*jslint browser: true, indent: 2, ass: true, regexp: true, evil: true */
 
 // Simple JavaScript Templating
 // John Resig - http://ejohn.org/ - MIT Licensed
