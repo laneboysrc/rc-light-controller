@@ -9,9 +9,6 @@ TO DO LIST for the RC Light Controller
 * FW: Can we preserve the persistent settings upon reflash?
 
 
-* CFG: Fix issue with table in IE
-    http://stackoverflow.com/questions/7180072/script-600-error-invalid-target-element-for-this-operation
-
 
 
 * Test hysteresis for drive mode

@@ -165,20 +165,32 @@ var ui = (function () {
             var led_tbody = led_section.getElementsByTagName("tbody")[0];
             var template_function = tmpl("led_row_template");
             var i;
-            var e;
-            var body;
+            var helper;
 
+            var html = "<table>";
             for (i = 0; i < 16; i += 1) {
-                e = document.createElement("table");
-                e.innerHTML = template_function({
+                html += template_function({
                     "even_odd": (i % 2) ? "odd" : "even",
                     "led_number": i
                 });
-                body = e.getElementsByTagName("tbody")[0];
+            }
+            html += "</table>";
 
-                while (body.childNodes[0]) {
-                    led_tbody.appendChild(body.childNodes[0]);
-                }
+            // IE does not allow adding rows to a table via appendChild.
+            //
+            // http://stackoverflow.com/questions/7180072/script-600-error-invalid-target-element-for-this-operation
+            //
+            // The soluition is to have a hidden div where we append a dummy
+            // table, and then move the children over to the actual table. This
+            // relies on having a tbody element.
+
+            helper = document.getElementById("table_helper");
+            helper.innerHTML = html;
+
+            helper = helper.getElementsByTagName("tbody")[0];
+
+            while (helper.firstChild !== null) {
+                led_tbody.appendChild(helper.firstChild);
             }
         }
 
