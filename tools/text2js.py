@@ -28,7 +28,6 @@ Tool for creating a JavaScript string containing the content of a text file.''')
 
 
 def text2js(args):
-    ''' Dump all lines as JavaScript string '''
 
     print("var {} =".format(args.var_name[0]))
 

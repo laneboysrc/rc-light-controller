@@ -34,6 +34,8 @@
 // function and using new constructs like const and Buffer.
 // This was back-ported to ECMAScript v5.
 
+/*jslint vars: true, plusplus: true, bitwise: true */
+
 var intel_hex = (function () {
     "use strict";
 
@@ -78,136 +80,139 @@ var intel_hex = (function () {
         var lineNum = 0;     // Line number in the Intel Hex string
         var pos = 0;            // Current position in the Intel Hex string
 
+        var dataLength, lowAddress, recordType, dataField, dataFieldBuf;
+        var checksum, calcChecksum, absoluteAddress;
+        var i;
+
         while ((pos + SMALLEST_LINE) <= data.length) {
             // Parse an entire line
-            if (data.charAt(pos++) != ":") {
+            if (data.charAt(pos++) !== ":") {
                 throw new Error("Line " + (lineNum + 1) +
                     " does not start with a colon (:).");
             }
-            else{
-                ++lineNum;
-            }
+            ++lineNum;
 
             // Number of bytes (hex digit pairs) in the data field
-            var dataLength = parseInt(data.substr(pos, 2), 16);
+            dataLength = parseInt(data.substr(pos, 2), 16);
             pos += 2;
 
             // Get 16-bit address (big-endian)
-            var lowAddress = parseInt(data.substr(pos, 4), 16);
+            lowAddress = parseInt(data.substr(pos, 4), 16);
             pos += 4;
 
             // Record type
-            var recordType = parseInt(data.substr(pos, 2), 16);
+            recordType = parseInt(data.substr(pos, 2), 16);
             pos += 2;
 
             //Data field (hex-encoded string)
-            var dataField = data.substr(pos, dataLength * 2);
-            var dataFieldBuf = [];
-            for (var i = 0; i < dataField.length; i += 2) {
+            dataField = data.substr(pos, dataLength * 2);
+            dataFieldBuf = [];
+            for (i = 0; i < dataField.length; i += 2) {
                 dataFieldBuf.push(parseInt(dataField.substr(i, 2), 16));
             }
             pos += dataLength * 2;
 
             //Checksum
-            var checksum = parseInt(data.substr(pos, 2), 16);
+            checksum = parseInt(data.substr(pos, 2), 16);
             pos += 2;
 
             //Validate checksum
-            var calcChecksum = (dataLength + (lowAddress >> 8) + lowAddress +
+            calcChecksum = (dataLength + (lowAddress >> 8) + lowAddress +
                 recordType) & 0xff;
 
-            for (var i = 0; i < dataLength; i++) {
+            for (i = 0; i < dataLength; i++) {
                 calcChecksum = (calcChecksum + dataFieldBuf[i]) & 0xff;
             }
             calcChecksum = (0x100 - calcChecksum) & 0xff;
 
-            if (checksum != calcChecksum) {
+            if (checksum !== calcChecksum) {
                 throw new Error("Invalid checksum on line " + lineNum +
                     ": got " + checksum + ", but expected " + calcChecksum);
             }
 
             // Parse the record based on its recordType
             switch (recordType) {
-                case DATA:
-                    var absoluteAddress = highAddress + lowAddress;
+            case DATA:
+                absoluteAddress = highAddress + lowAddress;
 
-                    // Write over skipped bytes with EMPTY_VALUE
-                    while (absoluteAddress > buf.length) {
-                        buf.push(EMPTY_VALUE);
-                    }
+                // Write over skipped bytes with EMPTY_VALUE
+                while (absoluteAddress > buf.length) {
+                    buf.push(EMPTY_VALUE);
+                }
 
-                    // Write the dataFieldBuf to buf
-                    buf = buf.concat(dataFieldBuf)
-                    break;
+                // Write the dataFieldBuf to buf
+                buf = buf.concat(dataFieldBuf);
+                break;
 
-                case END_OF_FILE:
-                    if (dataLength != 0) {
-                        throw new Error("Invalid EOF record on line " +
-                            lineNum + ".");
-                    }
+            case END_OF_FILE:
+                if (dataLength !== 0) {
+                    throw new Error("Invalid EOF record on line " +
+                        lineNum + ".");
+                }
 
-                    return {
-                        // FIXME: needs conversion to array
-                        "data": buf,
-                        "startSegmentAddress": startSegmentAddress,
-                        "startLinearAddress": startLinearAddress
-                    };
-                    break;
+                return {
+                    // FIXME: needs conversion to array
+                    "data": buf,
+                    "startSegmentAddress": startSegmentAddress,
+                    "startLinearAddress": startLinearAddress
+                };
 
-                case EXT_SEGMENT_ADDR:
-                    if (dataLength != 2 || lowAddress != 0){
-                        throw new Error(
-                            "Invalid extended segment address record on line " +
-                                lineNum + ".");
-                    }
+            case EXT_SEGMENT_ADDR:
+                if (dataLength !== 2 || lowAddress !== 0) {
+                    throw new Error(
+                        "Invalid extended segment address record on line " +
+                            lineNum + "."
+                    );
+                }
 
-                    highAddress = parseInt(dataField, 16) << 4;
-                    break;
+                highAddress = parseInt(dataField, 16) << 4;
+                break;
 
-                case START_SEGMENT_ADDR:
-                    if (dataLength != 4 || lowAddress != 0) {
-                        throw new Error(
-                            "Invalid start segment address record on line " +
-                                lineNum + ".");
-                    }
+            case START_SEGMENT_ADDR:
+                if (dataLength !== 4 || lowAddress !== 0) {
+                    throw new Error(
+                        "Invalid start segment address record on line " +
+                            lineNum + "."
+                    );
+                }
 
-                    startSegmentAddress = parseInt(dataField, 16);
-                    break;
+                startSegmentAddress = parseInt(dataField, 16);
+                break;
 
-                case EXT_LINEAR_ADDR:
-                    if (dataLength != 2 || lowAddress != 0) {
-                        throw new Error(
-                            "Invalid extended linear address record on line " +
-                            lineNum + ".");
-                    }
+            case EXT_LINEAR_ADDR:
+                if (dataLength !== 2 || lowAddress !== 0) {
+                    throw new Error(
+                        "Invalid extended linear address record on line " +
+                            lineNum + "."
+                    );
+                }
 
-                    highAddress = parseInt(dataField, 16) << 16;
-                    break;
+                highAddress = parseInt(dataField, 16) << 16;
+                break;
 
-                case START_LINEAR_ADDR:
-                    if (dataLength != 4 || lowAddress != 0) {
-                        throw new Error(
-                            "Invalid start linear address record on line " +
-                            lineNum + ".");
-                    }
+            case START_LINEAR_ADDR:
+                if (dataLength !== 4 || lowAddress !== 0) {
+                    throw new Error(
+                        "Invalid start linear address record on line " +
+                            lineNum + "."
+                    );
+                }
 
-                    startLinearAddress = parseInt(dataField, 16);
-                    break;
+                startLinearAddress = parseInt(dataField, 16);
+                break;
 
-                default:
-                    throw new Error("Invalid record type (" + recordType +
-                        ") on line " + lineNum);
-                    break;
+            default:
+                throw new Error("Invalid record type (" + recordType +
+                    ") on line " + lineNum);
             }
 
             // Advance to the next line
-            while (data.charAt(pos) == "\r"  ||  data.charAt(pos) == "\n") {
+            while (data.charAt(pos) === "\r"  ||  data.charAt(pos) === "\n") {
                 pos++;
             }
         }
 
-        throw new Error(
-            "Unexpected end of input: missing or invalid EOF record.");
+        throw new Error("Unexpected end of input: missing or invalid EOF record.");
     };
 
 
@@ -227,43 +232,47 @@ var intel_hex = (function () {
     //
     var fromArray = function (data, start_address) {
         var result = "";
+        var offset;
+        var i;
+        var record, record_data, calcChecksum;
 
-        if (typeof start_address === 'undefined') {
+        if (start_address === undefined) {
             start_address = 0;
         }
 
-        if (start_address != 0) {
+        if (start_address !== 0) {
             throw new Error("Start address other than 0 not implemented yet");
         }
 
         if (data.length > 0x10000) {
             throw new Error(
-                "Support for more than 64 Kbytes of datat not implemented yet");
+                "Support for more than 64 Kbytes of datat not implemented yet"
+            );
         }
 
-        for (var offset = 0; offset < data.length; offset += RECORD_LENGTH) {
-            var record = [];
-            var record_data = data.slice(offset, offset + RECORD_LENGTH);
+        for (offset = 0; offset < data.length; offset += RECORD_LENGTH) {
+            record = [];
+            record_data = data.slice(offset, offset + RECORD_LENGTH);
 
             record.push(record_data.length);
             record.push((offset >> 8) & 0xff);
             record.push(offset & 0xff);
             record.push(DATA);
 
-            for (var i = 0; i < record_data.length; i++) {
+            for (i = 0; i < record_data.length; i++) {
                 record.push(record_data[i]);
             }
 
             // Calculate the checksum
-            var calcChecksum = 0;
-            for (var i = 0; i < record.length; i++) {
+            calcChecksum = 0;
+            for (i = 0; i < record.length; i++) {
                 calcChecksum = (calcChecksum + record[i]) & 0xff;
             }
             calcChecksum = (0x100 - calcChecksum) & 0xff;
             record.push(calcChecksum);
 
             result += ":";
-            for (var i = 0; i < record.length; i++) {
+            for (i = 0; i < record.length; i++) {
                 if (record[i] < 0x10) {
                     // Need to preserve the leading zero
                     result += "0";
@@ -285,13 +294,13 @@ var intel_hex = (function () {
     return {
         parse: parse,
         fromArray: fromArray,
-    }
-})();
+    };
+}());
 
 
 
 // node.js exports; hide from browser where exports is undefined and use strict
 // would trigger.
-if (typeof exports !== 'undefined') {
+if (exports !== undefined) {
     exports.intel_hex = intel_hex;
 }

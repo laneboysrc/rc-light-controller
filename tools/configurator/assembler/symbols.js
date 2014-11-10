@@ -1,3 +1,5 @@
+/*jslint vars: true, bitwise: true, continue: true */
+
 var symbols = (function () {
     "use strict";
 
@@ -133,25 +135,15 @@ var symbols = (function () {
     var MODULE = "SYMBOL";
 
 
-    // *************************************************************************
-    var hex = function (number) {
-        var s = number.toString(16).toUpperCase();
-        while (s.length < 8) {
-            s = "0" + s;
-        }
-
-        return "0x" + s;
-    };
-
-
     // ****************************************************************************
     var dump_symbol_table = function () {
+        var i, s, f;
         var msg = "\n";
 
         msg += "Symbol table:\n";
 
-        for (var i = 0; i < symbol_table.length; i++) {
-            var s = symbol_table[i];
+        for (i = 0; i < symbol_table.length; i += 1) {
+            s = symbol_table[i];
             msg += "name='" + s.name + "', token=" + s.token + " opcode=" + s.opcode + "\n";
         }
 
@@ -159,16 +151,15 @@ var symbols = (function () {
         msg += "Forward declarations to resolve:\n";
         if (forward_declaration_table.length === 0) {
             msg += "(none)\n";
-        }
-        else {
-            for (var i = 0; i < forward_declaration_table.length; i++) {
-                var f = forward_declaration_table[i];
+        } else {
+            for (i = 0; i < forward_declaration_table.length; i += 1) {
+                f = forward_declaration_table[i];
                 msg += "label='" + f.symbol.name + "' pc=" + f.pc + " opcode=" + f.symbol.opcode + "\n";
             }
         }
         msg += "\n";
         parser.yy.logger.log(MODULE, "INFO", msg);
-    }
+    };
 
 
     // *************************************************************************
@@ -183,14 +174,14 @@ var symbols = (function () {
             "light-switch-position-6": 7,
             "light-switch-position-7": 8,
             "light-switch-position-8": 9
-        }
+        };
 
         if (positions[name]) {
             if (number_of_light_switch_positions < positions[name]) {
                 number_of_light_switch_positions = positions[name];
             }
         }
-    }
+    };
 
 
     // *************************************************************************
@@ -213,41 +204,45 @@ var symbols = (function () {
 
     // *************************************************************************
     var remove_local_symbols = function () {
+        var i;
         leds_used = 0;
 
         forward_declaration_table = [];
 
-        for (var i = symbol_table.length - 1; i >= 0; i--) {
+        for (i = symbol_table.length - 1; i >= 0; i -= 1) {
             if (symbol_table[i].token !== "GLOBAL_VARIABLE") {
                 symbol_table.splice(i, 1);
             }
         }
-    }
+    };
 
 
     // *************************************************************************
     var set_symbol = function (name, token, opcode, location) {
-        for (var i = 0; i < symbol_table.length; i++) {
-            var s = symbol_table[i];
+        var i, s;
+        for (i = 0; i < symbol_table.length; i += 1) {
+            s = symbol_table[i];
             if (s.name === name) {
                 if (s.opcode !== -1) {
-                    throw new Error("[SYMBOLS] Redefinition of symbol " + name);
-                    //yyerror("Redefinition of symbol " + name);
+                    parser.yy.emitter.yyerror("Redefinition of symbol " + name, {
+                        loc: location
+                    });
                 }
                 symbol_table[i].token = token;
                 symbol_table[i].opcode = opcode;
 
-                parser.yy.logger.log(MODULE, "INFO", "Set '" + name +"' as token=" + token + " opcode=" + opcode);
+                parser.yy.logger.log(MODULE, "INFO", "Set '" + name + "' as token=" + token + " opcode=" + opcode);
                 return;
             }
         }
 
-        parser.yy.logger.log(MODULE, "ERROR", "Could not find '" + name +"'");
+        parser.yy.logger.log(MODULE, "ERROR", "Could not find '" + name + "'");
     };
 
 
     // *************************************************************************
     var get_symbol = function (name, parse_state, location) {
+        var i, s;
         if (parse_state === "EXPECTING_RUN_CONDITION") {
             check_for_light_switch_position(name);
             return run_condition_tokens[name] || undeclared_symbol;
@@ -259,8 +254,8 @@ var symbols = (function () {
         }
 
         // See if we are dealing with a LOCAL symbol
-        for (var i = 0; i < symbol_table.length; i++) {
-            var s = symbol_table[i];
+        for (i = 0; i < symbol_table.length; i += 1) {
+            s = symbol_table[i];
 
             if (s.token === "GLOBAL_VARIABLE") {
                 continue;
@@ -278,8 +273,8 @@ var symbols = (function () {
         }
 
         // See if we are dealing with a GLOBAL symbol
-        for (var i = 0; i < symbol_table.length; i++) {
-            var s = symbol_table[i];
+        for (i = 0; i < symbol_table.length; i += 1) {
+            s = symbol_table[i];
 
             if (s.token !== "GLOBAL_VARIABLE") {
                 continue;
@@ -305,16 +300,17 @@ var symbols = (function () {
 
         if (token === "GLOBAL_VARIABLE"  ||  token === "VARIABLE") {
             if (opcode === -1) {
-                new_symbol.opcode =  next_variable_index++;
+                new_symbol.opcode = next_variable_index;
+                next_variable_index += 1;
             }
         }
 
-        if (token == "LED_ID") {
+        if (token === "LED_ID") {
             if (opcode < 0  ||  opcode > 31) {
-                throw new Error("LED index out of range (must be 0..15)");
-                //yyerror(location, "LED index out of range (must be 0..15)");
-            }
-            else {
+                parser.yy.emitter.yyerror("LED index out of range (must be 0..15)", {
+                    loc: location
+                });
+            } else {
                 // Add LED to bit-field of leds_used
                 leds_used += Math.pow(2, opcode);
             }
@@ -322,7 +318,7 @@ var symbols = (function () {
 
         symbol_table.push(new_symbol);
 
-        if (token == "LABEL"  &&  opcode == -1) {
+        if (token === "LABEL"  &&  opcode === -1) {
             add_forward_declaration(new_symbol, parser.yy.emitter.pc(), location);
             parser.yy.logger.log(MODULE, "INFO", "Forward declaration of label " + name);
         }
@@ -348,14 +344,6 @@ var symbols = (function () {
     };
 
 
-
-    // *************************************************************************
-    var set_parser = function (e) {
-        parser = e;
-        reset();
-    }
-
-
     // *************************************************************************
     var reset = function () {
         symbol_table = [];
@@ -364,13 +352,21 @@ var symbols = (function () {
         leds_used = 0;
         number_of_light_switch_positions = 0;
 
-        if (typeof parser !== "undefined") {
+        if (parser !== undefined) {
             parser.yy.line_is_empty = true;
             parser.yy.parse_state = "UNKNOWN_PARSE_STATE";
         }
 
-        add_symbol("clicks", "GLOBAL_VARIABLE", next_variable_index++);
-    }
+        add_symbol("clicks", "GLOBAL_VARIABLE", next_variable_index);
+        next_variable_index += 1;
+    };
+
+
+    // *************************************************************************
+    var set_parser = function (e) {
+        parser = e;
+        reset();
+    };
 
 
     // *************************************************************************
@@ -388,10 +384,11 @@ var symbols = (function () {
         reset: reset
     };
 
-})();
+}());
+
 
 // node.js exports; hide from browser where exports is undefined and use strict
 // would trigger.
-if (typeof exports !== 'undefined') {
+if (exports !== undefined) {
     exports.symbols = symbols;
 }

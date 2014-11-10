@@ -1,8 +1,10 @@
+/*jslint bitwise: true, vars: true */
+
 var emitter = (function () {
     "use strict";
 
     var MAX_LIGHT_PROGRAMS = 25;
-    var MAX_LIGHT_PROGRAM_VARIABLES = 100;
+    // var MAX_LIGHT_PROGRAM_VARIABLES = 100;
 
     var NUMBER_OF_LEDS = 32;
 
@@ -17,7 +19,7 @@ var emitter = (function () {
     var FIRST_INSTRUCTION_OFFSET = 3;
 
     var number_of_programs = 0;
-    var start_offset = new Array(MAX_LIGHT_PROGRAMS);
+    var start_offset = [];
     var instruction_list = [];
     var pc = 0;
     var led_list = [];
@@ -28,6 +30,7 @@ var emitter = (function () {
 
     var MODULE = "EMIT";
 
+
     // *************************************************************************
     var hex = function (number) {
         var s = number.toString(16).toUpperCase();
@@ -36,7 +39,18 @@ var emitter = (function () {
         }
 
         return "0x" + s;
-    }
+    };
+
+
+    // *************************************************************************
+    var yyerror = function (str, hash) {
+        parser.yy.logger.log(MODULE, "ERROR", str);
+
+        errors.push({
+            str: str,
+            hash: hash
+        });
+    };
 
 
     // *************************************************************************
@@ -49,35 +63,31 @@ var emitter = (function () {
 
         // The skip if any/all/none opcode have only the top-most 3 bits distinct
         // so that we can use 29 bits for 'car state'
-        if (((opcode & 0xe0) == OPCODE_SKIP_IF_ANY)  ||
-            ((opcode & 0xe0) == OPCODE_SKIP_IF_ALL)  ||
-            ((opcode & 0xe0) == OPCODE_SKIP_IF_NONE)) {
+        if (((opcode & 0xe0) === OPCODE_SKIP_IF_ANY)  ||
+                ((opcode & 0xe0) === OPCODE_SKIP_IF_ALL)  ||
+                    ((opcode & 0xe0) === OPCODE_SKIP_IF_NONE)) {
             return true;
         }
 
         return false;
-    }
+    };
 
 
     // *************************************************************************
     var resolve_forward_declarations = function () {
+        var i, f;
+        var offset;
         var forward_declarations = parser.yy.symbols.get_forward_declerations();
 
-        for (var i = 0; i < forward_declarations.length; i++) {
-            var f = forward_declarations[i];
-
+        for (i = 0; i < forward_declarations.length; i += 1) {
+            f = forward_declarations[i];
 
             if (f.symbol.opcode < 0) {
                 yyerror("Label '" + f.symbol.name + "' used but not defined.", {
                     loc: f.location
                 });
-            }
-            else if (f.symbol.opcode == f.pc) {
-                // Skip the declaration of the label
-                continue;
-            }
-            else {
-                var offset = start_offset[number_of_programs];
+            } else if (f.symbol.opcode !== f.pc) {
+                offset = start_offset[number_of_programs];
                 offset += FIRST_INSTRUCTION_OFFSET;
                 offset += f.pc;
 
@@ -91,6 +101,8 @@ var emitter = (function () {
 
     // *************************************************************************
     var add_led_to_list = function (led_index) {
+        var i;
+
         if (led_index < 0) {
             // "All used LEDs" requested
             var leds_used = parser.yy.symbols.get_leds_used();
@@ -98,7 +110,7 @@ var emitter = (function () {
 
             parser.yy.logger.log(MODULE, "INFO", "Adding all LEDs: " + hex(leds_used));
 
-            for (var i = 0; i < NUMBER_OF_LEDS; i++) {
+            for (i = 0; i < NUMBER_OF_LEDS; i += 1) {
                 if (leds_used & Math.pow(2, i)) {
                     led_list.push(i);
                 }
@@ -107,7 +119,7 @@ var emitter = (function () {
         }
 
         // Discard duplicates
-        for (var i = 0; i < led_list.length; i++) {
+        for (i = 0; i < led_list.length; i += 1) {
             if (led_list[i] === led_index) {
                 parser.yy.logger.log(MODULE, "WARNING", "Duplicate LED " + led_index +
                     " in list");
@@ -117,24 +129,34 @@ var emitter = (function () {
 
         if (led_list.length < NUMBER_OF_LEDS) {
             led_list.push(led_index);
-        }
-        else {
+        } else {
             throw new Error("led_list is full");
         }
-    }
+    };
+
+
+    // *************************************************************************
+    var emit = function (instruction, location) {
+        parser.yy.logger.log(MODULE, "INFO", "INSTRUCTION: " + hex(instruction));
+
+        last_location = location;
+
+        instruction_list.push(instruction);
+        pc += 1;
+    };
 
 
     // ****************************************************************************
     var emit_led_instruction = function (instruction, location) {
         var start;
         var stop;
+        var i;
 
         parser.yy.logger.log(MODULE, "INFO", "LED instruction: " + hex(instruction) +
             " (" + led_list.length + " leds)");
 
         if (led_list.length === 0) {
             throw new Error("Internal parser error: led_list.length is 0");
-            return;
         }
 
         if (led_list.length > 1  &&  pc > 0  &&
@@ -145,25 +167,24 @@ var emitter = (function () {
         }
 
         // Step 1: sort the LEDs by their index.
-        led_list.sort(function(a, b) { return a - b; });
+        led_list.sort(function (a, b) { return a - b; });
 
         // Step 2: Iterate through all items. If discontinuity is found emit a
         // single LED statement.
 
         start = stop = led_list[0];
-        for (var i = 1; i < led_list.length; i++) {
-            if (led_list[i] != (stop + 1)) {
+        for (i = 1; i < led_list.length; i += 1) {
+            if (led_list[i] !== (stop + 1)) {
                 emit(instruction | (stop << 16) | (start << 8));
                 start = stop = led_list[i];
-            }
-            else {
-                ++stop;
+            } else {
+                stop += 1;
             }
         }
         emit(instruction | (stop << 16) | (start << 8));
 
         led_list = [];
-    }
+    };
 
 
     // *************************************************************************
@@ -174,15 +195,14 @@ var emitter = (function () {
         instruction_list.push(priority_run_condition);
         instruction_list.push(run_condition);
         instruction_list.push(0);   // Placeholder for "leds used"
-    }
+    };
 
 
     // *************************************************************************
     var emit_end_of_program = function () {
         parser.yy.logger.log(MODULE, "INFO", "emit_end_of_program()");
 
-        if (pc > 0  &&
-            is_skip_if(instruction_list[instruction_list.length - 1])) {
+        if (pc > 0  &&  is_skip_if(instruction_list[instruction_list.length - 1])) {
             yyerror("Last operation in a program can not be 'skip if'.", {
                 loc: last_location
             });
@@ -201,21 +221,10 @@ var emitter = (function () {
 
         // Prepare for the next program
         parser.yy.symbols.remove_local_symbols();
-        ++number_of_programs;
+        number_of_programs += 1;
         pc = 0;
         start_offset[number_of_programs] = instruction_list.length;
-    }
-
-
-    // *************************************************************************
-    var emit = function (instruction, location) {
-        parser.yy.logger.log(MODULE, "INFO", "INSTRUCTION: " + hex(instruction));
-
-        last_location = location;
-
-        instruction_list.push(instruction);
-        ++pc;
-    }
+    };
 
 
     // *************************************************************************
@@ -226,6 +235,8 @@ var emitter = (function () {
 
     // *************************************************************************
     var output_programs = function () {
+        var i;
+
         // Add the "END OF PROGRAMS" instruction to mark the end
         instruction_list.push(0xff000000);
 
@@ -234,13 +245,13 @@ var emitter = (function () {
         msg += "Number of programs: " + number_of_programs + "\n";
 
         msg += "Start offset locations:\n";
-        for (var i = 0; i < number_of_programs; i++) {
+        for (i = 0; i < number_of_programs; i += 1) {
             msg += i + ": " + start_offset[i] + "\n";
         }
         msg += "\n";
         parser.yy.logger.log(MODULE, "INFO", msg);
 
-        if (errors.length != 0) {
+        if (errors.length !== 0) {
             throw new Error("Errors occured while processing the light programs:");
         }
 
@@ -252,27 +263,31 @@ var emitter = (function () {
             "start_offset": start_offset,
             "instructions": instruction_list,
             "light_switch_positions": light_switch_positions
-        }
+        };
 
         return result;
-    }
-
-
-    // *************************************************************************
-    var yyerror = function (str, hash) {
-        parser.yy.logger.log(MODULE, "ERROR", str);
-
-        errors.push({
-            str: str,
-            hash: hash
-        });
-    }
+    };
 
 
     // *************************************************************************
     var get_errors = function () {
         return errors;
-    }
+    };
+
+
+    // *************************************************************************
+    var reset = function () {
+        var i;
+        number_of_programs = 0;
+
+        start_offset = [];
+        for (i = 0; i < MAX_LIGHT_PROGRAMS; i += 1) {
+            start_offset.push(0);
+        }
+
+        instruction_list = [];
+        errors = [];
+    };
 
 
     // *************************************************************************
@@ -280,24 +295,15 @@ var emitter = (function () {
         parser = p;
         parser.yy.parseError = yyerror;
         reset();
-    }
+    };
 
 
     // *************************************************************************
-    var reset = function () {
-        number_of_programs = 0;
-        for (var i = 0; i < start_offset.length; i++) {
-            start_offset[i] = 0;
-        }
-        instruction_list = [];
-        errors = [];
-    }
-
-
-    // *************************************************************************
+    reset();
     return {
         set_parser: set_parser,
         get_errors: get_errors,
+        yyerror: yyerror,
         emit: emit,
         emit_run_condition: emit_run_condition,
         emit_led_instruction: emit_led_instruction,
@@ -308,11 +314,11 @@ var emitter = (function () {
         reset: reset
     };
 
-})();
+}());
 
 
 // node.js exports; hide from browser where exports is undefined and use strict
 // would trigger.
-if (typeof exports !== 'undefined') {
+if (exports !== undefined) {
     exports.emitter = emitter;
 }

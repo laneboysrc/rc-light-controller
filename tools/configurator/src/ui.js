@@ -1,5 +1,5 @@
 "use strict";
-/*jslint browser: true, bitwise: true, vars: true */
+/*jslint browser: true, vars: true */
 /*global CodeMirror, tmpl */
 
 var ui = (function () {

@@ -1,4 +1,5 @@
 "use strict";
+/*jslint browser: true, vars: true */
 
 var gamma = (function () {
 
@@ -15,7 +16,7 @@ var gamma = (function () {
 
         gamma_value = parseFloat(gamma_value);
 
-        for (i = 0; i < 256; i++) {
+        for (i = 0; i < 256; i += 1) {
             gamma_table.push(calculate_single_value(i, gamma_value));
         }
         return gamma_table;
@@ -26,11 +27,11 @@ var gamma = (function () {
     return {
         make_table: calculate_gamma_table
     };
-})();
+}());
 
 
 // node.js exports; hide from browser where exports is undefined and use strict
 // would trigger.
-if (typeof exports !== 'undefined') {
+if (exports !== undefined) {
     exports.gamma = gamma;
 }

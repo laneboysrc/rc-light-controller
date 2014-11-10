@@ -1,3 +1,5 @@
+/*jslint vars: true */
+
 var logger = (function () {
     "use strict";
 
@@ -53,12 +55,11 @@ var logger = (function () {
 
     // *************************************************************************
 
-    if (typeof process !== "undefined" &&
-        typeof process.stderr !== "undefined" &&
-        typeof process.stderr.write !== "undefined") {
+    if (process !== undefined &&
+            process.stderr !== undefined &&
+                process.stderr.write !== undefined) {
         log_function = stderr_output;
-    }
-    else {
+    } else {
         log_function = console_output;
     }
 
@@ -67,11 +68,11 @@ var logger = (function () {
         set_log_level: set_log_level
     };
 
-})();
+}());
 
 
 // node.js exports; hide from browser where exports is undefined and use strict
 // would trigger.
-if (typeof exports !== 'undefined') {
+if (exports !== undefined) {
     exports.logger = logger;
 }

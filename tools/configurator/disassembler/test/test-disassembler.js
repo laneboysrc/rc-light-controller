@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 "use strict";
+/*jslint node: true, vars: true */
 
 var disassembler = require("../disassembler.js").disassembler;
 

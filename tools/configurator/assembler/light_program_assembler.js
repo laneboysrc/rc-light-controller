@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+/*jslint node: true, vars: true, stupid: true, unparam: true */
 "use strict";
 
 var program = require('commander');
@@ -21,11 +22,13 @@ var hex = function (number) {
         s = "0" + s;
     }
     return "0x" + s;
-}
+};
 
 
 // *****************************************************************************
 function make_c_output(output_file, programs) {
+    var i;
+
     var part1 =
         "#include <globals.h>\n" +
         "\n" +
@@ -74,7 +77,7 @@ function make_c_output(output_file, programs) {
     fs.writeSync(output_file, number_of_programs.toString());
     fs.writeSync(output_file, part1b);
 
-    for (i = 0; i < number_of_programs; i++) {
+    for (i = 0; i < number_of_programs; i += 1) {
         fs.writeSync(output_file, part2);
         fs.writeSync(output_file, start_offset[i].toString());
         fs.writeSync(output_file, part2b);
@@ -82,11 +85,11 @@ function make_c_output(output_file, programs) {
 
     fs.writeSync(output_file, part3);
 
-    for (var i = 0; i < instructions.length; i++) {
+    for (i = 0; i < instructions.length; i += 1) {
         fs.writeSync(output_file, part4);
         fs.writeSync(output_file, hex(instructions[i]));
         fs.writeSync(output_file, part4b);
-        if (instructions[i] == 0xfe000000) {
+        if (instructions[i] === 0xfe000000) {
             fs.writeSync(output_file, "\n");
         }
     }
@@ -94,8 +97,9 @@ function make_c_output(output_file, programs) {
     fs.writeSync(output_file, part5);
 }
 
+
 function increaseVerbosity(v, total) {
-  return total + 1;
+    return total + 1;
 }
 
 // Ugly hack...
@@ -107,16 +111,16 @@ parser.yy = {
     symbols: symbols,
     emitter: emitter,
     logger: logger
-}
+};
 emitter.set_parser(parser);
 symbols.set_parser(parser);
 
 program
-  .version('1.0.0')
-  .usage('[options] <source>')
-  .option('-o, --output <value>', 'Output file. If omitted, output is printed to stdout.')
-  .option('-v, --verbose', 'Verbose output. Specify multiple times for more output.', increaseVerbosity, 0)
-  .parse(process.argv);
+    .version('1.0.0')
+    .usage('[options] <source>')
+    .option('-o, --output <value>', 'Output file. If omitted, output is printed to stdout.')
+    .option('-v, --verbose', 'Verbose output. Specify multiple times for more output.', increaseVerbosity, 0)
+    .parse(process.argv);
 
 var sources = program.args;
 
@@ -135,17 +139,18 @@ if (program.output) {
 }
 
 var sourcecode = fs.readFileSync(path.normalize(sources[0]), "utf8");
+
 try {
     var programs = parser.parse(sourcecode);
     make_c_output(output_file, programs);
-}
-catch (e) {
+} catch (e) {
+    var i;
     var msg = "Errors occured while processing the light programs:\n";
 
     var errors = emitter.get_errors();
     if (errors.length > 0) {
         msg += "\n";
-        for (var i = 0; i < errors.length; i++) {
+        for (i = 0; i < errors.length; i += 1) {
             msg += errors[i].str + "\n\n";
         }
     }
@@ -154,7 +159,6 @@ catch (e) {
 
     fs.close(output_file);
     process.exit(1);
-}
-finally {
+} finally {
     fs.close(output_file);
 }
