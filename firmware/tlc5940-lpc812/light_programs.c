@@ -578,8 +578,8 @@ static void execute_program(
 // ****************************************************************************
 void process_light_program_events(void)
 {
-    int i;
     if (global_flags.gear_changed) {
+        int i;
         for (i = 0; i < light_programs.number_of_programs; i++) {
             if (*(light_programs.start[i] + PRIORITY_STATE_OFFSET)
                 & RUN_WHEN_GEAR_CHANGED) {
