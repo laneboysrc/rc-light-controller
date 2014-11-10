@@ -301,6 +301,6 @@ var intel_hex = (function () {
 
 // node.js exports; hide from browser where exports is undefined and use strict
 // would trigger.
-if (exports !== undefined) {
+if (typeof exports !== "undefined") {
     exports.intel_hex = intel_hex;
 }

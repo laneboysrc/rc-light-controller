@@ -3,7 +3,6 @@
 // Simple JavaScript Templating
 // John Resig - http://ejohn.org/ - MIT Licensed
 (function () {
-  "use strict";
   var cache = {};
 
   this.tmpl = function tmpl(str, data) {

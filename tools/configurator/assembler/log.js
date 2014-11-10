@@ -55,7 +55,7 @@ var logger = (function () {
 
     // *************************************************************************
 
-    if (process !== undefined &&
+    if (typeof process !== "undefined" &&
             process.stderr !== undefined &&
                 process.stderr.write !== undefined) {
         log_function = stderr_output;
@@ -73,6 +73,6 @@ var logger = (function () {
 
 // node.js exports; hide from browser where exports is undefined and use strict
 // would trigger.
-if (exports !== undefined) {
+if (typeof exports !== "undefined") {
     exports.logger = logger;
 }

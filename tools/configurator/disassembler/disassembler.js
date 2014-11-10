@@ -857,8 +857,10 @@ var disassembler = (function () {
         var index;
         var result = '';
 
-        for (i = 0; i < variables.length; i += 1) {
-            indexes.push(variables[i]);
+        for (index in variables) {
+            if (variables.hasOwnProperty(index)) {
+                indexes.push(index);
+            }
         }
 
         indexes = indexes.sort();
@@ -966,6 +968,6 @@ var disassembler = (function () {
 
 // node.js exports; hide from browser where exports is undefined and use strict
 // would trigger.
-if (exports !== undefined) {
+if (typeof exports !== "undefined") {
     exports.disassembler = disassembler;
 }

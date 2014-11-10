@@ -389,6 +389,6 @@ var symbols = (function () {
 
 // node.js exports; hide from browser where exports is undefined and use strict
 // would trigger.
-if (exports !== undefined) {
+if (typeof exports !== "undefined") {
     exports.symbols = symbols;
 }
