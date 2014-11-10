@@ -1,4 +1,6 @@
 "use strict";
+/*jslint browser: true, bitwise: true, vars: true */
+/*global CodeMirror, tmpl */
 
 var ui = (function () {
     var editor;
@@ -11,7 +13,7 @@ var ui = (function () {
         var i;
 
         var features = document.getElementsByClassName("led_features");
-        for (i = 0; i < features.length; i++) {
+        for (i = 0; i < features.length; i += 1) {
             features[i].style.display = "none";
         }
 
@@ -103,9 +105,9 @@ var ui = (function () {
             var i;
             var spanner;
 
-            for (led = 0; led < led_rows.length; led++) {
+            for (led = 0; led < led_rows.length; led += 1) {
                 fields = led_rows[led].getElementsByTagName("td");
-                for (i = 0; i < fields.length; i++) {
+                for (i = 0; i < fields.length; i += 1) {
                     fields[i].id = prefix + led + "field" + i;
                     fields[i].addEventListener("click",
                         led_config_click_handler, true);
@@ -133,7 +135,7 @@ var ui = (function () {
             var led;
             var i;
 
-            for (led = 0; led < led_rows.length; led++) {
+            for (led = 0; led < led_rows.length; led += 1) {
                 led_rows[led].id = prefix + led + "features";
                 led_rows[led].style.display = "none";
 
@@ -144,7 +146,7 @@ var ui = (function () {
                 elements[0].id = prefix + led + "weak_ground";
 
                 elements = led_rows[led].getElementsByClassName("checkbox");
-                for (i = 0; i < elements.length; i++) {
+                for (i = 0; i < elements.length; i += 1) {
                     elements[i].id = prefix + led + "checkbox" + i;
                 }
             }
@@ -166,7 +168,7 @@ var ui = (function () {
             var e;
             var body;
 
-            for (i = 0; i < 16; i++) {
+            for (i = 0; i < 16; i += 1) {
                 e = document.createElement("table");
                 e.innerHTML = template_function({
                     "even_odd": (i % 2) ? "odd" : "even",
@@ -191,7 +193,7 @@ var ui = (function () {
             var i;
             var element = document.getElementsByName(element_name);
 
-            for (i = 0; i < element.length; i++) {
+            for (i = 0; i < element.length; i += 1) {
                 element[i].title = help_text;
             }
         }
@@ -371,4 +373,4 @@ var ui = (function () {
         update_errors: update_errors,
         get_editor_content: get_editor_content
     };
-})();
+}());
