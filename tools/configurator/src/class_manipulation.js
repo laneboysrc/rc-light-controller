@@ -1,3 +1,4 @@
+"use strict";
 // Source:
 // http://www.openjs.com/scripts/dom/class_manipulation.php
 
