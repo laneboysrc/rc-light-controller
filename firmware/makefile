@@ -1,5 +1,5 @@
 .PHONY: all
-all: tobias fiat-131 lancia-fulvia \
+all: paul chai tobias fiat-131 lancia-fulvia \
      sawback subaru-impreza-2007 ferrari-la-ferrari subaru-impreza-2008 \
      nismo-coppermix lancia-delta-integrale datsun-240z-rally bmw-2002-turbo \
      porsche-911-rsr wraith datsun-510 ben-landrover pajero subaru \
@@ -45,6 +45,32 @@ generic-always-on-master: hw_tlc5940_16f1825.inc
 slave-tlc5940: hw_tlc5940_16f1825.inc
 	$(eval CFLAGS = -D ENABLE_UART -D BAUDRATE_115200)
 	$(eval files = slave-tlc5940 utils)
+	$(build)
+
+
+##############################################################################
+# Paul's Car #1
+##############################################################################
+.PHONY: paul
+paul: paul-master slave-tlc5940
+
+.PHONY: paul-master
+paul-master: hw_tlc5940_16f1825.inc
+	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x0f -D ESC_FORWARD_REVERSE -D ENABLE_UART -D BAUDRATE_115200)
+	$(eval files = master servo-reader utils lights-paul-car1)
+	$(build)
+
+
+##############################################################################
+# Chai's Jeep Wrangler
+##############################################################################
+.PHONY: chai
+chai: chai-master slave-tlc5940
+
+.PHONY: chai-master
+chai-master: hw_tlc5940_16f1825.inc
+	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x0f -D CH3_MOMENTARY -D ESC_FORWARD_REVERSE -D ENABLE_UART -D BAUDRATE_115200)
+	$(eval files = master servo-reader utils lights-chai-jeep)
 	$(build)
 
 
