@@ -382,7 +382,7 @@ typedef struct {
         unsigned int winch_output : 1;
         unsigned int steering_wheel_servo_output : 1;
         unsigned int gearbox_servo_output : 1;
-        unsigned int switched_light_output : 1;
+        unsigned int reserved0 : 1;
 
         unsigned int ch3_is_local_switch : 1;
         unsigned int ch3_is_momentary : 1;

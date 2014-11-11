@@ -24,7 +24,7 @@
 // PIO0_6   (15)                TLC5940 BLANK
 // PIO0_7   (14)                TLC5940 SIN
 // PIO0_8   (11, XTALIN)        NC
-// PIO0_9   (10, XTALOUT)       NC
+// PIO0_9   (10, XTALOUT)       Switched light output (for driving a load via a MOSFET)
 // PIO0_10  (8,  Open drain)    NC
 // PIO0_11  (7,  Open drain)    NC
 // PIO0_12  (2,  ISP-entry)     OUT / ISP
@@ -118,9 +118,11 @@ static void init_hardware(void)
 
     // Make the open drain ports PIO0_10, PIO0_11 outputs and pull to ground
     // to prevent them from floating.
+    // Make the switched light output PIO0_9 an output and shut it off.
+    LPC_GPIO_PORT->W0[9] = 0;
     LPC_GPIO_PORT->W0[10] = 0;
     LPC_GPIO_PORT->W0[11] = 0;
-    LPC_GPIO_PORT->DIR0 |= (1u << 10) | (1u << 11);
+    LPC_GPIO_PORT->DIR0 |= (1u << 9) | (1u << 10) | (1u << 11);
 
 
     // Enable glitch filtering on the IOs

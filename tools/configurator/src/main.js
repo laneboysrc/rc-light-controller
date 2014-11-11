@@ -239,7 +239,7 @@ var app = (function () {
         new_config.winch_output = get_flag(0x0004);
         new_config.steering_wheel_servo_output = get_flag(0x0008);
         new_config.gearbox_servo_output = get_flag(0x0010);
-        new_config.switched_light_output = get_flag(0x0020);
+        // reserved = get_flag(0x0020);
         new_config.ch3_is_local_switch = get_flag(0x0040);
         new_config.ch3_is_momentary = get_flag(0x0080);
         new_config.auto_brake_lights_forward_enabled = get_flag(0x0100);
@@ -596,8 +596,6 @@ var app = (function () {
         el.preprocessor_output.checked =
             Boolean(config.preprocessor_output);
         el.slave_output.checked = Boolean(config.slave_output);
-        el.switched_light_output.checked =
-            Boolean(config.switched_light_output);
 
         // CH3/AUX type
         el.ch3[0].checked = true;
@@ -609,7 +607,6 @@ var app = (function () {
 
         // Baudrate
         el.baudrate.selectedIndex = BAUDRATES[config.baudrate];
-
 
         // LEDs
         update_led_fields();
@@ -872,7 +869,7 @@ var app = (function () {
         flags |= (config.winch_output << 2);
         flags |= (config.steering_wheel_servo_output << 3);
         flags |= (config.gearbox_servo_output << 4);
-        flags |= (config.switched_light_output << 5);
+        // flags |= (reserved << 5);
         flags |= (config.ch3_is_local_switch << 6);
         flags |= (config.ch3_is_momentary << 7);
         flags |= (config.auto_brake_lights_forward_enabled << 8);
@@ -1151,7 +1148,6 @@ var app = (function () {
         update_boolean('steering_wheel_servo_output');
         update_boolean('gearbox_servo_output');
         update_boolean('winch_output');
-        update_boolean('switched_light_output');
 
 
         // CH3/AUX type
@@ -1378,8 +1374,6 @@ var app = (function () {
         el.gearbox_servo_output =
             document.getElementById("gearbox_servo_output");
         el.winch_output = document.getElementById("winch_output");
-        el.switched_light_output =
-            document.getElementById("switched_light_output");
 
         el.config_light_programs =
             document.getElementById("config_light_programs");
@@ -1389,7 +1383,6 @@ var app = (function () {
         el.light_programs_assembler =
             document.getElementById("light_programs_assembler");
         el.light_programs_ok = document.getElementById("light_programs_ok");
-
 
         el.config_advanced = document.getElementById("config_advanced");
 
@@ -1430,7 +1423,6 @@ var app = (function () {
         el.centre_threshold_high =
             document.getElementById("centre_threshold_high");
 
-
         el.initial_endpoint_delta =
             document.getElementById("initial_endpoint_delta");
         el.ch3_multi_click_timeout =
@@ -1441,7 +1433,6 @@ var app = (function () {
         el.number_of_gears = document.getElementById("number_of_gears");
 
         el.gamma_value = document.getElementById("gamma_value");
-
 
         el.mode.addEventListener("change", update_section_visibility, false);
 
