@@ -1,9 +1,9 @@
 /******************************************************************************
 
-    Outputs Steering, Throttle and CH3/AUX information in the UART Tx.
+    Outputs combined Steering, Throttle and CH3/AUX information in the UART Tx.
 
-    This allows running a single wire to a light controller, making wiring
-    very easy through the use of a standard servo cable.
+    This allows running a single servo extension wire to a peripheral doing its
+    own processing of the servo signals.
     Data is output "normalized", which means the values go from -100 to +100%.
     CH3 is either 0 or 1.
     There is also a flag sent out that indicates when the preprocessor is
@@ -30,7 +30,6 @@ void output_preprocessor(void)
         return;
     }
 
-    // FIXME: add 5th byte for hk310 expansion support
     if (!global_flags.new_channel_data) {
         if (ch3_2pos) {
             if (channel[2].normalized < -CH3_HYSTERESIS) {
@@ -44,8 +43,8 @@ void output_preprocessor(void)
         }
 
         tx_data[0] = SLAVE_MAGIC_BYTE;
-        tx_data[1] = channel[0].normalized;
-        tx_data[2] = channel[1].normalized;
+        tx_data[1] = channel[ST].normalized;
+        tx_data[2] = channel[TH].normalized;
         tx_data[3] = (ch3_2pos ? (1 << 0) : 0) |
                      (global_flags.initializing ? (1 << 4) : 0);
 

@@ -123,8 +123,7 @@ void gearbox_action(uint8_t ch3_clicks)
 // ****************************************************************************
 void servo_output_setup_action(uint8_t ch3_clicks)
 {
-    if (!config.flags.gearbox_servo_output  &&
-        !config.flags.steering_wheel_servo_output) {
+    if (servo_output_disabled()) {
         return;
     }
 
@@ -167,7 +166,6 @@ void servo_output_setup_action(uint8_t ch3_clicks)
 ******************************************************************************/
 static void calculate_servo_pulse(void)
 {
-
     if (channel[ST].normalized < 0) {
         servo_pulse = servo_output_endpoint.centre -
             (((servo_output_endpoint.centre - servo_output_endpoint.left) *
@@ -188,6 +186,8 @@ void process_servo_output(void)
         return;
     }
 
+    // --------------------------------
+    // Servo output setup is active
     if (global_flags.servo_output_setup != SERVO_OUTPUT_SETUP_OFF) {
         calculate_servo_pulse();
         if (next) {
@@ -233,6 +233,9 @@ void process_servo_output(void)
             }
         }
     }
+
+    // --------------------------------
+    // Gearbox servo is active
     else if (config.flags.gearbox_servo_output) {
         if (global_flags.gear == GEAR_1) {
             servo_pulse = servo_output_endpoint.left;
@@ -244,10 +247,16 @@ void process_servo_output(void)
             servo_pulse = servo_output_endpoint.right;
         }
     }
+
+    // --------------------------------
+    // Steering wheel servo output is avtive
     else if (config.flags.steering_wheel_servo_output) {
         calculate_servo_pulse();
     }
 
+
+    // Put the servo pulse duration in milliseconds into the match register
+    // to output the pulse of the given duration.
     LPC_SCT->MATCHREL[4].H = servo_pulse;
 }
 

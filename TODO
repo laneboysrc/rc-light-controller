@@ -8,6 +8,7 @@ TO DO LIST for the RC Light Controller
 
 * FW: Can we preserve the persistent settings upon reflash?
 
+* FW: Implement gearbox switch time
 
 
 * Test hysteresis for drive mode

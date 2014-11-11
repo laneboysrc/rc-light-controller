@@ -1,6 +1,7 @@
 #include <globals.h>
 
 // ****************************************************************************
+// Default configuration of the light outputs as per documentation
 const CAR_LIGHT_ARRAY_T local_leds = {
     .magic = {
         .magic_value = ROM_MAGIC,
