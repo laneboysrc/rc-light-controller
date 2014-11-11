@@ -8,9 +8,6 @@ TO DO LIST for the RC Light Controller
 
 * FW: Can we preserve the persistent settings upon reflash?
 
-* FW: Switched output is OUT15
-
-* FW: Switched output is on PIO0_9, and not configurable
 
 
 * Test hysteresis for drive mode
