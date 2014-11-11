@@ -10,6 +10,8 @@ TO DO LIST for the RC Light Controller
 
 * FW: Implement gearbox switch time
 
+* TOOLS: Add header to auto-generated C and JS files
+
 
 * Test hysteresis for drive mode
 
