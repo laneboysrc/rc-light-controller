@@ -1,3 +1,6 @@
+// Auto-generated file. Do not modify.
+// Source: /home/laneboysrc/projects/rc-light-controller/firmware/tlc5940-lpc812/light_programs/generic.light_program
+
 #include <globals.h>
 
 __attribute__ ((section(".light_programs")))

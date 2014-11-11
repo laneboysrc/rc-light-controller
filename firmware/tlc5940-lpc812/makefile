@@ -123,7 +123,7 @@ $(TARGET_HEX): $(TARGET_ELF)
 
 default_light_program:
 	$(ECHO) [ASM] $@
-	$(QUIET) cd $(LIGHT_PROGRAM_ASSEMBLER_PATH) && $(MAKE) run RUN_OPTIONS="-o $(abspath config_light_programs.c) $(abspath $(DEFAULT_LIGHT_PROGRAM))"
+	$(QUIET) cd $(LIGHT_PROGRAM_ASSEMBLER_PATH) && $(MAKE) run RUN_OPTIONS="--include-name -o $(abspath config_light_programs.c) $(abspath $(DEFAULT_LIGHT_PROGRAM))"
 
 default_firmware_image: $(TARGET_HEX)
 	$(ECHO) [TEXT2JS] $<

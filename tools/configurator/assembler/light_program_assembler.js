@@ -26,8 +26,12 @@ var hex = function (number) {
 
 
 // *****************************************************************************
-function make_c_output(output_file, programs) {
+function make_c_output(source_name, output_file, programs) {
     var i;
+
+    var part0 = "// Auto-generated file. Do not modify.";
+    var part0a = "\n// Source: ";
+    var part0b = "\n\n";
 
     var part1 =
         "#include <globals.h>\n" +
@@ -46,22 +50,18 @@ function make_c_output(output_file, programs) {
         ",\n" +
         "    .start = {\n";
 
-    var part2 =
-        "        &light_programs.programs[";
+    var part2 = "        &light_programs.programs[";
 
-    var part2b =
-        "],\n";
+    var part2b = "],\n";
 
     var part3 =
         "    },\n" +
         "\n" +
         "    .programs = {\n";
 
-    var part4 =
-        "        ";
+    var part4 = "        ";
 
-    var part4b =
-        ",\n";
+    var part4b = ",\n";
 
     var part5 =
         "    }\n" +
@@ -72,6 +72,13 @@ function make_c_output(output_file, programs) {
     var number_of_programs = programs.number_of_programs;
     var start_offset = programs.start_offset;
     var instructions = programs.instructions;
+
+    fs.writeSync(output_file, part0);
+    if (source_name !== '') {
+        fs.writeSync(output_file, part0a);
+        fs.writeSync(output_file, source_name);
+    }
+    fs.writeSync(output_file, part0b);
 
     fs.writeSync(output_file, part1);
     fs.writeSync(output_file, number_of_programs.toString());
@@ -119,6 +126,7 @@ program
     .version('1.0.0')
     .usage('[options] <source>')
     .option('-o, --output <value>', 'Output file. If omitted, output is printed to stdout.')
+    .option('-i, --include-name', 'Include the source file name in the output as comment.')
     .option('-v, --verbose', 'Verbose output. Specify multiple times for more output.', increaseVerbosity, 0)
     .parse(process.argv);
 
@@ -128,6 +136,7 @@ if (sources.length !== 1) {
     console.error("No source file given.");
     process.exit(1);
 }
+var source_file_name = path.normalize(sources[0]);
 
 program.verbose = program.verbose || 0;
 if (program.verbose < 1) {
@@ -138,11 +147,11 @@ if (program.output) {
     output_file = fs.openSync(program.output, "w");
 }
 
-var sourcecode = fs.readFileSync(path.normalize(sources[0]), "utf8");
+var sourcecode = fs.readFileSync(source_file_name, "utf8");
 
 try {
     var programs = parser.parse(sourcecode);
-    make_c_output(output_file, programs);
+    make_c_output(program.includeName ? source_file_name : "", output_file, programs);
 } catch (e) {
     var i;
     var msg = "Errors occured while processing the light programs:\n";

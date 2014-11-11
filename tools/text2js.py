@@ -10,10 +10,13 @@ JavaScript application.
 '''
 from __future__ import print_function
 import argparse
+import os
+import sys
 
 
 def parse_commandline():
     ''' Command line option parsing '''
+
     parser = argparse.ArgumentParser(
         description='''\
 Tool for creating a JavaScript string containing the content of a text file.''')
@@ -29,11 +32,18 @@ Tool for creating a JavaScript string containing the content of a text file.''')
 
 def text2js(args):
     ''' Dump all lines as JavaScript string '''
+
+    print("// Auto-generated file. Do not modify.")
+    print("//")
+    print("// Generated from file {file} by {tool}".format(
+        tool=os.path.basename(sys.argv[0]),
+        file=args.text_file[0].name))
+
     print("var {} =".format(args.var_name[0]))
 
     for line in args.text_file[0]:
-        print('"{l}\\n" +'.format(l=
-            line.replace('\\', '\\\\').replace('"', '\\"').rstrip()))
+        print('"{l}\\n" +'.format(
+            l=line.replace('\\', '\\\\').replace('"', '\\"').rstrip()))
 
     print('"";')
 

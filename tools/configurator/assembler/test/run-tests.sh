@@ -7,7 +7,7 @@ dut=$1
 
 run_test() {
 	testcase=$1
-    # echo "Running test ${testcase##$DIR/} ..."
+    echo "Running test ${testcase##$DIR/} ..."
     echo "$dut $testcase" > $logfile
     echo "" >> $logfile
     $dut $testcase >>$logfile 2>&1
