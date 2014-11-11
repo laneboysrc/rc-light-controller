@@ -12,6 +12,8 @@ TO DO LIST for the RC Light Controller
 
 * TOOLS: Add header to auto-generated C and JS files
 
+* TOOLS: Add tool to extract light program source out of light controller config
+
 
 * Test hysteresis for drive mode
 
