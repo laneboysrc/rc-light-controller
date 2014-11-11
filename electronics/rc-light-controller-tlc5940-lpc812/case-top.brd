@@ -115,11 +115,11 @@
 <text x="0.889" y="1.524" size="0.8128" layer="27" font="vector" ratio="15" align="center-left">Rev 1</text>
 <circle x="3.5" y="17" radius="0.25" width="0.5" layer="30"/>
 <circle x="12.5" y="17" radius="0.25" width="0.5" layer="30"/>
-<circle x="20.25" y="17" radius="0.25" width="0.5" layer="30"/>
-<circle x="0.958" y="13.25" radius="0.25" width="0.5" layer="30"/>
+<circle x="20" y="17" radius="0.25" width="0.5" layer="30"/>
+<circle x="0.75" y="13.25" radius="0.25" width="0.5" layer="30"/>
 <circle x="0.75" y="4.75" radius="0.25" width="0.5" layer="30"/>
 <circle x="20" y="1" radius="0.25" width="0.5" layer="30"/>
-<circle x="3.75" y="1" radius="0.25" width="0.5" layer="30"/>
+<circle x="3.5" y="1" radius="0.25" width="0.5" layer="30"/>
 <circle x="12.5" y="1" radius="0.25" width="0.5" layer="30"/>
 </plain>
 <libraries>
