@@ -29,11 +29,11 @@ endif
 ###############################################################################
 # Toolchain setup
 TOOLCHAIN_PREFIX := arm-none-eabi-
-TOOLCHAIN_PATH := /opt/gcc-arm-none-eabi-4_8-2014q2/bin/
+TOOLCHAIN_PATH :=
 TOOL_PATH := ../../tools/
 
 CC := $(TOOLCHAIN_PATH)$(TOOLCHAIN_PREFIX)gcc
-LD := $(TOOLCHAIN_PATH)$(TOOLCHAIN_PREFIX)ld
+LD := $(TOOLCHAIN_PATH)$(TOOLCHAIN_PREFIX)gcc
 OBJCOPY := $(TOOLCHAIN_PATH)$(TOOLCHAIN_PREFIX)objcopy
 
 MKDIR_P = mkdir -p
@@ -62,7 +62,9 @@ $(TARGET_MAP): $(TARGET_ELF)
 
 ###############################################################################
 # Compiler and linker flags
-CFLAGS = -mthumb -mcpu=cortex-m0plus -mlittle-endian
+CPU_FLAGS = -mthumb -mcpu=cortex-m0plus -mlittle-endian
+
+CFLAGS = $(CPU_FLAGS)
 CFLAGS += -std=c99
 CFLAGS += -W -Wall -Wextra -Wpedantic
 CFLAGS += -Wstrict-prototypes -Wshadow -Wwrite-strings
@@ -77,10 +79,11 @@ CFLAGS += -fpack-struct=4
 CFLAGS += -Os
 CFLAGS += -D__SYSTEM_CLOCK=$(SYSTEM_CLOCK)
 
-LDFLAGS = -T $(LINKER_SCRIPT) -nostdlib --warn-common
-LDFLAGS += --gc-sections -O3
-LDFLAGS += -Map=$(TARGET_MAP) --cref
-LDFLAGS += -L$(TOOLCHAIN_PATH)../lib/gcc/arm-none-eabi/4.8.4/armv6-m
+LDFLAGS = $(CPU_FLAGS)
+LDFLAGS += -Wl,-T,$(LINKER_SCRIPT) -Wl,-nostdlib -Wl,--warn-common
+LDFLAGS += -Wl,--gc-sections -Wl,-O3
+LDFLAGS += -Wl,-Map=$(TARGET_MAP) -Wl,--cref
+LDFLAGS += -mthumb -mcpu=cortex-m0plus -mlittle-endian
 
 LDLIBS = $(addprefix -l,$(LIBS))
 
