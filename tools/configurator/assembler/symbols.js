@@ -115,6 +115,7 @@ var symbols = (function () {
         "gear": {"token": "GEAR"},
         "abs": {"token": "ABS", "opcode": 0x40000000},
         "end": {"token": "END", "opcode": 0xfe000000},
+        "use": {"token": "USE"},
 
         "=": {"token": "=", "opcode": 0x10000000},
         ">": {"token": "GT", "opcode": 0x2c000000},
@@ -292,6 +293,7 @@ var symbols = (function () {
 
     // *************************************************************************
     var add_symbol = function (name, token, opcode, location) {
+        var led_bit;
         var new_symbol = {
             "name": name,
             "token": token,
@@ -311,8 +313,11 @@ var symbols = (function () {
                     loc: location
                 });
             } else {
-                // Add LED to bit-field of leds_used
-                leds_used += Math.pow(2, opcode);
+                led_bit = Math.pow(2, opcode);
+                if (!(leds_used & led_bit)) {
+                    // Add LED to bit-field of leds_used
+                    leds_used += led_bit;
+                }
             }
         }
 
@@ -335,6 +340,12 @@ var symbols = (function () {
     // *************************************************************************
     var get_leds_used = function () {
         return leds_used;
+    };
+
+
+    // *************************************************************************
+    var set_leds_used = function (led_bits) {
+        leds_used = led_bits;
     };
 
 
@@ -377,6 +388,7 @@ var symbols = (function () {
         set_symbol: set_symbol,
         get_reserved_word: get_reserved_word,
         get_number_of_light_switch_positions: get_number_of_light_switch_positions,
+        set_leds_used: set_leds_used,
         get_leds_used: get_leds_used,
         get_forward_declerations: get_forward_declerations,
         remove_local_symbols: remove_local_symbols,

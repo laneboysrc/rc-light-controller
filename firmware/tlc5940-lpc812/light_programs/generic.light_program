@@ -13,22 +13,10 @@
 run when no-signal
 
 // Take over all LEDs
-led parking-l = master[0]
-led parking-r = master[1]
-led main-beam-l = master[2]
-led main-beam-r = master[3]
-led high-beam-l = master[4]
-led high-beam-r = master[5]
+use all leds
+
 led indicator-front-l = master[6]
 led indicator-front-r = master[7]
-led roof = master[8]
-led brake = master[9]
-led tail-brake-l = master[10]
-led tail-brake-r = master[11]
-led reversing-l = master[12]
-led reversing-r = master[13]
-led indicator-rear-l = master[14]
-led indicator-rear-r = master[15]
 
 loop:
     // Turn fading off for all leds, we want them to switch on/off immediately
@@ -61,22 +49,9 @@ end
 // ----------------------------------------------------------------------------
 run when initializing
 
-led parking-l = master[0]
-led parking-r = master[1]
+use all leds
 led main-beam-l = master[2]
 led main-beam-r = master[3]
-led high-beam-l = master[4]
-led high-beam-r = master[5]
-led indicator-front-l = master[6]
-led indicator-front-r = master[7]
-led roof = master[8]
-led brake = master[9]
-led tail-brake-l = master[10]
-led tail-brake-r = master[11]
-led reversing-l = master[12]
-led reversing-r = master[13]
-led indicator-rear-l = master[14]
-led indicator-rear-r = master[15]
 
 loop:
     fade all leds stepsize 0
@@ -105,22 +80,11 @@ end
 // ----------------------------------------------------------------------------
 run when reversing-setup-steering or reversing-setup-throttle
 
-led parking-l = master[0]
-led parking-r = master[1]
-led main-beam-l = master[2]
-led main-beam-r = master[3]
+use all leds
 led high-beam-l = master[4]
 led high-beam-r = master[5]
 led indicator-front-l = master[6]
-led indicator-front-r = master[7]
-led roof = master[8]
-led brake = master[9]
-led tail-brake-l = master[10]
-led tail-brake-r = master[11]
-led reversing-l = master[12]
-led reversing-r = master[13]
 led indicator-rear-l = master[14]
-led indicator-rear-r = master[15]
 
 loop:
     sleep 0
@@ -167,20 +131,9 @@ end
 // Note: "or" between the conditions is optional, same meaning with or without
 run when servo-output-setup-centre servo-output-setup-left servo-output-setup-right
 
-led parking-l = master[0]
-led parking-r = master[1]
-led main-beam-l = master[2]
-led main-beam-r = master[3]
-led high-beam-l = master[4]
-led high-beam-r = master[5]
+use all leds
 led indicator-front-l = master[6]
 led indicator-front-r = master[7]
-led roof = master[8]
-led brake = master[9]
-led tail-brake-l = master[10]
-led tail-brake-r = master[11]
-led reversing-l = master[12]
-led reversing-r = master[13]
 led indicator-rear-l = master[14]
 led indicator-rear-r = master[15]
 

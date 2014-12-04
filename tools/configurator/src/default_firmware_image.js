@@ -656,16 +656,16 @@ var default_firmware_image =
 ":1028A4000000000000000000000000000000000024\n" +
 ":1028B4000000000000000000000000000000000014\n" +
 ":1028C4000000000000000000000000000000000004\n" +
-":1028D4000100000000000000FFFF000000000F05E1\n" +
-":1028E40000000F0364060703000000070000000156\n" +
-":1028F400000000FE0200000000000000FFFF0000D6\n" +
-":1029040000000F0500000F0364020303000000072A\n" +
+":1028D4000100000000000000FFFFFFFF00001F05D3\n" +
+":1028E40000001F0364060703000000070000000146\n" +
+":1028F400000000FE0200000000000000FFFFFFFFD8\n" +
+":1029040000001F0500001F0364020303000000070A\n" +
 ":1029140000000001000000FE600000000000000054\n" +
-":10292400FFFF00000000000700000F0500000F0378\n" +
+":10292400FFFFFFFF0000000700001F0500001F035A\n" +
 ":10293400000000680700000164060603640E0E032D\n" +
 ":1029440000000070000000016404050300000001A1\n" +
-":10295400000000FE1C00000000000000FFFF00005B\n" +
-":102964000000000700000F0500000F03000000A294\n" +
+":10295400000000FE1C00000000000000FFFFFFFF5D\n" +
+":102964000000000700001F0500001F03000000A274\n" +
 ":102974000A000001000000A40D0000016406070322\n" +
 ":10298400640E0F030000000164060603640E0E03C8\n" +
 ":102994000000000164070703640F0F030000000137\n" +
@@ -697,22 +697,10 @@ var default_light_program =
 "run when no-signal\n" +
 "\n" +
 "// Take over all LEDs\n" +
-"led parking-l = master[0]\n" +
-"led parking-r = master[1]\n" +
-"led main-beam-l = master[2]\n" +
-"led main-beam-r = master[3]\n" +
-"led high-beam-l = master[4]\n" +
-"led high-beam-r = master[5]\n" +
+"use all leds\n" +
+"\n" +
 "led indicator-front-l = master[6]\n" +
 "led indicator-front-r = master[7]\n" +
-"led roof = master[8]\n" +
-"led brake = master[9]\n" +
-"led tail-brake-l = master[10]\n" +
-"led tail-brake-r = master[11]\n" +
-"led reversing-l = master[12]\n" +
-"led reversing-r = master[13]\n" +
-"led indicator-rear-l = master[14]\n" +
-"led indicator-rear-r = master[15]\n" +
 "\n" +
 "loop:\n" +
 "    // Turn fading off for all leds, we want them to switch on/off immediately\n" +
@@ -745,22 +733,9 @@ var default_light_program =
 "// ----------------------------------------------------------------------------\n" +
 "run when initializing\n" +
 "\n" +
-"led parking-l = master[0]\n" +
-"led parking-r = master[1]\n" +
+"use all leds\n" +
 "led main-beam-l = master[2]\n" +
 "led main-beam-r = master[3]\n" +
-"led high-beam-l = master[4]\n" +
-"led high-beam-r = master[5]\n" +
-"led indicator-front-l = master[6]\n" +
-"led indicator-front-r = master[7]\n" +
-"led roof = master[8]\n" +
-"led brake = master[9]\n" +
-"led tail-brake-l = master[10]\n" +
-"led tail-brake-r = master[11]\n" +
-"led reversing-l = master[12]\n" +
-"led reversing-r = master[13]\n" +
-"led indicator-rear-l = master[14]\n" +
-"led indicator-rear-r = master[15]\n" +
 "\n" +
 "loop:\n" +
 "    fade all leds stepsize 0\n" +
@@ -789,22 +764,11 @@ var default_light_program =
 "// ----------------------------------------------------------------------------\n" +
 "run when reversing-setup-steering or reversing-setup-throttle\n" +
 "\n" +
-"led parking-l = master[0]\n" +
-"led parking-r = master[1]\n" +
-"led main-beam-l = master[2]\n" +
-"led main-beam-r = master[3]\n" +
+"use all leds\n" +
 "led high-beam-l = master[4]\n" +
 "led high-beam-r = master[5]\n" +
 "led indicator-front-l = master[6]\n" +
-"led indicator-front-r = master[7]\n" +
-"led roof = master[8]\n" +
-"led brake = master[9]\n" +
-"led tail-brake-l = master[10]\n" +
-"led tail-brake-r = master[11]\n" +
-"led reversing-l = master[12]\n" +
-"led reversing-r = master[13]\n" +
 "led indicator-rear-l = master[14]\n" +
-"led indicator-rear-r = master[15]\n" +
 "\n" +
 "loop:\n" +
 "    sleep 0\n" +
@@ -851,20 +815,9 @@ var default_light_program =
 "// Note: \"or\" between the conditions is optional, same meaning with or without\n" +
 "run when servo-output-setup-centre servo-output-setup-left servo-output-setup-right\n" +
 "\n" +
-"led parking-l = master[0]\n" +
-"led parking-r = master[1]\n" +
-"led main-beam-l = master[2]\n" +
-"led main-beam-r = master[3]\n" +
-"led high-beam-l = master[4]\n" +
-"led high-beam-r = master[5]\n" +
+"use all leds\n" +
 "led indicator-front-l = master[6]\n" +
 "led indicator-front-r = master[7]\n" +
-"led roof = master[8]\n" +
-"led brake = master[9]\n" +
-"led tail-brake-l = master[10]\n" +
-"led tail-brake-r = master[11]\n" +
-"led reversing-l = master[12]\n" +
-"led reversing-r = master[13]\n" +
 "led indicator-rear-l = master[14]\n" +
 "led indicator-rear-r = master[15]\n" +
 "\n" +

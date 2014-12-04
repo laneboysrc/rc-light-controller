@@ -1,0 +1,20 @@
+run always
+
+var x
+
+use all leds
+
+led l1 = slave[2]
+led l2 = slave[3]
+led l3 = slave[4]
+led l4 = slave[5]
+
+led lx = slave[7]
+
+l1 = 0
+l2 = 0x03
+l3 = 42
+l4=0
+lx=x
+
+end

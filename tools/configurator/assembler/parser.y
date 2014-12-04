@@ -5,12 +5,7 @@ Jison grammar file for light programs
 Light programs are simple programs that are interpreted by the
 LANE Boys RC light controller (TLC5940/LPC812 version)
 
-
-reserved keywords:
-  goto, var, led, leds, sleep, skip, if, is, any, all, none, not, fade, stepsize,
-  run, when, or, master, slave, global, random, steering, throttle, gear, abs
-
-  clicks: Pre-defined global variable; increments when 6-clicks on CH3
+clicks: Pre-defined global variable; increments when 6-clicks on CH3
 
 */
 
@@ -136,6 +131,8 @@ decleration
   | LED UNDECLARED_SYMBOL '=' master_or_slave
       {  yy.symbols.add_symbol($2, "LED_ID", $4, @2); }
   | LED error
+  | USE ALL LEDS
+      {  yy.symbols.set_leds_used(0xffffffff); }
   ;
 
 master_or_slave
