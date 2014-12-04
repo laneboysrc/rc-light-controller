@@ -246,7 +246,7 @@ var intel_hex = (function () {
 
         if (data.length > 0x10000) {
             throw new Error(
-                "Support for more than 64 Kbytes of datat not implemented yet"
+                "Support for more than 64 Kbytes of data not implemented yet"
             );
         }
 
