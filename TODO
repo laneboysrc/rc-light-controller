@@ -6,13 +6,13 @@ TO DO LIST for the RC Light Controller
   including fade commands!.
   Needs documenting.
 
-* FW: Can we preserve the persistent settings upon reflash?
-
 * FW: Implement gearbox switch time
 
 * TOOLS: Add tool to extract light program source out of light controller config
 
 * ASM: add USE instructions to reserve all LEDs, on top of led x = master[]
+
+* ASM: Fix issue with exporting Intel-hex file
 
 
 * Test hysteresis for drive mode

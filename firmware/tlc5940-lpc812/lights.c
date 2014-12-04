@@ -185,8 +185,8 @@ void init_lights(void)
 
     // We use the SSEL function for XLAT: low during the transmission, high
     // during the idle periood.
-    LPC_SWM->PINASSIGN3 = 0x03ffffff;   // PIO0_3 is SCK
-    LPC_SWM->PINASSIGN4 = 0xff02ff07;   // PIO0_2 is XLAT (SSEL) PIO0_3 is SIN (MOSI)
+    LPC_SWM->PINASSIGN3 = 0x02ffffff;   // PIO0_2 is SCK
+    LPC_SWM->PINASSIGN4 = 0xff03ff07;   // PIO0_3 is XLAT (SSEL) PIO0_3 is SIN (MOSI)
 
     send_light_data_to_tlc5940();
 
@@ -569,7 +569,6 @@ static void process_car_lights(void)
             light_actual[i] = light_setpoint[i];
         }
     }
-
 
     send_light_data_to_tlc5940();
     if (config.flags.slave_output) {
