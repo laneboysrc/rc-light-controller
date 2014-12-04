@@ -86,8 +86,14 @@ static void init_hardware(void)
 #if __SYSTEM_CLOCK != 12000000
 #error Clock initialization code expexts __SYSTEM_CLOCK to be set to 1200000
 #endif
+
+    // Turn on brown-out detection and reset
+    LPC_SYSCON->BODCTRL = (1 << 4) | (1 << 2) | (3 << 0);
+
+
     // Set flash wait-states to 1 system clock
     LPC_FLASHCTRL->FLASHCFG = 0;
+
 
     // Turn on peripheral clocks for SCTimer, IOCON, SPI0
     // (GPIO, SWM alrady enabled after reset)

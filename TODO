@@ -10,15 +10,21 @@ TO DO LIST for the RC Light Controller
 
 * TOOLS: Add tool to extract light program source out of light controller config
 
+* PCB: Make vias for middle and top layer larger to get solder through them?
+
+* PCB: Add top/bottom silk screen text to middle layer
+
 
 * Test hysteresis for drive mode
 
 * Improve the TLC5940 PCB:
     * Larger heat sink for TLC5940, using vias to ground plane
-    * Protection resistors for all inputs / outputs? (conflict with Vpp?)
-    * Direct programming pads?
-    * Larger pads for resister that sets Iref?
-    * High power switched output using MOSFET
-        Use NXP PMV20XN, 4.8A in SOT23 package
-    * Align all 0.1 inch connectors to 0.1 inch grid (allows mounting on a breadboard)
+
+    Items considered but not done to stay compatible with the older stencil:
+        * Protection resistors for all inputs / outputs? (conflict with Vpp?)
+        * Direct programming pads?
+        * Larger pads for resister that sets Iref?
+        * High power switched output using MOSFET
+            Use NXP PMV20XN, 4.8A in SOT23 package
+        * Align all 0.1 inch connectors to 0.1 inch grid (allows mounting on a breadboard)
 
