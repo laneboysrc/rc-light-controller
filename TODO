@@ -12,8 +12,6 @@ TO DO LIST for the RC Light Controller
 
 * ASM: add USE instructions to reserve all LEDs, on top of led x = master[]
 
-* ASM: Fix issue with exporting Intel-hex file
-
 
 * Test hysteresis for drive mode
 

@@ -109,16 +109,19 @@ var app = (function () {
     // *************************************************************************
     var set_uint16 = function (data, offset, value) {
         data[offset] = value % 256;
-        data[offset + 1] = (value / 256) % 256;
+
+        // Note: the funny (a/b>>0) is to force integer math in JavaScipt
+        // See http://stackoverflow.com/questions/4228356/integer-division-in-javascript
+        data[offset + 1] = (value / 256 >> 0) % 256;
     };
 
 
     // *************************************************************************
     var set_uint32 = function (data, offset, value) {
         data[offset] = value % 256;
-        data[offset + 1] = (value / 256) % 256;
-        data[offset + 2] = (value / 65536) % 256;
-        data[offset + 3] = (value / (65536 * 256)) % 256;
+        data[offset + 1] = (value / 256 >> 0) % 256;
+        data[offset + 2] = (value / 65536 >> 0) % 256;
+        data[offset + 3] = (value / (65536 * 256) >> 0) % 256;
     };
 
 
