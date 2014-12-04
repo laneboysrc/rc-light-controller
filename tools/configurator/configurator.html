@@ -650,6 +650,35 @@
         </div>
 
 
+        <h3>Gearbox servo output</h3>
+        <div class="advanced_feature">
+          <div>
+            <input type=number id="gearbox_servo_active_time">
+            <label for="gearbox_servo_active_time">servo activation time in ms</label>
+          </div>
+
+          <div>
+           The value determines how long the gearbox servo is activated
+           (= receives servo pulses) after a gear has changed or the idle
+           time (see below) expires.
+          </div>
+        </div>
+        <div class="advanced_feature">
+          <div>
+            <input type=number id="gearbox_servo_idle_time">
+            <label for="gearbox_servo_idle_time">servo idle time in ms</label>
+          </div>
+
+          <div>
+           The value determines for how long the gearbox servo stays idle
+           (= servo pulses are turned off) when there is no gear change.
+           This prevents the servo from being damaged due to the servo constantly
+           pushing against mechanical stops of the gearbox.<br>
+           Setting the value to 0 keeps the gearbox servo active at all times.<br>
+          </div>
+        </div>
+
+
         <h3>Gamma correction</h3>
         <div class="advanced_feature">
           <div>

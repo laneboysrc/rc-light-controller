@@ -1,18 +1,23 @@
 TO DO LIST for the RC Light Controller
 
+* DOC: Add documentation. Lots of it. :)
+
 * DOC: When a priority program runs once, and another state takes precedence,
   the program has no effect and after the other state disappears, the lights
   are still wrong. Solution is to output constantly in a loop,
   including fade commands!.
   Needs documenting.
 
-* FW: Implement gearbox switch time
+* FW: Test gearbox switch time
 
 * TOOLS: Add tool to extract light program source out of light controller config
 
 * PCB: Make vias for middle and top layer larger to get solder through them?
 
 * PCB: Add top/bottom silk screen text to middle layer
+
+* FW: Default light program: If gearbox servo can we blink 1/2/3 for servo setup
+
 
 
 * Test hysteresis for drive mode

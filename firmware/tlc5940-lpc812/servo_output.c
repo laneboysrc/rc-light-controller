@@ -9,16 +9,11 @@
 static bool next = false;
 static uint16_t servo_pulse;
 
-static uint16_t gearbox_servo_active_counter;
-static uint16_t gearbox_servo_idle_counter;
+static uint16_t gearbox_servo_counter;
+static bool gearbox_servo_active;
 
 static SERVO_ENDPOINTS_T servo_setup_endpoint;
 SERVO_ENDPOINTS_T servo_output_endpoint;
-
-
-// FIXME: make configurable
-// FIXME: implement it, including being able to turn it off
-#define GEARBOX_SWITCH_TIME 1
 
 
 // ****************************************************************************
@@ -37,41 +32,51 @@ static bool servo_output_disabled(void)
 
 
 // ****************************************************************************
+static void activate_gearbox_servo(void)
+{
+    gearbox_servo_active = true;
+    gearbox_servo_counter = config.gearbox_servo_active_time;
+    LPC_SCT->OUT[1].SET = (1 << 0);        // Re-enable event 0 to set CTOUT_1
+}
+
+
+// ****************************************************************************
 void init_servo_output(void) {
     if (servo_output_disabled()) {
         return;
     }
 
-    global_flags.gear = GEAR_1;
-
-
-    LPC_SCT->CONFIG |= (1u << 18);          // Auto-limit on counter H
-    LPC_SCT->CTRL_H |= (1u << 3) |          // Clear the counter H
-                       (11u << 5);          // PRE_H[12:5] = 12-1 (SCTimer H clock 1 MHz)
+    LPC_SCT->CONFIG |= (1 << 18);           // Auto-limit on counter H
+    LPC_SCT->CTRL_H |= (1 << 3) |           // Clear the counter H
+                       (11 << 5);           // PRE_H[12:5] = 12-1 (SCTimer H clock 1 MHz)
     LPC_SCT->MATCHREL[0].H = 20000 - 1;     // 20 ms per overflow (50 Hz)
     LPC_SCT->MATCHREL[4].H = 1500;          // Servo pulse 1.5 ms intially
 
     LPC_SCT->EVENT[0].STATE = 0xFFFF;       // Event 0 happens in all states
     LPC_SCT->EVENT[0].CTRL = (0 << 0) |     // Match register 0
-                             (1u << 4) |    // Select H counter
-                             (0x1u << 12);  // Match condition only
+                             (1 << 4) |     // Select H counter
+                             (0x1 << 12);   // Match condition only
 
     LPC_SCT->EVENT[4].STATE = 0xFFFF;       // Event 4 happens in all states
     LPC_SCT->EVENT[4].CTRL = (4 << 0) |     // Match register 4
-                             (1u << 4) |    // Select H counter
-                             (0x1u << 12);  // Match condition only
+                             (1 << 4) |     // Select H counter
+                             (0x1 << 12);   // Match condition only
 
     // We've chosen CTOUT_1 because CTOUT_0 resides in PINASSIGN6, which
     // changing may affect CTIN_1..3 that we need.
     // CTOUT_1 is in PINASSIGN7, where no other function is needed for our
     // application.
-    LPC_SCT->OUT[1].SET = (1u << 0);        // Event 0 will set CTOUT_1
-    LPC_SCT->OUT[1].CLR = (1u << 4);        // Event 4 will clear CTOUT_1
+    LPC_SCT->OUT[1].SET = (1 << 0);        // Event 0 will set CTOUT_1
+    LPC_SCT->OUT[1].CLR = (1 << 4);        // Event 4 will clear CTOUT_1
 
     // CTOUT_1 = PIO0_12
     LPC_SWM->PINASSIGN7 = 0xffffff0c;
 
-    LPC_SCT->CTRL_H &= ~(1u << 2);          // Start the SCTimer H
+    LPC_SCT->CTRL_H &= ~(1 << 2);          // Start the SCTimer H
+
+
+    global_flags.gear = GEAR_1;
+    activate_gearbox_servo();
 }
 
 
@@ -114,9 +119,7 @@ void gearbox_action(uint8_t ch3_clicks)
 
     // FIXME: we need to ensure this is active for one mainloop!
     global_flags.gear_changed = true;
-
-    gearbox_servo_active_counter = GEARBOX_SWITCH_TIME;
-    gearbox_servo_idle_counter = 0;
+    activate_gearbox_servo();
 }
 
 
@@ -237,6 +240,27 @@ void process_servo_output(void)
     // --------------------------------
     // Gearbox servo is active
     else if (config.flags.gearbox_servo_output) {
+
+        if (config.gearbox_servo_idle_time && global_flags.systick) {
+            if (gearbox_servo_counter) {
+                --gearbox_servo_counter;
+            }
+            else {
+                if (gearbox_servo_active) {
+                    // Turn off the setting of CTOUT_1, so no pulse will be
+                    // generated. However, clearing of CTOUT_1 is still active
+                    // through event 0, so if a pulse is currently active
+                    // it will be nicely terminated, and from the next period
+                    // onwards the pulses will cease.
+                    LPC_SCT->OUT[1].SET = 0;
+                    gearbox_servo_counter = config.gearbox_servo_idle_time;
+                }
+                else {
+                    activate_gearbox_servo();
+                }
+            }
+        }
+
         if (global_flags.gear == GEAR_1) {
             servo_pulse = servo_output_endpoint.left;
         }

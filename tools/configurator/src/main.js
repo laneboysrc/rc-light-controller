@@ -278,6 +278,8 @@ var app = (function () {
         new_config.baudrate = get_uint32(data, offset + 44);
         new_config.no_signal_timeout = get_uint16(data, offset + 48);
         new_config.number_of_gears = get_uint16(data, offset + 50);
+        new_config.gearbox_servo_active_time = get_uint16(data, offset + 52);
+        new_config.gearbox_servo_idle_time = get_uint16(data, offset + 54);
 
         return new_config;
     };
@@ -655,7 +657,12 @@ var app = (function () {
             config.winch_command_repeat_time * SYSTICK_IN_MS;
         el.no_signal_timeout.value =
             config.no_signal_timeout * SYSTICK_IN_MS;
+
         el.number_of_gears.value = config.number_of_gears;
+        el.gearbox_servo_active_time.value =
+            config.gearbox_servo_active_time * SYSTICK_IN_MS;
+        el.gearbox_servo_idle_time.value =
+            config.gearbox_servo_idle_time * SYSTICK_IN_MS;
 
         el.gamma_value.value = gamma_object.gamma_value;
 
@@ -904,6 +911,8 @@ var app = (function () {
         set_uint32(data, offset + 44, config.baudrate);
         set_uint16(data, offset + 48, config.no_signal_timeout);
         set_uint16(data, offset + 50, config.number_of_gears);
+        set_uint16(data, offset + 52, config.gearbox_servo_active_time);
+        set_uint16(data, offset + 54, config.gearbox_servo_active_time);
     };
 
 
@@ -1198,6 +1207,8 @@ var app = (function () {
         update_time("winch_command_repeat_time");
         update_time("no_signal_timeout");
         update_int("number_of_gears");
+        update_time("gearbox_servo_active_time");
+        update_time("gearbox_servo_idle_time");
 
         update_gamma("gamma_value");
 
@@ -1433,7 +1444,12 @@ var app = (function () {
         el.winch_command_repeat_time =
             document.getElementById("winch_command_repeat_time");
         el.no_signal_timeout = document.getElementById("no_signal_timeout");
+
         el.number_of_gears = document.getElementById("number_of_gears");
+        el.gearbox_servo_active_time =
+            document.getElementById("gearbox_servo_active_time");
+        el.gearbox_servo_idle_time =
+            document.getElementById("gearbox_servo_idle_time");
 
         el.gamma_value = document.getElementById("gamma_value");
 

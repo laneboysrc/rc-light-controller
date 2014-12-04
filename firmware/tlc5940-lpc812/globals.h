@@ -421,6 +421,8 @@ typedef struct {
     uint32_t baudrate;
     uint16_t no_signal_timeout;
     uint16_t number_of_gears;
+    uint16_t gearbox_servo_active_time;
+    uint16_t gearbox_servo_idle_time;
 } LIGHT_CONTROLLER_CONFIG_T;
 
 
