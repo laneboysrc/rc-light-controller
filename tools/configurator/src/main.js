@@ -107,7 +107,27 @@ var app = (function () {
 
 
     // *************************************************************************
+    var set_uint8 = function (data, offset, value) {
+        value = parseInt(value, 10);
+        if (isNaN(value)) {
+            console.log("ERROR in set_uint8 when setting offset " + offset +
+                ": value='" + value + "'");
+            value = 0;
+        }
+
+        data[offset] = value % 256;
+    };
+
+
+    // *************************************************************************
     var set_uint16 = function (data, offset, value) {
+        value = parseInt(value, 10);
+        if (isNaN(value)) {
+            console.log("ERROR in set_uint16 when setting offset " + offset +
+                ": value='" + value + "'");
+            value = 0;
+        }
+
         data[offset] = value % 256;
 
         // Note: the funny (a/b>>0) is to force integer math in JavaScipt
@@ -118,6 +138,13 @@ var app = (function () {
 
     // *************************************************************************
     var set_uint32 = function (data, offset, value) {
+        value = parseInt(value, 10);
+        if (isNaN(value)) {
+            console.log("ERROR in set_uint32 when setting offset " + offset +
+                ": value='" + value + "'");
+            value = 0;
+        }
+
         data[offset] = value % 256;
         data[offset + 1] = (value / 256 >> 0) % 256;
         data[offset + 2] = (value / 65536 >> 0) % 256;
@@ -781,13 +808,13 @@ var app = (function () {
         var i;
         var gamma_table;
 
-        data[offset] = gamma_object.gamma_value.charCodeAt(0);
-        data[offset + 1] = gamma_object.gamma_value.charCodeAt(1);
-        data[offset + 2] = gamma_object.gamma_value.charCodeAt(2);
+        set_uint8(data, offset, gamma_object.gamma_value.charCodeAt(0));
+        set_uint8(data, offset + 1, gamma_object.gamma_value.charCodeAt(1));
+        set_uint8(data, offset + 2, gamma_object.gamma_value.charCodeAt(2));
 
         gamma_table = gamma.make_table(gamma_object.gamma_value);
         for (i = 0; i < gamma_table.length; i += 1) {
-            data[offset + 4 + i] = gamma_table[i];
+            set_uint8(data, offset + 4 + i, gamma_table[i]);
         }
     };
 
@@ -800,8 +827,8 @@ var app = (function () {
         var i;
 
         function assemble_led(data, offset, led_object) {
-            data[offset] = led_object.max_change_per_systick;
-            data[offset + 1] = led_object.reduction_percent;
+            set_uint8(data, offset, led_object.max_change_per_systick);
+            set_uint8(data, offset + 1, led_object.reduction_percent);
 
             var flags = 0;
             var positions = 0;
@@ -823,21 +850,21 @@ var app = (function () {
 
             set_uint16(data, offset + 2, flags);
 
-            data[offset + 4] = led_object.always_on;
-            data[offset + 5] = led_object.light_switch_position0;
-            data[offset + 6] = led_object.light_switch_position1;
-            data[offset + 7] = led_object.light_switch_position2;
-            data[offset + 8] = led_object.light_switch_position3;
-            data[offset + 9] = led_object.light_switch_position4;
-            data[offset + 10] = led_object.light_switch_position5;
-            data[offset + 11] = led_object.light_switch_position6;
-            data[offset + 12] = led_object.light_switch_position7;
-            data[offset + 13] = led_object.light_switch_position8;
-            data[offset + 14] = led_object.tail_light;
-            data[offset + 15] = led_object.brake_light;
-            data[offset + 16] = led_object.reversing_light;
-            data[offset + 17] = led_object.indicator_left;
-            data[offset + 18] = led_object.indicator_right;
+            set_uint8(data, offset + 4, led_object.always_on);
+            set_uint8(data, offset + 5, led_object.light_switch_position0);
+            set_uint8(data, offset + 6, led_object.light_switch_position1);
+            set_uint8(data, offset + 7, led_object.light_switch_position2);
+            set_uint8(data, offset + 8, led_object.light_switch_position3);
+            set_uint8(data, offset + 9, led_object.light_switch_position4);
+            set_uint8(data, offset + 10, led_object.light_switch_position5);
+            set_uint8(data, offset + 11, led_object.light_switch_position6);
+            set_uint8(data, offset + 12, led_object.light_switch_position7);
+            set_uint8(data, offset + 13, led_object.light_switch_position8);
+            set_uint8(data, offset + 14, led_object.tail_light);
+            set_uint8(data, offset + 15, led_object.brake_light);
+            set_uint8(data, offset + 16, led_object.reversing_light);
+            set_uint8(data, offset + 17, led_object.indicator_left);
+            set_uint8(data, offset + 18, led_object.indicator_right);
 
             if (led_object.light_switch_position0) { positions = 1; }
             if (led_object.light_switch_position1) { positions = 2; }
@@ -854,7 +881,7 @@ var app = (function () {
             }
         }
 
-        data[offset] = led_object.led_count;
+        set_uint8(data, offset, led_object.led_count);
 
         for (i = 0; i < led_object.led_count; i += 1) {
             assemble_led(data, car_lights_offset + (i * 20), led_object[i]);
@@ -869,9 +896,9 @@ var app = (function () {
 
         config.light_switch_positions = light_switch_positions;
 
-        data[offset] = config.firmware_version;
-        data[offset + 1] = config.mode;
-        data[offset + 2] = config.esc_mode;
+        set_uint8(data, offset, config.firmware_version);
+        set_uint8(data, offset + 1, config.mode);
+        set_uint8(data, offset + 2, config.esc_mode);
 
         var flags = 0;
         flags |= (config.slave_output << 0);

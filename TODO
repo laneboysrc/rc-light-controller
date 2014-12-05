@@ -14,8 +14,7 @@ TO DO LIST for the RC Light Controller
 
 * FW: Default light program: If gearbox servo can we blink 1/2/3 for servo setup?
 
-* CONF: if items are missing in loaded configuration, things appear as NAN i the hex file
-
+* CONF: make save/load a table for nicer layout
 
 
 * Test hysteresis for drive mode
