@@ -32,7 +32,9 @@ var hardware_test_configuration = {
     "winch_command_repeat_time": 50,
     "baudrate": 115200,
     "no_signal_timeout": 25,
-    "number_of_gears": 2
+    "number_of_gears": 2,
+    "gearbox_servo_active_time": 50,
+    "gearbox_servo_idle_time": 450
   },
   "local_leds": {
     "0": {
