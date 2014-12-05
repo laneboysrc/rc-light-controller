@@ -165,6 +165,14 @@ static void init_hardware(void)
     SysTick->CTRL = (1 << 0) |              // Enable System Tick counter
                     (1 << 1) |              // System Tick interrupt enable
                     (1 << 2);               // Use system clock
+
+
+    // Wait for 100ms to have the supply settle down before initializing the
+    // rest of the system. This is especially important for the TLC5940,
+    // which misbehaves (certain LEDs don't work) when being addressed before
+    // power is stable.
+    while (systick_count <  (100 / __SYSTICK_IN_MS));
+    systick_count = 0;
 }
 
 
