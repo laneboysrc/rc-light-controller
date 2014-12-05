@@ -14,6 +14,17 @@
 
 #define __SYSTICK_IN_MS 20
 
+
+// IO port definition
+#define GPIO_GSCLK LPC_GPIO_PORT->W0[1]
+#define GPIO_BLANK LPC_GPIO_PORT->W0[6]
+#define GPIO_XLAT LPC_GPIO_PORT->W0[3]
+#define GPIO_SCK LPC_GPIO_PORT->W0[2]
+#define GPIO_SIN LPC_GPIO_PORT->W0[7]
+#define GPIO_SWITCHED_LIGHT_OUTPUT LPC_GPIO_PORT->W0[9]
+#define GPIO_CH3 LPC_GPIO_PORT->W0[13]
+
+
 // The ROM_MAGIC marker is used to identify the location of ROM constants when
 // parsing a light controller binary by an external tool
 #define ROM_MAGIC 0x6372424c                // LBrc (LANE Boys RC) in little endian

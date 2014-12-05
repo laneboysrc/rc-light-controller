@@ -19,7 +19,6 @@
 // process.
 #define IGNORE_CLICK_COUNT 99
 
-#define CH3_PIN LPC_GPIO_PORT->W0[13]
 
 static struct {
     unsigned int last_state : 1;
@@ -166,7 +165,7 @@ void process_ch3_clicks(void)
     // independently of the other signals, i.e. set it if no other
     // new_channel_data was seen in a certain amount of systicks
     if (config.flags.ch3_is_local_switch) {
-        channel[CH3].normalized = CH3_PIN ? -100 : 100;
+        channel[CH3].normalized = GPIO_CH3 ? -100 : 100;
     }
 
     if (global_flags.initializing) {

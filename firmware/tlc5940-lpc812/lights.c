@@ -84,15 +84,6 @@
 
 #define SLAVE_MAGIC_BYTE ((uint8_t)0x87)
 
-#define GPIO_GSCLK LPC_GPIO_PORT->W0[1]
-#define GPIO_BLANK LPC_GPIO_PORT->W0[6]
-#define GPIO_XLAT LPC_GPIO_PORT->W0[3]
-#define GPIO_SCK LPC_GPIO_PORT->W0[2]
-#define GPIO_SIN LPC_GPIO_PORT->W0[7]
-#define GPIO_SWITCHED_LIGHT_OUTPUT LPC_GPIO_PORT->W0[9]
-
-#define NO_LIGHT_ARRAY 0
-
 // 16 lights locally, another 16 potentially at a slave
 #define MAX_LIGHTS 32
 
@@ -165,8 +156,7 @@ void init_lights(void)
     GPIO_GSCLK = 0;
     GPIO_XLAT = 0;
 
-    LPC_GPIO_PORT->DIR0 |=
-        (1 << 1) | (1 << 2) | (1 << 3) | (1 << 6) | (1 << 7);
+    LPC_GPIO_PORT->DIR0 |= (1 << 1) | (1 << 2) | (1 << 3) | (1 << 6) | (1 << 7);
 
     // Use 2 MHz SPI clock. 16 bytes take about 50 us to transmit.
     LPC_SPI0->DIV = (__SYSTEM_CLOCK / 2000000) - 1;
@@ -189,6 +179,8 @@ void init_lights(void)
     LPC_SWM->PINASSIGN4 = 0xff03ff07;   // PIO0_3 is XLAT (SSEL) PIO0_3 is SIN (MOSI)
 
     send_light_data_to_tlc5940();
+
+    // FIXME: do we have to wait for MSTIDLE here to prevent flickering?
 
     GPIO_BLANK = 0;
     GPIO_GSCLK = 1;

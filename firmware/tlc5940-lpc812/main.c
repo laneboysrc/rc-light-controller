@@ -125,10 +125,10 @@ static void init_hardware(void)
     // Make the open drain ports PIO0_10, PIO0_11 outputs and pull to ground
     // to prevent them from floating.
     // Make the switched light output PIO0_9 an output and shut it off.
-    LPC_GPIO_PORT->W0[9] = 0;
+    GPIO_SWITCHED_LIGHT_OUTPUT = 0;
     LPC_GPIO_PORT->W0[10] = 0;
     LPC_GPIO_PORT->W0[11] = 0;
-    LPC_GPIO_PORT->DIR0 |= (1u << 9) | (1u << 10) | (1u << 11);
+    LPC_GPIO_PORT->DIR0 |= (1 << 9) | (1 << 10) | (1 << 11);
 
 
     // Enable glitch filtering on the IOs
