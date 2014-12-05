@@ -12,8 +12,6 @@ TO DO LIST for the RC Light Controller
 
 * TOOLS: Add tool to extract light program source out of light controller config
 
-* PCB: Add top/bottom silk screen text to middle layer
-
 * FW: Default light program: If gearbox servo can we blink 1/2/3 for servo setup?
 
 * CONF: if items are missing in loaded configuration, things appear as NAN i the hex file
