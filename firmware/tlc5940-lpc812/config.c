@@ -19,9 +19,9 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
     .flags = {
         // If mode is MASTER_WITH_SERVO_READER then all *_output flags are
         // mutually exculsive.
-        // If mode is MASTER_WITH_UART_READER then there can be one UART output
-        // (slave, preprocessor or winch) and one servo output (steering wheel
-        // or gearbox servo)
+        // If mode is MASTER_WITH_UART_READER or MASTER_WITH_CPPM_READER then
+        // there can be one UART output (slave, preprocessor or winch) and
+        // one servo output (steering wheel or gearbox servo)
         .slave_output = false,
         .preprocessor_output = false,
         .winch_output = false,

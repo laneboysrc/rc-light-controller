@@ -49,19 +49,22 @@ var app = (function () {
 
     var MASTER_WITH_SERVO_READER = "Master, servo inputs";
     var MASTER_WITH_UART_READER = "Master, pre-processor input";
+    var MASTER_WITH_CPPM_READER = "Master, CPPM input";
     var SLAVE = "Slave";
     var TEST = "Hardware test";
 
     var MODE = {
         0: MASTER_WITH_SERVO_READER,
         1: MASTER_WITH_UART_READER,
-        2: SLAVE,
-        3: TEST,
+        2: MASTER_WITH_CPPM_READER,
+        3: SLAVE,
+        99: TEST,
 
         MASTER_WITH_SERVO_READER: 0,
         MASTER_WITH_UART_READER: 1,
-        SLAVE: 2,
-        TEST: 3
+        MASTER_WITH_CPPM_READER: 2,
+        SLAVE: 3,
+        TEST: 99
     };
 
 
@@ -476,6 +479,7 @@ var app = (function () {
         case MODE.MASTER_WITH_SERVO_READER:
             el.mode_master_servo.style.display = "";
             el.mode_master_uart.style.display = "none";
+            el.mode_master_cppm.style.display = "none";
             el.mode_slave.style.display = "none";
             el.mode_test.style.display = "none";
             el.config_light_programs.style.display = "";
@@ -494,6 +498,27 @@ var app = (function () {
         case MODE.MASTER_WITH_UART_READER:
             el.mode_master_servo.style.display = "none";
             el.mode_master_uart.style.display = "";
+            el.mode_master_cppm.style.display = "none";
+            el.mode_slave.style.display = "none";
+            el.mode_test.style.display = "none";
+            el.config_basic.style.display = "";
+            el.config_light_programs.style.display = "";
+            el.config_leds.style.display = "";
+            el.config_basic.style.display = "";
+            el.config_basic_esc_type.style.display = "";
+            el.config_basic_ch3.style.display = "";
+            el.config_basic_output.style.display = "";
+            el.config_advanced.style.display = "";
+            set_visibility(el.single_output, "none");
+            set_visibility(el.dual_output, "");
+            set_name(el.dual_output_th, "output_th");
+            config.mode = new_mode;
+            break;
+
+        case MODE.MASTER_WITH_CPPM_READER:
+            el.mode_master_servo.style.display = "none";
+            el.mode_master_uart.style.display = "none";
+            el.mode_master_cppm.style.display = "";
             el.mode_slave.style.display = "none";
             el.mode_test.style.display = "none";
             el.config_basic.style.display = "";
@@ -513,6 +538,7 @@ var app = (function () {
         case MODE.SLAVE:
             el.mode_master_servo.style.display = "none";
             el.mode_master_uart.style.display = "none";
+            el.mode_master_cppm.style.display = "none";
             el.mode_slave.style.display = "";
             el.mode_test.style.display = "none";
             el.config_light_programs.style.display = "none";
@@ -528,6 +554,7 @@ var app = (function () {
         case MODE.TEST:
             el.mode_master_servo.style.display = "none";
             el.mode_master_uart.style.display = "none";
+            el.mode_master_cppm.style.display = "none";
             el.mode_slave.style.display = "none";
             el.mode_test.style.display = "";
             el.config_light_programs.style.display = "none";
@@ -1385,6 +1412,7 @@ var app = (function () {
         el.mode = document.getElementById("mode");
         el.mode_master_servo = document.getElementById("mode_master_servo");
         el.mode_master_uart = document.getElementById("mode_master_uart");
+        el.mode_master_cppm = document.getElementById("mode_master_cppm");
         el.mode_slave = document.getElementById("mode_slave");
         el.mode_test = document.getElementById("mode_test");
 

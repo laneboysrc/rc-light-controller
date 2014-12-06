@@ -353,7 +353,8 @@ typedef struct {
 typedef enum {
     MASTER_WITH_SERVO_READER,
     MASTER_WITH_UART_READER,
-    SLAVE
+    MASTER_WITH_CPPM_READER,
+    SLAVE,
 } MASTER_MODE_T;
 
 
@@ -385,9 +386,10 @@ typedef struct {
     struct {
         // If mode is MASTER_WITH_SERVO_READER  then all flags are mutually
         // exculsive.
-        // If mode is MASTER_WITH_UART_READER then there can be one UART output
-        // (slave, preprocessor or winch) and one servo output (steering wheel
-        // or gearbox servo; or switched light output)
+        // If mode is MASTER_WITH_UART_READER or MASTER_WITH_CPPM_INPUT then
+        // there can be one UART output (slave, preprocessor or winch) and one
+        // servo output (steering wheel or gearbox servo; or switched light
+        // output)
         unsigned int slave_output : 1;
         unsigned int preprocessor_output : 1;
         unsigned int winch_output : 1;

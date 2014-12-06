@@ -18,7 +18,7 @@ TO DO LIST for the RC Light Controller
 
 * Show UART debug output only when possible (no preprocessor or winch out, but preprocessor reader)
 
-* Add PPM reader
+* FW: Add PPM reader implementation
 
 * DASM: Can we detect "all leds" shortcuts?
 
