@@ -24,13 +24,21 @@ TO DO LIST for the RC Light Controller
 
 * Add PPM reader
 
+* CONF: fix wrench not being highlighted, seems like wrench functions dont work
+
+* CONF: default firmware image hangs
+
+
+
+
 
 Video:
-  - Size
-  - Programming connector
+  - Size 18x27, 3.6mm thick      old: 23x30
+  - Connections
   - Caseing or bare PCB
   - Switch output
   - Bulb simulation
+  - Programming connector, USB-to-serial
 
 
 
