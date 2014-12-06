@@ -26,6 +26,8 @@ TO DO LIST for the RC Light Controller
 
 * Check if CH3 initialization after startup_mode is correct in all cases
 
+* Idea: initial  light switch position, so one can have lights on after power on?
+
 
 * Test hysteresis for drive mode
 
