@@ -969,8 +969,12 @@ var app = (function () {
 
         set_uint32(code, 0, machine_code.number_of_programs);
         for (i = 0; i < MAX_LIGHT_PROGRAMS; i += 1) {
-            offset = machine_code.start_offset[i] + first_program_offset +
-                firmware.offset[SECTION_LIGHT_PROGRAMS];
+            offset = 0;
+            if (i < machine_code.number_of_programs) {
+                offset = first_program_offset;
+                offset += firmware.offset[SECTION_LIGHT_PROGRAMS];
+                offset += machine_code.start_offset[i] * 4;
+            }
             set_uint32(code, 4 + (4 * i), offset);
         }
 
