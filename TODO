@@ -24,6 +24,7 @@ TO DO LIST for the RC Light Controller
 
 * DASM: Can we detect "all leds" shortcuts?
 
+* Check if CH3 initialization after startup_mode is correct in all cases
 
 
 * Test hysteresis for drive mode
