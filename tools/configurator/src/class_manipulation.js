@@ -7,7 +7,7 @@ function hasClass(ele, cls) {
 }
 
 function addClass(ele, cls) {
-    if (!this.hasClass(ele, cls)) {
+    if (!hasClass(ele, cls)) {
         ele.className += " " + cls;
     }
 }
