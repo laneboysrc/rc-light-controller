@@ -123,12 +123,8 @@ static void send_light_data_to_tlc5940(void)
 {
     volatile int i;
 
-    // The switched_light_output mirrors the output of LED15 onto the
-    // dedicated output pin.
-    // Fading is not applied. 0 turns the output off, any other value on.
-    GPIO_SWITCHED_LIGHT_OUTPUT = light_setpoint[15] ? 1 : 0;
-
-    // Wait for MSTIDLE
+    // Wait for MSTIDLE, should be a no-op since we are waiting after
+    // the transfer.
     while (!(LPC_SPI0->STAT & (1 << 8)));
 
     for (i = 15; i >= 0; i--) {
@@ -140,6 +136,14 @@ static void send_light_data_to_tlc5940(void)
 
     // Force END OF TRANSFER
     LPC_SPI0->STAT = (1 << 7);
+
+    // Wait for the transfer to finish
+    while (!(LPC_SPI0->STAT & (1 << 8)));
+
+    // The switched_light_output mirrors the output of LED15 onto the
+    // dedicated output pin.
+    // Fading is not applied. 0 turns the output off, any other value on.
+    GPIO_SWITCHED_LIGHT_OUTPUT = light_setpoint[15] ? 1 : 0;
 }
 
 
@@ -180,12 +184,11 @@ void init_lights(void)
 
     send_light_data_to_tlc5940();
 
-    // FIXME: do we have to wait for MSTIDLE here to prevent flickering?
-
     GPIO_BLANK = 0;
-    GPIO_GSCLK = 1;
-
+    // Do this short function in-between clearing BLANK and setting GSCLK to
+    // surely meet the setup time requirement of the TLC5940
     init_light_programs();
+    GPIO_GSCLK = 1;
 }
 
 

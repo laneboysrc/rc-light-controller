@@ -37,7 +37,7 @@ LD := $(TOOLCHAIN_PATH)$(TOOLCHAIN_PREFIX)gcc
 OBJCOPY := $(TOOLCHAIN_PATH)$(TOOLCHAIN_PREFIX)objcopy
 
 MKDIR_P = mkdir -p
-FLASH_TOOL := lpc81x_isp.py --run --flash
+FLASH_TOOL := lpc81x_isp.py --wait --run --flash
 TERMINAL_PROGRAM := miniterm.py -p /dev/ttyUSB0 -b 115200
 PREPROCESSOR_SIMULATOR := $(TOOL_PATH)preprocessor-simulator.py -b 115200
 MAP_SUMMARY_TOOL := $(TOOL_PATH)parse_gcc_map_file.py

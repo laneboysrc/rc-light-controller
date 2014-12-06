@@ -16,7 +16,11 @@ TO DO LIST for the RC Light Controller
 
 * CONF: make save/load a table for nicer layout
 
-* FW: Check TLC5940 initialization after power on
+* FW: Check TLC5940 initialization after power on with the oscilloscope
+
+* Default conf: move roof to out15
+
+* Fix broken Gerber at OSH Park
 
 
 * Test hysteresis for drive mode
