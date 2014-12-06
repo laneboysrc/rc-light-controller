@@ -160,7 +160,7 @@ var ui = (function () {
     // *************************************************************************
     var init_led_tables = function () {
 
-        function init_led_table(section) {
+        function init_led_table(section, led_offset) {
             var led_section = document.getElementById(section);
             var led_tbody = led_section.getElementsByTagName("tbody")[0];
             var template_function = tmpl("led_row_template");
@@ -171,7 +171,7 @@ var ui = (function () {
             for (i = 0; i < 16; i += 1) {
                 html += template_function({
                     "even_odd": (i % 2) ? "odd" : "even",
-                    "led_number": i
+                    "led_number": i + led_offset
                 });
             }
             html += "</table>";
@@ -194,8 +194,8 @@ var ui = (function () {
             }
         }
 
-        init_led_table("leds_master");
-        init_led_table("leds_slave");
+        init_led_table("leds_master", 0);
+        init_led_table("leds_slave", 16);
     };
 
 

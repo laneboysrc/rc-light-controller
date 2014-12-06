@@ -31,6 +31,10 @@ TO DO LIST for the RC Light Controller
 * FW/ISP/Pre-processor simulator: be able to reload ISP through UART
 * ISP: make GUI
 
+* CONF/ASM/DASM: Make LED0..31 instead of master/slave
+  This way we can directly address LEDs without defining them
+
+* ASM/DASM: be able to set light switch position
 
 
 * Test hysteresis for drive mode
