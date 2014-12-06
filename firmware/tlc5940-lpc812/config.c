@@ -77,7 +77,7 @@ const GAMMA_TABLE_T gamma_table = {
         .version = CONFIG_VERSION
     },
 
-    .gamma_value = "2.2",
+    .gamma_value = "1.8",
     .gamma_table = {
         0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 3, 3, 3, 3,
         4, 4, 4, 4, 5, 5, 5, 6, 6, 6, 7, 7, 8, 8, 8, 9, 9, 10, 10, 10, 11, 11,
