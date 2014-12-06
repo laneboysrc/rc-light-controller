@@ -16,30 +16,17 @@ TO DO LIST for the RC Light Controller
 
 * CONF: make save/load a table for nicer layout
 
-* FW: Check TLC5940 initialization after power on with the oscilloscope
-
 * Fix broken Gerber at OSH Park
 
 * Show UART debug output only when possible (no preprocessor or winch out, but preprocessor reader)
 
 * Add PPM reader
 
-* CONF: fix wrench not being highlighted, seems like wrench functions dont work
+* CONF: fix wrench functions not working
 
 * CONF: default firmware image hangs
 
-
-
-
-
-Video:
-  - Size 18x27, 3.6mm thick      old: 23x30
-  - Connections
-  - Caseing or bare PCB
-  - Switch output
-  - Bulb simulation
-  - Programming connector, USB-to-serial
-
+* DASM: Can we detect "all leds" shortcuts?
 
 
 
@@ -49,10 +36,7 @@ Video:
     * Larger heat sink for TLC5940, using vias to ground plane
 
     Items considered but not done to stay compatible with the older stencil:
-        * Protection resistors for all inputs / outputs? (conflict with Vpp?)
-        * Direct programming pads?
-        * Larger pads for resister that sets Iref?
-        * High power switched output using MOSFET
-            Use NXP PMV20XN, 4.8A in SOT23 package
+        * Protection resistors for all inputs / outputs (conflict with Vpp?)
+        * Larger pads for resister that sets Iref
         * Align all 0.1 inch connectors to 0.1 inch grid (allows mounting on a breadboard)
 
