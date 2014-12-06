@@ -25,6 +25,15 @@ TO DO LIST for the RC Light Controller
 * Add PPM reader
 
 
+Video:
+  - Size
+  - Programming connector
+  - Caseing or bare PCB
+  - Switch output
+  - Bulb simulation
+
+
+
 
 * Test hysteresis for drive mode
 
