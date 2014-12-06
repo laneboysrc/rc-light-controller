@@ -14,8 +14,6 @@ TO DO LIST for the RC Light Controller
 
 * FW: Default light program: If gearbox servo can we blink 1/2/3 for servo setup?
 
-* CONF: make save/load a table for nicer layout
-
 * Fix broken Gerber at OSH Park
 
 * Show UART debug output only when possible (no preprocessor or winch out, but preprocessor reader)
@@ -27,6 +25,12 @@ TO DO LIST for the RC Light Controller
 * Check if CH3 initialization after startup_mode is correct in all cases
 
 * Idea: initial  light switch position, so one can have lights on after power on?
+
+* ISP: Make stand along executable for Windows
+* ISP: Add watch folder to reflash
+* FW/ISP/Pre-processor simulator: be able to reload ISP through UART
+* ISP: make GUI
+
 
 
 * Test hysteresis for drive mode

@@ -57,17 +57,34 @@
       <div>
         Firmware version: <span id="firmware_version"></span>
       </div>
-      <div>
-        Load firmware image: <input type="file" id="load_firmware">
-      </div>
-      <div>
-        <button id="save_firmware">Save firmware image...</button>
-      </div>
-      <div>
-        Load configuration file: <input type="file" id="load_config">
-      </div>
-      <div>
-        <button id="save_config">Save configuration...</button>
+      <table class="load_save_table">
+        <tr>
+          <td><button id="save_firmware">Save firmware image...</button></td>
+          <td>Load firmware image: <input type="file" id="load_firmware"></td>
+        </tr>
+        <tr>
+          <td><button id="save_config">Save configuration...</button></td>
+          <td>Load configuration file: <input type="file" id="load_config"></td>
+        </tr>
+      </table>
+      <div class="info">
+        <div>
+          This tool has the light controller firmware already embedded. Below
+          you can adjust the configuration according to your needs. After you
+          are done you can save the firmware image. It will appear in the
+          download folder of your web browser.
+        </div>
+        <div>
+          You can also save the changed configuration into a text file that
+          you can load at a later point in time, e.g. to make further tweaks.
+        </div>
+        <div>
+          It is advisable that you always keep a copy of the saved
+          configuration. While it is possible to retrieve all settings from
+          a firmware image, some data especially in the light programs, like
+          variable names and comments, are lost as they are not placed into
+          the firmware image.
+        </div>
       </div>
     </div>
 

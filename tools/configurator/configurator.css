@@ -97,6 +97,9 @@ ul {
   margin-top: 1em;
 }
 
+.load_save_table td {
+  padding-right: 40px;
+}
 
 #config_basic .radio_item {
   margin-bottom: 1em;
