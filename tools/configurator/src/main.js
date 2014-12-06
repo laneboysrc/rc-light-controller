@@ -939,7 +939,7 @@ var app = (function () {
         set_uint16(data, offset + 48, config.no_signal_timeout);
         set_uint16(data, offset + 50, config.number_of_gears);
         set_uint16(data, offset + 52, config.gearbox_servo_active_time);
-        set_uint16(data, offset + 54, config.gearbox_servo_active_time);
+        set_uint16(data, offset + 54, config.gearbox_servo_idle_time);
     };
 
 
