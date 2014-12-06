@@ -18,9 +18,10 @@ TO DO LIST for the RC Light Controller
 
 * FW: Check TLC5940 initialization after power on with the oscilloscope
 
-* Default conf: move roof to out15
-
 * Fix broken Gerber at OSH Park
+
+* Show UART debug output only when possible (no preprocessor or winch out, but preprocessor reader)
+
 
 
 * Test hysteresis for drive mode

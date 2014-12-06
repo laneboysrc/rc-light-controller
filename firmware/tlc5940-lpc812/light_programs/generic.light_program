@@ -84,7 +84,7 @@ use all leds
 led high-beam-l = master[4]
 led high-beam-r = master[5]
 led indicator-front-l = master[6]
-led indicator-rear-l = master[14]
+led indicator-rear-l = master[12]
 
 loop:
     sleep 0
@@ -134,8 +134,8 @@ run when servo-output-setup-centre servo-output-setup-left servo-output-setup-ri
 use all leds
 led indicator-front-l = master[6]
 led indicator-front-r = master[7]
-led indicator-rear-l = master[14]
-led indicator-rear-r = master[15]
+led indicator-rear-l = master[12]
+led indicator-rear-r = master[13]
 
 loop:
     sleep 0
