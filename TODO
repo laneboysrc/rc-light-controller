@@ -8,33 +8,33 @@ TO DO LIST for the RC Light Controller
   including fade commands!.
   Needs documenting.
 
-* FW: Test gearbox switch time
+* Fix/remove broken Gerber at OSH Park
 
-* TOOLS: Add tool to extract light program source out of light controller config
+* Refactor directory structure
+
+* FW: Test gearbox switch time
 
 * FW: Default light program: If gearbox servo can we blink 1/2/3 for servo setup?
 
-* Fix broken Gerber at OSH Park
-
-* Show UART debug output only when possible (no preprocessor or winch out, but preprocessor reader)
+* FW: Show UART debug output only when possible (no preprocessor or winch out,
+  but preprocessor reader)
 
 * FW: Add PPM reader implementation
 
 * DASM: Can we detect "all leds" shortcuts?
-
-* ISP: Make stand along executable for Windows
-* ISP: Add watch folder to reflash
-* FW/ISP/Pre-processor simulator: be able to reload ISP through UART
-* ISP: make GUI
+  And then define led_0..31 variables for those that appear only in a single
+  command
 
 * CONF/ASM/DASM: Make LED0..31 instead of master/slave
   This way we can directly address LEDs without defining them
 
-* CONF/ASM/DASM: Can we do indirect LED setting led[i] = 100% ??
-  This would be helpful for running lights etc
+* TOOLS: Add watch folder to ISP tool
 
-* Refactor directory structure
+* TOOLS: Add tool to extract light program source out of light controller config
 
+* FW/TOOLS: make a combined preprocessor simulator with integrated ISP tool,
+  with GUI and Windows executable Python3
+  FW needs preprocessor reader to detect a special sequence to invoke ISP
 
 
 
