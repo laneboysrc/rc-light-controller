@@ -5,6 +5,7 @@
 var disassembler = (function () {
 
     var MAX_NUMBER_OF_INSTRUCTIONS = 16 * 1024 / 4;
+    var NUMBER_OF_LEDS = 32;
 
     var asm = [];
     (function initialize_asm() {
@@ -15,6 +16,7 @@ var disassembler = (function () {
     }());
 
     var leds_used = 0;
+    var leds_to_declare_offset;
     var variables = {};
     var var_offsets = [];
     var current_program = 1;
@@ -299,11 +301,21 @@ var disassembler = (function () {
         var type;
 
         leds_used = instruction;
+        leds_to_declare_offset = offset++;
+        asm[leds_to_declare_offset].leds_to_declare = leds_used;
 
-        for (i = 0; i < 32; i++) {
-            if (instruction & (1 << i)) {
+        if (leds_used === (Math.pow(2, NUMBER_OF_LEDS) - 1)) {
+            asm[leds_to_declare_offset].leds_to_declare = 0;
+
+            asm[offset++].decleration = "use all leds";
+            asm[offset++].decleration = '';  // Empty line
+        }
+
+        for (i = 0; i < NUMBER_OF_LEDS; i++) {
+            if (instruction & Math.pow(2, i)) {
                 type = (i < 16) ? 'master' : 'slave';
 
+                asm[offset].led = i;
                 asm[offset++].decleration =
                     "led led" + i + " = " + type + "[" + (i % 16) + "]";
                 any_led = true;
@@ -321,21 +333,27 @@ var disassembler = (function () {
         var stop = (instruction & 0x00ff0000) >> 16;
         var start = (instruction & 0x0000ff00) >> 8;
         var result = '';
-        var led_bitmap = 0;
+        var led_bit_mask = 0;
 
+        // If all used LEDs are used in the instruction then output "all leds"
+        // instead of a giant list of leds.
+        console.log(start, stop);
+        if (start === 0  &&  stop === (NUMBER_OF_LEDS - 1)) {
+            return "all leds";
+        }
 
         while (start <= stop) {
-            led_bitmap |= (1 << start);
+            // Remember which LEDs are used here so that we can weed out unused
+            // leds in the decleration later
+            led_bit_mask = Math.pow(2, start);
+            if (!(asm[leds_to_declare_offset].leds_to_declare & led_bit_mask)) {
+                asm[leds_to_declare_offset].leds_to_declare += led_bit_mask;
+            }
+
             if (result !== '') {
                 result += ', ';
             }
             result += 'led' + start++;
-        }
-
-        // If all used LEDs are used in the instruction then output "all leds"
-        // instead of a giant list of leds.
-        if (led_bitmap === leds_used) {
-            return "all leds";
         }
 
         return result;
@@ -895,6 +913,8 @@ var disassembler = (function () {
         var source_code = "";
         var program = 1;
         var i;
+        var led_bit_mask;
+        var leds_to_declare;
 
         for (i = 0; i < (offset + pc); i++) {
             if (i === var_offsets[program - 1]) {
@@ -903,8 +923,18 @@ var disassembler = (function () {
                 ++program;
             }
 
+            if (asm[i].leds_to_declare !== null) {
+                leds_to_declare = asm[i].leds_to_declare;
+            }
             if (asm[i].decleration !== null) {
-                source_code += asm[i].decleration + "\n";
+                if (asm[i].led === null) {
+                    source_code += asm[i].decleration + "\n";
+                } else {
+                    led_bit_mask = Math.pow(2, asm[i].led);
+                    if (leds_to_declare & led_bit_mask) {
+                        source_code += asm[i].decleration + "\n";
+                    }
+                }
             }
             if (asm[i].label !== null) {
                 source_code += asm[i].label + ":\n";
@@ -923,7 +953,8 @@ var disassembler = (function () {
         var i;
 
         for (i = 0; i < asm.length; i++) {
-            asm[i] = {'decleration' : null, 'label' : null, 'code' : null};
+            asm[i] = {'decleration' : null, 'label' : null, 'code' : null,
+                      'led' : null, 'leds_to_declare' : null};
         }
 
         variables = {};

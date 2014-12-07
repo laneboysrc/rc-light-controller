@@ -21,10 +21,6 @@ TO DO LIST for the RC Light Controller
 
 * FW: Add PPM reader implementation
 
-* DASM: Can we detect "all leds" shortcuts?
-  And then define led_0..31 variables for those that appear only in a single
-  command
-
 * CONF/ASM/DASM: Make LED0..31 instead of master/slave
   This way we can directly address LEDs without defining them
 
@@ -36,6 +32,7 @@ TO DO LIST for the RC Light Controller
   with GUI and Windows executable Python3
   FW needs preprocessor reader to detect a special sequence to invoke ISP
 
+* CONF: add build date using gulp somehow
 
 
 * Test hysteresis for drive mode
