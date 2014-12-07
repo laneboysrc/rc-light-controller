@@ -523,6 +523,10 @@ void init_servo_reader(void);
 void read_all_servo_channels(void);
 void SCT_irq_handler(void);
 
+void init_cppm_reader(void);
+void read_all_cppm_channels(void);
+void SCT_irq_handler_FIXME(void);
+
 void init_uart_reader(void);
 void read_preprocessor(void);
 

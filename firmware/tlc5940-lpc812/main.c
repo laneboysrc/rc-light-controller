@@ -270,6 +270,7 @@ int main(void)
     init_uart0();
     load_persistent_storage();
     init_servo_reader();
+    init_cppm_reader();
     init_uart_reader();
     init_servo_output();
     init_lights();
@@ -281,6 +282,7 @@ int main(void)
         service_systick();
 
         read_all_servo_channels();
+        read_all_cppm_channels();
         read_preprocessor();
         process_ch3_clicks();
         process_drive_mode();
