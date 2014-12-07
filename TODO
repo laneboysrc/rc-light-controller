@@ -14,16 +14,10 @@ TO DO LIST for the RC Light Controller
 
 * FW: Test gearbox switch time
 
-* FW: Default light program: If gearbox servo can we blink 1/2/3 for servo setup?
-
 * FW: Show UART debug output only when possible (no preprocessor or winch out,
   but preprocessor reader)
 
 * FW: Add PPM reader implementation
-
-* CONF/ASM/DASM: Make LEDs directly addressible with led[0..31]
-  Issue: how to resolve "all leds" if we only know leds_used after we have
-  run through the complete program?
 
 * TOOLS: Add watch folder to ISP tool
 
