@@ -16,6 +16,8 @@
 
     The first byte is always 0x87, which indicates that it is a start byte. No
     other byte can have this value.
+    Note: values 0x80..0x87 do not appear in the other bytes by design,
+    so those can be used as first byte to indicate start of a packet.
 
     The second byte is a signed char of the steering channel, from -100 to 0
     (Neutral) to +100, corresponding to the percentage of steering left/right.
