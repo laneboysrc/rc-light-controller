@@ -1,6 +1,6 @@
 run always
 
-led led1 = slave[0]
+led led1 = led[16]
 
 sleep 1
 goto led1

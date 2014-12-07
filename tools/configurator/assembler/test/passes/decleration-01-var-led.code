@@ -5,11 +5,11 @@ var      y
 var variable_with_underscores
 var UpperAndLowerCaseName
 
-led light1 = master[0]
-led     light2=slave [ 15 ]
-led light3 =master[1]
-led roof-light-with-dash=slave[4]
-led lampFog = master[2]
+led light1 = led[0]
+led     light2=led [ 31 ]
+led light3 =led[1]
+led roof-light-with-dash=led[20]
+led lampFog = led[2]
 
 sleep 1
 

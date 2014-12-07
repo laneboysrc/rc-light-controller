@@ -298,9 +298,8 @@ var disassembler = (function () {
     var decode_leds_used = function (instruction) {
         var i;
         var any_led = false;
-        var type;
 
-        leds_used = instruction;
+        leds_used = parseInt(instruction, 16);
         leds_to_declare_offset = offset++;
         asm[leds_to_declare_offset].leds_to_declare = leds_used;
 
@@ -313,11 +312,9 @@ var disassembler = (function () {
 
         for (i = 0; i < NUMBER_OF_LEDS; i++) {
             if (instruction & Math.pow(2, i)) {
-                type = (i < 16) ? 'master' : 'slave';
-
                 asm[offset].led = i;
                 asm[offset++].decleration =
-                    "led led" + i + " = " + type + "[" + (i % 16) + "]";
+                    "led led" + i + " = led[" + i + "]";
                 any_led = true;
             }
         }
@@ -337,7 +334,6 @@ var disassembler = (function () {
 
         // If all used LEDs are used in the instruction then output "all leds"
         // instead of a giant list of leds.
-        console.log(start, stop);
         if (start === 0  &&  stop === (NUMBER_OF_LEDS - 1)) {
             return "all leds";
         }
@@ -930,6 +926,7 @@ var disassembler = (function () {
                 if (asm[i].led === null) {
                     source_code += asm[i].decleration + "\n";
                 } else {
+
                     led_bit_mask = Math.pow(2, asm[i].led);
                     if (leds_to_declare & led_bit_mask) {
                         source_code += asm[i].decleration + "\n";

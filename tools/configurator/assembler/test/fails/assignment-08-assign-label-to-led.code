@@ -1,6 +1,6 @@
 run always
 
-led l = slave[6]
+led l = led[22]
 
 label1:
 sleep 1

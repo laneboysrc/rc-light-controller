@@ -128,18 +128,11 @@ decleration
   | GLOBAL VAR GLOBAL_VARIABLE
       { /* Nothing to do, global variable already declared */ }
   | GLOBAL VAR error
-  | LED UNDECLARED_SYMBOL '=' master_or_slave
-      {  yy.symbols.add_symbol($2, "LED_ID", $4, @2); }
+  | LED UNDECLARED_SYMBOL '=' LED '[' NUMBER ']'
+      {  yy.symbols.add_symbol($2, "LED_ID", $6, @2); }
   | LED error
   | USE ALL LEDS
       {  yy.symbols.set_leds_used(0xffffffff); }
-  ;
-
-master_or_slave
-  : MASTER '[' NUMBER ']'
-      { $$ = $3; }
-  | SLAVE '[' NUMBER ']'
-      { $$ = $3 + 16; }
   ;
 
 code_lines

@@ -2,27 +2,28 @@ run always
 
 var x
 
-led l1 = master[2]
-led l2 = master[3]
-led l3 = master[4]
-led l4 = master[5]
+led led1 = led[2]
+led l2 = led[3]
+led l3 = led[4]
+led l4 = led[5]
 
-led lx = master[7]
+led lx = led[7]
 
-l1 = 100
+led1 = 100
 l2 = 50%
 l2 = x
 
-l1, l2, l3, l4 = 11
-l1, l2, l3 = x
+led1, l2, l3, l4 = 11
+led1, l2, l3 = x
 
-l2, l3, l4, l1 = 42
-l3, l2, l1 = x
+l2, l3, l4, led1 = 42
+l3, l2, led1 = x
 
-l1, l2, l3, lx = 47
-l1, l2, l3, l4, lx = x
+led1, l2, l3, lx = 47
+led1, l2, l3, l4, lx = x
 
-l1, l2, lx, l3          = 99
-l2, lx, l4, l3, l1      = x
+led1, l2, lx, l3          = 99
+l2, lx, l4, l3, led1      = x
+
 
 end

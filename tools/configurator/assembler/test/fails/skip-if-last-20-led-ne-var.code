@@ -1,6 +1,6 @@
 run always
 
-led x = master[9]
+led x = led[9]
 var y
 
     skip if x != y

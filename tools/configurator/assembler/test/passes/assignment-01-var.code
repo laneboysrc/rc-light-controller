@@ -2,7 +2,7 @@ run always
 
 var x
 var y
-led LED1a = master[8]
+led LED1a = led[8]
 
 x = 42
 x = -1

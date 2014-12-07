@@ -21,8 +21,9 @@ TO DO LIST for the RC Light Controller
 
 * FW: Add PPM reader implementation
 
-* CONF/ASM/DASM: Make LED0..31 instead of master/slave
-  This way we can directly address LEDs without defining them
+* CONF/ASM/DASM: Make LEDs directly addressible with led[0..31]
+  Issue: how to resolve "all leds" if we only know leds_used after we have
+  run through the complete program?
 
 * TOOLS: Add watch folder to ISP tool
 

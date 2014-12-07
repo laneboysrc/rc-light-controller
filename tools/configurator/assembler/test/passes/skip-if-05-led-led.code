@@ -1,7 +1,7 @@
 run always
 
-led x = master[7]
-led l = master[2]
+led x = led[7]
+led l = led[2]
 
     skip if x == l
     skip if x != l

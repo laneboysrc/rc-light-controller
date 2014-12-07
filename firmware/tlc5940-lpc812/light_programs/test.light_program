@@ -5,22 +5,22 @@
 
 run always
 
-led led0 = master[0]
-led led1 = master[1]
-led led2 = master[2]
-led led3 = master[3]
-led led4 = master[4]
-led led5 = master[5]
-led led6 = master[6]
-led led7 = master[7]
-led led8 = master[8]
-led led9 = master[9]
-led led10 = master[10]
-led led11 = master[11]
-led led12 = master[12]
-led led13 = master[13]
-led led14 = master[14]
-led led15 = master[15]
+led led0 = led[0]
+led led1 = led[1]
+led led2 = led[2]
+led led3 = led[3]
+led led4 = led[4]
+led led5 = led[5]
+led led6 = led[6]
+led led7 = led[7]
+led led8 = led[8]
+led led9 = led[9]
+led led10 = led[10]
+led led11 = led[11]
+led led12 = led[12]
+led led13 = led[13]
+led led14 = led[14]
+led led15 = led[15]
 
 var brightness
 var delay_time

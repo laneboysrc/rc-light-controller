@@ -106,8 +106,6 @@ var symbols = (function () {
         "run": {"token": "RUN"},
         "when": {"token": "WHEN"},
         "or": {"token": "OR"},
-        "master": {"token": "MASTER"},
-        "slave": {"token": "SLAVE"},
         "global": {"token": "GLOBAL"},
         "random": {"token": "RANDOM"},
         "steering": {"token": "STEERING"},

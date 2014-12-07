@@ -1,7 +1,7 @@
 run always
 
 var x
-led l = master[7]
+led l = led[7]
 
     skip if x != l
 

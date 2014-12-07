@@ -1,6 +1,6 @@
 run always
 
-led l = master[0]
+led l = led[0]
 
     skip if none blink-flag l neutral
     sleep 1

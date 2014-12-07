@@ -2,12 +2,12 @@ run always
 
 var x
 
-led l1 = slave[2]
-led l2 = slave[3]
-led l3 = slave[4]
-led l4 = slave[5]
+led l1 = led[18]
+led l2 = led[19]
+led l3 = led[20]
+led l4 = led[21]
 
-led lx = slave[7]
+led lx = led[23]
 
 fade l1 stepsize 50
 fade l2 stepsize 17%

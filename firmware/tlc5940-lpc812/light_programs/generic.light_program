@@ -15,8 +15,8 @@ run when no-signal
 // Take over all LEDs
 use all leds
 
-led indicator-front-l = master[6]
-led indicator-front-r = master[7]
+led indicator-front-l = led[6]
+led indicator-front-r = led[7]
 
 loop:
     // Turn fading off for all leds, we want them to switch on/off immediately
@@ -50,8 +50,8 @@ end
 run when initializing
 
 use all leds
-led main-beam-l = master[2]
-led main-beam-r = master[3]
+led main-beam-l = led[2]
+led main-beam-r = led[3]
 
 loop:
     fade all leds stepsize 0
@@ -81,10 +81,10 @@ end
 run when reversing-setup-steering or reversing-setup-throttle
 
 use all leds
-led high-beam-l = master[4]
-led high-beam-r = master[5]
-led indicator-front-l = master[6]
-led indicator-rear-l = master[12]
+led high-beam-l = led[4]
+led high-beam-r = led[5]
+led indicator-front-l = led[6]
+led indicator-rear-l = led[12]
 
 loop:
     sleep 0
@@ -132,10 +132,10 @@ end
 run when servo-output-setup-centre servo-output-setup-left servo-output-setup-right
 
 use all leds
-led indicator-front-l = master[6]
-led indicator-front-r = master[7]
-led indicator-rear-l = master[12]
-led indicator-rear-r = master[13]
+led indicator-front-l = led[6]
+led indicator-front-r = led[7]
+led indicator-rear-l = led[12]
+led indicator-rear-r = led[13]
 
 loop:
     sleep 0

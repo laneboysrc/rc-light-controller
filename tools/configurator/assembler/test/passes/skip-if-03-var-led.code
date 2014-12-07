@@ -2,7 +2,7 @@ run always
 
 var x
 global var y
-led l = master[7]
+led l = led[7]
 
     skip if x == l
     skip if x != l
