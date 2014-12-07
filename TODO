@@ -34,7 +34,14 @@ TO DO LIST for the RC Light Controller
 * CONF/ASM/DASM: Make LED0..31 instead of master/slave
   This way we can directly address LEDs without defining them
 
+* CONF/ASM/DASM: Can we do indirect LED setting led[i] = 100% ??
+  This would be helpful for running lights etc
+
 * ASM/DASM: be able to set light switch position
+
+* Refactor directory structure
+
+
 
 
 * Test hysteresis for drive mode
