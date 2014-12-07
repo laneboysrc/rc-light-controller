@@ -23,6 +23,7 @@
 static struct {
     unsigned int last_state : 1;
     unsigned int transitioned : 1;
+    unsigned int initialized : 1;
 } ch3_flags;
 
 static uint8_t ch3_clicks;
@@ -169,11 +170,16 @@ void process_ch3_clicks(void)
     }
 
     if (global_flags.initializing) {
-        ch3_flags.last_state = (channel[CH3].normalized > 0) ? true : false;
-        return;
+        ch3_flags.initialized = false;
     }
 
     if (!global_flags.new_channel_data) {
+        return;
+    }
+
+    if (!ch3_flags.initialized) {
+        ch3_flags.initialized = true;
+        ch3_flags.last_state = (channel[CH3].normalized > 0) ? true : false;
         return;
     }
 
