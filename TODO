@@ -24,9 +24,10 @@ TO DO LIST for the RC Light Controller
 * TOOLS: Add tool to extract light program source out of light controller config
 
 * FW/TOOLS: make a combined preprocessor simulator with integrated ISP tool,
-  with GUI and Windows executable Python3
+  with web GUI and Windows executable
   FW needs preprocessor reader to detect a special sequence to invoke ISP
-
+  Watch file selection
+  Serial port selection, with auto-detection of available ports
 
 
 * Test hysteresis for drive mode
