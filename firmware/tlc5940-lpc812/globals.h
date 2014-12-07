@@ -427,6 +427,7 @@ typedef struct {
     uint16_t blink_threshold;
 
     uint16_t light_switch_positions;
+    uint16_t initial_light_switch_position;
     uint16_t initial_endpoint_delta;
     uint16_t ch3_multi_click_timeout;
     uint16_t winch_command_repeat_time;

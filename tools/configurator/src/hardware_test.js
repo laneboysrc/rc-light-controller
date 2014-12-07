@@ -27,6 +27,7 @@ var hardware_test_configuration = {
     "centre_threshold_high": 12,
     "blink_threshold": 30,
     "light_switch_positions": 5,
+    "initial_light_switch_position": 0,
     "initial_endpoint_delta": 250,
     "ch3_multi_click_timeout": 15,
     "winch_command_repeat_time": 50,

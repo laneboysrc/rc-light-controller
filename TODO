@@ -24,8 +24,6 @@ TO DO LIST for the RC Light Controller
 
 * Check if CH3 initialization after startup_mode is correct in all cases
 
-* Idea: initial  light switch position, so one can have lights on after power on?
-
 * ISP: Make stand along executable for Windows
 * ISP: Add watch folder to reflash
 * FW/ISP/Pre-processor simulator: be able to reload ISP through UART

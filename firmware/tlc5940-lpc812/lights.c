@@ -189,6 +189,8 @@ void init_lights(void)
     // surely meet the setup time requirement of the TLC5940
     init_light_programs();
     GPIO_GSCLK = 1;
+
+    light_switch_position = config.initial_light_switch_position;
 }
 
 

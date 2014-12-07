@@ -52,6 +52,7 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
     .blink_threshold = 30,
 
     .light_switch_positions = 5,
+    .initial_light_switch_position = 0,
 
     .initial_endpoint_delta = 250,
 

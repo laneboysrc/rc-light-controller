@@ -23,7 +23,6 @@ var app = (function () {
     var MAX_LIGHT_PROGRAMS = 25;
     // var MAX_LIGHT_PROGRAM_VARIABLES = 100;
 
-    // var LIGHT_SWITCH_POSITIONS = 9;
     var light_switch_positions;
 
     var SECTION_CONFIG = "Configuration";
@@ -299,11 +298,10 @@ var app = (function () {
         new_config.centre_threshold_high = get_uint16(data, offset + 30);
         new_config.blink_threshold = get_uint16(data, offset + 32);
         new_config.light_switch_positions = get_uint16(data, offset + 34);
-        new_config.initial_endpoint_delta = get_uint16(data, offset + 36);
-        new_config.ch3_multi_click_timeout = get_uint16(data, offset + 38);
-        new_config.winch_command_repeat_time = get_uint16(data, offset + 40);
-
-        // 2 byte padding
+        new_config.initial_light_switch_position = get_uint16(data, offset + 36);
+        new_config.initial_endpoint_delta = get_uint16(data, offset + 38);
+        new_config.ch3_multi_click_timeout = get_uint16(data, offset + 40);
+        new_config.winch_command_repeat_time = get_uint16(data, offset + 42);
 
         new_config.baudrate = get_uint32(data, offset + 44);
         new_config.no_signal_timeout = get_uint16(data, offset + 48);
@@ -718,6 +716,9 @@ var app = (function () {
         el.gearbox_servo_idle_time.value =
             config.gearbox_servo_idle_time * SYSTICK_IN_MS;
 
+        el.initial_light_switch_position.value =
+            config.initial_light_switch_position;
+
         el.gamma_value.value = gamma_object.gamma_value;
 
 
@@ -956,11 +957,10 @@ var app = (function () {
         set_uint16(data, offset + 30, config.centre_threshold_high);
         set_uint16(data, offset + 32, config.blink_threshold);
         set_uint16(data, offset + 34, config.light_switch_positions);
-        set_uint16(data, offset + 36, config.initial_endpoint_delta);
-        set_uint16(data, offset + 38, config.ch3_multi_click_timeout);
-        set_uint16(data, offset + 40, config.winch_command_repeat_time);
-
-        // 2 byte padding
+        set_uint16(data, offset + 36, config.initial_light_switch_position);
+        set_uint16(data, offset + 38, config.initial_endpoint_delta);
+        set_uint16(data, offset + 40, config.ch3_multi_click_timeout);
+        set_uint16(data, offset + 42, config.winch_command_repeat_time);
 
         set_uint32(data, offset + 44, config.baudrate);
         set_uint16(data, offset + 48, config.no_signal_timeout);
@@ -1268,6 +1268,8 @@ var app = (function () {
         update_time("gearbox_servo_active_time");
         update_time("gearbox_servo_idle_time");
 
+        update_int("initial_light_switch_position");
+
         update_gamma("gamma_value");
 
         light_programs = ui.get_editor_content();
@@ -1510,7 +1512,11 @@ var app = (function () {
         el.gearbox_servo_idle_time =
             document.getElementById("gearbox_servo_idle_time");
 
+        el.initial_light_switch_position =
+            document.getElementById("initial_light_switch_position");
+
         el.gamma_value = document.getElementById("gamma_value");
+
 
         el.mode.addEventListener("change", update_section_visibility, false);
 
