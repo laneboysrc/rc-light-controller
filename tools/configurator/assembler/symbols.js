@@ -370,6 +370,8 @@ var symbols = (function () {
 
         add_symbol("clicks", "GLOBAL_VARIABLE", next_variable_index);
         next_variable_index += 1;
+        add_symbol("light-switch-position", "GLOBAL_VARIABLE", next_variable_index);
+        next_variable_index += 1;
     };
 
 

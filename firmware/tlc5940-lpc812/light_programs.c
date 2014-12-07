@@ -103,6 +103,9 @@
 
 #define MAX_INSTRUCTIONS_PER_SYSTICK 30
 
+// Pre-defined global variables in var[]
+#define GLOBAL_VAR_CLICKS 0
+#define GLOBAL_VAR_LIGHT_SWITCH_POSITION 1
 
 typedef struct {
     const uint32_t *PC;
@@ -237,6 +240,18 @@ static void load_light_program_environment(void)
     }
     if (global_flags.reversing_setup & REVERSING_SETUP_THROTTLE) {
         car_state |= CAR_STATE_REVERSING_SETUP_THROTTLE;
+    }
+}
+
+
+// ****************************************************************************
+static void limit_light_switch_position_variable(void)
+{
+    if (var[GLOBAL_VAR_LIGHT_SWITCH_POSITION] < 0) {
+        var[GLOBAL_VAR_LIGHT_SWITCH_POSITION] = 0;
+    }
+    if (var[GLOBAL_VAR_LIGHT_SWITCH_POSITION] > config.light_switch_positions) {
+        var[GLOBAL_VAR_LIGHT_SWITCH_POSITION] = config.light_switch_positions;
     }
 }
 
@@ -601,10 +616,15 @@ uint32_t process_light_programs(void)
     leds_used = 0;
     load_light_program_environment();
 
+    // Place the current light switch position into a global variable
+    // so that light programs can access them
+    var[GLOBAL_VAR_LIGHT_SWITCH_POSITION] = light_switch_position;
+
     // Run all programs that were triggered by an event
     for (i = 0; i < light_programs.number_of_programs; i++) {
         if (cpu[i].event) {
             execute_program(light_programs.start[i], &cpu[i], &leds_used);
+            limit_light_switch_position_variable();
         }
     }
 
@@ -621,6 +641,7 @@ uint32_t process_light_programs(void)
         if (*(light_programs.start[i] + PRIORITY_STATE_OFFSET) &
                 priority_run_state) {
             execute_program(light_programs.start[i], &cpu[i], &leds_used);
+            limit_light_switch_position_variable();
         }
         else {
             reset_program(i);
@@ -635,11 +656,15 @@ uint32_t process_light_programs(void)
 
         if (*(light_programs.start[i] + RUN_STATE_OFFSET) & run_state) {
             execute_program(light_programs.start[i], &cpu[i], &leds_used);
+            limit_light_switch_position_variable();
         }
         else {
             reset_program(i);
         }
     }
+
+    // Return the possibly modified value of light switch position
+    light_switch_position = var[GLOBAL_VAR_LIGHT_SWITCH_POSITION];
 
     return leds_used;
 }

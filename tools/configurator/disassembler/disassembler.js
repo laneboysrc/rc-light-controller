@@ -355,6 +355,9 @@ var disassembler = (function () {
             if (index === 0) {
                 return "clicks";
             }
+            if (index === 1) {
+                return "light-switch-position";
+            }
             set_variable_used(index, current_program);
             return "var" + index;
 
@@ -384,11 +387,13 @@ var disassembler = (function () {
         var result = '';
 
         index = (instruction >> 16) & 0xff;
-        if (index > 0) {
+        if (index === 0) {
+            result = 'clicks ' + operator + ' ';
+        } else if (index === 1) {
+            result = 'light-switch-position ' + operator + ' ';
+        } else {
             set_variable_used(index, current_program);
             result = 'var' + index + ' ' + operator + ' ';
-        } else {
-            result = 'clicks ' + operator + ' ';
         }
 
         if (instruction & INSTRUCTION_MODIFIER_IMMEDIATE) {
@@ -428,6 +433,9 @@ var disassembler = (function () {
             if (index === 0) {
                 return "clicks";
             }
+            if (index === 1) {
+                return "light-switch-position";
+            }
             set_variable_used(index, current_program);
             return "var" + index;
 
@@ -459,11 +467,13 @@ var disassembler = (function () {
         } else {
             var index = (instruction >> 16) & 0xff;
 
-            if (index > 0) {
+            if (index === 0) {
+                left = "clicks";
+            } else if (index === 1) {
+                left = "light-switch-position";
+            } else {
                 set_variable_used(index, current_program);
                 left = "var" + index;
-            } else {
-                left = "clicks";
             }
         }
 

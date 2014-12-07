@@ -8,9 +8,11 @@ LANE Boys RC light controller (TLC5940/LPC812 version)
 
 reserved keywords:
   goto, var, led, leds, sleep, skip, if, is, any, all, none, not, fade, stepsize,
-  run, when, or, master, slave, global, random, steering, throttle, gear, abs
+  run, when, or, master, slave, global, random, steering, throttle, gear, abs, use
 
-  clicks: Pre-defined global variable; increments when 6-clicks on CH3
+  Pre-defined global variables:
+  clicks: increments when 6-clicks on CH3
+  light-switch-positions: reads and sets the current light switch position
 
 */
 

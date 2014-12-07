@@ -535,8 +535,16 @@ static void process_car_lights(void)
 {
     int i;
     uint32_t leds_used;
+    static uint8_t old_light_switch_position = 0xff;
 
     leds_used = process_light_programs();
+
+    if (light_switch_position != old_light_switch_position) {
+        old_light_switch_position = light_switch_position;
+        uart0_send_cstring("light_switch_position ");
+        uart0_send_uint32(light_switch_position);
+        uart0_send_linefeed();
+    }
 
     // Handle LEDs connected to the TLC5940 locally
     for (i = 0; i < local_leds.led_count ; i++) {
@@ -583,15 +591,6 @@ static void process_car_lights(void)
 // ****************************************************************************
 void process_lights(void)
 {
-    static uint8_t old_light_switch_position = 0xff;
-
-    if (light_switch_position != old_light_switch_position) {
-        old_light_switch_position = light_switch_position;
-        uart0_send_cstring("light_switch_position ");
-        uart0_send_uint32(light_switch_position);
-        uart0_send_linefeed();
-    }
-
     process_light_program_events();
     if (global_flags.systick) {
         process_car_lights();

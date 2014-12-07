@@ -1,5 +1,5 @@
 // Auto-generated file. Do not modify.
-// Source: /home/laneboysrc/projects/rc-light-controller/firmware/tlc5940-lpc812/light_programs/generic.light_program
+// Source: /home/werner/projects/rc-light-controller/firmware/tlc5940-lpc812/light_programs/generic.light_program
 
 #include <globals.h>
 
