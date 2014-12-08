@@ -178,9 +178,9 @@ void init_uart0(void)
 
 
 // ****************************************************************************
-int uart0_send_is_ready(void)
+bool uart0_send_is_ready(void)
 {
-    return (LPC_USART0->STAT & UART_STAT_TXRDY ? 1 : 0);
+    return (LPC_USART0->STAT & UART_STAT_TXRDY);
 }
 
 
@@ -282,7 +282,7 @@ void UART0_irq_handler(void)
 
 
 // ****************************************************************************
-int uart0_read_is_byte_pending(void)
+bool uart0_read_is_byte_pending(void)
 {
     if (LPC_USART0->STAT & (1 << 8)) {
         uart0_send_cstring("overrun\n");

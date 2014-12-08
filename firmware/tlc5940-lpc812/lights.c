@@ -592,10 +592,49 @@ static void process_car_lights(void)
 
 
 // ****************************************************************************
+static void process_slave(void)
+{
+    uint8_t uart_byte;
+    static int state = 0;
+
+    while (uart0_read_is_byte_pending()) {
+        uart_byte = uart0_read_byte();
+
+        // The slave/preprocessor protocol is designed such that only the first
+        // byte can have the MAGIC value. This allows us to be in sync at all
+        // times.
+        // If we receive the MAGIC value we know it is the first byte, so we
+        // can kick off the state machine.
+        if (uart_byte == SLAVE_MAGIC_BYTE) {
+            state = 1;
+            return;
+        }
+
+        if (state > 1) {
+            light_actual[state - 1] = uart_byte;
+            ++state;
+
+            // Once we got all 16 LED values we send the data to the LEDs
+            // and reset the state machine to wait for the next packet
+            if (state > 16) {
+                state = 0;
+                send_light_data_to_tlc5940();
+            }
+        }
+    }
+}
+
+
+// ****************************************************************************
 void process_lights(void)
 {
-    process_light_program_events();
-    if (global_flags.systick) {
-        process_car_lights();
+    if (config.mode == SLAVE) {
+        process_slave();
+    }
+    else {
+        process_light_program_events();
+        if (global_flags.systick) {
+            process_car_lights();
+        }
     }
 }
