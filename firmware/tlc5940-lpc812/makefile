@@ -78,6 +78,7 @@ CFLAGS += -fsigned-char -fdata-sections -ffunction-sections -fno-common
 CFLAGS += -fpack-struct=4
 CFLAGS += -Os
 CFLAGS += -D__SYSTEM_CLOCK=$(SYSTEM_CLOCK)
+#CFLAGS += -DNODEBUG
 
 LDFLAGS = $(CPU_FLAGS)
 LDFLAGS += -Wl,-T,$(LINKER_SCRIPT) -Wl,-nostdlib -Wl,--warn-common

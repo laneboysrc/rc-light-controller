@@ -84,7 +84,9 @@ void write_persistent_storage(void)
             iap_entry(param, param);
             __enable_irq();
             if (param[0] != 0) {
-                uart0_send_cstring("ERROR: prepare sector failed\n");
+                if (diagnostics_enabled()) {
+                    uart0_send_cstring("ERROR: prepare sector failed\n");
+                }
                 break;
             }
 
@@ -96,7 +98,9 @@ void write_persistent_storage(void)
             iap_entry(param, param);
             __enable_irq();
             if (param[0] != 0) {
-                uart0_send_cstring("ERROR: erase page failed\n");
+                if (diagnostics_enabled()) {
+                    uart0_send_cstring("ERROR: erase page failed\n");
+                }
                 break;
             }
 
@@ -107,7 +111,9 @@ void write_persistent_storage(void)
             iap_entry(param, param);
             __enable_irq();
             if (param[0] != 0) {
-                uart0_send_cstring("ERROR: prepare sector failed\n");
+                if (diagnostics_enabled()) {
+                    uart0_send_cstring("ERROR: prepare sector failed\n");
+                }
                 break;
             }
 
@@ -120,7 +126,9 @@ void write_persistent_storage(void)
             iap_entry(param, param);
             __enable_irq();
             if (param[0] != 0) {
-                uart0_send_cstring("ERROR: copy RAM to flash failed\n");
+                if (diagnostics_enabled()) {
+                    uart0_send_cstring("ERROR: copy RAM to flash failed\n");
+                }
                 break;
             }
 

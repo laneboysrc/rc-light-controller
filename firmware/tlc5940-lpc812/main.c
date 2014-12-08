@@ -35,7 +35,6 @@
 // ****************************************************************************
 
 
-volatile uint32_t systick_count;
 
 // The entropy variable is incremented every mainloop. It can therefore serve
 // as a random value in practical RC car application,
@@ -78,6 +77,8 @@ CHANNEL_T channel[3] = {
     }
 };
 
+static volatile uint32_t systick_count;
+static bool diagnostics_output_enabled;
 
 // ****************************************************************************
 static void init_hardware(void)
@@ -107,12 +108,18 @@ static void init_hardware(void)
     LPC_SWM->PINENABLE0 = 0xffffffbf;
 
     // Configure the UART input and output
-    // FIXME: Turn the TH/Tx and OUT/ISP output only on when the desired
-    // output function is requested
+    diagnostics_output_enabled = true;
+    if (config.flags.slave_output || config.flags.preprocessor_output ||
+            config.flags.winch_output) {
+        diagnostics_output_enabled = false;
+    }
     if (config.mode == MASTER_WITH_SERVO_READER) {
         // Turn the UART output on unless a servo output is requested
-        if (!config.flags.steering_wheel_servo_output &&
-            !config.flags.gearbox_servo_output) {
+        if (config.flags.steering_wheel_servo_output ||
+                config.flags.gearbox_servo_output) {
+            diagnostics_output_enabled = false;
+        }
+        else {
             // U0_TXT_O=PIO0_12
             LPC_SWM->PINASSIGN0 = 0xffffff0c;
         }
@@ -217,6 +224,7 @@ static void service_systick(void)
 }
 
 
+#ifndef NODEBUG
 // ****************************************************************************
 static void stack_check(void)
 {
@@ -241,6 +249,7 @@ static void stack_check(void)
         uart0_send_linefeed();
     }
 }
+#endif
 
 
 // ****************************************************************************
@@ -259,6 +268,18 @@ static void check_no_signal(void)
             global_flags.no_signal = true;
         }
     }
+}
+
+
+// ****************************************************************************
+// This function returns TRUE if it is ok for the light controller to output
+// human-readable diagnostics messages on the serial port.
+// (i.e. if the UART output is not used by another function like slave output,
+// preprocessor output, or winch output)
+// ****************************************************************************
+bool diagnostics_enabled(void)
+{
+    return diagnostics_output_enabled;
 }
 
 
@@ -295,40 +316,28 @@ int main(void)
         process_lights();
         output_preprocessor();
 
+        if (diagnostics_enabled()) {
+            if (global_flags.new_channel_data) {
+                static int16_t st = 999;
+                static int16_t th = 999;
 
+                if (st != channel[ST].normalized  ||
+                    th != channel[TH].normalized) {
 
-        //if (global_flags.systick) {
-        //     uart0_send_cstring("tick\n");
-        // }
+                   st = channel[ST].normalized;
+                   th = channel[TH].normalized;
 
-        if (global_flags.new_channel_data) {
-            static int16_t st = 999;
-            static int16_t th = 999;
-
-            // if (global_flags.blink_indicator_left) {
-            //     uart0_send_cstring("blink left\n");
-            // }
-            // if (global_flags.blink_indicator_right) {
-            //     uart0_send_cstring("blink right\n");
-            // }
-            // if (global_flags.blink_hazard) {
-            //     uart0_send_cstring("hazard\n");
-            // }
-
-            if (st != channel[ST].normalized  ||
-                th != channel[TH].normalized) {
-
-               st = channel[ST].normalized;
-               th = channel[TH].normalized;
-
-               uart0_send_cstring("ST: ");
-               uart0_send_int32(channel[ST].normalized);
-               uart0_send_cstring("   TH: ");
-               uart0_send_int32(channel[TH].normalized);
-               uart0_send_linefeed();
+                   uart0_send_cstring("ST: ");
+                   uart0_send_int32(channel[ST].normalized);
+                   uart0_send_cstring("   TH: ");
+                   uart0_send_int32(channel[TH].normalized);
+                   uart0_send_linefeed();
+                }
             }
         }
 
+#ifndef NODEBUG
         stack_check();
+#endif
     }
 }

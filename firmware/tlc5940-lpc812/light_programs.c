@@ -305,9 +305,11 @@ static int16_t get_parameter_value(uint32_t instruction)
             return global_flags.gear;
 
         default:
-            uart0_send_cstring("UNKNOWN PARAMETER TYPE ");
-            uart0_send_uint32(type);
-            uart0_send_linefeed();
+            if (diagnostics_enabled()) {
+                uart0_send_cstring("UNKNOWN PARAMETER TYPE ");
+                uart0_send_uint32(type);
+                uart0_send_linefeed();
+            }
             return 0;
     }
 }
@@ -515,12 +517,6 @@ static void execute_program(
             case OPCODE_ASSIGN:
             case OPCODE_ASSIGN_I:
                 var[var_id] = get_parameter_value(instruction);
-
-                // uart0_send_cstring("var[");
-                //uart0_send_uint32(var_id);
-                //uart0_send_cstring("] = ");
-                //uart0_send_uint32(var[var_id]);
-                //uart0_send_linefeed();
                 break;
 
             case OPCODE_ADD:
@@ -579,9 +575,11 @@ static void execute_program(
                 return;
 
             default:
-                uart0_send_cstring("UNKNOWN OPCODE 0x");
-                uart0_send_uint8_hex(opcode);
-                uart0_send_linefeed();
+                if (diagnostics_enabled()) {
+                    uart0_send_cstring("UNKNOWN OPCODE 0x");
+                    uart0_send_uint8_hex(opcode);
+                    uart0_send_linefeed();
+                }
                 c->PC = program + FIRST_OPCODE_OFFSET;
                 c->event = 0;
                 return;

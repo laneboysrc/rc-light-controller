@@ -516,6 +516,8 @@ extern SERVO_ENDPOINTS_T servo_output_endpoint;
 // Globally accessible functions from various modules
 void SysTick_handler(void);
 
+bool diagnostics_enabled(void);
+
 void load_persistent_storage(void);
 void write_persistent_storage(void);
 

@@ -41,7 +41,9 @@ static void process_ch3_click_timeout(void)
         return;                     // No: wait for more buttons
     }
 
-    uart0_send_cstring("click_timeout\n");
+    if (diagnostics_enabled()) {
+        uart0_send_cstring("click_timeout\n");
+    }
 
     // ####################################
     // At this point we have detected one of more clicks and need to
@@ -132,7 +134,9 @@ static void process_ch3_click_timeout(void)
 // ****************************************************************************
 static void add_click(void)
 {
-    uart0_send_cstring("add_click\n");
+    if (diagnostics_enabled()) {
+        uart0_send_cstring("add_click\n");
+    }
 
     // If the winch is running any movement of CH3 immediately turns off
     // the winch (without waiting for click timeout!)
