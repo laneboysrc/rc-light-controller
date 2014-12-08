@@ -19,9 +19,15 @@ TO DO LIST for the RC Light Controller
 
 * FW: Add PPM reader implementation
 
+* TOOLS: Add tool to extract light program source out of light controller config
+
 * TOOLS: Add watch folder to ISP tool
 
-* TOOLS: Add tool to extract light program source out of light controller config
+* TOOLS: Make ISP tool embeddable
+
+* TOOLS: Give ISP tool a rudimentary UI using tkinter
+  - Select TTY (auto-detect)
+  - Load file
 
 * FW/TOOLS: make a combined preprocessor simulator with integrated ISP tool,
   with web GUI and Windows executable
