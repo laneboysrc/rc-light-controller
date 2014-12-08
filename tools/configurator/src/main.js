@@ -1213,11 +1213,20 @@ var app = (function () {
 
 
         // Output functions
-        update_boolean('slave_output');
-        update_boolean('preprocessor_output');
-        update_boolean('steering_wheel_servo_output');
-        update_boolean('gearbox_servo_output');
-        update_boolean('winch_output');
+        if (config.mode === MODE.SLAVE) {
+            // Force all output functions to OFF in slave mode
+            config.preprocessor_output = false;
+            config.slave_output = false;
+            config.steering_wheel_servo_output = false;
+            config.gearbox_servo_output = false;
+            config.winch_output = false;
+        } else {
+            update_boolean('preprocessor_output');
+            update_boolean('slave_output');
+            update_boolean('steering_wheel_servo_output');
+            update_boolean('gearbox_servo_output');
+            update_boolean('winch_output');
+        }
 
 
         // CH3/AUX type

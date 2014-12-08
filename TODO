@@ -31,8 +31,6 @@ TO DO LIST for the RC Light Controller
 
 * FW: implement slave
 
-* CONF: disable all output configurations when saving a SLAVE image
-
 
 * Test hysteresis for drive mode
 
