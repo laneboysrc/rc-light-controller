@@ -29,8 +29,6 @@ TO DO LIST for the RC Light Controller
   Watch file selection
   Serial port selection, with auto-detection of available ports
 
-* CONF: Slave must use GAMMA=1.0
-
 
 * Test hysteresis for drive mode
 

@@ -1279,7 +1279,15 @@ var app = (function () {
 
         update_int("initial_light_switch_position");
 
-        update_gamma("gamma_value");
+
+        if (config.mode === MODE.SLAVE) {
+            // Force gamma to 1.0 in slave mode as the gamma correction is
+            // already handled in the master
+            gamma_object.gamma_value = "1.0";
+        } else {
+            update_gamma("gamma_value");
+        }
+
 
         light_programs = ui.get_editor_content();
 

@@ -586,8 +586,6 @@ static void process_car_lights(void)
             uart0_send_char(gamma_table.gamma_table[light_actual[16 + i]] >> 2);
         }
     }
-
-
 }
 
 
@@ -607,18 +605,22 @@ static void process_slave(void)
         // can kick off the state machine.
         if (uart_byte == SLAVE_MAGIC_BYTE) {
             state = 1;
-            return;
         }
+        else {
+            if (state >= 1) {
+                // Set both lights_setpoint and lights_actual as lights_setpoint
+                // drives the switched light output and lights_actual drives
+                // the TLC5940
+                light_setpoint[state - 1] = uart_byte << 2;
+                light_actual[state - 1]   = uart_byte << 2;
+                ++state;
 
-        if (state > 1) {
-            light_actual[state - 1] = uart_byte;
-            ++state;
-
-            // Once we got all 16 LED values we send the data to the LEDs
-            // and reset the state machine to wait for the next packet
-            if (state > 16) {
-                state = 0;
-                send_light_data_to_tlc5940();
+                // Once we got all 16 LED values we send the data to the LEDs
+                // and reset the state machine to wait for the next packet
+                if (state > 16) {
+                    state = 0;
+                    send_light_data_to_tlc5940();
+                }
             }
         }
     }
