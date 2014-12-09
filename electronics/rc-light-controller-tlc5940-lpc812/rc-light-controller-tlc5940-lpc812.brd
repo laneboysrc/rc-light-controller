@@ -39,7 +39,7 @@
 <layer number="43" name="vRestrict" color="2" fill="10" visible="no" active="yes"/>
 <layer number="44" name="Drills" color="7" fill="1" visible="no" active="yes"/>
 <layer number="45" name="Holes" color="7" fill="1" visible="yes" active="yes"/>
-<layer number="46" name="Milling" color="3" fill="1" visible="no" active="yes"/>
+<layer number="46" name="Milling" color="3" fill="1" visible="yes" active="yes"/>
 <layer number="47" name="Measures" color="7" fill="1" visible="no" active="yes"/>
 <layer number="48" name="Document" color="7" fill="1" visible="no" active="yes"/>
 <layer number="49" name="Reference" color="7" fill="1" visible="no" active="yes"/>
@@ -135,17 +135,6 @@
 <wire x1="19.177" y1="14.478" x2="19.177" y2="15.494" width="0.254" layer="27"/>
 <text x="20.066" y="11.938" size="1.27" layer="28" ratio="15" rot="SMR0">LANE Boys RC</text>
 <text x="20.066" y="10.414" size="1.016" layer="28" ratio="15" rot="SMR0">RC light controller</text>
-<wire x1="3.302" y1="12.446" x2="15.24" y2="12.446" width="1" layer="46"/>
-<wire x1="15.24" y1="12.446" x2="15.24" y2="13.462" width="1" layer="46"/>
-<wire x1="15.24" y1="13.462" x2="18.034" y2="13.462" width="1" layer="46"/>
-<wire x1="18.034" y1="13.462" x2="18.034" y2="15.494" width="1" layer="46"/>
-<wire x1="18.034" y1="15.494" x2="23.114" y2="15.494" width="1" layer="46"/>
-<wire x1="23.114" y1="15.494" x2="23.114" y2="16.764" width="1" layer="46"/>
-<wire x1="3.302" y1="12.446" x2="3.302" y2="5.334" width="1" layer="46"/>
-<wire x1="3.302" y1="5.334" x2="8.89" y2="5.334" width="1" layer="46"/>
-<wire x1="8.89" y1="5.334" x2="8.89" y2="3.302" width="1" layer="46"/>
-<wire x1="8.89" y1="3.302" x2="23.114" y2="3.302" width="1" layer="46"/>
-<wire x1="23.114" y1="3.302" x2="23.114" y2="1.27" width="1" layer="46"/>
 <text x="24.13" y="3.302" size="0.8128" layer="28" rot="MR90" align="top-center">4...10V</text>
 <circle x="3.5" y="17" radius="0.25" width="0.5" layer="29"/>
 <circle x="20" y="17" radius="0.25" width="0.5" layer="29"/>

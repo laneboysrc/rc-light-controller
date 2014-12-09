@@ -6,7 +6,7 @@
 <setting alwaysvectorfont="yes"/>
 <setting verticaltext="up"/>
 </settings>
-<grid distance="0.5" unitdist="mm" unit="mm" style="lines" multiple="1" display="yes" altdistance="0.025" altunitdist="inch" altunit="inch"/>
+<grid distance="20" unitdist="mil" unit="mil" style="lines" multiple="1" display="yes" altdistance="0.025" altunitdist="inch" altunit="inch"/>
 <layers>
 <layer number="1" name="Top" color="4" fill="1" visible="yes" active="yes"/>
 <layer number="16" name="Bottom" color="1" fill="1" visible="yes" active="yes"/>
@@ -39,7 +39,7 @@
 <layer number="43" name="vRestrict" color="2" fill="10" visible="no" active="yes"/>
 <layer number="44" name="Drills" color="7" fill="1" visible="no" active="yes"/>
 <layer number="45" name="Holes" color="7" fill="1" visible="no" active="yes"/>
-<layer number="46" name="Milling" color="3" fill="1" visible="no" active="yes"/>
+<layer number="46" name="Milling" color="3" fill="1" visible="yes" active="yes"/>
 <layer number="47" name="Measures" color="7" fill="1" visible="no" active="yes"/>
 <layer number="48" name="Document" color="7" fill="1" visible="no" active="yes"/>
 <layer number="49" name="Reference" color="7" fill="1" visible="no" active="yes"/>
@@ -98,17 +98,6 @@
 <wire x1="1" y1="0" x2="22.606" y2="0" width="0" layer="20"/>
 <wire x1="23" y1="18" x2="1" y2="18" width="0" layer="20"/>
 <wire x1="1" y1="18" x2="0" y2="17" width="0" layer="20" curve="90"/>
-<wire x1="3.302" y1="12.446" x2="15.24" y2="12.446" width="1" layer="46"/>
-<wire x1="15.24" y1="12.446" x2="15.24" y2="13.462" width="1" layer="46"/>
-<wire x1="15.24" y1="13.462" x2="18.034" y2="13.462" width="1" layer="46"/>
-<wire x1="18.034" y1="13.462" x2="18.034" y2="15.494" width="1" layer="46"/>
-<wire x1="18.034" y1="15.494" x2="23.114" y2="15.494" width="1" layer="46"/>
-<wire x1="23.114" y1="15.494" x2="23.114" y2="16.764" width="1" layer="46"/>
-<wire x1="3.302" y1="12.446" x2="3.302" y2="5.334" width="1" layer="46"/>
-<wire x1="3.302" y1="5.334" x2="8.89" y2="5.334" width="1" layer="46"/>
-<wire x1="8.89" y1="5.334" x2="8.89" y2="3.302" width="1" layer="46"/>
-<wire x1="8.89" y1="3.302" x2="23.114" y2="3.302" width="1" layer="46"/>
-<wire x1="23.114" y1="3.302" x2="23.114" y2="1.27" width="1" layer="46"/>
 <circle x="3.5" y="17" radius="0.25" width="0.5" layer="30"/>
 <circle x="12.5" y="17" radius="0.25" width="0.5" layer="30"/>
 <circle x="20" y="17" radius="0.25" width="0.5" layer="30"/>
