@@ -82,7 +82,7 @@ CFLAGS += -D__SYSTEM_CLOCK=$(SYSTEM_CLOCK)
 
 LDFLAGS = $(CPU_FLAGS)
 LDFLAGS += -Wl,-T,$(LINKER_SCRIPT) -Wl,-nostdlib -Wl,--warn-common
-LDFLAGS += -Wl,--gc-sections -Wl,-O3
+LDFLAGS += -Wl,--gc-sections -Wl,-Os
 LDFLAGS += -Wl,-Map=$(TARGET_MAP) -Wl,--cref
 LDFLAGS += -mthumb -mcpu=cortex-m0plus -mlittle-endian
 

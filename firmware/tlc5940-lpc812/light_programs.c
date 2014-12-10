@@ -305,11 +305,13 @@ static int16_t get_parameter_value(uint32_t instruction)
             return global_flags.gear;
 
         default:
+#ifndef NODEBUG
             if (diagnostics_enabled()) {
                 uart0_send_cstring("UNKNOWN PARAMETER TYPE ");
                 uart0_send_uint32(type);
                 uart0_send_linefeed();
             }
+#endif
             return 0;
     }
 }
@@ -471,13 +473,8 @@ static void execute_program(
 
         switch (opcode) {
             case OPCODE_SET:
-                for (i = min; i <= max; i++) {
-                    if ((leds_already_used & (1 << i)) == 0) {
-                        light_setpoint[i] = percent_to_uint8(var[value]);
-                    }
-                }
-                break;
-
+                value = var[value];
+                // fall through
             case OPCODE_SET_I:
                 for (i = min; i <= max; i++) {
                     if ((leds_already_used & (1 << i)) == 0) {
@@ -487,14 +484,8 @@ static void execute_program(
                 break;
 
             case OPCODE_FADE:
-                for (i = min; i <= max; i++) {
-                    if ((leds_already_used & (1 << i)) == 0) {
-                        max_change_per_systick[i] =
-                            percent_to_uint8(var[value]);
-                    }
-                }
-                break;
-
+                value = var[value];
+                // fall through
             case OPCODE_FADE_I:
                 for (i = min; i <= max; i++) {
                     if ((leds_already_used & (1 << i)) == 0) {
@@ -575,11 +566,13 @@ static void execute_program(
                 return;
 
             default:
+#ifndef NODEBUG
                 if (diagnostics_enabled()) {
                     uart0_send_cstring("UNKNOWN OPCODE 0x");
                     uart0_send_uint8_hex(opcode);
                     uart0_send_linefeed();
                 }
+#endif
                 c->PC = program + FIRST_OPCODE_OFFSET;
                 c->event = 0;
                 return;

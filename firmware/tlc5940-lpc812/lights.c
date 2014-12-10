@@ -309,21 +309,6 @@ static LED_T calculate_step_value(LED_T current, LED_T new, uint8_t max_change)
 
 
 // ****************************************************************************
-#if 0
-static void limit_stepsize(LED_T *led, const LED_T *current_value,
-     const CAR_LIGHT_T *light)
-{
-    // If max_change_per_systick is not set allow full swing
-    if (light->features.max_change_per_systick > 0) {
-        LED_T adjusted_value = calculate_step_value(
-            *current_value, *led, light->features.max_change_per_systick);
-
-        set_light(led, &adjusted_value);
-    }
-}
-#endif
-
-// ****************************************************************************
 static void set_car_light(LED_T *led, const CAR_LIGHT_T *light,
     CAR_LIGHT_FUNCTION_T function)
 {
@@ -494,10 +479,7 @@ static void process_light(const CAR_LIGHT_T *light, LED_T *led, uint8_t *limit)
 
     set_car_light(&result, light, ALWAYS_ON);
 
-
     mix_car_light(&result, light, LIGHT_SWITCH_POSITION + light_switch_position);
-
-
 
     if (global_flags.reversing) {
         mix_car_light(&result, light, REVERSING_LIGHT);
