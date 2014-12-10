@@ -9,6 +9,7 @@ TO DO LIST for the RC Light Controller
   Needs documenting.
 
 * Fix/remove broken Gerber at OSH Park
+    * Larger heat sink for TLC5940, using vias to ground plane
 
 * Refactor directory structure
 
@@ -16,18 +17,11 @@ TO DO LIST for the RC Light Controller
 
 * FW: Add PPM reader implementation
 
+
+
+
+Future work:
+
 * TOOLS: Add tool to extract light program source out of light controller config
 
 * TOOLS: Add watch folder to ISP tool
-
-
-* Test hysteresis for drive mode
-
-* Improve the TLC5940 PCB:
-    * Larger heat sink for TLC5940, using vias to ground plane
-
-    Items considered but not done to stay compatible with the older stencil:
-        * Protection resistors for all inputs / outputs (conflict with Vpp?)
-        * Larger pads for resister that sets Iref
-        * Align all 0.1 inch connectors to 0.1 inch grid (allows mounting on a breadboard)
-
