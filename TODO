@@ -13,10 +13,11 @@ TO DO LIST for the RC Light Controller
 
 * Refactor directory structure
 
-* FW: Fix servo reader glitching
-
 * HW: issue with analog servo interfering with ISP
+  Clearly an issue with some servos only. Need to disable ISP and rather provide
+  a software way for those
 
+* FW: Make all IO port bits use #defines
 
 
 Future work:

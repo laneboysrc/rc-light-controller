@@ -163,7 +163,7 @@ void init_servo_reader(void)
 
 
 // ****************************************************************************
-static void output_raw_channels(uint32_t result[3])
+static void output_raw_channels(uint16_t result[3])
 {
     channel[ST].raw_data = result[0] >> 1;
     channel[TH].raw_data = result[1] >> 1;
@@ -179,10 +179,10 @@ static void output_raw_channels(uint32_t result[3])
 // ****************************************************************************
 void SCT_irq_handler(void)
 {
-    static uint32_t start[3] = {0, 0, 0};
-    static uint32_t result[3] = {0, 0, 0};
+    static uint16_t start[3] = {0, 0, 0};
+    static uint16_t result[3] = {0, 0, 0};
     static uint8_t channel_flags = 0;
-    uint32_t capture_value;
+    uint16_t capture_value;
 
     if (config.mode == MASTER_WITH_SERVO_READER) {
         int i;
@@ -374,9 +374,6 @@ void read_all_servo_channels(void)
             if (servo_reader_timer == 0) {
                 initialize_channel(&channel[ST]);
                 initialize_channel(&channel[ST]);
-                if (!config.flags.ch3_is_local_switch) {
-                    initialize_channel(&channel[CH3]);
-                }
 
                 servo_reader_state = NORMAL_OPERATION;
                 global_flags.initializing = 0;
