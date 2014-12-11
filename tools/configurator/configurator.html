@@ -135,7 +135,14 @@
       </div>
       <div id="mode_master_cppm" class="info">
         <div>
-          Not implemented yet!
+          Some receiver have a CPPM output, which encodes information of all
+          servos in a single electrical signal. The light controller can read
+          this signal, so only a single cable needs to be connected from the
+          receiver to the light controller.
+        </div>
+        <div>
+          Please consult your the instructions of your RC system to check
+          whether your receiver has a CPPM output.
         </div>
       </div>
       <div id="mode_slave" class="info">
@@ -658,6 +665,47 @@
             also that the reaction of the function engages quickly. a high
             value means you must wait longer until the light controller accepts
             the input. 300 ms works well for the LANE Boys.
+          </div>
+        </div>
+
+        <div class="advanced_feature">
+          <div>
+            <input type=number id="servo_pulse_min">
+            <label for="servo_pulse_min"> .. </label>
+            <input type=number id="servo_pulse_max">
+            <label for="servo_pulse_max">min/max pulse duration in ms that are valid servo pulses</label>
+          </div>
+
+          <div>
+            Servo signals have a nominal pulse width of 1.5 ms when in center,
+            and 1.0 / 2.0 ms when at the end points. In reality servo pulses
+            can go below 0.9 ms and above 2.3 ms when features like end-point
+            adjustment and sub-trim are applied.
+          </div>
+          <div>
+            The values above define what minimum and maxium pulse width a servo
+            signal is allowed to have in order to consider it valid. This
+            setting only applies to servo inputs and CPPM input configurations.
+          </div>
+          <div>
+            For the CPPM input the max pulse duration is the minimum idle
+            idle time to identify a start of a CPPM frame.
+          </div>
+        </div>
+
+        <div class="advanced_feature">
+          <div>
+            <input type=number id="startup_time">
+            <label for="startup_time">time in ms to delay operation</label>
+          </div>
+
+          <div>
+            This value applies to servo inputs and CPPM input configurations.
+            After power on, the light controller waits for the first servo
+            pulse to arrive. The time given in this field determines how
+            long the light controller waits after the first servo pulse until
+            it in itializes neutral points of steering and throtte, and starts
+            its normal operation.
           </div>
         </div>
 

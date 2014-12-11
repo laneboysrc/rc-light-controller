@@ -11,7 +11,6 @@
 
     Internal operation for reading servo pulses:
     --------------------------------------------
-
     The SCTimer in 16-bit mode is utilized.
     We use 3 events, 3 capture registers, and 3 CTIN signals connected to the
     servo input pins. The 16 bit timer L is running at 2 MHz, giving us a
@@ -48,7 +47,6 @@
 
     Internal operation for reading CPPM:
     ------------------------------------
-
     The SCTimer in 16-bit mode is utilized.
     We use 1 event, 1 capture register, and the CTIN_1 signals connected to the
     ST servo input pin. The 16 bit timer L is running at 2 MHz, giving us a
@@ -79,11 +77,8 @@
 #include <globals.h>
 
 
-#define SERVO_PULSE_MIN 600
-#define SERVO_PULSE_MAX 2500
 #define SERVO_PULSE_CLAMP_LOW 800
 #define SERVO_PULSE_CLAMP_HIGH 2300
-#define STARTUP_TIME 2000           // Time at startup until neutral is initialized
 
 
 static enum {
@@ -107,8 +102,6 @@ static uint32_t servo_reader_timer;
 // ****************************************************************************
 void init_servo_reader(void)
 {
-    int i;
-
     if (config.mode != MASTER_WITH_SERVO_READER  &&
         config.mode != MASTER_WITH_CPPM_READER) {
         return;
@@ -129,6 +122,8 @@ void init_servo_reader(void)
 
 
     if (config.mode != MASTER_WITH_SERVO_READER) {
+        int i;
+
         // Configure registers 1..3 to capture servo pulses on SCTimer L
         for (i = 1; i <= 3; i++) {
             LPC_SCT->REGMODE_L |= (1 << i);         // Register i is capture register
@@ -236,7 +231,7 @@ void SCT_irq_handler(void)
 
         // FIXME: make max pulse time configuratble for CPPM
         if (cppm_mode != WAIT_FOR_ANY_PULSE  &&
-            capture_value > (SERVO_PULSE_MAX << 1)) {
+            capture_value > ((uint32_t)config.servo_pulse_max << 1)) {
 
             // If we are dealing with a radio that has less than 2 CPPM
             // channels then output the channels when we received the
@@ -285,7 +280,7 @@ void SCT_irq_handler(void)
 // ****************************************************************************
 static void normalize_channel(CHANNEL_T *c)
 {
-    if (c->raw_data < SERVO_PULSE_MIN  ||  c->raw_data > SERVO_PULSE_MAX) {
+    if (c->raw_data < config.servo_pulse_min  ||  c->raw_data > config.servo_pulse_max) {
         c->normalized = 0;
         c->absolute = 0;
         return;
@@ -371,7 +366,7 @@ void read_all_servo_channels(void)
 
     switch (servo_reader_state) {
         case WAIT_FOR_FIRST_PULSE:
-            servo_reader_timer = STARTUP_TIME / __SYSTICK_IN_MS;
+            servo_reader_timer = config.startup_time;
             servo_reader_state = WAIT_FOR_TIMEOUT;
             break;
 

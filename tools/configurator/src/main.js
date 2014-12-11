@@ -309,6 +309,10 @@ var app = (function () {
         new_config.gearbox_servo_active_time = get_uint16(data, offset + 52);
         new_config.gearbox_servo_idle_time = get_uint16(data, offset + 54);
 
+        new_config.servo_pulse_min = get_uint16(data, offset + 56);
+        new_config.servo_pulse_max = get_uint16(data, offset + 58);
+        new_config.startup_time = get_uint16(data, offset + 60);
+
         return new_config;
     };
 
@@ -719,6 +723,11 @@ var app = (function () {
         el.initial_light_switch_position.value =
             config.initial_light_switch_position;
 
+        el.servo_pulse_min.value = config.servo_pulse_min;
+        el.servo_pulse_max.value = config.servo_pulse_max;
+        el.startup_time.value = config.startup_time * SYSTICK_IN_MS;
+
+
         el.gamma_value.value = gamma_object.gamma_value;
 
 
@@ -967,6 +976,11 @@ var app = (function () {
         set_uint16(data, offset + 50, config.number_of_gears);
         set_uint16(data, offset + 52, config.gearbox_servo_active_time);
         set_uint16(data, offset + 54, config.gearbox_servo_idle_time);
+
+        set_uint16(data, offset + 56, config.servo_pulse_min);
+        set_uint16(data, offset + 58, config.servo_pulse_max);
+
+        set_uint16(data, offset + 60, config.startup_time);
     };
 
 
@@ -1279,6 +1293,10 @@ var app = (function () {
 
         update_int("initial_light_switch_position");
 
+        update_int("servo_pulse_min");
+        update_int("servo_pulse_max");
+        update_time("startup_time");
+
 
         if (config.mode === MODE.SLAVE) {
             // Force gamma to 1.0 in slave mode as the gamma correction is
@@ -1531,6 +1549,11 @@ var app = (function () {
 
         el.initial_light_switch_position =
             document.getElementById("initial_light_switch_position");
+
+        el.servo_pulse_min = document.getElementById("servo_pulse_min");
+        el.servo_pulse_max = document.getElementById("servo_pulse_max");
+
+        el.startup_time = document.getElementById("startup_time");
 
         el.gamma_value = document.getElementById("gamma_value");
 

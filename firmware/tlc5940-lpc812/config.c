@@ -66,6 +66,11 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
     .number_of_gears = 2,
     .gearbox_servo_active_time = (1000 / __SYSTICK_IN_MS),
     .gearbox_servo_idle_time = (9000 / __SYSTICK_IN_MS),
+
+    .servo_pulse_min = 600,
+    .servo_pulse_max = 2500,
+
+    .startup_time = (2000 / __SYSTICK_IN_MS),
 };
 
 

@@ -437,8 +437,12 @@ typedef struct {
     uint16_t number_of_gears;
     uint16_t gearbox_servo_active_time;
     uint16_t gearbox_servo_idle_time;
-} LIGHT_CONTROLLER_CONFIG_T;
 
+    uint16_t servo_pulse_min;
+    uint16_t servo_pulse_max;
+
+    uint16_t startup_time;
+} LIGHT_CONTROLLER_CONFIG_T;
 
 
 // ****************************************************************************
