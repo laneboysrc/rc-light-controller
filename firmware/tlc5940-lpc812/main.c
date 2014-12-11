@@ -141,7 +141,7 @@ static void init_hardware(void)
     // Enable glitch filtering on the IOs
     // GOTCHA: ICONCLKDIV0 is actually the last register in the array!
     LPC_SYSCON->IOCONCLKDIV[6] = 255;       // Glitch filter 0: Main clock divided by 255
-    LPC_SYSCON->IOCONCLKDIV[5] = 1;         // Glitch filter 0: Main clock divided by 1
+    LPC_SYSCON->IOCONCLKDIV[5] = 1;         // Glitch filter 1: Main clock divided by 1
 
     // NOTE: for some reason it is absolutely necessary to enable glitch
     // filtering on the IOs used for the capture timer. One clock cytle of the
