@@ -3,10 +3,14 @@
     This module reads the servo pulses for steering, throttle and CH3/AUX
     from a receiver.
 
+    It can also read the pulses from a CPPM output, provided your receiver
+    has such an output.
+
     It populates the global channel[] array with the read data.
 
 
-    Internal operation:
+    Internal operation for reading servo pulses:
+    --------------------------------------------
 
     The SCTimer in 16-bit mode is utilized.
     We use 3 events, 3 capture registers, and 3 CTIN signals connected to the
@@ -41,6 +45,32 @@
     The downside of the algorithm is that there is a one frame delay
     of the output, but it is very robust for use in the pre-processor.
 
+
+    Internal operation for reading CPPM:
+    ------------------------------------
+
+    The SCTimer in 16-bit mode is utilized.
+    We use 1 event, 1 capture register, and the CTIN_1 signals connected to the
+    ST servo input pin. The 16 bit timer L is running at 2 MHz, giving us a
+    resolution of 0.5 us.
+
+    The capture register is setup to trigger of falling edges of the CPPM
+    signal. Every time an interrupt occurs the time duration from the
+    previous pulse is calculated.
+
+    If that time difference is larger than the largest servo pulse we expect
+    (which is 2.5 ms) then we know that a new CPPM "frame" has started and
+    we set our state-machine so that the next edge is stored as CH1, then
+    the next as CH2, and one more edge as CH3. After we received all
+    3 channels we update the rest of the light controller with the new
+    data and setup the CPPM reader to wait for a frame sync signal (= >2/5ms
+    between interrupts). Smaller pulses (i.e. because the receiver outputs
+    more than 3 channles) are ignored.
+
+    In case the receiver outputs less than 3 channels, the frame detection
+    function outputs the channels that have been received so far.
+
+
 ******************************************************************************/
 #include <stdio.h>
 #include <stdbool.h>
@@ -62,6 +92,14 @@ static enum {
     NORMAL_OPERATION
 } servo_reader_state = WAIT_FOR_FIRST_PULSE;
 
+typedef enum {
+    WAIT_FOR_ANY_PULSE = 0,
+    WAIT_FOR_IDLE_PULSE,
+    WAIT_FOR_CH1,
+    WAIT_FOR_CH2,
+    WAIT_FOR_CH3
+} CPPM_STATE_T;
+
 static volatile bool new_raw_channel_data = false;
 static uint32_t servo_reader_timer;
 
@@ -71,7 +109,8 @@ void init_servo_reader(void)
 {
     int i;
 
-    if (config.mode != MASTER_WITH_SERVO_READER) {
+    if (config.mode != MASTER_WITH_SERVO_READER  &&
+        config.mode != MASTER_WITH_CPPM_READER) {
         return;
     }
 
@@ -85,30 +124,60 @@ void init_servo_reader(void)
     //  * Registers 1, 2 and 3 available for our use
     //  * CTIN_1, CTIN_2 and CTIN3 available for our use
 
-    LPC_SCT->CTRL_L |= (1u << 3) |   // Clear the counter L
+    LPC_SCT->CTRL_L |= (1 << 3) |   // Clear the counter L
                        (5 << 5);    // PRE_L[12:5] = 6-1 (SCTimer L clock 2 MHz)
 
 
-    // Configure registers 1..3 to capture servo pulses on SCTimer L
-    for (i = 1; i <= 3; i++) {
-        LPC_SCT->REGMODE_L |= (1u << i);         // Register i is capture register
+    if (config.mode != MASTER_WITH_SERVO_READER) {
+        // Configure registers 1..3 to capture servo pulses on SCTimer L
+        for (i = 1; i <= 3; i++) {
+            LPC_SCT->REGMODE_L |= (1 << i);         // Register i is capture register
 
-        LPC_SCT->EVENT[i].STATE = 0xFFFF;       // Event i happens in all states
-        LPC_SCT->EVENT[i].CTRL = (0 << 5) |     // OUTSEL: select input elected by IOSEL
-                                 (1u << 6) |     // IOSEL: CTIN_i
-                                 (0x1u << 10) |  // IOCOND: rising edge
+            LPC_SCT->EVENT[i].STATE = 0xFFFF;       // Event i happens in all states
+            LPC_SCT->EVENT[i].CTRL = (0 << 5) |     // OUTSEL: select input elected by IOSEL
+                                     (i << 6) |     // IOSEL: CTIN_i
+                                     (0x1 << 10) |  // IOCOND: rising edge
+                                     (0x2 << 12);   // COMBMODE: Uses the specified I/O condition only
+            LPC_SCT->CAPCTRL[i].L = (1 << i);       // Event i loads capture register i
+            LPC_SCT->EVEN |= (1 << i);              // Event i generates an interrupt
+        }
+
+        // SCT CTIN_3 at PIO0.13, CTIN_2 at PIO0.4, CTIN_1 at PIO0.0
+        LPC_SWM->PINASSIGN6 = 0xff0d0400;
+    }
+
+    else { // MASTER_WITH_CPPM_READER
+        LPC_SCT->REGMODE_L |= (1 << 1);         // Register i is capture register
+
+        LPC_SCT->EVENT[1].STATE = 0xFFFF;       // Event i happens in all states
+        LPC_SCT->EVENT[1].CTRL = (0 << 5) |     // OUTSEL: select input elected by IOSEL
+                                 (1 << 6) |     // IOSEL: CTIN_1
+                                 (0x2 << 10) |  // IOCOND: falling edge
                                  (0x2 << 12);   // COMBMODE: Uses the specified I/O condition only
-        LPC_SCT->CAPCTRL[i].L = (1u << i);       // Event i loads capture register i
-        LPC_SCT->EVEN |= (1u << i);              // Event i generates an interrupt
+        LPC_SCT->CAPCTRL[1].L = (1 << 1);       // Event 1 loads capture register 1
+        LPC_SCT->EVEN |= (1 << 1);              // Event 1 generates an interrupt
+
+        // SCT CTIN_1 at PIO0.0
+        LPC_SWM->PINASSIGN6 = 0xffffff00;
     }
 
 
-    // SCT CTIN_3 at PIO0.13, CTIN_2 at PIO0.4, CTIN_1 at PIO0.0
-    LPC_SWM->PINASSIGN6 = 0xff0d0400;
-
-
-    LPC_SCT->CTRL_L &= ~(1u << 2);           // Start the SCTimer L
+    LPC_SCT->CTRL_L &= ~(1 << 2);           // Start the SCTimer L
     NVIC_EnableIRQ(SCT_IRQn);
+}
+
+
+// ****************************************************************************
+static void output_raw_channels(uint32_t result[3])
+{
+    channel[ST].raw_data = result[0] >> 1;
+    channel[TH].raw_data = result[1] >> 1;
+    if (!config.flags.ch3_is_local_switch) {
+        channel[CH3].raw_data = result[2] >> 1;
+    }
+
+    result[0] = result[1] = result[2] = 0;
+    new_raw_channel_data = true;
 }
 
 
@@ -117,46 +186,99 @@ void SCT_irq_handler(void)
 {
     static uint32_t start[3] = {0, 0, 0};
     static uint32_t result[3] = {0, 0, 0};
-    static uint32_t channel_flags = 0;
+    static uint8_t channel_flags = 0;
     uint32_t capture_value;
-    int i;
 
+    if (config.mode != MASTER_WITH_SERVO_READER) {
+        int i;
 
-    for (i = 1; i <= 3; i++) {
-        // Event i: Capture CTIN_i
-        if (LPC_SCT->EVFLAG & (1u << i)) {
-            capture_value = LPC_SCT->CAP[i].L;
+        for (i = 1; i <= 3; i++) {
+            // Event i: Capture CTIN_i
+            if (LPC_SCT->EVFLAG & (1 << i)) {
+                capture_value = LPC_SCT->CAP[i].L;
 
-            if (LPC_SCT->EVENT[i].CTRL & (0x1u << 10)) {
-                // Rising edge triggered
-                start[i - 1] = capture_value;
+                if (LPC_SCT->EVENT[i].CTRL & (0x1 << 10)) {
+                    // Rising edge triggered
+                    start[i - 1] = capture_value;
 
-                if (channel_flags & (1u << i)) {
-                    channel_flags = (1u << i);
-                    channel[ST].raw_data = result[0] >> 1;
-                    channel[TH].raw_data = result[1] >> 1;
-                    if (!config.flags.ch3_is_local_switch) {
-                        channel[CH3].raw_data = result[2] >> 1;
+                    if (channel_flags & (1 << i)) {
+                        output_raw_channels(result);
+                        channel_flags = (1 << i);
                     }
-                    result[0] = result[1] = result[2] = 0;
-                    new_raw_channel_data = true;
+                    channel_flags |= (1 << i);
                 }
-                channel_flags |= (1u << i);
-            }
-            else {
-                // Falling edge triggered
-                if (start[i - 1] > capture_value) {
-                    // Compensate for wrap-around
-                    capture_value += LPC_SCT->MATCHREL[0].L + 1;
+                else {
+                    // Falling edge triggered
+                    if (start[i - 1] > capture_value) {
+                        // Compensate for wrap-around
+                        capture_value += LPC_SCT->MATCHREL[0].L + 1;
+                    }
+                    result[i - 1] = capture_value - start[i - 1];
                 }
-                result[i - 1] = capture_value - start[i - 1];
-            }
 
-            LPC_SCT->EVENT[i].CTRL ^= (0x3 << 10);     // IOCOND: toggle edge
-            LPC_SCT->EVFLAG = (1u << i);
+                LPC_SCT->EVENT[i].CTRL ^= (0x3 << 10);   // IOCOND: toggle edge
+                LPC_SCT->EVFLAG = (1 << i);
+            }
         }
     }
 
+    else { // MASTER_WITH_CPPM_READER
+        static CPPM_STATE_T cppm_mode = WAIT_FOR_ANY_PULSE;
+
+        start[1] = capture_value = LPC_SCT->CAP[1].L;
+        if (start[0] > capture_value) {
+            // Compensate for wrap-around
+            capture_value += LPC_SCT->MATCHREL[0].L + 1;
+        }
+        capture_value -= start[0];
+        start[0] = start[1];
+
+
+        // FIXME: make max pulse time configuratble for CPPM
+        if (cppm_mode != WAIT_FOR_ANY_PULSE  &&
+            capture_value > (SERVO_PULSE_MAX << 1)) {
+
+            // If we are dealing with a radio that has less than 2 CPPM
+            // channels then output the channels when we received the
+            // idle marker.
+            if (channel_flags) {
+                output_raw_channels(result);
+                channel_flags = 0;
+            }
+
+            cppm_mode = WAIT_FOR_CH1;
+        }
+        else {
+            switch (cppm_mode) {
+                case WAIT_FOR_CH1:
+                    result[0] = capture_value;
+                    channel_flags |= (1 << 0);
+                    cppm_mode = WAIT_FOR_CH2;
+                    break;
+
+                case WAIT_FOR_CH2:
+                    result[1] = capture_value;
+                    channel_flags |= (1 << 1);
+                    cppm_mode = WAIT_FOR_CH3;
+                    break;
+
+                case WAIT_FOR_CH3:
+                    result[2] = capture_value;
+                    output_raw_channels(result);
+                    channel_flags = 0;
+                    cppm_mode = WAIT_FOR_IDLE_PULSE;
+                    break;
+
+                case WAIT_FOR_ANY_PULSE:
+                case WAIT_FOR_IDLE_PULSE:
+                default:
+                    cppm_mode = WAIT_FOR_IDLE_PULSE;
+                    break;
+            }
+        }
+
+        LPC_SCT->EVFLAG = (1 << 1);
+    }
 }
 
 
@@ -229,7 +351,8 @@ static void initialize_channel(CHANNEL_T *c) {
 // ****************************************************************************
 void read_all_servo_channels(void)
 {
-    if (config.mode != MASTER_WITH_SERVO_READER) {
+    if (config.mode != MASTER_WITH_SERVO_READER  &&
+        config.mode != MASTER_WITH_CPPM_READER) {
         return;
     }
 
