@@ -13,8 +13,9 @@ TO DO LIST for the RC Light Controller
 
 * Refactor directory structure
 
-* FW: Test gearbox switch time
+* FW: Fix servo reader glitching
 
+* HW: issue with analog servo interfering with ISP
 
 
 

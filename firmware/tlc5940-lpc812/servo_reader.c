@@ -121,7 +121,7 @@ void init_servo_reader(void)
                        (5 << 5);    // PRE_L[12:5] = 6-1 (SCTimer L clock 2 MHz)
 
 
-    if (config.mode != MASTER_WITH_SERVO_READER) {
+    if (config.mode == MASTER_WITH_SERVO_READER) {
         int i;
 
         // Configure registers 1..3 to capture servo pulses on SCTimer L
@@ -184,7 +184,7 @@ void SCT_irq_handler(void)
     static uint8_t channel_flags = 0;
     uint32_t capture_value;
 
-    if (config.mode != MASTER_WITH_SERVO_READER) {
+    if (config.mode == MASTER_WITH_SERVO_READER) {
         int i;
 
         for (i = 1; i <= 3; i++) {

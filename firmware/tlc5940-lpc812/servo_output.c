@@ -254,6 +254,7 @@ void process_servo_output(void)
                     // onwards the pulses will cease.
                     LPC_SCT->OUT[1].SET = 0;
                     gearbox_servo_counter = config.gearbox_servo_idle_time;
+                    gearbox_servo_active = false;
                 }
                 else {
                     activate_gearbox_servo();
