@@ -137,8 +137,10 @@ void init_servo_reader(void)
             LPC_SCT->EVEN |= (1 << i);              // Event i generates an interrupt
         }
 
-        // SCT CTIN_3 at PIO0.13, CTIN_2 at PIO0.4, CTIN_1 at PIO0.0
-        LPC_SWM->PINASSIGN6 = 0xff0d0400;
+        LPC_SWM->PINASSIGN6 = (0xff << 24) |
+                              (GPIO_BIT_CH3 << 16) |    // CTIN_3
+                              (GPIO_BIT_TH << 8) |      // CTIN_2
+                              (GPIO_BIT_ST << 0);       // CTIN_1
     }
 
     else { // MASTER_WITH_CPPM_READER
@@ -152,10 +154,11 @@ void init_servo_reader(void)
         LPC_SCT->CAPCTRL[1].L = (1 << 1);       // Event 1 loads capture register 1
         LPC_SCT->EVEN |= (1 << 1);              // Event 1 generates an interrupt
 
-        // SCT CTIN_1 at PIO0.0
-        LPC_SWM->PINASSIGN6 = 0xffffff00;
+        LPC_SWM->PINASSIGN6 = (0xff << 24) |
+                              (0xff << 16) |
+                              (0xff << 8) |
+                              (GPIO_BIT_ST << 0);   // CTIN_1
     }
-
 
     LPC_SCT->CTRL_L &= ~(1 << 2);           // Start the SCTimer L
     NVIC_EnableIRQ(SCT_IRQn);

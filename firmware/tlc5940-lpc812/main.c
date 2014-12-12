@@ -12,28 +12,6 @@
 #include <globals.h>
 #include <uart0.h>
 
-// ****************************************************************************
-// IO pins: (LPC812 in TSSOP16 package)
-//
-// PIO0_0   (16, TDO, ISP-Rx)   Steering input / Rx
-// PIO0_1   (9,  TDI)           TLC5940 GSCLK
-// PIO0_2   (6,  TMS, SWDIO)    TLC5940 SCLK
-// PIO0_3   (5,  TCK, SWCLK)    TLC5940 XLAT
-// PIO0_4   (4,  TRST, ISP-Tx)  Throttle input / Tx
-// PIO0_5   (3,  RESET)         NC (test point)
-// PIO0_6   (15)                TLC5940 BLANK
-// PIO0_7   (14)                TLC5940 SIN
-// PIO0_8   (11, XTALIN)        NC
-// PIO0_9   (10, XTALOUT)       Switched light output (for driving a load via a MOSFET)
-// PIO0_10  (8,  Open drain)    NC
-// PIO0_11  (7,  Open drain)    NC
-// PIO0_12  (2,  ISP-entry)     OUT / ISP
-// PIO0_13  (1)                 CH3 input
-//
-// GND      (13)
-// 3.3V     (12)
-// ****************************************************************************
-
 
 
 // The entropy variable is incremented every mainloop. It can therefore serve
@@ -68,7 +46,6 @@ CHANNEL_T channel[3] = {
         .normalized = 0,
         .absolute = 0,
         .reversed = false,
-        // FIXME: check CH3 handling of two-position switch regarding endpoint!
         .endpoint = {
             .left = 1250,
             .centre = 1500,
@@ -121,12 +98,18 @@ static void init_hardware(void)
         }
         else {
             // U0_TXT_O=PIO0_12
-            LPC_SWM->PINASSIGN0 = 0xffffff0c;
+            LPC_SWM->PINASSIGN0 = (0xff << 24) |
+                                  (0xff << 16) |
+                                  (0xff << 8) |
+                                  (GPIO_BIT_OUT << 0);
         }
     }
     else {
-        // U0_TXT_O=PIO0_4, U0_RXD_I=PIO0_0
-        LPC_SWM->PINASSIGN0 = 0xffff0004;
+        // U0_TXT_O=PIO0_4 (TH), U0_RXD_I=PIO0_0 (ST)
+        LPC_SWM->PINASSIGN0 = (0xff << 24) |
+                              (0xff << 16) |
+                              (GPIO_BIT_ST << 8) |
+                              (GPIO_BIT_TH << 0);
     }
 
     // Make the open drain ports PIO0_10, PIO0_11 outputs and pull to ground
@@ -135,7 +118,8 @@ static void init_hardware(void)
     GPIO_SWITCHED_LIGHT_OUTPUT = 0;
     LPC_GPIO_PORT->W0[10] = 0;
     LPC_GPIO_PORT->W0[11] = 0;
-    LPC_GPIO_PORT->DIR0 |= (1 << 9) | (1 << 10) | (1 << 11);
+    LPC_GPIO_PORT->DIR0 |= (1 << 10) | (1 << 11) |
+                           (1 << GPIO_BIT_SWITCHED_LIGHT_OUTPUT);
 
 
     // Enable glitch filtering on the IOs
@@ -147,17 +131,17 @@ static void init_hardware(void)
     // filtering on the IOs used for the capture timer. One clock cytle of the
     // main clock is enough, but with none weird things happen.
 
-    LPC_IOCON->PIO0_0 |= (1 << 5) |         // Enable Hysteresis
-                         (0x1 << 13) |      // Glitch filter 1
-                         (0x1 << 11);       // Reject 1 clock cycle of glitch filter
+    GPIO_IOCON_ST |= (1 << 5) |         // Enable Hysteresis
+                     (0x1 << 13) |      // Glitch filter 1
+                     (0x1 << 11);       // Reject 1 clock cycle of glitch filter
 
-    LPC_IOCON->PIO0_4 |= (1 << 5) |         // Enable Hysteresis
-                         (0x1 << 13) |      // Glitch filter 1
-                         (0x1 << 11);       // Reject 1 clock cycle of glitch filter
+    GPIO_IOCON_TH |= (1 << 5) |         // Enable Hysteresis
+                     (0x1 << 13) |      // Glitch filter 1
+                     (0x1 << 11);       // Reject 1 clock cycle of glitch filter
 
-    LPC_IOCON->PIO0_13 |= (1 << 5) |        // Enable Hysteresis
-                          (0x1 << 13) |     // Glitch filter 1
-                          (0x1 << 11);      // Reject 1 clock cycle of glitch filter
+    GPIO_IOCON_CH3 |= (1 << 5) |        // Enable Hysteresis
+                      (0x1 << 13) |     // Glitch filter 1
+                      (0x1 << 11);      // Reject 1 clock cycle of glitch filter
 
 
     // ------------------------

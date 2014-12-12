@@ -160,7 +160,11 @@ void init_lights(void)
     GPIO_GSCLK = 0;
     GPIO_XLAT = 0;
 
-    LPC_GPIO_PORT->DIR0 |= (1 << 1) | (1 << 2) | (1 << 3) | (1 << 6) | (1 << 7);
+    LPC_GPIO_PORT->DIR0 |= (1 << GPIO_BIT_GSCLK) |
+                           (1 << GPIO_BIT_SCK) |
+                           (1 << GPIO_BIT_XLAT) |
+                           (1 << GPIO_BIT_BLANK) |
+                           (1 << GPIO_BIT_SIN);
 
     // Use 2 MHz SPI clock. 16 bytes take about 50 us to transmit.
     LPC_SPI0->DIV = (__SYSTEM_CLOCK / 2000000) - 1;
@@ -179,8 +183,15 @@ void init_lights(void)
 
     // We use the SSEL function for XLAT: low during the transmission, high
     // during the idle periood.
-    LPC_SWM->PINASSIGN3 = 0x02ffffff;   // PIO0_2 is SCK
-    LPC_SWM->PINASSIGN4 = 0xff03ff07;   // PIO0_3 is XLAT (SSEL) PIO0_3 is SIN (MOSI)
+    LPC_SWM->PINASSIGN3 = (GPIO_BIT_SCK << 24) |        // SCK
+                          (0xff << 16) |
+                          (0xff << 8) |
+                          (0xff << 0);
+
+    LPC_SWM->PINASSIGN4 = (0xff << 24) |
+                          (GPIO_BIT_XLAT << 16) |       // XLAT (SSEL)
+                          (0xff << 8) |
+                          (GPIO_BIT_SIN << 0);          // SIN (MOSI)
 
     send_light_data_to_tlc5940();
 
