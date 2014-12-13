@@ -377,6 +377,7 @@ void read_all_servo_channels(void)
             if (servo_reader_timer == 0) {
                 initialize_channel(&channel[ST]);
                 initialize_channel(&channel[ST]);
+                normalize_channel(&channel[CH3]);
 
                 servo_reader_state = NORMAL_OPERATION;
                 global_flags.initializing = 0;
@@ -388,7 +389,6 @@ void read_all_servo_channels(void)
             normalize_channel(&channel[ST]);
             normalize_channel(&channel[TH]);
             if (!config.flags.ch3_is_local_switch) {
-                // FIXME: does this need to be different for CH3?!!
                 normalize_channel(&channel[CH3]);
             }
             global_flags.new_channel_data = true;
