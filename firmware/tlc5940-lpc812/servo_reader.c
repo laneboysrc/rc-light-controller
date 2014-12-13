@@ -376,7 +376,7 @@ void read_all_servo_channels(void)
         case WAIT_FOR_TIMEOUT:
             if (servo_reader_timer == 0) {
                 initialize_channel(&channel[ST]);
-                initialize_channel(&channel[ST]);
+                initialize_channel(&channel[TH]);
                 normalize_channel(&channel[CH3]);
 
                 servo_reader_state = NORMAL_OPERATION;
