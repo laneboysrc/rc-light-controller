@@ -17,7 +17,6 @@ TO DO LIST for the RC Light Controller
   Clearly an issue with some servos only. Need to disable ISP and rather provide
   a software way for those
 
-* Conf: use serif font on Windows
 
 Future work:
 
