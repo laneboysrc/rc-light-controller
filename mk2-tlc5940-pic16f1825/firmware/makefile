@@ -1,10 +1,5 @@
 .PHONY: all
-all: paul chai tobias fiat-131 lancia-fulvia \
-     sawback subaru-impreza-2007 ferrari-la-ferrari subaru-impreza-2008 \
-     nismo-coppermix lancia-delta-integrale datsun-240z-rally bmw-2002-turbo \
-     porsche-911-rsr wraith datsun-510 ben-landrover pajero subaru \
-     wyetuck-landrover phil-ford xr311 dingo \
-     generic preprocessor
+all: generic preprocessor
 
 
 ##############################################################################
@@ -334,44 +329,6 @@ phil-ford: gt3b-preprocessor phil-ford-master
 phil-ford-master: hw_tlc5940_16f1825.inc
 	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x07 -D ESC_FORWARD_REVERSE -D ENABLE_UART)
 	$(eval files = master uart-reader utils lights-phil-ford)
-	$(build)
-
-
-##############################################################################
-# AXIAL SCX10 Dingo
-##############################################################################
-.PHONY: dingo
-dingo: dingo-master dingo-slave
-
-.PHONY: dingo-master
-dingo-master: hw_original_servo_reader.inc
-	$(eval CFLAGS = -D ENABLE_STEERING_WHEEL_SERVO)
-	$(eval files = master servo-reader utils lights-dingo)
-	$(build)
-
-.PHONY: dingo-slave
-dingo-slave : hw_original_uart_reader.inc
-	$(eval CFLAGS = -D ENABLE_SERVO_OUTPUT)
-	$(eval files = slave servo-output utils)
-	$(build)
-
-
-##############################################################################
-# TAMIYA XR311
-##############################################################################
-.PHONY: xr311
-xr311: xr311-preprocessor xr311-master
-
-.PHONY: xr311-preprocessor
-xr311-preprocessor : hw_preprocessor_16f628a.inc
-	$(eval CFLAGS = -D SEQUENTIAL_CHANNEL_READING)
-	$(eval files = preprocessor servo-reader utils)
-	$(build)
-
-.PHONY: xr311-master
-xr311-master : hw_original_uart_reader.inc
-	$(eval CFLAGS = -D DUAL_TLC5916 -D ENABLE_STEERING_WHEEL_SERVO -D ENABLE_SERVO_OUTPUT -D LIGHT_MODE_MASK=0x03 -D ENABLE_UART)
-	$(eval files = master uart-reader servo-output utils lights-xr311)
 	$(build)
 
 

@@ -6,4 +6,8 @@
 !gt3b-preprocessor.hex
 !hkr3000-preprocessor.hex
 !slave-tlc5940.hex
-
+*.o
+*.cod
+*.hex
+*.lst
+*.map
