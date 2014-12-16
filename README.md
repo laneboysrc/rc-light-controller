@@ -1,6 +1,4 @@
-# DIY light controller for Radio controlled cars
-
-This project is for a light controller for radio controlled cars.
+# Light controller for Radio Controlled cars
 
 The objective is to achieve realistic lighting of RC model cars using a
 standard 3-channel radio control system.
@@ -21,9 +19,7 @@ The following functions have been implemented:
 - Programmable servo output designed to drive a steering wheel or a
   figures head
 - Programmable servo output for a 2-speed gearbox
-- Various customizable light patterns for a roof light bar
 - Automatic centre and end-point adjustment for all channels
-
 
 A detailed introduction and videos can be found at our blog:
 
