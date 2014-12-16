@@ -1,47 +1,5 @@
 This document contains various architecture related documentation that
-I wrote during development.
-
-Not every idea noted here has been implemented yet. Not everything is 
-categorized well. Still, it is useful information to understand how the
-firmware works.
-
-
-The following outputs are needed:
-- Parking light, tail light
-- Low beam
-- High beam
-- Fog lamps, fog rear light
-- Indicators L + R
-- Brake light
-- Reversing light
-- Servo output to drive a servo connected to a steering wheel
-
-
-Modes that the SW must handle:
-- Light mode:
-    - Off
-    - Parking light
-    - + Low beam
-    - + Fog lights
-    - + High beam
-- Drive mode:
-    - Neutral
-    - Forward
-    - Braking - Brake lights
-    - Reverse - Reverse light
-- Indicators
-- Steering wheel servo
-- Hazard lights
-
-
-Other functions:
-- Failsafe mode: all lights blink when no signal 
-    (not implemented yet, DOES NOT WORK FOR HK-310)
-- Program CH3 (NOT NEEDED)
-- Program TH neutral, full fwd, full rev
-    - Automatic end-points for steering and throttle
-    - Automatic reversing for throttle    
-- Program servo output for steering servo: direction, neutral and end points
+were written during early stages of development.
 
 
 =============================================================================
@@ -53,7 +11,7 @@ make it look as if the driver is actually driving the car.
 In the context of the light controller this function is called "steering wheel
 servo".
 
-The "Steering wheel servo" is independent of "steering". "steering", or 
+The "Steering wheel servo" is independent of "steering". "steering", or
 "steering channel" refers to the servo output on your receiver, usually
 channel 1, that connects to the servo that changes direction on your vehicle.
 "steering" is abbreviated as ST.
@@ -64,27 +22,16 @@ needs for your car's steering.
 =============================================================================
 
 
-Operation:
-- Automatic operations:
-    - Brake lights
-    - Reversing lights
-    - Indicators
-- Manual light switching via CH3
-    - short press (click): cycle through light modes up
-    - double-click: cycle through light modes down
-    - triple-click: all lights on/off
-    - 4-click: hazard lights on/off
-    - 7-click: Enter steering channel reversing setup
-    - 8-click: Enter steering wheel servo setup
 
+There are difference implementations of CH3 (AUX) that can be found in RC car
+transmitters:
 
+- Hard switch: on/off positions (i.e. HK 310, Turnigy 3XS)
 
-CH3 behaviour:
-- Hard switch: on/off positions (i.e. HK 310)
-- Toggle button: press=on, press again=off (i.e. GT-3B)
-- Momentary button: press=on, release=off (in actual use ?)
-    This function is not supported at the moment, hard button and toggle 
-    buttons are.
+- Toggle button: press=on, press again=off (i.e. FlySky GT3B)
+
+- Momentary button: press=on, release=off (Futaba 4PL)
+
 
 
 Measuring the 3 servo channels:
@@ -112,28 +59,29 @@ So the pseudo code should look like:
 
         goto main
 
+On newer MCUs the timer hardware can "capture" the pulse width on an external
+IO. This is preferred as it is more precise.
+The PIC16F1825 can only measure one GPIO. The LPC812 can measure all 3 channels
+at the same time, independently.
+
 
 Robustness matters:
 ===================
-Note: nothing in this section has been implemented for now!
-
 A servo signal should come every 20 ms. OpenSourceLights says in their
 comment that they meassured "~20-22ms" between pulses. So for the safe
 side let's assume that worst case we wait 25 ms for a servo pulse.
 
-How to detect "failsafe"?
-Since at minimum CH3 must be present, we use it to detect fail safe. If
-no CH3 is received within 25 ms then we assume failure mode.
+Modern digital RC receivers output a servo pulse even if the connection to the
+transmitter is lost. Therefore the light controller can not signal that
+failsafe has triggered.
 
-At startup we shall detect whether channels are present.
-CH3 is always required, so we first wait for that to ensure the TX/RC are
-on. Then we wait for TH and ST. If they don't appear we assume they are
-not present.
 
 
 Discussion on the protocol to use between the master and the slave:
+AKA: pre-processor protocol
 ===================================================================
-PPM:
+
+First, CPPM was considered.
 Each pulse is 300us,
 Data: 1000-2000 us full range, 1500 us = center (includes pulse width!)
     Allow for: 770-2350 us
@@ -146,36 +94,29 @@ We are dealing with 3 RC channels. A channel has a signal of max 2.1 ms
 that is repeated every 20 ms. Hoever, there is no specification in which
 sequence and with which timing the receiver outputs the individual channels.
 Worst case there is only 6.85 ms between the channels. As such we can
-not send the PPM signal synchronously between reading the channels.
+not send the PPM signal synchronously between reading the channels with a
+pure software approach.
 
 Using interrupts may be critical too, as we need precision. Lets assume we
 want to divide the servo range of 1 ms to 2 ms in 200 steps (100% in each
 direction as e.g. EPA in transmitters works). This requires a resolution
-of 5 us -- which is just 5 instruction cycles. No way to finish
-processing interrupts this way.
-
-So instead of PPM we could use UART where the PIC has HW support.
-Or we could do one 20 ms measure the 3 channels, then in the next 20 ms
-period send PPM.
-
-UART at 38400 BAUD should be fast enough, even though we have increased
-data rate (since we are sending data values). On the plus side this
-allows for "digital" accuracy as there is no jitter in timing generation
-(both sending and receiving) as there is with PPM).
-
-****************************************
-* CONCLUSION: let's use UART, not PPM! *
-****************************************
+of 5 us -- which is just 5 instruction cycles (1 MHz instruction clock).
+No way to finish processing interrupts this way.
 
 
-UART protocol:
+UART approach:
 ==============
+UART at 38400 BAUD is fast enough to send 3 bytes between measuring servo
+pulses.
+
+UART protocol for the TLC5916 based master/slave design:
+========================================================
 3 Bytes: SYNC, Lights, Lights-half, ST
     SYNC:       Always 0x80..0x87, which does not appear in the other values
                 If a slave receives 0x87 the data is processed.
-                If the value is 0x86..0x80 then it increments the value 
-                by 1 and sends all 3 received bytes at its output. 
-                This provides us with a simple way of daisy-chaining 
+                If the value is 0x86..0x80 then it increments the value
+                by 1 and sends all 3 received bytes at its output.
+                This provides us with a simple way of daisy-chaining
                 several slave modules!
                 Note: Currently the software only drives a single slave.
     Lights:     Each bit indicates a different light channel (0..6)
@@ -193,6 +134,7 @@ Flashing speed for hazard and indicators:
 1.5 Hz = 333 ms per half-period
 
 
+
 Auto configuration:
 ===================
 In order to avoid having to setup the light controller manually every time
@@ -202,38 +144,36 @@ shall be employed.
 The assumption is that both throttle and steering are in Neutral on power
 on. So at startup we measure the servo signals and treat them as neutral.
 
-The end-points are set to 200us (configurable throught INITIAL_ENDPOINT_DELTA) 
-initially and "grow" when servo signals are received that are larger than 
-the current value (up to the maximum of 800 and 2300 us respectively where 
+The end-points are set to 200us (configurable throught INITIAL_ENDPOINT_DELTA)
+initially and "grow" when servo signals are received that are larger than
+the current value (up to the maximum of 800 and 2300 us respectively where
 we clamp servo signals).
 
 Depending on your servo and ESC installation, the servo and throttle may
-be reversed. 
-For the throttle channel the light controller auto-detects the direction
-every time it starts up. The light controller assumes that the first
-throttle input given will be "forward", which is quite intuitive in 
-normal RC car operation.
-The steering channel reversing can be setup manually. To enter steering
-channel reversing the user has to perform 7-clicks on CH3 to enter the
-steering channel reversing setup. The left indicator LED (or whatever light
-pattern you decide to use for steering channel reversing) will light up. The
-light controller waits then for a steering input and uses its direction as
-the direction for "left". The direction flag is stored persistently so it
-only has to be setup once.
+be reversed.
+In the original design we had throttle and steering direction auto-detect.
+It was assumed that the user pushes the throttle forward and the steering
+to left as first operation after powering up the car.
+In practice this caused confusion for some users, and we resorted to store
+the servo reversing persistently.
+Servo reversing is configured by performing 7 clicks on CH3, then pushing
+the throttle forward and the steering to the direction of the indicators
+that light up.
+
 
 
 TX/RX system findings:
 ======================
 In general the jitter is 3 us, which is expected given that it takes about
-3 instructions (PIC16F628 at 4 MHz) to detect a port change and start/stop 
+3 instructions (PIC16F628 at 4 MHz) to detect a port change and start/stop
 the timer.
 
-GT3B: 
+GT3B:
     EPA can be +/- 120 %
     Normal range (trim zero, 100% EPA): 986 .. 1568 .. 2120
     Trim range: 1490 .. 1568 .. 1649  (L30 .. N00 .. R30)
     Worst case with full EPA and trim: 870 .. 2300 (!)
-    Failsafe: Servo signal holds for about 500ms, then ST and CH3 stops and 
+    Failsafe: Servo signal holds for about 500ms, then ST and CH3 stops and
       TH outputs 1500us (configurable?)
     CH3: 1058, 2114
 
@@ -243,7 +183,7 @@ GT3B:
     The repeat frequency of servo pulses is about 18.5 ms.
 
     The receiver internally operates at 3.3V and has a simple boost converter
-    that generates 5V if the input voltage is lower than 5V before feeding 
+    that generates 5V if the input voltage is lower than 5V before feeding
     the 3.3V LDO.
 
 HK-310:
@@ -251,62 +191,61 @@ HK-310:
     Normal range (sub-trim and trim zero, 100% EPA): 1073 .. 1568 .. 2117
     Sub-Trim range: 1232 .. 1565 .. 1901  (-100 .. 0 .. 100)
     Trim range: 1388 .. 1568 .. 1745
-    Worst case with full EPA and sub-tirm and trim: 779 .. 2327 (!)
+    Worst case with full EPA and sub-trim and trim: 779 .. 2327 (!)
     Failsafe: Continously sends ST centre, TH off, CH3 holds last value
-    CH3: 1013 = AUX, 2120 = OFF 
+    CH3: 1013 = AUX, 2120 = OFF
 
     By default all channels are set to "REV" strangely. This means:
     ST: left means smaller values
     TH: fwd means larger values
-    CH3: AUX means small value, OFF means large value (note: it is easy to 
+    CH3: AUX means small value, OFF means large value (note: it is easy to
             place in the switch physically in both directions when assembling
             the transmitter, so different HK310 may have this reversed ...
 
     The repeat frequency of servo pulses is 16 ms (precisely) = 62.5 Hz.
     The order of which they are sent is ST, TH, CH3. There is a gap of 100 ns
     between the channel outputs.
-        
+
         => This means we can change our algorithm: we can read the channels
         in sequence, when one is finished, we treat it as start for the
-        next one. 
+        next one.
 
-    When the receiver is powered on the servo output stays high until the
-    first valid transmitter command is received. If during operation the
-    transmitter signal is lost the receiver outputs the programmed failsafe
-    values. 
+    When the receiver is powered on, the servo output stays high until the
+    first valid transmitter command is received. If the signal is lost during
+    normal operation, the receiver outputs the programmed failsafe values.
 
-    When the transmitter is powered it sends "neutral" values for ST and TH,
+    When the transmitter is powered up, it sends "neutral" values for ST and TH,
     and the initial position of CH3 (apparently it reads this directly during
     power up). The real data based on actual ST/TH position is only sent
     after the transmitter has booted (= showing its main operating screen).
     The boot time seems to be approx 4 seconds.
 
-    The pin on the battery connector outputs a strange pulse that is the 
+    The pin on the battery connector outputs a strange pulse that is the
     combination of all 3 servo pulses. The signal is high when idle and
-    low during the signal pulse. Its falling edge is 700 ns after the start 
-    (rising edge) of the ST output, its rising edge is 100 ns after the 
+    low during the signal pulse. Its falling edge is 700 ns after the start
+    (rising edge) of the ST output, its rising edge is 100 ns after the
     end (falling edge) of the CH3 output.
 
-    The receiver internally operates at 3.3V and 2.5V. The servo outputs 
+    The receiver internally operates at 3.3V and 2.5V. The servo outputs
     are 3.3V.
-    
+
 Futaba R2104GF:
     EPA can be +/- 120 %
     Normal range (sub-trim and trim zero, 100% EPA): 1000 .. 1500 .. 2000
 
     The repeat frequency of servo pulses is 6.8 ms = 147 Hz! This is
     "fast mode". The normal mode is 13.63 ms according to documentation.
-    
+
     CH1 and CH2 start their pulse at exactly the same time. CH3 and CH4 start
-    together 300 ns after CH1 and CH2. 
+    together 300 ns after CH1 and CH2.
 
     The receiver internally operates at 3V and 1.8V. It uses TI CC2500 RF chip
     and a MSP430 microprocessor with a 26 MHz crystal.
-    
+
     The battery connector signal pin has a wire to it, but there is no signal.
     Voltage range is specified to being 3.5V - 8.4V.
     Size: 39 x 26 x 10 mm
-    
+
 
 Servo processing:
 =================
@@ -319,24 +258,6 @@ to expect a servo range of 800 .. 1500 .. 2300 us (1500 +/-700 us).
     Everything above 2500 will be considered invalid.
     Defaults are 1000 .. 1500 .. 2000 us
 
-Hex values for those numbers (1 MHz Timer1 clock):
-    600     0x258    
-    800     0x320
-    1000    0x3E8 
-    1500    0x5dc    
-    2000    0x7d0
-    2300    0x8FC
-    2500    0x9c4
-
-Timeout for measuring high pulse: Use TMR1H bit 4: If set, more than 
-4096 ms have expired!
-Timeout for waiting for pulse to go high: Use TMR1H bit 7: If set, more 
-than 32768 ms have expired! 
-These tests allow us to use cheap bit test instructions.
-
-###########################################################################
-NOTE: TIMEOUTS HAVE NOT BEEN IMPLEMENTED FOR NOW!
-###########################################################################
 
 
 CH3 processing:
@@ -347,7 +268,7 @@ Example:
     Center is therefore   (2000 + 1000) / 2 = 1500 us
     Hysteresis:           (2000 - 1000) / 8 = 125 us
     If last switch position was pos 0:
-        measured timing must be larger than 1500 + 125 = 1625 us to accept 
+        measured timing must be larger than 1500 + 125 = 1625 us to accept
         as pos 1
     If last switch position was pos 1:
         measured timing must be larger than 1500 - 125 = 1375 us to accept
@@ -370,11 +291,11 @@ To make processing easier we ensure that
     EPL > CEN > EPR must be true
 This can be achieved with the REV flag that indicates when a channel is
 reversed.
-By default we assume that 
+By default we assume that
     Throttle forward is EPR, backward EPL
     Steering left is EPL, Steering right is EPR
 
-We need to convert POS into a range of 
+We need to convert POS into a range of
     -100 .. 0 .. +100   (left .. centre .. right)
 
 If POS == CEN:           We found dead centre
@@ -398,14 +319,14 @@ caluclate:  (inputs are POS, EP(L or R), CEN)
         If POS < EP      Clamp invald input
             return 100
         POS_NORMALIZED = (CEN - POS) * 100 / (CEN - EP)
-    
+
 
 Timer:
 ======
 We need a way to measure time, e.g. for double click detection of ch3 and
-to derive the blink frequency. For the PIC16F628 will use TIMER0 for generating 
-a low, steady frequency. TIMER0 will be set in such a way that within a 
-worst-case mainloop it can only overflow once. This means we will be able to 
+to derive the blink frequency. For the PIC16F628 will use TIMER0 for generating
+a low, steady frequency. TIMER0 will be set in such a way that within a
+worst-case mainloop it can only overflow once. This means we will be able to
 accurately measure longer periods of time.
 
 To do so we select a pre-scaler of 1:256. This gives us a timer clock of
@@ -429,7 +350,7 @@ Steering wheel servo:
 =====================
 To allow easy reconfiguration of the steering wheel servo the user has to
 toggle the CH3 button 8 times. The steering channel will then directly drive
-the steering wheel servo output, allowing the user to set the center 
+the steering wheel servo output, allowing the user to set the center
 position. Toggling CH3 once switches to "left end point". The user can
 use the steering channel to set the left end point of the steering wheel
 servo. Note that this may mean that the user has to turn the steering
@@ -466,8 +387,8 @@ The Tamiya XR311 also has only a single light for tail/brake/indicator (plus
 and additional reversing light), so I had to implement this function.
 
 
-Tail       | Brake     | Indicator || Output    
-off        | off       | on  | off || high | off  
-half       | off       | on  | off || high | half  
+Tail       | Brake     | Indicator || Output
+off        | off       | on  | off || high | off
+half       | off       | on  | off || high | half
 off        | high      | on  | off || high | half
 half       | high      | on  | off || high | half
