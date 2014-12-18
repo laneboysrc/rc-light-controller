@@ -1,6 +1,6 @@
 # Firmware architecture
 
-All current variants of the DIY RC Light Controller use Microchip PIC 16 micro-controllers.
+The MK1, MK2 and MK3 variants of the DIY RC Light Controller use Microchip PIC 16 micro-controllers.
 
 The firmware is written in Assembler, using the open source [gputils](http://gputils.sourceforge.net/).
 
@@ -11,7 +11,7 @@ Often body shells require different light configurations: some have parking ligh
 
 To facilitate these difference, vehicle-specific algorithms are stored in a separate file that starts with the prefix ``lights-``.
 
-There is however also a ``lights-generic.asm`` that may fit a wide variety of vehicles. The functionality of the generic configuration is described in [../doc/light-controller-instructions.pdf](../doc/light-controller-instructions.pdf).
+There is however also a ``lights-generic.asm`` that may fit a wide variety of vehicles. The functionality of the generic configuration is described in [../doc/light-controller-instructions.pdf](../../doc/light-controller-instructions.pdf).
 This configuration is currently only available for the TLC5940 based hardware. The firmware directory contains pre-assembled HEX files for your covenience:
 
 - [generic-two-position-master.hex](../firmware/generic-two-position-master.hex)
@@ -68,11 +68,6 @@ hardware must be chosen.
 - ````hw_ws2812_12f1840.inc````, ````ws2812.asm````
 
     For driving WS2812B or PL9823 LEDs using a PIC12F1840 micro-controller.
-
-- ````hw_original_servo_reader.inc````, ````hw_original_uart_reader.inc````
-
-    For the first iteration of the light controller based on PIC16F628A and
-    TLC5916. Not recommended for new builds.
 
 
 ## Input specific components
