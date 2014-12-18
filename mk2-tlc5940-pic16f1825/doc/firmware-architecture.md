@@ -5,14 +5,11 @@ The MK1, MK2 and MK3 variants of the DIY RC Light Controller use Microchip PIC 1
 The firmware is written in Assembler, using the open source [gputils](http://gputils.sourceforge.net/).
 
 
-## Customizing the light controllers functionality
+## Pre-compiled light controller firmwre
 
-Often body shells require different light configurations: some have parking lights and main beam, others main beam and high beam only. Some cars have fog lamps. On some cars the brake and tail lamps are combined, on others they are separate LEDs.
-
-To facilitate these difference, vehicle-specific algorithms are stored in a separate file that starts with the prefix ``lights-``.
-
-There is however also a ``lights-generic.asm`` that may fit a wide variety of vehicles. The functionality of the generic configuration is described in [../doc/light-controller-instructions.pdf](../../doc/light-controller-instructions.pdf).
-This configuration is currently only available for the TLC5940 based hardware. The firmware directory contains pre-assembled HEX files for your covenience:
+Since building the firmware is a significant hurdle for many RC enthusiasts, a pre-compiled firmware with functionality that may fit many vehicles is available for download.
+The functionality of this *generic configuration* is described in [../doc/light-controller-instructions.pdf](../../doc/light-controller-instructions.pdf).
+This configuration is currently only available for the TLC5940 based hardware.
 
 - [generic-two-position-master.hex](../firmware/generic-two-position-master.hex)
 
@@ -33,6 +30,46 @@ Ready made HEX files are available for your convenience:
 - [test-ws2812-12f1840.hex](../firmware/test-ws2812-12f1840.hex)
 
     For the PIC12F1840 based hardware driving WS2812B or PL9823 LEDs
+
+
+
+## Build process
+
+To compile the PIC firmware you need:
+
+- GNU Make ([https://www.gnu.org/software/make/](https://www.gnu.org/software/make/);
+  Windows executable is available at [http://gnuwin32.sourceforge.net/packages/make.htm](http://gnuwin32.sourceforge.net/packages/make.htm))
+
+- gputils (Version 1.0.0; [http://gputils.sourceforge.net/](http://gputils.sourceforge.net/))
+
+- Windows users also need **cp.exe** and **rm.exe** from [coreutils](http://gnuwin32.sourceforge.net/downlinks/coreutils-bin-zip.php).
+
+
+>**Attention Windows users:**
+>
+> Ensure that the PATH environment variable points to the *make.exe* and
+> *gpasm.exe* executables.
+>
+> Run *cmd.exe*; type **make -v**. You should see a message originating
+> from GNU make. Ensure that the message is indeed from GNU make, not from
+> another make utility that you may have installed.
+> Type **gpasm -v** to check that *gputils* is correctly installed.
+>
+> Also place **cp.exe** and **rm.exe** in the same directory as make.exe.
+
+Building the various light controller firmware variants is done with a makefile.
+
+Running ``make`` from a command line in the *firmware/* directory builds the generic firmware variants and preprocessors.
+To build a specific vehicle variant one needs to execute ``make vehicle_name``.
+
+Please refer to the makefile itself for more information; it contains detailed comments about how the build process works and a list of all vehicle variants that have been built so far.
+
+
+## Customizing the light controllers functionality
+
+Often body shells require different light configurations: some have parking lights and main beam, others main beam and high beam only. Some cars have fog lamps. On some cars the brake and tail lamps are combined, on others they are separate LEDs.
+
+To facilitate these difference, vehicle-specific algorithms are stored in a separate file that starts with the prefix ``lights-``.
 
 
 ## Common components
@@ -63,11 +100,11 @@ hardware must be chosen.
 
 - ````hw_tlc5940_16f1825.inc````
 
-    For hardware based on the TLC5940 and the PIC16F1825.
+    For MK2 hardware based on the TLC5940 and the PIC16F1825.
 
 - ````hw_ws2812_12f1840.inc````, ````ws2812.asm````
 
-    For driving WS2812B or PL9823 LEDs using a PIC12F1840 micro-controller.
+    MK3 hardware for driving WS2812B or PL9823 LEDs using a PIC12F1840 micro-controller.
 
 
 ## Input specific components
@@ -90,83 +127,43 @@ processor.
 
 - ``dummy-reader.asm``
 
-    Used during development only. It can be modified to perform certain operations
-    without having to use an actual RC system.
-
-
-## Build process
-
-Building the various light controller firmware variants is done with a makefile. The supplied makefile is GNU Make compatible.
-
-Running ``make`` builds all configured variants and vehicles. To build a
-specific variant one needs to execute ``make vehicle_name``.
-
-Please refer to the makefile itself for more information; it contains detailed
-comments about how the build process works.
+    Used during development only. It can be modified to perform certain operations without having to use an actual RC system.
 
 
 ## Creating a custom light configuration
 
-As stated initially, RC body shells differ in terms of available lights. Therefore we usually create a new custom light logic for each new body shell we
-acquire. We don't do this from scratch but mostly copy from an existing vehicle
-that has a hardware and light configuration close to the new vehicle.
+RC body shells differ in terms of available lights. Therefore we usually create a new custom light logic for each new body shell we acquire. We don't do this from scratch but mostly copy from an existing vehicle that has a hardware and light configuration close to the new vehicle.
 
-The light logic is stored in files with the prefix ``lights-"``. Each light
-logic is also tied to a specific hardware, which is the hardware we've chosen
-for that vehicle.
+The light logic is stored in files with the prefix ``lights-``. Each light logic is also tied to a specific hardware, which is the hardware we've chosen for that vehicle.
 
 Good choices for starting new vehicles are:
 
-For the TLC5940 based light controller, use the simple ``lights-ferrari-la-ferrari.asm`` for a car that has only 2 LEDs in the front and 2 in the back.
+``lights-ferrari-la-ferrari.asm`` for a car that has only 2 LEDs in the front and 2 in the back. MK2 TLC5940 PIC16F1825 hardware.
 
-A more complex TLC5940 based example is ``lights-subaru-impreza-2008.asm``, which drives 14 light outputs in total.
+A more complex TLC5940 based example is ``lights-subaru-impreza-2008.asm``, which drives 14 light outputs in total. MK2 TLC5940 PIC16F1825 hardware.
 
-A very elaborate light logic with winch control, 2-speed gearbox control and
-running lights is ``lights-wraith.asm``; also TLC5940 based like most of the
-light logic files supplied.
+A very elaborate light logic with winch control, 2-speed gearbox control and running lights is ``lights-wraith.asm``. MK2 TLC5940 PIC16F1825 hardware.
 
-For the WS2812 based light controller there is ``lights-fiat-131.asm`` as simple
-example, mixing both WS2812B and PL9823 LEDs. ``lights-lancia-fulvia.asm`` is
-using PL9823 LEDs exclusively but has a nice gimmick of fading indicators,
-simulating incandescent bulbs, and a simulation of a weak earth connection by
-dimming the left tail/brake light whenever the indicator lights up.
+For the MK3 WS2812 PIC12F1840 based light controller there is ``lights-fiat-131.asm`` as simple example, mixing both WS2812B and PL9823 LEDs.
+``lights-lancia-fulvia.asm`` is using PL9823 LEDs exclusively on MK3 WS2812 PIC12F1840 hardware, but has a nice gimmick of fading indicators, simulating incandescent bulbs, and a simulation of a weak earth connection by dimming the left tail/brake light whenever the indicator lights up.
 
-Some old American vehicles have a single light in the back for combined tail,
-brake and indicator functionality. You can find a reference implementation of
-this scheme in ``lights-sawback.asm`` (TLC5940 based) and ``lights-xr311.asm``
-(outdated TLC5916 design with two stacked TLC5916s, not recommended).
+Some old American vehicles have a single light in the back for combined tail, brake and indicator functionality. You can find a reference implementation of this scheme in ``lights-sawback.asm``. MK2 TLC5940 PIC16F1825 hardware.
 
 
 ## Light configuration implementation details
 
-Every ``lights-"`` vehicle specific file needs to export two functions that
+Every ``lights-`` vehicle specific file needs to export two functions that
 are called by the rest of the firmware:
 
 - ``Init_lights``
 
-    This function is called during startup of the DIY light controller. Here we
-    initialize the LED driver hardware, and set the LEDs to a unique pattern
-    that indicates that the light controller is waiting for a receiver signal.
-    This helps us identifying connection problems, as the ``Output_lights``
-    function documented below is only called once we have detected valid pulses
-    from the receiver. Therefore we know that if the LED pattern set by the
-    ``Init_lights`` function is visible, we did not receive valid signals from the receiver yet.
+    This function is called during startup of the DIY light controller. Here we initialize the LED driver hardware, and set the LEDs to a unique pattern that indicates that the light controller is waiting for a receiver signal. This helps us identifying connection problems, as the ``Output_lights`` function documented below is only called once we have detected valid pulses from the receiver. Therefore we know that if the LED pattern set by the ``Init_lights`` function is visible, we did not receive valid signals from the receiver yet.
 
 - ``Output_lights``
 
-    This function is called every *mainloop*. It monitors the state of certain
-    global variables (see below) and turns on and off the LEDs corresponding to
-    the state found in those variables. The mainloop runs once every time all
-    three servo signals (Steering, Throttle and AUX) have been read. Ideally
-    this happens at the repeat rate of the servo pulses (e.g. 16ms for the
-    HobbyKing HK310, ~8ms for the Futaba 4PL), but may take 3 times as long if
-    the sequence of the pulses generated by the receiver is not the sequence
-    expected by ``servo-reader.asm``.
+    This function is called every *mainloop*. It monitors the state of certain global variables (see below) and turns on and off the LEDs corresponding to the state found in those variables. The mainloop runs once every time all three servo signals (Steering, Throttle and AUX) have been read. Ideally this happens at the repeat rate of the servo pulses (e.g. 16ms for the HobbyKing HK310, ~8ms for the Futaba 4PL), but may take 3 times as long if the sequence of the pulses generated by the receiver is not the sequence expected by ``servo-reader.asm``.
 
-The light controller firmware outputs the state of certain light and drive
-functions in global variables. The ``lights-"`` vehicle specific file monitors
-these variables and outputs LEDs that corresponds to the state of those
-variables.
+The light controller firmware outputs the state of certain light and drive functions in global variables. The ``lights-`` vehicle specific file monitors these variables and outputs LEDs that corresponds to the state of those variables.
 
 The next sections describes some of the variables available.
 
@@ -185,9 +182,9 @@ The bits ``SETUP_MODE_CENTRE``, ``SETUP_MODE_LEFT`` and ``SETUP_MODE_RIGHT`` are
 
 ### light_mode
 
-This variable sets one more bit every time a single click on AUX/CH3 is performed.
+This variable sets one additional bit every time a single click on AUX/CH3 is performed.
 
-It is used to drive the main lights on the vehicle. For example if a vehicle has parking lamps, main beam, and high beam, we would use bit 0 in ``light_mode`` to light up the parking lamps and tail lights; bit 1 to light up the main beam, and bit 2 to light up the high beam.
+It is used to drive the main lights on the vehicle. For example if a vehicle has parking lamps, main beam, and high beam, we would use bit 0 in ``light_mode`` to light up the parking lamps and tail lights, bit 1 to light up the main beam, and bit 2 to light up the high beam.
 
 Higher bits are only set when the lower bits are 1, so we generate realistic light patterns, i.e. the main beam can only be on when parking lamps and tail lights are on.
 
@@ -199,7 +196,7 @@ There are two bits in this variable that are of concern to us:
 
 ``DRIVE_MODE_REVERSE`` is set when the reversing lights should be on.
 
-Other bits are available too; please refer to the source code for details.
+Other bits are available too, please refer to the source code for details.
 
 ### blink_mode
 
@@ -217,10 +214,9 @@ The ``blink_mode`` variable contains bits that relate to the indicator and hazar
 Certain features of the light controller can be configured when compiling a vehicle.
 These features can be found in the ``CFLAGS`` directive of a vehicle in the makefile.
 
-- ``LIGHT_MODE_MASK = 0x0f``
+- ``LIGHT_MODE_MASK=0x0f``
 
-    This bitmask defines how many lights there are that should be switched on
-    with a single click of the AUX/CH3 channel. Each time AUX is activated, more lights are turned on. If you have 2 lights (main beam and high beam for example), then you would specify ``0x03`` (0011 binary), if you have parking, main beam, high beam and fog lights you would specify ``0x0f`` (1111 binary), and so on. The mask defines basically the maximum value the ``light_mode`` variable (see above) will receive.
+    This bitmask defines how many lights there are that should be switched on with a single click of the AUX/CH3 channel. Each time AUX is activated, more lights are turned on. If you have 2 lights (main beam and high beam for example), then you would specify ``0x03`` (0011 binary), if you have parking, main beam, high beam and fog lights you would specify ``0x0f`` (1111 binary), and so on. The mask defines basically the maximum value the ``light_mode`` variable (see above) will receive.
 
 - ``CH3_MOMENTARY``
 
@@ -267,7 +263,7 @@ These features can be found in the ``CFLAGS`` directive of a vehicle in the make
 
     Enables control of a RC winch through using the [DIY RC Winch Controller](http://laneboysrc.blogspot.com/2013/09/make-your-own-rc-winch-controller.html).
 
-- ``RECEIVER_OUTPUT_RATE = 20``
+- ``RECEIVER_OUTPUT_RATE=20``
 
     Allows to specify the number of milliseconds between repeated servo pulses given by the receiver. If not specified the default of 16 ms is used. All this value really does is adjust the timing of initialization.
 
@@ -282,4 +278,3 @@ These features can be found in the ``CFLAGS`` directive of a vehicle in the make
 - ``DUAL_TLC5916``
 
     Enables the use of two TLC5916 (for dim and full brightness). Not recommended, use TLC5940 hardware instead.
-
