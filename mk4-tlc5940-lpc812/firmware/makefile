@@ -30,7 +30,7 @@ endif
 # Toolchain setup
 TOOLCHAIN_PREFIX := arm-none-eabi-
 TOOLCHAIN_PATH :=
-TOOL_PATH := ../../tools/
+TOOL_PATH := ../tools/
 
 CC := $(TOOLCHAIN_PATH)$(TOOLCHAIN_PREFIX)gcc
 LD := $(TOOLCHAIN_PATH)$(TOOLCHAIN_PREFIX)gcc
