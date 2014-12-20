@@ -37,12 +37,12 @@ Ready made HEX files are available for your convenience:
 
 To compile the PIC firmware you need:
 
-- GNU Make ([https://www.gnu.org/software/make/](https://www.gnu.org/software/make/);
-  Windows executable is available at [http://gnuwin32.sourceforge.net/packages/make.htm](http://gnuwin32.sourceforge.net/packages/make.htm))
+- GNU Make - [https://www.gnu.org/software/make/](https://www.gnu.org/software/make/)
+  Windows executable is available at [http://gnuwin32.sourceforge.net/packages/make.htm](http://gnuwin32.sourceforge.net/packages/make.htm)
 
-- gputils (Version 1.0.0; [http://gputils.sourceforge.net/](http://gputils.sourceforge.net/))
+- gputils - [http://gputils.sourceforge.net/](http://gputils.sourceforge.net/)
 
-- Windows users also need **cp.exe** and **rm.exe** from [coreutils](http://gnuwin32.sourceforge.net/downlinks/coreutils-bin-zip.php).
+- Windows users also need **cp.exe** and **rm.exe** from [coreutils](http://gnuwin32.sourceforge.net/downlinks/coreutils-bin-zip.php)
 
 
 >**Attention Windows users:**
@@ -50,10 +50,10 @@ To compile the PIC firmware you need:
 > Ensure that the PATH environment variable points to the *make.exe* and
 > *gpasm.exe* executables.
 >
-> Run *cmd.exe*; type **make -v**. You should see a message originating
+> Run *cmd.exe*; type ``make -v``. You should see a message originating
 > from GNU make. Ensure that the message is indeed from GNU make, not from
 > another make utility that you may have installed.
-> Type **gpasm -v** to check that *gputils* is correctly installed.
+> Type ``gpasm -v`` to check that *gputils* is correctly installed.
 >
 > Also place **cp.exe** and **rm.exe** in the same directory as make.exe.
 
