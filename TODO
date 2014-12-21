@@ -1,7 +1,5 @@
 TO DO LIST for the RC Light Controller
 
-* DOC: Add documentation. Lots of it. :)
-
 * DOC: When a priority program runs once, and another state takes precedence,
   the program has no effect and after the other state disappears, the lights
   are still wrong. Solution is to output constantly in a loop,
@@ -10,8 +8,6 @@ TO DO LIST for the RC Light Controller
 
 * Fix/remove broken Gerber at OSH Park
     * Larger heat sink for TLC5940, using vias to ground plane
-
-* Refactor directory structure
 
 * HW: issue with analog servo interfering with ISP
   Clearly an issue with some servos only. Need to disable ISP and rather provide
