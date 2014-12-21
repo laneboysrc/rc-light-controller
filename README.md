@@ -35,28 +35,41 @@ You may also want to read the [users guide](doc/light-controller-instructions.pd
 
 Firmware and schematics in Eagle format for the different variants are included in this project, please consult the sub-folders of the respective variant.
 
-Through the time the light controller went through several iterations. A detailed pro- and con- description of each variant can be found in the [hardware overview](doc/hardware-overview.md) document.
+Through the time the light controller went through several iterations.
+**A detailed pro- and con- description of each variant can be found in the [hardware overview](doc/hardware-overview.md) document.**
 
 Below is a brief overview of the current light controller variants:
 
 ### MK4 TLC5940 LPC812
 
+![MK4 light controller in various state of assembly](doc/light-controller-mk4-tlc5940-lpc812.jpg)
+
 [The MK4 variant](mk4-tlc5940-lpc812/) can drive 16 LEDs with a constant current. It utilises an inexpensive NXP ARM Cortex-M0 32-bit microcontroller.
 The main advantage of this new design is that it can be fully configured through a web-based user interface. Firmware and configuration can be downloaded with a standard USB-to-serial converter, no proprietary tools required.
-On the downside, the NXP chip only comes in tiny surface mount packages and is therefore not prototype-board-friendly (i.e. best to make a PCB).
+
 
 ### MK3 WS812 PIC12F1840
+
+[![The MK3 light controller on the left](https://farm6.staticflickr.com/5567/14791314828_801efd91f6_z.jpg)]("https://www.flickr.com/photos/78037110@N03/14791314828")
+(MK3 on the left, MK2 on the right)
+
 [This variant](mk3-ws2812b-pic12f1840/) drives the popular shift-register programmable LEDs [WS2812](https://www.adafruit.com/products/1655) are used, requiring only an inexpensive PIC12F1840 microcontroller to drive.
-Very quick to build the hardware; supports colored lights; but mounting and wiring the LEDs may be trickc y.
+Very quick to build the hardware; supports colored lights; but mounting and wiring the LEDs may be tricky.
+
 
 ### MK2 TLC5940 PIC16F1825
-The [PIC16F1825 variant](mk2-tlc5940-pic16f1825/) uses the TI TLC5940 LED driver and a a PIC16F1825 microcontroller. This system has been deployed in more than 20 vehicles and can be considered very robust.
-It has also been built by several fellow RC colleagues all over the world on simple prototyping boards.
 
 [![Light controller on prototyping board and PCB](http://farm6.staticflickr.com/5321/9769284031_7576b9dbe0.jpg)](http://www.flickr.com/photos/78037110@N03/9769284031/)
 
+The [PIC16F1825 variant](mk2-tlc5940-pic16f1825/) uses the TI TLC5940 LED driver and a a PIC16F1825 microcontroller. This system has been deployed in more than 20 vehicles and can be considered very robust.
+It has also been built by several fellow RC enthusiasts all over the world on simple prototyping boards.
+
+
 ### MK1 TLC5916 PIC628a
-The project also includes information on the original design using a PIC16F628A and TLC5916. I do not recommend this design for new projects as the components are outdated, functionality is limtited and the parts are more expensive than the other variants.
+
+[![The first light controller we ever built](https://farm8.staticflickr.com/7123/7675556184_958a45b5c5_z.jpg)](https://www.flickr.com/photos/78037110@N03/7675556184)
+
+The project also includes information on the original design using a PIC16F628A and TLC5916. I do not recommend this design for new projects as the components are outdated, functionality is limited and the parts are more expensive than the other variants.
 
 
 ## Related articles
