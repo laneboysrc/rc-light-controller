@@ -104,6 +104,17 @@ Due to hardware limitations, a software approach is needed to read the servo sig
 To program the firmware into the microcontroller, a proprietary programmer is needed. This needs to be taken into account as the cost of this programmer (~ USD 50) may be a big chunk of the budget needed to get the light controller built and running.
 
 
+### MK1 TLC5916 PIC628a
+
+[![The first light controller we ever built](https://farm8.staticflickr.com/7123/7675556184_958a45b5c5_z.jpg)](https://www.flickr.com/photos/78037110@N03/7675556184)
+
+The original design used a PIC16F628A and TLC5916 LED driver. The LED driver was constant current, but not adjustable like the TLC5940. It had only 8 light outputs, so LEDs had to be wired in series to get a car fully lit up.
+
+Since white LEDs require more than 3V each, a voltage booster had to be installed to ensure the voltage never went below 7V even if the main car battery was almost empty. This added significant cost.
+
+This design is not recommended for new projects as the components are outdated, functionality is limited and the parts are more expensive than the other variants.
+
+
 ##<a name="preprocessor"></a>Preprocessor for simpler wiring
 
 To utilize its full potential, the DIY RC Light Controller must be able to read Steering, Throttle and AUX (CH3) signals from the receiver. Such a combined signal such as CPPM is unfortunately not available on most modern surface receivers.
