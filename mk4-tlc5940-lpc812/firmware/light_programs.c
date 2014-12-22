@@ -8,8 +8,6 @@
           there is no heap (malloc)
         - Mini programming language
             - GOTO to implement loops
-            - SET start_led stop_led value (0..100%)
-            - SET start_led stop_led VARIABLE (0..100%)
             - FADE start_led stop_led value (0..100%)
             - FADE start_led stop_led VARIABLE  (0..100%)
             - SLEEP time (ms)
@@ -20,6 +18,8 @@
             - VARIABLE -= {integer, VARIABLE, LED[x], random-value, TH, ST}
             - VARIABLE *= {integer, VARIABLE, LED[x], random-value, TH, ST}
             - VARIABLE /= {integer, VARIABLE, LED[x], random-value, TH, ST}
+            - start_led, stop_led = value (0..100%)
+            - start_led, stop_led = VARIABLE (0..100%)
             - SKIP IF EQUAL {VARIABLE, LED[x]} {integer, VARIABLE, LED[x], random-value, TH, ST}
             - SKIP IF NOT EQUAL {VARIABLE, LED[x]} {integer, VARIABLE, LED[x], random-value, TH, ST}
             - SKIP IF GREATER OR EQUAL {VARIABLE, LED[x]} {integer, VARIABLE, LED[x], random-value, TH, ST}
