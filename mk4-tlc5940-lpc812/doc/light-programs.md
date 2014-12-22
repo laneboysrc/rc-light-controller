@@ -114,7 +114,7 @@ The following light program shows possible usage. It is not advisable to write l
         or \        // Comment here, should not matter ...
         indicator-right blink-flag \
 
-    // ^ That linefeed should have triggered!
+    // ^ That linefeed has terminated the run when statement
 
         sleep 0
     pos1 :
@@ -218,7 +218,8 @@ The syntax is as follows:
 
 - neutral, forward, reversing, braking
 
-    The light program runs when the thtottle is in neutral, the car is driving forward, reversing, or is braking. Neutral, forward and reversing are mutually exclusive. Braking may be active when in parallel with the other states.
+    The light program runs when the throttle is in neutral, the car is driving forward, reversing, or is braking. Neutral, forward and reversing are mutually exclusive. Braking may be active when in parallel with the other states.
+    The exact behaviour of these conditions depends on the ESC configuration of the light controller. For example, if the ESC type is configured as Forward/Brake only, then a light program with the condition``run when reversing`` will never execute.
 
 - indicator-left, indicator-right
 
@@ -280,7 +281,15 @@ Light programs 1 and 2 share the global variable ``i_am_global``.
 Light program 1 and 3 also declares a global variable ``VARIABLE3``. Light program 2 also declares ``VARIABLE3``, but as local variable, so in this example ``VARIABLE3`` of light program 2 is a separate, private storage location from the global ``VARIABLE3`` shared by light programs 1 and 3.
 
 
-**FIXME** special variables clicks and light-switch-position
+There two global variables predefined for all light programs:
+
+- clicks
+
+    This variable is incremented every time six CH3-clicks are performed. Useful to control different sequences in a light program.
+
+- light-switch-position
+
+    This variable reflects the current position of the virtual light switch. It can be modified by light programs to turn the light switch to a specific position as well.
 
 
 ### LED declerations
@@ -301,6 +310,11 @@ LEDs are declared as follows:
 ``use all leds`` gives the light program control of all LEDs. This is useful for light programs that intend to take over all LEDs during special run conditions such as ``initializing`` or ``no-signal``.
 
 Assigning identifiers to individual LEDs follows the form ``led x = led[y]`` where ``x`` is the identifier and ``y`` is the number of the LED output of the light controller to use. For a single light controller the output number range is ``0..15``. The LEDs on a slave light controller range from ``16..31``.
+
+
+### Taking control of LEDs
+
+[FIXME]()
 
 
 ## Statements
@@ -330,7 +344,7 @@ Most statements support a variety of different arguments:
 
 ### Assignments
 
-Variables and LEDs can be assigned a value:
+Variables can be assigned a value:
 
     var x
     var y
@@ -346,7 +360,7 @@ Variables and LEDs can be assigned a value:
     x = steering    // Copy value of steering channel (range: -100..100)
     x = throttle    // Copy value of throttle channel (range: -100..100)
 
-Assignments can also perform mathematical functions:
+Assignments to variables can also perform mathematical functions:
 
     x += 42         // x = x + 42
     x -= 0xcafe     // x = x - 0xcafe
@@ -362,7 +376,54 @@ Assignments can also perform mathematical functions:
 > is set to 32767 (largest possible integer value).
 
 
-**FIXME** LEDs
+The assigment operations for LEDs is limited: only immediate values or values stored in variables can be assigned. No mathematical operations can be performed. However, multiple LEDs can be assigned in a single statement.
+
+    var x
+    led LED1a = led[8]
+    led LED1b = led[9]
+    led LED1c = led[10]
+    led LED1d = led[11]
+    led LED2 = led[4]
+
+    LED1a = 100     // Turn the LED fully on
+    LED1a = 100%    // Exactly the same as above,
+                    //   the % sign can be added for clarity
+
+    LED1a, LED1b, LED1c, LED1d = 25  // Set multiple LEDs at once
+
+    // Set multiple LEDs at once, however because the LED numbers are
+    // no longer consecutive this translates into two light program
+    // instructions.
+    LED1a, LED1b, LED2 = 50%
+
+    // Set LED to the value stored in variable x. If the value of x is
+    // negative or zero, the LED is turned off. If the value of xx is
+    // greater than 100, the LED is turned fully on.
+    LED1d = x
+    LED1c, LED1d = x
+
+The brightness values are specified in a range of 0 (LED is off) to 100 (LED is driven at the maximum current of 20 mA). For intermediate values, gamma correction is applied as due to the non-linearity of the human eye. The correction is done in a way that 50% is roughly half the perceived brightness of 100%.
+The gamma correction value can be adjusted in the advanced configuration of the light controller.
+
+Beside specifying LEDs individually, the shortcut ``all leds`` allows assigning values to all declared LEDs.
+
+    led LED1a = led[8]
+    led LED1b = led[9]
+    led LED1c = led[10]
+    led LED1d = led[11]
+    led LED2 = led[4]
+
+    all leds = 0    // Turns LED1a, LED1b, LED1c, LED1d and LED2 off
+
+If ``use all led`` is declared, then the ``all leds`` shortcut affects all LEDs of the light controller, not just the ones declared individually.
+
+    use all leds
+    led LED1a = led[8]
+    led LED1b = led[9]
+
+    all leds = 0    // Turns led[0..15] off
+    LED1a = 100     // Turns led[8] fully on
+    LED1b = 50      // Turns led[9] to half brightness.
 
 
 ### Labels
@@ -411,9 +472,166 @@ Since the light contoller firmware is implemented using a *mainloop* and co-oper
 
 ### Fade
 
+Instead of turning LEDs on in an instant, the light controller supports gradually increasing and decreasing of brightness. This feature was originally designed to simulate incandescent bulbs, but may be useful for other effects.
+
+Light programs are able to control fading of LEDs using the ``fade`` command.
+
+The ``fade`` command is given ``stepsize`` value, which determines the maximum brightness change an LED performs within 20 milliseconds.
+
+    var x
+    led LED1a = led[8]
+    led LED1b = led[9]
+    led LED1c = led[10]
+    led LED1d = led[11]
+    led LED2 = led[4]
+
+    all leds = 0%
+    fade LED2 stepsize 0
+    fade LED1a, LED1b, LED1c, LED1d stepsize 20
+    all leds = 100%
+
+This light program turns LEDs LED1a, LED1b, LED1c, LED1d and LED2 off, then sets that LED2 changes brightness immediately (``stepsize 0``), LED1a..d change at most 20% per 20 milliseconds, and finally turns all declared LEDs to full brightness.
+This will turn on LED2 to full brightness immediately (no fading) and LED1a..d will fade to full brightness within 100 ms (``stepsize 20`` means there are 5 steps needed to go from 0 to 100, each step taking 20 ms).
+
 
 ### Conditional statements
 
+Light programs can make use of ``skip if`` statements to change program flow depending on various conditions.
+
+    var x
+    global var y
+    led l = led[7]
+    led l2 = led[8]
+
+    somewhere:
+        skip if x == 1      // Skip the next statement if value of variable
+                            // x is equal to 1
+        goto somewhere      // Further statements after skip if removed
+                            // for brevity
+
+        skip if x != 2      // skip if x not equal 2
+        skip if x > 3       // skip if x greater than 3
+        skip if y < 4       // skip if y less than 4
+        skip if x >= 5      // skip if x greater or equal to 5
+        skip if x <= 6      // skip if x less than or equal to 6
+
+        skip if x == y      // skip if value of x is same as value of y
+
+        skip if x != l      // skip if value of variable x is not the same
+                            // as the value of led[7]
+
+        skip if l >= 5      // skip if led[7] is greater or equal to 5
+        skip if l > x       // skip if led[7] is greater than value of x
+        skip if l2 < l      // skip if value of led[8] is less than value
+                            // of led[7]
+
+Any valid light program statement can follow a ``skip if`` instruction.
+
+    led l = led[7]
+
+        // Turn the LED off if throttle is below 80%, otherwise on
+        l = 0
+        skip if throttle < 80
+        l = 100
+
+However, care has to be taken with assignments to multiple LEDs:
+
+    led l1 = led[7]
+    led l2 = led[8]
+    led l3 = led[9]
+
+        // Turn the LED off if throttle is below 80%, otherwise on
+        l1, l2, l3 = 0
+        skip if throttle < 80
+        l1, l2, l3 = 100
+
+This will work fine as the LED assignment works on consecutive LEDs, which can be encoded in a single machine operation. However, if another use would modify this light program to use different, non-consecutive LEDs thing go wrong:
+
+    led l1 = led[0]
+    led l2 = led[8]
+    led l3 = led[9]
+
+        // Turn the LED off if throttle is below 80%, otherwise on
+        l1, l2, l3 = 0
+        skip if throttle < 80
+        l1, l2, l3 = 100        // This is no longer a single operation!
+
+The light program assembler translates this into the following statements:
+
+    led l1 = led[0]
+    led l2 = led[8]
+    led l3 = led[9]
+
+        // Turn the LED off if throttle is below 80%, otherwise on
+        l1 = 0
+        l2, l3 = 0
+        skip if throttle < 80
+        l1 = 100
+        l2, l3 = 100
+
+The behaviour would be incorrect as l2 and l3 will be always on and only l1 will be on when the throttle is greater or equal to 80.
+The light program assembler will therefore generate an error message if multiple LEDs are assigned after a ``skip if`` statement.
+
+Note that this also applies to the ``all leds`` shortcut.
+
+The second for of the ``skip if`` statement allows to change program behaviour based on the *car state*.
+
+    skip if is hazard       // skip ifingle car state condition is true
+    sleep 1
+
+    skip if not hazard      // skip if single car state condition is false
+    sleep 1
+
+    // skip if any of the specified car states is true
+    skip if any hazard indicator-left indicator-right
+    sleep 1
+
+    // skip if all specified car states is true
+    skip if all hazard indicator-left indicator-right
+    sleep 1
+
+    // skip if all of the specified car states is true (i.e. all are false)
+    skip if none hazard indicator-left indicator-right
+    sleep 1
+
+The following car states can be tested using ``skip if`` statements:
+
+
+- light-switch-position-0 .. light-switch-position-8
+
+    The virtual light switch position, which is incremented by one CH3-click and decremented by two CH3-clicks.
+
+- neutral, forward, reversing, braking
+
+    The throttle is in neutral, the car is driving forward, reversing, or is braking.
+
+- indicator-left, indicator-right
+
+    The left/right indicator (turn signal) is engaged.
+
+- hazard
+
+    The hazard lights are engaged.
+
+- blink-flag
+
+    The bright period of the blink timer used for indicators and hazard lights is active.
+
+- blink-left, blink-right
+
+   The left/right indicator or hazard light is engaged and the blink timer is in the bright period.
+
+- winch-disabled, winch-idle, winch-in, winch-out
+
+    The state of the winch.
+
+- servo-output-setup-centre, servo-output-setup-left, servo-output-setup-right
+
+    The setup function for the steering wheel servo or gearbox servo is triggered.
+
+- reversing-setup-steering, reversing-setup-throttle
+
+    The servo reversing for the steering/throttle channel is engaged.
 
 
 ## The ``end`` statement
