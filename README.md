@@ -48,7 +48,7 @@ Below is a brief overview of the current light controller variants:
 The main advantage of this new design is that it can be fully configured through a web-based user interface. Firmware and configuration can be downloaded with a standard USB-to-serial converter, no proprietary tools required.
 
 
-### MK3 WS812 PIC12F1840
+### MK3 WS2812 PIC12F1840
 
 [![The MK3 light controller on the left](https://farm6.staticflickr.com/5567/14791314828_801efd91f6_z.jpg)]("https://www.flickr.com/photos/78037110@N03/14791314828")
 (MK3 on the left, MK2 on the right)

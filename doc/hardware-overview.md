@@ -29,7 +29,7 @@ The light controller can now also be used with 2-channel radios by mounting a pu
 The main downside of the MK4 design is that the LPC812 microcontroller is only available in tiny surface mount packages. It more or less requires to build the light controller on a PCB, though one may get away with an off-the-shelf TSSOP-16 adapter board.
 
 
-## MK3 WS812 PIC12F1840
+## MK3 WS2812 PIC12F1840
 
 [![The MK3 light controller on the left](https://farm6.staticflickr.com/5567/14791314828_801efd91f6_z.jpg)]("https://www.flickr.com/photos/78037110@N03/14791314828")
 (MK3 on the left, MK2 on the right)
