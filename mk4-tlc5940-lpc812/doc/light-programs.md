@@ -53,11 +53,11 @@ Here is an example of a light program:
 
 Light programs are line-based, meaning a single statement or decleration must be on the same source code line.
 
-Everything from ``//`` until the end of the line is considered as comment
+Everything from ``//`` until the end of the line is considered as comment.
 
-The ``run when`` line describes the condition that the light controller must be in for the program to run. In this case the light program runs when the light controller is starting up (i.e. waiting a short time until power up until it reads the center points for steering and throttle channels)
+The ``run when`` line describes the condition that the light controller must be in for the program to run. In this case the light program runs when the light controller is starting up (i.e. waiting a short time until power up until it reads the center points for steering and throttle channels).
 
-``use all leds`` declares that no other light controller function shall control any of the LED swhile this light program is running. The lines ``led ... = led[y]`` assign human readable names to light outputs 2 and 3.
+``use all leds`` declares that no other light controller function shall control any of the LEDs while this light program is running. The lines ``led ... = led[y]`` assign human readable names to light outputs 2 and 3.
 
 This ends the decleration section.
 
@@ -77,7 +77,7 @@ The following sections all elements of the light program language in detail.
 
 Everything behind ``//`` or ``;`` until the end of the line is considered a *comment*.
 
-Comments are useful for describing what the light program does. The comments are not stored into the light controller itself, but can be saved in the configurator.html through saving the current configuration.
+Comments are useful for describing what the light program does. The comments are not stored into the light controller itself, but can be saved in the *configurator.html* through saving the current configuration.
 
 Here is a valid light program showing various forms of comments:
 
@@ -134,7 +134,7 @@ The following light program shows possible usage. It is not advisable to write l
 
 Light programs can assign human readable names to variables, LEDs and labels. These are called identifiers.
 
-Identifiers must start with an a character ``a..z`` or ``A..Z`` and continue with a number of alphanumeric characters, ``-`` and ``_``. Identifiers are case sensitive.
+Identifiers must start with a character ``a..z`` or ``A..Z`` and continue with a number of alphanumeric characters, ``-`` or ``_``. Identifiers are case sensitive.
 
 ### Examples of valid identifiers
 
@@ -180,11 +180,11 @@ The syntax is as follows:
     run when cond1 cond2
     run when cond1 or cond2
 
-``run always`` is a special condition that runs the light program all times.
+``run always`` is a special condition that runs the light program at all times.
 
 ``run when cond1`` describes a single condition that must be met for the light program to run.
 
-``run when cond1 cond2`` and ``run when cond1 or cond2`` are identical and define that the light program shall be executed when *cond1* or *cond2* are met.
+``run when cond1 cond2`` and ``run when cond1 or cond2`` are identical and define that the light program shall be executed when *cond1* **or** *cond2* are met.
 
 
 ### Priority run conditions and events
@@ -314,7 +314,25 @@ Assigning identifiers to individual LEDs follows the form ``led x = led[y]`` whe
 
 ### Taking control of LEDs
 
-[FIXME]()
+LEDs may be addressed by more than one light program, and may also be assigned any of the standard car light functions (brake light, indicator ...).
+
+A priority scheme has been implemented to clearly define which function has control over an LED:
+
+    Events                  (highest priority)
+
+    Priority run condition
+
+    Run condition
+
+    Normal car functions    (lowest priority)
+
+Light programs that have an event as run condition have the highest priority. Then follow light programs with priority run conditions. After that light programs with ordinary run conditions. If the LED is still available after this the normal car function assigned to it in the *configurator.html* is performed.
+
+Within the same priority group, the first light program specified in the light progrma source code gets access to the LED.
+
+When a light program is active but one or more LED have been used already by another light program of higher priority, the light program will still continue to run but any setting of LED values and fade times will not be carried out.
+
+It is therefore important for light programs to be implemented with awareness that higher priority light programs may re-assign LED brightness and fade values (see later sections). As such every light program should always set fade and light values and not rely that it has set a certain value earlier, as the values may have been overwritten by another light program executing at higher priority.
 
 
 ## Statements
@@ -397,13 +415,13 @@ The assigment operations for LEDs is limited: only immediate values or values st
     LED1a, LED1b, LED2 = 50%
 
     // Set LED to the value stored in variable x. If the value of x is
-    // negative or zero, the LED is turned off. If the value of xx is
-    // greater than 100, the LED is turned fully on.
+    // negative or zero the LED is turned off. If the value of x is
+    // greater or equal to 100 the LED is turned fully on.
     LED1d = x
     LED1c, LED1d = x
 
-The brightness values are specified in a range of 0 (LED is off) to 100 (LED is driven at the maximum current of 20 mA). For intermediate values, gamma correction is applied as due to the non-linearity of the human eye. The correction is done in a way that 50% is roughly half the perceived brightness of 100%.
-The gamma correction value can be adjusted in the advanced configuration of the light controller.
+The brightness values are specified using values between 0 (LED is off) and 100 (LED is driven at the maximum current of 20 mA). For intermediate values, gamma correction is applied to adjust for the non-linearity of the human eye. The correction is done in a way that 50% is roughly half the perceived brightness of 100%.
+The gamma correction factor can be adjusted in the advanced configuration of the light controller.
 
 Beside specifying LEDs individually, the shortcut ``all leds`` allows assigning values to all declared LEDs.
 
@@ -476,7 +494,7 @@ Instead of turning LEDs on in an instant, the light controller supports graduall
 
 Light programs are able to control fading of LEDs using the ``fade`` command.
 
-The ``fade`` command is given ``stepsize`` value, which determines the maximum brightness change an LED performs within 20 milliseconds.
+The ``fade`` command has a ``stepsize`` parameter, which determines the maximum brightness change an LED performs within 20 milliseconds.
 
     var x
     led LED1a = led[8]
@@ -504,10 +522,12 @@ Light programs can make use of ``skip if`` statements to change program flow dep
     led l2 = led[8]
 
     somewhere:
-        skip if x == 1      // Skip the next statement if value of variable
-                            // x is equal to 1
-        goto somewhere      // Further statements after skip if removed
-                            // for brevity
+        skip if x == 1      // Skip the next statement, which happens to be
+                            // "goto" but could be any statement, if value of
+                            // variable x is equal to 1
+        goto somewhere
+
+        // Further statements after skip if removed for brevity
 
         skip if x != 2      // skip if x not equal 2
         skip if x > 3       // skip if x greater than 3
@@ -545,7 +565,7 @@ However, care has to be taken with assignments to multiple LEDs:
         skip if throttle < 80
         l1, l2, l3 = 100
 
-This will work fine as the LED assignment works on consecutive LEDs, which can be encoded in a single machine operation. However, if another use would modify this light program to use different, non-consecutive LEDs thing go wrong:
+This will work fine as the LED assignment works on consecutive LEDs, which can be encoded in a single machine operation. However, if another user would modify this light program to use different, non-consecutive LEDs, thing go wrong:
 
     led l1 = led[0]
     led l2 = led[8]
@@ -574,9 +594,10 @@ The light program assembler will therefore generate an error message if multiple
 
 Note that this also applies to the ``all leds`` shortcut.
 
-The second for of the ``skip if`` statement allows to change program behaviour based on the *car state*.
 
-    skip if is hazard       // skip ifingle car state condition is true
+The second form of the ``skip if`` statement allows to change program behaviour based on the *car state*.
+
+    skip if is hazard       // skip if single car state condition is true
     sleep 1
 
     skip if not hazard      // skip if single car state condition is false
@@ -619,7 +640,7 @@ The following car states can be tested using ``skip if`` statements:
 
 - blink-left, blink-right
 
-   The left/right indicator or hazard light is engaged and the blink timer is in the bright period.
+    The left/right indicator or hazard light is engaged and the blink timer is in the bright period.
 
 - winch-disabled, winch-idle, winch-in, winch-out
 
@@ -636,13 +657,4 @@ The following car states can be tested using ``skip if`` statements:
 
 ## The ``end`` statement
 
-Every light program **must** end with an ``end`` statement. A new-line must be added after the ``end`` statement, otherwise an error will be reported when the light program is processed by the configurator.
-
-
-
-
-
-
-
-
-
+Every light program **must** end with an ``end`` statement. A new-line must be added after the ``end`` statement, otherwise an error will be reported when the light program is processed by *configurator.html*.
