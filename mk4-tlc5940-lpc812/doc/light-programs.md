@@ -70,7 +70,7 @@ Then all LEDs are switched off, after which led[2] and led[3] are specifically s
 The light program pauses then for one 20 ms period (``sleep 0``), which causes the LED values we assigned to be actually executed and other light controller functions to run.
 Without the sleep statement the light program would run for 50 internal instructions before being forcefully paused, which is unnecessary. After the 20 ms are over the ``goto`` statement is executed and the light program continues from the begin.
 
-The following sections all elements of the light program language in detail.
+The following sections explain all elements of the light program language in detail.
 
 
 ## Comments and line continuation
@@ -158,11 +158,11 @@ There are several types of *run conditions*:
 
 * Events
 
-    Events are single-shot that can trigger execution of a light program. At the moment the only event is "gear changed". Events have the highest priority.
+    Events are single-shot actions that can trigger execution of a light program. At the moment the only event supported by the light controller is "gear changed". Events have the highest priority of all *run conditions*.
 
 * Priority run conditions
 
-    These run conditions take precendence over other run coditions.
+    These run conditions take precendence over ordinary run coditions.
 
 * Run conditions
 
@@ -303,7 +303,7 @@ LED declerations serve two purpose:
 LEDs are declared as follows:
 
     use all leds
-    led identifer = led[0]
+    led identifier = led[0]
     led slave_led_15 = led[31]
     led yet-another-led = led[1]
 
@@ -328,7 +328,7 @@ A priority scheme has been implemented to clearly define which function has cont
 
 Light programs that have an event as run condition have the highest priority. Then follow light programs with priority run conditions. After that light programs with ordinary run conditions. If the LED is still available after this the normal car function assigned to it in the *configurator.html* is performed.
 
-Within the same priority group, the first light program specified in the light progrma source code gets access to the LED.
+Within the same priority group, the first light program specified in the light program source code gets access to the LED.
 
 When a light program is active but one or more LED have been used already by another light program of higher priority, the light program will still continue to run but any setting of LED values and fade times will not be carried out.
 
@@ -448,7 +448,7 @@ If ``use all led`` is declared, then the ``all leds`` shortcut affects all LEDs 
 
 Labels are identifiers that mark locations in the light program that can be jumped to with the ``goto`` statement.
 
-Labels must appear on their own line. They do not perform any activity nor do they consume memory. Labels comprise of an identifier followed by a ``:``.
+Labels must appear on their own line. They do not perform any activity, nor do they consume memory. Labels comprise of an identifier followed by a ``:``.
 
 Example:
 
