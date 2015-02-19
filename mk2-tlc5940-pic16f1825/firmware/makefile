@@ -44,6 +44,19 @@ slave-tlc5940: hw_tlc5940_16f1825.inc
 
 
 ##############################################################################
+# Aris' Tamiya Hilux
+##############################################################################
+.PHONY: aris-hilux
+aris-hilux: aris-hilux-master
+
+.PHONY: aris-hilux-master
+aris-hilux-master: hw_tlc5940_16f1825.inc
+	$(eval CFLAGS = -D LIGHT_MODE_MASK=0x0f -D ESC_FORWARD_REVERSE )
+	$(eval files = master servo-reader utils lights-aris-hilux)
+	$(build)
+
+
+##############################################################################
 # Paul's Car #1
 ##############################################################################
 .PHONY: paul
