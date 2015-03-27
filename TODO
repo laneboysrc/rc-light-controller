@@ -13,6 +13,21 @@ TO DO LIST for the RC Light Controller
   Clearly an issue with some servos only. Need to disable ISP and rather provide
   a software way for those
 
+* FW: Allow light programs to read input pin states
+
+* FW: BUG: "all leds = variable" gives undeclared variable error
+
+* TOOL: Configurator to have a shortcut for boilerplate for new light programs
+    E.g. all LEDs pre-defined
+
+* TOOL: Configurator: Fix link to light program documentation
+
+* TOOL: Configurator: Add support for constants
+
+* TOOL: Configurator: Add support for addressing LEDs without having to use an
+    led x = led[y] statement. This is useful for light patterns where the
+    LED sequence is important.
+
 
 Future work:
 
