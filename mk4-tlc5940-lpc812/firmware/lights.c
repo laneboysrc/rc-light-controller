@@ -554,6 +554,10 @@ static void process_car_lights(void)
     if (config.flags.slave_output) {
         // Handle LEDs connected to a slave light controller
         for (i = 0; i < slave_leds.led_count ; i++) {
+            if (leds_used & (1 << (16 + i))) {
+                continue;
+            }
+
             process_light(&slave_leds.car_lights[i], &light_setpoint[16 + i],
                 &max_change_per_systick[16 + i]);
         }
