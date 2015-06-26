@@ -97,6 +97,9 @@ ul {
   background-color: #ffcf0d;
 }
 
+.configuration > div {
+  margin-top: 0.5em;
+}
 
 .info div {
   margin-top: 1em;
