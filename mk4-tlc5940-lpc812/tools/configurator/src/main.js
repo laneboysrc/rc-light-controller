@@ -1401,6 +1401,71 @@ var app = (function () {
 
 
     // *************************************************************************
+    var clear_leds = function () {
+        // Clear LED master and slave configuration to allow starting with a
+        // clear slate
+
+        function clear_leds() {
+
+            var result = {};
+            var led_count = 16;
+            var i;
+
+            result.led_count = led_count;
+
+            function clear_led(data, offset) {
+                var led = {};
+
+                led.max_change_per_systick = 0;
+                led.reduction_percent = 0;
+
+                led.weak_light_switch_position0 = false;
+                led.weak_light_switch_position1 = false;
+                led.weak_light_switch_position2 = false;
+                led.weak_light_switch_position3 = false;
+                led.weak_light_switch_position4 = false;
+                led.weak_light_switch_position5 = false;
+                led.weak_light_switch_position6 = false;
+                led.weak_light_switch_position7 = false;
+                led.weak_light_switch_position8 = false;
+                led.weak_tail_light = false;
+                led.weak_brake_light = false;
+                led.weak_reversing_light = false;
+                led.weak_indicator_left = false;
+                led.weak_indicator_right = false;
+
+                led.always_on = 0;
+                led.light_switch_position0 = 0;
+                led.light_switch_position1 = 0;
+                led.light_switch_position2 = 0;
+                led.light_switch_position3 = 0;
+                led.light_switch_position4 = 0;
+                led.light_switch_position5 = 0;
+                led.light_switch_position6 = 0;
+                led.light_switch_position7 = 0;
+                led.light_switch_position8 = 0;
+                led.tail_light = 0;
+                led.brake_light = 0;
+                led.reversing_light = 0;
+                led.indicator_left = 0;
+                led.indicator_right = 0;
+
+                return led;
+            }
+
+            for (i = 0; i < led_count; i += 1) {
+                result[i] = clear_led();
+            }
+            return result;
+        }
+
+        local_leds = clear_leds();
+        slave_leds = clear_leds();
+        update_ui();
+    };
+
+
+    // *************************************************************************
     var init_assembler = function () {
         parser.yy = {
             symbols: symbols,
@@ -1484,6 +1549,8 @@ var app = (function () {
         el.gearbox_servo_output =
             document.getElementById("gearbox_servo_output");
         el.winch_output = document.getElementById("winch_output");
+
+        el.leds_clear = document.getElementById("leds_clear");
 
         el.config_light_programs =
             document.getElementById("config_light_programs");
@@ -1578,6 +1645,12 @@ var app = (function () {
             );
 
         el.save_config.addEventListener("click", save_configuration, false);
+
+        el.leds_clear.addEventListener("click", function () {
+            if (window.confirm("Clear all LED configurations? This can not be undone.")) {
+                clear_leds();
+            }
+        }, false);
 
         el.light_programs_assembler.addEventListener("click", function () {
             parse_light_program_code(ui.get_editor_content());
