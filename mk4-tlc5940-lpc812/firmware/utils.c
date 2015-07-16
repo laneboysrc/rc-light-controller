@@ -40,7 +40,18 @@ uint16_t random_min_max(uint16_t min, uint16_t max)
     // If it is the first call to random_min_max we initialize with the
     // entropy value (provided externally).
     if (lfsr == 0) {
-        lfsr = (uint16_t)entropy;
+        lfsr = (uint16_t)entropy ^ (uint16_t)(entropy >> 16);
+
+        // Ensure we have at least one '1' bit on our LFSR
+        if (lfsr == 0) {
+            lfsr = 1;
+        }
+
+        // Jump forward in the LFSR and save the value back as entropy, in
+        // order to prevent repeating patterns after reset without power off,
+        // where RAM stays intact.
+        next16(&lfsr);
+        entropy = (entropy & 0xffff0000) | lfsr;
     }
 
     next16(&lfsr);

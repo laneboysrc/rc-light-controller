@@ -13,12 +13,6 @@
 #include <uart0.h>
 
 
-
-// The entropy variable is incremented every mainloop. It can therefore serve
-// as a random value in practical RC car application,
-// Certainly not suitable for secure implementations...
-uint32_t entropy;
-
 GLOBAL_FLAGS_T global_flags;
 
 CHANNEL_T channel[3] = {

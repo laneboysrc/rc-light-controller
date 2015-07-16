@@ -48,6 +48,10 @@ SECTIONS
         _ebss = .;
     } > RAM
 
+
+    _ram = ORIGIN(RAM);
+    _eram = ORIGIN(RAM) + LENGTH(RAM);
+
     /* The stack starts 32 bytes below to of RAM as those 32 bytes are needed
      * for the IAR ROM function that we use to write the Flash with persistent
      * data.

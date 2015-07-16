@@ -1,5 +1,9 @@
 #include <LPC8xx.h>
 
+// The entropy variable is a true random number generated from the random RAM
+// contents after power-up.
+uint32_t entropy;
+
 extern int main(void);
 
 // ****************************************************************************
@@ -15,19 +19,32 @@ extern unsigned int _data;
 extern unsigned int _edata;
 extern unsigned int _bss;
 extern unsigned int _ebss;
+extern const unsigned int _ram;
+extern const unsigned int _eram;
 
 static inline void crt0(void)
 {
     unsigned int *source;
     unsigned int *destination;
     unsigned int *end;
+    uint32_t temp_entropy;
 
+    // Calculate the entropy random value from the RAM contents after reset
+    temp_entropy = 0x0817;  // Just an arbitrary initialization value
+    source = (unsigned int *)(&_ram);
+    while (source < (unsigned int *)(&_eram)) {
+        temp_entropy ^= *source;
+        ++source;
+    }
+
+#ifndef NODEBUG
     // Place stack canaries into RAM
     destination = (unsigned int *)(0x10000000);
     end = (unsigned int *)(0x10001000);
     while (destination < end) {
         *(destination++) = 0xcafebabe;
     }
+#endif
 
     // Copy initialization values from Flash to RAM
     source = (unsigned int *)(&_etext);
@@ -43,6 +60,10 @@ static inline void crt0(void)
     while (destination < end) {
         *(destination++) = 0;
     }
+
+    // Copy the calculated random value into the final destination RAM
+    // (which we just erased above ...)
+    entropy = temp_entropy;
 
     main();
     while (1);  // Hang if main() returns
