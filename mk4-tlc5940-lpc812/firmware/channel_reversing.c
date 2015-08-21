@@ -44,7 +44,7 @@ void process_channel_reversing_setup(void)
         if (channel[ST].absolute > 50) {
             // 50% or more steering input: terminate the steering reversing setup.
             // We were expecting the user to turn 'left', which should give us a
-            // negative reading if the 'reversed' flat is correct. If we are
+            // negative reading if the 'reversed' flag is correct. If we are
             // getting a positive reading we therefore have to reverse the
             // steering channel.
             if (channel[ST].normalized > 0) {
