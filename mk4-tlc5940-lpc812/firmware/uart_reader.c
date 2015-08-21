@@ -75,6 +75,10 @@ static void normalize_channel(CHANNEL_T *c, uint8_t data)
         c->normalized = data;
     }
 
+    if (c->reversed) {
+        c->normalized = -c->normalized;
+    }
+
     if (c->normalized < 0) {
         c->absolute = -c->normalized;
     }
