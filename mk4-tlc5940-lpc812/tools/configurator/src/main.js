@@ -1364,6 +1364,10 @@ var app = (function () {
                 slave_leds = data.slave_leds;
                 light_programs = data.light_programs;
                 gamma_object = data.gamma;
+
+                // Use the current firmware when loading a configuration file
+                firmware = parse_firmware_structure(default_firmware_image);
+                config.firmware_version = default_firmware_version;
             } catch (err) {
                 window.alert(
                     "Failed to load configuration.\n" +
