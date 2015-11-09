@@ -1,6 +1,7 @@
 run always
 
 var x
+global var y
 
 led l1 = led[18]
 led l2 = led[19]
@@ -9,14 +10,24 @@ led l4 = led[21]
 
 led lx = led[23]
 
-fade l1 stepsize 50
-fade l2 stepsize 17%
-fade l3 stepsize x
 
-fade l1, l2, l3, l4 stepsize 42
+// fade l1 stepsize 50
+// fade l2 stepsize 17%
+// fade l3 stepsize x
+// fade l4 stepsize y
+
+// fade l1, l2, l3, l4 stepsize 42
+// fade l1, l2       stepsize y
+
+// fade l1, l2, l3, lx stepsize 47
+// fade l1, l2, l3, lx stepsize x
+// fade l1, l2, l3, lx stepsize y
+
+// fade all leds stepsize 10
+// fade all leds stepsize 8%
+
 fade l1, l2, l3   stepsize x
-
-fade l1, l2, l3, lx stepsize 47
-fade l1, l2, l3, lx stepsize x
+fade all leds stepsize x
+// fade all leds stepsize y
 
 end

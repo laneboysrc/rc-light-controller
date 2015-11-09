@@ -257,14 +257,22 @@ expression
 
 leds
   : ALL LEDS
-    { yy.emitter.add_led_to_list(-1); }
+    {
+      /* The ALL keyword set the parse state to "EXPECTING_CAR_STATE". This
+       * is desired for RUN IF ... but not here where we have ALL LEDS. We
+       * therefore reset the parse state when ALL LEDs is detected so that
+       * subsequent symbol lookups don't require a car state to be passed in.
+       */
+      yy.parse_state="UNKNOWN_PARSE_STATE" ;
+      yy.emitter.add_led_to_list(-1);
+      }
   | led_list
   ;
 
 led_list
   : LED_ID
       { yy.emitter.add_led_to_list(yy.symbols.get_symbol($1).opcode); }
-  | leds ',' LED_ID
+  | led_list ',' LED_ID
       { yy.emitter.add_led_to_list(yy.symbols.get_symbol($3).opcode); }
   ;
 
