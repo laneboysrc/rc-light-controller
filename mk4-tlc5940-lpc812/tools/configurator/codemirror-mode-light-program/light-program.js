@@ -131,7 +131,7 @@
       var next;
 
       next = stream.next();
-      while (next !== null) {
+      while (next !== undefined) {
         if (next === end && !escaped) {
           return false;
         }
