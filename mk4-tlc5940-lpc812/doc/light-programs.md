@@ -12,7 +12,7 @@ All light programs comprise of the following structure
 
     run conditions
 
-    variable and led declerations
+    constants, variable and led declerations
 
     statements (= the actual code)
 
@@ -132,7 +132,7 @@ The following light program shows possible usage. It is not advisable to write l
 
 ## Identifiers
 
-Light programs can assign human readable names to variables, LEDs and labels. These are called identifiers.
+Light programs can assign human readable names to constants, variables, LEDs and labels. These are called identifiers.
 
 Identifiers must start with a character ``a..z`` or ``A..Z`` and continue with a number of alphanumeric characters, ``-`` or ``_``. Identifiers are case sensitive.
 
@@ -242,6 +242,40 @@ The syntax is as follows:
     The light program runs during the respective winch state. This applies if the light controller is configured to drive the [LANE Boys RC winch controller](https://github.com/laneboysrc/rc-winch-controller).
     The winch states are mutually exclusive.
 
+
+## Constants
+
+Good programming practice suggests to never use immediate number values within code, but rather define the values as constants at the begin of the program. This can make maintenance easier, i.e. to change the same delay time used in several places within a light program.
+
+A constant is declared by giving it an identifier and assigning a value:
+
+    const LOOP_COUNT = 10
+    const thisIsAConstant_too = 42
+    const constant3 = 3
+
+The constants can then be used in the light program:
+
+    // Blink LED 5 three times
+    var count
+    led light = led[5]
+    const LOOP_COUNT = 3
+    const BLINK_DELAY = 250
+    const BRIGHTNESS = 40
+
+        count = 0
+
+    loop:
+        light = BRIGHTNESS
+        sleep BLINK_DELAY
+
+        light = 0
+        sleep BLINK_DELAY
+
+        count += 1
+        skip if count >= LOOP_COUNT
+        goto loop
+
+        end
 
 ## Declerations
 

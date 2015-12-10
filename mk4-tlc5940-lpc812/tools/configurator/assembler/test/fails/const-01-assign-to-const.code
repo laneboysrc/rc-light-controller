@@ -1,0 +1,9 @@
+run always
+
+const VALUE = 25
+
+
+VALUE = 42
+
+
+end

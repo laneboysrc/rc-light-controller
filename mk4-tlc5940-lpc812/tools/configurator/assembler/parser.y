@@ -123,6 +123,9 @@ decleration
       /* Declare the variable as local variable, overshadowing the global one */
       { yy.symbols.add_symbol($2, "VARIABLE", -1, @2); }
   | VAR error
+  | CONST UNDECLARED_SYMBOL '=' NUMBER
+      { yy.symbols.add_symbol($2, "CONSTANT", $4, @2); }
+  | CONST error
   | GLOBAL VAR UNDECLARED_SYMBOL
       { yy.symbols.add_symbol($3, "GLOBAL_VARIABLE", -1, @3); }
   | GLOBAL VAR GLOBAL_VARIABLE
@@ -185,6 +188,12 @@ command
           yy.symbols.get_reserved_word($1).opcode +
           INSTRUCTION_MODIFIER_IMMEDIATE +
           ($4 & 0xff), @1);
+      }
+  | FADE leds STEPSIZE CONSTANT
+      { yy.emitter.emit_led_instruction(
+          yy.symbols.get_reserved_word($1).opcode +
+          INSTRUCTION_MODIFIER_IMMEDIATE +
+          (yy.symbols.get_symbol($4).opcode & 0xff), @1);
       }
   | SLEEP parameter
       { yy.emitter.emit(yy.symbols.get_reserved_word($1).opcode + $2, @1); }
@@ -283,6 +292,8 @@ led_assignment_parameter
   | NUMBER '%'
       /* All opcodes that work with immediates have the lowest bit set */
       { $$ = INSTRUCTION_MODIFIER_IMMEDIATE + (Number($1) & 0xff); }
+  | CONSTANT
+      { $$ = INSTRUCTION_MODIFIER_IMMEDIATE + (yy.symbols.get_symbol($1).opcode & 0xff); }
   | VARIABLE
       { $$ = yy.symbols.get_symbol($1).opcode; }
   | GLOBAL_VARIABLE
@@ -293,6 +304,8 @@ parameter
   : NUMBER
       /* All opcodes that work with immediates have the lowest bit set */
       { $$ = INSTRUCTION_MODIFIER_IMMEDIATE + (Number($1) & 0xffff); }
+  | CONSTANT
+      { $$ = INSTRUCTION_MODIFIER_IMMEDIATE + (yy.symbols.get_symbol($1).opcode & 0xffff); }
   | VARIABLE
       { $$ = (PARAMETER_TYPE_VARIABLE * 256) + yy.symbols.get_symbol($1).opcode; }
   | GLOBAL_VARIABLE

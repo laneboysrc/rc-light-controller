@@ -1,0 +1,15 @@
+run always
+
+var x
+led l1 = led[11]
+
+const VALUE = 25
+const ANOTHER_VALUE = 0x4711
+
+
+x = VALUE
+skip if x != ANOTHER_VALUE
+l1 = VALUE
+fade l1 stepsize VALUE
+
+end

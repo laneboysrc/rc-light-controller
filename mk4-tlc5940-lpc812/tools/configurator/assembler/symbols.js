@@ -90,6 +90,7 @@ var symbols = (function () {
 
     var reserved_words = {
         "goto": {"token": "GOTO", "opcode": 0x01000000},
+        "const": {"token": "CONST"},
         "var": {"token": "VAR"},
         "led": {"token": "LED"},
         "leds": {"token": "LEDS"},
