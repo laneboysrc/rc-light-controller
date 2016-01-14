@@ -17,6 +17,10 @@ SECTIONS
         *(.text*)
         *(.rodata*)
         . = ALIGN(4);
+
+        /* This is required to use GCC 5.2 */
+        *(EXCLUDE_FILE(*crtbegin?.o *crtbegin.o) *)
+
         _etext = .;
     } > FLASH
 
