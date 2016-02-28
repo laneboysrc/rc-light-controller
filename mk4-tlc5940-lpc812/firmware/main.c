@@ -23,7 +23,7 @@ CHANNEL_T channel[3] = {
         .endpoint = {
             .left = 1250,
             .centre = 1500,
-            .right = 1450,
+            .right = 1750,
         }
     },
     {   // THROTTLE
@@ -33,7 +33,7 @@ CHANNEL_T channel[3] = {
         .endpoint = {
             .left = 1250,
             .centre = 1500,
-            .right = 1450,
+            .right = 1750,
         }
     },
     {   // CH3 (AUX)
@@ -43,7 +43,7 @@ CHANNEL_T channel[3] = {
         .endpoint = {
             .left = 1250,
             .centre = 1500,
-            .right = 1450,
+            .right = 1750,
         }
     }
 };

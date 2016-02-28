@@ -28,6 +28,8 @@ TO DO LIST for the RC Light Controller
     led x = led[y] statement. This is useful for light patterns where the
     LED sequence is important.
 
+* TOOL: Configurator: Fix issue with firmware version number in config file
+
 
 Future work:
 
