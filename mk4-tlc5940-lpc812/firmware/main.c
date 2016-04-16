@@ -211,6 +211,12 @@ static void stack_check(void)
     static uint32_t *last_found = (uint32_t *)(0x10001000 - 48);
     uint32_t *now;
 
+
+    if (!diagnostics_enabled()) {
+        return;
+    }
+
+
     if (last_found == (uint32_t *)0x10000000) {
         return;
     }
@@ -274,7 +280,9 @@ int main(void)
     init_lights();
     init_hardware_final();
 
-    uart0_send_cstring("Light controller initialized\n");
+    if (diagnostics_enabled()) {
+        uart0_send_cstring("Light controller initialized\n");
+    }
 
     while (1) {
         service_systick();
