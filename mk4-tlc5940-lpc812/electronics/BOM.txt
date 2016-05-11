@@ -9,7 +9,7 @@ R2    1k         R-EU_R0603        R0603             RESISTOR
 R3    1k         R-EU_R0603        R0603             RESISTOR
 R4    1k         R-EU_R0603        R0603             RESISTOR
 R6    1k         R-EU_R0603        R0603             RESISTOR
-T1               NXP PMV16UN       SOT-23            Optional for switching light output! MOS FET, N-Channel, Logic level
+T1               DMN2075U-7        SOT-23            Optional for switching light output! MOS FET, N-Channel, Logic level
 U$1   3V3        MCP1703T-3302E/CB SOT-23A           Microchip, Low Quiescent Current LDO Regulator, Alternate part: MCP1702T-3302E/CB
 U$2   LPC812     LPC812M101JDH16   TSSOP16           NXP, ARM Cortex-M0 microcontroller, 16 Kbytes flash, 4 Kbytes RAM
 U2    TLC5940PWP TLC5940PWP        TSSOP28           Texas Instruments, 16 channel LED driver with dot-correction
