@@ -349,7 +349,7 @@ phil-ford-master: hw_tlc5940_16f1825.inc
 # Pre-processors
 ##############################################################################
 .PHONY: preprocessor
-preprocessor: hkr3000-preprocessor gt3b-preprocessor
+preprocessor: generic-preprocessor hkr3000-preprocessor gt3b-preprocessor
 
 .PHONY:  hkr3000-preprocessor
 hkr3000-preprocessor : hw_preprocessor_12f1840.inc
@@ -360,6 +360,11 @@ hkr3000-preprocessor : hw_preprocessor_12f1840.inc
 .PHONY: gt3b-preprocessor
 gt3b-preprocessor : hw_preprocessor_12f1840.inc
 	$(eval CFLAGS = -D SEQUENTIAL_CHANNEL_READING -D CHANNEL_SEQUENCE_TH_ST_CH3)
+	$(eval files = preprocessor servo-reader utils)
+	$(build)
+
+.PHONY:  generic-preprocessor
+generic-preprocessor : hw_preprocessor_12f1840.inc
 	$(eval files = preprocessor servo-reader utils)
 	$(build)
 
