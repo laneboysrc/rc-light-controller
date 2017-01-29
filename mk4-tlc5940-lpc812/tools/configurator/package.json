@@ -7,7 +7,8 @@
   "author": "LANE Boys RC",
   "devDependencies": {
     "gulp": "~3.8.10",
-    "gulp-inline-source": "~1.1.0",
-    "gulp-j140": "0.0.2"
+    "gulp-inline-source": "^3.0.0",
+    "gulp-j140": "0.0.2",
+    "gulp-rename": "^1.2.2"
   }
 }

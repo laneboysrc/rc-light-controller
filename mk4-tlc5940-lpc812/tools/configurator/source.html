@@ -52,6 +52,19 @@
     <span id="version">Version: #{this.date}</span>
   </div>
 
+  <div id="runtime-error" style="display: none; margin: 10px; padding: 10px; background: red; color: white">
+    <h1 style="color: white">ATTENTION</h1>
+    <strong>
+      The Light Program parser is not present.<br>
+      This means that you are most likely trying to run a source file meant for development
+      rather than the actual &quot;configurator.html&quot; program.
+      <br>&nbsp;<br>
+      You can obtain the correct &quot;configurator.html&quot; at <a href="https://github.com/laneboysrc/rc-light-controller/blob/master/mk4-tlc5940-lpc812/mk4-download-me.zip?raw=true">https://github.com/laneboysrc/rc-light-controller/blob/master/mk4-tlc5940-lpc812/mk4-download-me.zip</a>
+      <br>&nbsp;<br>
+    </strong>
+      To fix this error during development, change to the &quot;assembler/&quot; directory and run &quot;make&quot;.
+  </div>
+
   <div class="page" id="main">
     <div id="load_and_save" class="box configuration">
       <h2>Load and Save</h2>
@@ -890,6 +903,16 @@
         </table>
       </td>
     </tr>
+  </script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function(event) {
+      if (typeof(parser) === 'undefined') {
+        var el = document.getElementById('runtime-error');
+
+        el.style.display = "block";
+      }
+    });
   </script>
 
 </body>
