@@ -9,3 +9,5 @@ The pre-processor PCB also adds as "Y-cable" for steering and throttle. Use shor
 The firmware for the pre-processor is the same as for the [MK4 variant](../mk4-tlc5940-lpc812/), you just have to utilize the MK4 configurator tool to generate a pre-processor firmware.
 
 If the baud rate is configured to 38400, the pre-processor is also compatible with the MK2 and MK3 variants.
+
+The PCB and schematics design is in [kicad-pcbad](http://kicad-pcb.org/)
