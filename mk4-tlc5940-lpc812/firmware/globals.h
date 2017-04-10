@@ -212,7 +212,15 @@ typedef enum {
     RUN_WHEN_WINCH_IN                = (1 << 21),
     RUN_WHEN_WINCH_OUT               = (1 << 22),
 
-    RUN_ALWAYS                       = (1 << 31)
+    // RUN_ALWAYS                    = (1 << 31)
+    // Enums are of type integer, so 1<<31 isn't an allowed value as it is
+    // larger than INT_MAX. Starting with gcc version 6 this raises a warning
+    // when compiling.
+    // Since we are not actually using the enum but uint32_t for the variable
+    // that holds the state, we can simply use a define as work-around.
+    // Maybe cleaner would be to switch everything to #defines...
+    #define RUN_ALWAYS                 (1 << 31)
+
 } LIGHT_PROGRAM_RUN_STATE_T;
 
 

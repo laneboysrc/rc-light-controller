@@ -15,6 +15,10 @@ SECTIONS
         . = ALIGN(64);
         KEEP(*(.after_vectors))
         *(.text*)
+
+        KEEP(*(.init))
+        KEEP(*(.fini))
+
         *(.rodata*)
         . = ALIGN(4);
 
