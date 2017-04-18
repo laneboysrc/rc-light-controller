@@ -26,13 +26,13 @@ endif
 
 ###############################################################################
 # Toolchain setup
-GNU_INSTALL_ROOT ?= /opt/gcc-arm-none-eabi-6-2017-q1-update
+GNU_INSTALL_ROOT ?=
 GNU_PREFIX := arm-none-eabi
 
-CC := '$(GNU_INSTALL_ROOT)/bin/$(GNU_PREFIX)-gcc'
-LD := '$(GNU_INSTALL_ROOT)/bin/$(GNU_PREFIX)-gcc'
-SIZE := '$(GNU_INSTALL_ROOT)/bin/$(GNU_PREFIX)-size'
-OBJCOPY := '$(GNU_INSTALL_ROOT)/bin/$(GNU_PREFIX)-objcopy'
+CC := '$(GNU_INSTALL_ROOT)$(GNU_PREFIX)-gcc'
+LD := '$(GNU_INSTALL_ROOT)$(GNU_PREFIX)-gcc'
+SIZE := '$(GNU_INSTALL_ROOT)$(GNU_PREFIX)-size'
+OBJCOPY := '$(GNU_INSTALL_ROOT)$(GNU_PREFIX)-objcopy'
 
 TOOL_PATH := ../tools/
 GENERIC_TOOL_PATH := ../../tools/
