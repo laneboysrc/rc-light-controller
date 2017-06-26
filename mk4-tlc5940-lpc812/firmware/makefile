@@ -16,28 +16,28 @@ DEFAULT_LIGHT_PROGRAM := light_programs/generic.light_program
 
 ###############################################################################
 # Pretty-print setup
-V ?= $(VERBOSE)
-ifneq ($(V), 1)
-QUIET := @
-ECHO := @echo
+VERBOSE ?= $V
+ifeq ("$(VERBOSE)", "1")
+ECHO :=
 else
-QUIET :=
-ECHO := @true
+ECHO := @
 endif
 
 
 ###############################################################################
 # Toolchain setup
-TOOLCHAIN_PREFIX := arm-none-eabi-
-TOOLCHAIN_PATH :=
+GNU_INSTALL_ROOT ?=
+GNU_PREFIX := arm-none-eabi
+
+CC := '$(GNU_INSTALL_ROOT)$(GNU_PREFIX)-gcc'
+LD := '$(GNU_INSTALL_ROOT)$(GNU_PREFIX)-gcc'
+SIZE := '$(GNU_INSTALL_ROOT)$(GNU_PREFIX)-size'
+OBJCOPY := '$(GNU_INSTALL_ROOT)$(GNU_PREFIX)-objcopy'
+
 TOOL_PATH := ../tools/
 GENERIC_TOOL_PATH := ../../tools/
 
-CC := $(TOOLCHAIN_PATH)$(TOOLCHAIN_PREFIX)gcc
-LD := $(TOOLCHAIN_PATH)$(TOOLCHAIN_PREFIX)gcc
-OBJCOPY := $(TOOLCHAIN_PATH)$(TOOLCHAIN_PREFIX)objcopy
-
-MKDIR_P = mkdir -p
+MKDIR_P := mkdir -p
 FLASH_TOOL := lpc81x_isp.py --wait --run --flash
 TERMINAL_PROGRAM := miniterm.py -p /dev/ttyUSB0 -b 115200
 PREPROCESSOR_SIMULATOR := $(GENERIC_TOOL_PATH)preprocessor-simulator.py -b 38400
@@ -97,12 +97,12 @@ $(shell $(MKDIR_P) $(BUILD_DIR))   # Always create the build directory
 
 define compile-objects
 $1/%.o: %.c
-	$(ECHO) [CC] $$<
-	$(QUIET) $(CC) $(CFLAGS) -c $$< -o $$@
+	@echo [CC] $$<
+	$(ECHO) $(CC) $(CFLAGS) -c $$< -o $$@
 
 $1/%.lst: %.c
-	$(ECHO) [LIST] $$<
-	$(QUIET) $(CC) -c -g -Wa,-adlhn $(CFLAGS) $$< -o /dev/null > $$@
+	@echo [LIST] $$<
+	$(ECHO) $(CC) -c -g -Wa,-adlhn $(CFLAGS) $$< -o /dev/null > $$@
 endef
 
 $(foreach bdir, $(BUILD_DIR), $(eval $(call compile-objects,$(bdir))))
@@ -110,37 +110,42 @@ $(foreach bdir, $(BUILD_DIR), $(eval $(call compile-objects,$(bdir))))
 
 ###############################################################################
 # Rules
-all : $(TARGET_BIN) $(TARGET_HEX)
+all : $(TARGET_BIN) $(TARGET_HEX) echosize
 
 $(TARGET_ELF): $(OBJECTS) $(LINKER_SCRIPT)
-	$(ECHO) [LD] $@
-	$(QUIET) $(LD) $(LDFLAGS) -o $@ $(OBJECTS) $(LDLIBS)
+	@echo [LD] $@
+	$(ECHO) $(LD) $(LDFLAGS) -o $@ $(OBJECTS) $(LDLIBS)
 
 $(TARGET_BIN): $(TARGET_ELF)
-	$(ECHO) [CP] $@
-	$(QUIET) $(OBJCOPY) $< -O binary $@
-	$(QUIET) $(CONFIGURATION_VALIDATION_TOOL) $@
+	@echo [CP] $@
+	$(ECHO) $(OBJCOPY) $< -O binary $@
+	$(ECHO) $(CONFIGURATION_VALIDATION_TOOL) $@
 
 $(TARGET_HEX): $(TARGET_ELF)
-	$(ECHO) [CP] $@
-	$(QUIET) $(OBJCOPY) $< -O ihex $@
+	@echo [CP] $@
+	$(ECHO) $(OBJCOPY) $< -O ihex $@
+
+echosize:
+	-@echo ''
+	$(ECHO) $(SIZE) $(TARGET_ELF)
+	-@echo ''
 
 default_light_program:
-	$(ECHO) [ASM] $@
-	$(QUIET) cd $(LIGHT_PROGRAM_ASSEMBLER_PATH) && $(MAKE) run RUN_OPTIONS="--include-name -o $(abspath config_light_programs.c) $(abspath $(DEFAULT_LIGHT_PROGRAM))"
+	@echo [ASM] $@
+	$(ECHO) cd $(LIGHT_PROGRAM_ASSEMBLER_PATH) && $(MAKE) run RUN_OPTIONS="--include-name -o $(abspath config_light_programs.c) $(abspath $(DEFAULT_LIGHT_PROGRAM))"
 
 default_firmware_image: $(TARGET_HEX)
-	$(ECHO) [TEXT2JS] $<
-	$(QUIET) $(TEXT2JS) $< default_firmware_image >$(DEFAULT_FIRMWARE_IMAGE_JS)
-	$(ECHO) [TEXT2JS] $(DEFAULT_LIGHT_PROGRAM)
-	$(QUIET) $(TEXT2JS) $(DEFAULT_LIGHT_PROGRAM) default_light_program >>$(DEFAULT_FIRMWARE_IMAGE_JS)
+	@echo [TEXT2JS] $<
+	$(ECHO) $(TEXT2JS) $< default_firmware_image >$(DEFAULT_FIRMWARE_IMAGE_JS)
+	@echo [TEXT2JS] $(DEFAULT_LIGHT_PROGRAM)
+	$(ECHO) $(TEXT2JS) $(DEFAULT_LIGHT_PROGRAM) default_light_program >>$(DEFAULT_FIRMWARE_IMAGE_JS)
 
 # Create list files that include C code as well as Assembler
 list: $(OBJECTS:.o=.lst)
 
 # Print a memory usage summary
 summary: $(TARGET_MAP)
-	$(QUIET) $(MAP_SUMMARY_TOOL) $<
+	$(ECHO) $(MAP_SUMMARY_TOOL) $<
 
 # Invoke the tool to program the microcontroller
 program: $(TARGET_BIN)
@@ -148,16 +153,16 @@ program: $(TARGET_BIN)
 
 # Invoke a tool for UART communication
 terminal:
-	$(QUIET) $(TERMINAL_PROGRAM)
+	$(ECHO) $(TERMINAL_PROGRAM)
 
 # Invoke the preprocessor simulation tool
 preprocessor-simulator:
-	$(QUIET) $(PREPROCESSOR_SIMULATOR)
+	$(ECHO) $(PREPROCESSOR_SIMULATOR)
 
 # Clean all generated files
 clean:
-	$(ECHO) [RM] $(BUILD_DIR)
-	$(QUIET) $(RM) -rf $(BUILD_DIR)/*
+	@echo [RM] $(BUILD_DIR)
+	$(ECHO) $(RM) -rf $(BUILD_DIR)/*
 
 
-.PHONY : all clean default_light_program default_firmware_image program terminal preprocessor-simulator list summary
+.PHONY : all clean echosize default_light_program default_firmware_image program terminal preprocessor-simulator list summary
