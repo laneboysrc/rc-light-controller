@@ -187,7 +187,7 @@ void process_ch3_clicks(void)
         return;
     }
 
-    if (config.flags.ch3_is_momentary) {
+    if (config.flags.ch3_is_momentary || config.flags.ch3_is_local_switch) {
         // Code for CH3 having a momentory signal when pressed (Futaba 4PL)
 
         // We only care about the switch transition from ch3_flags.last_state
