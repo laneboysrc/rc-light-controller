@@ -1,4 +1,6 @@
 *~
+*.bak
+*-bak
 firmware/*.tmp
 firmware/*.hex
 firmware/*.lst
