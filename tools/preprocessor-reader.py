@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 #******************************************************************************
 #
 #   preprocessor-reader.py
@@ -21,9 +22,9 @@ import sys
 STARTUP_MODE_NEUTRAL = 4
 
 
-def preprocessor_reader(port):
+def preprocessor_reader(port, baud):
     try:
-        s = serial.Serial(port, 38400)
+        s = serial.Serial(port, baud)
     except serial.SerialException, e:
         print("Unable to open port %s.\nError message: %s" % (port, e))
         sys.exit(0)
@@ -59,7 +60,12 @@ if __name__ == '__main__':
         port = '/dev/ttyUSB0'
 
     try:
-        preprocessor_reader(port)
+        baud = int(sys.argv[2])
+    except IndexError:
+        baud = 38400
+
+    try:
+        preprocessor_reader(port, baud)
     except KeyboardInterrupt:
         print("")
         sys.exit(0)
