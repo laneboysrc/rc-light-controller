@@ -30,7 +30,7 @@ void output_preprocessor(void)
         return;
     }
 
-    if (!global_flags.new_channel_data) {
+    if (global_flags.new_channel_data) {
         if (ch3_2pos) {
             if (channel[2].normalized < -CH3_HYSTERESIS) {
                 ch3_2pos = false;
