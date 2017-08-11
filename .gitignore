@@ -15,3 +15,5 @@ arduino-open-source-lights/
 datasheets/
 TLU-01/
 PPM_protocol.bmp
+*.sublime-workspace
+
