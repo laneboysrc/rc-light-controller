@@ -445,6 +445,8 @@ typedef struct {
 
         unsigned int auto_brake_lights_forward_enabled : 1;
         unsigned int auto_brake_lights_reverse_enabled : 1;
+
+        unsigned int ch3_is_two_button : 1;
     } flags;
 
     uint16_t auto_brake_counter_value_forward_min;

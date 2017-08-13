@@ -11,7 +11,7 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
         .version = CONFIG_VERSION
     },
 
-    .firmware_version = 7,
+    .firmware_version = 8,
 
     .mode = MASTER_WITH_SERVO_READER,
     .esc_mode = ESC_FORWARD_BRAKE_REVERSE_TIMEOUT,
@@ -30,6 +30,7 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
 
         .ch3_is_local_switch = false,
         .ch3_is_momentary = false,
+        .ch3_is_two_button = false,
 
         .auto_brake_lights_forward_enabled = true,
         .auto_brake_lights_reverse_enabled = true,

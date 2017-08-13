@@ -146,7 +146,22 @@ static void add_click(void)
         ch3_clicks = IGNORE_CLICK_COUNT;
     }
 
-    ++ch3_clicks;
+    // If we have a transmitter with a two position CH3 that uses two buttons
+    // to switch between the positions (like the HobbyKing X3S or the Tactic
+    // TTC300) then we ignore the first click if the 'down' button is pressed.
+    // This way the user can deterministically enter a number of clicks without
+    // having to remember if the last command ended with the up or down button.
+    //
+    // The disadvantage is that always an additional down button press has to
+    // be carried out.
+    if (config.flags.ch3_is_two_button) {
+        if (ch3_click_counter || ch3_flags.last_state) {
+            ++ch3_clicks;
+        }
+    }
+    else {
+        ++ch3_clicks;
+    }
     ch3_click_counter = config.ch3_multi_click_timeout;
 }
 
@@ -207,7 +222,8 @@ void process_ch3_clicks(void)
         }
     }
     else {
-        // Code for CH3 being a two position switch (HK-310, GT3B)
+        // Code for CH3 being a two position switch (HK-310, GT3B) or
+        // up/down buttons (X3S, Tactic TTC300; config.flags.ch3_is_two_button)
 
         // Check whether ch3 has changed with respect to LAST_STATE
         if ((channel[CH3].normalized > 0)  !=  (ch3_flags.last_state)) {

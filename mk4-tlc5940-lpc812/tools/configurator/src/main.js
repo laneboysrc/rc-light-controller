@@ -276,6 +276,7 @@ var app = (function () {
         new_config.ch3_is_momentary = get_flag(0x0080);
         new_config.auto_brake_lights_forward_enabled = get_flag(0x0100);
         new_config.auto_brake_lights_reverse_enabled = get_flag(0x0200);
+        new_config.ch3_is_two_button = get_flag(0x0400);
 
         new_config.auto_brake_counter_value_forward_min =
             get_uint16(data, offset + 8);
@@ -661,8 +662,10 @@ var app = (function () {
         // CH3/AUX type
         el.ch3[0].checked = true;
         if (config.ch3_is_local_switch) {
-            el.ch3[2].checked = true;
+            el.ch3[3].checked = true;
         } else if (config.ch3_is_momentary) {
+            el.ch3[2].checked = true;
+        } else if (config.ch3_is_two_button) {
             el.ch3[1].checked = true;
         }
 
@@ -948,6 +951,7 @@ var app = (function () {
         flags |= (config.ch3_is_momentary << 7);
         flags |= (config.auto_brake_lights_forward_enabled << 8);
         flags |= (config.auto_brake_lights_reverse_enabled << 9);
+        flags |= (config.ch3_is_two_button << 10);
         set_uint32(data, offset + 4, flags);
 
         set_uint16(data, offset + 8,  config.auto_brake_counter_value_forward_min);
@@ -1246,10 +1250,13 @@ var app = (function () {
         // CH3/AUX type
         config.ch3_is_momentary = false;
         config.ch3_is_local_switch = false;
-        if (el.ch3[1].checked) {
+        config.ch3_is_two_button = false;
+        if (el.ch3[2].checked) {
             config.ch3_is_momentary = true;
-        } else if (el.ch3[2].checked) {
+        } else if (el.ch3[3].checked) {
             config.ch3_is_local_switch = true;
+        } else if (el.ch3[1].checked) {
+            config.ch3_is_two_button = true;
         }
 
 
