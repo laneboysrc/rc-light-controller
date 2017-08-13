@@ -8,10 +8,19 @@
 
 static uint16_t winch_command_repeat_counter;
 
-#define WINCH_COMMAND_DISABLED '0'
-#define WINCH_COMMAND_IDLE '1'
-#define WINCH_COMMAND_IN '2'
-#define WINCH_COMMAND_OUT '3'
+// Old winch commands (version 8 and lower)
+// #define WINCH_COMMAND_DISABLED '0'
+// #define WINCH_COMMAND_IDLE '1'
+// #define WINCH_COMMAND_IN '2'
+// #define WINCH_COMMAND_OUT '3'
+
+// New winch commands that can be used on the same UART as the preprocessor
+// or slave output. So the light controller can now drive a slave as well
+// as a winch!
+#define WINCH_COMMAND_DISABLED 0x80
+#define WINCH_COMMAND_IDLE 0x81
+#define WINCH_COMMAND_IN 0x82
+#define WINCH_COMMAND_OUT 0x83
 
 
 // ****************************************************************************
@@ -84,7 +93,7 @@ void process_winch(void)
     }
 
     if (winch_command_repeat_counter == 0) {
-        char winch_command;
+        uint8_t winch_command;
 
         winch_command_repeat_counter = config.winch_command_repeat_time;
         switch (global_flags.winch_mode) {

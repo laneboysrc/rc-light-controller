@@ -571,6 +571,15 @@ var app = (function () {
         ensure_one_is_checked("output_out");
         ensure_one_is_checked("output_th");
 
+        if (el.preprocessor_output.checked || el.slave_output.checked) {
+            el.winch_output.style.display = "none";
+            el.winch_enable.style.display = "";
+        }
+        else {
+            el.winch_output.style.display = "";
+            el.winch_enable.style.display = "none";
+        }
+
         el.leds_slave.style.display =
             el.slave_output.checked ? "" : "none";
     };
@@ -651,6 +660,7 @@ var app = (function () {
 
         // Output functions
         el.winch_output.checked = Boolean(config.winch_output);
+        el.winch_enable.checked = Boolean(config.winch_output);
         el.gearbox_servo_output.checked =
             Boolean(config.gearbox_servo_output);
         el.steering_wheel_servo_output.checked =
@@ -1243,7 +1253,12 @@ var app = (function () {
             update_boolean('slave_output');
             update_boolean('steering_wheel_servo_output');
             update_boolean('gearbox_servo_output');
-            update_boolean('winch_output');
+            if (el.preprocessor_output.checked || el.slave_output.checked) {
+                config.winch_output = Boolean(el.winch_enable.checked);
+            }
+            else {
+                update_boolean('winch_output');
+            }
         }
 
 
@@ -1551,6 +1566,7 @@ var app = (function () {
         el.dual_output = document.getElementsByClassName("dual_output");
         el.dual_output_th =
             document.getElementsByClassName("dual_output_th");
+        el.winch_enable = document.getElementById("winch_output_checkbox");
 
         el.slave_output = document.getElementById("slave_output");
         el.preprocessor_output =
