@@ -117,6 +117,6 @@ void process_winch(void)
                 return;
 
         }
-        uart0_send_char(winch_command);
+        uart0_send_uint8(winch_command);
     }
 }

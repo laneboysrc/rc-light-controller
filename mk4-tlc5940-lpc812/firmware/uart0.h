@@ -8,6 +8,7 @@ void init_uart0(void);
 
 bool uart0_send_is_ready(void);
 void uart0_send_char(const char c);
+void uart0_send_uint8(const uint8_t c);
 void uart0_send_cstring(const char *cstring);
 void uart0_send_int32(int32_t number);
 void uart0_send_uint32(uint32_t number);

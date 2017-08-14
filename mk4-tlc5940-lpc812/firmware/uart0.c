@@ -191,6 +191,12 @@ void uart0_send_char(const char c)
     LPC_USART0->TXDATA = c;
 }
 
+// ****************************************************************************
+void uart0_send_uint8(const uint8_t u)
+{
+    while (!(LPC_USART0->STAT & UART_STAT_TXRDY));
+    LPC_USART0->TXDATA = u;
+}
 
 // ****************************************************************************
 void uart0_send_cstring(const char *cstring)
