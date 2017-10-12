@@ -1,3 +1,4 @@
 (fp_lib_table
   (lib (name SMD-pads)(type KiCad)(uri "$(KIPRJMOD)/SMD-pads.pretty")(options "")(descr "Custom SMD pads"))
+  (lib (name USB)(type KiCad)(uri "$(KIPRJMOD)/USB.pretty")(options "")(descr ""))
 )
