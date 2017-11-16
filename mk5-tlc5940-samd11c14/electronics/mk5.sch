@@ -1,5 +1,5 @@
 EESchema Schematic File Version 2
-LIBS:samd11c14a
+LIBS:SAM_D11
 LIBS:power
 LIBS:device
 LIBS:switches

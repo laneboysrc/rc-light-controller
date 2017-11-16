@@ -1,4 +1,4 @@
-update=Fri 22 Sep 2017 09:07:03 AM SGT
+update=Thu 16 Nov 2017 08:49:39 PM
 version=1
 last_client=kicad
 [pcbnew]
@@ -23,13 +23,11 @@ ModuleOutlineThickness=0.150000000000
 [cvpcb]
 version=1
 NetIExt=net
-[general]
-version=1
 [eeschema]
 version=1
 LibDir=
 [eeschema/libraries]
-LibName1=samd11c14a
+LibName1=SAM_D11
 LibName2=power
 LibName3=device
 LibName4=switches
@@ -43,3 +41,5 @@ LibName11=atmel
 LibName12=contrib
 LibName13=diode
 LibName14=ESD_Protection
+[general]
+version=1
