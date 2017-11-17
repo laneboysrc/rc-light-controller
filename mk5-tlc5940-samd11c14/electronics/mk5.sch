@@ -750,7 +750,7 @@ Wire Wire Line
 Wire Wire Line
 	4350 2600 4800 2600
 Wire Wire Line
-	7650 1250 8450 1250
+	7650 1250 8250 1250
 $Comp
 L R R2
 U 1 1 59C50F45
@@ -1138,4 +1138,18 @@ Wire Wire Line
 NoConn ~ 4350 3200
 Text Notes 3500 4800 0    59   ~ 0
 Do not use PA10, PA11, PA17, PA27 \nfor compatibility with SOIC-20
+Wire Wire Line
+	6100 2200 6150 2200
+Wire Wire Line
+	6150 2200 6150 2250
+Text Label 2250 5050 0    60   ~ 0
+VUSB
+Text Label 2150 5250 0    60   ~ 0
+DP_IN
+Text Label 2150 5350 0    60   ~ 0
+DM_IN
+Text Label 2700 6300 0    60   ~ 0
+V_IN
+Text Label 7850 3050 0    60   ~ 0
+IREF
 $EndSCHEMATC
