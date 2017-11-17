@@ -49,7 +49,6 @@ void process_channel_reversing_setup(void)
             // steering channel.
             if (channel[ST].normalized > 0) {
                 channel[ST].reversed = !channel[ST].reversed;
-
             }
             global_flags.reversing_setup &= ~REVERSING_SETUP_STEERING;
         }

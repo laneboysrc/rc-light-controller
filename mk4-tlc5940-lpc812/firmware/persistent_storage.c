@@ -65,7 +65,7 @@ void write_persistent_storage(void)
 {
     uint32_t new_data[6];
     unsigned int param[5];
-    int i;
+    int retries;
 
     new_data[OFFSET_VERSION] = PERSISTENT_DATA_VERSION;
     new_data[OFFSET_STEERING_REVERSED] = channel[ST].reversed;
@@ -74,65 +74,63 @@ void write_persistent_storage(void)
     new_data[OFFSET_SERVO_CENTRE] = servo_output_endpoint.centre;
     new_data[OFFSET_SERVO_RIGHT] = servo_output_endpoint.right;
 
-    for (i = 0; i < 6; i++) {
-        if (new_data[0] != persistent_data[0]) {
 
-            param[0] = 50;
-            param[1] = ((unsigned int)persistent_data) >> 10;
-            param[2] = ((unsigned int)persistent_data) >> 10;
-            __disable_irq();
-            iap_entry(param, param);
-            __enable_irq();
-            if (param[0] != 0) {
-                if (diagnostics_enabled()) {
-                    uart0_send_cstring("ERROR: prepare sector failed\n");
-                }
-                break;
+    for (retries = 0; retries < 6; retries++) {
+        param[0] = 50;
+        param[1] = ((unsigned int)persistent_data) >> 10;
+        param[2] = ((unsigned int)persistent_data) >> 10;
+        __disable_irq();
+        iap_entry(param, param);
+        __enable_irq();
+        if (param[0] != 0) {
+            if (diagnostics_enabled()) {
+                uart0_send_cstring("ERROR: prepare sector failed\n");
             }
-
-            param[0] = 59;  // Erase page command
-            param[1] = ((unsigned int)persistent_data) >> 6;
-            param[2] = ((unsigned int)persistent_data) >> 6;
-            param[3] = __SYSTEM_CLOCK / 1000;
-            __disable_irq();
-            iap_entry(param, param);
-            __enable_irq();
-            if (param[0] != 0) {
-                if (diagnostics_enabled()) {
-                    uart0_send_cstring("ERROR: erase page failed\n");
-                }
-                break;
-            }
-
-            param[0] = 50;
-            param[1] = ((unsigned int)persistent_data) >> 10;
-            param[2] = ((unsigned int)persistent_data) >> 10;
-            __disable_irq();
-            iap_entry(param, param);
-            __enable_irq();
-            if (param[0] != 0) {
-                if (diagnostics_enabled()) {
-                    uart0_send_cstring("ERROR: prepare sector failed\n");
-                }
-                break;
-            }
-
-            param[0] = 51;  // Copy RAM to Flash command
-            param[1] = (unsigned int)persistent_data;
-            param[2] = (unsigned int)new_data;
-            param[3] = 64;
-            param[4] = __SYSTEM_CLOCK / 1000;
-            __disable_irq();
-            iap_entry(param, param);
-            __enable_irq();
-            if (param[0] != 0) {
-                if (diagnostics_enabled()) {
-                    uart0_send_cstring("ERROR: copy RAM to flash failed\n");
-                }
-                break;
-            }
-
             break;
         }
+
+        param[0] = 59;  // Erase page command
+        param[1] = ((unsigned int)persistent_data) >> 6;
+        param[2] = ((unsigned int)persistent_data) >> 6;
+        param[3] = __SYSTEM_CLOCK / 1000;
+        __disable_irq();
+        iap_entry(param, param);
+        __enable_irq();
+        if (param[0] != 0) {
+            if (diagnostics_enabled()) {
+                uart0_send_cstring("ERROR: erase page failed\n");
+            }
+            break;
+        }
+
+        param[0] = 50;
+        param[1] = ((unsigned int)persistent_data) >> 10;
+        param[2] = ((unsigned int)persistent_data) >> 10;
+        __disable_irq();
+        iap_entry(param, param);
+        __enable_irq();
+        if (param[0] != 0) {
+            if (diagnostics_enabled()) {
+                uart0_send_cstring("ERROR: prepare sector failed\n");
+            }
+            break;
+        }
+
+        param[0] = 51;  // Copy RAM to Flash command
+        param[1] = (unsigned int)persistent_data;
+        param[2] = (unsigned int)new_data;
+        param[3] = 64;
+        param[4] = __SYSTEM_CLOCK / 1000;
+        __disable_irq();
+        iap_entry(param, param);
+        __enable_irq();
+        if (param[0] != 0) {
+            if (diagnostics_enabled()) {
+                uart0_send_cstring("ERROR: copy RAM to flash failed\n");
+            }
+            break;
+        }
+
+        break;
     }
 }
