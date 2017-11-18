@@ -1,5 +1,6 @@
 EESchema Schematic File Version 2
 LIBS:SAM_D11
+LIBS:bat54c
 LIBS:power
 LIBS:device
 LIBS:switches
@@ -296,28 +297,6 @@ F 3 "" H 3100 7200 50  0001 C CNN
 	1    3100 7200
 	1    0    0    -1  
 $EndComp
-$Comp
-L D_Schottky D2
-U 1 1 59C47D22
-P 2450 6700
-F 0 "D2" H 2450 6800 50  0000 C CNN
-F 1 "BAT760" H 2650 6650 50  0000 C CNN
-F 2 "Diodes_SMD:D_SOD-323_HandSoldering" H 2450 6700 50  0001 C CNN
-F 3 "" H 2450 6700 50  0001 C CNN
-	1    2450 6700
-	-1   0    0    1   
-$EndComp
-$Comp
-L D_Schottky D1
-U 1 1 59C47DAA
-P 2450 6450
-F 0 "D1" H 2450 6550 50  0000 C CNN
-F 1 "BAT760" H 2650 6400 50  0000 C CNN
-F 2 "Diodes_SMD:D_SOD-323_HandSoldering" H 2450 6450 50  0001 C CNN
-F 3 "" H 2450 6450 50  0001 C CNN
-	1    2450 6450
-	-1   0    0    1   
-$EndComp
 Wire Wire Line
 	5700 4700 5700 4800
 Wire Wire Line
@@ -370,8 +349,6 @@ Wire Wire Line
 Wire Wire Line
 	3650 7000 3650 7200
 Wire Wire Line
-	2600 6700 3350 6700
-Wire Wire Line
 	3100 6700 3100 6800
 Wire Wire Line
 	3950 6700 4150 6700
@@ -383,17 +360,9 @@ Wire Wire Line
 Wire Wire Line
 	3100 7100 3100 7200
 Connection ~ 3100 6700
-Wire Wire Line
-	2600 6450 2700 6450
-Wire Wire Line
-	2700 6250 2700 6950
 Connection ~ 2700 6700
 Wire Wire Line
-	2100 4900 2100 6450
-Wire Wire Line
-	2100 6450 2300 6450
-Wire Wire Line
-	1700 6700 2300 6700
+	2100 4900 2100 6400
 $Comp
 L Conn_01x01 J3
 U 1 1 59C4821D
@@ -697,15 +666,14 @@ Wire Wire Line
 $Comp
 L PWR_FLAG #FLG016
 U 1 1 59C4CC7B
-P 2700 6250
-F 0 "#FLG016" H 2700 6325 50  0001 C CNN
-F 1 "PWR_FLAG" H 2700 6400 50  0000 C CNN
-F 2 "" H 2700 6250 50  0001 C CNN
-F 3 "" H 2700 6250 50  0001 C CNN
-	1    2700 6250
+P 2700 6550
+F 0 "#FLG016" H 2700 6625 50  0001 C CNN
+F 1 "PWR_FLAG" H 2700 6700 50  0000 C CNN
+F 2 "" H 2700 6550 50  0001 C CNN
+F 3 "" H 2700 6550 50  0001 C CNN
+	1    2700 6550
 	1    0    0    -1  
 $EndComp
-Connection ~ 2700 6450
 $Comp
 L GND #PWR017
 U 1 1 59C4DC2B
@@ -735,20 +703,18 @@ Wire Wire Line
 $Comp
 L VCC #PWR019
 U 1 1 59C4E307
-P 1700 6600
-F 0 "#PWR019" H 1700 6450 50  0001 C CNN
-F 1 "VCC" H 1700 6750 50  0000 C CNN
-F 2 "" H 1700 6600 50  0001 C CNN
-F 3 "" H 1700 6600 50  0001 C CNN
-	1    1700 6600
+P 1700 6950
+F 0 "#PWR019" H 1700 6800 50  0001 C CNN
+F 1 "VCC" H 1700 7100 50  0000 C CNN
+F 2 "" H 1700 6950 50  0001 C CNN
+F 3 "" H 1700 6950 50  0001 C CNN
+	1    1700 6950
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	1700 6600 1700 6700
+	1700 6950 1700 7100
 Wire Wire Line
 	2000 1100 2000 1750
-Wire Wire Line
-	4350 2600 4800 2600
 Wire Wire Line
 	7650 1250 8250 1250
 $Comp
@@ -985,28 +951,21 @@ Wire Wire Line
 Wire Wire Line
 	2000 2150 1750 2150
 Connection ~ 1750 2150
-Text Label 4350 3650 0    60   ~ 0
+Text Label 4350 3350 0    60   ~ 0
 XLAT
 Text Label 4350 2600 0    60   ~ 0
 OUT15
 $Comp
 L GS2 J4
 U 1 1 59DCA798
-P 2450 6950
-F 0 "J4" H 2550 7100 50  0000 C CNN
-F 1 "GS2" H 2550 6801 50  0000 C CNN
-F 2 "SMD-pads:SMD_solder_jumper_2pin" V 2524 6950 50  0001 C CNN
-F 3 "" H 2450 6950 50  0001 C CNN
-	1    2450 6950
-	0    1    1    0   
+P 2500 6900
+F 0 "J4" H 2600 7050 50  0000 C CNN
+F 1 "GS2" H 2600 6751 50  0000 C CNN
+F 2 "SMD-pads:SMD_solder_jumper_2pin" V 2574 6900 50  0001 C CNN
+F 3 "" H 2500 6900 50  0001 C CNN
+	1    2500 6900
+	-1   0    0    1   
 $EndComp
-Wire Wire Line
-	2700 6950 2650 6950
-Wire Wire Line
-	2250 6950 2200 6950
-Wire Wire Line
-	2200 6950 2200 6700
-Connection ~ 2200 6700
 Wire Wire Line
 	9250 4750 9250 5000
 Wire Wire Line
@@ -1035,13 +994,13 @@ NoConn ~ 4800 3800
 NoConn ~ 4800 3950
 NoConn ~ 6550 3050
 NoConn ~ 4800 4250
-Text Label 4350 3350 0    60   ~ 0
+Text Label 4350 3500 0    60   ~ 0
 BLANK
 Wire Wire Line
 	4800 2900 4350 2900
-Text Label 4350 2900 0    60   ~ 0
+Text Label 6850 3200 2    60   ~ 0
 TH/Tx
-Text Label 4350 3050 0    60   ~ 0
+Text Label 6850 2900 2    60   ~ 0
 GSCLK
 Wire Wire Line
 	6550 4100 6850 4100
@@ -1063,7 +1022,7 @@ Text Label 4350 4400 0    60   ~ 0
 RESET
 Wire Wire Line
 	4800 3500 4350 3500
-Text Label 4350 3500 0    60   ~ 0
+Text Label 6850 3350 2    60   ~ 0
 CH3
 $Comp
 L GND #PWR024
@@ -1116,13 +1075,11 @@ F 3 "" H 1350 1650 50  0001 C CNN
 	1    1350 1650
 	1    0    0    1   
 $EndComp
-NoConn ~ 4350 3500
-NoConn ~ 4350 2900
 Wire Wire Line
 	6550 3350 6850 3350
-Text Label 6850 3350 2    60   ~ 0
+Text Label 4350 3050 0    60   ~ 0
 SCLK
-Text Label 6850 3200 2    60   ~ 0
+Text Label 4350 2900 0    60   ~ 0
 SIN
 Wire Wire Line
 	6850 3200 6550 3200
@@ -1132,10 +1089,8 @@ Text Label 4350 2750 0    60   ~ 0
 BUTTON
 Wire Wire Line
 	6550 2900 6850 2900
-NoConn ~ 6850 2900
 Wire Wire Line
 	4800 3200 4350 3200
-NoConn ~ 4350 3200
 Text Notes 3500 4800 0    59   ~ 0
 Do not use PA10, PA11, PA17, PA27 \nfor compatibility with SOIC-20
 Wire Wire Line
@@ -1148,8 +1103,35 @@ Text Label 2150 5250 0    60   ~ 0
 DP_IN
 Text Label 2150 5350 0    60   ~ 0
 DM_IN
-Text Label 2700 6300 0    60   ~ 0
+Text Label 2800 6700 0    60   ~ 0
 V_IN
 Text Label 7850 3050 0    60   ~ 0
 IREF
+Wire Wire Line
+	4800 2600 4350 2600
+NoConn ~ 6850 3200
+NoConn ~ 6850 3350
+NoConn ~ 4350 3200
+NoConn ~ 4350 3650
+$Comp
+L BAT54C D1
+U 1 1 5A105797
+P 2100 6700
+F 0 "D1" H 2125 6550 50  0000 L CNN
+F 1 "BAT54C" H 1850 6825 50  0000 L CNN
+F 2 "TO_SOT_Packages_SMD:SOT-23" H 2175 6825 50  0001 L CNN
+F 3 "" H 1970 6700 50  0001 C CNN
+	1    2100 6700
+	0    -1   -1   0   
+$EndComp
+Wire Wire Line
+	1700 7100 2500 7100
+Wire Wire Line
+	2100 7100 2100 7000
+Connection ~ 2100 7100
+Wire Wire Line
+	2300 6700 3350 6700
+Connection ~ 2500 6700
+Wire Wire Line
+	2700 6550 2700 6700
 $EndSCHEMATC

@@ -1,4 +1,4 @@
-update=Thu 16 Nov 2017 08:49:39 PM
+update=Sat 18 Nov 2017 09:41:18 PM
 version=1
 last_client=kicad
 [pcbnew]
@@ -23,23 +23,24 @@ ModuleOutlineThickness=0.150000000000
 [cvpcb]
 version=1
 NetIExt=net
+[general]
+version=1
 [eeschema]
 version=1
 LibDir=
 [eeschema/libraries]
 LibName1=SAM_D11
-LibName2=power
-LibName3=device
-LibName4=switches
-LibName5=transistors
-LibName6=conn
-LibName7=linear
-LibName8=regul
-LibName9=texas
-LibName10=opto
-LibName11=atmel
-LibName12=contrib
-LibName13=diode
-LibName14=ESD_Protection
-[general]
-version=1
+LibName2=bat54c
+LibName3=power
+LibName4=device
+LibName5=switches
+LibName6=transistors
+LibName7=conn
+LibName8=linear
+LibName9=regul
+LibName10=texas
+LibName11=opto
+LibName12=atmel
+LibName13=contrib
+LibName14=diode
+LibName15=ESD_Protection
