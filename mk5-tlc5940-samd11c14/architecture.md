@@ -27,7 +27,7 @@ SIN             PA04 (S0P0)                             P0    S0: PA04, PA06, PA
 SCK             PA05 (S0P1)                             P1    S0: PA05, PA07, PA15    S1: PA23           S2: PA15, PA23
 XLAT            PA07 (S0P3)                             P3    S0: PA05, PA07, PA09    S1: PA09, PA25     S2: PA25
 BLANK           PA08
-GSCLK           PA16
+GSCLK           PA09
 
 ST/Rx           PA15 (EXTINT[1]¸ S2P1, TCC0/WO[1])      P1    S0: PA05, PA07, PA15    S1: PA23           S2: PA15, PA23
 TH/Tx           PA22 (EXTINT[6], S2P0, TCC0/WO[4])      P0    S0: PA04, PA06, PA14    S1: PA22           S2: PA14, PA22
