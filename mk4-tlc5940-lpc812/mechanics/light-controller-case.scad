@@ -7,7 +7,9 @@ $fn = 50;
 h_bottom = 0.6;
 h_middle = 1.2;
 
-linear_extrude(h_bottom)
-    import("bottom.dxf");
-linear_extrude(h_bottom+h_middle)
-    import("middle.dxf");
+rotate([180, 0, 0]) {
+    linear_extrude(h_middle)
+        import("middle.dxf");
+    translate([0, 0, h_middle]) linear_extrude(h_bottom)
+        import("bottom.dxf");
+}
