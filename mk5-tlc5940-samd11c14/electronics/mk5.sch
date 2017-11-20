@@ -1229,7 +1229,7 @@ U 1 1 5A12668E
 P 7000 5750
 F 0 "TP6" H 7000 6050 50  0000 C BNN
 F 1 "SIN" H 7000 6000 50  0000 C CNN
-F 2 "SMD-pads:Measurement_Point_Round-SMD-Pad_1mm" H 7000 5750 50  0001 C CNN
+F 2 "SMD-pads:Measurement_Point_Round-SMD-Pad_0_6mm" H 7000 5750 50  0001 C CNN
 F 3 "" H 7000 5750 50  0001 C CNN
 	1    7000 5750
 	1    0    0    -1  
@@ -1240,7 +1240,7 @@ U 1 1 5A1272F3
 P 7250 5750
 F 0 "TP7" H 7250 6050 50  0000 C BNN
 F 1 "XLAT" H 7250 6000 50  0000 C CNN
-F 2 "SMD-pads:Measurement_Point_Round-SMD-Pad_1mm" H 7250 5750 50  0001 C CNN
+F 2 "SMD-pads:Measurement_Point_Round-SMD-Pad_0_6mm" H 7250 5750 50  0001 C CNN
 F 3 "" H 7250 5750 50  0001 C CNN
 	1    7250 5750
 	1    0    0    -1  
@@ -1251,7 +1251,7 @@ U 1 1 5A1273A0
 P 7500 5750
 F 0 "TP8" H 7500 6050 50  0000 C BNN
 F 1 "BLANK" H 7500 6000 50  0000 C CNN
-F 2 "SMD-pads:Measurement_Point_Round-SMD-Pad_1mm" H 7500 5750 50  0001 C CNN
+F 2 "SMD-pads:Measurement_Point_Round-SMD-Pad_0_6mm" H 7500 5750 50  0001 C CNN
 F 3 "" H 7500 5750 50  0001 C CNN
 	1    7500 5750
 	1    0    0    -1  
@@ -1262,7 +1262,7 @@ U 1 1 5A127450
 P 7750 5750
 F 0 "TP9" H 7750 6050 50  0000 C BNN
 F 1 "GSCLK" H 7750 6000 50  0000 C CNN
-F 2 "SMD-pads:Measurement_Point_Round-SMD-Pad_1mm" H 7750 5750 50  0001 C CNN
+F 2 "SMD-pads:Measurement_Point_Round-SMD-Pad_0_6mm" H 7750 5750 50  0001 C CNN
 F 3 "" H 7750 5750 50  0001 C CNN
 	1    7750 5750
 	1    0    0    -1  
@@ -1273,7 +1273,7 @@ U 1 1 5A12767F
 P 6750 5750
 F 0 "TP5" H 6750 6050 50  0000 C BNN
 F 1 "SCK" H 6750 6000 50  0000 C CNN
-F 2 "SMD-pads:Measurement_Point_Round-SMD-Pad_1mm" H 6750 5750 50  0001 C CNN
+F 2 "SMD-pads:Measurement_Point_Round-SMD-Pad_0_6mm" H 6750 5750 50  0001 C CNN
 F 3 "" H 6750 5750 50  0001 C CNN
 	1    6750 5750
 	1    0    0    -1  
@@ -1289,7 +1289,7 @@ Wire Wire Line
 Wire Wire Line
 	7750 5750 7750 6100
 Text Label 6750 6100 1    60   ~ 0
-SCK
+SCLK
 Text Label 7000 6100 1    60   ~ 0
 SIN
 Text Label 7250 6100 1    60   ~ 0

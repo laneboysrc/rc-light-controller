@@ -34,5 +34,5 @@ TH/Tx           PA22 (EXTINT[6], S2P0, TCC0/WO[4])      P0    S0: PA04, PA06, PA
 CH3             PA23 (EXTINT[7],       TCC0/WO[5])
 OUT             PA14 (           S2P0. TC1/WO[0])       P0    S0: PA04, PA06, PA14    S1: PA22           S2: PA14, PA22
 
-OUT15/LED       PA02
-Button          PA03
+OUT15/LED       PA03
+Button          PA02
