@@ -109,34 +109,34 @@ $EndComp
 $Comp
 L TEST TP1
 U 1 1 59C46169
-P 6200 5600
-F 0 "TP1" V 6200 5800 50  0000 L BNN
-F 1 "SWCLK" V 6250 5800 50  0000 L CNN
-F 2 "Measurement_Points:Measurement_Point_Round-SMD-Pad_Small" H 6200 5600 50  0001 C CNN
-F 3 "" H 6200 5600 50  0001 C CNN
-	1    6200 5600
+P 5600 5400
+F 0 "TP1" V 5600 5600 50  0000 L BNN
+F 1 "SWCLK" V 5650 5600 50  0000 L CNN
+F 2 "Measurement_Points:Measurement_Point_Round-SMD-Pad_Small" H 5600 5400 50  0001 C CNN
+F 3 "" H 5600 5400 50  0001 C CNN
+	1    5600 5400
 	0    1    1    0   
 $EndComp
 $Comp
 L TEST TP2
 U 1 1 59C46225
-P 6200 5850
-F 0 "TP2" V 6200 6050 50  0000 L BNN
-F 1 "SWDIO" V 6250 6050 50  0000 L CNN
-F 2 "Measurement_Points:Measurement_Point_Round-SMD-Pad_Small" H 6200 5850 50  0001 C CNN
-F 3 "" H 6200 5850 50  0001 C CNN
-	1    6200 5850
+P 5600 5650
+F 0 "TP2" V 5600 5850 50  0000 L BNN
+F 1 "SWDIO" V 5650 5850 50  0000 L CNN
+F 2 "Measurement_Points:Measurement_Point_Round-SMD-Pad_Small" H 5600 5650 50  0001 C CNN
+F 3 "" H 5600 5650 50  0001 C CNN
+	1    5600 5650
 	0    1    1    0   
 $EndComp
 $Comp
 L TEST TP3
 U 1 1 59C4652D
-P 6200 6100
-F 0 "TP3" V 6200 6300 50  0000 L BNN
-F 1 "RESET" V 6250 6300 50  0000 L CNN
-F 2 "Measurement_Points:Measurement_Point_Round-SMD-Pad_Small" H 6200 6100 50  0001 C CNN
-F 3 "" H 6200 6100 50  0001 C CNN
-	1    6200 6100
+P 5600 5900
+F 0 "TP3" V 5600 6100 50  0000 L BNN
+F 1 "RESET" V 5650 6100 50  0000 L CNN
+F 2 "Measurement_Points:Measurement_Point_Round-SMD-Pad_Small" H 5600 5900 50  0001 C CNN
+F 3 "" H 5600 5900 50  0001 C CNN
+	1    5600 5900
 	0    1    1    0   
 $EndComp
 Text Label 6850 3800 2    60   ~ 0
@@ -700,23 +700,23 @@ $EndComp
 $Comp
 L TEST TP4
 U 1 1 59DB5CFC
-P 6200 6350
-F 0 "TP4" V 6200 6550 50  0000 L BNN
-F 1 "GND" V 6250 6550 50  0000 L CNN
-F 2 "Measurement_Points:Measurement_Point_Round-SMD-Pad_Small" H 6200 6350 50  0001 C CNN
-F 3 "" H 6200 6350 50  0001 C CNN
-	1    6200 6350
+P 5600 6150
+F 0 "TP4" V 5600 6350 50  0000 L BNN
+F 1 "GND" V 5650 6350 50  0000 L CNN
+F 2 "Measurement_Points:Measurement_Point_Round-SMD-Pad_Small" H 5600 6150 50  0001 C CNN
+F 3 "" H 5600 6150 50  0001 C CNN
+	1    5600 6150
 	0    1    1    0   
 $EndComp
 $Comp
 L GND #PWR022
 U 1 1 59DB5EB3
-P 6200 6450
-F 0 "#PWR022" H 6200 6200 50  0001 C CNN
-F 1 "GND" H 6200 6300 50  0000 C CNN
-F 2 "" H 6200 6450 50  0001 C CNN
-F 3 "" H 6200 6450 50  0001 C CNN
-	1    6200 6450
+P 5600 6250
+F 0 "#PWR022" H 5600 6000 50  0001 C CNN
+F 1 "GND" H 5600 6100 50  0000 C CNN
+F 2 "" H 5600 6250 50  0001 C CNN
+F 3 "" H 5600 6250 50  0001 C CNN
+	1    5600 6250
 	1    0    0    -1  
 $EndComp
 $Comp
@@ -794,11 +794,11 @@ Text Label 6850 4100 2    60   ~ 0
 SWCLK
 Text Label 6850 4250 2    60   ~ 0
 SWDIO
-Text Label 5750 5600 0    60   ~ 0
+Text Label 5150 5400 0    60   ~ 0
 SWCLK
-Text Label 5750 5850 0    60   ~ 0
+Text Label 5150 5650 0    60   ~ 0
 SWDIO
-Text Label 5750 6100 0    60   ~ 0
+Text Label 5150 5900 0    60   ~ 0
 RESET
 Text Label 4350 4400 0    60   ~ 0
 RESET
@@ -1065,7 +1065,7 @@ Wire Wire Line
 	10450 6250 10450 6050
 Connection ~ 10250 6250
 Wire Wire Line
-	6200 6350 6200 6450
+	5600 6150 5600 6250
 Wire Wire Line
 	1550 1350 1750 1350
 Connection ~ 1750 1850
@@ -1110,11 +1110,11 @@ Wire Wire Line
 Wire Wire Line
 	7750 3050 7750 3150
 Wire Wire Line
-	6200 5600 5750 5600
+	5600 5400 5150 5400
 Wire Wire Line
-	6200 5850 5750 5850
+	5600 5650 5150 5650
 Wire Wire Line
-	6200 6100 5750 6100
+	5600 5900 5150 5900
 Wire Wire Line
 	8050 1300 8050 1250
 Connection ~ 8050 1250
@@ -1223,4 +1223,79 @@ Wire Wire Line
 Connection ~ 2300 6200
 Text Notes 1600 7650 0    60   ~ 0
 Solder jumper to\npower LEDs from USB\nWARNING: do not connect\nUSB and another power \nsupply (ESC, Receiver) \nat the same time!
+$Comp
+L TEST TP6
+U 1 1 5A12668E
+P 7000 5750
+F 0 "TP6" H 7000 6050 50  0000 C BNN
+F 1 "SIN" H 7000 6000 50  0000 C CNN
+F 2 "SMD-pads:Measurement_Point_Round-SMD-Pad_1mm" H 7000 5750 50  0001 C CNN
+F 3 "" H 7000 5750 50  0001 C CNN
+	1    7000 5750
+	1    0    0    -1  
+$EndComp
+$Comp
+L TEST TP7
+U 1 1 5A1272F3
+P 7250 5750
+F 0 "TP7" H 7250 6050 50  0000 C BNN
+F 1 "XLAT" H 7250 6000 50  0000 C CNN
+F 2 "SMD-pads:Measurement_Point_Round-SMD-Pad_1mm" H 7250 5750 50  0001 C CNN
+F 3 "" H 7250 5750 50  0001 C CNN
+	1    7250 5750
+	1    0    0    -1  
+$EndComp
+$Comp
+L TEST TP8
+U 1 1 5A1273A0
+P 7500 5750
+F 0 "TP8" H 7500 6050 50  0000 C BNN
+F 1 "BLANK" H 7500 6000 50  0000 C CNN
+F 2 "SMD-pads:Measurement_Point_Round-SMD-Pad_1mm" H 7500 5750 50  0001 C CNN
+F 3 "" H 7500 5750 50  0001 C CNN
+	1    7500 5750
+	1    0    0    -1  
+$EndComp
+$Comp
+L TEST TP9
+U 1 1 5A127450
+P 7750 5750
+F 0 "TP9" H 7750 6050 50  0000 C BNN
+F 1 "GSCLK" H 7750 6000 50  0000 C CNN
+F 2 "SMD-pads:Measurement_Point_Round-SMD-Pad_1mm" H 7750 5750 50  0001 C CNN
+F 3 "" H 7750 5750 50  0001 C CNN
+	1    7750 5750
+	1    0    0    -1  
+$EndComp
+$Comp
+L TEST TP5
+U 1 1 5A12767F
+P 6750 5750
+F 0 "TP5" H 6750 6050 50  0000 C BNN
+F 1 "SCK" H 6750 6000 50  0000 C CNN
+F 2 "SMD-pads:Measurement_Point_Round-SMD-Pad_1mm" H 6750 5750 50  0001 C CNN
+F 3 "" H 6750 5750 50  0001 C CNN
+	1    6750 5750
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	6750 5750 6750 6100
+Wire Wire Line
+	7000 5750 7000 6100
+Wire Wire Line
+	7250 5750 7250 6100
+Wire Wire Line
+	7500 5750 7500 6100
+Wire Wire Line
+	7750 5750 7750 6100
+Text Label 6750 6100 1    60   ~ 0
+SCK
+Text Label 7000 6100 1    60   ~ 0
+SIN
+Text Label 7250 6100 1    60   ~ 0
+XLAT
+Text Label 7500 6100 1    60   ~ 0
+BLANK
+Text Label 7750 6100 1    60   ~ 0
+GSCLK
 $EndSCHEMATC
