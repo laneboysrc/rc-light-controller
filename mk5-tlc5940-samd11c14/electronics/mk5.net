@@ -1,7 +1,7 @@
 (export (version D)
   (design
     (source /home/laneboysrc/projects/rc-light-controller/mk5-tlc5940-samd11c14/electronics/mk5.sch)
-    (date "Tue 21 Nov 2017 01:54:16 PM +08")
+    (date "Tue 21 Nov 2017 08:29:41 PM")
     (tool "Eeschema 4.0.7-e2-6376~58~ubuntu16.04.1")
     (sheet (number 1) (name /) (tstamps /)
       (title_block
@@ -304,7 +304,7 @@
       (sheetpath (names /) (tstamps /))
       (tstamp 5A114F10))
     (comp (ref C2)
-      (value "47u/6.3V Polymer 0805")
+      (value "33u/6.3V Polymer 0805")
       (footprint Capacitors_SMD:C_0805)
       (libsource (lib device) (part CP))
       (sheetpath (names /) (tstamps /))
@@ -585,12 +585,12 @@
         (pin (num 5) (name GND) (type power_in))
         (pin (num 6) (name Shield) (type passive)))))
   (libraries
-    (library (logical bat54c)
-      (uri /home/laneboysrc/projects/rc-light-controller/mk5-tlc5940-samd11c14/electronics/bat54c.lib))
     (library (logical SAM_D11)
       (uri /home/laneboysrc/projects/rc-light-controller/mk5-tlc5940-samd11c14/electronics/SAM_D11.lib))
     (library (logical device)
       (uri /usr/share/kicad/library/device.lib))
+    (library (logical bat54c)
+      (uri /home/laneboysrc/projects/rc-light-controller/mk5-tlc5940-samd11c14/electronics/bat54c.lib))
     (library (logical switches)
       (uri /usr/share/kicad/library/switches.lib))
     (library (logical regul)
