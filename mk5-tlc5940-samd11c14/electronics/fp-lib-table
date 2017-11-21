@@ -2,4 +2,5 @@
   (lib (name SMD-pads)(type KiCad)(uri "$(KIPRJMOD)/SMD-pads.pretty")(options "")(descr "Custom SMD pads"))
   (lib (name USB)(type KiCad)(uri "$(KIPRJMOD)/USB.pretty")(options "")(descr ""))
   (lib (name Reverse-LED)(type KiCad)(uri "$(KIPRJMOD)/Reverse_mount_LED.pretty")(options "")(descr ""))
+  (lib (name Housings_SSOP_modified)(type KiCad)(uri "$(KIPRJMOD)/Housings_SSOP_modified.pretty")(options "")(descr ""))
 )
