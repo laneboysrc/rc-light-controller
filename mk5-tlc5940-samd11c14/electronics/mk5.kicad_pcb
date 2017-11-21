@@ -1,8 +1,8 @@
 (kicad_pcb (version 4) (host pcbnew 4.0.7-e2-6376~58~ubuntu16.04.1)
 
   (general
-    (links 147)
-    (no_connects 29)
+    (links 144)
+    (no_connects 26)
     (area 142.5318 53.799227 182.088774 79.744581)
     (thickness 1.6)
     (drawings 32)
@@ -205,7 +205,6 @@
     (add_net "Net-(J7-Pad1)")
     (add_net "Net-(J8-Pad1)")
     (add_net "Net-(J9-Pad1)")
-    (add_net "Net-(SW1-Pad1)")
     (add_net "Net-(U3-Pad10)")
     (add_net "Net-(U3-Pad13)")
     (add_net "Net-(U3-Pad14)")

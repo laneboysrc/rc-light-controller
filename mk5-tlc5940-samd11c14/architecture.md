@@ -20,6 +20,10 @@
     20      13      PA31             EXTINT[3]                                   S1P1    S1P3    TC2/WO[1]   TCC0/WO[3]  SWDIO
 
 
+UART Tx can be on:      PAD0, PAD2
+UART Rx can be on:      PAD0, PAD1, PAD2, PAD3
+
+
 USB             PA24, PA25
 SWDIO           PA30, PA31
 
