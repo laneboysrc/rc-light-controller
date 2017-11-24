@@ -60,7 +60,7 @@ void hal_hardware_init(bool is_servo_reader, bool has_servo_output)
     // Make the open drain ports PIO0_10, PIO0_11 outputs and pull to ground
     // to prevent them from floating.
     // Make the switched light output PIO0_9 an output and shut it off.
-    GPIO_SWITCHED_LIGHT_OUTPUT = 0;
+    hal_gpio_switched_light_output_clear();
     LPC_GPIO_PORT->W0[10] = 0;
     LPC_GPIO_PORT->W0[11] = 0;
     LPC_GPIO_PORT->DIR0 |= (1 << 10) | (1 << 11) |

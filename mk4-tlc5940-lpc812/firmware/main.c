@@ -52,10 +52,11 @@ CHANNEL_T channel[3] = {
 volatile uint32_t systick_count;
 static bool diagnostics_output_enabled;
 
+
 // ****************************************************************************
+// FIXME: this needs to be renamed
 static void init_hardware(void)
 {
-
     // Wait for 100ms to have the supply settle down before initializing the
     // rest of the system. This is especially important for the TLC5940,
     // which misbehaves (certain LEDs don't work) when being addressed before
@@ -63,8 +64,6 @@ static void init_hardware(void)
     while (systick_count <  (100 / __SYSTICK_IN_MS));
     systick_count = 0;
 }
-
-
 
 
 // ****************************************************************************

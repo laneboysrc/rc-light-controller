@@ -64,6 +64,7 @@ SOURCES += hal/spi_lpc81x.c
 SOURCES += hal/startup_lpc81x.c
 SOURCES += hal/system_lpc81x.c
 SOURCES += hal/uart_lpc81x.c
+SOURCES += hal/servo_reader_lpc81x.c
 
 INCLUDES += -I.
 INCLUDES += -I./hal

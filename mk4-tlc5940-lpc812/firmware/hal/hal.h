@@ -3,6 +3,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#include <LPC8xx.h>
+
 extern uint32_t entropy;
 
 void hal_hardware_init(bool is_servo_reader, bool has_servo_output);
@@ -30,6 +32,9 @@ void hal_servo_output_init(void);
 void hal_servo_output_set_pulse(uint16_t servo_pulse);
 void hal_servo_output_enable(void);
 void hal_servo_output_disable(void);
+
+void hal_servo_reader_init(bool CPPM, uint32_t max_pulse);
+bool hal_servo_reader_get_new_channels(uint32_t *raw_data);
 
 
 // ****************************************************************************
@@ -70,10 +75,46 @@ void hal_servo_output_disable(void);
 #define GPIO_IOCON_CH3 LPC_IOCON->PIO0_13
 
 
-#define GPIO_GSCLK LPC_GPIO_PORT->W0[GPIO_BIT_GSCLK]
-#define GPIO_BLANK LPC_GPIO_PORT->W0[GPIO_BIT_BLANK]
-#define GPIO_XLAT LPC_GPIO_PORT->W0[GPIO_BIT_XLAT]
-#define GPIO_SCK LPC_GPIO_PORT->W0[GPIO_BIT_SCK]
-#define GPIO_SIN LPC_GPIO_PORT->W0[GPIO_BIT_SIN]
-#define GPIO_SWITCHED_LIGHT_OUTPUT LPC_GPIO_PORT->W0[GPIO_BIT_SWITCHED_LIGHT_OUTPUT]
-#define GPIO_CH3 LPC_GPIO_PORT->W0[GPIO_BIT_CH3]
+
+#define DECLARE_GPIO(name, bit)                                             \
+                                                                            \
+    static inline void hal_gpio_##name##_in(void)                           \
+    {                                                                       \
+        LPC_GPIO_PORT->DIR0 &= ~(1 << bit);                                 \
+    }                                                                       \
+                                                                            \
+    static inline void hal_gpio_##name##_out(void)                          \
+    {                                                                       \
+        LPC_GPIO_PORT->DIR0 |= (1 << bit);                                  \
+    }                                                                       \
+                                                                            \
+    static inline void hal_gpio_##name##_write(bool value)                  \
+    {                                                                       \
+        LPC_GPIO_PORT->W0[bit] = value;                                     \
+    }                                                                       \
+                                                                            \
+    static inline bool hal_gpio_##name##_read(void)                         \
+    {                                                                       \
+        return LPC_GPIO_PORT->W0[bit];                                      \
+    }                                                                       \
+                                                                            \
+    static inline void hal_gpio_##name##_set(void)                          \
+    {                                                                       \
+        LPC_GPIO_PORT->W0[bit] = 1;                                         \
+    }                                                                       \
+                                                                            \
+    static inline void hal_gpio_##name##_clear(void)                        \
+    {                                                                       \
+        LPC_GPIO_PORT->W0[bit] = 0;                                         \
+    }                                                                       \
+                                                                            \
+    static inline void hal_gpio_##name##_toggle(void)                       \
+    {                                                                       \
+        LPC_GPIO_PORT->NOT0 = 1 << bit;                                     \
+    }                                                                       \
+
+
+DECLARE_GPIO(gsclk, GPIO_BIT_GSCLK)
+DECLARE_GPIO(blank, GPIO_BIT_BLANK)
+DECLARE_GPIO(ch3, GPIO_BIT_CH3)
+DECLARE_GPIO(switched_light_output, GPIO_BIT_SWITCHED_LIGHT_OUTPUT)

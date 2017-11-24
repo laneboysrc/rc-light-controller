@@ -77,7 +77,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include <LPC8xx.h>
 #include <hal.h>
 
 #include <globals.h>
@@ -136,7 +135,7 @@ static void send_light_data_to_tlc5940(void)
     // The switched_light_output mirrors the output of LED15 onto the
     // dedicated output pin.
     // Fading is not applied. 0 turns the output off, any other value on.
-    GPIO_SWITCHED_LIGHT_OUTPUT = light_setpoint[15] ? 1 : 0;
+    hal_gpio_switched_light_output_write(light_setpoint[15] ? 1 : 0);
 }
 
 
@@ -149,21 +148,21 @@ static void send_light_data_to_tlc5940(void)
 // ****************************************************************************
 void init_lights(void)
 {
-    GPIO_BLANK = 1;
-    GPIO_GSCLK = 0;
+    hal_gpio_blank_set();
+    hal_gpio_gsclk_clear();
 
-    LPC_GPIO_PORT->DIR0 |= (1 << GPIO_BIT_GSCLK) |
-                           (1 << GPIO_BIT_BLANK);
+    hal_gpio_blank_out();
+    hal_gpio_gsclk_out();
 
     hal_spi_init();
 
     send_light_data_to_tlc5940();
 
-    GPIO_BLANK = 0;
+    hal_gpio_blank_clear();
     // Do this short function in-between clearing BLANK and setting GSCLK to
     // surely meet the setup time requirement of the TLC5940
     init_light_programs();
-    GPIO_GSCLK = 1;
+    hal_gpio_gsclk_set();
 
     light_switch_position = config.initial_light_switch_position;
 }
