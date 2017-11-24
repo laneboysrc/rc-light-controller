@@ -25,6 +25,13 @@ which is the maximum needed for decimal.
 
 
 // ****************************************************************************
+void uart_init(void)
+{
+    hal_uart_init(config.baudrate);
+}
+
+
+// ****************************************************************************
 static void uint32_to_cstring(uint32_t value, char *result,
     unsigned int radix, int number_of_leading_zeros)
 {

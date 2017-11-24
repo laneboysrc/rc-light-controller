@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include <hal.h>
+void uart_init(void);
 
 bool uart0_read_is_byte_pending(void);
 uint8_t uart0_read_byte(void);

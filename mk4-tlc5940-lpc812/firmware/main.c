@@ -128,21 +128,16 @@ bool diagnostics_enabled(void)
 int main(void)
 {
     bool is_servo_reader = (config.mode == MASTER_WITH_SERVO_READER);
-    bool has_servo_output = (config.flags.steering_wheel_servo_output ||
-                         config.flags.gearbox_servo_output);
+
+    global_flags.servo_output_enabled =
+        config.flags.steering_wheel_servo_output ||
+        config.flags.gearbox_servo_output;
 
     global_flags.no_signal = true;
 
-    global_flags.servo_output_enabled = true;
-    if (config.flags.gearbox_servo_output) {
-        global_flags.servo_output_enabled = false;
-    }
-    if (config.flags.steering_wheel_servo_output) {
-        global_flags.servo_output_enabled = false;
-    }
-
     diagnostics_output_enabled = true;
-    if (config.flags.slave_output || config.flags.preprocessor_output ||
+    if (config.flags.slave_output ||
+            config.flags.preprocessor_output ||
             config.flags.winch_output) {
         diagnostics_output_enabled = false;
     }
@@ -153,10 +148,10 @@ int main(void)
         }
     }
 
-    hal_hardware_init(is_servo_reader, has_servo_output);
+    hal_hardware_init(is_servo_reader, global_flags.servo_output_enabled);
     init_hardware();
-    hal_uart_init(config.baudrate);
     load_persistent_storage();
+    uart_init();
     init_servo_reader();
     init_uart_reader();
     init_servo_output();
