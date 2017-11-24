@@ -1,4 +1,38 @@
 {
+    "build_systems":
+    [
+        {
+            "cmd":
+            [
+                "make"
+            ],
+            "file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$",
+            "name": "MK4 make all",
+            "syntax": "Packages/Makefile/Make Output.sublime-syntax",
+            "working_dir": "${project_path}/mk4-tlc5940-lpc812/firmware"
+        },
+        {
+            "cmd":
+            [
+                "make",
+                "program"
+            ],
+            "file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$",
+            "name": "MK4 make program",
+            "syntax": "Packages/Makefile/Make Output.sublime-syntax",
+            "working_dir": "${project_path}/mk4-tlc5940-lpc812/firmware"
+        },
+        {
+            "cmd":
+            [
+                "make",
+                "clean"
+            ],
+            "name": "MK4 make clean",
+            "syntax": "Packages/Makefile/Make Output.sublime-syntax",
+            "working_dir": "${project_path}/mk4-tlc5940-lpc812/firmware"
+        }
+    ],
 	"folders":
 	[
 		{
