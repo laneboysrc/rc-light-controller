@@ -29,7 +29,7 @@ SWDIO           PA30, PA31
 
 SIN             PA04 (S0P0)                             P0    S0: PA04, PA06, PA14    S1: PA22           S2: PA14, PA22
 SCK             PA05 (S0P1)                             P1    S0: PA05, PA07, PA15    S1: PA23           S2: PA15, PA23
-XLAT            PA07 (S0P3)                             P3    S0: PA05, PA07, PA09    S1: PA09, PA25     S2: PA25
+XLAT            PA07   FIXME: Should be S0P2!
 BLANK           PA08
 GSCLK           PA09
 
