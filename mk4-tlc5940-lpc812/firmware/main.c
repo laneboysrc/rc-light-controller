@@ -133,6 +133,14 @@ int main(void)
 
     global_flags.no_signal = true;
 
+    global_flags.servo_output_enabled = true;
+    if (config.flags.gearbox_servo_output) {
+        global_flags.servo_output_enabled = false;
+    }
+    if (config.flags.steering_wheel_servo_output) {
+        global_flags.servo_output_enabled = false;
+    }
+
     diagnostics_output_enabled = true;
     if (config.flags.slave_output || config.flags.preprocessor_output ||
             config.flags.winch_output) {

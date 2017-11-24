@@ -343,6 +343,8 @@ typedef struct {
     unsigned int gear : 2;
 
     unsigned int winch_mode : 3;
+
+    unsigned int servo_output_enabled : 1;  // Set when there OUT is configured as servo output
 } GLOBAL_FLAGS_T;
 
 

@@ -26,6 +26,11 @@ void hal_spi_transaction(uint8_t *data, uint8_t count);
 volatile const uint32_t *hal_persistent_storage_read(void);
 const char *hal_persistent_storage_write(const uint32_t *new_data);
 
+void hal_servo_output_init(void);
+void hal_servo_output_set_pulse(uint16_t servo_pulse);
+void hal_servo_output_enable(void);
+void hal_servo_output_disable(void);
+
 
 // ****************************************************************************
 // IO pins: (LPC812 in TSSOP16 package)

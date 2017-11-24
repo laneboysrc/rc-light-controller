@@ -59,6 +59,7 @@ SOURCES += uart_reader.c
 SOURCES += utils.c
 SOURCES += winch.c
 SOURCES += hal/persistent_storage_lpc81x.c
+SOURCES += hal/servo_output_lpc81x.c
 SOURCES += hal/spi_lpc81x.c
 SOURCES += hal/startup_lpc81x.c
 SOURCES += hal/system_lpc81x.c
