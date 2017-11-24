@@ -1,11 +1,10 @@
 /******************************************************************************
 ******************************************************************************/
 #include <stdint.h>
+#include <stdbool.h>
 
 #include <LPC8xx.h>
-
-#include <globals.h>
-#include <uart0.h>
+#include <hal.h>
 
 /*
 UART register value calculation
@@ -78,8 +77,6 @@ Again we have to round by adding BAUDRATE * 16 / 2 to the nominator:
 
 
 
-#define NO_LEADING_ZEROS (0)
-
 #define UART_CFG_ENABLE (1 << 0)
 #define UART_CFG_DATALEN(d) ((unsigned)((d) - 7) << 2)
 #define UART_STAT_RXRDY (1 << 0)
@@ -89,68 +86,14 @@ Again we have to round by adding BAUDRATE * 16 / 2 to the nominator:
 #define RECEIVE_BUFFER_SIZE (16)        // Must be modulo 2 for speed
 #define RECEIVE_BUFFER_INDEX_MASK (RECEIVE_BUFFER_SIZE - 1)
 
-/*
-INT32_MIN  is -2147483648 (decimal needs 12 characters, incl. terminating '\0')
-INT32_MAX  is 2147483647
-UINT32_MIN is 0
-UINT32_MAX is 4294967295
-
-Worst case (base 2) we would have to write 32 characters + '\0'. However,
-since we only support base 2 for uint8_t we can make due with 12 bytes,
-which is the maximum needed for decimal.
-*/
-#define TRANSMIT_BUFFER_SIZE (12)
-
 
 static uint8_t receive_buffer[RECEIVE_BUFFER_SIZE];
 static volatile uint16_t read_index = 0;
 static volatile uint16_t write_index = 0;
 
 
-
-
 // ****************************************************************************
-static void uint32_to_cstring(uint32_t value, char *result,
-    unsigned int radix, int number_of_leading_zeros)
-{
-    char temp[TRANSMIT_BUFFER_SIZE];
-    char *tp = temp;
-    unsigned int digit;
-
-    // Process the digits in reverse order, i.e. fill temp[] with the least
-    // significant digit first. We stop as soon as the higher most remaining
-    // digits are 0 (leading zero supression).
-    do {
-        digit = value % radix;
-        *tp++ = (digit < 10) ? (digit + '0') : (digit + 'a' - 10);
-        value /= radix;
-        --number_of_leading_zeros;
-    } while (value || number_of_leading_zeros > 0);
-
-    // We write the digits to "result" in reverse order, i.e. most significant
-    // digit first.
-    while (tp > temp) {
-        *result++ = *--tp;
-    }
-    *result = '\0';
-
-}
-
-
-// ****************************************************************************
-static void int32_to_cstring(int32_t value, char *result, unsigned int radix)
-{
-    if (radix == 10  &&  value < 0) {
-        *result++ = '-';
-        value = -value;
-    }
-
-    uint32_to_cstring((uint32_t)value, result, radix, NO_LEADING_ZEROS);
-}
-
-
-// ****************************************************************************
-void init_uart0(void)
+void hal_uart_init(uint32_t baudrate)
 {
     // Turn on peripheral clocks for UART0
     LPC_SYSCON->SYSAHBCLKCTRL |= (1 << 14);
@@ -163,7 +106,7 @@ void init_uart0(void)
     LPC_SYSCON->UARTFRGDIV = 255;
     LPC_SYSCON->UARTFRGMULT = MULT;
 
-    if (config.baudrate == 115200) {
+    if (baudrate == 115200) {
         LPC_USART0->BRG = BRGVAL(115200);
     }
     else {
@@ -178,94 +121,25 @@ void init_uart0(void)
 
 
 // ****************************************************************************
-bool uart0_send_is_ready(void)
+bool hal_uart_send_is_ready(void)
 {
     return (LPC_USART0->STAT & UART_STAT_TXRDY);
 }
 
 
 // ****************************************************************************
-void uart0_send_char(const char c)
+void hal_uart_send_char(const char c)
 {
     while (!(LPC_USART0->STAT & UART_STAT_TXRDY));
     LPC_USART0->TXDATA = c;
 }
 
 // ****************************************************************************
-void uart0_send_uint8(const uint8_t u)
+void hal_uart_send_uint8(const uint8_t u)
 {
     while (!(LPC_USART0->STAT & UART_STAT_TXRDY));
     LPC_USART0->TXDATA = u;
 }
-
-// ****************************************************************************
-void uart0_send_cstring(const char *cstring)
-{
-    while (*cstring) {
-        uart0_send_char(*cstring);
-        ++cstring;
-    }
-}
-
-// ****************************************************************************
-void uart0_send_int32(int32_t number)
-{
-    char buf[12];
-    int32_to_cstring(number, buf, 10);
-    uart0_send_cstring(buf);
-}
-
-// ****************************************************************************
-void uart0_send_uint32(uint32_t number)
-{
-    char buf[12];
-    uint32_to_cstring(number, buf, 10, NO_LEADING_ZEROS);
-    uart0_send_cstring(buf);
-}
-
-
-// ****************************************************************************
-void uart0_send_uint32_hex(uint32_t number)
-{
-    char buf[9];
-    uint32_to_cstring(number, buf, 16, 8);
-    uart0_send_cstring(buf);
-}
-
-
-// ****************************************************************************
-void uart0_send_uint16_hex(uint16_t number)
-{
-    char buf[5];
-    uint32_to_cstring(number, buf, 16, 4);
-    uart0_send_cstring(buf);
-}
-
-
-// ****************************************************************************
-void uart0_send_uint8_hex(uint8_t number)
-{
-    char buf[3];
-    uint32_to_cstring(number, buf, 16, 4);
-    uart0_send_cstring(buf);
-}
-
-
-// ****************************************************************************
-void uart0_send_uint8_binary(uint8_t number)
-{
-    char buf[9];
-    uint32_to_cstring(number, buf, 2, 8);
-    uart0_send_cstring(buf);
-}
-
-
-// ****************************************************************************
-inline void uart0_send_linefeed(void)
-{
-    uart0_send_char('\n');
-}
-
 
 
 // ****************************************************************************
@@ -288,18 +162,18 @@ void UART0_irq_handler(void)
 
 
 // ****************************************************************************
-bool uart0_read_is_byte_pending(void)
+bool hal_uart_read_is_byte_pending(void)
 {
     if (LPC_USART0->STAT & (1 << 8)) {
-        uart0_send_cstring("overrun\n");
+        // uart0_send_cstring("overrun\n");
         LPC_USART0->STAT |= (1 << 8);
     }
     if (LPC_USART0->STAT & (1 << 13)) {
-        uart0_send_cstring("frameerr\n");
+        // uart0_send_cstring("frameerr\n");
         LPC_USART0->STAT |= (1 << 13);
     }
     if (LPC_USART0->STAT & (1 << 15)) {
-        uart0_send_cstring("noise\n");
+        // uart0_send_cstring("noise\n");
         LPC_USART0->STAT |= (1 << 15);
     }
 
@@ -308,11 +182,11 @@ bool uart0_read_is_byte_pending(void)
 
 
 // ****************************************************************************
-uint8_t uart0_read_byte(void)
+uint8_t hal_uart_read_byte(void)
 {
     uint8_t data;
 
-    while (!uart0_read_is_byte_pending());
+    while (!hal_uart_read_is_byte_pending());
 
     data = receive_buffer[read_index++];
 

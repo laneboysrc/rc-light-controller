@@ -13,16 +13,12 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include <LPC8xx.h>
-#include <LPC8xx_ROM_API.h>
+#include <hal.h>
+
 #include <globals.h>
-#include <uart0.h>
+#include <uart.h>
 
 #define PERSISTENT_DATA_VERSION 1
-#define NUMBER_OF_PERSISTENT_ELEMENTS 16
-
-__attribute__ ((section(".persistent_data")))
-volatile const uint32_t persistent_data[NUMBER_OF_PERSISTENT_ELEMENTS];
 
 #define OFFSET_VERSION 0
 #define OFFSET_STEERING_REVERSED 1
@@ -37,6 +33,7 @@ void load_persistent_storage(void)
 {
     uint32_t defaults[6];
     const volatile uint32_t *ptr;
+    const volatile uint32_t *persistent_data = hal_persistent_storage_read();
 
     defaults[OFFSET_VERSION] = PERSISTENT_DATA_VERSION;
     defaults[OFFSET_STEERING_REVERSED] = false;
@@ -64,8 +61,7 @@ void load_persistent_storage(void)
 void write_persistent_storage(void)
 {
     uint32_t new_data[6];
-    unsigned int param[5];
-    int retries;
+    const char *error_message;
 
     new_data[OFFSET_VERSION] = PERSISTENT_DATA_VERSION;
     new_data[OFFSET_STEERING_REVERSED] = channel[ST].reversed;
@@ -74,63 +70,12 @@ void write_persistent_storage(void)
     new_data[OFFSET_SERVO_CENTRE] = servo_output_endpoint.centre;
     new_data[OFFSET_SERVO_RIGHT] = servo_output_endpoint.right;
 
+    error_message = hal_persistent_storage_write(new_data);
 
-    for (retries = 0; retries < 6; retries++) {
-        param[0] = 50;
-        param[1] = ((unsigned int)persistent_data) >> 10;
-        param[2] = ((unsigned int)persistent_data) >> 10;
-        __disable_irq();
-        iap_entry(param, param);
-        __enable_irq();
-        if (param[0] != 0) {
-            if (diagnostics_enabled()) {
-                uart0_send_cstring("ERROR: prepare sector failed\n");
-            }
-            break;
+    if (error_message) {
+        if (diagnostics_enabled()) {
+            uart0_send_cstring(error_message);
+            uart0_send_linefeed();
         }
-
-        param[0] = 59;  // Erase page command
-        param[1] = ((unsigned int)persistent_data) >> 6;
-        param[2] = ((unsigned int)persistent_data) >> 6;
-        param[3] = __SYSTEM_CLOCK / 1000;
-        __disable_irq();
-        iap_entry(param, param);
-        __enable_irq();
-        if (param[0] != 0) {
-            if (diagnostics_enabled()) {
-                uart0_send_cstring("ERROR: erase page failed\n");
-            }
-            break;
-        }
-
-        param[0] = 50;
-        param[1] = ((unsigned int)persistent_data) >> 10;
-        param[2] = ((unsigned int)persistent_data) >> 10;
-        __disable_irq();
-        iap_entry(param, param);
-        __enable_irq();
-        if (param[0] != 0) {
-            if (diagnostics_enabled()) {
-                uart0_send_cstring("ERROR: prepare sector failed\n");
-            }
-            break;
-        }
-
-        param[0] = 51;  // Copy RAM to Flash command
-        param[1] = (unsigned int)persistent_data;
-        param[2] = (unsigned int)new_data;
-        param[3] = 64;
-        param[4] = __SYSTEM_CLOCK / 1000;
-        __disable_irq();
-        iap_entry(param, param);
-        __enable_irq();
-        if (param[0] != 0) {
-            if (diagnostics_enabled()) {
-                uart0_send_cstring("ERROR: copy RAM to flash failed\n");
-            }
-            break;
-        }
-
-        break;
     }
 }

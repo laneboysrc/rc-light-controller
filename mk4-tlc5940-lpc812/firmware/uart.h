@@ -1,10 +1,13 @@
-#ifndef __UART0_H
-#define __UART0_H
+#ifndef __UART_H
+#define __UART_H
 
 #include <stdint.h>
 #include <stdbool.h>
 
-void init_uart0(void);
+#include <hal.h>
+
+bool uart0_read_is_byte_pending(void);
+uint8_t uart0_read_byte(void);
 
 bool uart0_send_is_ready(void);
 void uart0_send_char(const char c);
@@ -18,8 +21,4 @@ void uart0_send_uint8_hex(uint8_t number);
 void uart0_send_uint8_binary(uint8_t number);
 void uart0_send_linefeed(void);
 
-bool uart0_read_is_byte_pending(void);
-void UART0_irq_handler(void);
-uint8_t uart0_read_byte(void);
-
-#endif /* __UART0_H */
+#endif /* __UART_H */

@@ -36,10 +36,9 @@
 
  *****************************************************************************/
 #include <stdint.h>
-#include <LPC8xx.h>
 
 #include <globals.h>
-#include <uart0.h>
+#include <uart.h>
 
 
 #define SLAVE_MAGIC_BYTE 0x87

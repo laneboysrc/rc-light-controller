@@ -10,10 +10,12 @@
 ;******************************************************************************/
 #include <stdint.h>
 #include <stdbool.h>
+
 #include <LPC8xx.h>
+#include <hal.h>
 
 #include <globals.h>
-#include <uart0.h>
+#include <uart.h>
 
 // This value must be a number higher than any number of clicks we want to
 // process.

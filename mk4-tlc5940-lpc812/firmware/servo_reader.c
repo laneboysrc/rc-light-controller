@@ -72,7 +72,9 @@
 ******************************************************************************/
 #include <stdio.h>
 #include <stdbool.h>
+
 #include <LPC8xx.h>
+#include <hal.h>
 
 #include <globals.h>
 
