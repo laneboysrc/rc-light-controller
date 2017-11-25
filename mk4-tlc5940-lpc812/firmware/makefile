@@ -1,4 +1,4 @@
-.DEFAULT_GOAL := program
+.DEFAULT_GOAL := all
 
 ###############################################################################
 # Configuration options for our application
@@ -73,7 +73,7 @@ INCLUDES += -isystem./LPC8xx
 DEFINES := -D__SYSTEM_CLOCK=$(SYSTEM_CLOCK)
 # DEFINES += -DNODEBUG
 
-LIBS :=
+LIBS := -lnosys
 
 DEPENDENCIES := makefile
 
@@ -101,8 +101,12 @@ CFLAGS += -MMD -MP -MT $(BUILD_DIR)/$(*F).o -MF $(BUILD_DIR)/$(@F).d
 CFLAGS += $(INCLUDES) $(DEFINES)
 
 LDFLAGS = $(CPU_FLAGS)
-LDFLAGS += -Wl,-T,$(LINKER_SCRIPT) -Wl,-nostdlib -Wl,--warn-common
-LDFLAGS += -Wl,--gc-sections -Wl,-Os
+LDFLAGS += -Wl,-T,$(LINKER_SCRIPT)
+LDFLAGS += -Wl,--warn-common
+# LDFLAGS += -Wl,-nostdlib
+# LDFLAGS += -Wl,-nostartfiles
+LDFLAGS += -Wl,--gc-sections
+LDFLAGS += -Wl,-Os
 LDFLAGS += -Wl,-Map=$(TARGET_MAP) -Wl,--cref
 
 LINKER_SCRIPT := hal/lpc812.ld

@@ -1,5 +1,6 @@
 #include <LPC8xx.h>
 
+
 // The entropy variable is a true random number generated from the random RAM
 // contents after power-up.
 uint32_t entropy;
@@ -23,7 +24,7 @@ extern void _stacktop(void);
 #define ALIAS(f) __attribute__ ((weak, alias (#f)))
 void Reset_handler(void);
 void NMI_handler(void) ALIAS(default_irq_handler);
-void HardFault_handler(void) ALIAS(default_irq_handler);
+// void HardFault_handler(void) ALIAS(default_irq_handler);
 void SVCall_handler(void) ALIAS(default_irq_handler);
 void PendSV_handler(void) ALIAS(default_irq_handler);
 void SysTick_handler(void) ALIAS(default_irq_handler);
@@ -50,6 +51,12 @@ void PININT7_irq_handler(void) ALIAS(default_irq_handler);
 
 extern int main(void);
 
+extern void uart0_send_cstring(const char *);
+static void HardFault_handler(void)
+{
+    uart0_send_cstring("HARD\n");
+    while (1);
+}
 
 // ****************************************************************************
 // Interrupt vectors
@@ -109,7 +116,7 @@ void (* const vectors[])(void) = {
 
 static void default_irq_handler(void)
 {
-    while(1);
+    while (1);
 }
 
 
@@ -126,17 +133,18 @@ void Reset_handler(void)
     uint32_t temp_entropy;
 
     // Calculate the entropy random value from the RAM contents after reset
+    // Only process RAM locations unitl we reach the stack.
     temp_entropy = 0x0817;  // Just an arbitrary initialization value
     source = &_ram;
-    end = &_eram;
+    end = (unsigned int *)__get_MSP();
     while (source < end) {
         temp_entropy ^= *(source++);
     }
 
 #ifndef NODEBUG
-    // Place stack canaries into RAM
-    destination = (unsigned int *)(0x10000000);
-    end = (unsigned int *)(0x10001000);
+    // Place stack canaries into RAM, but only up to the current stack pointer
+    destination = &_ram;
+    end = (unsigned int *)__get_MSP();
     while (destination < end) {
         *(destination++) = 0xcafebabe;
     }
@@ -164,4 +172,5 @@ void Reset_handler(void)
     main();
     while (1);  // Hang if main() returns
 }
+
 

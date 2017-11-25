@@ -112,7 +112,9 @@ static void check_no_signal(void)
 // ****************************************************************************
 int main(void)
 {
-    bool is_servo_reader = (config.mode == MASTER_WITH_SERVO_READER);
+    bool is_servo_reader;
+
+    is_servo_reader = (config.mode == MASTER_WITH_SERVO_READER);
 
     global_flags.servo_output_enabled =
         config.flags.steering_wheel_servo_output ||
@@ -126,7 +128,7 @@ int main(void)
             config.flags.winch_output) {
         global_flags.diagnostics_enabled = false;
     }
-    if (config.mode == MASTER_WITH_SERVO_READER) {
+    if (is_servo_reader) {
         if (config.flags.steering_wheel_servo_output ||
                 config.flags.gearbox_servo_output) {
             global_flags.diagnostics_enabled = false;
@@ -148,6 +150,18 @@ int main(void)
     }
 
     while (1) {
+#ifndef NODEBUG
+    if (global_flags.diagnostics_enabled) {
+        uint32_t *now;
+
+        now = hal_stack_check();
+        if (now) {
+            uart0_send_cstring("Stack down to 0x");
+            uart0_send_uint32_hex((uint32_t)now);
+            uart0_send_linefeed();
+        }
+    }
+#endif
         service_systick();
 
         read_all_servo_channels();
@@ -183,15 +197,6 @@ int main(void)
             }
         }
 
-#ifndef NODEBUG
-    if (global_flags.diagnostics_enabled) {
-        uint32_t *now = hal_stack_check();
-        if (now) {
-            uart0_send_cstring("Stack down to 0x");
-            uart0_send_uint32_hex((uint32_t)now);
-            uart0_send_linefeed();
-        }
-    }
-#endif
+
     }
 }

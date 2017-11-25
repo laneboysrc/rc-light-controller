@@ -12,6 +12,9 @@ void SysTick_handler(void);
 // FIXME: make this disappear
 extern volatile uint32_t systick_count;
 
+// These are all defined by the linker via the lpc81x.ld linker script.
+extern unsigned int _stacktop;
+
 
 void hal_hardware_init(bool is_servo_reader, bool has_servo_output)
 {
@@ -122,25 +125,28 @@ void SysTick_handler(void)
     }
 }
 
-
+// #include <uart.h>
 // ****************************************************************************
 uint32_t *hal_stack_check(void)
 {
     #define CANARY 0xcafebabe
 
-    static uint32_t *last_found = (uint32_t *)(0x10001000 - 48);
+    static uint32_t *last_found = (uint32_t *)(&_stacktop);
     uint32_t *now;
 
-    if (last_found == (uint32_t *)0x10000000) {
-        return NULL;
+    now = last_found;
+
+    // for (int i = 0; i < 60; i++) {
+    //     uart0_send_uint32_hex(*now--);
+    //     uart0_send_linefeed();
+    // }
+    // uart0_send_linefeed();
+
+    while (*now != CANARY  &&  now > (uint32_t *)0x10000000) {
+        --now;
     }
 
-    now = last_found;
-    // while (*now != CANARY && now > (uint32_t *)0x10000000) {
-    //     --now;
-    // }
-
-    if (now != last_found) {
+    if (now < last_found) {
         last_found = now;
         return now;
     }
