@@ -49,44 +49,21 @@ CHANNEL_T channel[3] = {
     }
 };
 
-volatile uint32_t systick_count;
-
-
-// ****************************************************************************
-// FIXME: this needs to be renamed
-static void init_hardware(void)
-{
-    // Wait for 100ms to have the supply settle down before initializing the
-    // rest of the system. This is especially important for the TLC5940,
-    // which misbehaves (certain LEDs don't work) when being addressed before
-    // power is stable.
-    while (systick_count <  (100 / __SYSTICK_IN_MS));
-    systick_count = 0;
-}
+static uint32_t next_tick;
 
 
 // ****************************************************************************
 static void service_systick(void)
 {
+    uint32_t now = milliseconds;
+
     ++entropy;
 
-    if (!systick_count) {
-        global_flags.systick = 0;
-        return;
+    global_flags.systick = 0;
+    if (now > next_tick) {
+        next_tick += __SYSTICK_IN_MS;
+        global_flags.systick = 1;
     }
-
-    global_flags.systick = 1;
-    --systick_count;
-
-    // // Disable the SysTick interrupt. Use memory barriers to ensure that no
-    // // interrupt is pending in the pipeline.
-    // // More info:
-    // // http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.dai0321a/BIHHFHJD.html
-    // SysTick->CTRL &= ~(1 << 1);
-    // __DSB();
-    // __ISB();
-    // --systick_count;
-    // SysTick->CTRL |= (1 << 1);      // Re-enable the system tick interrupt
 }
 
 
@@ -136,15 +113,22 @@ int main(void)
     }
 
     hal_hardware_init(is_servo_reader, global_flags.servo_output_enabled);
-    init_hardware();
     load_persistent_storage();
     uart_init();
     init_servo_reader();
     init_uart_reader();
     init_servo_output();
+
+    // Wait for 100ms to have the supply settle down before initializing the
+    // rest of the system. This is especially important for the TLC5940,
+    // which misbehaves (certain LEDs don't work) when being addressed before
+    // power is stable.
+    while (milliseconds <  100);
+
     init_lights();
     hal_hardware_init_final();
 
+    next_tick = milliseconds + __SYSTICK_IN_MS;
     if (global_flags.diagnostics_enabled) {
         uart0_send_cstring("Light controller initialized\n");
     }

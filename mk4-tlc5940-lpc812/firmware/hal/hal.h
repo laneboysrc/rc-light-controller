@@ -10,6 +10,7 @@
 
 
 extern uint32_t entropy;
+extern volatile uint32_t milliseconds;
 
 
 void hal_hardware_init(bool is_servo_reader, bool has_servo_output);

@@ -9,13 +9,13 @@
 void SysTick_handler(void);
 
 
-// FIXME: make this disappear
-extern volatile uint32_t systick_count;
+volatile uint32_t milliseconds;
 
 // These are all defined by the linker via the lpc81x.ld linker script.
 extern unsigned int _stacktop;
 
 
+// ****************************************************************************
 void hal_hardware_init(bool is_servo_reader, bool has_servo_output)
 {
 #if __SYSTEM_CLOCK != 12000000
@@ -98,15 +98,9 @@ void hal_hardware_init(bool is_servo_reader, bool has_servo_output)
 
 
     // ------------------------
-    // SysTick configuration
-    SysTick->LOAD = __SYSTEM_CLOCK * __SYSTICK_IN_MS / 1000;
-    SysTick->VAL = __SYSTEM_CLOCK * __SYSTICK_IN_MS / 1000;
-    SysTick->CTRL = (1 << 0) |              // Enable System Tick counter
-                    (1 << 1) |              // System Tick interrupt enable
-                    (1 << 2);               // Use system clock
-
+    // SysTick configuration 1000 Hz / 1 ms
+    SysTick_Config((__SYSTEM_CLOCK / 1000)- 1);
 }
-
 
 
 // ****************************************************************************
@@ -116,14 +110,6 @@ void hal_hardware_init_final(void)
     LPC_SYSCON->SYSAHBCLKCTRL &= ~((1 << 18) | (1 << 7));
 }
 
-
-// ****************************************************************************
-void SysTick_handler(void)
-{
-    if (SysTick->CTRL & (1 << 16)) {       // Read and clear Countflag
-        ++systick_count;
-    }
-}
 
 // #include <uart.h>
 // ****************************************************************************
@@ -151,4 +137,11 @@ uint32_t *hal_stack_check(void)
         return now;
     }
     return NULL;
+}
+
+
+// ****************************************************************************
+void SysTick_handler(void)
+{
+    ++milliseconds;
 }
