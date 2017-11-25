@@ -117,6 +117,7 @@ void read_preprocessor(void)
         return;
     }
 
+
     global_flags.new_channel_data = false;
 
     while (uart0_read_is_byte_pending()) {

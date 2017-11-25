@@ -1,4 +1,4 @@
-.DEFAULT_GOAL := all
+.DEFAULT_GOAL := program
 
 ###############################################################################
 # Configuration options for our application
@@ -31,7 +31,7 @@ GENERIC_TOOL_PATH := ../../tools/
 MKDIR_P := mkdir -p
 FLASH_TOOL := lpc81x_isp.py --wait --run --flash
 TERMINAL_PROGRAM := miniterm.py /dev/ttyUSB0 -b 115200
-PREPROCESSOR_SIMULATOR := $(GENERIC_TOOL_PATH)preprocessor-simulator.py -b 38400
+PREPROCESSOR_SIMULATOR := $(GENERIC_TOOL_PATH)preprocessor-simulator.py -b 115200
 CONFIGURATION_VALIDATION_TOOL := $(TOOL_PATH)validate_image_file.py
 LIGHT_PROGRAM_ASSEMBLER_PATH := $(TOOL_PATH)configurator/assembler
 DEFAULT_FIRMWARE_IMAGE_JS := $(TOOL_PATH)configurator/src/default_firmware_image.js

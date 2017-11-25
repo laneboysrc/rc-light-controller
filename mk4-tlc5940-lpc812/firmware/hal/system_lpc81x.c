@@ -136,9 +136,9 @@ uint32_t *hal_stack_check(void)
     }
 
     now = last_found;
-    while (*now != CANARY && now > (uint32_t *)0x10000000) {
-        --now;
-    }
+    // while (*now != CANARY && now > (uint32_t *)0x10000000) {
+    //     --now;
+    // }
 
     if (now != last_found) {
         last_found = now;
