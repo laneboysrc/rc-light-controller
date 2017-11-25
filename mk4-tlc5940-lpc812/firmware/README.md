@@ -18,3 +18,8 @@ Note: most users will not need to build the firmware as it can be fully configur
 Running ``make`` in a console window in this directory builds the firmware. The resulting *firmware.bin* and *firmware.hex* are located in the build directory.
 
 Running ``make program`` flashes the firmware, assuming you are using the [LCP81x-ISP](https://github.com/laneboysrc/LPC81x-ISP-tool) tool.
+
+
+Files in the firmware root directory are source code that is processor hardware independent. The *hal/* folder contains processor-specific light controller functionality such as MCU initialization, GPIO, SPI, UART etc.
+*LPC8xx/* contains header files provided by NXP for the LPC812 MCU. *light_programs/* contains example light programs you can use for reference.
+Output files of the build process are placed in the *build/* folder.
