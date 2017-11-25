@@ -5,7 +5,12 @@
 
 #include <LPC8xx.h>
 
+
+#define HAL_NUMBER_OF_PERSISTENT_ELEMENTS 16
+
+
 extern uint32_t entropy;
+
 
 void hal_hardware_init(bool is_servo_reader, bool has_servo_output);
 void hal_hardware_init_final(void);
@@ -19,12 +24,9 @@ bool hal_uart_send_is_ready(void);
 void hal_uart_send_char(const char c);
 void hal_uart_send_uint8(const uint8_t c);
 
-void UART0_irq_handler(void);
-
 void hal_spi_init(void);
 void hal_spi_transaction(uint8_t *data, uint8_t count);
 
-#define HAL_NUMBER_OF_PERSISTENT_ELEMENTS 16
 volatile const uint32_t *hal_persistent_storage_read(void);
 const char *hal_persistent_storage_write(const uint32_t *new_data);
 
@@ -73,8 +75,6 @@ bool hal_servo_reader_get_new_channels(uint32_t *raw_data);
 #define GPIO_IOCON_ST LPC_IOCON->PIO0_0
 #define GPIO_IOCON_TH LPC_IOCON->PIO0_4
 #define GPIO_IOCON_CH3 LPC_IOCON->PIO0_13
-
-
 
 #define DECLARE_GPIO(name, bit)                                             \
                                                                             \

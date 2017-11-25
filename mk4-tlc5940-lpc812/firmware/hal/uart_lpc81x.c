@@ -87,6 +87,9 @@ Again we have to round by adding BAUDRATE * 16 / 2 to the nominator:
 #define RECEIVE_BUFFER_INDEX_MASK (RECEIVE_BUFFER_SIZE - 1)
 
 
+void UART0_irq_handler(void);
+
+
 static uint8_t receive_buffer[RECEIVE_BUFFER_SIZE];
 static volatile uint16_t read_index = 0;
 static volatile uint16_t write_index = 0;

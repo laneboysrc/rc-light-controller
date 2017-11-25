@@ -4,84 +4,24 @@
 // contents after power-up.
 uint32_t entropy;
 
-extern int main(void);
-void Reset_handler(void);
-
-// ****************************************************************************
-// Simple gcc-compatible C runtime initialization
-//
-// This works in conjunction with lpc81x.ld
-// ****************************************************************************
 
 // These are all defined by the linker via the lpc81x.ld linker script.
-extern const unsigned int _text;
-extern const unsigned int _etext;
-extern const unsigned int _data;
-extern const unsigned int _edata;
-extern const unsigned int _bss;
-extern const unsigned int _ebss;
-extern const unsigned int _ram;
-extern const unsigned int _eram;
-
-void Reset_handler(void)
-{
-    unsigned int *source;
-    unsigned int *destination;
-    unsigned int *end;
-    uint32_t temp_entropy;
-
-    // Calculate the entropy random value from the RAM contents after reset
-    temp_entropy = 0x0817;  // Just an arbitrary initialization value
-    source = (unsigned int *)(&_ram);
-    while (source < (unsigned int *)(&_eram)) {
-        temp_entropy ^= *source;
-        ++source;
-    }
-
-#ifndef NODEBUG
-    // Place stack canaries into RAM
-    destination = (unsigned int *)(0x10000000);
-    end = (unsigned int *)(0x10001000);
-    while (destination < end) {
-        *(destination++) = 0xcafebabe;
-    }
-#endif
-
-    // Copy initialization values from Flash to RAM
-    source = (unsigned int *)(&_etext);
-    destination = (unsigned int *)(&_data);
-    end = (unsigned int *)(&_edata);
-    while (destination < end) {
-        *(destination++) = *(source++);
-    }
-
-    // Zero out uninitialized RAM
-    destination = (unsigned int *)(&_bss);
-    end = (unsigned int *)(&_ebss);
-    while (destination < end) {
-        *(destination++) = 0;
-    }
-
-    // Copy the calculated random value into the final destination RAM
-    // (which we just erased above ...)
-    entropy = temp_entropy;
-
-    main();
-    while (1);  // Hang if main() returns
-}
-
-
-// ****************************************************************************
-// Interrupt vectors
-typedef void (*irq_handler)(void);
-
-// This symbol is defined by the linker in the lpc81x.ld script
+extern unsigned int _text;
+extern unsigned int _etext;
+extern unsigned int _data;
+extern unsigned int _edata;
+extern unsigned int _bss;
+extern unsigned int _ebss;
+extern unsigned int _ram;
+extern unsigned int _eram;
 extern void _stacktop(void);
+
 
 // Forward declaration of the exception handlers.
 // When the application defines a handler with the same name it will
 // take precedence over these "weak" definitions
 #define ALIAS(f) __attribute__ ((weak, alias (#f)))
+void Reset_handler(void);
 void NMI_handler(void) ALIAS(default_irq_handler);
 void HardFault_handler(void) ALIAS(default_irq_handler);
 void SVCall_handler(void) ALIAS(default_irq_handler);
@@ -108,12 +48,17 @@ void PININT5_irq_handler(void) ALIAS(default_irq_handler);
 void PININT6_irq_handler(void) ALIAS(default_irq_handler);
 void PININT7_irq_handler(void) ALIAS(default_irq_handler);
 
+extern int main(void);
+
+
+// ****************************************************************************
+// Interrupt vectors
 __attribute__ ((section(".isr_vectors")))
-irq_handler vectors[48] = {
+void (* const vectors[])(void) = {
     &_stacktop,             // The initial stack pointer
     Reset_handler,          // Reset handler
     NMI_handler,            // NMI handler
-    HardFault_handler,	    // Hard fault handler
+    HardFault_handler,      // Hard fault handler
     0,                      // Reserved
     0,                      // Reserved
     0,                      // Reserved
@@ -162,8 +107,61 @@ irq_handler vectors[48] = {
     PININT7_irq_handler,    // PIO INT7
 };
 
-// __attribute__ ((section(".after_vectors")))
 static void default_irq_handler(void)
 {
     while(1);
 }
+
+
+// ****************************************************************************
+// Simple gcc-compatible C runtime initialization
+//
+// This works in conjunction with lpc81x.ld
+// ****************************************************************************
+void Reset_handler(void)
+{
+    unsigned int *source;
+    unsigned int *destination;
+    unsigned int *end;
+    uint32_t temp_entropy;
+
+    // Calculate the entropy random value from the RAM contents after reset
+    temp_entropy = 0x0817;  // Just an arbitrary initialization value
+    source = &_ram;
+    end = &_eram;
+    while (source < end) {
+        temp_entropy ^= *(source++);
+    }
+
+#ifndef NODEBUG
+    // Place stack canaries into RAM
+    destination = (unsigned int *)(0x10000000);
+    end = (unsigned int *)(0x10001000);
+    while (destination < end) {
+        *(destination++) = 0xcafebabe;
+    }
+#endif
+
+    // Copy initialization values from Flash to RAM
+    source = &_etext;
+    destination = &_data;
+    end = &_edata;
+    while (destination < end) {
+        *(destination++) = *(source++);
+    }
+
+    // Zero out uninitialized RAM
+    destination = &_bss;
+    end = &_ebss;
+    while (destination < end) {
+        *(destination++) = 0;
+    }
+
+    // Copy the calculated random value into the final destination RAM
+    // (which we just erased above ...)
+    entropy = temp_entropy;
+
+    main();
+    while (1);  // Hang if main() returns
+}
+
