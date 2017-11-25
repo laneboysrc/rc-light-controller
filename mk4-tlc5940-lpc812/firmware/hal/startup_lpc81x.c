@@ -5,6 +5,7 @@
 uint32_t entropy;
 
 extern int main(void);
+void Reset_handler(void);
 
 // ****************************************************************************
 // Simple gcc-compatible C runtime initialization
@@ -13,16 +14,16 @@ extern int main(void);
 // ****************************************************************************
 
 // These are all defined by the linker via the lpc81x.ld linker script.
-extern unsigned int _text;
-extern unsigned int _etext;
-extern unsigned int _data;
-extern unsigned int _edata;
-extern unsigned int _bss;
-extern unsigned int _ebss;
+extern const unsigned int _text;
+extern const unsigned int _etext;
+extern const unsigned int _data;
+extern const unsigned int _edata;
+extern const unsigned int _bss;
+extern const unsigned int _ebss;
 extern const unsigned int _ram;
 extern const unsigned int _eram;
 
-static inline void crt0(void)
+void Reset_handler(void)
 {
     unsigned int *source;
     unsigned int *destination;
@@ -107,10 +108,10 @@ void PININT5_irq_handler(void) ALIAS(default_irq_handler);
 void PININT6_irq_handler(void) ALIAS(default_irq_handler);
 void PININT7_irq_handler(void) ALIAS(default_irq_handler);
 
-__attribute__ ((section(".isr_vector")))
+__attribute__ ((section(".isr_vectors")))
 irq_handler vectors[48] = {
     &_stacktop,             // The initial stack pointer
-    crt0,                   // Reset handler
+    Reset_handler,          // Reset handler
     NMI_handler,            // NMI handler
     HardFault_handler,	    // Hard fault handler
     0,                      // Reserved
@@ -161,7 +162,7 @@ irq_handler vectors[48] = {
     PININT7_irq_handler,    // PIO INT7
 };
 
-__attribute__ ((section(".after_vectors")))
+// __attribute__ ((section(".after_vectors")))
 static void default_irq_handler(void)
 {
     while(1);

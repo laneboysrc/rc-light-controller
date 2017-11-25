@@ -306,7 +306,7 @@ static int16_t get_parameter_value(uint32_t instruction)
 
         default:
 #ifndef NODEBUG
-            if (diagnostics_enabled()) {
+            if (global_flags.diagnostics_enabled) {
                 uart0_send_cstring("UNKNOWN PARAMETER TYPE ");
                 uart0_send_uint32(type);
                 uart0_send_linefeed();
@@ -567,7 +567,7 @@ static void execute_program(
 
             default:
 #ifndef NODEBUG
-                if (diagnostics_enabled()) {
+                if (global_flags.diagnostics_enabled) {
                     uart0_send_cstring("UNKNOWN OPCODE 0x");
                     uart0_send_uint8_hex(opcode);
                     uart0_send_linefeed();

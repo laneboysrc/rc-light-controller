@@ -50,7 +50,6 @@ CHANNEL_T channel[3] = {
 };
 
 volatile uint32_t systick_count;
-static bool diagnostics_output_enabled;
 
 
 // ****************************************************************************
@@ -91,7 +90,6 @@ static void service_systick(void)
 }
 
 
-
 // ****************************************************************************
 static void check_no_signal(void)
 {
@@ -112,18 +110,6 @@ static void check_no_signal(void)
 
 
 // ****************************************************************************
-// This function returns TRUE if it is ok for the light controller to output
-// human-readable diagnostics messages on the serial port.
-// (i.e. if the UART output is not used by another function like slave output,
-// preprocessor output, or winch output)
-// ****************************************************************************
-bool diagnostics_enabled(void)
-{
-    return diagnostics_output_enabled;
-}
-
-
-// ****************************************************************************
 int main(void)
 {
     bool is_servo_reader = (config.mode == MASTER_WITH_SERVO_READER);
@@ -134,16 +120,16 @@ int main(void)
 
     global_flags.no_signal = true;
 
-    diagnostics_output_enabled = true;
+    global_flags.diagnostics_enabled = true;
     if (config.flags.slave_output ||
             config.flags.preprocessor_output ||
             config.flags.winch_output) {
-        diagnostics_output_enabled = false;
+        global_flags.diagnostics_enabled = false;
     }
     if (config.mode == MASTER_WITH_SERVO_READER) {
         if (config.flags.steering_wheel_servo_output ||
                 config.flags.gearbox_servo_output) {
-            diagnostics_output_enabled = false;
+            global_flags.diagnostics_enabled = false;
         }
     }
 
@@ -157,7 +143,7 @@ int main(void)
     init_lights();
     hal_hardware_init_final();
 
-    if (diagnostics_enabled()) {
+    if (global_flags.diagnostics_enabled) {
         uart0_send_cstring("Light controller initialized\n");
     }
 
@@ -177,7 +163,7 @@ int main(void)
         process_lights();
         output_preprocessor();
 
-        if (diagnostics_enabled()) {
+        if (global_flags.diagnostics_enabled) {
             if (global_flags.new_channel_data) {
                 static int16_t st = 999;
                 static int16_t th = 999;
@@ -198,7 +184,7 @@ int main(void)
         }
 
 #ifndef NODEBUG
-    if (diagnostics_enabled()) {
+    if (global_flags.diagnostics_enabled) {
         uint32_t *now = hal_stack_check();
         if (now) {
             uart0_send_cstring("Stack down to 0x");

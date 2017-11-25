@@ -42,7 +42,7 @@ static void process_ch3_click_timeout(void)
         return;                     // No: wait for more buttons
     }
 
-    if (diagnostics_enabled()) {
+    if (global_flags.diagnostics_enabled) {
         uart0_send_cstring("click_timeout\n");
     }
 
@@ -135,7 +135,7 @@ static void process_ch3_click_timeout(void)
 // ****************************************************************************
 static void add_click(void)
 {
-    if (diagnostics_enabled()) {
+    if (global_flags.diagnostics_enabled) {
         uart0_send_cstring("add_click\n");
     }
 

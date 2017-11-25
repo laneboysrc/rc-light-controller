@@ -494,7 +494,7 @@ static void process_car_lights(void)
 
     leds_used = process_light_programs();
 
-    if (diagnostics_enabled()) {
+    if (global_flags.diagnostics_enabled) {
         static uint8_t old_light_switch_position = 0xff;
 
         if (light_switch_position != old_light_switch_position) {

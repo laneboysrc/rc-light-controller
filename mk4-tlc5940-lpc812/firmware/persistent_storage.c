@@ -73,7 +73,7 @@ void write_persistent_storage(void)
     error_message = hal_persistent_storage_write(new_data);
 
     if (error_message) {
-        if (diagnostics_enabled()) {
+        if (global_flags.diagnostics_enabled) {
             uart0_send_cstring(error_message);
             uart0_send_linefeed();
         }

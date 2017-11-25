@@ -324,6 +324,7 @@ typedef enum {
 // ****************************************************************************
 typedef struct {
     unsigned int systick : 1;               // Set for one mainloop every 20 ms
+    unsigned int diagnostics_enabled : 1;   // Set when the UART can be used to print diagnostics
     unsigned int new_channel_data : 1;      // Set for one mainloop every time servo pulses were received
 
     unsigned int no_signal : 1;
@@ -519,8 +520,6 @@ extern SERVO_ENDPOINTS_T servo_output_endpoint;
 
 // ****************************************************************************
 // Globally accessible functions from various modules
-
-bool diagnostics_enabled(void);
 
 void load_persistent_storage(void);
 void write_persistent_storage(void);

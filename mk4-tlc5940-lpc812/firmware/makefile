@@ -30,7 +30,7 @@ GENERIC_TOOL_PATH := ../../tools/
 
 MKDIR_P := mkdir -p
 FLASH_TOOL := lpc81x_isp.py --wait --run --flash
-TERMINAL_PROGRAM := miniterm.py -p /dev/ttyUSB0 -b 115200
+TERMINAL_PROGRAM := miniterm.py /dev/ttyUSB0 -b 115200
 PREPROCESSOR_SIMULATOR := $(GENERIC_TOOL_PATH)preprocessor-simulator.py -b 38400
 CONFIGURATION_VALIDATION_TOOL := $(TOOL_PATH)validate_image_file.py
 LIGHT_PROGRAM_ASSEMBLER_PATH := $(TOOL_PATH)configurator/assembler
@@ -40,7 +40,7 @@ TEXT2JS := $(TOOL_PATH)text2js.py
 
 ###############################################################################
 # Source files    Note: all source files must be relative paths!
-SOURCES =  main.c
+SOURCES += main.c
 SOURCES += ch3_handler.c
 SOURCES += channel_reversing.c
 SOURCES += config.c
@@ -66,14 +66,14 @@ SOURCES += hal/system_lpc81x.c
 SOURCES += hal/uart_lpc81x.c
 SOURCES += hal/servo_reader_lpc81x.c
 
-INCLUDES += -I.
+INCLUDES := -I.
 INCLUDES += -I./hal
 INCLUDES += -isystem./LPC8xx
 
-DEFINES += -D__SYSTEM_CLOCK=$(SYSTEM_CLOCK)
+DEFINES := -D__SYSTEM_CLOCK=$(SYSTEM_CLOCK)
 # DEFINES += -DNODEBUG
 
-LIBS = -lc -lnosys
+LIBS :=
 
 DEPENDENCIES := makefile
 
@@ -105,7 +105,7 @@ LDFLAGS += -Wl,-T,$(LINKER_SCRIPT) -Wl,-nostdlib -Wl,--warn-common
 LDFLAGS += -Wl,--gc-sections -Wl,-Os
 LDFLAGS += -Wl,-Map=$(TARGET_MAP) -Wl,--cref
 
-LINKER_SCRIPT := light_controller.ld
+LINKER_SCRIPT := hal/lpc812.ld
 
 ###############################################################################
 # TARGET and object file setup
