@@ -41,27 +41,60 @@ void hal_servo_reader_init(bool CPPM, uint32_t max_pulse);
 bool hal_servo_reader_get_new_channels(uint32_t *raw_data);
 
 
-// ****************************************************************************
-// IO pins: (SAMD11D14 in QFN24 package)
-//
-// PIO0_0   (16, TDO, ISP-Rx)   Steering input / Rx
-// PIO0_1   (9,  TDI)           TLC5940 GSCLK
-// PIO0_2   (6,  TMS, SWDIO)    TLC5940 SCLK
-// PIO0_3   (5,  TCK, SWCLK)    TLC5940 XLAT
-// PIO0_4   (4,  TRST, ISP-Tx)  Throttle input / Tx
-// PIO0_5   (3,  RESET)         NC (test point)
-// PIO0_6   (15)                TLC5940 BLANK
-// PIO0_7   (14)                TLC5940 SIN
-// PIO0_8   (11, XTALIN)        NC
-// PIO0_9   (10, XTALOUT)       Switched light output (for driving a load via a MOSFET)
-// PIO0_10  (8,  Open drain)    NC
-// PIO0_11  (7,  Open drain)    NC
-// PIO0_12  (2,  ISP-entry)     OUT / ISP
-// PIO0_13  (1)                 CH3 input
-//
-// GND      (13)
-// 3.3V     (12)
-// ****************************************************************************
+/* ****************************************************************************
+IO pins: (STM32F042F6P56 in SSOP20 package)
+
+Pin     Name    Type    AF                                                                                      Additional functions
+------------------------------------------------------------------------------------------------------------------------------------------------
+1       PB8     I/O     I2C1_SCL, CEC, TIM16_CH1, TSC_SYNC, CAN_RX                                              BOOT0
+2       PF0     I/O     CRS_ SYNC, I2C1_SDA                                                                     OSC_IN
+3       PF1     I/O     I2C1_SCL                                                                                OSC_OUT
+4       NRST    I/O                                                                                             Reset
+5       VDDA    S                                                                                               Analog power supply
+6       PA0     I/O     USART2_CTS, TIM2_CH1_ETR, TSC_G1_IO1                                                    RTC_ TAMP2, WKUP1, ADC_IN0
+7       PA1     I/O     USART2_RTS, TIM2_CH2, TSC_G1_IO2, EVENTOUT                                              ADC_IN1
+8       PA2     I/O     USART2_TX, TIM2_CH3, TSC_G1_IO3                                                         ADC_IN2, WKUP4
+9       PA3     I/O     USART2_RX, TIM2_CH4, TSC_G1_IO4                                                         ADC_IN3
+10      PA4     I/O     SPI1_NSS, I2S1_WS, TIM14_CH1, TSC_G2_IO1, USART2_CK USB_NOE                             ADC_IN4
+11      PA5     I/O     SPI1_SCK, I2S1_CK, CEC, TIM2_CH1_ETR, TSC_G2_IO2                                        ADC_IN5
+12      PA6     I/O     SPI1_MISO, I2S1_MCK, TIM3_CH1, TIM1_BKIN, TIM16_CH1, TSC_G2_IO3, EVENTOUT               ADC_IN6
+13      PA7     I/O     SPI1_MOSI, I2S1_SD, TIM3_CH2, TIM14_CH1, TIM1_CH1N, TIM17_CH1, TSC_G2_IO4, EVENTOUT     ADC_IN7
+14      PB1     I/O     TIM3_CH4, TIM14_CH1, TIM1_CH3N, TSC_G3_IO3                                              ADC_IN9
+15      VSS     S                                                                                               Ground
+16      VDD     S                                                                                               Digital power supply
+17      PA9     I/O     USART1_TX, TIM1_CH2, TSC_G4_IO1, I2C1_SCL
+17*     PA11    I/O     CAN_RX, USART1_CTS, TIM1_CH4, TSC_G4_IO3, EVENTOUT, I2C1_SCL                            USB_DM
+18      PA10    I/O     USART1_RX, TIM1_CH3, TIM17_BKIN, TSC_G4_IO2, I2C1_SDA
+18*     PA12    I/O     CAN_TX,USART1_RTS, TIM1_ETR, TSC_G4_IO4, EVENTOUT, I2C1_SDA                             USB_DP
+19      PA13    I/O     IR_OUT, SWDIO USB_NOE
+20      PA14    I/O     USART2_TX, SWCLK
+
+
+Fixed pins:
+PB8  ( 1): BOOT0
+PA11 (17): USB_DM  (PA9/USART1_TX  on discovery board)
+PA12 (18): USB_DP  (PA10/USART1_RX on discovery board)
+PA13 (19): SWDIO
+PA14 (20): SWCLK
+PA5  (11): SPI1_SCK
+PA7  (13): SPI1_MOSI
+PA2  (08): USART2_TX  -> OUT/Tx (TIM2_CH3 for output servo pulse?)
+PA3  (09): USART2_RX  -> ST/Rx (TIM2_CH4 for servo reader?)
+
+
+Free to move pins:
+BLANK
+XLAT
+GSCLK
+Switched light output
+CH3/Button input (TIM2_CH1 or TIM2_CH2 for servo reader?)
+TH: (TIM2_CH1 or TIM2_CH2 for servo reader?)
+
+
+****************************************************************************/
+
+
+
 
 #define GPIO_BIT_ST 0
 #define GPIO_BIT_TH 4
