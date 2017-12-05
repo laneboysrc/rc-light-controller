@@ -70,7 +70,7 @@ bool hal_servo_reader_get_new_channels(uint32_t *raw_data);
 #define GPIO_BIT_TH 4
 #define GPIO_BIT_CH3 13
 #define GPIO_BIT_OUT 12
-#define GPIO_BIT_SWITCHED_LIGHT_OUTPUT 9
+#define GPIO_BIT_SWITCHED_LIGHT_OUTPUT 19
 #define GPIO_BIT_SCK 2
 #define GPIO_BIT_SIN 7
 #define GPIO_BIT_XLAT 3
@@ -137,9 +137,11 @@ bool hal_servo_reader_get_new_channels(uint32_t *raw_data);
         }                                                                   \
     }
 
+// NOTE: hal_gpio_XXX_pmuxen is specific to the ATSAMD21 processor
+
+
 DECLARE_GPIO(gsclk, GPIO_PORTA, GPIO_BIT_GSCLK)
 DECLARE_GPIO(blank, GPIO_PORTA, GPIO_BIT_BLANK)
 DECLARE_GPIO(ch3, GPIO_PORTA, GPIO_BIT_CH3)
 DECLARE_GPIO(switched_light_output, GPIO_PORTA, GPIO_BIT_SWITCHED_LIGHT_OUTPUT)
 
-DECLARE_GPIO(led0, GPIO_PORTA, 19)

@@ -21,8 +21,8 @@ DECLARE_GPIO(UART_TXD, GPIO_PORTA, 4)
 DECLARE_GPIO(UART_RXD, GPIO_PORTA, 5)
 
 DECLARE_GPIO(SCLK, GPIO_PORTA, 16)
-DECLARE_GPIO(SIN, GPIO_PORTA, 16)
-DECLARE_GPIO(XLAT, GPIO_PORTA, 16)
+DECLARE_GPIO(SIN, GPIO_PORTA, 17)
+DECLARE_GPIO(XLAT, GPIO_PORTA, 18)
 
 #define UART_SERCOM SERCOM0
 #define UART_SERCOM_GCLK_ID SERCOM0_GCLK_ID_CORE
@@ -59,9 +59,6 @@ void hal_hardware_init(bool is_servo_reader, bool has_servo_output)
 
     // Switch to 8MHz clock (disable prescaler)
     SYSCTRL->OSC8M.bit.PRESC = 0;
-
-    hal_gpio_led0_out();
-    hal_gpio_led0_set();
 
     SysTick_Config((__SYSTEM_CLOCK / 1000) - 1);
 
@@ -198,6 +195,7 @@ void hal_uart_send_uint8(const uint8_t c)
 // ****************************************************************************
 void hal_spi_init(void)
 {
+    // FIXME: choose appropriate baudrate
     int baud = 100;
 
     hal_gpio_SIN_out();
@@ -219,6 +217,7 @@ void hal_spi_init(void)
     SPI_SERCOM->SPI.CTRLA.reg = SERCOM_SPI_CTRLA_SWRST;
     while (SPI_SERCOM->SPI.CTRLA.reg & SERCOM_SPI_CTRLA_SWRST);
 
+    // FIXME: can we disable receiving?
     SPI_SERCOM->SPI.CTRLB.reg = SERCOM_SPI_CTRLB_RXEN;
 
     SPI_SERCOM->SPI.BAUD.reg = baud;
@@ -234,8 +233,6 @@ void hal_spi_init(void)
 // ****************************************************************************
 void hal_spi_transaction(uint8_t *data, uint8_t count)
 {
-    hal_gpio_led0_clear();
-
     hal_gpio_XLAT_set();
 
     for (int i = 0; i < count; i++) {
