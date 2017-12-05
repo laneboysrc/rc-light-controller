@@ -28,7 +28,7 @@ TOOL_PATH := ../../mk4-tlc5940-lpc812/tools/
 GENERIC_TOOL_PATH := ../../tools/
 
 MKDIR_P := mkdir -p
-FLASH_TOOL := lpc81x_isp.py --wait --run --flash
+FLASH_TOOL := openocd
 TERMINAL_PROGRAM := miniterm.py /dev/ttyUSB0 -b 115200
 PREPROCESSOR_SIMULATOR := $(GENERIC_TOOL_PATH)preprocessor-simulator.py -b 38400
 CONFIGURATION_VALIDATION_TOOL := $(TOOL_PATH)validate_image_file.py
@@ -59,21 +59,16 @@ SOURCES += $(SOURCE_PATH)/uart.c
 SOURCES += $(SOURCE_PATH)/uart_reader.c
 SOURCES += $(SOURCE_PATH)/utils.c
 SOURCES += $(SOURCE_PATH)/winch.c
-# SOURCES += hal/persistent_storage_lpc81x.c
-# SOURCES += hal/servo_output_lpc81x.c
-# SOURCES += hal/spi_lpc81x.c
 SOURCES += hal/hal.c
 SOURCES += hal/startup_samd21.c
-# SOURCES += hal/system_lpc81x.c
-# SOURCES += hal/uart_lpc81x.c
-# SOURCES += hal/servo_reader_lpc81x.c
 
 INCLUDES += -I.
 INCLUDES += -I$(SOURCE_PATH)
 INCLUDES += -I./hal
-# INCLUDES += -isystem./LPC8xx
+INCLUDES += -isystem./hal/samd21
 
-# DEFINES += -D__SYSTEM_CLOCK=$(SYSTEM_CLOCK)
+DEFINES += -D__SAMD21E15A__
+DEFINES += -DDONT_USE_CMSIS_INIT
 # DEFINES += -DNODEBUG
 
 LIBS +=
@@ -172,8 +167,8 @@ default_firmware_image: $(TARGET_HEX)
 list: $(BUILD_DIR) $(OBJECTS:.o=.lst)
 
 # Invoke the tool to program the microcontroller
-program: $(TARGET_BIN)
-	$(QUIET )$(FLASH_TOOL) $<
+program: $(TARGET_ELF)
+	$(QUIET )$(FLASH_TOOL) -f board/atmel_samr21_xplained_pro.cfg -c "init; reset halt ; flash write_image erase $< ; reset ; shutdown"
 
 # Invoke a tool for UART communication
 terminal:

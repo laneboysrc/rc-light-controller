@@ -3,7 +3,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-
+#include <samd21.h>
 
 
 #define HAL_NUMBER_OF_PERSISTENT_ELEMENTS 16
