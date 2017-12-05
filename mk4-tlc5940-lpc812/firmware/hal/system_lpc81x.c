@@ -4,15 +4,36 @@
 #include <LPC8xx.h>
 #include <hal.h>
 
+#include <uart.h>
+
+
 #define __SYSTICK_IN_MS 20
 
 void SysTick_handler(void);
+void HardFault_handler(void);
 
 
 volatile uint32_t milliseconds;
 
 // These are all defined by the linker via the lpc81x.ld linker script.
+extern unsigned int _ram;
 extern unsigned int _stacktop;
+
+
+
+// ****************************************************************************
+void SysTick_handler(void)
+{
+    ++milliseconds;
+}
+
+
+// ****************************************************************************
+void HardFault_handler(void)
+{
+    uart0_send_cstring("HARD\n");
+    while (1);
+}
 
 
 // ****************************************************************************
@@ -110,15 +131,18 @@ void hal_hardware_init_final(void)
     LPC_SYSCON->SYSAHBCLKCTRL &= ~((1 << 18) | (1 << 7));
 }
 
-
-// #include <uart.h>
 // ****************************************************************************
 uint32_t *hal_stack_check(void)
 {
     #define CANARY 0xcafebabe
 
-    static uint32_t *last_found = (uint32_t *)(&_stacktop);
+
+    static uint32_t *last_found;
     uint32_t *now;
+
+    if (last_found == NULL) {
+        last_found = (uint32_t *)&_stacktop;
+    }
 
     now = last_found;
 
@@ -128,7 +152,7 @@ uint32_t *hal_stack_check(void)
     // }
     // uart0_send_linefeed();
 
-    while (*now != CANARY  &&  now > (uint32_t *)0x10000000) {
+    while (*now != CANARY  &&  now > (uint32_t *)&_ram) {
         --now;
     }
 
@@ -137,11 +161,4 @@ uint32_t *hal_stack_check(void)
         return now;
     }
     return NULL;
-}
-
-
-// ****************************************************************************
-void SysTick_handler(void)
-{
-    ++milliseconds;
 }

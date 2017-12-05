@@ -24,7 +24,7 @@ extern void _stacktop(void);
 #define ALIAS(f) __attribute__ ((weak, alias (#f)))
 void Reset_handler(void);
 void NMI_handler(void) ALIAS(default_irq_handler);
-// void HardFault_handler(void) ALIAS(default_irq_handler);
+void HardFault_handler(void) ALIAS(default_irq_handler);
 void SVCall_handler(void) ALIAS(default_irq_handler);
 void PendSV_handler(void) ALIAS(default_irq_handler);
 void SysTick_handler(void) ALIAS(default_irq_handler);
@@ -51,12 +51,6 @@ void PININT7_irq_handler(void) ALIAS(default_irq_handler);
 
 extern int main(void);
 
-extern void uart0_send_cstring(const char *);
-static void HardFault_handler(void)
-{
-    uart0_send_cstring("HARD\n");
-    while (1);
-}
 
 // ****************************************************************************
 // Interrupt vectors
