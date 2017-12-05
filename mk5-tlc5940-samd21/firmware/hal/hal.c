@@ -1,5 +1,7 @@
 #include <hal.h>
 
+volatile uint32_t milliseconds;
+
 void hal_hardware_init(bool is_servo_reader, bool has_servo_output)
 {
     (void) is_servo_reader;

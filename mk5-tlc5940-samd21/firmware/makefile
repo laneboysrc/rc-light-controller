@@ -63,27 +63,27 @@ SOURCES += $(SOURCE_PATH)/winch.c
 # SOURCES += hal/servo_output_lpc81x.c
 # SOURCES += hal/spi_lpc81x.c
 SOURCES += hal/hal.c
-SOURCES += hal/startup_samd11.c
+SOURCES += hal/startup_samd21.c
 # SOURCES += hal/system_lpc81x.c
 # SOURCES += hal/uart_lpc81x.c
 # SOURCES += hal/servo_reader_lpc81x.c
 
-INCLUDES := -I.
+INCLUDES += -I.
 INCLUDES += -I$(SOURCE_PATH)
 INCLUDES += -I./hal
 # INCLUDES += -isystem./LPC8xx
 
-DEFINES := -D__SYSTEM_CLOCK=$(SYSTEM_CLOCK)
+# DEFINES += -D__SYSTEM_CLOCK=$(SYSTEM_CLOCK)
 # DEFINES += -DNODEBUG
 
-LIBS :=
+LIBS +=
 
-DEPENDENCIES := makefile
+DEPENDENCIES += makefile
 
 
 ###############################################################################
 # Compiler and linker flags
-CPU_FLAGS = -mthumb -mcpu=cortex-m0plus -mlittle-endian
+CPU_FLAGS = -mthumb -mcpu=cortex-m0plus
 
 CFLAGS = $(CPU_FLAGS)
 CFLAGS += -std=c99
@@ -108,7 +108,7 @@ LDFLAGS += -Wl,-T,$(LINKER_SCRIPT) -Wl,-nostdlib -Wl,--warn-common
 LDFLAGS += -Wl,--gc-sections -Wl,-Os
 LDFLAGS += -Wl,-Map=$(TARGET_MAP) -Wl,--cref
 
-LINKER_SCRIPT := hal/samd11d14.ld
+LINKER_SCRIPT := hal/samd21e15.ld
 
 
 ###############################################################################

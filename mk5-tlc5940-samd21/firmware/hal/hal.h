@@ -4,10 +4,13 @@
 #include <stdbool.h>
 
 
+
+
 #define HAL_NUMBER_OF_PERSISTENT_ELEMENTS 16
 
 
 extern uint32_t entropy;
+extern volatile uint32_t milliseconds;
 
 
 void hal_hardware_init(bool is_servo_reader, bool has_servo_output);
@@ -38,7 +41,11 @@ bool hal_servo_reader_get_new_channels(uint32_t *raw_data);
 
 
 // ****************************************************************************
-// IO pins: (SAMD11D14 in QFN24 package)
+// IO pins: (SAMD21E15 in QFN32 package)
+//
+// FIXME!!!!!!!!!!!!!!!!
+// FIXME!!!!!!!!!!!!!!!!
+// FIXME!!!!!!!!!!!!!!!!
 //
 // PIO0_0   (16, TDO, ISP-Rx)   Steering input / Rx
 // PIO0_1   (9,  TDI)           TLC5940 GSCLK

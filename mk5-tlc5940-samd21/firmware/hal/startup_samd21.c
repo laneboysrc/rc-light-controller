@@ -41,13 +41,22 @@ void EVSYS_irq_handler(void) ALIAS(default_irq_handler);
 void SERCOM0_irq_handler(void) ALIAS(default_irq_handler);
 void SERCOM1_irq_handler(void) ALIAS(default_irq_handler);
 void SERCOM2_irq_handler(void) ALIAS(default_irq_handler);
+void SERCOM3_irq_handler(void) ALIAS(default_irq_handler);
+void SERCOM4_irq_handler(void) ALIAS(default_irq_handler);
+void SERCOM5_irq_handler(void) ALIAS(default_irq_handler);
 void TCC0_irq_handler(void) ALIAS(default_irq_handler);
-void TC1_irq_handler(void) ALIAS(default_irq_handler);
-void TC2_irq_handler(void) ALIAS(default_irq_handler);
+void TCC1_irq_handler(void) ALIAS(default_irq_handler);
+void TCC2_irq_handler(void) ALIAS(default_irq_handler);
+void TC3_irq_handler(void) ALIAS(default_irq_handler);
+void TC4_irq_handler(void) ALIAS(default_irq_handler);
+void TC5_irq_handler(void) ALIAS(default_irq_handler);
+void TC6_irq_handler(void) ALIAS(default_irq_handler);
+void TC7_irq_handler(void) ALIAS(default_irq_handler);
 void ADC_irq_handler(void) ALIAS(default_irq_handler);
 void AC_irq_handler(void) ALIAS(default_irq_handler);
 void DAC_irq_handler(void) ALIAS(default_irq_handler);
 void PTC_irq_handler(void) ALIAS(default_irq_handler);
+void I2S_irq_handler(void) ALIAS(default_irq_handler);
 
 extern int main(void);
 
@@ -56,8 +65,9 @@ extern int main(void);
 __attribute__ ((used, section(".isr_vectors")))
 void (* const vectors[])(void) =
 {
-  // Cortex-M0+ handlers
     &_stacktop,             // The initial stack pointer
+
+    // Cortex-M0+ handlers
     Reset_handler,          // Reset handler
     NMI_handler,            // NMI handler
     HardFault_handler,      // Hard fault handler
@@ -74,7 +84,7 @@ void (* const vectors[])(void) =
     PendSV_handler,         // PendSV handler
     SysTick_handler,        // SysTick handler
 
-    // SAMD11 peripheral handlers
+    // SAMD21 peripheral handlers
     PM_irq_handler,         // Power Manager
     SYSCTRL_irq_handler,    // System Controller
     WTD_irq_handler,        // Watchdog Timer
@@ -87,13 +97,22 @@ void (* const vectors[])(void) =
     SERCOM0_irq_handler,    // Serial Communication Interface 0
     SERCOM1_irq_handler,    // Serial Communication Interface 1
     SERCOM2_irq_handler,    // Serial Communication Interface 2
+    SERCOM3_irq_handler,    // Serial Communication Interface 3
+    SERCOM4_irq_handler,    // Serial Communication Interface 4
+    SERCOM5_irq_handler,    // Serial Communication Interface 5
     TCC0_irq_handler,       // Timer/Counter for Control 0
-    TC1_irq_handler,        // Timer/Counter 1
-    TC2_irq_handler,        // Timer/Counter 2
+    TCC1_irq_handler,       // Timer/Counter for Control 1
+    TCC2_irq_handler,       // Timer/Counter for Control 2
+    TC3_irq_handler,        // Timer/Counter 3
+    TC4_irq_handler,        // Timer/Counter 4
+    TC5_irq_handler,        // Timer/Counter 5
+    TC6_irq_handler,        // Timer/Counter 6
+    TC7_irq_handler,        // Timer/Counter 7
     ADC_irq_handler,        // Analog-to-Digital Converter
     AC_irq_handler,         // Analog Comparator
     DAC_irq_handler,        // Digital-to-Analog Converter
     PTC_irq_handler,        // Peripheral Touch Controller
+    I2S_irq_handler,        // Inter-IC Sound Interface
 };
 
 static void default_irq_handler(void)
@@ -104,7 +123,6 @@ static void default_irq_handler(void)
 //-----------------------------------------------------------------------------
 void Reset_handler(void)
 {
-
     unsigned int *source;
     unsigned int *destination;
     unsigned int *end;
