@@ -20,8 +20,21 @@ void HardFault_handler(void);
 DECLARE_GPIO(UART_TXD, GPIO_PORTA, 4)
 DECLARE_GPIO(UART_RXD, GPIO_PORTA, 5)
 
+DECLARE_GPIO(SCLK, GPIO_PORTA, 16)
+DECLARE_GPIO(SIN, GPIO_PORTA, 16)
+DECLARE_GPIO(XLAT, GPIO_PORTA, 16)
 
+#define UART_SERCOM SERCOM0
+#define UART_SERCOM_GCLK_ID SERCOM0_GCLK_ID_CORE
+#define UART_SERCOM_APBCMASK PM_APBCMASK_SERCOM0
+#define UART_TXD_PMUX PORT_PMUX_PMUXE_D_Val
+#define UART_RXD_PMUX PORT_PMUX_PMUXE_D_Val
 
+#define SPI_SERCOM  SERCOM1
+#define SPI_SERCOM_GCLK_ID SERCOM1_GCLK_ID_CORE
+#define SPI_SERCOM_APBCMASK PM_APBCMASK_SERCOM1
+#define SPI_SCLK_PMUX PORT_PMUX_PMUXE_D_Val
+#define SPI_SIN_PMUX PORT_PMUX_PMUXE_D_Val
 
 // ****************************************************************************
 void SysTick_handler(void)
@@ -111,39 +124,37 @@ void hal_uart_init(uint32_t baudrate)
     uint64_t brr = (uint64_t)65536 * (__SYSTEM_CLOCK - 16 * baudrate) / __SYSTEM_CLOCK;
 
     hal_gpio_UART_TXD_out();
-    hal_gpio_UART_TXD_pmuxen();
-    PORT->Group[GPIO_PORTA].PMUX[2].bit.PMUXE = PORT_PMUX_PMUXE_D_Val; // TX
+    hal_gpio_UART_TXD_pmuxen(UART_TXD_PMUX);
 
     hal_gpio_UART_RXD_in();
-    hal_gpio_UART_RXD_pmuxen();
-    PORT->Group[GPIO_PORTA].PMUX[2].bit.PMUXO = PORT_PMUX_PMUXO_D_Val; // RX
+    hal_gpio_UART_RXD_pmuxen(UART_RXD_PMUX);
 
-    PM->APBCMASK.reg |= PM_APBCMASK_SERCOM0;
+    PM->APBCMASK.reg |= UART_SERCOM_APBCMASK;
 
     GCLK->CLKCTRL.reg =
-        GCLK_CLKCTRL_ID(SERCOM0_GCLK_ID_CORE) |
+        GCLK_CLKCTRL_ID(UART_SERCOM_GCLK_ID) |
         GCLK_CLKCTRL_CLKEN |
         GCLK_CLKCTRL_GEN(0);
 
-    SERCOM0->USART.CTRLA.reg =
+    UART_SERCOM->USART.CTRLA.reg =
         SERCOM_USART_CTRLA_DORD |
         SERCOM_USART_CTRLA_MODE(SERCOM_USART_CTRLA_MODE_USART_INT_CLK_Val) |
         SERCOM_USART_CTRLA_RXPO(1/*PAD1*/) |
         SERCOM_USART_CTRLA_TXPO(0/*PAD0*/);
 
-    SERCOM0->USART.CTRLB.reg =
+    UART_SERCOM->USART.CTRLB.reg =
         SERCOM_USART_CTRLB_RXEN |
         SERCOM_USART_CTRLB_TXEN |
         SERCOM_USART_CTRLB_CHSIZE(0/*8 bits*/);
-    while (SERCOM0->USART.SYNCBUSY.reg);
+    while (UART_SERCOM->USART.SYNCBUSY.reg);
 
-    SERCOM0->USART.BAUD.reg = (uint16_t)brr;
-    while (SERCOM0->USART.SYNCBUSY.reg);
+    UART_SERCOM->USART.BAUD.reg = (uint16_t)brr;
+    while (UART_SERCOM->USART.SYNCBUSY.reg);
 
-    SERCOM0->USART.CTRLA.reg |= SERCOM_USART_CTRLA_ENABLE;
-    while (SERCOM0->USART.SYNCBUSY.reg);
+    UART_SERCOM->USART.CTRLA.reg |= SERCOM_USART_CTRLA_ENABLE;
+    while (UART_SERCOM->USART.SYNCBUSY.reg);
 
-    // SERCOM0->USART.INTENSET.reg = SERCOM_USART_INTENSET_RXC;
+    // UART_SERCOM->USART.INTENSET.reg = SERCOM_USART_INTENSET_RXC;
     // NVIC_EnableIRQ(SERCOM0_IRQn);
 }
 
@@ -165,15 +176,15 @@ uint8_t hal_uart_read_byte(void)
 // ****************************************************************************
 bool hal_uart_send_is_ready(void)
 {
-    return (SERCOM0->USART.INTFLAG.reg & SERCOM_USART_INTFLAG_DRE);
+    return (UART_SERCOM->USART.INTFLAG.reg & SERCOM_USART_INTFLAG_DRE);
 }
 
 
 // ****************************************************************************
 void hal_uart_send_char(const char c)
 {
-    while (!(SERCOM0->USART.INTFLAG.reg & SERCOM_USART_INTFLAG_DRE));
-    SERCOM0->USART.DATA.reg = c;
+    while (!(UART_SERCOM->USART.INTFLAG.reg & SERCOM_USART_INTFLAG_DRE));
+    UART_SERCOM->USART.DATA.reg = c;
 }
 
 
@@ -187,16 +198,58 @@ void hal_uart_send_uint8(const uint8_t c)
 // ****************************************************************************
 void hal_spi_init(void)
 {
+    int baud = 100;
 
+    hal_gpio_SIN_out();
+    hal_gpio_SIN_pmuxen(SPI_SIN_PMUX); //FIXME: PORT_PMUX_PMUXE_D_Val
+
+    hal_gpio_SCLK_out();
+    hal_gpio_SCLK_pmuxen(SPI_SCLK_PMUX); //FIXME: PORT_PMUX_PMUXE_D_Val
+
+    hal_gpio_XLAT_out();
+    hal_gpio_XLAT_clear();
+
+    PM->APBCMASK.reg |= SPI_SERCOM_APBCMASK;
+
+    GCLK->CLKCTRL.reg =
+        GCLK_CLKCTRL_ID(SPI_SERCOM_GCLK_ID) |
+        GCLK_CLKCTRL_CLKEN |
+        GCLK_CLKCTRL_GEN(0);
+
+    SPI_SERCOM->SPI.CTRLA.reg = SERCOM_SPI_CTRLA_SWRST;
+    while (SPI_SERCOM->SPI.CTRLA.reg & SERCOM_SPI_CTRLA_SWRST);
+
+    SPI_SERCOM->SPI.CTRLB.reg = SERCOM_SPI_CTRLB_RXEN;
+
+    SPI_SERCOM->SPI.BAUD.reg = baud;
+
+    SPI_SERCOM->SPI.CTRLA.reg =
+        SERCOM_SPI_CTRLA_ENABLE |
+        SERCOM_SPI_CTRLA_DIPO(0) |
+        SERCOM_SPI_CTRLA_DOPO(1) |
+        SERCOM_SPI_CTRLA_MODE_SPI_MASTER;
 }
 
 
 // ****************************************************************************
 void hal_spi_transaction(uint8_t *data, uint8_t count)
 {
-    (void) data;
-    (void) count;
     hal_gpio_led0_clear();
+
+    hal_gpio_XLAT_set();
+
+    for (int i = 0; i < count; i++) {
+        volatile uint8_t dummy;
+
+        SPI_SERCOM->SPI.DATA.reg = data[i];
+        while (!SPI_SERCOM->SPI.INTFLAG.bit.RXC);
+        dummy = SPI_SERCOM->SPI.DATA.reg;
+
+        (void) dummy;
+    }
+
+    while (!SPI_SERCOM->SPI.INTFLAG.bit.DRE);
+    hal_gpio_XLAT_clear();
 }
 
 

@@ -81,52 +81,61 @@ bool hal_servo_reader_get_new_channels(uint32_t *raw_data);
 #define GPIO_PORTB 1
 #define GPIO_PORTC 2
 
-#define DECLARE_GPIO(name, port, bit)                                       \
+#define DECLARE_GPIO(name, port, pin)                                       \
                                                                             \
     static inline void hal_gpio_##name##_in(void)                           \
     {                                                                       \
-        PORT->Group[port].DIRCLR.reg = (1 << bit);                          \
-        PORT->Group[port].PINCFG[bit].reg |= PORT_PINCFG_INEN;              \
-        PORT->Group[port].PINCFG[bit].reg &= ~PORT_PINCFG_PULLEN;           \
+        PORT->Group[port].DIRCLR.reg = (1 << pin);                          \
+        PORT->Group[port].PINCFG[pin].reg |= PORT_PINCFG_INEN;              \
+        PORT->Group[port].PINCFG[pin].reg &= ~PORT_PINCFG_PULLEN;           \
     }                                                                       \
                                                                             \
     static inline void hal_gpio_##name##_out(void)                          \
     {                                                                       \
-        PORT->Group[port].DIRSET.reg = 1 << bit;                            \
-        PORT->Group[port].PINCFG[bit].reg |= PORT_PINCFG_INEN;              \
+        PORT->Group[port].DIRSET.reg = 1 << pin;                            \
+        PORT->Group[port].PINCFG[pin].reg |= PORT_PINCFG_INEN;              \
     }                                                                       \
                                                                             \
     static inline void hal_gpio_##name##_write(bool value)                  \
     {                                                                       \
-        (void) value;                                     \
+        if (value) {                                                        \
+            PORT->Group[port].OUTSET.reg = 1 << pin;                        \
+        }                                                                   \
+        else {                                                              \
+            PORT->Group[port].OUTCLR.reg = 1 << pin;                        \
+        }                                                                   \
     }                                                                       \
                                                                             \
     static inline bool hal_gpio_##name##_read(void)                         \
     {                                                                       \
-        return (PORT->Group[port].IN.reg & (1 << bit)) != 0;                \
+        return (PORT->Group[port].IN.reg & (1 << pin)) != 0;                \
     }                                                                       \
                                                                             \
     static inline void hal_gpio_##name##_set(void)                          \
     {                                                                       \
-        PORT->Group[port].OUTSET.reg = 1 << bit;                            \
+        PORT->Group[port].OUTSET.reg = 1 << pin;                            \
     }                                                                       \
                                                                             \
     static inline void hal_gpio_##name##_clear(void)                        \
     {                                                                       \
-        PORT->Group[port].OUTCLR.reg = 1 << bit;                            \
+        PORT->Group[port].OUTCLR.reg = 1 << pin;                            \
     }                                                                       \
                                                                             \
     static inline void hal_gpio_##name##_toggle(void)                       \
     {                                                                       \
-        PORT->Group[port].OUTTGL.reg = 1 << bit;                            \
+        PORT->Group[port].OUTTGL.reg = 1 << pin;                            \
     }                                                                       \
                                                                             \
-    static inline void hal_gpio_##name##_pmuxen(void)                       \
+    static inline void hal_gpio_##name##_pmuxen(int pmux)                   \
     {                                                                       \
-        PORT->Group[port].PINCFG[bit].reg |= PORT_PINCFG_PMUXEN;            \
-    }                                                                       \
-
-
+        PORT->Group[port].PINCFG[pin].reg |= PORT_PINCFG_PMUXEN;            \
+        if (pin & 1) {                                                      \
+            PORT->Group[port].PMUX[pin >> 1].bit.PMUXO = pmux;              \
+        }                                                                   \
+        else {                                                              \
+            PORT->Group[port].PMUX[pin >> 1].bit.PMUXE = pmux;              \
+        }                                                                   \
+    }
 
 DECLARE_GPIO(gsclk, GPIO_PORTA, GPIO_BIT_GSCLK)
 DECLARE_GPIO(blank, GPIO_PORTA, GPIO_BIT_BLANK)
