@@ -1,4 +1,45 @@
 
+# SAM R21 Xplained Pro
+
+[USART_TX]      PA04 SERCOM0 PAD[0]  / UART TX EDBG
+[USART_RX]      PA05 SERCOM0 PAD[1]  / UART RX EDBG
+[ADC(+)]        PA06 AIN[6]
+[SPI_SS_B/GPIO] PA08 GPIO            / EDBG                       SERCOM2/PAD[0]
+[SPI_SS_A]      PA14 GPIO            / EDBG                       SERCOM2/PAD[2]
+[GPIO1]         PA15 GPIO                                         SERCOM2/PAD[3]
+[TWI_SDA]       PA16 SERCOM1 PAD[0] I2C SDA     EXT1 and EDBG     SERCOM1/PAD[0]
+[TWI_SCL]       PA17 SERCOM1 PAD[1] I2C SCL     EXT1 and EDBG     SERCOM1/PAD[1]
+[PWM(+)]        PA18 TCC0 / WO[2]                                 SERCOM1/PAD[2]
+[PWM(-)]        PA19 Yellow LED / TCC0 / WO[3]
+[IRQ/GPIO]      PA22 EXTINT[6]                                    SERCOM3/PAD[0]
+[SPI_SS_B/GPIO] PA23 GPIO1                                        SERCOM3/PAD[1]
+PA24            USB D-
+PA25            USB D+
+[GPIO2]         PA28 GPIO
+
+In use:
+PA00            XIN32
+PA01            XOUT32
+PA07            VBUS Detection, [ADC(-)]
+PA09            RFCTRL1, negative antenna switch control signal
+PA27            GPIO SPI SS (Slave select) (SAM R21 is Master)
+PA28            SW0
+PA27            GPIO, chip select on the EDBG DGI SPI bus
+PA30            SWCLK
+PA31            SWDIO
+
+Not on SAMD21E:
+[GPIO1]         PA13 GPIO1
+PA12            RFCTRL2, positive antenna switch control signal
+[SPI_MOSI]      PB22 SERCOM5 PAD[2] SPI MOSI    EXT1 and EDBG
+[SPI_SCK]       PB23 SERCOM5 PAD[3] SPI SCK     EXT3 and EDBG
+[SPI_MISO]      PB02 SERCOM5 PAD[0] SPI MISO    EXT3 and EDBG
+[SPI_SS_A]      PB03 SERCOM5 PAD[1] SPI SS
+
+
+### IGNORE THIS, it is for SAMD11:
+
+
     QFN24   SOIC20  I/O        Type  EIC        ADC     AC      PTC        DAC   SERCOM  ALT     TC/TCC      TCC         COM
     1       18      PA02             EXTINT[2]  AIN[0]          Y[0]       Vout
     2       19      PA03             EXTINT[3]  AIN[1]          Y[1]
@@ -40,3 +81,8 @@ OUT             PA14 (           S2P0. TC1/WO[0])       P0    S0: PA04, PA06, PA
 
 OUT15/LED       PA03
 Button          PA02
+
+
+
+
+
