@@ -1,5 +1,6 @@
 #include <stdint.h>
 
+#include <hal.h>
 
 // The entropy variable is a true random number generated from the random RAM
 // contents after power-up.
@@ -131,15 +132,15 @@ void Reset_handler(void)
     // Calculate the entropy random value from the RAM contents after reset
     temp_entropy = 0x0817;  // Just an arbitrary initialization value
     source = &_ram;
-    end = &_eram;
+    end = (unsigned int *)__get_MSP();
     while (source < end) {
         temp_entropy ^= *(source++);
     }
 
 #ifndef NODEBUG
     // Place stack canaries into RAM
-    destination = (unsigned int *)(0x10000000);
-    end = (unsigned int *)(0x10001000);
+    destination = &_ram;
+    end = (unsigned int *)__get_MSP();
     while (destination < end) {
         *(destination++) = 0xcafebabe;
     }

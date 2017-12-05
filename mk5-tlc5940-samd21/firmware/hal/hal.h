@@ -77,17 +77,23 @@ bool hal_servo_reader_get_new_channels(uint32_t *raw_data);
 #define GPIO_BIT_GSCLK 1
 #define GPIO_BIT_BLANK 6
 
+#define GPIO_PORTA 0
+#define GPIO_PORTB 1
+#define GPIO_PORTC 2
 
-#define DECLARE_GPIO(name, bit)                                             \
+#define DECLARE_GPIO(name, port, bit)                                       \
                                                                             \
     static inline void hal_gpio_##name##_in(void)                           \
     {                                                                       \
-        ;                                 \
+        PORT->Group[port].DIRCLR.reg = (1 << bit);                          \
+        PORT->Group[port].PINCFG[bit].reg |= PORT_PINCFG_INEN;              \
+        PORT->Group[port].PINCFG[bit].reg &= ~PORT_PINCFG_PULLEN;           \
     }                                                                       \
                                                                             \
     static inline void hal_gpio_##name##_out(void)                          \
     {                                                                       \
-        ;                                  \
+        PORT->Group[port].DIRSET.reg = 1 << bit;                            \
+        PORT->Group[port].PINCFG[bit].reg |= PORT_PINCFG_INEN;              \
     }                                                                       \
                                                                             \
     static inline void hal_gpio_##name##_write(bool value)                  \
@@ -97,26 +103,34 @@ bool hal_servo_reader_get_new_channels(uint32_t *raw_data);
                                                                             \
     static inline bool hal_gpio_##name##_read(void)                         \
     {                                                                       \
-        return false;                                      \
+        return (PORT->Group[port].IN.reg & (1 << bit)) != 0;                \
     }                                                                       \
                                                                             \
     static inline void hal_gpio_##name##_set(void)                          \
     {                                                                       \
-        ;                                         \
+        PORT->Group[port].OUTSET.reg = 1 << bit;                            \
     }                                                                       \
                                                                             \
     static inline void hal_gpio_##name##_clear(void)                        \
     {                                                                       \
-        ;                                         \
+        PORT->Group[port].OUTCLR.reg = 1 << bit;                            \
     }                                                                       \
                                                                             \
     static inline void hal_gpio_##name##_toggle(void)                       \
     {                                                                       \
-        ;                                     \
+        PORT->Group[port].OUTTGL.reg = 1 << bit;                            \
+    }                                                                       \
+                                                                            \
+    static inline void hal_gpio_##name##_pmuxen(void)                       \
+    {                                                                       \
+        PORT->Group[port].PINCFG[bit].reg |= PORT_PINCFG_PMUXEN;            \
     }                                                                       \
 
 
-DECLARE_GPIO(gsclk, GPIO_BIT_GSCLK)
-DECLARE_GPIO(blank, GPIO_BIT_BLANK)
-DECLARE_GPIO(ch3, GPIO_BIT_CH3)
-DECLARE_GPIO(switched_light_output, GPIO_BIT_SWITCHED_LIGHT_OUTPUT)
+
+DECLARE_GPIO(gsclk, GPIO_PORTA, GPIO_BIT_GSCLK)
+DECLARE_GPIO(blank, GPIO_PORTA, GPIO_BIT_BLANK)
+DECLARE_GPIO(ch3, GPIO_PORTA, GPIO_BIT_CH3)
+DECLARE_GPIO(switched_light_output, GPIO_PORTA, GPIO_BIT_SWITCHED_LIGHT_OUTPUT)
+
+DECLARE_GPIO(led0, GPIO_PORTA, 19)
