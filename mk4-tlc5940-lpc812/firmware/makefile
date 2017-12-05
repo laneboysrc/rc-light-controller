@@ -68,7 +68,7 @@ SOURCES += hal/servo_reader_lpc81x.c
 
 INCLUDES := -I.
 INCLUDES += -I./hal
-INCLUDES += -isystem./LPC8xx
+INCLUDES += -isystem./hal/LPC8xx
 
 DEFINES := -D__SYSTEM_CLOCK=$(SYSTEM_CLOCK)
 # DEFINES += -DNODEBUG
