@@ -15,14 +15,15 @@ extern unsigned int _stacktop;
 
 void SysTick_handler(void);
 void HardFault_handler(void);
+void SERCOM0_irq_handler(void);
 
 
 DECLARE_GPIO(UART_TXD, GPIO_PORTA, 4)
 DECLARE_GPIO(UART_RXD, GPIO_PORTA, 5)
 
-DECLARE_GPIO(SCLK, GPIO_PORTA, 16)
-DECLARE_GPIO(SIN, GPIO_PORTA, 17)
-DECLARE_GPIO(XLAT, GPIO_PORTA, 18)
+DECLARE_GPIO(SIN, GPIO_PORTA, 22)       // SERCOM3/PAD0
+DECLARE_GPIO(SCLK, GPIO_PORTA, 23)      // SERCOM3/PAD1
+DECLARE_GPIO(XLAT, GPIO_PORTA, 28)
 
 #define UART_SERCOM SERCOM0
 #define UART_SERCOM_GCLK_ID SERCOM0_GCLK_ID_CORE
@@ -30,11 +31,52 @@ DECLARE_GPIO(XLAT, GPIO_PORTA, 18)
 #define UART_TXD_PMUX PORT_PMUX_PMUXE_D_Val
 #define UART_RXD_PMUX PORT_PMUX_PMUXE_D_Val
 
-#define SPI_SERCOM  SERCOM1
-#define SPI_SERCOM_GCLK_ID SERCOM1_GCLK_ID_CORE
-#define SPI_SERCOM_APBCMASK PM_APBCMASK_SERCOM1
-#define SPI_SCLK_PMUX PORT_PMUX_PMUXE_D_Val
-#define SPI_SIN_PMUX PORT_PMUX_PMUXE_D_Val
+#define SPI_SERCOM  SERCOM3
+#define SPI_SERCOM_GCLK_ID SERCOM3_GCLK_ID_CORE
+#define SPI_SERCOM_APBCMASK PM_APBCMASK_SERCOM3
+#define SPI_SCLK_PMUX PORT_PMUX_PMUXE_C_Val
+#define SPI_SIN_PMUX PORT_PMUX_PMUXE_C_Val
+
+
+
+/*
+    Macro-magic to extract the calibration values from the bit-fields stored
+    in the NVM of the SAMD21.
+
+    We first retrieve a uint32_t pointer to the word where the calibration
+    value resides, based on the lowest bit number of the bit field (i.e.
+    NVM_USB_TRANSN_START).
+
+    Then we shift the bits down so that the lowest bit ends up at bit 0 of
+    the value. We have to do this modulo 32 bits. Then we create a mask
+    based on the number of bits (END-START+1) and AND it to the value. Now
+    the resulting number is the desired calibration value.
+
+    Reference: Datasheet chapter "NVM Software Calibration Area Mapping"
+*/
+#define NVM_USB_TRANSN_START 45
+#define NVM_USB_TRANSN_END 49
+
+#define NVM_USB_TRANSP_START 50
+#define NVM_USB_TRANSP_END 54
+
+#define NVM_USB_TRIM_START 55
+#define NVM_USB_TRIM_END 57
+
+#define NVM_DFLL48M_COARSE_CAL_START 58
+#define NVM_DFLL48M_COARSE_CAL_END 63
+
+#define NVM_GET_CALIBRATION_VALUE(name) \
+    ((*((uint32_t *)NVMCTRL_OTP4 + NVM_##name##_START / 32)) >> (NVM_##name##_START % 32)) & ((1 << (NVM_##name##_END - NVM_##name##_START + 1)) - 1)
+
+
+
+#define RECEIVE_BUFFER_SIZE (16)        // Must be modulo 2 for speed
+#define RECEIVE_BUFFER_INDEX_MASK (RECEIVE_BUFFER_SIZE - 1)
+static uint8_t receive_buffer[RECEIVE_BUFFER_SIZE];
+static volatile uint16_t read_index = 0;
+static volatile uint16_t write_index = 0;
+
 
 // ****************************************************************************
 void SysTick_handler(void)
@@ -50,15 +92,67 @@ void HardFault_handler(void)
     while (1);
 }
 
+//-----------------------------------------------------------------------------
+void SERCOM0_irq_handler(void)
+{
+    if (UART_SERCOM->USART.INTFLAG.reg & SERCOM_USART_INTFLAG_RXC) {
+        receive_buffer[write_index++] = (uint8_t)UART_SERCOM->USART.DATA.reg;
+
+        // Wrap around the write pointer. This works because the buffer size is
+        // a modulo of 2.
+        write_index &= RECEIVE_BUFFER_INDEX_MASK;
+
+        // If we are bumping into the read pointer we are dealing with a buffer
+        // overflow. Back off and rather destroy the last value.
+        if (write_index == read_index) {
+            write_index = (write_index - 1) & RECEIVE_BUFFER_INDEX_MASK;
+        }
+    }
+}
 
 // ****************************************************************************
 void hal_hardware_init(bool is_servo_reader, bool has_servo_output)
 {
+    uint32_t coarse;
+
     (void) is_servo_reader;
     (void) has_servo_output;
 
-    // Switch to 8MHz clock (disable prescaler)
-    SYSCTRL->OSC8M.bit.PRESC = 0;
+    NVMCTRL->CTRLB.reg = NVMCTRL_CTRLB_RWS(2);
+
+    SYSCTRL->INTFLAG.reg =
+            SYSCTRL_INTFLAG_BOD33RDY |
+            SYSCTRL_INTFLAG_BOD33DET |
+            SYSCTRL_INTFLAG_DFLLRDY;
+
+    SYSCTRL->DFLLCTRL.reg = 0;
+    while (!(SYSCTRL->PCLKSR.reg & SYSCTRL_PCLKSR_DFLLRDY));
+
+    SYSCTRL->DFLLMUL.reg = SYSCTRL_DFLLMUL_MUL(48000);
+
+    coarse = NVM_GET_CALIBRATION_VALUE(DFLL48M_COARSE_CAL);
+    SYSCTRL->DFLLVAL.reg = SYSCTRL_DFLLVAL_COARSE(coarse) | SYSCTRL_DFLLVAL_FINE(512);
+
+    SYSCTRL->DFLLCTRL.reg =
+            SYSCTRL_DFLLCTRL_ENABLE |
+            SYSCTRL_DFLLCTRL_USBCRM |
+            SYSCTRL_DFLLCTRL_BPLCKC |
+            SYSCTRL_DFLLCTRL_STABLE |
+            SYSCTRL_DFLLCTRL_CCDIS;
+
+    while (!(SYSCTRL->PCLKSR.reg & SYSCTRL_PCLKSR_DFLLRDY));
+
+    GCLK->GENCTRL.reg =
+            GCLK_GENCTRL_ID(0) |
+            GCLK_GENCTRL_SRC(GCLK_SOURCE_DFLL48M) |
+            GCLK_GENCTRL_RUNSTDBY |
+            GCLK_GENCTRL_GENEN;
+
+    while (GCLK->STATUS.reg & GCLK_STATUS_SYNCBUSY);
+
+
+    hal_gpio_switched_light_output_out();
+
 
     SysTick_Config((__SYSTEM_CLOCK / 1000) - 1);
 
@@ -126,6 +220,10 @@ void hal_uart_init(uint32_t baudrate)
     hal_gpio_UART_RXD_in();
     hal_gpio_UART_RXD_pmuxen(UART_RXD_PMUX);
 
+    hal_gpio_XLAT_out();
+    hal_gpio_XLAT_clear();
+
+
     PM->APBCMASK.reg |= UART_SERCOM_APBCMASK;
 
     GCLK->CLKCTRL.reg =
@@ -151,22 +249,31 @@ void hal_uart_init(uint32_t baudrate)
     UART_SERCOM->USART.CTRLA.reg |= SERCOM_USART_CTRLA_ENABLE;
     while (UART_SERCOM->USART.SYNCBUSY.reg);
 
-    // UART_SERCOM->USART.INTENSET.reg = SERCOM_USART_INTENSET_RXC;
-    // NVIC_EnableIRQ(SERCOM0_IRQn);
+    UART_SERCOM->USART.INTENSET.reg = SERCOM_USART_INTENSET_RXC;
+    NVIC_EnableIRQ(SERCOM0_IRQn);
 }
 
 
 // ****************************************************************************
 bool hal_uart_read_is_byte_pending(void)
 {
-    return false;
+    return (read_index != write_index);
 }
 
 
 // ****************************************************************************
 uint8_t hal_uart_read_byte(void)
 {
-    return 0;
+    uint8_t data;
+
+    while (!hal_uart_read_is_byte_pending());
+
+    data = receive_buffer[read_index++];
+
+    // Wrap around the read pointer.
+    read_index &= RECEIVE_BUFFER_INDEX_MASK;
+
+    return data;
 }
 
 
@@ -195,17 +302,16 @@ void hal_uart_send_uint8(const uint8_t c)
 // ****************************************************************************
 void hal_spi_init(void)
 {
-    // FIXME: choose appropriate baudrate
-    int baud = 100;
+    int baud = 1;   // 12 MHz SPI clock @ 48 MHz
 
     hal_gpio_SIN_out();
-    hal_gpio_SIN_pmuxen(SPI_SIN_PMUX); //FIXME: PORT_PMUX_PMUXE_D_Val
+    hal_gpio_SIN_pmuxen(SPI_SIN_PMUX);
 
     hal_gpio_SCLK_out();
-    hal_gpio_SCLK_pmuxen(SPI_SCLK_PMUX); //FIXME: PORT_PMUX_PMUXE_D_Val
+    hal_gpio_SCLK_pmuxen(SPI_SCLK_PMUX);
 
     hal_gpio_XLAT_out();
-    hal_gpio_XLAT_clear();
+    hal_gpio_XLAT_set();
 
     PM->APBCMASK.reg |= SPI_SERCOM_APBCMASK;
 
@@ -215,38 +321,30 @@ void hal_spi_init(void)
         GCLK_CLKCTRL_GEN(0);
 
     SPI_SERCOM->SPI.CTRLA.reg = SERCOM_SPI_CTRLA_SWRST;
-    while (SPI_SERCOM->SPI.CTRLA.reg & SERCOM_SPI_CTRLA_SWRST);
 
-    // FIXME: can we disable receiving?
-    SPI_SERCOM->SPI.CTRLB.reg = SERCOM_SPI_CTRLB_RXEN;
+    while (SPI_SERCOM->SPI.CTRLA.reg & SERCOM_SPI_CTRLA_SWRST);
 
     SPI_SERCOM->SPI.BAUD.reg = baud;
 
     SPI_SERCOM->SPI.CTRLA.reg =
-        SERCOM_SPI_CTRLA_ENABLE |
-        SERCOM_SPI_CTRLA_DIPO(0) |
-        SERCOM_SPI_CTRLA_DOPO(1) |
-        SERCOM_SPI_CTRLA_MODE_SPI_MASTER;
+        SERCOM_SPI_CTRLA_MODE_SPI_MASTER |
+        SERCOM_SPI_CTRLA_DOPO(0) |
+        SERCOM_SPI_CTRLA_ENABLE ;
 }
 
 
 // ****************************************************************************
 void hal_spi_transaction(uint8_t *data, uint8_t count)
 {
-    hal_gpio_XLAT_set();
+    hal_gpio_XLAT_clear();
 
-    for (int i = 0; i < count; i++) {
-        volatile uint8_t dummy;
-
+    for (uint8_t i = 0; i < count; i++) {
         SPI_SERCOM->SPI.DATA.reg = data[i];
-        while (!SPI_SERCOM->SPI.INTFLAG.bit.RXC);
-        dummy = SPI_SERCOM->SPI.DATA.reg;
-
-        (void) dummy;
+        while (!SPI_SERCOM->SPI.INTFLAG.bit.DRE);
     }
 
-    while (!SPI_SERCOM->SPI.INTFLAG.bit.DRE);
-    hal_gpio_XLAT_clear();
+    while (!SPI_SERCOM->SPI.INTFLAG.bit.TXC);
+    hal_gpio_XLAT_set();
 }
 
 
