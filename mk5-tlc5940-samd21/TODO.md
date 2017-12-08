@@ -1,3 +1,11 @@
+# Firmware
+* All HAL functions start with uppercase HAL
+* Use tiny printf instead of current uart0* functions
+* Separate diagnostics from uart, so depending on HW we can do both in different configurations
+* HAL should be called once every mainloop for service HAL function (USB!)
+* Better soft timer based on ATMEL design idea?
+
+
 # PCB
 
 * TLC5940 footprint based on TI datasheet
