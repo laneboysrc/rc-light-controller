@@ -12,6 +12,8 @@ volatile uint32_t milliseconds;
 extern unsigned int _ram;
 extern unsigned int _stacktop;
 
+uint32_t hal_tcc0_value = 1500 * 3;
+
 
 void SysTick_handler(void);
 void HardFault_handler(void);
@@ -37,6 +39,7 @@ DECLARE_GPIO(XLAT, GPIO_PORTA, 28)
 #define SPI_SCLK_PMUX PORT_PMUX_PMUXE_C_Val
 #define SPI_SIN_PMUX PORT_PMUX_PMUXE_C_Val
 
+DECLARE_GPIO(SERVO_OUT, GPIO_PORTA, 18)     //  TCC0/WO[2]  Dummy just for now
 
 
 /*
@@ -366,28 +369,52 @@ const char *hal_persistent_storage_write(const uint32_t *new_data)
 // ****************************************************************************
 void hal_servo_output_init(void)
 {
+    hal_gpio_SERVO_OUT_out();
+    hal_gpio_SERVO_OUT_pmuxen(PORT_PMUX_PMUXE_F_Val);
 
+    PM->APBCMASK.reg |= PM_APBCMASK_TCC0;
+
+    GCLK->CLKCTRL.reg =
+        GCLK_CLKCTRL_ID(TCC0_GCLK_ID) |
+        GCLK_CLKCTRL_CLKEN |
+        GCLK_CLKCTRL_GEN(0);
+
+    TCC0->CTRLA.reg = TCC_CTRLA_SWRST;
+
+    while (TCC0->CTRLA.reg & TCC_CTRLA_SWRST);
+
+    // Setup TCC0 to run at 48 / 16 = 3 MHz. This way we can simply multiply
+    // us values by 3 and put them in the registers
+    TCC0->CTRLA.reg =
+        TCC_CTRLA_PRESCALER(TCC_CTRLA_PRESCALER_DIV16_Val) |
+        TCC_CTRLA_PRESCSYNC_PRESC;
+    TCC0->WAVE.reg = TCC_WAVE_WAVEGEN_NPWM;
+    TCC0->PER.reg = 20000 * 3;      // 20 ms period = 50 Hz servo pulse
+    TCC0->COUNT.reg = 0;
+    TCC0->CC[2].reg = 0;            // Don't output a pulse for now
+    TCC0->CTRLA.reg |= TCC_CTRLA_ENABLE;
 }
 
 
 // ****************************************************************************
-void hal_servo_output_set_pulse(uint16_t servo_pulse)
+void hal_servo_output_set_pulse(uint16_t servo_pulse_us)
 {
-    (void) servo_pulse;
+    hal_tcc0_value = servo_pulse_us * 3;
+    TCC0->CC[2].reg = hal_tcc0_value;
 }
 
 
 // ****************************************************************************
 void hal_servo_output_enable(void)
 {
-
+    TCC0->CC[2].reg = 0;
 }
 
 
 // ****************************************************************************
 void hal_servo_output_disable(void)
 {
-
+    TCC0->CC[2].reg = hal_tcc0_value;
 }
 
 
