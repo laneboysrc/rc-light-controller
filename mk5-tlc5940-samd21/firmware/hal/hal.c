@@ -121,7 +121,7 @@ void hal_hardware_init(bool is_servo_reader, bool has_servo_output)
     (void) is_servo_reader;
     (void) has_servo_output;
 
-    NVMCTRL->CTRLB.reg = NVMCTRL_CTRLB_RWS(2);
+    NVMCTRL->CTRLB.reg = NVMCTRL_CTRLB_RWS(1);
 
     SYSCTRL->INTFLAG.reg =
             SYSCTRL_INTFLAG_BOD33RDY |
