@@ -4,7 +4,7 @@
 * Separate diagnostics from uart, so depending on HW we can do both in different configurations
 * HAL should be called once every mainloop for service HAL function (USB!)
 * Better soft timer based on ATMEL design idea?
-
+* Steering wheel servo pulse is out of range after power on?
 
 # PCB
 
