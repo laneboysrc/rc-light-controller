@@ -5,6 +5,9 @@
 * HAL should be called once every mainloop for service HAL function (USB!)
 * Better soft timer based on ATMEL design idea?
 * Steering wheel servo pulse is out of range after power on?
+* Use `__bkpt` in fault handlers, see Arduino
+* Trigger bootloader from CDC like Arduino (1200 BAUD, DTR low)
+    * Can we also detect BOSSAC?
 
 # PCB
 
