@@ -86,6 +86,7 @@ CPU_FLAGS = -mthumb -mcpu=cortex-m0plus
 CFLAGS = $(CPU_FLAGS)
 CFLAGS += -std=c99
 CFLAGS += -Os
+CFLAGS += -g
 CFLAGS += -W -Wall -Wextra -Wpedantic
 CFLAGS += -Wstrict-prototypes -Wshadow -Wwrite-strings
 CFLAGS += -Wdeclaration-after-statement -Waddress -Wlogical-op
@@ -171,7 +172,7 @@ list: $(BUILD_DIR) $(OBJECTS:.o=.lst)
 
 # Invoke the tool to program the microcontroller
 program: $(TARGET_ELF)
-	$(QUIET )$(FLASH_TOOL) -f board/atmel_samr21_xplained_pro.cfg -c "init; reset halt ; flash write_image erase $< ; reset ; shutdown"
+	$(QUIET) $(FLASH_TOOL) -f board/atmel_samr21_xplained_pro.cfg -c "init; reset halt ; flash write_image erase $< ; reset ; shutdown"
 
 # Invoke a tool for UART communication
 terminal:
@@ -186,7 +187,11 @@ clean:
 	@echo [RM] $(BUILD_DIR)
 	$(ECHO) $(RM) -rf $(BUILD_DIR)
 
+debug: $(TARGET_ELF)
+	$(ECHO) $(GDB) -ex "target extended-remote | $(FLASH_TOOL) -f board/atmel_samr21_xplained_pro.cfg -c \"gdb_port pipe\"" -ex "load" --tui $<
 
-.PHONY : all clean echosize list program flash terminal default_firmware_image preprocessor-simulator
+
+
+.PHONY : all clean debug echosize list program flash terminal default_firmware_image preprocessor-simulator
 
 -include $(wildcard $(BUILD_DIR)/*.d)
