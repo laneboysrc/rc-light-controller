@@ -85,7 +85,7 @@ CPU_FLAGS = -mthumb -mcpu=cortex-m0plus
 
 CFLAGS = $(CPU_FLAGS)
 CFLAGS += -std=c99
-# CFLAGS += -Os
+CFLAGS += -Os
 CFLAGS += -g
 CFLAGS += -W -Wall -Wextra -Wpedantic
 CFLAGS += -Wstrict-prototypes -Wshadow -Wwrite-strings

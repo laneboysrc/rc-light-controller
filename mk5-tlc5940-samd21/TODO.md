@@ -9,6 +9,7 @@
     * Can we also detect BOSSAC?
 * Monitor atsam91 erase command?
 * Lets get rid of `__SYSTEM_CLOCK`, move it into HAL
+* servo_output_enable should only be activated when gearbox servo configured, to prevent glitch before initialized properly?
 
 # PCB
 
