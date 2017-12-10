@@ -169,6 +169,13 @@ void HAL_hardware_init_final(void)
 
 
 // ****************************************************************************
+void HAL_service(void)
+{
+    ;
+}
+
+
+// ****************************************************************************
 uint32_t *HAL_stack_check(void)
 {
     #define CANARY 0xcafebabe

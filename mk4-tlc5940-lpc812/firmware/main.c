@@ -181,6 +181,6 @@ int main(void)
             }
         }
 
-
+        HAL_service();
     }
 }

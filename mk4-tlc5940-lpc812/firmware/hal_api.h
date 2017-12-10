@@ -8,6 +8,8 @@ void HAL_hardware_init_final(void);
 
 uint32_t *HAL_stack_check(void);
 
+void HAL_service(void);
+
 void HAL_uart_init(uint32_t baudrate);
 bool HAL_uart_read_is_byte_pending(void);
 uint8_t HAL_uart_read_byte(void);
