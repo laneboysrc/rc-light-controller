@@ -155,7 +155,7 @@ void HAL_hardware_init(bool is_servo_reader, bool has_servo_output)
 
     // ------------------------------------------------
     // Configure the SYSTICK to create an interrupt every 1 millisecond
-    SysTick_Config(__SYSTEM_CLOCK / 1000);
+    SysTick_Config(48000);
 
     __enable_irq();
 }
@@ -213,7 +213,9 @@ uint32_t *HAL_stack_check(void)
 // ****************************************************************************
 void HAL_uart_init(uint32_t baudrate)
 {
-    uint64_t brr = (uint64_t)65536 * (__SYSTEM_CLOCK - 16 * baudrate) / __SYSTEM_CLOCK;
+    #define UART_CLK 48000000
+
+    uint64_t brr = (uint64_t)65536 * (UART_CLK - 16 * baudrate) / UART_CLK;
 
     HAL_gpio_UART_TXD_out();
     HAL_gpio_UART_TXD_pmuxen(UART_TXD_PMUX);

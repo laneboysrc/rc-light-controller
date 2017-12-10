@@ -39,7 +39,7 @@ void HardFault_handler(void)
 // ****************************************************************************
 void HAL_hardware_init(bool is_servo_reader, bool has_servo_output)
 {
-#if __SYSTEM_CLOCK != 12000000
+#if HAL_SYSTEM_CLOCK != 12000000
 #error Clock initialization code expexts __SYSTEM_CLOCK to be set to 1200000
 #endif
 
@@ -120,7 +120,7 @@ void HAL_hardware_init(bool is_servo_reader, bool has_servo_output)
 
     // ------------------------
     // SysTick configuration 1000 Hz / 1 ms
-    SysTick_Config((__SYSTEM_CLOCK / 1000)- 1);
+    SysTick_Config((HAL_SYSTEM_CLOCK / 1000)- 1);
 }
 
 

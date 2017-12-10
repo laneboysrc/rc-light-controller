@@ -22,7 +22,7 @@ void HAL_spi_init(void)
                            (1 << GPIO_BIT_SIN);
 
     // Use 2 MHz SPI clock. 16 bytes take about 50 us to transmit.
-    LPC_SPI0->DIV = (__SYSTEM_CLOCK / 2000000) - 1;
+    LPC_SPI0->DIV = (HAL_SYSTEM_CLOCK / 2000000) - 1;
 
     LPC_SPI0->CFG = (1 << 0) |          // Enable SPI0
                     (1 << 2) |          // Master mode

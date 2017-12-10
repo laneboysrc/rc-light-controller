@@ -6,6 +6,7 @@
 #include <LPC8xx.h>
 #include <hal_api.h>
 
+#define HAL_SYSTEM_CLOCK 12000000
 #define HAL_NUMBER_OF_PERSISTENT_ELEMENTS 16
 
 

@@ -6,6 +6,7 @@
 
 #include <hal.h>
 
+
 __attribute__ ((section(".persistent_data")))
 static volatile const uint32_t persistent_data[HAL_NUMBER_OF_PERSISTENT_ELEMENTS];
 
@@ -31,7 +32,7 @@ const char *HAL_persistent_storage_write(const uint32_t *new_data)
     param[0] = 59;  // Erase page command
     param[1] = ((unsigned int)persistent_data) >> 6;
     param[2] = ((unsigned int)persistent_data) >> 6;
-    param[3] = __SYSTEM_CLOCK / 1000;
+    param[3] = HAL_SYSTEM_CLOCK / 1000;
     __disable_irq();
     iap_entry(param, param);
     __enable_irq();
@@ -53,7 +54,7 @@ const char *HAL_persistent_storage_write(const uint32_t *new_data)
     param[1] = (unsigned int)persistent_data;
     param[2] = (unsigned int)new_data;
     param[3] = 64;
-    param[4] = __SYSTEM_CLOCK / 1000;
+    param[4] = HAL_SYSTEM_CLOCK / 1000;
     __disable_irq();
     iap_entry(param, param);
     __enable_irq();

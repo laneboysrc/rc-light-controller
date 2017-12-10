@@ -4,7 +4,6 @@
 # Configuration options for our application
 TARGET := firmware
 BUILD_DIR = build
-SYSTEM_CLOCK := 12000000
 DEFAULT_LIGHT_PROGRAM := light_programs/generic.light_program
 
 
@@ -70,7 +69,6 @@ INCLUDES := -I.
 INCLUDES += -I./hal
 INCLUDES += -isystem./hal/LPC8xx
 
-DEFINES := -D__SYSTEM_CLOCK=$(SYSTEM_CLOCK)
 # DEFINES += -DNODEBUG
 
 LIBS := -lnosys

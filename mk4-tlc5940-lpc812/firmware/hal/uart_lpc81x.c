@@ -67,11 +67,11 @@ Again we have to round by adding BAUDRATE * 16 / 2 to the nominator:
 */
 #define MAX_BAUDRATE ((uint64_t)115200)
 #define DIV ((uint64_t)256)
-#define BRGVAL_MAXBAUD ((__SYSTEM_CLOCK / (MAX_BAUDRATE * 16)) - 1)
+#define BRGVAL_MAXBAUD ((HAL_SYSTEM_CLOCK / (MAX_BAUDRATE * 16)) - 1)
 #define U_PCLK (MAX_BAUDRATE * 16 * (BRGVAL_MAXBAUD + 1))
-#define MULT ((((__SYSTEM_CLOCK * DIV) + (U_PCLK / 2)) / U_PCLK) - DIV)
+#define MULT ((((HAL_SYSTEM_CLOCK * DIV) + (U_PCLK / 2)) / U_PCLK) - DIV)
 
-#define U_PCLK_ACTUAL ((__SYSTEM_CLOCK * DIV) / (DIV + MULT))
+#define U_PCLK_ACTUAL ((HAL_SYSTEM_CLOCK * DIV) / (DIV + MULT))
 
 #define BRGVAL(x) ((U_PCLK_ACTUAL + (x * 8))/ (x * 16) - 1)
 
