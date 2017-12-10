@@ -11,11 +11,9 @@ uint32_t *HAL_stack_check(void);
 void HAL_service(void);
 
 void HAL_uart_init(uint32_t baudrate);
-bool HAL_uart_read_is_byte_pending(void);
-uint8_t HAL_uart_read_byte(void);
-bool HAL_uart_send_is_ready(void);
-void HAL_uart_send_char(const char c);
-void HAL_uart_send_uint8(const uint8_t c);
+bool HAL_uart_is_byte_pending(void);
+uint8_t HAL_getc(void);
+void HAL_putc(void *p, char c);
 
 void HAL_spi_init(void);
 void HAL_spi_transaction(uint8_t *data, uint8_t count);

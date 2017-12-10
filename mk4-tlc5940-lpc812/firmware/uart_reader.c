@@ -38,7 +38,7 @@
 #include <stdint.h>
 
 #include <globals.h>
-#include <uart.h>
+#include <hal.h>
 
 
 #define SLAVE_MAGIC_BYTE 0x87
@@ -120,8 +120,8 @@ void read_preprocessor(void)
 
     global_flags.new_channel_data = false;
 
-    while (uart0_read_is_byte_pending()) {
-        uart_byte = uart0_read_byte();
+    while (HAL_uart_is_byte_pending()) {
+        uart_byte = HAL_getc();
 
         // The preprocessor protocol is designed such that only the first
         // byte can have the MAGIC value. This allows us to be in sync at all

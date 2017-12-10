@@ -53,10 +53,10 @@ SOURCES += persistent_storage.c
 SOURCES += preprocessor_output.c
 SOURCES += servo_output.c
 SOURCES += servo_reader.c
-SOURCES += uart.c
 SOURCES += uart_reader.c
 SOURCES += utils.c
 SOURCES += winch.c
+SOURCES += libs/printf/printf.c
 SOURCES += hal/persistent_storage_lpc81x.c
 SOURCES += hal/servo_output_lpc81x.c
 SOURCES += hal/spi_lpc81x.c
@@ -67,6 +67,7 @@ SOURCES += hal/servo_reader_lpc81x.c
 
 INCLUDES := -I.
 INCLUDES += -I./hal
+INCLUDES += -isystem./libs/printf
 INCLUDES += -isystem./hal/LPC8xx
 
 # DEFINES += -DNODEBUG

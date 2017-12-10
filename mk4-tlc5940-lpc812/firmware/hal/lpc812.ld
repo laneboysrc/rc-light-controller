@@ -17,8 +17,8 @@ SECTIONS
 
         . = ALIGN(64);
         KEEP(*(.persistent_data))
-
         . = ALIGN(64);
+
         *(.text*)
         *(.rodata)
         *(.rodata.*)

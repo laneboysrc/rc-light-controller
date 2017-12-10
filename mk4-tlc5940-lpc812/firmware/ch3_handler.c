@@ -14,7 +14,7 @@
 #include <hal.h>
 
 #include <globals.h>
-#include <uart.h>
+#include <printf.h>
 
 // This value must be a number higher than any number of clicks we want to
 // process.
@@ -43,7 +43,7 @@ static void process_ch3_click_timeout(void)
     }
 
     if (global_flags.diagnostics_enabled) {
-        uart0_send_cstring("click_timeout\n");
+        printf("click_timeout\n");
     }
 
     // ####################################
@@ -136,7 +136,7 @@ static void process_ch3_click_timeout(void)
 static void add_click(void)
 {
     if (global_flags.diagnostics_enabled) {
-        uart0_send_cstring("add_click\n");
+        printf("add_click\n");
     }
 
     // If the winch is running any movement of CH3 immediately turns off

@@ -74,13 +74,14 @@
 ******************************************************************************/
 
 
+#include <stdio.h>
 #include <stdint.h>
 #include <stdbool.h>
 
 #include <hal.h>
 
 #include <globals.h>
-#include <uart.h>
+#include <printf.h>
 
 
 #define SLAVE_MAGIC_BYTE ((uint8_t)0x87)
@@ -499,9 +500,7 @@ static void process_car_lights(void)
 
         if (light_switch_position != old_light_switch_position) {
             old_light_switch_position = light_switch_position;
-            uart0_send_cstring("light_switch_position ");
-            uart0_send_uint32(light_switch_position);
-            uart0_send_linefeed();
+            printf("light_switch_position %d\n", light_switch_position);
         }
     }
 
@@ -540,10 +539,10 @@ static void process_car_lights(void)
 
     send_light_data_to_tlc5940();
     if (config.flags.slave_output) {
-        uart0_send_char(SLAVE_MAGIC_BYTE);
+        HAL_putc(NULL, SLAVE_MAGIC_BYTE);
 
         for (i = 0; i < slave_leds.led_count ; i++) {
-            uart0_send_char(gamma_table.gamma_table[light_actual[16 + i]] >> 2);
+            HAL_putc(NULL, gamma_table.gamma_table[light_actual[16 + i]] >> 2);
         }
     }
 }
@@ -555,8 +554,8 @@ static void process_slave(void)
     uint8_t uart_byte;
     static int state = 0;
 
-    while (uart0_read_is_byte_pending()) {
-        uart_byte = uart0_read_byte();
+    while (HAL_uart_is_byte_pending()) {
+        uart_byte = HAL_getc();
 
         // The slave/preprocessor protocol is designed such that only the first
         // byte can have the MAGIC value. This allows us to be in sync at all

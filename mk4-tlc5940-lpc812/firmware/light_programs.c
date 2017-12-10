@@ -98,7 +98,7 @@
 #include <stdbool.h>
 
 #include <globals.h>
-#include <uart.h>
+#include <printf.h>
 #include <utils.h>
 
 #define MAX_INSTRUCTIONS_PER_SYSTICK 30
@@ -307,9 +307,7 @@ static int16_t get_parameter_value(uint32_t instruction)
         default:
 #ifndef NODEBUG
             if (global_flags.diagnostics_enabled) {
-                uart0_send_cstring("UNKNOWN PARAMETER TYPE ");
-                uart0_send_uint32(type);
-                uart0_send_linefeed();
+                printf("UNKNOWN PARAMETER TYPE 0x%08x\n", type);
             }
 #endif
             return 0;
@@ -568,9 +566,7 @@ static void execute_program(
             default:
 #ifndef NODEBUG
                 if (global_flags.diagnostics_enabled) {
-                    uart0_send_cstring("UNKNOWN OPCODE 0x");
-                    uart0_send_uint8_hex(opcode);
-                    uart0_send_linefeed();
+                    printf("UNKNOWN OPCODE 0x%02x\n", opcode);
                 }
 #endif
                 c->PC = program + FIRST_OPCODE_OFFSET;

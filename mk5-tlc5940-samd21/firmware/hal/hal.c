@@ -2,7 +2,6 @@
 #include <stdio.h>
 
 #include <hal.h>
-#include <uart.h>
 
 
 volatile uint32_t milliseconds;
@@ -200,12 +199,6 @@ uint32_t *HAL_stack_check(void)
 
     now = last_found;
 
-    // for (int i = 0; i < 60; i++) {
-    //     uart0_send_uint32_hex(*now--);
-    //     uart0_send_linefeed();
-    // }
-    // uart0_send_linefeed();
-
     while (*now != CANARY  &&  now > (uint32_t *)&_ram) {
         --now;
     }
@@ -265,18 +258,18 @@ void HAL_uart_init(uint32_t baudrate)
 
 
 // ****************************************************************************
-bool HAL_uart_read_is_byte_pending(void)
+bool HAL_uart_is_byte_pending(void)
 {
     return (read_index != write_index);
 }
 
 
 // ****************************************************************************
-uint8_t HAL_uart_read_byte(void)
+uint8_t HAL_getc(void)
 {
     uint8_t data;
 
-    while (!HAL_uart_read_is_byte_pending());
+    while (!HAL_uart_is_byte_pending());
 
     data = receive_buffer[read_index++];
 
@@ -288,26 +281,12 @@ uint8_t HAL_uart_read_byte(void)
 
 
 // ****************************************************************************
-bool HAL_uart_send_is_ready(void)
+void HAL_putc(void *p, char c)
 {
-    return (UART_SERCOM->USART.INTFLAG.reg & SERCOM_USART_INTFLAG_DRE);
-}
-
-
-// ****************************************************************************
-void HAL_uart_send_char(const char c)
-{
+    (void) p;
     while (!(UART_SERCOM->USART.INTFLAG.reg & SERCOM_USART_INTFLAG_DRE));
     UART_SERCOM->USART.DATA.reg = c;
 }
-
-
-// ****************************************************************************
-void HAL_uart_send_uint8(const uint8_t c)
-{
-    HAL_uart_send_char(c);
-}
-
 
 // ****************************************************************************
 void HAL_spi_init(void)
@@ -508,8 +487,6 @@ void SERCOM0_Handler(void)
 // ****************************************************************************
 void NMI_Handler(void)
 {
-    HAL_uart_send_char('N');
-    HAL_uart_send_char('\n');
     __BKPT(14);
     while (1);
 }
@@ -517,8 +494,6 @@ void NMI_Handler(void)
 // ****************************************************************************
 void HardFault_Handler(void)
 {
-    HAL_uart_send_char('H');
-    HAL_uart_send_char('\n');
     __BKPT(13);
     while (1);
 }
@@ -526,8 +501,6 @@ void HardFault_Handler(void)
 // ****************************************************************************
 void SVC_Handler(void)
 {
-    HAL_uart_send_char('S');
-    HAL_uart_send_char('\n');
     __BKPT(5);
     while (1);
 }
@@ -535,8 +508,6 @@ void SVC_Handler(void)
 // ****************************************************************************
 void PendSV_Handler(void)
 {
-    HAL_uart_send_char('P');
-    HAL_uart_send_char('\n');
     __BKPT(2);
     while (1);
 }

@@ -55,10 +55,10 @@ SOURCES += $(SOURCE_PATH)/persistent_storage.c
 SOURCES += $(SOURCE_PATH)/preprocessor_output.c
 SOURCES += $(SOURCE_PATH)/servo_output.c
 SOURCES += $(SOURCE_PATH)/servo_reader.c
-SOURCES += $(SOURCE_PATH)/uart.c
 SOURCES += $(SOURCE_PATH)/uart_reader.c
 SOURCES += $(SOURCE_PATH)/utils.c
 SOURCES += $(SOURCE_PATH)/winch.c
+SOURCES += $(SOURCE_PATH)/libs/printf/printf.c
 SOURCES += hal/hal.c
 SOURCES += hal/startup_samd21.c
 
@@ -66,9 +66,11 @@ INCLUDES += -I.
 INCLUDES += -I$(SOURCE_PATH)
 INCLUDES += -I./hal
 INCLUDES += -isystem./hal/samd21
+INCLUDES += -isystem$(SOURCE_PATH)/libs/printf
 
 DEFINES += -D__SAMD21E15A__
 DEFINES += -DDONT_USE_CMSIS_INIT
+DEFINES += -DPRINTF_SUPPORT_LONG
 # DEFINES += -DNODEBUG
 
 LIBS +=
@@ -80,7 +82,7 @@ DEPENDENCIES += makefile
 # Compiler and linker flags
 CPU_FLAGS = -mthumb -mcpu=cortex-m0plus
 
-CFLAGS = $(CPU_FLAGS)
+CFLAGS += $(CPU_FLAGS)
 CFLAGS += -std=c99
 CFLAGS += -Os
 CFLAGS += -g
@@ -99,8 +101,9 @@ CFLAGS += -fpack-struct=4
 CFLAGS += -MMD -MP -MT $(BUILD_DIR)/$(*F).o -MF $(BUILD_DIR)/$(@F).d
 CFLAGS += $(INCLUDES) $(DEFINES)
 
-LDFLAGS = $(CPU_FLAGS)
-LDFLAGS += -Wl,-T,$(LINKER_SCRIPT) -Wl,-nostdlib -Wl,--warn-common
+LDFLAGS += $(CPU_FLAGS)
+LDFLAGS += -Wl,-T,$(LINKER_SCRIPT) -Wl,--warn-common
+LDFLAGS += -Wl,-nostdlib
 LDFLAGS += -Wl,--gc-sections -Wl,-Os
 LDFLAGS += -Wl,-Map=$(TARGET_MAP) -Wl,--cref
 

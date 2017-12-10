@@ -11,7 +11,7 @@
 #include <hal.h>
 
 #include <globals.h>
-#include <uart.h>
+#include <printf.h>
 
 
 GLOBAL_FLAGS_T global_flags;
@@ -114,7 +114,8 @@ int main(void)
 
     HAL_hardware_init(is_servo_reader, global_flags.servo_output_enabled);
     load_persistent_storage();
-    uart_init();
+    HAL_uart_init(config.baudrate);
+    init_printf(NULL, HAL_putc);
     init_servo_reader();
     init_uart_reader();
     init_servo_output();
@@ -130,7 +131,7 @@ int main(void)
 
     next_tick = milliseconds + __SYSTICK_IN_MS;
     if (global_flags.diagnostics_enabled) {
-        uart0_send_cstring("Light controller initialized\n");
+        printf("Light controller initialized\n");
     }
 
     while (1) {
@@ -140,9 +141,7 @@ int main(void)
 
         now = HAL_stack_check();
         if (now) {
-            uart0_send_cstring("Stack down to 0x");
-            uart0_send_uint32_hex((uint32_t)now);
-            uart0_send_linefeed();
+            printf("Stack down to 0x%08x\n", (uint32_t)now);
         }
     }
 #endif
@@ -172,11 +171,7 @@ int main(void)
                    st = channel[ST].normalized;
                    th = channel[TH].normalized;
 
-                   uart0_send_cstring("ST: ");
-                   uart0_send_int32(channel[ST].normalized);
-                   uart0_send_cstring("   TH: ");
-                   uart0_send_int32(channel[TH].normalized);
-                   uart0_send_linefeed();
+                   printf("ST: %4d  TH: %4d\n", channel[ST].normalized, channel[TH].normalized);
                 }
             }
         }

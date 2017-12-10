@@ -1,5 +1,4 @@
 # Firmware
-* Use tiny printf instead of current uart0* functions
 * Separate diagnostics from uart, so depending on HW we can do both in different configurations
     * How to do this with printf?
     * We make fprintf and fputc

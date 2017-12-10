@@ -4,7 +4,6 @@
 #include <LPC8xx.h>
 #include <hal.h>
 
-#include <uart.h>
 
 
 #define __SYSTICK_IN_MS 20
@@ -31,7 +30,8 @@ void SysTick_handler(void)
 // ****************************************************************************
 void HardFault_handler(void)
 {
-    uart0_send_cstring("HARD\n");
+    HAL_putc(NULL, 'H');
+    HAL_putc(NULL, '\n');
     while (1);
 }
 

@@ -16,7 +16,7 @@
 #include <hal.h>
 
 #include <globals.h>
-#include <uart.h>
+#include <printf.h>
 
 #define PERSISTENT_DATA_VERSION 1
 
@@ -74,8 +74,8 @@ void write_persistent_storage(void)
 
     if (error_message) {
         if (global_flags.diagnostics_enabled) {
-            uart0_send_cstring(error_message);
-            uart0_send_linefeed();
+            printf(error_message);
+            printf("\n");
         }
     }
 }

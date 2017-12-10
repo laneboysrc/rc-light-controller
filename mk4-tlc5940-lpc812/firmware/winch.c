@@ -3,7 +3,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include <uart.h>
+#include <printf.h>
 #include <globals.h>
 
 static uint16_t winch_command_repeat_counter;
@@ -117,6 +117,6 @@ void process_winch(void)
                 return;
 
         }
-        uart0_send_uint8(winch_command);
+        printf("%c", winch_command);
     }
 }

@@ -13,7 +13,7 @@
 #include <stdint.h>
 
 #include <globals.h>
-#include <uart.h>
+#include <printf.h>
 
 #define SLAVE_MAGIC_BYTE 0x87
 #define CH3_HYSTERESIS 5
@@ -51,8 +51,8 @@ void output_preprocessor(void)
         next_tx_index = 0;
     }
 
-    if (next_tx_index < sizeof(tx_data)  &&  uart0_send_is_ready()) {
-        uart0_send_char(tx_data[next_tx_index++]);
+    if (next_tx_index < sizeof(tx_data)) {
+        printf("%c", tx_data[next_tx_index++]);
     }
 }
 
