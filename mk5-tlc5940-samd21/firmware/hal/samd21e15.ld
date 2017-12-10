@@ -25,6 +25,7 @@ SECTIONS
         *(.rodata)
         *(.rodata.*)
 
+        . =  ALIGN(4);
         _etext = .;
     } > FLASH
 
