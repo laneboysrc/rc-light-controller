@@ -1,4 +1,13 @@
 
+
+ST/TH/CH3:  should be on same timer WO[x] pins          TCC1: PA6, PA7, PA8, PA9, PA10, PA11
+Out/Tx:     SERCOM/PAD[0,2], Timer CC WO[x] pin         Arduino: PB22 SERCOM5, TCC7
+Rx:         SERCOM/PAD[0..3]                            Arduino: PB23 SERCOM5
+SPI:        MOSI SERCOM/PAD[0],                         Arduino: PA16 SERCOM1
+            SCLK SERCOM/PAD[1],                         Arduino: PA17 SERCOM1
+IO ports:   GSCLK, XLAT, BLANK, BUTTON, LED15
+
+
 # SAM R21 Xplained Pro
 
 [USART_TX]      PA04 SERCOM0 PAD[0]  / UART TX EDBG
