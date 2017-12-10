@@ -169,7 +169,7 @@ list: $(BUILD_DIR) $(OBJECTS:.o=.lst)
 
 # Invoke the tool to program the microcontroller
 program: $(TARGET_ELF)
-	$(QUIET) $(FLASH_TOOL) -f board/atmel_samr21_xplained_pro.cfg -c "init; reset halt ; flash write_image erase $< ; reset ; shutdown"
+	$(QUIET) $(FLASH_TOOL) -f board/atmel_samr21_xplained_pro.cfg -c "init; reset halt ; flash write_image $< ; reset ; shutdown"
 
 # Invoke a tool for UART communication
 terminal:
