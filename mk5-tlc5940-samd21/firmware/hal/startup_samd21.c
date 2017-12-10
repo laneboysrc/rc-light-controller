@@ -23,41 +23,41 @@ extern void _stacktop(void);
 // When the application defines a handler with the same name it will
 // take precedence over these "weak" definitions
 #define ALIAS(f) __attribute__ ((weak, alias (#f)))
-void Reset_handler(void);
-void NMI_handler(void) ALIAS(default_irq_handler);
-void HardFault_handler(void) ALIAS(default_irq_handler);
-void SVCall_handler(void) ALIAS(default_irq_handler);
-void PendSV_handler(void) ALIAS(default_irq_handler);
-void SysTick_handler(void) ALIAS(default_irq_handler);
+void Reset_Handler(void);
+void NMI_Handler(void) ALIAS(default_handler);
+void HardFault_Handler(void) ALIAS(default_handler);
+void SVCall_Handler(void) ALIAS(default_handler);
+void PendSV_Handler(void) ALIAS(default_handler);
+void SysTick_Handler(void) ALIAS(default_handler);
 
-void PM_irq_handler(void) ALIAS(default_irq_handler);
-void SYSCTRL_irq_handler(void) ALIAS(default_irq_handler);
-void WTD_irq_handler(void) ALIAS(default_irq_handler);
-void RTC_irq_handler(void) ALIAS(default_irq_handler);
-void EIC_irq_handler(void) ALIAS(default_irq_handler);
-void NVMCTRL_irq_handler(void) ALIAS(default_irq_handler);
-void DMAC_irq_handler(void) ALIAS(default_irq_handler);
-void USB_irq_handler(void) ALIAS(default_irq_handler);
-void EVSYS_irq_handler(void) ALIAS(default_irq_handler);
-void SERCOM0_irq_handler(void) ALIAS(default_irq_handler);
-void SERCOM1_irq_handler(void) ALIAS(default_irq_handler);
-void SERCOM2_irq_handler(void) ALIAS(default_irq_handler);
-void SERCOM3_irq_handler(void) ALIAS(default_irq_handler);
-void SERCOM4_irq_handler(void) ALIAS(default_irq_handler);
-void SERCOM5_irq_handler(void) ALIAS(default_irq_handler);
-void TCC0_irq_handler(void) ALIAS(default_irq_handler);
-void TCC1_irq_handler(void) ALIAS(default_irq_handler);
-void TCC2_irq_handler(void) ALIAS(default_irq_handler);
-void TC3_irq_handler(void) ALIAS(default_irq_handler);
-void TC4_irq_handler(void) ALIAS(default_irq_handler);
-void TC5_irq_handler(void) ALIAS(default_irq_handler);
-void TC6_irq_handler(void) ALIAS(default_irq_handler);
-void TC7_irq_handler(void) ALIAS(default_irq_handler);
-void ADC_irq_handler(void) ALIAS(default_irq_handler);
-void AC_irq_handler(void) ALIAS(default_irq_handler);
-void DAC_irq_handler(void) ALIAS(default_irq_handler);
-void PTC_irq_handler(void) ALIAS(default_irq_handler);
-void I2S_irq_handler(void) ALIAS(default_irq_handler);
+void PM_Handler(void) ALIAS(default_handler);
+void SYSCTRL_Handler(void) ALIAS(default_handler);
+void WTD_Handler(void) ALIAS(default_handler);
+void RTC_Handler(void) ALIAS(default_handler);
+void EIC_Handler(void) ALIAS(default_handler);
+void NVMCTRL_Handler(void) ALIAS(default_handler);
+void DMAC_Handler(void) ALIAS(default_handler);
+void USB_Handler(void) ALIAS(default_handler);
+void EVSYS_Handler(void) ALIAS(default_handler);
+void SERCOM0_Handler(void) ALIAS(default_handler);
+void SERCOM1_Handler(void) ALIAS(default_handler);
+void SERCOM2_Handler(void) ALIAS(default_handler);
+void SERCOM3_Handler(void) ALIAS(default_handler);
+void SERCOM4_Handler(void) ALIAS(default_handler);
+void SERCOM5_Handler(void) ALIAS(default_handler);
+void TCC0_Handler(void) ALIAS(default_handler);
+void TCC1_Handler(void) ALIAS(default_handler);
+void TCC2_Handler(void) ALIAS(default_handler);
+void TC3_Handler(void) ALIAS(default_handler);
+void TC4_Handler(void) ALIAS(default_handler);
+void TC5_Handler(void) ALIAS(default_handler);
+void TC6_Handler(void) ALIAS(default_handler);
+void TC7_Handler(void) ALIAS(default_handler);
+void ADC_Handler(void) ALIAS(default_handler);
+void AC_Handler(void) ALIAS(default_handler);
+void DAC_Handler(void) ALIAS(default_handler);
+void PTC_Handler(void) ALIAS(default_handler);
+void I2S_Handler(void) ALIAS(default_handler);
 
 extern int main(void);
 
@@ -69,9 +69,9 @@ void (* const vectors[])(void) =
     &_stacktop,             // The initial stack pointer
 
     // Cortex-M0+ handlers
-    Reset_handler,          // Reset handler
-    NMI_handler,            // NMI handler
-    HardFault_handler,      // Hard fault handler
+    Reset_Handler,          // Reset handler
+    NMI_Handler,            // NMI handler
+    HardFault_Handler,      // Hard fault handler
     0,                      // Reserved
     0,                      // Reserved
     0,                      // Reserved
@@ -79,50 +79,50 @@ void (* const vectors[])(void) =
     0,                      // Reserved
     0,                      // Reserved
     0,                      // Reserved
-    SVCall_handler,         // SVCall handler
+    SVCall_Handler,         // SVCall handler
     0,                      // Reserved
     0,                      // Reserved
-    PendSV_handler,         // PendSV handler
-    SysTick_handler,        // SysTick handler
+    PendSV_Handler,         // PendSV handler
+    SysTick_Handler,        // SysTick handler
 
     // SAMD21 peripheral handlers
-    PM_irq_handler,         // Power Manager
-    SYSCTRL_irq_handler,    // System Controller
-    WTD_irq_handler,        // Watchdog Timer
-    RTC_irq_handler,        // Real Time Counter
-    EIC_irq_handler,        // External Interrupt Controller
-    NVMCTRL_irq_handler,    // Non-Volatile Memory Controller
-    DMAC_irq_handler,       // Direct Memory Access Controller
-    USB_irq_handler,        // USB Controller
-    EVSYS_irq_handler,      // Event System
-    SERCOM0_irq_handler,    // Serial Communication Interface 0
-    SERCOM1_irq_handler,    // Serial Communication Interface 1
-    SERCOM2_irq_handler,    // Serial Communication Interface 2
-    SERCOM3_irq_handler,    // Serial Communication Interface 3
-    SERCOM4_irq_handler,    // Serial Communication Interface 4
-    SERCOM5_irq_handler,    // Serial Communication Interface 5
-    TCC0_irq_handler,       // Timer/Counter for Control 0
-    TCC1_irq_handler,       // Timer/Counter for Control 1
-    TCC2_irq_handler,       // Timer/Counter for Control 2
-    TC3_irq_handler,        // Timer/Counter 3
-    TC4_irq_handler,        // Timer/Counter 4
-    TC5_irq_handler,        // Timer/Counter 5
-    TC6_irq_handler,        // Timer/Counter 6
-    TC7_irq_handler,        // Timer/Counter 7
-    ADC_irq_handler,        // Analog-to-Digital Converter
-    AC_irq_handler,         // Analog Comparator
-    DAC_irq_handler,        // Digital-to-Analog Converter
-    PTC_irq_handler,        // Peripheral Touch Controller
-    I2S_irq_handler,        // Inter-IC Sound Interface
+    PM_Handler,         // Power Manager
+    SYSCTRL_Handler,    // System Controller
+    WTD_Handler,        // Watchdog Timer
+    RTC_Handler,        // Real Time Counter
+    EIC_Handler,        // External Interrupt Controller
+    NVMCTRL_Handler,    // Non-Volatile Memory Controller
+    DMAC_Handler,       // Direct Memory Access Controller
+    USB_Handler,        // USB Controller
+    EVSYS_Handler,      // Event System
+    SERCOM0_Handler,    // Serial Communication Interface 0
+    SERCOM1_Handler,    // Serial Communication Interface 1
+    SERCOM2_Handler,    // Serial Communication Interface 2
+    SERCOM3_Handler,    // Serial Communication Interface 3
+    SERCOM4_Handler,    // Serial Communication Interface 4
+    SERCOM5_Handler,    // Serial Communication Interface 5
+    TCC0_Handler,       // Timer/Counter for Control 0
+    TCC1_Handler,       // Timer/Counter for Control 1
+    TCC2_Handler,       // Timer/Counter for Control 2
+    TC3_Handler,        // Timer/Counter 3
+    TC4_Handler,        // Timer/Counter 4
+    TC5_Handler,        // Timer/Counter 5
+    TC6_Handler,        // Timer/Counter 6
+    TC7_Handler,        // Timer/Counter 7
+    ADC_Handler,        // Analog-to-Digital Converter
+    AC_Handler,         // Analog Comparator
+    DAC_Handler,        // Digital-to-Analog Converter
+    PTC_Handler,        // Peripheral Touch Controller
+    I2S_Handler,        // Inter-IC Sound Interface
 };
 
-static void default_irq_handler(void)
+static void default_handler(void)
 {
     while(1);
 }
 
 //-----------------------------------------------------------------------------
-void Reset_handler(void)
+void Reset_Handler(void)
 {
     unsigned int *source;
     unsigned int *destination;

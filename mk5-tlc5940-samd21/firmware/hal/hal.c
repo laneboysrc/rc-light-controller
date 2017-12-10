@@ -15,9 +15,9 @@ extern unsigned int _stacktop;
 uint32_t hal_tcc0_value = 1500 * 3;
 
 
-void SysTick_handler(void);
-void HardFault_handler(void);
-void SERCOM0_irq_handler(void);
+// void SysTick_handler(void);
+// void HardFault_handler(void);
+// void SERCOM0_irq_handler(void);
 
 
 DECLARE_GPIO(UART_TXD, GPIO_PORTA, 4)
@@ -80,38 +80,6 @@ static uint8_t receive_buffer[RECEIVE_BUFFER_SIZE];
 static volatile uint16_t read_index = 0;
 static volatile uint16_t write_index = 0;
 
-
-// ****************************************************************************
-void SysTick_handler(void)
-{
-    ++milliseconds;
-}
-
-
-// ****************************************************************************
-void HardFault_handler(void)
-{
-    uart0_send_cstring("HARD\n");
-    while (1);
-}
-
-//-----------------------------------------------------------------------------
-void SERCOM0_irq_handler(void)
-{
-    if (UART_SERCOM->USART.INTFLAG.reg & SERCOM_USART_INTFLAG_RXC) {
-        receive_buffer[write_index++] = (uint8_t)UART_SERCOM->USART.DATA.reg;
-
-        // Wrap around the write pointer. This works because the buffer size is
-        // a modulo of 2.
-        write_index &= RECEIVE_BUFFER_INDEX_MASK;
-
-        // If we are bumping into the read pointer we are dealing with a buffer
-        // overflow. Back off and rather destroy the last value.
-        if (write_index == read_index) {
-            write_index = (write_index - 1) & RECEIVE_BUFFER_INDEX_MASK;
-        }
-    }
-}
 
 // ****************************************************************************
 void hal_hardware_init(bool is_servo_reader, bool has_servo_output)
@@ -431,4 +399,65 @@ bool hal_servo_reader_get_new_channels(uint32_t *raw_data)
 {
     (void) raw_data;
     return false;
+}
+
+// ****************************************************************************
+// ****************************************************************************
+// ****************************************************************************
+// Interrupt handlers
+// ****************************************************************************
+// ****************************************************************************
+// ****************************************************************************
+
+
+// ****************************************************************************
+void SysTick_Handler(void)
+{
+    ++milliseconds;
+}
+
+// ****************************************************************************
+void SERCOM0_Handler(void)
+{
+    if (UART_SERCOM->USART.INTFLAG.reg & SERCOM_USART_INTFLAG_RXC) {
+        receive_buffer[write_index++] = (uint8_t)UART_SERCOM->USART.DATA.reg;
+
+        // Wrap around the write pointer. This works because the buffer size is
+        // a modulo of 2.
+        write_index &= RECEIVE_BUFFER_INDEX_MASK;
+
+        // If we are bumping into the read pointer we are dealing with a buffer
+        // overflow. Back off and rather destroy the last value.
+        if (write_index == read_index) {
+            write_index = (write_index - 1) & RECEIVE_BUFFER_INDEX_MASK;
+        }
+    }
+}
+
+// ****************************************************************************
+void NMI_Handler(void)
+{
+    __BKPT(14);
+    while (1);
+}
+
+// ****************************************************************************
+void HardFault_Handler(void)
+{
+    __BKPT(13);
+    while (1);
+}
+
+// ****************************************************************************
+void SVC_Handler(void)
+{
+    __BKPT(5);
+    while (1);
+}
+
+// ****************************************************************************
+void PendSV_Handler(void)
+{
+    __BKPT(2);
+    while (1);
 }

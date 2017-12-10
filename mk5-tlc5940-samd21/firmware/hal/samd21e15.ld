@@ -4,7 +4,7 @@ MEMORY
   RAM   (rwx) : ORIGIN = 0x20000000, LENGTH = 4k
 }
 
-ENTRY(Reset_handler)
+ENTRY(Reset_Handler)
 
 SECTIONS
 {
