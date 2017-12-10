@@ -14,6 +14,8 @@ extern unsigned int _stacktop;
 
 uint32_t saved_tcc0_cc_value = 1500;
 
+__attribute__ ((section(".persistent_data")))
+static volatile const uint32_t persistent_data[HAL_NUMBER_OF_PERSISTENT_ELEMENTS];
 
 
 DECLARE_GPIO(UART_TXD, GPIO_PORTA, 4)
@@ -350,14 +352,37 @@ void HAL_spi_transaction(uint8_t *data, uint8_t count)
 // ****************************************************************************
 volatile const uint32_t *HAL_persistent_storage_read(void)
 {
-    return 0;
+    return persistent_data;
 }
 
 
 // ****************************************************************************
 const char *HAL_persistent_storage_write(const uint32_t *new_data)
 {
-    (void) new_data;
+    uint32_t i;
+
+    // Set manual page write
+    NVMCTRL->CTRLB.bit.MANW = 1;
+
+    // Execute the Erase Row command
+    NVMCTRL->ADDR.reg = NVMCTRL_ADDR_ADDR((uint32_t)persistent_data >> 1);
+    NVMCTRL->CTRLA.reg = NVMCTRL_CTRLA_CMDEX_KEY | NVMCTRL_CTRLA_CMD_ER;
+    while (!NVMCTRL->INTFLAG.bit.READY);
+
+    // Execute Page Buffer Clear
+    NVMCTRL->CTRLA.reg = NVMCTRL_CTRLA_CMDEX_KEY | NVMCTRL_CTRLA_CMD_PBC;
+    while (!NVMCTRL->INTFLAG.bit.READY);
+
+    // Fill the page buffer
+    for (i = 0; i < HAL_NUMBER_OF_PERSISTENT_ELEMENTS; i++) {
+        *(uint32_t *)(&persistent_data[i]) = new_data[i];
+    }
+
+    // Execute the Write Page command
+    NVMCTRL->ADDR.reg = NVMCTRL_ADDR_ADDR((uint32_t)persistent_data >> 1);
+    NVMCTRL->CTRLA.reg = NVMCTRL_CTRLA_CMDEX_KEY | NVMCTRL_CTRLA_CMD_WP;
+    while (!NVMCTRL->INTFLAG.bit.READY);
+
     return 0;
 }
 

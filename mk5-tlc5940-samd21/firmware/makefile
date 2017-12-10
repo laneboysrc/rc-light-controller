@@ -85,7 +85,7 @@ CPU_FLAGS = -mthumb -mcpu=cortex-m0plus
 
 CFLAGS = $(CPU_FLAGS)
 CFLAGS += -std=c99
-CFLAGS += -Os
+# CFLAGS += -Os
 CFLAGS += -g
 CFLAGS += -W -Wall -Wextra -Wpedantic
 CFLAGS += -Wstrict-prototypes -Wshadow -Wwrite-strings
@@ -138,7 +138,7 @@ $(TARGET_ELF): $(BUILD_DIR) $(OBJECTS) $(LINKER_SCRIPT)
 $(TARGET_BIN): $(TARGET_ELF)
 	@echo [CP] $@
 	$(ECHO) $(OBJCOPY) $< -O binary $@
-	$(ECHO) $(CONFIGURATION_VALIDATION_TOOL) $@
+	# $(ECHO) $(CONFIGURATION_VALIDATION_TOOL) $@
 
 $(TARGET_HEX): $(TARGET_ELF)
 	@echo [CP] $@

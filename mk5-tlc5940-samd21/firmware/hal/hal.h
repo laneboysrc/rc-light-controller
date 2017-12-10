@@ -6,6 +6,8 @@
 #include <samd21.h>
 #include <hal_api.h>
 
+
+// One flash page is 64 bytes, so 16 * 4 words
 #define HAL_NUMBER_OF_PERSISTENT_ELEMENTS 16
 
 

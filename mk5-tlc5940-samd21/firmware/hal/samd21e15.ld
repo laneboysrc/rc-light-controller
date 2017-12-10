@@ -15,15 +15,16 @@ SECTIONS
 
         KEEP(*(.isr_vectors))
 
-        . = ALIGN(64);
-        KEEP(*(.persistent_data))     /* FIXME: is this correct? */
+        /* Page size is 64 bytes, Row size is 4 pages = 256 bytes */
+        . = ALIGN(256);
+        KEEP(*(.persistent_data*))
+        . = ALIGN(256);
 
-        . = ALIGN(64);
+        . = ALIGN(4);
         *(.text*)
         *(.rodata)
         *(.rodata.*)
 
-        . = ALIGN(4);
         _etext = .;
     } > FLASH
 
