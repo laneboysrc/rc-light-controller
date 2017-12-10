@@ -1,3 +1,0 @@
-[submodule "mk5-tlc5940-stm32f042/firmware/libs/libopencm3"]
-	path = mk5-tlc5940-stm32f042/firmware/libs/libopencm3
-	url = https://github.com/libopencm3/libopencm3
