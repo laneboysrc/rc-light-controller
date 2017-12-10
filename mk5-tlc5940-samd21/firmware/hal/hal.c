@@ -8,16 +8,12 @@
 volatile uint32_t milliseconds;
 
 
-// These are all defined by the linker via the samd21e15.ld linker script.
+// These are defined by the linker via the samd21e15.ld linker script.
 extern unsigned int _ram;
 extern unsigned int _stacktop;
 
-uint32_t HAL_tcc0_value = 1500 * 3;
+uint32_t saved_tcc0_cc_value = 1500;
 
-
-// void SysTick_handler(void);
-// void HardFault_handler(void);
-// void SERCOM0_irq_handler(void);
 
 
 DECLARE_GPIO(UART_TXD, GPIO_PORTA, 4)
@@ -89,8 +85,14 @@ void HAL_hardware_init(bool is_servo_reader, bool has_servo_output)
     (void) is_servo_reader;
     (void) has_servo_output;
 
+
+    // ------------------------------------------------
+    // Since we intend to run at 48 MHz system clock, we neeed to conigure
+    // one wait state for the flash according to the datasheet.
     NVMCTRL->CTRLB.reg = NVMCTRL_CTRLB_RWS(1);
 
+    // ------------------------------------------------
+    // Set up the PLL to provide a 48 MHz system clock
     SYSCTRL->INTFLAG.reg =
             SYSCTRL_INTFLAG_BOD33RDY |
             SYSCTRL_INTFLAG_BOD33DET |
@@ -113,19 +115,45 @@ void HAL_hardware_init(bool is_servo_reader, bool has_servo_output)
 
     while (!(SYSCTRL->PCLKSR.reg & SYSCTRL_PCLKSR_DFLLRDY));
 
+    // ------------------------------------------------
+    // Reset the generic clock control block
+    GCLK->CTRL.reg = GCLK_CTRL_SWRST;
+    while (GCLK->STATUS.reg & GCLK_STATUS_SYNCBUSY);
+
+    // Setup GENCLK0 to run at 48 MHz. This clock is used for high speed
+    // peripherals such as SPI, USB and UART
     GCLK->GENCTRL.reg =
             GCLK_GENCTRL_ID(0) |
-            GCLK_GENCTRL_SRC(GCLK_SOURCE_DFLL48M) |
+            GCLK_GENCTRL_SRC_DFLL48M |
+            GCLK_GENCTRL_RUNSTDBY |
+            GCLK_GENCTRL_GENEN;
+
+    while (GCLK->STATUS.reg & GCLK_STATUS_SYNCBUSY);
+
+    // Setup GENCLK1 to run at 1 MHz. We use GENCLK1 for timers that need
+    // microsecond resolution (e.g. servo output and servo reader).
+    // We derive the clock from the 48 MHz PLL, so we use a clock divider of
+    // 48
+    GCLK->GENDIV.reg =
+        GCLK_GENDIV_DIV(48) |
+        GCLK_GENDIV_ID(1) ;
+
+    GCLK->GENCTRL.reg =
+            GCLK_GENCTRL_ID(1) |
+            GCLK_GENCTRL_SRC_DFLL48M |
             GCLK_GENCTRL_RUNSTDBY |
             GCLK_GENCTRL_GENEN;
 
     while (GCLK->STATUS.reg & GCLK_STATUS_SYNCBUSY);
 
 
+    // ------------------------------------------------
     HAL_gpio_switched_light_output_out();
 
 
-    SysTick_Config((__SYSTEM_CLOCK / 1000) - 1);
+    // ------------------------------------------------
+    // Configure the SYSTICK to create an interrupt every 1 millisecond
+    SysTick_Config(__SYSTEM_CLOCK / 1000);
 
     __enable_irq();
 }
@@ -345,44 +373,53 @@ void HAL_servo_output_init(void)
     GCLK->CLKCTRL.reg =
         GCLK_CLKCTRL_ID(TCC0_GCLK_ID) |
         GCLK_CLKCTRL_CLKEN |
-        GCLK_CLKCTRL_GEN(0);
+        GCLK_CLKCTRL_GEN(1);
 
     TCC0->CTRLA.reg = TCC_CTRLA_SWRST;
 
     while (TCC0->CTRLA.reg & TCC_CTRLA_SWRST);
 
-    // Setup TCC0 to run at 48 / 16 = 3 MHz. This way we can simply multiply
-    // us values by 3 and put them in the registers
-    TCC0->CTRLA.reg =
-        TCC_CTRLA_PRESCALER(TCC_CTRLA_PRESCALER_DIV16_Val) |
-        TCC_CTRLA_PRESCSYNC_PRESC;
+    // Setup TCC0 to run at 1 MHz by using GENCLK1 (which we initialized to
+    // 1 MHz). This way we can directly put microsecond values in the registers
     TCC0->WAVE.reg = TCC_WAVE_WAVEGEN_NPWM;
-    TCC0->PER.reg = 20000 * 3;      // 20 ms period = 50 Hz servo pulse
+    TCC0->PER.reg = 20000;          // 20 ms period = 50 Hz servo pulse
     TCC0->COUNT.reg = 0;
     TCC0->CC[2].reg = 0;            // Don't output a pulse for now
     TCC0->CTRLA.reg |= TCC_CTRLA_ENABLE;
+
+    // Wait for all synchronizations finished to prevent HARD FAULT
+    while (TCC0->SYNCBUSY.reg);
 }
 
 
 // ****************************************************************************
 void HAL_servo_output_set_pulse(uint16_t servo_pulse_us)
 {
-    HAL_tcc0_value = servo_pulse_us * 3;
-    TCC0->CC[2].reg = HAL_tcc0_value;
+    saved_tcc0_cc_value = servo_pulse_us;
+    TCC0->CC[2].reg = saved_tcc0_cc_value;
+
+    // Wait for synchronization finished to prevent HARD FAULT
+    while (TCC0->SYNCBUSY.reg & TCC_SYNCBUSY_CC2);
 }
 
 
 // ****************************************************************************
 void HAL_servo_output_enable(void)
 {
-    TCC0->CC[2].reg = 0;
+    TCC0->CC[2].reg = saved_tcc0_cc_value;
+
+    // Wait for synchronization finished to prevent HARD FAULT
+    while (TCC0->SYNCBUSY.reg & TCC_SYNCBUSY_CC2);
 }
 
 
 // ****************************************************************************
 void HAL_servo_output_disable(void)
 {
-    TCC0->CC[2].reg = HAL_tcc0_value;
+    TCC0->CC[2].reg = 0;
+
+    // Wait for synchronization finished to prevent HARD FAULT
+    while (TCC0->SYNCBUSY.reg & TCC_SYNCBUSY_CC2);
 }
 
 
@@ -437,6 +474,8 @@ void SERCOM0_Handler(void)
 // ****************************************************************************
 void NMI_Handler(void)
 {
+    HAL_uart_send_char('N');
+    HAL_uart_send_char('\n');
     __BKPT(14);
     while (1);
 }
@@ -444,6 +483,8 @@ void NMI_Handler(void)
 // ****************************************************************************
 void HardFault_Handler(void)
 {
+    HAL_uart_send_char('H');
+    HAL_uart_send_char('\n');
     __BKPT(13);
     while (1);
 }
@@ -451,6 +492,8 @@ void HardFault_Handler(void)
 // ****************************************************************************
 void SVC_Handler(void)
 {
+    HAL_uart_send_char('S');
+    HAL_uart_send_char('\n');
     __BKPT(5);
     while (1);
 }
@@ -458,6 +501,8 @@ void SVC_Handler(void)
 // ****************************************************************************
 void PendSV_Handler(void)
 {
+    HAL_uart_send_char('P');
+    HAL_uart_send_char('\n');
     __BKPT(2);
     while (1);
 }
