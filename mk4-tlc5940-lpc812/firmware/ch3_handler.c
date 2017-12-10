@@ -186,7 +186,7 @@ void process_ch3_clicks(void)
     // independently of the other signals, i.e. set it if no other
     // new_channel_data was seen in a certain amount of systicks
     if (config.flags.ch3_is_local_switch) {
-        channel[CH3].normalized = hal_gpio_ch3_read() ? -100 : 100;
+        channel[CH3].normalized = HAL_gpio_ch3_read() ? -100 : 100;
     }
 
     if (global_flags.initializing) {

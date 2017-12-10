@@ -33,7 +33,7 @@ void load_persistent_storage(void)
 {
     uint32_t defaults[6];
     const volatile uint32_t *ptr;
-    const volatile uint32_t *persistent_data = hal_persistent_storage_read();
+    const volatile uint32_t *persistent_data = HAL_persistent_storage_read();
 
     defaults[OFFSET_VERSION] = PERSISTENT_DATA_VERSION;
     defaults[OFFSET_STEERING_REVERSED] = false;
@@ -70,7 +70,7 @@ void write_persistent_storage(void)
     new_data[OFFSET_SERVO_CENTRE] = servo_output_endpoint.centre;
     new_data[OFFSET_SERVO_RIGHT] = servo_output_endpoint.right;
 
-    error_message = hal_persistent_storage_write(new_data);
+    error_message = HAL_persistent_storage_write(new_data);
 
     if (error_message) {
         if (global_flags.diagnostics_enabled) {

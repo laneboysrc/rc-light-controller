@@ -1,7 +1,7 @@
 #include <LPC8xx.h>
 #include <hal.h>
 
-void hal_servo_output_init(void)
+void HAL_servo_output_init(void)
 {
     LPC_SCT->CONFIG |= (1 << 18);           // Auto-limit on counter H
     LPC_SCT->CTRL_H |= (1 << 3) |           // Clear the counter H
@@ -34,18 +34,18 @@ void hal_servo_output_init(void)
 
 // Put the servo pulse duration in milliseconds into the match register
 // to output the pulse of the given duration.
-void hal_servo_output_set_pulse(uint16_t servo_pulse)
+void HAL_servo_output_set_pulse(uint16_t servo_pulse)
 {
     LPC_SCT->MATCHREL[4].H = servo_pulse;
 }
 
-void hal_servo_output_enable(void)
+void HAL_servo_output_enable(void)
 {
     // Re-enable event 0 to set CTOUT_1
     LPC_SCT->OUT[1].SET = (1 << 0);
 }
 
-void hal_servo_output_disable(void)
+void HAL_servo_output_disable(void)
 {
     // Turn off the setting of CTOUT_1, so no pulse will be generated. However,
     // clearing of CTOUT_1 is still active through event 0, so if a pulse is

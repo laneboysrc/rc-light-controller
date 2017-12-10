@@ -22,7 +22,7 @@ static void activate_gearbox_servo(void)
     gearbox_servo_active = true;
     gearbox_servo_counter = config.gearbox_servo_active_time;
 
-    hal_servo_output_enable();
+    HAL_servo_output_enable();
 }
 
 
@@ -32,7 +32,7 @@ void init_servo_output(void) {
         return;
     }
 
-    hal_servo_output_init();
+    HAL_servo_output_init();
 
     global_flags.gear = GEAR_1;
     activate_gearbox_servo();
@@ -206,7 +206,7 @@ void process_servo_output(void)
             }
             else {
                 if (gearbox_servo_active) {
-                    hal_servo_output_disable();
+                    HAL_servo_output_disable();
 
                     gearbox_servo_counter = config.gearbox_servo_idle_time;
                     gearbox_servo_active = false;
@@ -234,7 +234,7 @@ void process_servo_output(void)
         calculate_servo_pulse();
     }
 
-    hal_servo_output_set_pulse(servo_pulse);
+    HAL_servo_output_set_pulse(servo_pulse);
 }
 
 

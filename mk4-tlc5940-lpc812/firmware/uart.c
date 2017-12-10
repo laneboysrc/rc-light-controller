@@ -27,7 +27,7 @@ which is the maximum needed for decimal.
 // ****************************************************************************
 void uart_init(void)
 {
-    hal_uart_init(config.baudrate);
+    HAL_uart_init(config.baudrate);
 }
 
 
@@ -74,31 +74,31 @@ static void int32_to_cstring(int32_t value, char *result, unsigned int radix)
 // ****************************************************************************
 bool uart0_read_is_byte_pending(void)
 {
-    return hal_uart_read_is_byte_pending();
+    return HAL_uart_read_is_byte_pending();
 }
 
 // ****************************************************************************
 uint8_t uart0_read_byte(void)
 {
-    return hal_uart_read_byte();
+    return HAL_uart_read_byte();
 }
 
 // ****************************************************************************
 bool uart0_send_is_ready(void)
 {
-    return hal_uart_send_is_ready();
+    return HAL_uart_send_is_ready();
 }
 
 // ****************************************************************************
 void uart0_send_char(const char c)
 {
-    hal_uart_send_char(c);
+    HAL_uart_send_char(c);
 }
 
 // ****************************************************************************
 void uart0_send_uint8(const uint8_t c)
 {
-    hal_uart_send_uint8(c);
+    HAL_uart_send_uint8(c);
 }
 
 // ****************************************************************************

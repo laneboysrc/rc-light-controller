@@ -1,13 +1,14 @@
 # Firmware
-* All HAL functions start with uppercase HAL
 * Use tiny printf instead of current uart0* functions
 * Separate diagnostics from uart, so depending on HW we can do both in different configurations
+    * How to do this with printf?
 * HAL should be called once every mainloop for service HAL function (USB!)
 * Better soft timer based on ATMEL design idea?
 * Steering wheel servo pulse is out of range after power on?
-* Use `__bkpt` in fault handlers, see Arduino
 * Trigger bootloader from CDC like Arduino (1200 BAUD, DTR low)
     * Can we also detect BOSSAC?
+* Monitor atsam91 erase command?
+* Lets get rid of `__SYSTEM_CLOCK`, move it into HAL
 
 # PCB
 

@@ -12,7 +12,7 @@ volatile uint32_t milliseconds;
 extern unsigned int _ram;
 extern unsigned int _stacktop;
 
-uint32_t hal_tcc0_value = 1500 * 3;
+uint32_t HAL_tcc0_value = 1500 * 3;
 
 
 // void SysTick_handler(void);
@@ -82,7 +82,7 @@ static volatile uint16_t write_index = 0;
 
 
 // ****************************************************************************
-void hal_hardware_init(bool is_servo_reader, bool has_servo_output)
+void HAL_hardware_init(bool is_servo_reader, bool has_servo_output)
 {
     uint32_t coarse;
 
@@ -122,7 +122,7 @@ void hal_hardware_init(bool is_servo_reader, bool has_servo_output)
     while (GCLK->STATUS.reg & GCLK_STATUS_SYNCBUSY);
 
 
-    hal_gpio_switched_light_output_out();
+    HAL_gpio_switched_light_output_out();
 
 
     SysTick_Config((__SYSTEM_CLOCK / 1000) - 1);
@@ -132,14 +132,14 @@ void hal_hardware_init(bool is_servo_reader, bool has_servo_output)
 
 
 // ****************************************************************************
-void hal_hardware_init_final(void)
+void HAL_hardware_init_final(void)
 {
 
 }
 
 
 // ****************************************************************************
-uint32_t *hal_stack_check(void)
+uint32_t *HAL_stack_check(void)
 {
     #define CANARY 0xcafebabe
 
@@ -181,18 +181,18 @@ uint32_t *hal_stack_check(void)
 }
 
 // ****************************************************************************
-void hal_uart_init(uint32_t baudrate)
+void HAL_uart_init(uint32_t baudrate)
 {
     uint64_t brr = (uint64_t)65536 * (__SYSTEM_CLOCK - 16 * baudrate) / __SYSTEM_CLOCK;
 
-    hal_gpio_UART_TXD_out();
-    hal_gpio_UART_TXD_pmuxen(UART_TXD_PMUX);
+    HAL_gpio_UART_TXD_out();
+    HAL_gpio_UART_TXD_pmuxen(UART_TXD_PMUX);
 
-    hal_gpio_UART_RXD_in();
-    hal_gpio_UART_RXD_pmuxen(UART_RXD_PMUX);
+    HAL_gpio_UART_RXD_in();
+    HAL_gpio_UART_RXD_pmuxen(UART_RXD_PMUX);
 
-    hal_gpio_XLAT_out();
-    hal_gpio_XLAT_clear();
+    HAL_gpio_XLAT_out();
+    HAL_gpio_XLAT_clear();
 
 
     PM->APBCMASK.reg |= UART_SERCOM_APBCMASK;
@@ -226,18 +226,18 @@ void hal_uart_init(uint32_t baudrate)
 
 
 // ****************************************************************************
-bool hal_uart_read_is_byte_pending(void)
+bool HAL_uart_read_is_byte_pending(void)
 {
     return (read_index != write_index);
 }
 
 
 // ****************************************************************************
-uint8_t hal_uart_read_byte(void)
+uint8_t HAL_uart_read_byte(void)
 {
     uint8_t data;
 
-    while (!hal_uart_read_is_byte_pending());
+    while (!HAL_uart_read_is_byte_pending());
 
     data = receive_buffer[read_index++];
 
@@ -249,14 +249,14 @@ uint8_t hal_uart_read_byte(void)
 
 
 // ****************************************************************************
-bool hal_uart_send_is_ready(void)
+bool HAL_uart_send_is_ready(void)
 {
     return (UART_SERCOM->USART.INTFLAG.reg & SERCOM_USART_INTFLAG_DRE);
 }
 
 
 // ****************************************************************************
-void hal_uart_send_char(const char c)
+void HAL_uart_send_char(const char c)
 {
     while (!(UART_SERCOM->USART.INTFLAG.reg & SERCOM_USART_INTFLAG_DRE));
     UART_SERCOM->USART.DATA.reg = c;
@@ -264,25 +264,25 @@ void hal_uart_send_char(const char c)
 
 
 // ****************************************************************************
-void hal_uart_send_uint8(const uint8_t c)
+void HAL_uart_send_uint8(const uint8_t c)
 {
-    hal_uart_send_char(c);
+    HAL_uart_send_char(c);
 }
 
 
 // ****************************************************************************
-void hal_spi_init(void)
+void HAL_spi_init(void)
 {
     int baud = 1;   // 12 MHz SPI clock @ 48 MHz
 
-    hal_gpio_SIN_out();
-    hal_gpio_SIN_pmuxen(SPI_SIN_PMUX);
+    HAL_gpio_SIN_out();
+    HAL_gpio_SIN_pmuxen(SPI_SIN_PMUX);
 
-    hal_gpio_SCLK_out();
-    hal_gpio_SCLK_pmuxen(SPI_SCLK_PMUX);
+    HAL_gpio_SCLK_out();
+    HAL_gpio_SCLK_pmuxen(SPI_SCLK_PMUX);
 
-    hal_gpio_XLAT_out();
-    hal_gpio_XLAT_set();
+    HAL_gpio_XLAT_out();
+    HAL_gpio_XLAT_set();
 
     PM->APBCMASK.reg |= SPI_SERCOM_APBCMASK;
 
@@ -305,9 +305,9 @@ void hal_spi_init(void)
 
 
 // ****************************************************************************
-void hal_spi_transaction(uint8_t *data, uint8_t count)
+void HAL_spi_transaction(uint8_t *data, uint8_t count)
 {
-    hal_gpio_XLAT_clear();
+    HAL_gpio_XLAT_clear();
 
     for (uint8_t i = 0; i < count; i++) {
         SPI_SERCOM->SPI.DATA.reg = data[i];
@@ -315,19 +315,19 @@ void hal_spi_transaction(uint8_t *data, uint8_t count)
     }
 
     while (!SPI_SERCOM->SPI.INTFLAG.bit.TXC);
-    hal_gpio_XLAT_set();
+    HAL_gpio_XLAT_set();
 }
 
 
 // ****************************************************************************
-volatile const uint32_t *hal_persistent_storage_read(void)
+volatile const uint32_t *HAL_persistent_storage_read(void)
 {
     return 0;
 }
 
 
 // ****************************************************************************
-const char *hal_persistent_storage_write(const uint32_t *new_data)
+const char *HAL_persistent_storage_write(const uint32_t *new_data)
 {
     (void) new_data;
     return 0;
@@ -335,10 +335,10 @@ const char *hal_persistent_storage_write(const uint32_t *new_data)
 
 
 // ****************************************************************************
-void hal_servo_output_init(void)
+void HAL_servo_output_init(void)
 {
-    hal_gpio_SERVO_OUT_out();
-    hal_gpio_SERVO_OUT_pmuxen(PORT_PMUX_PMUXE_F_Val);
+    HAL_gpio_SERVO_OUT_out();
+    HAL_gpio_SERVO_OUT_pmuxen(PORT_PMUX_PMUXE_F_Val);
 
     PM->APBCMASK.reg |= PM_APBCMASK_TCC0;
 
@@ -365,29 +365,29 @@ void hal_servo_output_init(void)
 
 
 // ****************************************************************************
-void hal_servo_output_set_pulse(uint16_t servo_pulse_us)
+void HAL_servo_output_set_pulse(uint16_t servo_pulse_us)
 {
-    hal_tcc0_value = servo_pulse_us * 3;
-    TCC0->CC[2].reg = hal_tcc0_value;
+    HAL_tcc0_value = servo_pulse_us * 3;
+    TCC0->CC[2].reg = HAL_tcc0_value;
 }
 
 
 // ****************************************************************************
-void hal_servo_output_enable(void)
+void HAL_servo_output_enable(void)
 {
     TCC0->CC[2].reg = 0;
 }
 
 
 // ****************************************************************************
-void hal_servo_output_disable(void)
+void HAL_servo_output_disable(void)
 {
-    TCC0->CC[2].reg = hal_tcc0_value;
+    TCC0->CC[2].reg = HAL_tcc0_value;
 }
 
 
 // ****************************************************************************
-void hal_servo_reader_init(bool CPPM, uint32_t max_pulse)
+void HAL_servo_reader_init(bool CPPM, uint32_t max_pulse)
 {
     (void) CPPM;
     (void) max_pulse;
@@ -395,7 +395,7 @@ void hal_servo_reader_init(bool CPPM, uint32_t max_pulse)
 
 
 // ****************************************************************************
-bool hal_servo_reader_get_new_channels(uint32_t *raw_data)
+bool HAL_servo_reader_get_new_channels(uint32_t *raw_data)
 {
     (void) raw_data;
     return false;

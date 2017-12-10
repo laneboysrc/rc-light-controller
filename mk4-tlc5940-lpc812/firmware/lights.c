@@ -129,13 +129,13 @@ static void send_light_data_to_tlc5940(void)
        data[i] = gamma_table.gamma_table[light_actual[i]] >> 2;
     }
 
-    hal_spi_transaction(data, 16);
+    HAL_spi_transaction(data, 16);
 
 
     // The switched_light_output mirrors the output of LED15 onto the
     // dedicated output pin.
     // Fading is not applied. 0 turns the output off, any other value on.
-    hal_gpio_switched_light_output_write(light_setpoint[15] ? 1 : 0);
+    HAL_gpio_switched_light_output_write(light_setpoint[15] ? 1 : 0);
 }
 
 
@@ -148,21 +148,21 @@ static void send_light_data_to_tlc5940(void)
 // ****************************************************************************
 void init_lights(void)
 {
-    hal_gpio_blank_set();
-    hal_gpio_gsclk_clear();
+    HAL_gpio_blank_set();
+    HAL_gpio_gsclk_clear();
 
-    hal_gpio_blank_out();
-    hal_gpio_gsclk_out();
+    HAL_gpio_blank_out();
+    HAL_gpio_gsclk_out();
 
-    hal_spi_init();
+    HAL_spi_init();
 
     send_light_data_to_tlc5940();
 
-    hal_gpio_blank_clear();
+    HAL_gpio_blank_clear();
     // Do this short function in-between clearing BLANK and setting GSCLK to
     // surely meet the setup time requirement of the TLC5940
     init_light_programs();
-    hal_gpio_gsclk_set();
+    HAL_gpio_gsclk_set();
 
     light_switch_position = config.initial_light_switch_position;
 }

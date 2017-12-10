@@ -9,12 +9,12 @@
 __attribute__ ((section(".persistent_data")))
 static volatile const uint32_t persistent_data[HAL_NUMBER_OF_PERSISTENT_ELEMENTS];
 
-volatile const uint32_t *hal_persistent_storage_read(void)
+volatile const uint32_t *HAL_persistent_storage_read(void)
 {
     return persistent_data;
 }
 
-const char *hal_persistent_storage_write(const uint32_t *new_data)
+const char *HAL_persistent_storage_write(const uint32_t *new_data)
 {
     unsigned int param[5];
 

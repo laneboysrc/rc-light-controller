@@ -112,7 +112,7 @@ int main(void)
         }
     }
 
-    hal_hardware_init(is_servo_reader, global_flags.servo_output_enabled);
+    HAL_hardware_init(is_servo_reader, global_flags.servo_output_enabled);
     load_persistent_storage();
     uart_init();
     init_servo_reader();
@@ -126,7 +126,7 @@ int main(void)
     while (milliseconds <  100);
 
     init_lights();
-    hal_hardware_init_final();
+    HAL_hardware_init_final();
 
     next_tick = milliseconds + __SYSTICK_IN_MS;
     if (global_flags.diagnostics_enabled) {
@@ -138,7 +138,7 @@ int main(void)
     if (global_flags.diagnostics_enabled) {
         uint32_t *now;
 
-        now = hal_stack_check();
+        now = HAL_stack_check();
         if (now) {
             uart0_send_cstring("Stack down to 0x");
             uart0_send_uint32_hex((uint32_t)now);

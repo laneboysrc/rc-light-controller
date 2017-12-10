@@ -108,7 +108,7 @@ static void output_raw_channels(uint16_t result[3])
 
 
 // ****************************************************************************
-bool hal_servo_reader_get_new_channels(uint32_t *out)
+bool HAL_servo_reader_get_new_channels(uint32_t *out)
 {
     if (!new_raw_channel_data) {
         return false;
@@ -123,7 +123,7 @@ bool hal_servo_reader_get_new_channels(uint32_t *out)
 
 
 // ****************************************************************************
-void hal_servo_reader_init(bool CPPM, uint32_t cppm_servo_pulse_max)
+void HAL_servo_reader_init(bool CPPM, uint32_t cppm_servo_pulse_max)
 {
     read_cppm = CPPM;
     servo_pulse_max = cppm_servo_pulse_max << 1;

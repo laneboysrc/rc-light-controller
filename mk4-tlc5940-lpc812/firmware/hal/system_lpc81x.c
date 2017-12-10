@@ -37,7 +37,7 @@ void HardFault_handler(void)
 
 
 // ****************************************************************************
-void hal_hardware_init(bool is_servo_reader, bool has_servo_output)
+void HAL_hardware_init(bool is_servo_reader, bool has_servo_output)
 {
 #if __SYSTEM_CLOCK != 12000000
 #error Clock initialization code expexts __SYSTEM_CLOCK to be set to 1200000
@@ -84,7 +84,7 @@ void hal_hardware_init(bool is_servo_reader, bool has_servo_output)
     // Make the open drain ports PIO0_10, PIO0_11 outputs and pull to ground
     // to prevent them from floating.
     // Make the switched light output PIO0_9 an output and shut it off.
-    hal_gpio_switched_light_output_clear();
+    HAL_gpio_switched_light_output_clear();
     LPC_GPIO_PORT->W0[10] = 0;
     LPC_GPIO_PORT->W0[11] = 0;
     LPC_GPIO_PORT->DIR0 |= (1 << 10) | (1 << 11) |
@@ -125,14 +125,14 @@ void hal_hardware_init(bool is_servo_reader, bool has_servo_output)
 
 
 // ****************************************************************************
-void hal_hardware_init_final(void)
+void HAL_hardware_init_final(void)
 {
     // Turn off peripheral clock for IOCON and SWM to preserve power
     LPC_SYSCON->SYSAHBCLKCTRL &= ~((1 << 18) | (1 << 7));
 }
 
 // ****************************************************************************
-uint32_t *hal_stack_check(void)
+uint32_t *HAL_stack_check(void)
 {
     #define CANARY 0xcafebabe
 

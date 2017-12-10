@@ -13,7 +13,7 @@
 #define GPIO_SIN LPC_GPIO_PORT->W0[GPIO_BIT_SIN]
 
 
-void hal_spi_init(void)
+void HAL_spi_init(void)
 {
     GPIO_XLAT = 1;
 
@@ -49,7 +49,7 @@ void hal_spi_init(void)
                           (GPIO_BIT_SIN << 0);          // SIN (MOSI)
 }
 
-void hal_spi_transaction(uint8_t *data, uint8_t count)
+void HAL_spi_transaction(uint8_t *data, uint8_t count)
 {
     volatile uint8_t i;
 
