@@ -106,8 +106,7 @@ int main(void)
         global_flags.diagnostics_enabled = false;
     }
     if (is_servo_reader) {
-        if (config.flags.steering_wheel_servo_output ||
-                config.flags.gearbox_servo_output) {
+        if (global_flags.servo_output_enabled) {
             global_flags.diagnostics_enabled = false;
         }
     }

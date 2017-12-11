@@ -66,7 +66,7 @@ void HAL_hardware_init(bool is_servo_reader, bool has_servo_output)
     if (is_servo_reader) {
         // Turn the UART output on unless a servo output is requested
         if (!has_servo_output) {
-            // U0_TXT_O=PIO0_12
+            // U0_TXT_O=PIO0_12 (OUT/ISP)
             LPC_SWM->PINASSIGN0 = (0xff << 24) |
                                   (0xff << 16) |
                                   (0xff << 8) |
