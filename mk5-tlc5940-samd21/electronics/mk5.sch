@@ -159,7 +159,7 @@ U 1 1 59C46F6E
 P 7750 3300
 F 0 "R1" V 7830 3300 50  0000 C CNN
 F 1 "2K 1%" V 7650 3300 50  0000 C CNN
-F 2 "Resistors_SMD:R_0805_HandSoldering" V 7680 3300 50  0001 C CNN
+F 2 "Resistors_SMD:R_0603" V 7680 3300 50  0001 C CNN
 F 3 "" H 7750 3300 50  0001 C CNN
 	1    7750 3300
 	1    0    0    -1  
@@ -559,32 +559,32 @@ $EndComp
 $Comp
 L R R2
 U 1 1 59C50F45
-P 2450 1650
-F 0 "R2" V 2530 1650 50  0000 C CNN
-F 1 "680" V 2450 1650 50  0000 C CNN
-F 2 "Resistors_SMD:R_0603" V 2380 1650 50  0001 C CNN
-F 3 "" H 2450 1650 50  0001 C CNN
-	1    2450 1650
+P 2450 1550
+F 0 "R2" V 2350 1550 50  0000 C CNN
+F 1 "680" V 2450 1550 50  0000 C CNN
+F 2 "Resistors_SMD:R_0603" V 2380 1550 50  0001 C CNN
+F 3 "" H 2450 1550 50  0001 C CNN
+	1    2450 1550
 	0    1    1    0   
 $EndComp
 $Comp
 L R R5
 U 1 1 59C512D3
-P 2450 1550
-F 0 "R5" V 2530 1550 50  0000 C CNN
-F 1 "680" V 2450 1550 50  0000 C CNN
-F 2 "Resistors_SMD:R_0603" V 2380 1550 50  0001 C CNN
-F 3 "" H 2450 1550 50  0001 C CNN
-	1    2450 1550
+P 2450 1650
+F 0 "R5" V 2350 1650 50  0000 C CNN
+F 1 "680" V 2450 1650 50  0000 C CNN
+F 2 "Resistors_SMD:R_0603" V 2380 1650 50  0001 C CNN
+F 3 "" H 2450 1650 50  0001 C CNN
+	1    2450 1650
 	0    -1   -1   0   
 $EndComp
 Text Label 6800 3150 2    60   ~ 0
 ST
 Text Label 6800 3050 2    60   ~ 0
 OUT/Tx
-Text Label 2900 1650 2    60   ~ 0
-Rx
 Text Label 2900 1550 2    60   ~ 0
+Rx
+Text Label 2900 1650 2    60   ~ 0
 OUT/Tx
 $Comp
 L PWR_FLAG #FLG020
@@ -742,7 +742,7 @@ F 3 "" H 8050 2000 50  0001 C CNN
 $EndComp
 Text Label 6800 2250 2    60   ~ 0
 XLAT
-Text Label 6800 1850 2    60   ~ 0
+Text Label 6800 1950 2    60   ~ 0
 OUT15
 $Comp
 L GS2 J4
@@ -761,7 +761,7 @@ Text Label 6800 2350 2    60   ~ 0
 BLANK
 Text Label 6800 3250 2    60   ~ 0
 TH
-Text Label 6800 2450 2    60   ~ 0
+Text Label 6800 2950 2    60   ~ 0
 GSCLK
 Text Label 6800 4050 2    60   ~ 0
 SWCLK
@@ -815,7 +815,7 @@ Text Label 6800 2150 2    60   ~ 0
 SCLK
 Text Label 6800 2050 2    60   ~ 0
 SIN
-Text Label 6800 2650 2    60   ~ 0
+Text Label 6800 2450 2    60   ~ 0
 BUTTON
 Text Label 2300 5800 1    60   ~ 0
 VUSB
@@ -1051,8 +1051,6 @@ Wire Wire Line
 	8050 1300 8050 1250
 Connection ~ 8050 1250
 Wire Wire Line
-	6800 2650 6350 2650
-Wire Wire Line
 	1450 7000 2300 7000
 Wire Wire Line
 	2300 7000 2300 6900
@@ -1244,8 +1242,6 @@ Connection ~ 3700 2050
 Wire Wire Line
 	3700 2950 3700 3050
 Wire Wire Line
-	6350 1850 6800 1850
-Wire Wire Line
 	6350 3050 6800 3050
 Wire Wire Line
 	6350 3150 6800 3150
@@ -1258,7 +1254,6 @@ NoConn ~ 6350 1750
 NoConn ~ 6350 2550
 NoConn ~ 6350 2750
 NoConn ~ 6350 2850
-NoConn ~ 6350 2950
 NoConn ~ 6350 3450
 NoConn ~ 6350 3850
 NoConn ~ 6350 3950
@@ -1266,9 +1261,6 @@ NoConn ~ 3850 2200
 NoConn ~ 6800 3150
 NoConn ~ 6800 3250
 NoConn ~ 6800 3350
-Wire Wire Line
-	6350 2450 6800 2450
-NoConn ~ 6350 1950
 $Comp
 L PRTR5V0U2X D2
 U 1 1 5A2E4F71
@@ -1305,4 +1297,12 @@ F 3 "" H 3150 6050 50  0001 C CNN
 $EndComp
 Wire Wire Line
 	3150 5950 3150 6050
+Wire Wire Line
+	6350 1950 6800 1950
+NoConn ~ 6350 1850
+Wire Wire Line
+	6350 2950 6800 2950
+Wire Wire Line
+	6350 2450 6800 2450
+NoConn ~ 6350 2650
 $EndSCHEMATC
