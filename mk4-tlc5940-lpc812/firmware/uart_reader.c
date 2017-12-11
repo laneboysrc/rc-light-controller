@@ -120,8 +120,8 @@ void read_preprocessor(void)
 
     global_flags.new_channel_data = false;
 
-    while (HAL_uart_is_byte_pending()) {
-        uart_byte = HAL_getc();
+    while (HAL_getchar_pending()) {
+        uart_byte = HAL_getchar();
 
         // The preprocessor protocol is designed such that only the first
         // byte can have the MAGIC value. This allows us to be in sync at all

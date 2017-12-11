@@ -551,11 +551,12 @@ static void process_car_lights(void)
 // ****************************************************************************
 static void process_slave(void)
 {
-    uint8_t uart_byte;
     static int state = 0;
 
-    while (HAL_uart_is_byte_pending()) {
-        uart_byte = HAL_getc();
+    while (HAL_getchar_pending()) {
+        uint8_t uart_byte;
+
+        uart_byte = HAL_getchar();
 
         // The slave/preprocessor protocol is designed such that only the first
         // byte can have the MAGIC value. This allows us to be in sync at all

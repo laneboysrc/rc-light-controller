@@ -123,28 +123,6 @@ void HAL_uart_init(uint32_t baudrate)
 }
 
 
-// // ****************************************************************************
-// bool HAL_uart_send_is_ready(void)
-// {
-//     return (LPC_USART0->STAT & UART_STAT_TXRDY);
-// }
-
-
-// // ****************************************************************************
-// void HAL_uart_send_char(const char c)
-// {
-//     while (!(LPC_USART0->STAT & UART_STAT_TXRDY));
-//     LPC_USART0->TXDATA = c;
-// }
-
-// // ****************************************************************************
-// void HAL_uart_send_uint8(const uint8_t u)
-// {
-//     while (!(LPC_USART0->STAT & UART_STAT_TXRDY));
-//     LPC_USART0->TXDATA = u;
-// }
-
-
 // ****************************************************************************
 void HAL_putc(void *p, char c)
 {
@@ -153,27 +131,9 @@ void HAL_putc(void *p, char c)
     LPC_USART0->TXDATA = c;
 }
 
-// ****************************************************************************
-// ****************************************************************************
-// ****************************************************************************
-void UART0_irq_handler(void)
-{
-    receive_buffer[write_index++] = (uint8_t)LPC_USART0->RXDATA;
-
-    // Wrap around the write pointer. This works because the buffer size is
-    // a modulo of 2.
-    write_index &= RECEIVE_BUFFER_INDEX_MASK;
-
-    // If we are bumping into the read pointer we are dealing with a buffer
-    // overflow. Back off and rather destroy the last value.
-    if (write_index == read_index) {
-        write_index = (write_index - 1) & RECEIVE_BUFFER_INDEX_MASK;
-    }
-}
-
 
 // ****************************************************************************
-bool HAL_uart_is_byte_pending(void)
+bool HAL_getchar_pending(void)
 {
     if (LPC_USART0->STAT & (1 << 8)) {
         // uart0_send_cstring("overrun\n");
@@ -193,11 +153,11 @@ bool HAL_uart_is_byte_pending(void)
 
 
 // ****************************************************************************
-uint8_t HAL_getc(void)
+uint8_t HAL_getchar(void)
 {
     uint8_t data;
 
-    while (!HAL_uart_is_byte_pending());
+    while (!HAL_getchar_pending());
 
     data = receive_buffer[read_index++];
 
@@ -205,4 +165,23 @@ uint8_t HAL_getc(void)
     read_index &= RECEIVE_BUFFER_INDEX_MASK;
 
     return data;
+}
+
+
+// ****************************************************************************
+// ****************************************************************************
+// ****************************************************************************
+void UART0_irq_handler(void)
+{
+    receive_buffer[write_index++] = (uint8_t)LPC_USART0->RXDATA;
+
+    // Wrap around the write pointer. This works because the buffer size is
+    // a modulo of 2.
+    write_index &= RECEIVE_BUFFER_INDEX_MASK;
+
+    // If we are bumping into the read pointer we are dealing with a buffer
+    // overflow. Back off and rather destroy the last value.
+    if (write_index == read_index) {
+        write_index = (write_index - 1) & RECEIVE_BUFFER_INDEX_MASK;
+    }
 }

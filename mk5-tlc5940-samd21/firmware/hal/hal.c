@@ -258,18 +258,18 @@ void HAL_uart_init(uint32_t baudrate)
 
 
 // ****************************************************************************
-bool HAL_uart_is_byte_pending(void)
+bool HAL_getchar_pending(void)
 {
     return (read_index != write_index);
 }
 
 
 // ****************************************************************************
-uint8_t HAL_getc(void)
+uint8_t HAL_getchar(void)
 {
     uint8_t data;
 
-    while (!HAL_uart_is_byte_pending());
+    while (!HAL_getchar_pending());
 
     data = receive_buffer[read_index++];
 
