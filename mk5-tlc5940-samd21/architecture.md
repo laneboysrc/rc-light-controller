@@ -59,11 +59,6 @@ UART: PA16/PA23 SERCOM3, OUT/TX = PA16/TCC2
 
 
 
-    Arduino:
-    ST/TH/CH3 on pads 17/18/19, all TCC0
-    Rx=23, Tx=22 SERCOM3
-    OUT=16 TCC2
-    SPI PA04/05 SERCOM0
 
 
 # SAM R21 Xplained Pro

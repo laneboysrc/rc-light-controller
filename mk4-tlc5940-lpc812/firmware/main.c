@@ -87,6 +87,25 @@ static void check_no_signal(void)
 
 
 // ****************************************************************************
+static void output_channel_diagnostics(void)
+{
+    if (global_flags.new_channel_data) {
+        static int16_t st = 999;
+        static int16_t th = 999;
+
+        if (st != channel[ST].normalized  ||
+            th != channel[TH].normalized) {
+
+           st = channel[ST].normalized;
+           th = channel[TH].normalized;
+
+           fprintf(STDOUT_DEBUG, "ST: %4d  TH: %4d\n", channel[ST].normalized, channel[TH].normalized);
+        }
+    }
+}
+
+
+// ****************************************************************************
 int main(void)
 {
     bool is_servo_reader;
@@ -97,24 +116,17 @@ int main(void)
         config.flags.steering_wheel_servo_output ||
         config.flags.gearbox_servo_output;
 
+    global_flags.uart_output_enabled =
+        config.flags.slave_output ||
+        config.flags.preprocessor_output ||
+        config.flags.winch_output;
+
     global_flags.no_signal = true;
 
-    global_flags.diagnostics_enabled = true;
-    if (config.flags.slave_output ||
-            config.flags.preprocessor_output ||
-            config.flags.winch_output) {
-        global_flags.diagnostics_enabled = false;
-    }
-    if (is_servo_reader) {
-        if (global_flags.servo_output_enabled) {
-            global_flags.diagnostics_enabled = false;
-        }
-    }
-
-    HAL_hardware_init(is_servo_reader, global_flags.servo_output_enabled);
+    HAL_hardware_init(is_servo_reader, global_flags.servo_output_enabled, global_flags.uart_output_enabled);
     load_persistent_storage();
     HAL_uart_init(config.baudrate);
-    init_printf(NULL, HAL_putc);
+    init_printf(STDOUT, HAL_putc);
     init_servo_reader();
     init_uart_reader();
     init_servo_output();
@@ -129,21 +141,9 @@ int main(void)
     HAL_hardware_init_final();
 
     next_tick = milliseconds + __SYSTICK_IN_MS;
-    if (global_flags.diagnostics_enabled) {
-        printf("Light controller initialized\n");
-    }
+    fprintf(STDOUT_DEBUG, "Light controller initialized\n");
 
     while (1) {
-#ifndef NODEBUG
-    if (global_flags.diagnostics_enabled) {
-        uint32_t *now;
-
-        now = HAL_stack_check();
-        if (now) {
-            printf("Stack down to 0x%08x\n", (uint32_t)now);
-        }
-    }
-#endif
         service_systick();
 
         read_all_servo_channels();
@@ -158,22 +158,7 @@ int main(void)
         process_winch();
         process_lights();
         output_preprocessor();
-
-        if (global_flags.diagnostics_enabled) {
-            if (global_flags.new_channel_data) {
-                static int16_t st = 999;
-                static int16_t th = 999;
-
-                if (st != channel[ST].normalized  ||
-                    th != channel[TH].normalized) {
-
-                   st = channel[ST].normalized;
-                   th = channel[TH].normalized;
-
-                   printf("ST: %4d  TH: %4d\n", channel[ST].normalized, channel[TH].normalized);
-                }
-            }
-        }
+        output_channel_diagnostics();
 
         HAL_service();
     }

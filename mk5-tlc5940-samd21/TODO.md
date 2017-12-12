@@ -5,7 +5,7 @@
 * Trigger bootloader from CDC like Arduino (1200 BAUD, DTR low)
     * Can we also detect BOSSAC?
 * Steering wheel servo pulse is out of range after power on?
-    * servo_output_enable should only be activated when gearbox servo configured, to prevent glitch before initialized properly?
+    * `servo_output_enable` should only be activated when gearbox servo configured, to prevent glitch before initialized properly?
 * Move stack check into HAL_Service
 * Button input via HAL (must be configurable)
 

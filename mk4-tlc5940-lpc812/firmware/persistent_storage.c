@@ -73,9 +73,7 @@ void write_persistent_storage(void)
     error_message = HAL_persistent_storage_write(new_data);
 
     if (error_message) {
-        if (global_flags.diagnostics_enabled) {
-            printf(error_message);
-            printf("\n");
-        }
+        fprintf(STDOUT_DEBUG, error_message);
+        fprintf(STDOUT_DEBUG, "\n");
     }
 }

@@ -492,17 +492,16 @@ static void process_car_lights(void)
 {
     int i;
     uint32_t leds_used;
+    static uint8_t old_light_switch_position = 0xff;
 
     leds_used = process_light_programs();
 
-    if (global_flags.diagnostics_enabled) {
-        static uint8_t old_light_switch_position = 0xff;
 
-        if (light_switch_position != old_light_switch_position) {
-            old_light_switch_position = light_switch_position;
-            printf("light_switch_position %d\n", light_switch_position);
-        }
+    if (light_switch_position != old_light_switch_position) {
+        old_light_switch_position = light_switch_position;
+        fprintf(STDOUT_DEBUG, "light_switch_position %d\n", light_switch_position);
     }
+
 
     // Handle LEDs connected to the TLC5940 locally
     for (i = 0; i < local_leds.led_count ; i++) {

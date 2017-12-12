@@ -59,7 +59,7 @@ SOURCES += $(SOURCE_PATH)/uart_reader.c
 SOURCES += $(SOURCE_PATH)/utils.c
 SOURCES += $(SOURCE_PATH)/winch.c
 SOURCES += $(SOURCE_PATH)/libs/printf/printf.c
-SOURCES += hal/hal.c
+SOURCES += hal/hal_samd21.c
 SOURCES += hal/startup_samd21.c
 
 INCLUDES += -I.

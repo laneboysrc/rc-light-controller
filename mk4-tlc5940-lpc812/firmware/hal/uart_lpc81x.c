@@ -94,6 +94,8 @@ static uint8_t receive_buffer[RECEIVE_BUFFER_SIZE];
 static volatile uint16_t read_index = 0;
 static volatile uint16_t write_index = 0;
 
+extern bool diagnostics_on_uart;
+
 
 // ****************************************************************************
 void HAL_uart_init(uint32_t baudrate)
@@ -126,7 +128,11 @@ void HAL_uart_init(uint32_t baudrate)
 // ****************************************************************************
 void HAL_putc(void *p, char c)
 {
-    (void) p;
+    // Ignore diagnostics requests if disabled
+    if (!diagnostics_on_uart  &&  p == STDOUT_DEBUG) {
+        return;
+    }
+
     while (!(LPC_USART0->STAT & UART_STAT_TXRDY));
     LPC_USART0->TXDATA = c;
 }

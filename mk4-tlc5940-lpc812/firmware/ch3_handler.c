@@ -42,9 +42,8 @@ static void process_ch3_click_timeout(void)
         return;                     // No: wait for more buttons
     }
 
-    if (global_flags.diagnostics_enabled) {
-        printf("click_timeout\n");
-    }
+    fprintf(STDOUT_DEBUG, "click_timeout\n");
+
 
     // ####################################
     // At this point we have detected one of more clicks and need to
@@ -135,9 +134,7 @@ static void process_ch3_click_timeout(void)
 // ****************************************************************************
 static void add_click(void)
 {
-    if (global_flags.diagnostics_enabled) {
-        printf("add_click\n");
-    }
+    fprintf(STDOUT_DEBUG, "add_click\n");
 
     // If the winch is running any movement of CH3 immediately turns off
     // the winch (without waiting for click timeout!)

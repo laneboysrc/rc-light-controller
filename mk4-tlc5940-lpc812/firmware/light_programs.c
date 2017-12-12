@@ -98,6 +98,7 @@
 #include <stdbool.h>
 
 #include <globals.h>
+#include <hal.h>
 #include <printf.h>
 #include <utils.h>
 
@@ -305,11 +306,7 @@ static int16_t get_parameter_value(uint32_t instruction)
             return global_flags.gear;
 
         default:
-#ifndef NODEBUG
-            if (global_flags.diagnostics_enabled) {
-                printf("UNKNOWN PARAMETER TYPE 0x%08x\n", type);
-            }
-#endif
+            fprintf(STDOUT_DEBUG, "UNKNOWN PARAMETER TYPE 0x%08x\n", type);
             return 0;
     }
 }
@@ -564,11 +561,7 @@ static void execute_program(
                 return;
 
             default:
-#ifndef NODEBUG
-                if (global_flags.diagnostics_enabled) {
-                    printf("UNKNOWN OPCODE 0x%02x\n", opcode);
-                }
-#endif
+                fprintf(STDOUT_DEBUG, "UNKNOWN OPCODE 0x%02x\n", opcode);
                 c->PC = program + FIRST_OPCODE_OFFSET;
                 c->event = 0;
                 return;

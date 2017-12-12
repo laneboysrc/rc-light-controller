@@ -3,6 +3,7 @@
 
 #include <LPC8xx.h>
 #include <hal.h>
+#include <printf.h>
 
 
 
@@ -18,6 +19,7 @@ volatile uint32_t milliseconds;
 extern unsigned int _ram;
 extern unsigned int _stacktop;
 
+bool diagnostics_on_uart;
 
 
 // ****************************************************************************
@@ -37,7 +39,7 @@ void HardFault_handler(void)
 
 
 // ****************************************************************************
-void HAL_hardware_init(bool is_servo_reader, bool has_servo_output)
+void HAL_hardware_init(bool is_servo_reader, bool servo_output_enabled, bool uart_output_enabled)
 {
 #if HAL_SYSTEM_CLOCK != 12000000
 #error Clock initialization code expexts __SYSTEM_CLOCK to be set to 1200000
@@ -65,7 +67,7 @@ void HAL_hardware_init(bool is_servo_reader, bool has_servo_output)
     // Configure the UART input and output
     if (is_servo_reader) {
         // Turn the UART output on unless a servo output is requested
-        if (!has_servo_output) {
+        if (!servo_output_enabled) {
             // U0_TXT_O=PIO0_12 (OUT/ISP)
             LPC_SWM->PINASSIGN0 = (0xff << 24) |
                                   (0xff << 16) |
@@ -121,6 +123,24 @@ void HAL_hardware_init(bool is_servo_reader, bool has_servo_output)
     // ------------------------
     // SysTick configuration 1000 Hz / 1 ms
     SysTick_Config((HAL_SYSTEM_CLOCK / 1000)- 1);
+
+
+    // ------------------------
+    // The UART Tx can be used for diagnostics output if it is not in use.
+    // The pin is in use when HAL gets passed "uart_output_enabled==true"
+    // (UART used for pre-processor, winch or slave output), or when we
+    // have a servo reader and the servo output is enabled.
+    //
+    // Or in other words: the UART can output diagnostics on the OUT pin
+    // when it is not in use, or the UART can output diagnostics on the TH/Tx
+    // pin when we the UART reader is in use and no UART output function is
+    // configured.
+    diagnostics_on_uart = !uart_output_enabled;
+    if (is_servo_reader) {
+        if (servo_output_enabled) {
+            diagnostics_on_uart = false;
+        }
+    }
 }
 
 
@@ -131,11 +151,12 @@ void HAL_hardware_init_final(void)
     LPC_SYSCON->SYSAHBCLKCTRL &= ~((1 << 18) | (1 << 7));
 }
 
-// ****************************************************************************
-uint32_t *HAL_stack_check(void)
-{
-    #define CANARY 0xcafebabe
 
+// ****************************************************************************
+void HAL_service(void)
+{
+#ifndef NODEBUG
+    #define CANARY 0xcafebabe
 
     static uint32_t *last_found;
     uint32_t *now;
@@ -146,25 +167,15 @@ uint32_t *HAL_stack_check(void)
 
     now = last_found;
 
-    // for (int i = 0; i < 60; i++) {
-    //     uart0_send_uint32_hex(*now--);
-    //     uart0_send_linefeed();
-    // }
-    // uart0_send_linefeed();
-
     while (*now != CANARY  &&  now > (uint32_t *)&_ram) {
         --now;
     }
 
     if (now < last_found) {
         last_found = now;
-        return now;
-    }
-    return NULL;
-}
 
-// ****************************************************************************
-void HAL_service(void)
-{
-    ;
+        // FIXME: output this to diagnostics port
+        printf("Stack down to 0x%08x\n", (uint32_t)now);
+    }
+#endif
 }

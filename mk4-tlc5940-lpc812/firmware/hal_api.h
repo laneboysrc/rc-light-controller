@@ -1,12 +1,13 @@
 #pragma once
 
+#define STDOUT ((void *) 0)
+#define STDOUT_DEBUG ((void *) 1)
+
 extern uint32_t entropy;
 extern volatile uint32_t milliseconds;
 
-void HAL_hardware_init(bool is_servo_reader, bool has_servo_output);
+void HAL_hardware_init(bool is_servo_reader, bool servo_output_enabled, bool uart_output_enabled);
 void HAL_hardware_init_final(void);
-
-uint32_t *HAL_stack_check(void);
 
 void HAL_service(void);
 

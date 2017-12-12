@@ -2,6 +2,7 @@
 #include <stdio.h>
 
 #include <hal.h>
+#include <printf.h>
 
 
 volatile uint32_t milliseconds;
@@ -79,12 +80,13 @@ static volatile uint16_t write_index = 0;
 
 
 // ****************************************************************************
-void HAL_hardware_init(bool is_servo_reader, bool has_servo_output)
+void HAL_hardware_init(bool is_servo_reader, bool servo_output_enabled, bool uart_output_enabled)
 {
     uint32_t coarse;
 
     (void) is_servo_reader;
-    (void) has_servo_output;
+    (void) servo_output_enabled;
+    (void) uart_output_enabled;
 
 
     // ------------------------------------------------
@@ -170,13 +172,7 @@ void HAL_hardware_init_final(void)
 // ****************************************************************************
 void HAL_service(void)
 {
-    ;
-}
-
-
-// ****************************************************************************
-uint32_t *HAL_stack_check(void)
-{
+#ifndef NODEBUG
     #define CANARY 0xcafebabe
 
     /*
@@ -195,6 +191,7 @@ uint32_t *HAL_stack_check(void)
 
     if (last_found == NULL) {
         last_found = (uint32_t *)&_stacktop;
+
     }
 
     now = last_found;
@@ -205,10 +202,11 @@ uint32_t *HAL_stack_check(void)
 
     if (now < last_found) {
         last_found = now;
-        return now;
+        fprintf(STDOUT_DEBUG, "Stack down to 0x%08x\n", (uint32_t)now);
     }
-    return NULL;
+#endif
 }
+
 
 // ****************************************************************************
 void HAL_uart_init(uint32_t baudrate)
@@ -284,6 +282,10 @@ uint8_t HAL_getchar(void)
 void HAL_putc(void *p, char c)
 {
     (void) p;
+    // FIXME: check for STDOUT and STDOUT_DEBUG
+    // if (p == STDOUT_DEBUG) {
+    // }
+
     while (!(UART_SERCOM->USART.INTFLAG.reg & SERCOM_USART_INTFLAG_DRE));
     UART_SERCOM->USART.DATA.reg = c;
 }

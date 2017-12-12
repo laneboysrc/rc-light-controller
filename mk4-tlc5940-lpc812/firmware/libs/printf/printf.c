@@ -33,9 +33,9 @@
 /*
 Changes by Werner Lane:
 
-Make format arguments const.
+- Make format arguments const.
+- Introduce fprintf, where the 'file handle' is passed to the putf function
 */
-
 
 #include "printf.h"
 
@@ -250,4 +250,10 @@ void tfp_sprintf(char* s,const char *fmt, ...)
 	va_end(va);
 	}
 
-
+void tfp_fprintf(void* p, const char *fmt, ...)
+	{
+	va_list va;
+	va_start(va,fmt);
+	tfp_format(p,stdout_putf,fmt,va);
+	va_end(va);
+	}

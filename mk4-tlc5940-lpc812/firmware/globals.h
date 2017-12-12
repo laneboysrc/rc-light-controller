@@ -324,7 +324,6 @@ typedef enum {
 // ****************************************************************************
 typedef struct {
     unsigned int systick : 1;               // Set for one mainloop every 20 ms
-    unsigned int diagnostics_enabled : 1;   // Set when the UART can be used to print diagnostics
     unsigned int new_channel_data : 1;      // Set for one mainloop every time servo pulses were received
 
     unsigned int no_signal : 1;
@@ -346,6 +345,7 @@ typedef struct {
     unsigned int winch_mode : 3;
 
     unsigned int servo_output_enabled : 1;  // Set when there OUT is configured as servo output
+    unsigned int uart_output_enabled : 1;   // Set when the UART Tx is used for slave, preprocessor or winch output
 } GLOBAL_FLAGS_T;
 
 
