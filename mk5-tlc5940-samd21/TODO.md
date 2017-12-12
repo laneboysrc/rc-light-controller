@@ -1,7 +1,6 @@
 # Firmware
-* Separate diagnostics from uart, so depending on HW we can do both in different configurations
-    * How to do this with printf?
-    * We make fprintf and fputc
+* Test revised dignostics selection on LPC812
+* Merge LPC812 HAL into a single source file
 * Trigger bootloader from CDC like Arduino (1200 BAUD, DTR low)
     * Can we also detect BOSSAC?
 * Steering wheel servo pulse is out of range after power on?
