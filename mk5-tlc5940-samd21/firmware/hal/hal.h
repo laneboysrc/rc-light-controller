@@ -19,7 +19,7 @@
 // ****************************************************************************
 // IO pins: (SAMD21E15 in QFN32 package)
 //
-// PA03     (4)                             OUT15S Switched light output
+// PA02     (3)                             OUT15S Switched light output
 // PA04     (5 SERCOM0/PAD0)                TLC5940 SIN
 // PA05     (6 SERCOM0/PAD1)                TLC5940 SCLK
 // PA06     (7)                             TLC5940 XLAT
@@ -59,13 +59,13 @@
 #define GPIO_BIT_GSCLK 9
 #define GPIO_BIT_BLANK 7
 #define GPIO_BIT_PUSH_BUTTON 11
-#define GPIO_BIT_SWITCHED_LIGHT_OUTPUT 3
+#define GPIO_BIT_SWITCHED_LIGHT_OUTPUT 2
 #endif
 
 // ****************************************************************************
 // Arduino MKRZero pin mapping:
 //
-// PA03     AREF    OUT15S Switched light output
+// PA02     A0      OUT15S Switched light output
 // PA04     A3      TLC5940 SIN
 // PA05     A4      TLC5940 SCLK
 // PA06     A5      TLC5940 XLAT
@@ -86,7 +86,7 @@
 //
 // R21      D21
 // -------------
-// PA19     PA03     OUT15S Switched light output
+// PA19     PA02     OUT15S Switched light output
 // PA23     PA04     TLC5940 SIN
 // PA22     PA05     TLC5940 SCLK
 //          PA06     TLC5940 XLAT

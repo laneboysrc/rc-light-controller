@@ -742,7 +742,7 @@ F 3 "" H 8050 2000 50  0001 C CNN
 $EndComp
 Text Label 6800 2250 2    60   ~ 0
 XLAT
-Text Label 6800 1950 2    60   ~ 0
+Text Label 6800 1850 2    60   ~ 0
 OUT15
 $Comp
 L GS2 J4
@@ -1286,9 +1286,6 @@ $EndComp
 Wire Wire Line
 	3150 5950 3150 6050
 Wire Wire Line
-	6350 1950 6800 1950
-NoConn ~ 6350 1850
-Wire Wire Line
 	2950 5350 2950 5150
 Connection ~ 2950 5150
 Wire Wire Line
@@ -1332,4 +1329,7 @@ Wire Wire Line
 Wire Wire Line
 	6350 3450 6800 3450
 NoConn ~ 6800 3050
+Wire Wire Line
+	6350 1850 6800 1850
+NoConn ~ 6350 1950
 $EndSCHEMATC
