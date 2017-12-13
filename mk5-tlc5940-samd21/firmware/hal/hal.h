@@ -7,6 +7,11 @@
 #include <hal_api.h>
 
 
+// Enable this design when testing on the SAM R21 Xplained Pro board
+// See below for pin-out differences
+#define SAMR21_XPLAINED_PRO
+
+
 // One flash page is 64 bytes, so 16 * 4 words
 #define HAL_NUMBER_OF_PERSISTENT_ELEMENTS 16
 
@@ -14,43 +19,105 @@
 // ****************************************************************************
 // IO pins: (SAMD21E15 in QFN32 package)
 //
-// FIXME!!!!!!!!!!!!!!!!
-// FIXME!!!!!!!!!!!!!!!!
-// FIXME!!!!!!!!!!!!!!!!
+// PA03     (4)                             OUT15S Switched light output
+// PA04     (5 SERCOM0/PAD0)                TLC5940 SIN
+// PA05     (6 SERCOM0/PAD1)                TLC5940 SCLK
+// PA06     (7)                             TLC5940 XLAT
+// PA07     (8)                             TLC5940 BLANK
+// PA09     (12)                            TLC5940 GSCLK
+// PA11     (14)                            Push button
+// PA16     (17 SERCOM3/PAD0, TCC2/W[0])    OUT / Tx
+// PA17     (18 TCC0/W[7])                  Steering input
+// PA19     (20 TCC0/W[3])                  Throttle input
+// PA22     (21 TCC0/W[4])                  CH3 input
+// PA23     (22 SERCOM3/PAD1)               Rx
 //
-// PIO0_0   (16, TDO, ISP-Rx)   Steering input / Rx
-// PIO0_1   (9,  TDI)           TLC5940 GSCLK
-// PIO0_2   (6,  TMS, SWDIO)    TLC5940 SCLK
-// PIO0_3   (5,  TCK, SWCLK)    TLC5940 XLAT
-// PIO0_4   (4,  TRST, ISP-Tx)  Throttle input / Tx
-// PIO0_5   (3,  RESET)         NC (test point)
-// PIO0_6   (15)                TLC5940 BLANK
-// PIO0_7   (14)                TLC5940 SIN
-// PIO0_8   (11, XTALIN)        NC
-// PIO0_9   (10, XTALOUT)       Switched light output (for driving a load via a MOSFET)
-// PIO0_10  (8,  Open drain)    NC
-// PIO0_11  (7,  Open drain)    NC
-// PIO0_12  (2,  ISP-entry)     OUT / ISP
-// PIO0_13  (1)                 CH3 input
 //
-// GND      (13)
-// 3.3V     (12)
+// PA24     (23)  USB-DM
+// PA25     (24)  USB-DP
+// PA30     (31)  SWCLK
+// PA31     (32)  SWDIO
+// RESET    (26)
+//
+// GND      (10)
+// GND      (28)
+// VDDCORE  (29)
+// 3.3V     (30)  VDDIN
+// 3.3V     (29)  VDDANA
+// ****************************************************************************
+#define GPIO_PORTA 0
+
+#ifndef SAMR21_XPLAINED_PRO
+#define GPIO_BIT_RX 23
+#define GPIO_BIT_OUT_TX 16
+#define GPIO_BIT_ST 17
+#define GPIO_BIT_TH 19
+#define GPIO_BIT_CH3 22
+#define GPIO_BIT_SCK 5
+#define GPIO_BIT_SIN 4
+#define GPIO_BIT_XLAT 6
+#define GPIO_BIT_GSCLK 9
+#define GPIO_BIT_BLANK 7
+#define GPIO_BIT_PUSH_BUTTON 11
+#define GPIO_BIT_SWITCHED_LIGHT_OUTPUT 3
+#endif
+
+// ****************************************************************************
+// Arduino MKRZero pin mapping:
+//
+// PA03     AREF    OUT15S Switched light output
+// PA04     A3      TLC5940 SIN
+// PA05     A4      TLC5940 SCLK
+// PA06     A5      TLC5940 XLAT
+// PA07     A6      TLC5940 BLANK
+// PA09     D12     TLC5940 GSCLK
+// PA11     D3      Push button
+// PA16     D8      OUT / Tx
+// PA17     D9      Steering input
+// PA19     D10     Throttle input
+// PA22     D0      CH3 input
+// PA23     D1      Rx
+//
 // ****************************************************************************
 
-#define GPIO_BIT_ST 0
-#define GPIO_BIT_TH 4
-#define GPIO_BIT_CH3 13
-#define GPIO_BIT_OUT 12
+// ****************************************************************************
+// SAM R21 Xplained Pro mapping:
+//
+//
+// R21      D21
+// -------------
+// PA19     PA03     OUT15S Switched light output
+// PA23     PA04     TLC5940 SIN
+// PA16     PA05     TLC5940 SCLK
+//          PA06     TLC5940 XLAT
+// PA08     PA07     TLC5940 BLANK
+// PA14     PA09     TLC5940 GSCLK
+// PA15     PA11     Push button
+// PA05     PA16     OUT / Tx
+//          PA17     Steering input
+//          PA19     Throttle input
+//          PA22     CH3 input
+// PA04     PA23     Rx
+//
+// NOTE: SERCOM0 and SERCOM3 swapped between UART and SPI!
+//
+// ****************************************************************************
+#ifdef SAMR21_XPLAINED_PRO
+#define GPIO_BIT_RX 5
+#define GPIO_BIT_OUT_TX 4
+#define GPIO_BIT_ST 17
+#define GPIO_BIT_TH 19
+#define GPIO_BIT_CH3 22
+#define GPIO_BIT_SCK 23
+#define GPIO_BIT_SIN 16
+#define GPIO_BIT_XLAT 6
+#define GPIO_BIT_GSCLK 14
+#define GPIO_BIT_BLANK 8
+#define GPIO_BIT_PUSH_BUTTON 15
 #define GPIO_BIT_SWITCHED_LIGHT_OUTPUT 19
-#define GPIO_BIT_SCK 22
-#define GPIO_BIT_SIN 23
-#define GPIO_BIT_XLAT 28
-#define GPIO_BIT_GSCLK 1
-#define GPIO_BIT_BLANK 6
+#endif
 
-#define GPIO_PORTA 0
-#define GPIO_PORTB 1
-#define GPIO_PORTC 2
+
 
 #define DECLARE_GPIO(name, port, pin)                                       \
                                                                             \

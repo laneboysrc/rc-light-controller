@@ -100,7 +100,7 @@ U 1 1 59C45F57
 P 1300 3700
 F 0 "SW1" H 1350 3800 50  0000 L CNN
 F 1 "BTN" H 1300 3640 50  0000 C CNN
-F 2 "Buttons_Switches_SMD:SW_SPST_SKQG" H 1300 3900 50  0001 C CNN
+F 2 "" H 1300 3900 50  0001 C CNN
 F 3 "" H 1300 3900 50  0001 C CNN
 	1    1300 3700
 	0    1    1    0   
@@ -759,9 +759,9 @@ Text Label 8150 3250 0    60   ~ 0
 GSCLK
 Text Label 6800 2350 2    60   ~ 0
 BLANK
-Text Label 6800 3250 2    60   ~ 0
+Text Label 6800 3350 2    60   ~ 0
 TH
-Text Label 6800 2950 2    60   ~ 0
+Text Label 6800 2550 2    60   ~ 0
 GSCLK
 Text Label 6800 4050 2    60   ~ 0
 SWCLK
@@ -775,7 +775,7 @@ Text Label 5450 5600 0    60   ~ 0
 RESET
 Text Label 3400 1650 0    60   ~ 0
 RESET
-Text Label 6800 3350 2    60   ~ 0
+Text Label 6800 3450 2    60   ~ 0
 CH3
 $Comp
 L GND #PWR024
@@ -815,7 +815,7 @@ Text Label 6800 2150 2    60   ~ 0
 SCLK
 Text Label 6800 2050 2    60   ~ 0
 SIN
-Text Label 6800 2450 2    60   ~ 0
+Text Label 6800 2750 2    60   ~ 0
 BUTTON
 Text Label 2300 5800 1    60   ~ 0
 VUSB
@@ -1246,19 +1246,14 @@ Wire Wire Line
 Wire Wire Line
 	6350 3150 6800 3150
 Wire Wire Line
-	6350 3250 6800 3250
-Wire Wire Line
 	6350 3350 6800 3350
 NoConn ~ 6350 1650
 NoConn ~ 6350 1750
-NoConn ~ 6350 2550
-NoConn ~ 6350 2750
 NoConn ~ 6350 2850
-NoConn ~ 6350 3450
 NoConn ~ 6350 3850
 NoConn ~ 6350 3950
 NoConn ~ 6800 3150
-NoConn ~ 6800 3250
+NoConn ~ 6350 3250
 NoConn ~ 6800 3350
 $Comp
 L PRTR5V0U2X D2
@@ -1294,11 +1289,6 @@ Wire Wire Line
 	6350 1950 6800 1950
 NoConn ~ 6350 1850
 Wire Wire Line
-	6350 2950 6800 2950
-Wire Wire Line
-	6350 2450 6800 2450
-NoConn ~ 6350 2650
-Wire Wire Line
 	2950 5350 2950 5150
 Connection ~ 2950 5150
 Wire Wire Line
@@ -1332,4 +1322,14 @@ Wire Wire Line
 	3300 2200 3850 2200
 Text Label 3300 2200 0    60   ~ 0
 VCORE
+Wire Wire Line
+	6350 3450 6800 3450
+NoConn ~ 6800 3450
+Wire Wire Line
+	6350 2750 6800 2750
+NoConn ~ 6350 2450
+NoConn ~ 6350 2950
+NoConn ~ 6350 2650
+Wire Wire Line
+	6350 2550 6800 2550
 $EndSCHEMATC
