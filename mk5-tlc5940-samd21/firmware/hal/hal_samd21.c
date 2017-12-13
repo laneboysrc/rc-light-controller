@@ -12,19 +12,24 @@ volatile uint32_t milliseconds;
 extern unsigned int _ram;
 extern unsigned int _stacktop;
 
-uint32_t saved_tcc0_cc_value = 1500;
+uint32_t saved_TCC0_cc_value = 1500;
 
 __attribute__ ((section(".persistent_data")))
 static volatile const uint32_t persistent_data[HAL_NUMBER_OF_PERSISTENT_ELEMENTS];
 
 
-DECLARE_GPIO(UART_TXD, GPIO_PORTA, GPIO_BIT_OUT_TX)
+DECLARE_GPIO(UART_TXD, GPIO_PORTA, GPIO_BIT_TX)
 DECLARE_GPIO(UART_RXD, GPIO_PORTA, GPIO_BIT_RX)
 
 DECLARE_GPIO(SIN, GPIO_PORTA, GPIO_BIT_SIN)
 DECLARE_GPIO(SCLK, GPIO_PORTA, GPIO_BIT_SCK)
 DECLARE_GPIO(XLAT, GPIO_PORTA, GPIO_BIT_XLAT)
 
+DECLARE_GPIO(ST, GPIO_PORTA, GPIO_BIT_ST)
+DECLARE_GPIO(TH, GPIO_PORTA, GPIO_BIT_TH)
+DECLARE_GPIO(CH3, GPIO_PORTA, GPIO_BIT_CH3)
+
+DECLARE_GPIO(OUT, GPIO_PORTA, GPIO_BIT_OUT)
 
 #ifdef SAMR21_XPLAINED_PRO
 
@@ -401,8 +406,8 @@ const char *HAL_persistent_storage_write(const uint32_t *new_data)
 // ****************************************************************************
 void HAL_servo_output_init(void)
 {
-    HAL_gpio_OUT_TX_out();
-    HAL_gpio_OUT_TX_pmuxen(PORT_PMUX_PMUXE_F_Val);
+    HAL_gpio_OUT_out();
+    HAL_gpio_OUT_pmuxen(PORT_PMUX_PMUXE_E_Val);
 
     PM->APBCMASK.reg |= PM_APBCMASK_TCC0;
 
@@ -420,7 +425,7 @@ void HAL_servo_output_init(void)
     TCC0->WAVE.reg = TCC_WAVE_WAVEGEN_NPWM;
     TCC0->PER.reg = 20000;          // 20 ms period = 50 Hz servo pulse
     TCC0->COUNT.reg = 0;
-    TCC0->CC[2].reg = 0;            // Don't output a pulse for now
+    TCC0->CC[0].reg = 0;            // Don't output a pulse for now
     TCC0->CTRLA.reg |= TCC_CTRLA_ENABLE;
 
     // Wait for all synchronizations finished to prevent HARD FAULT
@@ -431,8 +436,8 @@ void HAL_servo_output_init(void)
 // ****************************************************************************
 void HAL_servo_output_set_pulse(uint16_t servo_pulse_us)
 {
-    saved_tcc0_cc_value = servo_pulse_us;
-    TCC0->CC[2].reg = saved_tcc0_cc_value;
+    saved_TCC0_cc_value = servo_pulse_us;
+    TCC0->CC[0].reg = saved_TCC0_cc_value;
 
     // Wait for synchronization finished to prevent HARD FAULT
     while (TCC0->SYNCBUSY.reg & TCC_SYNCBUSY_CC2);
@@ -442,7 +447,7 @@ void HAL_servo_output_set_pulse(uint16_t servo_pulse_us)
 // ****************************************************************************
 void HAL_servo_output_enable(void)
 {
-    TCC0->CC[2].reg = saved_tcc0_cc_value;
+    TCC0->CC[0].reg = saved_TCC0_cc_value;
 
     // Wait for synchronization finished to prevent HARD FAULT
     while (TCC0->SYNCBUSY.reg & TCC_SYNCBUSY_CC2);
@@ -452,7 +457,7 @@ void HAL_servo_output_enable(void)
 // ****************************************************************************
 void HAL_servo_output_disable(void)
 {
-    TCC0->CC[2].reg = 0;
+    TCC0->CC[0].reg = 0;
 
     // Wait for synchronization finished to prevent HARD FAULT
     while (TCC0->SYNCBUSY.reg & TCC_SYNCBUSY_CC2);
@@ -464,6 +469,39 @@ void HAL_servo_reader_init(bool CPPM, uint32_t max_pulse)
 {
     (void) CPPM;
     (void) max_pulse;
+
+    HAL_gpio_ST_in();
+    HAL_gpio_TH_in();
+    HAL_gpio_CH3_in();
+
+
+    // We need to set up the following:
+    //
+    // - EXTINT for the GPIO port, generating an event
+    //    We can generate an event on both edges
+    // - EVSYS to trigger TCC0 capture event when EXTINT fires
+    // - TC? for capturing the event
+
+    // PM->APBCMASK.reg |= PM_APBCMASK_TCC0;
+
+    // GCLK->CLKCTRL.reg =
+    //     GCLK_CLKCTRL_ID(TCC0_GCLK_ID) |
+    //     GCLK_CLKCTRL_CLKEN |
+    //     GCLK_CLKCTRL_GEN(1);
+
+    // TCC0->CTRLA.reg = TCC_CTRLA_SWRST;
+
+    // while (TCC0->CTRLA.reg & TCC_CTRLA_SWRST);
+
+    // TCC0->WAVE.reg = TCC_WAVE_WAVEGEN_NFRQ;
+
+    // TCC0->EVCTRL.reg = TCC_EVCTRL_MCEI0;
+
+    // TCC0->CTRLA.reg |=
+    //     TCC_CTRLA_CPTEN0 |
+    //     TCC_CTRLA_ENABLE;
+
+
 }
 
 

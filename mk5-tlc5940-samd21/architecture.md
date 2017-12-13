@@ -51,10 +51,9 @@ TCC1:               PA06=0, PA07=1, PA10=0, PA11=1
 TCC2:               PA00=0, PA01=1, PA12=0, PA13=1, PA16=0, PA17=1
 
 
-So we ideally want TCC0 for ST/TH/CH3 as the other timers only have two pads.
 
 SPI: PA04/PA05 SERCOM0, rest of TLC5940 signals on P00..P07
-UART: PA16/PA23 SERCOM3, OUT/TX = PA16/TCC2
+UART: PA16/PA23 SERCOM3, OUT/TX = PA22/TCC0.4
 
 
 

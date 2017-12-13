@@ -578,9 +578,9 @@ F 3 "" H 2450 1650 50  0001 C CNN
 	1    2450 1650
 	0    -1   -1   0   
 $EndComp
-Text Label 6800 3150 2    60   ~ 0
-ST
 Text Label 6800 3050 2    60   ~ 0
+ST
+Text Label 6800 3450 2    60   ~ 0
 OUT/Tx
 Text Label 2900 1550 2    60   ~ 0
 Rx
@@ -775,7 +775,7 @@ Text Label 5450 5600 0    60   ~ 0
 RESET
 Text Label 3400 1650 0    60   ~ 0
 RESET
-Text Label 6800 3450 2    60   ~ 0
+Text Label 6800 3150 2    60   ~ 0
 CH3
 $Comp
 L GND #PWR024
@@ -1323,13 +1323,13 @@ Wire Wire Line
 Text Label 3300 2200 0    60   ~ 0
 VCORE
 Wire Wire Line
-	6350 3450 6800 3450
-NoConn ~ 6800 3450
-Wire Wire Line
 	6350 2750 6800 2750
 NoConn ~ 6350 2450
 NoConn ~ 6350 2950
 NoConn ~ 6350 2650
 Wire Wire Line
 	6350 2550 6800 2550
+Wire Wire Line
+	6350 3450 6800 3450
+NoConn ~ 6800 3050
 $EndSCHEMATC

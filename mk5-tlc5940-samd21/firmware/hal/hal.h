@@ -26,10 +26,10 @@
 // PA07     (8)                             TLC5940 BLANK
 // PA09     (12)                            TLC5940 GSCLK
 // PA11     (14)                            Push button
-// PA16     (17 SERCOM3/PAD0, TCC2/W[0])    OUT / Tx
-// PA17     (18 TCC0/W[7])                  Steering input
-// PA19     (20 TCC0/W[3])                  Throttle input
-// PA22     (21 TCC0/W[4])                  CH3 input
+// PA16     (17 EXTINT[0])                  Steering input
+// PA17     (18 EXTINT[1])                  Throttle input
+// PA19     (20 EXTINT[3])                  CH3 input
+// PA22     (21 SERCOM3/PAD0, TCC0/W[4])    OUT / Tx
 // PA23     (22 SERCOM3/PAD1)               Rx
 //
 //
@@ -49,10 +49,10 @@
 
 #ifndef SAMR21_XPLAINED_PRO
 #define GPIO_BIT_RX 23
-#define GPIO_BIT_OUT_TX 16
-#define GPIO_BIT_ST 17
-#define GPIO_BIT_TH 19
-#define GPIO_BIT_CH3 22
+#define GPIO_BIT_OUT_TX 22
+#define GPIO_BIT_ST 16
+#define GPIO_BIT_TH 17
+#define GPIO_BIT_CH3 19
 #define GPIO_BIT_SCK 5
 #define GPIO_BIT_SIN 4
 #define GPIO_BIT_XLAT 6
@@ -72,10 +72,10 @@
 // PA07     A6      TLC5940 BLANK
 // PA09     D12     TLC5940 GSCLK
 // PA11     D3      Push button
-// PA16     D8      OUT / Tx
-// PA17     D9      Steering input
-// PA19     D10     Throttle input
-// PA22     D0      CH3 input
+// PA16     D9      Steering input
+// PA17     D9      Throttle input
+// PA19     D10     CH3 input
+// PA22     D0      OUT / Tx
 // PA23     D1      Rx
 //
 // ****************************************************************************
@@ -88,28 +88,30 @@
 // -------------
 // PA19     PA03     OUT15S Switched light output
 // PA23     PA04     TLC5940 SIN
-// PA16     PA05     TLC5940 SCLK
+// PA22     PA05     TLC5940 SCLK
 //          PA06     TLC5940 XLAT
-// PA08     PA07     TLC5940 BLANK
+//          PA07     TLC5940 BLANK
 // PA14     PA09     TLC5940 GSCLK
 // PA15     PA11     Push button
-// PA05     PA16     OUT / Tx
-//          PA17     Steering input
-//          PA19     Throttle input
-//          PA22     CH3 input
+// PA08              OUT (Separate from hard-wired Tx!)
+//          PA16     Steering input
+//          PA17     Throttle input
+// ????     PA19     CH3 input
 // PA04     PA23     Rx
+// PA05     PA22     Tx
 //
 // NOTE: SERCOM0 and SERCOM3 swapped between UART and SPI!
 //
 // ****************************************************************************
 #ifdef SAMR21_XPLAINED_PRO
 #define GPIO_BIT_RX 5
-#define GPIO_BIT_OUT_TX 4
-#define GPIO_BIT_ST 17
-#define GPIO_BIT_TH 19
-#define GPIO_BIT_CH3 22
-#define GPIO_BIT_SCK 23
-#define GPIO_BIT_SIN 16
+#define GPIO_BIT_TX 4
+#define GPIO_BIT_OUT 8
+#define GPIO_BIT_ST 16
+#define GPIO_BIT_TH 17
+#define GPIO_BIT_CH3 0
+#define GPIO_BIT_SCK 22
+#define GPIO_BIT_SIN 23
 #define GPIO_BIT_XLAT 6
 #define GPIO_BIT_GSCLK 14
 #define GPIO_BIT_BLANK 8

@@ -30,7 +30,7 @@
 * TOOLS: Add watch folder to ISP tool
 
 
-## Ideas for mk5
+## MK5
 
 * Trigger bootloader from CDC like Arduino (1200 BAUD, DTR low)
     * Can we also detect BOSSAC?
@@ -38,6 +38,9 @@
 * Button input via HAL (must be configurable)
 
 * LED out separate IO than OUT15S?
+
+* Restructure HAL to init GPIO at once
+
 
 
 # MK5 PCB
