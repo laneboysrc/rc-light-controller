@@ -1,5 +1,7 @@
 # TO DO LIST for the RC Light Controller
 
+* FW: Test revised dignostics selection on LPC812
+
 * DOC: When a priority program runs once, and another state takes precedence,
   the program has no effect and after the other state disappears, the lights
   are still wrong. Solution is to output constantly in a loop,
@@ -30,23 +32,15 @@
 
 ## Ideas for mk5
 
-- Based on STM32F103C8T6
-  - 64KB flash, 20KB RAM, crystal-less USB, ultra cheap
-- Support own hardware as well as *blue pill* board
-  - PWM output on GPIOs
-- USB DFU for config/firmware update
-- USB Live configuration
-- Stay compatible with mk4 as much as possible
-- Hardware with (optional) Tamiya LED compatible plugs
-  - Also check on-line for cheap pre-wired LEDs with connector
-- Heatsink for TLC5940?
-- Power from USB and servo connector
-- Preprocessor only?
-- 3D printed case, so 1 PCB only
+* Trigger bootloader from CDC like Arduino (1200 BAUD, DTR low)
+    * Can we also detect BOSSAC?
 
-## Preprocessor board
-- Based on LPC811/2 TSSOP16
-- Use existing firmware
-- 5x3 input, 1x3 output to light controller
-- MCP1702 voltage reg, 2x 1uF vreg
-- No components on bottom
+* Button input via HAL (must be configurable)
+
+* LED out separate IO than OUT15S?
+
+
+# MK5 PCB
+
+* TLC5940 footprint based on TI datasheet
+* Design for stencil 5mil/0.12mm thick
