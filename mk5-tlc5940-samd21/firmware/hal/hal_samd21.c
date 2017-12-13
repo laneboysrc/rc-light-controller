@@ -482,24 +482,64 @@ void HAL_servo_reader_init(bool CPPM, uint32_t max_pulse)
     // - EVSYS to trigger TCC0 capture event when EXTINT fires
     // - TC? for capturing the event
 
-    // PM->APBCMASK.reg |= PM_APBCMASK_TCC0;
 
-    // GCLK->CLKCTRL.reg =
-    //     GCLK_CLKCTRL_ID(TCC0_GCLK_ID) |
-    //     GCLK_CLKCTRL_CLKEN |
-    //     GCLK_CLKCTRL_GEN(1);
+    PM->APBAMASK.reg |= PM_APBAMASK_EIC;
 
-    // TCC0->CTRLA.reg = TCC_CTRLA_SWRST;
+    HAL_gpio_ST_pmuxen(PORT_PMUX_PMUXE_A_Val);
 
-    // while (TCC0->CTRLA.reg & TCC_CTRLA_SWRST);
+    GCLK->CLKCTRL.reg =
+        GCLK_CLKCTRL_ID_EIC |
+        GCLK_CLKCTRL_CLKEN |
+        GCLK_CLKCTRL_GEN(0);
 
-    // TCC0->WAVE.reg = TCC_WAVE_WAVEGEN_NFRQ;
+    EIC->CONFIG[0].reg = EIC_CONFIG_SENSE0_BOTH;
 
-    // TCC0->EVCTRL.reg = TCC_EVCTRL_MCEI0;
+    EIC->EVCTRL.reg = EIC_EVCTRL_EXTINTEO0;
+    EIC->CTRL.bit.ENABLE = 1;
 
-    // TCC0->CTRLA.reg |=
-    //     TCC_CTRLA_CPTEN0 |
-    //     TCC_CTRLA_ENABLE;
+
+
+    PM->APBCMASK.reg |= PM_APBCMASK_EVSYS;
+
+    GCLK->CLKCTRL.reg =
+        GCLK_CLKCTRL_ID_EVSYS_0 |
+        GCLK_CLKCTRL_CLKEN |
+        GCLK_CLKCTRL_GEN(0);
+
+    EVSYS->CTRL.reg = EVSYS_CTRL_GCLKREQ;
+
+    EVSYS->USER.reg =
+        EVSYS_USER_USER(0x0c/*TCC1_MC0*/) |
+        EVSYS_USER_CHANNEL(0+1);
+
+    EVSYS->CHANNEL.reg =
+        EVSYS_CHANNEL_CHANNEL(0) |
+        EVSYS_CHANNEL_PATH_ASYNCHRONOUS |
+        EVSYS_CHANNEL_EDGSEL_RISING_EDGE |
+        EVSYS_CHANNEL_EVGEN(0x0c/*EIC_EXTINT0*/);
+
+
+
+    PM->APBCMASK.reg |= PM_APBCMASK_TCC1;
+
+    GCLK->CLKCTRL.reg =
+        GCLK_CLKCTRL_ID(TCC1_GCLK_ID) |
+        GCLK_CLKCTRL_CLKEN |
+        GCLK_CLKCTRL_GEN(1);
+
+    TCC1->CTRLA.reg =
+        TCC_CTRLA_PRESCALER_DIV1 |
+        TCC_CTRLA_PRESCSYNC_GCLK |
+        TCC_CTRLA_CPTEN0;
+
+    TCC1->EVCTRL.reg =
+        TCC_EVCTRL_EVACT0_COUNT |
+        TCC_EVCTRL_TCEI0;
+
+    TCC1->WAVE.reg = TCC_WAVE_WAVEGEN_NFRQ;
+    TCC1->COUNT.reg = 0;
+    TCC1->PER.reg = 0xffffff;
+    TCC1->CTRLA.reg |= TCC_CTRLA_ENABLE;
 
 
 }
