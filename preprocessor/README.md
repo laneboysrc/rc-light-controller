@@ -14,4 +14,4 @@ The firmware for the pre-processor is the same as for the [MK4 variant](../mk4-t
 
 If the baud rate is configured to 38400, the pre-processor is also compatible with the MK2 and MK3 variants.
 
-The PCB and schematics design is in [kicad-pcbad](http://kicad-pcb.org/)
+The PCB and schematics design was done in [KiCad EDA](http://kicad-pcb.org/)
