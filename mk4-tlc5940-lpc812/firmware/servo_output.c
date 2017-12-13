@@ -34,8 +34,10 @@ void init_servo_output(void) {
 
     HAL_servo_output_init();
 
-    global_flags.gear = GEAR_1;
-    activate_gearbox_servo();
+    if (config.flags.gearbox_servo_output) {
+        global_flags.gear = GEAR_1;
+        activate_gearbox_servo();
+    }
 }
 
 
