@@ -23,7 +23,7 @@
     led x = led[y] statement. This is useful for light patterns where the
     LED sequence is important.
 
-* TOOL: Configurator: Fix issue with firmware version number in config file
+* TOOL: Configurator: Make pre-processor configuration in drop-down box
 
 * TOOLS: Add tool to extract light program source out of light controller config
 
