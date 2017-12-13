@@ -4,6 +4,8 @@ The pre-processor converts steering, throttle and AUX/CH3 signals into a single 
 
 This makes it very convenient when removing the body shell from the chassis: only one cable needs to be unplugged.
 
+![Pre-processor circuit board rendering](electronics/preprocessor-render.jpg)
+
 The pre-processor PCB also adds as "Y-cable" for steering and throttle. Use short male-to-male servo extensions to connect the pre-processor to your receiver, and plug the servo and ESC into the two extra pots on the pre-processor.
 
 A [wiring diagram](pre-processor-wiring-diagram.pdf) explains how to connect the pre-processor, the light controller and the other electronics components in an RC car together.
