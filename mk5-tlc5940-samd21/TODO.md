@@ -1,6 +1,5 @@
 # Firmware
 * Test revised dignostics selection on LPC812
-* Merge LPC812 HAL into a single source file
 * Trigger bootloader from CDC like Arduino (1200 BAUD, DTR low)
     * Can we also detect BOSSAC?
 * Button input via HAL (must be configurable)
