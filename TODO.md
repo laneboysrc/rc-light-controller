@@ -44,4 +44,3 @@
 
 * TLC5940 footprint based on TI datasheet
 * Design for stencil 5mil/0.12mm thick
-* GPIO short-circuit for hardware detection!
