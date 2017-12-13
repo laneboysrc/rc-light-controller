@@ -41,6 +41,7 @@
 
 * Restructure HAL to init GPIO at once
 
+* Don't use PA03, has a huge capacitor on Arduinos!
 
 
 # MK5 PCB
