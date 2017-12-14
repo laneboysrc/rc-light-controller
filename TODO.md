@@ -39,7 +39,7 @@
 
 * LED out separate IO than OUT15S?
 
-* Restructure HAL to init GPIO at once
+* How to deal with the USB shielding?
 
 
 
