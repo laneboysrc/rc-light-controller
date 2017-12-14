@@ -41,8 +41,6 @@
 
 * Restructure HAL to init GPIO at once
 
-* GENCLK1 should run at 2 Mhz so that servo read/output works at 500ns resolution
-
 
 
 # MK5 PCB

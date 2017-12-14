@@ -166,12 +166,12 @@ void HAL_hardware_init(bool is_servo_reader, bool servo_output_enabled, bool uar
 
     while (GCLK->STATUS.reg & GCLK_STATUS_SYNCBUSY);
 
-    // Setup GENCLK1 to run at 1 MHz. We use GENCLK1 for timers that need
+    // Setup GENCLK1 to run at 2 MHz. We use GENCLK1 for timers that need
     // microsecond resolution (e.g. servo output and servo reader).
     // We derive the clock from the 48 MHz PLL, so we use a clock divider of
-    // 48
+    // 24
     GCLK->GENDIV.reg =
-        GCLK_GENDIV_DIV(48) |
+        GCLK_GENDIV_DIV(24) |
         GCLK_GENDIV_ID(1) ;
 
     GCLK->GENCTRL.reg =
@@ -282,11 +282,14 @@ void HAL_service(void)
     // }
 
     if (tcc1_int_fired) {
+        static uint32_t last;
+
         tcc1_int_fired = 0;
-        // printf("0x%08x\n", capture_value);
-        printf("%d\n", capture_value);
-        // printf("TCC1 INTENSET=0x%08x\n", TCC1->INTENSET.reg);
-        // printf("TCC1 INTFLAG=0x%08x\n",  TCC1->INTFLAG.reg);
+
+        if (last != capture_value) {
+            last = capture_value;
+            printf("ST measured: %d\n", last);
+        }
     }
 
 }
@@ -499,7 +502,7 @@ void HAL_servo_output_init(void)
         EVSYS_CHANNEL_EVGEN(0x38/*TC4 MC1*/);
 
     TC4->COUNT16.CC[0].reg = 0;             // Don't output a pulse initially
-    TC4->COUNT16.CC[1].reg = 20000-1;       // 20 ms period = 50 Hz servo pulse
+    TC4->COUNT16.CC[1].reg = (20000 * 2)-1; // 20 ms period = 50 Hz servo pulse
 
     TC4->COUNT16.EVCTRL.reg =
         TC_EVCTRL_MCEO1 |                   // Enable Capture channel 1 event output
@@ -524,7 +527,7 @@ void HAL_servo_output_init(void)
 // ****************************************************************************
 void HAL_servo_output_set_pulse(uint16_t servo_pulse_us)
 {
-    saved_TCC0_cc_value = servo_pulse_us;
+    saved_TCC0_cc_value = servo_pulse_us * 2;
     TC4->COUNT16.CC[0].reg = saved_TCC0_cc_value;
 }
 
@@ -605,11 +608,11 @@ void HAL_servo_reader_init(bool CPPM, uint32_t max_pulse)
     // Power on TCC1
     PM->APBCMASK.reg |= PM_APBCMASK_TCC0;
 
-    // Use GLKGEN0 (48 MHz) as clock source for the TCC0
+    // Use GLKGEN1 (2 MHz) as clock source for the TCC0
     GCLK->CLKCTRL.reg =
         GCLK_CLKCTRL_ID(GCLK_CLKCTRL_ID_TCC0_TCC1) |
         GCLK_CLKCTRL_CLKEN |
-        GCLK_CLKCTRL_GEN(0);
+        GCLK_CLKCTRL_GEN(1);
 
     // No prescaler; Enable capture channel 1
     TCC0->CTRLA.reg =
@@ -721,7 +724,7 @@ void TCC0_Handler(void)
             start = now;
         }
         else {
-            capture_value = now - start;
+            capture_value = (now - start) / 2;
             tcc1_int_fired = true;
         }
     }
