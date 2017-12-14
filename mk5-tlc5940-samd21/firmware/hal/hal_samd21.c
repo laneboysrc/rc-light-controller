@@ -189,8 +189,8 @@ void HAL_hardware_init(bool is_servo_reader, bool servo_output_enabled, bool uar
     // Setup GENCLK0 to run at 48 MHz. This clock is used for high speed
     // peripherals such as SPI, USB and UART
     GCLK->GENDIV.reg =
-        GCLK_GENDIV_DIV(1) |
-        GCLK_GENDIV_ID(0) ;
+        GCLK_GENDIV_ID(0) |
+        GCLK_GENDIV_DIV(1);
 
     GCLK->GENCTRL.reg =
             GCLK_GENCTRL_ID(0) |
@@ -205,8 +205,8 @@ void HAL_hardware_init(bool is_servo_reader, bool servo_output_enabled, bool uar
     // We derive the clock from the 48 MHz PLL, so we use a clock divider of
     // 24
     GCLK->GENDIV.reg =
-        GCLK_GENDIV_DIV(24) |
-        GCLK_GENDIV_ID(1) ;
+        GCLK_GENDIV_ID(1) |
+        GCLK_GENDIV_DIV(24);
 
     GCLK->GENCTRL.reg =
             GCLK_GENCTRL_ID(1) |
@@ -219,7 +219,7 @@ void HAL_hardware_init(bool is_servo_reader, bool servo_output_enabled, bool uar
 
     // ------------------------------------------------
     // Turn on power to the peripherals we use
-    PM->APBCMASK.reg |=
+    PM->APBCMASK.reg =
         UART_SERCOM_APBCMASK |
         SPI_SERCOM_APBCMASK |
         PM_APBAMASK_EIC |
