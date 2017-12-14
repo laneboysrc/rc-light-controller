@@ -24,10 +24,6 @@ extern void _stacktop(void);
 // take precedence over these "weak" definitions
 #define ALIAS(f) __attribute__ ((weak, alias (#f)))
 void Reset_Handler(void);
-void NMI_Handler(void) ALIAS(default_handler);
-void HardFault_Handler(void) ALIAS(default_handler);
-void SVCall_Handler(void) ALIAS(default_handler);
-void PendSV_Handler(void) ALIAS(default_handler);
 void SysTick_Handler(void) ALIAS(default_handler);
 
 void PM_Handler(void) ALIAS(default_handler);
@@ -79,7 +75,7 @@ void (* const vectors[])(void) =
     0,                      // Reserved
     0,                      // Reserved
     0,                      // Reserved
-    SVCall_Handler,         // SVCall handler
+    SVC_Handler,            // SVCall handler
     0,                      // Reserved
     0,                      // Reserved
     PendSV_Handler,         // PendSV handler
@@ -116,10 +112,46 @@ void (* const vectors[])(void) =
     I2S_Handler,        // Inter-IC Sound Interface
 };
 
+
+// ****************************************************************************
 static void default_handler(void)
 {
-    while(1);
+    // The default handler issues a breakpoint so we can easily spot it during
+    // a debug session (i.e. we enabled an interrupt that we don't have
+    // a handler for)
+    __BKPT(0);
+    while (1);
 }
+
+
+// ****************************************************************************
+void NMI_Handler(void)
+{
+    __BKPT(14);
+    while (1);
+}
+
+// ****************************************************************************
+void HardFault_Handler(void)
+{
+    __BKPT(13);
+    while (1);
+}
+
+// ****************************************************************************
+void SVC_Handler(void)
+{
+    __BKPT(5);
+    while (1);
+}
+
+// ****************************************************************************
+void PendSV_Handler(void)
+{
+    __BKPT(2);
+    while (1);
+}
+
 
 //-----------------------------------------------------------------------------
 void Reset_Handler(void)
