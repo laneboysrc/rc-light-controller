@@ -4,9 +4,12 @@
 #include <hal.h>
 #include <printf.h>
 
+volatile bool tcc1_int_fired = false;
+volatile uint32_t capture_value;
+
+
 
 volatile uint32_t milliseconds;
-
 
 // These are defined by the linker via the samd21e15.ld linker script.
 extern unsigned int _ram;
@@ -151,6 +154,10 @@ void HAL_hardware_init(bool is_servo_reader, bool servo_output_enabled, bool uar
 
     // Setup GENCLK0 to run at 48 MHz. This clock is used for high speed
     // peripherals such as SPI, USB and UART
+    GCLK->GENDIV.reg =
+        GCLK_GENDIV_DIV(1) |
+        GCLK_GENDIV_ID(0) ;
+
     GCLK->GENCTRL.reg =
             GCLK_GENCTRL_ID(0) |
             GCLK_GENCTRL_SRC_DFLL48M |
@@ -176,6 +183,20 @@ void HAL_hardware_init(bool is_servo_reader, bool servo_output_enabled, bool uar
     while (GCLK->STATUS.reg & GCLK_STATUS_SYNCBUSY);
 
 
+    // --------------------------------------
+    // Power on the Event System
+    PM->APBCMASK.reg |= PM_APBCMASK_EVSYS;
+
+    // Use GLKGEN0 (48 MHz) as clock source for the EVSYS
+    GCLK->CLKCTRL.reg =
+        GCLK_CLKCTRL_ID_EVSYS_0 |
+        GCLK_CLKCTRL_CLKEN |
+        GCLK_CLKCTRL_GEN(0);
+
+    // Always turn on the Generic Clock within EVSYS
+    EVSYS->CTRL.reg = EVSYS_CTRL_GCLKREQ;
+
+
     // ------------------------------------------------
     HAL_gpio_switched_light_output_out();
 
@@ -191,7 +212,7 @@ void HAL_hardware_init(bool is_servo_reader, bool servo_output_enabled, bool uar
 // ****************************************************************************
 void HAL_hardware_init_final(void)
 {
-
+    HAL_servo_reader_init(false, 2500);
 }
 
 
@@ -231,6 +252,43 @@ void HAL_service(void)
         fprintf(STDOUT_DEBUG, "Stack down to 0x%08x\n", (uint32_t)now);
     }
 #endif
+
+
+    // if (EIC->INTFLAG.bit.EXTINT1) {
+    //     EIC->INTFLAG.bit.EXTINT1 = 1;
+    //     printf("EXTINT1 triggered!\n");
+    // }
+
+    // if (TCC1->INTFLAG.bit.MC0) {
+    //     // TCC1->INTFLAG.bit.MC0 = 1;
+    //     capture_value = TCC1->CC[0].reg;
+
+    //     printf("TCC1 MC1 triggered: 0x%08x\n", capture_value);
+    // }
+
+    // if (TCC1->INTFLAG.bit.MC0) {
+    //     capture_value = TCC1->CC[0].reg;
+    //     printf("TCC1 MC0 triggered: 0x%08x\n", capture_value);
+    // }
+
+    // if (TC4->COUNT16.INTFLAG.bit.MC1) {
+    //     TC4->COUNT16.INTFLAG.bit.MC1 = 1;
+    //     printf("TC4 MC1 triggered\n");
+    // }
+
+    // if (EVSYS->INTFLAG.bit.EVD1) {
+    //     EVSYS->INTFLAG.bit.EVD1 = 1;
+    //     printf("EVSYS EVD1 triggered\n");
+    // }
+
+    if (tcc1_int_fired) {
+        tcc1_int_fired = 0;
+        // printf("0x%08x\n", capture_value);
+        printf("%d\n", capture_value);
+        // printf("TCC1 INTENSET=0x%08x\n", TCC1->INTENSET.reg);
+        // printf("TCC1 INTFLAG=0x%08x\n",  TCC1->INTFLAG.reg);
+    }
+
 }
 
 
@@ -406,30 +464,60 @@ const char *HAL_persistent_storage_write(const uint32_t *new_data)
 // ****************************************************************************
 void HAL_servo_output_init(void)
 {
+    // Set GPIO to output TC4/W[0]
     HAL_gpio_OUT_out();
     HAL_gpio_OUT_pmuxen(PORT_PMUX_PMUXE_E_Val);
 
-    PM->APBCMASK.reg |= PM_APBCMASK_TCC0;
-
+    // Use GLKGEN1 (1 MHz) as clock source for the TC4
     GCLK->CLKCTRL.reg =
-        GCLK_CLKCTRL_ID(TCC0_GCLK_ID) |
+        GCLK_CLKCTRL_ID(GCLK_CLKCTRL_ID_TC4_TC5) |
         GCLK_CLKCTRL_CLKEN |
         GCLK_CLKCTRL_GEN(1);
 
-    TCC0->CTRLA.reg = TCC_CTRLA_SWRST;
+    // --------------------------------------
+    // Setup TC4 in PWM mode with a period of 20 ms. Unfortunately in 16bit
+    // mode there is no period register, so we have to use compare channel 1
+    // to issue an  event, which we then pass back as event to TC4 via the
+    // Event System, re-triggering the timer.
 
-    while (TCC0->CTRLA.reg & TCC_CTRLA_SWRST);
+    // Power on TC4
+    PM->APBCMASK.reg |= PM_APBCMASK_TC4;
 
-    // Setup TCC0 to run at 1 MHz by using GENCLK1 (which we initialized to
-    // 1 MHz). This way we can directly put microsecond values in the registers
-    TCC0->WAVE.reg = TCC_WAVE_WAVEGEN_NPWM;
-    TCC0->PER.reg = 20000;          // 20 ms period = 50 Hz servo pulse
-    TCC0->COUNT.reg = 0;
-    TCC0->CC[0].reg = 0;            // Don't output a pulse for now
-    TCC0->CTRLA.reg |= TCC_CTRLA_ENABLE;
+    // Reset TC4
+    TC4->COUNT16.CTRLA.reg = TC_CTRLA_SWRST;
+    while (TC4->COUNT16.CTRLA.reg & TC_CTRLA_SWRST);
+
+    // Set-up Channel 3 to output to TC4
+    EVSYS->USER.reg =
+        EVSYS_USER_USER(0x13/*TC4*/) |
+        EVSYS_USER_CHANNEL(3+1);
+
+    // Set-up Channel 3 to trigger synchronously on TC4 MC1
+    EVSYS->CHANNEL.reg =
+        EVSYS_CHANNEL_CHANNEL(3) |
+        EVSYS_CHANNEL_PATH_ASYNCHRONOUS |
+        EVSYS_CHANNEL_EVGEN(0x38/*TC4 MC1*/);
+
+    TC4->COUNT16.CC[0].reg = 0;             // Don't output a pulse initially
+    TC4->COUNT16.CC[1].reg = 20000-1;       // 20 ms period = 50 Hz servo pulse
+
+    TC4->COUNT16.EVCTRL.reg =
+        TC_EVCTRL_MCEO1 |                   // Enable Capture channel 1 event output
+        TC_EVCTRL_TCEI |                    // Enable event input
+        TC_EVCTRL_EVACT_RETRIGGER;          // Event action is "re-trigger"
+
+    TC4->COUNT16.CTRLA.reg |=
+        TC_CTRLA_MODE_COUNT16 |             // We use the timer in 16 bit mode
+        TC_CTRLA_WAVEGEN_NPWM |             // Normal PWM operation
+        TC_CTRLA_ENABLE;
 
     // Wait for all synchronizations finished to prevent HARD FAULT
-    while (TCC0->SYNCBUSY.reg);
+    while (TC4->COUNT16.STATUS.bit.SYNCBUSY);
+
+    // With the re-trigger action enabled, the timer does not start
+    // automatically. We have to kick it off manually by issuing a retrigger
+    // command.
+    TC4->COUNT16.CTRLBSET.reg = TC_CTRLBCLR_CMD_RETRIGGER;
 }
 
 
@@ -437,30 +525,21 @@ void HAL_servo_output_init(void)
 void HAL_servo_output_set_pulse(uint16_t servo_pulse_us)
 {
     saved_TCC0_cc_value = servo_pulse_us;
-    TCC0->CC[0].reg = saved_TCC0_cc_value;
-
-    // Wait for synchronization finished to prevent HARD FAULT
-    while (TCC0->SYNCBUSY.reg & TCC_SYNCBUSY_CC2);
+    TC4->COUNT16.CC[0].reg = saved_TCC0_cc_value;
 }
 
 
 // ****************************************************************************
 void HAL_servo_output_enable(void)
 {
-    TCC0->CC[0].reg = saved_TCC0_cc_value;
-
-    // Wait for synchronization finished to prevent HARD FAULT
-    while (TCC0->SYNCBUSY.reg & TCC_SYNCBUSY_CC2);
+    TC4->COUNT16.CC[0].reg = saved_TCC0_cc_value;
 }
 
 
 // ****************************************************************************
 void HAL_servo_output_disable(void)
 {
-    TCC0->CC[0].reg = 0;
-
-    // Wait for synchronization finished to prevent HARD FAULT
-    while (TCC0->SYNCBUSY.reg & TCC_SYNCBUSY_CC2);
+    TC4->COUNT16.CC[0].reg = 0;
 }
 
 
@@ -480,68 +559,79 @@ void HAL_servo_reader_init(bool CPPM, uint32_t max_pulse)
     // - EXTINT for the GPIO port, generating an event
     //    We can generate an event on both edges
     // - EVSYS to trigger TCC0 capture event when EXTINT fires
-    // - TC? for capturing the event
+    // - TCC0 for capturing the event
 
+    // Enable the EIC function on the TH pin (EXTINT1)
+    HAL_gpio_TH_pmuxen(PORT_PMUX_PMUXE_A_Val);
 
+    // --------------------------------------
+    // Power on the EIC
     PM->APBAMASK.reg |= PM_APBAMASK_EIC;
 
-    HAL_gpio_ST_pmuxen(PORT_PMUX_PMUXE_A_Val);
-
+    // --------------------------------------
+    // Use GLKGEN0 (48 MHz) as clock source for the EIC
     GCLK->CLKCTRL.reg =
         GCLK_CLKCTRL_ID_EIC |
         GCLK_CLKCTRL_CLKEN |
         GCLK_CLKCTRL_GEN(0);
 
-    EIC->CONFIG[0].reg = EIC_CONFIG_SENSE0_BOTH;
+    // --------------------------------------
+    // FIXME: should we do a SWRST here for the EIC?
 
-    EIC->EVCTRL.reg = EIC_EVCTRL_EXTINTEO0;
+    // FIXME: glitch filter frequency?
+    // Detect both edges, enable the glitch filter through another GCLK?
+    EIC->CONFIG[0].reg = EIC_CONFIG_SENSE1_BOTH | EIC_CONFIG_FILTEN1;
+
+    // Enable event generation when an edge is detected
+    EIC->EVCTRL.reg = EIC_EVCTRL_EXTINTEO1;
+
+    // Enable the external interrupt controller
     EIC->CTRL.bit.ENABLE = 1;
 
 
+    // Set-up Channel 0 to output to Match/Capture 0 of TCC0
+    EVSYS->USER.reg =
+        EVSYS_USER_USER(0x07/*TCC0_MC1*/) |
+        EVSYS_USER_CHANNEL(0+1);
 
-    PM->APBCMASK.reg |= PM_APBCMASK_EVSYS;
+    // Set-up Channel 0 to trigger synchronously on EXTINT1 (TH)
+    EVSYS->CHANNEL.reg =
+        EVSYS_CHANNEL_CHANNEL(0) |
+        EVSYS_CHANNEL_PATH_SYNCHRONOUS |
+        EVSYS_CHANNEL_EDGSEL_RISING_EDGE |
+        EVSYS_CHANNEL_EVGEN(0x0d/*EIC_EXTINT1*/);
 
+    // --------------------------------------
+    // Power on TCC1
+    PM->APBCMASK.reg |= PM_APBCMASK_TCC0;
+
+    // Use GLKGEN0 (48 MHz) as clock source for the TCC0
     GCLK->CLKCTRL.reg =
-        GCLK_CLKCTRL_ID_EVSYS_0 |
+        GCLK_CLKCTRL_ID(GCLK_CLKCTRL_ID_TCC0_TCC1) |
         GCLK_CLKCTRL_CLKEN |
         GCLK_CLKCTRL_GEN(0);
 
-    EVSYS->CTRL.reg = EVSYS_CTRL_GCLKREQ;
-
-    EVSYS->USER.reg =
-        EVSYS_USER_USER(0x0c/*TCC1_MC0*/) |
-        EVSYS_USER_CHANNEL(0+1);
-
-    EVSYS->CHANNEL.reg =
-        EVSYS_CHANNEL_CHANNEL(0) |
-        EVSYS_CHANNEL_PATH_ASYNCHRONOUS |
-        EVSYS_CHANNEL_EDGSEL_RISING_EDGE |
-        EVSYS_CHANNEL_EVGEN(0x0c/*EIC_EXTINT0*/);
-
-
-
-    PM->APBCMASK.reg |= PM_APBCMASK_TCC1;
-
-    GCLK->CLKCTRL.reg =
-        GCLK_CLKCTRL_ID(TCC1_GCLK_ID) |
-        GCLK_CLKCTRL_CLKEN |
-        GCLK_CLKCTRL_GEN(1);
-
-    TCC1->CTRLA.reg =
+    // No prescaler; Enable capture channel 1
+    TCC0->CTRLA.reg =
         TCC_CTRLA_PRESCALER_DIV1 |
         TCC_CTRLA_PRESCSYNC_GCLK |
-        TCC_CTRLA_CPTEN0;
+        TCC_CTRLA_CPTEN1;
 
-    TCC1->EVCTRL.reg =
-        TCC_EVCTRL_EVACT0_COUNT |
-        TCC_EVCTRL_TCEI0;
+    // Enable captire channel 1 event input
+    TCC0->EVCTRL.reg =
+        TCC_EVCTRL_MCEI1;
 
-    TCC1->WAVE.reg = TCC_WAVE_WAVEGEN_NFRQ;
-    TCC1->COUNT.reg = 0;
-    TCC1->PER.reg = 0xffffff;
-    TCC1->CTRLA.reg |= TCC_CTRLA_ENABLE;
+    // Set up the timer to run continously in 24 bit mode
+    TCC0->WAVE.reg = TCC_WAVE_WAVEGEN_NFRQ;
+    TCC0->COUNT.reg = 0;
+    TCC0->PER.reg = 0xffffff;
+    TCC0->CTRLA.reg |= TCC_CTRLA_ENABLE;
 
+    while (TCC0->SYNCBUSY.reg);
 
+    // Enable interrupts on Match/Compare 1
+    TCC0->INTENSET.reg = TCC_INTFLAG_MC1;
+    NVIC_EnableIRQ(TCC0_IRQn);
 }
 
 
@@ -611,4 +701,28 @@ void PendSV_Handler(void)
 {
     __BKPT(2);
     while (1);
+}
+
+
+// ****************************************************************************
+void TCC0_Handler(void)
+{
+    static uint32_t start;
+    uint32_t now;
+
+    NVIC_ClearPendingIRQ(TCC0_IRQn);
+
+    if (TCC0->INTFLAG.bit.MC0) {
+        // Wait until the capture has synchronized, then read the captured value
+        while (TCC0->SYNCBUSY.bit.CC1);
+        now = TCC0->CC[1].reg;
+
+        if (HAL_gpio_TH_read()) {
+            start = now;
+        }
+        else {
+            capture_value = now - start;
+            tcc1_int_fired = true;
+        }
+    }
 }

@@ -41,7 +41,8 @@
 
 * Restructure HAL to init GPIO at once
 
-* Don't use PA03, has a huge capacitor on Arduinos!
+* GENCLK1 should run at 2 Mhz so that servo read/output works at 500ns resolution
+
 
 
 # MK5 PCB
