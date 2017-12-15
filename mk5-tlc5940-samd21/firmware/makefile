@@ -61,6 +61,9 @@ SOURCES += $(SOURCE_PATH)/winch.c
 SOURCES += $(SOURCE_PATH)/libs/printf/printf.c
 SOURCES += hal/hal_samd21.c
 SOURCES += hal/startup_samd21.c
+SOURCES += hal/usb.c
+SOURCES += hal/usb_cdc.c
+SOURCES += hal/usb_descriptors.c
 
 INCLUDES += -I.
 INCLUDES += -I$(SOURCE_PATH)

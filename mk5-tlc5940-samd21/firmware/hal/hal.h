@@ -63,6 +63,8 @@
 #define GPIO_BIT_PUSH_BUTTON 11
 #define GPIO_BIT_SWITCHED_LIGHT_OUTPUT 2
 #define GPIO_BIT_LED 1
+#define GPIO_BIT_USB_DM 24
+#define GPIO_BIT_USB_DP 25
 #endif
 
 // ****************************************************************************
@@ -123,6 +125,8 @@
 #define GPIO_BIT_PUSH_BUTTON 15
 #define GPIO_BIT_SWITCHED_LIGHT_OUTPUT 19
 #define GPIO_BIT_LED 19
+#define GPIO_BIT_USB_DM 24
+#define GPIO_BIT_USB_DP 25
 #endif
 
 

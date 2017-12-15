@@ -4,6 +4,7 @@
 #include <hal.h>
 #include <printf.h>
 
+void usb_init(void);
 
 static volatile bool new_raw_channel_data = false;
 static uint32_t raw_data[3];
@@ -34,6 +35,10 @@ DECLARE_GPIO(TH, GPIO_PORTA, GPIO_BIT_TH)
 DECLARE_GPIO(CH3, GPIO_PORTA, GPIO_BIT_CH3)
 
 DECLARE_GPIO(OUT, GPIO_PORTA, GPIO_BIT_OUT)
+
+DECLARE_GPIO(USB_DM, GPIO_PORTA, GPIO_BIT_USB_DM)
+DECLARE_GPIO(USB_DP, GPIO_PORTA, GPIO_BIT_USB_DP)
+
 
 #ifdef SAMR21_XPLAINED_PRO
 
@@ -151,6 +156,9 @@ void HAL_hardware_init(bool is_servo_reader, bool servo_output_enabled, bool uar
     HAL_gpio_TH_pmuxen(PORT_PMUX_PMUXE_A_Val);      // Enable the EIC function on the TH pin (EXTINT1)
     HAL_gpio_CH3_in();
 
+    HAL_gpio_USB_DM_pmuxen(PORT_PMUX_PMUXE_G_Val);
+    HAL_gpio_USB_DP_pmuxen(PORT_PMUX_PMUXE_G_Val);
+
 
     // ------------------------------------------------
     // Since we intend to run at 48 MHz system clock, we neeed to conigure
@@ -226,7 +234,8 @@ void HAL_hardware_init(bool is_servo_reader, bool servo_output_enabled, bool uar
         PM_APBAMASK_EIC |
         PM_APBCMASK_EVSYS |
         PM_APBCMASK_TCC0 |
-        PM_APBCMASK_TC4;
+        PM_APBCMASK_TC4 |
+        PM_APBBMASK_USB;
 
 
     // ------------------------------------------------
@@ -251,10 +260,16 @@ void HAL_hardware_init(bool is_servo_reader, bool servo_output_enabled, bool uar
     // Always turn on the Generic Clock within EVSYS
     EVSYS->CTRL.reg = EVSYS_CTRL_GCLKREQ;
 
+    USB->DEVICE.PADCAL.bit.TRANSN = NVM_GET_CALIBRATION_VALUE(USB_TRANSN);
+    USB->DEVICE.PADCAL.bit.TRANSP = NVM_GET_CALIBRATION_VALUE(USB_TRANSP);
+    USB->DEVICE.PADCAL.bit.TRIM   = NVM_GET_CALIBRATION_VALUE(USB_TRIM);
+    usb_init();
 
     // ------------------------------------------------
     // Configure the SYSTICK to create an interrupt every 1 millisecond
     SysTick_Config(48000);
+
+
 
     __enable_irq();
 }

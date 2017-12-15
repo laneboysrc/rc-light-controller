@@ -26,9 +26,10 @@
             "cmd":
             [
                 "make",
-                "clean"
+                "clean",
+                "all"
             ],
-            "name": "MK4 make clean",
+            "name": "MK4 make clean all",
             "syntax": "Packages/Makefile/Make Output.sublime-syntax",
             "working_dir": "${project_path}/mk4-tlc5940-lpc812/firmware"
         },
@@ -57,9 +58,10 @@
             "cmd":
             [
                 "make",
-                "clean"
+                "clean",
+                "all"
             ],
-            "name": "MK5 make clean",
+            "name": "MK5 make clean all",
             "syntax": "Packages/Makefile/Make Output.sublime-syntax",
             "working_dir": "${project_path}/mk5-tlc5940-samd21/firmware"
         }
