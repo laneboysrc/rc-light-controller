@@ -14,10 +14,10 @@ static void usb_cdc_ep_send_callback(int size);
 static void usb_cdc_ep_recv_callback(int size);
 
 
+bool usb_class_handle_request(usb_request_t *request);
 void usb_set_callback(int ep, void (*callback)(int size));
 void usb_send(int ep, uint8_t *data, int size);
 void usb_recv(int ep, uint8_t *data, int size);
-bool usb_class_handle_request(usb_request_t *request);
 void usb_control_recv(void (*callback)(uint8_t *data, int size));
 void usb_control_send_zlp(void);
 void usb_control_send(uint8_t *data, int size);

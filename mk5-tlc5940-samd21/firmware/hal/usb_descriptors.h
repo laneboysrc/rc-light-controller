@@ -21,7 +21,7 @@ enum
 };
 
 /*- Types -------------------------------------------------------------------*/
-typedef struct PACK
+typedef struct __attribute__((packed))
 {
   usb_configuration_descriptor_t                   configuration;
   usb_interface_descriptor_t                       interface_comm;

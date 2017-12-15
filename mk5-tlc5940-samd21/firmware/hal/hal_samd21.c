@@ -3,8 +3,12 @@
 
 #include <hal.h>
 #include <printf.h>
+#include <hal_usb.h>
+#include <usb_cdc.h>
 
 void usb_init(void);
+void usb_task(void);
+
 
 static volatile bool new_raw_channel_data = false;
 static uint32_t raw_data[3];
@@ -260,15 +264,18 @@ void HAL_hardware_init(bool is_servo_reader, bool servo_output_enabled, bool uar
     // Always turn on the Generic Clock within EVSYS
     EVSYS->CTRL.reg = EVSYS_CTRL_GCLKREQ;
 
+
+    // ------------------------------------------------
     USB->DEVICE.PADCAL.bit.TRANSN = NVM_GET_CALIBRATION_VALUE(USB_TRANSN);
     USB->DEVICE.PADCAL.bit.TRANSP = NVM_GET_CALIBRATION_VALUE(USB_TRANSP);
     USB->DEVICE.PADCAL.bit.TRIM   = NVM_GET_CALIBRATION_VALUE(USB_TRIM);
     usb_init();
+    usb_cdc_init();
+
 
     // ------------------------------------------------
     // Configure the SYSTICK to create an interrupt every 1 millisecond
     SysTick_Config(48000);
-
 
 
     __enable_irq();
@@ -325,6 +332,8 @@ void HAL_service(void)
         fprintf(STDOUT_DEBUG, "Stack down to 0x%08x\n", (uint32_t)now);
     }
 #endif
+
+    usb_task();
 }
 
 
