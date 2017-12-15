@@ -102,9 +102,11 @@ CFLAGS += -MMD -MP -MT $(BUILD_DIR)/$(*F).o -MF $(BUILD_DIR)/$(@F).d
 CFLAGS += $(INCLUDES) $(DEFINES)
 
 LDFLAGS += $(CPU_FLAGS)
-LDFLAGS += -Wl,-T,$(LINKER_SCRIPT) -Wl,--warn-common
+LDFLAGS += -Wl,-T,$(LINKER_SCRIPT)
+LDFLAGS += -Wl,--warn-common
 LDFLAGS += -Wl,-nostdlib
-LDFLAGS += -Wl,--gc-sections -Wl,-Os
+LDFLAGS += -Wl,--gc-sections
+LDFLAGS += -Wl,-Os
 LDFLAGS += -Wl,-Map=$(TARGET_MAP) -Wl,--cref
 
 LINKER_SCRIPT := hal/samd21e15.ld

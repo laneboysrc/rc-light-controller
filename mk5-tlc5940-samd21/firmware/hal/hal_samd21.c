@@ -4,10 +4,9 @@
 #include <hal.h>
 #include <printf.h>
 
-volatile bool tcc1_int_fired = false;
 
-volatile uint32_t st_value;
-volatile uint32_t th_value;
+static volatile bool new_raw_channel_data = false;
+static uint32_t raw_data[3];
 
 
 
@@ -113,6 +112,8 @@ static uint8_t receive_buffer[RECEIVE_BUFFER_SIZE];
 static volatile uint16_t read_index = 0;
 static volatile uint16_t write_index = 0;
 
+// We use all 24 bits of TCC0, so the maximum period value is 0xffffff
+#define TCC0_PERIOD (0xfffffful)
 
 // ****************************************************************************
 void HAL_hardware_init(bool is_servo_reader, bool servo_output_enabled, bool uart_output_enabled)
@@ -311,20 +312,9 @@ void HAL_service(void)
     }
 #endif
 
-    if (tcc1_int_fired) {
-        static uint32_t last_st;
-        static uint32_t last_th;
-
-        tcc1_int_fired = 0;
-
-        if (last_st != st_value) {
-            last_st = st_value;
-            printf("ST measured: %d\n", last_st);
-        }
-        if (last_th != th_value) {
-            last_th = th_value;
-            printf("TH measured: %d\n", last_th);
-        }
+    if (new_raw_channel_data) {
+        new_raw_channel_data = false;
+        printf("ST: %d  TH: %d\n", raw_data[0] / 2, raw_data[1] / 2);
     }
 }
 
@@ -553,14 +543,14 @@ void HAL_servo_output_init(void)
 
     // Set-up Channel 3 to output to TC4
     EVSYS->USER.reg =
-        EVSYS_USER_USER(0x13/*TC4*/) |
+        EVSYS_USER_USER(0x13) |             // TC4
         EVSYS_USER_CHANNEL(3+1);
 
     // Set-up Channel 3 to trigger synchronously on TC4 MC1
     EVSYS->CHANNEL.reg =
         EVSYS_CHANNEL_CHANNEL(3) |
         EVSYS_CHANNEL_PATH_ASYNCHRONOUS |
-        EVSYS_CHANNEL_EVGEN(0x38/*TC4 MC1*/);
+        EVSYS_CHANNEL_EVGEN(0x38);          // TC4 MC1
 
     TC4->COUNT16.CC[0].reg = 0;             // Don't output a pulse initially
     TC4->COUNT16.CC[1].reg = (20000 * 2)-1; // 20 ms period = 50 Hz servo pulse
@@ -641,12 +631,11 @@ void HAL_servo_reader_init(bool CPPM, uint32_t max_pulse)
         GCLK_CLKCTRL_GEN(0);
 
     // --------------------------------------
-    // FIXME: should we do a SWRST here for the EIC?
-    // Detect both edges, enable the glitch filter
+    // Detect rising edge; Enable the glitch filter
     EIC->CONFIG[0].reg =
-        EIC_CONFIG_SENSE0_BOTH | EIC_CONFIG_FILTEN0 |
-        EIC_CONFIG_SENSE1_BOTH | EIC_CONFIG_FILTEN1 |
-        EIC_CONFIG_SENSE3_BOTH | EIC_CONFIG_FILTEN3;
+        EIC_CONFIG_SENSE0_RISE | EIC_CONFIG_FILTEN0 |
+        EIC_CONFIG_SENSE1_RISE | EIC_CONFIG_FILTEN1 |
+        EIC_CONFIG_SENSE3_RISE | EIC_CONFIG_FILTEN3;
 
     // Enable event generation when an edge is detected
     EIC->EVCTRL.reg =
@@ -720,7 +709,7 @@ void HAL_servo_reader_init(bool CPPM, uint32_t max_pulse)
     // Set up the timer to run continously in 24 bit mode
     TCC0->WAVE.reg = TCC_WAVE_WAVEGEN_NFRQ;
     TCC0->COUNT.reg = 0;
-    TCC0->PER.reg = 0xffffff;
+    TCC0->PER.reg = TCC0_PERIOD;
 
     TCC0->CTRLA.reg |= TCC_CTRLA_ENABLE;
     while (TCC0->SYNCBUSY.reg);
@@ -734,50 +723,71 @@ void HAL_servo_reader_init(bool CPPM, uint32_t max_pulse)
 // ****************************************************************************
 void TCC0_Handler(void)
 {
-    static uint32_t start;
-    uint32_t now;
+    static uint32_t start[3] = {0, 0, 0};
+    static uint32_t result[3] = {0, 0, 0};
+    static uint8_t channel_flags = 0;
+    static const uint8_t extints[] = {0, 1, 3};
 
     NVIC_ClearPendingIRQ(TCC0_IRQn);
 
-    if (TCC0->INTFLAG.bit.MC0) {
-        // Wait until the capture has synchronized, then read the captured value
-        while (TCC0->SYNCBUSY.bit.CC0);
-        now = TCC0->CC[0].reg;
+    for (int i = 0; i < 3; i++) {
+        if (TCC0->INTFLAG.reg & (TCC_INTFLAG_MC0 << i)) {
 
-        if (HAL_gpio_ST_read()) {
-            start = now;
-        }
-        else {
-            st_value = (now - start) / 2;
-            tcc1_int_fired = true;
-        }
-    }
+            uint32_t capture_value;
+            uint32_t mask;
+            uint32_t pos;
+            uint32_t rising_edge;
 
-    if (TCC0->INTFLAG.bit.MC1) {
-        // Wait until the capture has synchronized, then read the captured value
-        while (TCC0->SYNCBUSY.bit.CC1);
-        now = TCC0->CC[1].reg;
+            // Read the captured value
+            capture_value = TCC0->CC[i].reg;
 
-        if (HAL_gpio_TH_read()) {
-            start = now;
-        }
-        else {
-            th_value = (now - start) / 2;
-            tcc1_int_fired = true;
-        }
-    }
+            pos = EIC_CONFIG_SENSE0_Pos + (extints[i] * 4);
+            mask = 0x7ul << pos;
+            rising_edge = EIC_CONFIG_SENSE0_RISE_Val << pos;
 
-    if (TCC0->INTFLAG.bit.MC2) {
-        // Wait until the capture has synchronized, then read the captured value
-        while (TCC0->SYNCBUSY.bit.CC2);
-        now = TCC0->CC[2].reg;
+            if ((EIC->CONFIG[0].reg & mask) == rising_edge) {
+                // Rising edge triggered
+                start[i] = capture_value;
+                if (channel_flags & (1 << i)) {
+                    channel_flags = (1 << i);
+
+                    raw_data[0] = result[0];
+                    raw_data[1] = result[1];
+                    raw_data[2] = result[2];
+                    new_raw_channel_data = true;
+
+                    result[0] = result[1] = result[2] = 0;
+                }
+                channel_flags |= (1 << i);
+            }
+            else {
+                // Falling edge triggered
+                if (start[i] > capture_value) {
+                    // Compensate for wrap-around
+                    capture_value += (TCC0_PERIOD + 1ul);
+                }
+                result[i] = capture_value - start[i];
+            }
+
+            // Toggle between rising and falling edge detection
+            EIC->CONFIG[0].reg ^= (EIC_CONFIG_SENSE0_BOTH_Val << pos);
+        }
     }
 }
 
 
 // ****************************************************************************
-bool HAL_servo_reader_get_new_channels(uint32_t *raw_data)
+bool HAL_servo_reader_get_new_channels(uint32_t *out_us)
 {
-    (void) raw_data;
-    return false;
+    if (!new_raw_channel_data) {
+        return false;
+    }
+    new_raw_channel_data = false;
+
+    // Since we run TCC0 at 2 MHz we have to divide the raw measured value
+    // by 2 to obtain microseconds
+    out_us[0] = raw_data[0] / 2;
+    out_us[1] = raw_data[1] / 2;
+    out_us[2] = raw_data[2] / 2;
+    return true;
 }
