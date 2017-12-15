@@ -35,6 +35,8 @@
 * Trigger bootloader from CDC like Arduino (1200 BAUD, DTR low)
     * Can we also detect BOSSAC?
 
+* Does LED on PA01 interfere with Arduino hardware?
+
 * Button input via HAL (must be configurable)
 
 * How to deal with the USB shielding?
