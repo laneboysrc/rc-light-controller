@@ -37,11 +37,11 @@
 
 * Button input via HAL (must be configurable)
 
-* LED out separate IO than OUT15S?
+* LED out separate IO than OUT15S? Would be good for Arduino, Bootloader...
 
 * How to deal with the USB shielding?
 
-
+* Implement CPPM reader?
 
 # MK5 PCB
 
