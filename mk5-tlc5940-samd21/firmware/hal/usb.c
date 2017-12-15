@@ -211,37 +211,38 @@ static void usb_configure_endpoint(usb_endpoint_descriptor_t *desc)
 //-----------------------------------------------------------------------------
 void usb_init(void)
 {
+    GCLK->CLKCTRL.reg =
+      GCLK_CLKCTRL_ID(USB_GCLK_ID) |
+      GCLK_CLKCTRL_GEN(0) |
+      GCLK_CLKCTRL_CLKEN;
 
-  GCLK->CLKCTRL.reg = GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_ID(USB_GCLK_ID) |
-      GCLK_CLKCTRL_GEN(0);
+    USB->DEVICE.CTRLA.bit.SWRST = 1;
+    while (USB->DEVICE.SYNCBUSY.bit.SWRST);
 
-  USB->DEVICE.CTRLA.bit.SWRST = 1;
-  while (USB->DEVICE.SYNCBUSY.bit.SWRST);
+    for (uint32_t i = 0; i < (sizeof(udc_mem) / sizeof(uint32_t)); i++) {
+        ((uint32_t *)udc_mem)[i] = 0;
+    }
 
+    USB->DEVICE.DESCADD.reg = (uint32_t)udc_mem;
 
-  for (int i = 0; i < (int)sizeof(udc_mem); i++)
-    ((uint8_t *)udc_mem)[i] = 0;
+    USB->DEVICE.CTRLA.bit.MODE = USB_CTRLA_MODE_DEVICE_Val;
+    USB->DEVICE.CTRLA.bit.RUNSTDBY = 1;
+    USB->DEVICE.CTRLB.bit.SPDCONF = USB_DEVICE_CTRLB_SPDCONF_FS_Val;
+    USB->DEVICE.CTRLB.bit.DETACH = 0;
 
-  USB->DEVICE.DESCADD.reg = (uint32_t)udc_mem;
+    USB->DEVICE.INTENSET.reg = USB_DEVICE_INTENSET_EORST;
+    USB->DEVICE.DeviceEndpoint[0].EPINTENSET.bit.RXSTP = 1;
 
-  USB->DEVICE.CTRLA.bit.MODE = USB_CTRLA_MODE_DEVICE_Val;
-  USB->DEVICE.CTRLA.bit.RUNSTDBY = 1;
-  USB->DEVICE.CTRLB.bit.SPDCONF = USB_DEVICE_CTRLB_SPDCONF_FS_Val;
-  USB->DEVICE.CTRLB.bit.DETACH = 0;
+    USB->DEVICE.CTRLA.reg |= USB_CTRLA_ENABLE;
 
-  USB->DEVICE.INTENSET.reg = USB_DEVICE_INTENSET_EORST;
-  USB->DEVICE.DeviceEndpoint[0].EPINTENSET.bit.RXSTP = 1;
+    for (int i = 0; i < USB_EP_NUM; i++) {
+        usb_ep_callbacks[i] = NULL;
+    }
 
-  USB->DEVICE.CTRLA.reg |= USB_CTRLA_ENABLE;
-
-  for (int i = 0; i < USB_EP_NUM; i++) {
-    usb_ep_callbacks[i] = NULL;
-  }
-
-  for (int i = 0; i < USB_EPT_NUM; i++) {
-    usb_reset_endpoint(i, USB_IN_ENDPOINT);
-    usb_reset_endpoint(i, USB_OUT_ENDPOINT);
-  }
+    for (int i = 0; i < USB_EPT_NUM; i++) {
+        usb_reset_endpoint(i, USB_IN_ENDPOINT);
+        usb_reset_endpoint(i, USB_OUT_ENDPOINT);
+    }
 }
 
 
@@ -347,32 +348,31 @@ void usb_control_send(uint8_t *data, int size)
   // a manual multi-packet transfer. This way data can be located in in
   // the flash memory (big constant descriptors).
 
-  while (size)
-  {
-    int transfer_size = MIN(size, usb_device_descriptor.bMaxPacketSize0);
+    while (size) {
+        int transfer_size = MIN(size, usb_device_descriptor.bMaxPacketSize0);
 
-    // FIXME: use memcpy
-    for (int i = 0; i < transfer_size; i++)
-      usb_ctrl_in_buf[i] = data[i];
+        for (uint16_t i = 0; i < transfer_size; i++) {
+            usb_ctrl_in_buf[i] = data[i];
+        }
 
-    udc_mem[0].dir.in.ADDR.reg = (uint32_t)usb_ctrl_in_buf;
-    udc_mem[0].dir.in.PCKSIZE.bit.BYTE_COUNT = transfer_size;
-    udc_mem[0].dir.in.PCKSIZE.bit.MULTI_PACKET_SIZE = 0;
+        udc_mem[0].dir.in.ADDR.reg = (uint32_t)usb_ctrl_in_buf;
+        udc_mem[0].dir.in.PCKSIZE.bit.BYTE_COUNT = transfer_size;
+        udc_mem[0].dir.in.PCKSIZE.bit.MULTI_PACKET_SIZE = 0;
 
-    USB->DEVICE.DeviceEndpoint[0].EPINTFLAG.reg = USB_DEVICE_EPINTFLAG_TRCPT1;
-    USB->DEVICE.DeviceEndpoint[0].EPSTATUSSET.bit.BK1RDY = 1;
+        USB->DEVICE.DeviceEndpoint[0].EPINTFLAG.reg = USB_DEVICE_EPINTFLAG_TRCPT1;
+        USB->DEVICE.DeviceEndpoint[0].EPSTATUSSET.bit.BK1RDY = 1;
 
-    while (!USB->DEVICE.DeviceEndpoint[0].EPINTFLAG.bit.TRCPT1);
+        while (!USB->DEVICE.DeviceEndpoint[0].EPINTFLAG.bit.TRCPT1);
 
-    size -= transfer_size;
-    data += transfer_size;
-  }
+        size -= transfer_size;
+        data += transfer_size;
+    }
 }
 
 //-----------------------------------------------------------------------------
 void usb_control_recv(void (* callback)(uint8_t *data, int size))
 {
-  usb_control_recv_callback = callback;
+    usb_control_recv_callback = callback;
 }
 
 //-----------------------------------------------------------------------------
@@ -505,12 +505,14 @@ bool usb_handle_standard_request(usb_request_t *request)
 
         usb_control_send((uint8_t *)&usb_device_descriptor, length);
       }
+
       else if (USB_CONFIGURATION_DESCRIPTOR == type)
       {
         length = MIN(length, usb_configuration_hierarchy.configuration.wTotalLength);
 
         usb_control_send((uint8_t *)&usb_configuration_hierarchy, length);
       }
+
       else if (USB_STRING_DESCRIPTOR == type)
       {
         if (0 == index)
@@ -560,8 +562,8 @@ bool usb_handle_standard_request(usb_request_t *request)
 
       usb_control_send_zlp();
 
-      if (usb_config)
-      {
+      // FIXME: usb_config == 1?
+      if (usb_config) {
         int size = usb_configuration_hierarchy.configuration.wTotalLength;
         usb_descriptor_header_t *desc = (usb_descriptor_header_t *)&usb_configuration_hierarchy;
 
@@ -587,9 +589,18 @@ bool usb_handle_standard_request(usb_request_t *request)
     case USB_CMD(IN, DEVICE, STANDARD, GET_STATUS):
     case USB_CMD(IN, INTERFACE, STANDARD, GET_STATUS):
     {
-      uint16_t status = 0;
-      usb_control_send((uint8_t *)&status, sizeof(status));
+        uint16_t status = 0;
+        usb_control_send((uint8_t *)&status, sizeof(status));
     } break;
+
+    case USB_CMD(OUT, DEVICE, STANDARD, SET_FEATURE):
+    case USB_CMD(OUT, DEVICE, STANDARD, CLEAR_FEATURE):
+        return false;
+
+    case USB_CMD(OUT, INTERFACE, STANDARD, SET_FEATURE):
+    case USB_CMD(OUT, INTERFACE, STANDARD, CLEAR_FEATURE):
+        usb_control_send_zlp();
+        break;
 
     case USB_CMD(IN, ENDPOINT, STANDARD, GET_STATUS):
     {
@@ -608,16 +619,6 @@ bool usb_handle_standard_request(usb_request_t *request)
       }
     } break;
 
-    case USB_CMD(OUT, DEVICE, STANDARD, SET_FEATURE):
-    {
-      return false;
-    } break;
-
-    case USB_CMD(OUT, INTERFACE, STANDARD, SET_FEATURE):
-    {
-      usb_control_send_zlp();
-    } break;
-
     case USB_CMD(OUT, ENDPOINT, STANDARD, SET_FEATURE):
     {
       int ep = request->wIndex & USB_INDEX_MASK;
@@ -632,16 +633,6 @@ bool usb_handle_standard_request(usb_request_t *request)
       {
         return false;
       }
-    } break;
-
-    case USB_CMD(OUT, DEVICE, STANDARD, CLEAR_FEATURE):
-    {
-      return false;
-    } break;
-
-    case USB_CMD(OUT, INTERFACE, STANDARD, CLEAR_FEATURE):
-    {
-      usb_control_send_zlp();
     } break;
 
     case USB_CMD(OUT, ENDPOINT, STANDARD, CLEAR_FEATURE):
