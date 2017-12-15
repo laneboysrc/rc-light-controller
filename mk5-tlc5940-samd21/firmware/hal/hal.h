@@ -19,6 +19,7 @@
 // ****************************************************************************
 // IO pins: (SAMD21E15 in QFN32 package)
 //
+// PA01     (2)                             LED
 // PA02     (3)                             OUT15S Switched light output
 // PA04     (5 SERCOM0/PAD0)                TLC5940 SIN
 // PA05     (6 SERCOM0/PAD1)                TLC5940 SCLK
@@ -46,6 +47,7 @@
 // 3.3V     (29)  VDDANA
 // ****************************************************************************
 #define GPIO_PORTA 0
+#define GPIO_PORTB 0
 
 #ifndef SAMR21_XPLAINED_PRO
 #define GPIO_BIT_RX 23
@@ -60,6 +62,7 @@
 #define GPIO_BIT_BLANK 7
 #define GPIO_BIT_PUSH_BUTTON 11
 #define GPIO_BIT_SWITCHED_LIGHT_OUTPUT 2
+#define GPIO_BIT_LED 1
 #endif
 
 // ****************************************************************************
@@ -77,6 +80,8 @@
 // PA19     D10     CH3 input
 // PA22     D0      OUT / Tx
 // PA23     D1      Rx
+//
+// PB08             LED
 //
 // ****************************************************************************
 
@@ -117,6 +122,7 @@
 #define GPIO_BIT_BLANK 8
 #define GPIO_BIT_PUSH_BUTTON 15
 #define GPIO_BIT_SWITCHED_LIGHT_OUTPUT 19
+#define GPIO_BIT_LED 19
 #endif
 
 
