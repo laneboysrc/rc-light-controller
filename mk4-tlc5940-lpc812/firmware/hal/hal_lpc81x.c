@@ -505,8 +505,6 @@ void HAL_servo_output_disable(void)
     It can also read the pulses from a CPPM output, provided your receiver
     has such an output.
 
-    It populates the global channel[] array with the read data.
-
 
     Internal operation for reading servo pulses:
     --------------------------------------------
@@ -523,8 +521,7 @@ void HAL_servo_output_disable(void)
     overflow into account) and store it in a result registers (raw_data, one
     per channel).
 
-    In order to be able to be able to handle missing channels we do the
-    following:
+    In order to be able to handle missing channels we do the following:
 
     Each channel has a flag that gets set on the rising edge.
     When a channel sees its flag set at a rising edge it clears the
@@ -538,7 +535,7 @@ void HAL_servo_output_disable(void)
     goes missing, another channel will take over after two pulses.
 
     Missing channels will have the value 0 in raw_data, active channels the
-    measured pulse duration in milliseconds.
+    measured pulse duration in microseconds.
 
     The downside of the algorithm is that there is a one frame delay
     of the output, but it is very robust for use in the pre-processor.

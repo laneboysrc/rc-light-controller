@@ -270,8 +270,7 @@ void SysTick_Handler(void)
 // ****************************************************************************
 void HAL_hardware_init_final(void)
 {
-    // FIXME: this is for testing only
-    HAL_servo_reader_init(false, 2500);
+    // Nothing to do...
 }
 
 
@@ -311,11 +310,6 @@ void HAL_service(void)
         fprintf(STDOUT_DEBUG, "Stack down to 0x%08x\n", (uint32_t)now);
     }
 #endif
-
-    if (new_raw_channel_data) {
-        new_raw_channel_data = false;
-        printf("ST: %d  TH: %d\n", raw_data[0] / 2, raw_data[1] / 2);
-    }
 }
 
 
@@ -721,6 +715,58 @@ void HAL_servo_reader_init(bool CPPM, uint32_t max_pulse)
 
 
 // ****************************************************************************
+// Timer TCC0 interrupt handler, measuring the duration of the servo pulses.
+//
+// The implementation relies that we use Capture Channels 0, 1 and 2 in
+// sequence, and that the registers or relevant bits in registers are in the
+// same order and distance. This way we can use a loop counter to access
+// registers and bits for the relevant Capture Channel.
+//
+// While the Capture Channels are in sequence, the external interrupts are
+// not. We therefore map the loop counter to the corresponnding EXTINT through
+// the constant array "extints[]".
+//
+//
+// Internal operation for reading servo pulses:
+// --------------------------------------------
+// TCC0 is setup as 24 bit timer.
+// We use 3 GPIOs, setup as EXTINT (external interrupt), triggering events
+// through the Event // System, which in turn trigger 3 Capture Channels on
+// TCC0. TCC0 is running at 2 MHz, giving us a resolution of 0.5 us.
+//
+// Note that the EXTINT are not triggering an actual interrupt directly, they
+// are only used as input event for the Event System (EVSYS). Refer to the
+// SAM D21 datasheet for details.
+//
+// Initially the 3 EXTINTs wait for a rising edge. When an edge is detected,
+// the TCC0 timer value is retrieved from the capture register and stored in
+// a holding place. The edge of the EXTINT is toggled.
+//
+// When a falling edge is detected we calculate the difference (taking
+// overflow into account) and store it in a result registers (raw_data, one
+// per channel).
+//
+// In order to be able to handle missing channels we do the following:
+//
+// Each channel has a flag that gets set on the rising edge.
+// When a channel sees its flag being already set when being triggered on a
+// rising edge, it clears the flags of the *other* channels, but leaves its own
+// flag set.
+// It then copies all result[] registers into transfer registers (one per channel)
+// and sets a flag to let the mainloop know that a set of data is available.
+// The result[] registers are cleared.
+//
+// This way the first channel that outputs data will dictate the repeat
+// frequency of the combined set of channels. If this "dominant channel"
+// goes missing, another channel will take over after two pulses.
+//
+// Missing channels will have the value 0 in raw_data, active channels the
+// measured pulse duration.
+//
+// The downside of the algorithm is that there is a one frame delay
+// of the output, but it is very robust regardless of the receiver and number
+// of channels actually connected.
+//
 void TCC0_Handler(void)
 {
     static uint32_t start[3] = {0, 0, 0};
