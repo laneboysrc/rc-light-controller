@@ -162,7 +162,7 @@ typedef struct __attribute__((packed))
   uint8_t   bLength;
   uint8_t   bDescriptorType;
   uint16_t  wLANGID;
-} usb_string_descriptor_zero_t;
+} usb_language_descriptor_t;
 
 typedef struct __attribute__((packed))
 {
@@ -173,5 +173,3 @@ typedef struct __attribute__((packed))
 
 
 
-
-#define USB_EP_NUM 8        // Number of USB end points

@@ -128,9 +128,9 @@ const alignas(4) usb_configuration_hierarchy_t usb_configuration_hierarchy =
   },
 };
 
-const alignas(4) usb_string_descriptor_zero_t usb_string_descriptor_zero =
+const alignas(4) usb_language_descriptor_t usb_language_descriptor =
 {
-  .bLength               = sizeof(usb_string_descriptor_zero_t),
+  .bLength               = sizeof(usb_language_descriptor_t),
   .bDescriptorType       = USB_STRING_DESCRIPTOR,
   .wLANGID               = 0x0409, // English (United States)
 };
