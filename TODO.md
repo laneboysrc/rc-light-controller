@@ -34,6 +34,8 @@
 
 * Trigger bootloader from CDC like Arduino (1200 BAUD, DTR low)
     * Can we also detect BOSSAC?
+    * Can we make a simple board manager compatible thing to integrate in Arduino?
+      https://github.com/arduino/Arduino/wiki/Arduino-IDE-1.5-3rd-party-Hardware-specification
 
 * Does LED on PA01 interfere with Arduino hardware?
 

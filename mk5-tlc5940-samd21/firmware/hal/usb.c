@@ -31,19 +31,7 @@ bool usb_class_handle_request(usb_request_t *request);
 void usb_configuration_callback(int config);
 
 
-#define USB_BUFFER_SIZE 64
 
-static alignas(4) uint8_t app_recv_buffer[USB_BUFFER_SIZE];
-// static alignas(4) uint8_t app_send_buffer[USB_BUFFER_SIZE];
-static int app_recv_buffer_size = 0;
-static int app_recv_buffer_ptr = 0;
-// static int app_send_buffer_ptr = 0;
-static bool app_send_buffer_free = true;
-// static bool app_send_zlp = false;
-// static int app_system_time = 0;
-// static int app_uart_timeout = 0;
-// static bool app_status = false;
-// static int app_status_timeout = 0;
 
 
 
@@ -95,49 +83,6 @@ static void (*usb_control_recv_callback)(uint8_t *data, int size);
 
 
 
-//-----------------------------------------------------------------------------
-void usb_cdc_send_callback(void)
-{
-  app_send_buffer_free = true;
-}
-
-// //-----------------------------------------------------------------------------
-// static void send_buffer(void)
-// {
-//   app_send_buffer_free = false;
-//   app_send_zlp = (USB_BUFFER_SIZE == app_send_buffer_ptr);
-
-//   usb_cdc_send(app_send_buffer, app_send_buffer_ptr);
-
-//   app_send_buffer_ptr = 0;
-// }
-
-//-----------------------------------------------------------------------------
-void usb_cdc_recv_callback(int size)
-{
-  app_recv_buffer_ptr = 0;
-  app_recv_buffer_size = size;
-}
-
-//-----------------------------------------------------------------------------
-void usb_configuration_callback(int config)
-{
-  usb_cdc_recv(app_recv_buffer, sizeof(app_recv_buffer));
-  (void)config;
-}
-
-void usb_cdc_line_coding_updated(usb_cdc_line_coding_t *line_coding)
-{
-  // uart_init(line_coding);
-  (void) line_coding;
-}
-
-//-----------------------------------------------------------------------------
-void usb_cdc_control_line_state_update(int line_state)
-{
-  // update_status(line_state & USB_CDC_CTRL_SIGNAL_DTE_PRESENT);
-  (void) line_state;
-}
 
 
 
@@ -344,9 +289,9 @@ void usb_control_stall(void)
 //-----------------------------------------------------------------------------
 void usb_control_send(uint8_t *data, int size)
 {
-  // USB controller does not have access to the flash memory, so here we do
-  // a manual multi-packet transfer. This way data can be located in in
-  // the flash memory (big constant descriptors).
+    // USB controller does not have access to the flash memory, so here we do
+    // a manual multi-packet transfer. This way data can be located in in
+    // the flash memory (big constant descriptors).
 
     while (size) {
         int transfer_size = MIN(size, usb_device_descriptor.bMaxPacketSize0);
@@ -407,6 +352,7 @@ void usb_task(void)
     USB->DEVICE.DeviceEndpoint[0].EPINTENSET.bit.TRCPT0 = 1;
   }
 
+  // Receive setup (Endpoint 0)
   if (USB->DEVICE.DeviceEndpoint[0].EPINTFLAG.bit.RXSTP)
   {
     usb_request_t *request = (usb_request_t *)usb_ctrl_out_buf;
@@ -431,6 +377,8 @@ void usb_task(void)
 
     USB->DEVICE.DeviceEndpoint[0].EPINTFLAG.reg = USB_DEVICE_EPINTFLAG_RXSTP;
   }
+
+  // Transmit Complete 0 (Endpoint 0)
   else if (USB->DEVICE.DeviceEndpoint[0].EPINTFLAG.bit.TRCPT0)
   {
     if (usb_control_recv_callback)
@@ -444,6 +392,8 @@ void usb_task(void)
     USB->DEVICE.DeviceEndpoint[0].EPINTFLAG.reg = USB_DEVICE_EPINTFLAG_TRCPT0;
   }
 
+
+
   epints = USB->DEVICE.EPINTSMRY.reg;
 
   for (int i = 1; i < USB_EPT_NUM && epints > 0; i++)
@@ -453,6 +403,7 @@ void usb_task(void)
     flags = USB->DEVICE.DeviceEndpoint[i].EPINTFLAG.reg;
     epints &= ~(1 << i);
 
+    // Transmit Complete 0 (OUT / data sent from host to device)
     if (flags & USB_DEVICE_EPINTFLAG_TRCPT0)
     {
       USB->DEVICE.DeviceEndpoint[i].EPSTATUSSET.bit.BK0RDY = 1;
@@ -464,6 +415,7 @@ void usb_task(void)
 
     }
 
+    // Transmit Complete 1 (IN / data device to host)
     if (flags & USB_DEVICE_EPINTFLAG_TRCPT1)
     {
       USB->DEVICE.DeviceEndpoint[i].EPSTATUSCLR.bit.BK1RDY = 1;

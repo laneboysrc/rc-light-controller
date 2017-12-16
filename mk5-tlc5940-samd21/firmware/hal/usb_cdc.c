@@ -21,9 +21,24 @@ void usb_recv(int ep, uint8_t *data, int size);
 void usb_control_recv(void (*callback)(uint8_t *data, int size));
 void usb_control_send_zlp(void);
 void usb_control_send(uint8_t *data, int size);
+void usb_configuration_callback(int config);
 
 
 #define MIN(a, b) (((a) < (b)) ? (a) : (b))
+
+#define USB_BUFFER_SIZE 64
+
+static alignas(4) uint8_t app_recv_buffer[USB_BUFFER_SIZE];
+// static alignas(4) uint8_t app_send_buffer[USB_BUFFER_SIZE];
+static int app_recv_buffer_size = 0;
+static int app_recv_buffer_ptr = 0;
+// static int app_send_buffer_ptr = 0;
+static bool app_send_buffer_free = true;
+// static bool app_send_zlp = false;
+// static int app_system_time = 0;
+// static int app_uart_timeout = 0;
+// static bool app_status = false;
+// static int app_status_timeout = 0;
 
 
 /*- Variables ---------------------------------------------------------------*/
@@ -40,6 +55,50 @@ static int usb_cdc_serial_state;
 static bool usb_cdc_comm_busy;
 
 /*- Implementations ---------------------------------------------------------*/
+
+//-----------------------------------------------------------------------------
+void usb_cdc_send_callback(void)
+{
+  app_send_buffer_free = true;
+}
+
+// //-----------------------------------------------------------------------------
+// static void send_buffer(void)
+// {
+//   app_send_buffer_free = false;
+//   app_send_zlp = (USB_BUFFER_SIZE == app_send_buffer_ptr);
+
+//   usb_cdc_send(app_send_buffer, app_send_buffer_ptr);
+
+//   app_send_buffer_ptr = 0;
+// }
+
+//-----------------------------------------------------------------------------
+void usb_cdc_recv_callback(int size)
+{
+  app_recv_buffer_ptr = 0;
+  app_recv_buffer_size = size;
+}
+
+//-----------------------------------------------------------------------------
+void usb_configuration_callback(int config)
+{
+  usb_cdc_recv(app_recv_buffer, sizeof(app_recv_buffer));
+  (void)config;
+}
+
+void usb_cdc_line_coding_updated(usb_cdc_line_coding_t *line_coding)
+{
+  // uart_init(line_coding);
+  (void) line_coding;
+}
+
+//-----------------------------------------------------------------------------
+void usb_cdc_control_line_state_update(int line_state)
+{
+  // update_status(line_state & USB_CDC_CTRL_SIGNAL_DTE_PRESENT);
+  (void) line_state;
+}
 
 //-----------------------------------------------------------------------------
 void usb_cdc_init(void)
