@@ -1,7 +1,9 @@
 #include <stdbool.h>
 #include <stdalign.h>
 #include <string.h>
+
 #include <hal.h>
+#include <printf.h>
 
 #include "hal_usb.h"
 #include "usb_cdc.h"
@@ -29,7 +31,7 @@ void usb_configuration_callback(int config);
 #define USB_BUFFER_SIZE 64
 
 static alignas(4) uint8_t app_recv_buffer[USB_BUFFER_SIZE];
-// static alignas(4) uint8_t app_send_buffer[USB_BUFFER_SIZE];
+static alignas(4) uint8_t app_send_buffer[USB_BUFFER_SIZE];
 static int app_recv_buffer_size = 0;
 static int app_recv_buffer_ptr = 0;
 // static int app_send_buffer_ptr = 0;
@@ -76,15 +78,39 @@ void usb_cdc_send_callback(void)
 //-----------------------------------------------------------------------------
 void usb_cdc_recv_callback(int size)
 {
-  app_recv_buffer_ptr = 0;
-  app_recv_buffer_size = size;
+    app_recv_buffer_ptr = 0;
+    app_recv_buffer_size = size;
+
+    // printf("usb_cdc_recv_callback %d\n", size);
+
+    while (app_recv_buffer_size) {
+        HAL_putc(STDOUT_DEBUG, app_recv_buffer[app_recv_buffer_ptr]);
+
+        app_recv_buffer_ptr++;
+        app_recv_buffer_size--;
+    }
+
+    usb_cdc_recv(app_recv_buffer, sizeof(app_recv_buffer));
+
+    if (app_recv_buffer[0] == '*') {
+        app_send_buffer[0] = 'H';
+        app_send_buffer[1] = 'e';
+        app_send_buffer[2] = 'l';
+        app_send_buffer[3] = 'l';
+        app_send_buffer[4] = 'o';
+        app_send_buffer[5] = '\n';
+        usb_cdc_send(app_send_buffer, 6);
+    }
+
 }
 
 //-----------------------------------------------------------------------------
 void usb_configuration_callback(int config)
 {
-  usb_cdc_recv(app_recv_buffer, sizeof(app_recv_buffer));
-  (void)config;
+    usb_cdc_recv(app_recv_buffer, sizeof(app_recv_buffer));
+    // (void)config;
+
+    printf("usb_configuration_callback %d\n", config);
 }
 
 void usb_cdc_line_coding_updated(usb_cdc_line_coding_t *line_coding)
@@ -130,7 +156,8 @@ void usb_cdc_send(uint8_t *data, int size)
 //-----------------------------------------------------------------------------
 void usb_cdc_recv(uint8_t *data, int size)
 {
-  usb_recv(USB_CDC_EP_RECV, data, size);
+    usb_recv(USB_CDC_EP_RECV, data, size);
+    printf("usb_cdc_recv\n");
 }
 
 //-----------------------------------------------------------------------------
@@ -139,6 +166,7 @@ void usb_cdc_set_state(int mask)
   usb_cdc_serial_state |= mask;
 
   usb_cdc_send_state_notify();
+    printf("usb_cdc_set_state\n");
 }
 
 //-----------------------------------------------------------------------------
@@ -147,6 +175,7 @@ void usb_cdc_clear_state(int mask)
   usb_cdc_serial_state &= ~mask;
 
   usb_cdc_send_state_notify();
+    printf("usb_cdc_clear_state\n");
 }
 
 //-----------------------------------------------------------------------------
@@ -179,6 +208,7 @@ static void usb_cdc_ep_comm_callback(int size)
   usb_cdc_send_state_notify();
 
   (void)size;
+    printf("usb_cdc_ep_comm_callback\n");
 }
 
 //-----------------------------------------------------------------------------
@@ -186,12 +216,14 @@ static void usb_cdc_ep_send_callback(int size)
 {
   usb_cdc_send_callback();
   (void)size;
+    printf("usb_cdc_ep_send_callback\n");
 }
 
 //-----------------------------------------------------------------------------
 static void usb_cdc_ep_recv_callback(int size)
 {
   usb_cdc_recv_callback(size);
+    printf("usb_cdc_ep_recv_callback\n");
 }
 
 //-----------------------------------------------------------------------------
@@ -211,6 +243,7 @@ static void usb_cdc_set_line_coding_handler(uint8_t *data, int size)
 bool usb_class_handle_request(usb_request_t *request)
 {
   unsigned int length = request->wLength;
+    printf("usb_class_handle_request\n");
 
   switch ((request->bRequest << 8) | request->bmRequestType)
   {
