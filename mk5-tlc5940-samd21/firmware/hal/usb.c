@@ -6,6 +6,7 @@
 #include "hal_usb.h"
 #include "usb_cdc.h"
 #include "usb_descriptors.h"
+#include <printf.h>
 
 #define MIN(a, b) (((a) < (b)) ? (a) : (b))
 
@@ -376,6 +377,8 @@ void usb_task(void)
     }
 
     USB->DEVICE.DeviceEndpoint[0].EPINTFLAG.reg = USB_DEVICE_EPINTFLAG_RXSTP;
+
+
   }
 
   // Transmit Complete 0 (Endpoint 0)
@@ -454,13 +457,16 @@ bool usb_handle_standard_request(usb_request_t *request)
       if (USB_DEVICE_DESCRIPTOR == type)
       {
         length = MIN(length, usb_device_descriptor.bLength);
+        fprintf(STDOUT_DEBUG, "Get dev desc %d\n", length);
 
         usb_control_send((uint8_t *)&usb_device_descriptor, length);
       }
 
       else if (USB_CONFIGURATION_DESCRIPTOR == type)
       {
+
         length = MIN(length, usb_configuration_hierarchy.configuration.wTotalLength);
+        fprintf(STDOUT_DEBUG, "Get config desc %d\n", length);
 
         usb_control_send((uint8_t *)&usb_configuration_hierarchy, length);
       }
@@ -470,16 +476,26 @@ bool usb_handle_standard_request(usb_request_t *request)
         if (0 == index)
         {
           length = MIN(length, usb_string_descriptor_zero.bLength);
+        fprintf(STDOUT_DEBUG, "Get string desc index 0 %d\n", length);
 
           usb_control_send((uint8_t *)&usb_string_descriptor_zero, length);
         }
         else if (index < USB_STR_COUNT)
         {
+            // FIXME: if this resides in usb_descriptors.c we got corruption!?!
+            const char *usb_strings[] = {
+              "",
+              "LANE Boys RC",
+              "Virtual COM-Port",
+              usb_serial_number,
+            };
+
           const char *str = usb_strings[index];
           int len;
 
-          for (len = 0; *str; len++, str++)
-          {
+          fprintf(STDOUT_DEBUG, "Get string desc index %d %d 0x%x\n", index, length, str);
+
+          for (len = 0; *str; len++, str++) {
             usb_string_descriptor_buffer[2 + len*2] = *str;
             usb_string_descriptor_buffer[3 + len*2] = 0;
           }
@@ -506,11 +522,15 @@ bool usb_handle_standard_request(usb_request_t *request)
     {
       usb_control_send_zlp();
       USB->DEVICE.DADD.reg = USB_DEVICE_DADD_ADDEN | USB_DEVICE_DADD_DADD(request->wValue);
+        fprintf(STDOUT_DEBUG, "SET_ADDRESS 0x%x\n", request->wValue);
+
     } break;
 
     case USB_CMD(OUT, DEVICE, STANDARD, SET_CONFIGURATION):
     {
       usb_config = request->wValue;
+
+        fprintf(STDOUT_DEBUG, "Set config desc %d\n", usb_config);
 
       usb_control_send_zlp();
 
@@ -536,6 +556,7 @@ bool usb_handle_standard_request(usb_request_t *request)
     {
       uint8_t config = usb_config;
       usb_control_send(&config, sizeof(config));
+        fprintf(STDOUT_DEBUG, "Get config\n");
     } break;
 
     case USB_CMD(IN, DEVICE, STANDARD, GET_STATUS):
@@ -543,6 +564,7 @@ bool usb_handle_standard_request(usb_request_t *request)
     {
         uint16_t status = 0;
         usb_control_send((uint8_t *)&status, sizeof(status));
+        fprintf(STDOUT_DEBUG, "Get status\n");
     } break;
 
     case USB_CMD(OUT, DEVICE, STANDARD, SET_FEATURE):
@@ -552,6 +574,7 @@ bool usb_handle_standard_request(usb_request_t *request)
     case USB_CMD(OUT, INTERFACE, STANDARD, SET_FEATURE):
     case USB_CMD(OUT, INTERFACE, STANDARD, CLEAR_FEATURE):
         usb_control_send_zlp();
+        fprintf(STDOUT_DEBUG, "Set or Clear feature\n");
         break;
 
     case USB_CMD(IN, ENDPOINT, STANDARD, GET_STATUS):

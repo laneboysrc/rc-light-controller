@@ -134,14 +134,30 @@ const alignas(4) usb_string_descriptor_zero_t usb_string_descriptor_zero =
   .wLANGID               = 0x0409, // English (United States)
 };
 
+
+// const char *usb_strings[] =
+// // {
+// //   [USB_STR_MANUFACTURER]  = "LANE Boys RC",
+// //   [USB_STR_PRODUCT]       = "Virtual COM-Port",
+// //   [USB_STR_SERIAL_NUMBER] = usb_serial_number,
+// // };
+// {
+//   // "",
+//   // "LANE Boys RC",
+//   // "Virtual COM-Port",
+//   // usb_serial_number,
+//   0x08154711,
+//   0x4712,
+//   0x08154713,
+//   0x4714,
+//   0x08154715,
+//   0x4716,
+//   0x08154717,
+
+// };
+
 char usb_serial_number[16];
 
-const char *usb_strings[] =
-{
-  [USB_STR_MANUFACTURER]  = "LANE Boys RC",
-  [USB_STR_PRODUCT]       = "Virtual COM-Port",
-  [USB_STR_SERIAL_NUMBER] = usb_serial_number,
-};
 
 alignas(4) uint8_t usb_string_descriptor_buffer[64];
 
