@@ -34,8 +34,6 @@ void usb_configuration_callback(int config);
 
 
 
-
-
 typedef void (*usb_ep_callback_t)(int size);
 
 static usb_ep_callback_t usb_ep_callbacks[USB_EP_NUM];
@@ -189,6 +187,8 @@ void usb_init(void)
         usb_reset_endpoint(i, USB_IN_ENDPOINT);
         usb_reset_endpoint(i, USB_OUT_ENDPOINT);
     }
+
+    // FIXME: usb_serial_number from device unique ID
 }
 
 
@@ -482,14 +482,6 @@ bool usb_handle_standard_request(usb_request_t *request)
         }
         else if (index < USB_STR_COUNT)
         {
-            // FIXME: if this resides in usb_descriptors.c we got corruption!?!
-            const char *usb_strings[] = {
-              "",
-              "LANE Boys RC",
-              "Virtual COM-Port",
-              usb_serial_number,
-            };
-
           const char *str = usb_strings[index];
           int len;
 

@@ -4,6 +4,7 @@
 #include "hal_usb.h"
 #include "usb_descriptors.h"
 
+
 const alignas(4) usb_device_descriptor_t usb_device_descriptor =
 {
   .bLength            = sizeof(usb_device_descriptor_t),
@@ -135,26 +136,12 @@ const alignas(4) usb_string_descriptor_zero_t usb_string_descriptor_zero =
 };
 
 
-// const char *usb_strings[] =
-// // {
-// //   [USB_STR_MANUFACTURER]  = "LANE Boys RC",
-// //   [USB_STR_PRODUCT]       = "Virtual COM-Port",
-// //   [USB_STR_SERIAL_NUMBER] = usb_serial_number,
-// // };
-// {
-//   // "",
-//   // "LANE Boys RC",
-//   // "Virtual COM-Port",
-//   // usb_serial_number,
-//   0x08154711,
-//   0x4712,
-//   0x08154713,
-//   0x4714,
-//   0x08154715,
-//   0x4716,
-//   0x08154717,
-
-// };
+const char * const usb_strings[] =
+{
+  [USB_STR_MANUFACTURER]  = "LANE Boys RC",
+  [USB_STR_PRODUCT]       = "Virtual COM-Port",
+  [USB_STR_SERIAL_NUMBER] = usb_serial_number,
+};
 
 char usb_serial_number[16];
 
