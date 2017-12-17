@@ -106,7 +106,7 @@ static void uint32_t_to_hex(uint32_t val, char* s) {
 
 
 //-----------------------------------------------------------------------------
-static void usb_reset_endpoint(int ep, int dir)
+static void usb_reset_endpoint(uint8_t ep, uint8_t dir)
 {
   if (USB_IN_ENDPOINT == dir) {
         USB->DEVICE.DeviceEndpoint[ep].EPCFG.bit.EPTYPE1 = EPTYPE_DISABLED;
@@ -150,7 +150,7 @@ static void usb_configure_endpoint(usb_endpoint_descriptor_t *desc)
 
 
 //-----------------------------------------------------------------------------
-static bool usb_endpoint_configured(int ep, int dir)
+static bool usb_endpoint_configured(uint8_t ep, uint8_t dir)
 {
     if (USB_IN_ENDPOINT == dir) {
         return (USB->DEVICE.DeviceEndpoint[ep].EPCFG.bit.EPTYPE1 != EPTYPE_DISABLED);
@@ -162,7 +162,7 @@ static bool usb_endpoint_configured(int ep, int dir)
 
 
 //-----------------------------------------------------------------------------
-static int usb_endpoint_get_status(int ep, int dir)
+static uint8_t usb_endpoint_get_status(uint8_t ep, uint8_t dir)
 {
     if (USB_IN_ENDPOINT == dir) {
         return USB->DEVICE.DeviceEndpoint[ep].EPSTATUS.bit.STALLRQ1;
@@ -174,7 +174,7 @@ static int usb_endpoint_get_status(int ep, int dir)
 
 
 //-----------------------------------------------------------------------------
-static void usb_endpoint_set_feature(int ep, int dir)
+static void usb_endpoint_set_feature(uint8_t ep, uint8_t dir)
 {
     if (USB_IN_ENDPOINT == dir) {
         USB->DEVICE.DeviceEndpoint[ep].EPSTATUSSET.bit.STALLRQ1 = 1;
@@ -186,7 +186,7 @@ static void usb_endpoint_set_feature(int ep, int dir)
 
 
 //-----------------------------------------------------------------------------
-static void usb_endpoint_clear_feature(int ep, int dir)
+static void usb_endpoint_clear_feature(uint8_t ep, uint8_t dir)
 {
     if (USB_IN_ENDPOINT == dir) {
         if (USB->DEVICE.DeviceEndpoint[ep].EPSTATUS.bit.STALLRQ1) {
@@ -211,12 +211,37 @@ static void usb_endpoint_clear_feature(int ep, int dir)
 }
 
 
+static void send_string(const char *ascii_string, size_t max_length)
+{
+    size_t length;
+
+    // Maximum string length according to USB specification
+    uint8_t string_descriptor[255];
+
+    // Pointer to the 3rd byte of string_descriptor, which is the position of
+    // the first unicode character
+    uint16_t* unicode_string = (uint16_t*)(string_descriptor + 2);
+
+    for (length = 0; *ascii_string; length++) {
+        if (length >= (max_length / 2)) {
+            break;
+        }
+
+        *unicode_string++ = (uint16_t)(*ascii_string++);
+    }
+    string_descriptor[0] = (2 * length) + 2;
+    string_descriptor[1] = USB_STRING_DESCRIPTOR;
+
+    USB_control_send(string_descriptor, string_descriptor[0]);
+}
+
+
 //-----------------------------------------------------------------------------
 static bool send_descriptor(usb_request_t *request)
 {
-    int type = request->wValue >> 8;
-    int index = request->wValue & 0xff;
-    unsigned length = request->wLength;
+    uint8_t type = request->wValue >> 8;
+    uint8_t index = request->wValue & 0xff;
+    size_t length = request->wLength;
 
 
     switch (type) {
@@ -241,22 +266,7 @@ static bool send_descriptor(usb_request_t *request)
             }
 
             if (index < USB_STRING_COUNT) {
-                const char *str = usb_strings[index];
-                size_t len;
-                unsigned char buf[66];
-
-                for (len = 0; *str; len++, str++) {
-                    buf[2 + len*2] = *str;
-                    buf[3 + len*2] = 0;
-                }
-
-                buf[0] = len*2 + 2;
-                buf[1] = USB_STRING_DESCRIPTOR;
-
-                length = MIN(length, buf[0]);
-
-                fprintf(STDOUT_DEBUG, "Get string desc index %d %d 0x%x\n", index, length, str);
-                USB_control_send(buf, length);
+                send_string(usb_strings[index], length);
                 return true;
             }
             return false;
@@ -320,8 +330,8 @@ static bool usb_handle_standard_request(usb_request_t *request)
                 return true;
             }
             else if (request->bmRequestType == USB_REQUEST_ENDPOINT) {
-                int ep = request->wIndex & USB_INDEX_MASK;
-                int dir = request->wIndex & USB_DIRECTION_MASK;
+                uint8_t ep = request->wIndex & USB_INDEX_MASK;
+                uint8_t dir = request->wIndex & USB_DIRECTION_MASK;
                 static uint16_t status = 0;
 
                 if (usb_endpoint_configured(ep, dir)) {
@@ -344,8 +354,8 @@ static bool usb_handle_standard_request(usb_request_t *request)
                 return true;
             }
             else if (request->bmRequestType == USB_REQUEST_ENDPOINT) {
-                int ep = request->wIndex & USB_INDEX_MASK;
-                int dir = request->wIndex & USB_DIRECTION_MASK;
+                uint8_t ep = request->wIndex & USB_INDEX_MASK;
+                uint8_t dir = request->wIndex & USB_DIRECTION_MASK;
 
                 if (0 == request->wValue && ep && usb_endpoint_configured(ep, dir)) {
                     usb_endpoint_set_feature(ep, dir);
@@ -364,8 +374,8 @@ static bool usb_handle_standard_request(usb_request_t *request)
                 return true;
             }
             else if (request->bmRequestType == USB_REQUEST_ENDPOINT) {
-                int ep = request->wIndex & USB_INDEX_MASK;
-                int dir = request->wIndex & USB_DIRECTION_MASK;
+                uint8_t ep = request->wIndex & USB_INDEX_MASK;
+                uint8_t dir = request->wIndex & USB_DIRECTION_MASK;
 
                 if (0 == request->wValue && ep && usb_endpoint_configured(ep, dir)) {
                     usb_endpoint_clear_feature(ep, dir);
@@ -473,7 +483,7 @@ static void service_endpoints(void)
     // handled seperately.
     endpoint_interrupts = USB->DEVICE.EPINTSMRY.reg & 0xfe;
 
-    for (int i = 1; (i < USB_EPT_NUM) && endpoint_interrupts; i++) {
+    for (uint8_t i = 1; (i < USB_EPT_NUM) && endpoint_interrupts; i++) {
         uint8_t flags;
 
         flags = USB->DEVICE.DeviceEndpoint[i].EPINTFLAG.reg;
@@ -550,7 +560,7 @@ void USB_init(void)
     // Enable the USB peripheral
     USB->DEVICE.CTRLA.reg |= USB_CTRLA_ENABLE;
 
-    for (int i = 0; i < USB_EPT_NUM; i++) {
+    for (uint8_t i = 0; i < USB_EPT_NUM; i++) {
         ep_callbacks[i] = NULL;
         usb_reset_endpoint(i, USB_IN_ENDPOINT);
         usb_reset_endpoint(i, USB_OUT_ENDPOINT);
