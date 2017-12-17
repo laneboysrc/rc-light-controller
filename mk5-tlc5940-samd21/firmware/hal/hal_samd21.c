@@ -82,44 +82,6 @@ DECLARE_GPIO(USB_DP, GPIO_PORTA, GPIO_BIT_USB_DP)
 DECLARE_GPIO(OUT_TX, GPIO_PORTA, 18)     //  TCC0/WO[2]  Dummy just for now
 
 
-/*
-    Macro-magic to extract the calibration values from the bit-fields stored
-    in the NVM of the SAMD21.
-
-    We first retrieve a uint32_t pointer to the word where the calibration
-    value resides, based on the lowest bit number of the bit field (i.e.
-    NVM_USB_TRANSN_START).
-
-    Then we shift the bits down so that the lowest bit ends up at bit 0 of
-    the value. We have to do this modulo 32 bits. Then we create a mask
-    based on the number of bits (END-START+1) and AND it to the value. Now
-    the resulting number is the desired calibration value.
-
-    Reference: Datasheet chapter "NVM Software Calibration Area Mapping"
-*/
-#define NVM_USB_TRANSN_START 45
-#define NVM_USB_TRANSN_END 49
-
-#define NVM_USB_TRANSP_START 50
-#define NVM_USB_TRANSP_END 54
-
-#define NVM_USB_TRIM_START 55
-#define NVM_USB_TRIM_END 57
-
-#define NVM_DFLL48M_COARSE_CAL_START 58
-#define NVM_DFLL48M_COARSE_CAL_END 63
-
-#define NVM_GET_CALIBRATION_VALUE(name) \
-    ((*((uint32_t *)NVMCTRL_OTP4 + NVM_##name##_START / 32)) >> (NVM_##name##_START % 32)) & ((1 << (NVM_##name##_END - NVM_##name##_START + 1)) - 1)
-
-
-// FIXME: refactor using values from nvmctrl.h
-// USB_FUSES_TRANSN_ADDR
-// USB_FUSES_TRANSN_Pos
-// USB_FUSES_TRANSN_Msk
-// (ADDR & Msk) >> Pos
-
-
 #define RECEIVE_BUFFER_SIZE (16)        // Must be modulo 2 for speed
 #define RECEIVE_BUFFER_INDEX_MASK (RECEIVE_BUFFER_SIZE - 1)
 static uint8_t receive_buffer[RECEIVE_BUFFER_SIZE];
@@ -132,6 +94,7 @@ static volatile uint16_t write_index = 0;
 // ****************************************************************************
 void HAL_hardware_init(bool is_servo_reader, bool servo_output_enabled, bool uart_output_enabled)
 {
+    uint32_t *coarse_p;
     uint32_t coarse;
 
     (void) is_servo_reader;
@@ -186,7 +149,9 @@ void HAL_hardware_init(bool is_servo_reader, bool servo_output_enabled, bool uar
 
     SYSCTRL->DFLLMUL.reg = SYSCTRL_DFLLMUL_MUL(48000);
 
-    coarse = NVM_GET_CALIBRATION_VALUE(DFLL48M_COARSE_CAL);
+    // Load PLL calibration values from NVRAM
+    coarse_p = (uint32_t *)SYSCTRL_FUSES_DFLL48M_COARSE_CAL_ADDR;
+    coarse = (*coarse_p & SYSCTRL_FUSES_DFLL48M_COARSE_CAL_Msk) >> SYSCTRL_FUSES_DFLL48M_COARSE_CAL_Pos;
     SYSCTRL->DFLLVAL.reg = SYSCTRL_DFLLVAL_COARSE(coarse) | SYSCTRL_DFLLVAL_FINE(512);
 
     SYSCTRL->DFLLCTRL.reg =
@@ -270,9 +235,6 @@ void HAL_hardware_init(bool is_servo_reader, bool servo_output_enabled, bool uar
     EVSYS->CTRL.reg = EVSYS_CTRL_GCLKREQ;
 
 
-
-
-
     // ------------------------------------------------
     // Configure the SYSTICK to create an interrupt every 1 millisecond
     SysTick_Config(48000);
@@ -292,9 +254,18 @@ void SysTick_Handler(void)
 // ****************************************************************************
 void HAL_hardware_init_final(void)
 {
-    USB->DEVICE.PADCAL.bit.TRANSN = NVM_GET_CALIBRATION_VALUE(USB_TRANSN);
-    USB->DEVICE.PADCAL.bit.TRANSP = NVM_GET_CALIBRATION_VALUE(USB_TRANSP);
-    USB->DEVICE.PADCAL.bit.TRIM   = NVM_GET_CALIBRATION_VALUE(USB_TRIM);
+    // Load USB calibration values from NVRAM
+    uint32_t *pad_transn_p = (uint32_t *)USB_FUSES_TRANSN_ADDR;
+    uint32_t *pad_transp_p = (uint32_t *)USB_FUSES_TRANSP_ADDR;
+    uint32_t *pad_trim_p   = (uint32_t *)USB_FUSES_TRIM_ADDR;
+
+    uint32_t pad_transn = (*pad_transn_p & USB_FUSES_TRANSN_Msk) >> USB_FUSES_TRANSN_Pos;
+    uint32_t pad_transp = (*pad_transp_p & USB_FUSES_TRANSP_Msk) >> USB_FUSES_TRANSP_Pos;
+    uint32_t pad_trim   = (*pad_trim_p   & USB_FUSES_TRIM_Msk  ) >> USB_FUSES_TRIM_Pos;
+
+    USB->DEVICE.PADCAL.bit.TRANSN = pad_transn;
+    USB->DEVICE.PADCAL.bit.TRANSP = pad_transp;
+    USB->DEVICE.PADCAL.bit.TRIM   = pad_trim;
 
     USB_init();
     USB_CDC_init();
