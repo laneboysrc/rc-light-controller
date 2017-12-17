@@ -3,33 +3,31 @@
 #include "hal_usb.h"
 #include "usb_cdc.h"
 
-enum {
-    USB_STR_LANGUAGE,
-    USB_STR_MANUFACTURER,
-    USB_STR_PRODUCT,
-    USB_STR_SERIAL_NUMBER,
-    USB_STR_COUNT,
-};
+#define USB_STR_MANUFACTURER 1
+#define USB_STR_PRODUCT 2
+#define USB_STR_SERIAL_NUMBER 3
+#define USB_STR_COUNT 4
 
-enum {
-    USB_CDC_EP_SEND = 1,
-    USB_CDC_EP_RECV = 2,
-    USB_CDC_EP_COMM = 3,
-};
+#define USB_CDC_EP_SEND 1
+#define USB_CDC_EP_RECV 2
+#define USB_CDC_EP_COMM 3
 
 typedef struct __attribute__((packed))
 {
-    usb_configuration_descriptor_t                   configuration;
-    usb_interface_descriptor_t                       interface_comm;
-    usb_cdc_header_functional_descriptor_t           cdc_header;
-    usb_cdc_abstract_control_managment_descriptor_t  cdc_acm;
-    usb_cdc_call_managment_functional_descriptor_t   cdc_call_mgmt;
-    usb_cdc_union_functional_descriptor_t            cdc_union;
-    usb_endpoint_descriptor_t                        ep_comm;
-    usb_interface_descriptor_t                       interface_data;
-    usb_endpoint_descriptor_t                        ep_in;
-    usb_endpoint_descriptor_t                        ep_out;
+    usb_configuration_descriptor_t configuration;
+
+    usb_interface_descriptor_t interface_comm;
+    cdc_header_functional_descriptor_t cdc_header;
+    cdc_abstract_control_managment_descriptor_t cdc_acm;
+    cdc_call_managment_functional_descriptor_t cdc_call_mgmt;
+    cdc_union_functional_descriptor_t cdc_union;
+    usb_endpoint_descriptor_t ep_comm;
+
+    usb_interface_descriptor_t interface_data;
+    usb_endpoint_descriptor_t ep_in;
+    usb_endpoint_descriptor_t ep_out;
 } usb_configuration_hierarchy_t;
+
 
 //-----------------------------------------------------------------------------
 extern const usb_device_descriptor_t usb_device_descriptor;

@@ -9,36 +9,59 @@
 #include "usb_cdc.h"
 #include "usb_descriptors.h"
 
-// bRequest for CDC
+
+#define MIN(a, b) (((a) < (b)) ? (a) : (b))
+
+#define USB_BUFFER_SIZE 64
+
+
 #define CDC_SET_LINE_CODING 0x20
 #define CDC_GET_LINE_CODING 0x21
 #define CDC_SET_CONTROL_LINE_STATE 0x22
 #define CDC_SEND_BREAK 0x23
 
+#define CDC_NOTIFY_SERIAL_STATE 0x20
+
+#define CDC_CTRL_SIGNAL_DTE_PRESENT 1         // DTR
+#define CDC_CTRL_SIGNAL_ACTIVATE_CARRIER 2    // RTS
+
+#define CDC_SERIAL_STATE_DCD 1
+#define CDC_SERIAL_STATE_DSR 2
+#define CDC_SERIAL_STATE_BREAK 4
+#define CDC_SERIAL_STATE_RING 8
+#define CDC_SERIAL_STATE_FRAMING 16
+#define CDC_SERIAL_STATE_PARITY 32
+#define CDC_SERIAL_STATE_OVERRUN 64
+
+#define CDC_1_STOP_BIT 0
+#define CDC_1_5_STOP_BITS 1
+#define CDC_2_STOP_BITS 2
+
+#define CDC_NO_PARITY 0
+#define CDC_ODD_PARITY 1
+#define CDC_EVEN_PARITY 2
+#define CDC_MARK_PARITY 3
+#define CDC_SPACE_PARITY 4
+
+#define CDC_5_DATA_BITS 5
+#define CDC_6_DATA_BITS 6
+#define CDC_7_DATA_BITS 7
+#define CDC_8_DATA_BITS 8
+#define CDC_16_DATA_BITS 16
 
 
-typedef void (* usb_recv_callback_t)(uint8_t *data, size_t size);
+typedef struct __attribute__((packed)) {
+    uint32_t dwDTERate;
+    uint8_t bCharFormat;
+    uint8_t bParityType;
+    uint8_t bDataBits;
+} cdc_line_coding_t;
 
-extern void usb_set_endpoint_callback(uint8_t ep, void (*callback)(size_t size));
-extern void usb_send(uint8_t ep, uint8_t *data, size_t size);
-extern void usb_recv(uint8_t ep, uint8_t *data, size_t size);
-extern void usb_control_recv(usb_recv_callback_t callback);
-extern void usb_control_send(uint8_t *data, size_t size);
-extern void usb_control_send_zlp(void);
+typedef struct __attribute__((packed)) {
+    usb_request_t request;
+    uint16_t      value;
+} cdc_notify_serial_state_t;
 
-bool usb_cdc_handle_class_request(usb_request_t *request);
-void usb_cdc_configuration_callback(uint8_t config);
-
-
-// static void usb_cdc_send_state_notify(void);
-static void comm_callback(size_t size);
-static void send_callback(size_t size);
-static void recv_callback(size_t size);
-
-
-#define MIN(a, b) (((a) < (b)) ? (a) : (b))
-
-#define USB_BUFFER_SIZE 64
 
 static alignas(4) uint8_t app_recv_buffer[USB_BUFFER_SIZE];
 static alignas(4) uint8_t app_send_buffer[USB_BUFFER_SIZE];
@@ -53,70 +76,18 @@ static bool app_send_buffer_free = true;
 // static int app_status_timeout = 0;
 
 
-static usb_cdc_line_coding_t usb_cdc_line_coding = {
+static alignas(4) cdc_line_coding_t line_coding = {
     .dwDTERate   = 115200,
-    .bCharFormat = USB_CDC_1_STOP_BIT,
-    .bParityType = USB_CDC_NO_PARITY,
-    .bDataBits   = USB_CDC_8_DATA_BITS,
+    .bCharFormat = CDC_1_STOP_BIT,
+    .bParityType = CDC_NO_PARITY,
+    .bDataBits   = CDC_8_DATA_BITS,
 };
 
-static alignas(4) usb_cdc_notify_serial_state_t usb_cdc_notify_message;
+static alignas(4) cdc_notify_serial_state_t usb_cdc_notify_message;
 static int usb_cdc_serial_state;
-static bool usb_cdc_comm_busy;
+static bool comm_busy;
 
 
-//-----------------------------------------------------------------------------
-void usb_cdc_configuration_callback(uint8_t config)
-{
-    usb_recv(USB_CDC_EP_RECV, app_recv_buffer, sizeof(app_recv_buffer));
-    // (void)config;
-
-    printf("usb_cdc_configuration_callback %d\n", config);
-}
-
-//-----------------------------------------------------------------------------
-void usb_cdc_line_coding_updated(usb_cdc_line_coding_t *line_coding)
-{
-    // uart_init(line_coding);
-    (void) line_coding;
-    printf("usb_cdc_line_coding_updated\n");
-
-    printf("  baudrate: %d\n", line_coding->dwDTERate);
-    printf("  parity: %d\n", line_coding->bParityType);
-    printf("  bits: %d\n", line_coding->bDataBits);
-    printf("  charFormat: 0x%x\n", line_coding->bCharFormat);
-}
-
-//-----------------------------------------------------------------------------
-void usb_cdc_control_line_state_update(int line_state)
-{
-    printf("usb_cdc_control_line_state_update DTR=%d\n",
-        (line_state & USB_CDC_CTRL_SIGNAL_DTE_PRESENT) ? 1 : 0);
-
-}
-
-//-----------------------------------------------------------------------------
-void usb_cdc_init(void)
-{
-    usb_set_endpoint_callback(USB_CDC_EP_COMM, comm_callback);
-    usb_set_endpoint_callback(USB_CDC_EP_SEND, send_callback);
-    usb_set_endpoint_callback(USB_CDC_EP_RECV, recv_callback);
-
-    usb_cdc_notify_message.request.bmRequestType =
-        USB_IN_TRANSFER |
-        USB_INTERFACE_RECIPIENT |
-        USB_CLASS_REQUEST;
-    usb_cdc_notify_message.request.bRequest = USB_CDC_NOTIFY_SERIAL_STATE;
-    usb_cdc_notify_message.request.wValue = 0;
-    usb_cdc_notify_message.request.wIndex = 0;
-    usb_cdc_notify_message.request.wLength = sizeof(uint16_t);
-    usb_cdc_notify_message.value = 0;
-
-    usb_cdc_serial_state = 0;
-    usb_cdc_comm_busy = false;
-
-    usb_cdc_line_coding_updated(&usb_cdc_line_coding);
-}
 
 //-----------------------------------------------------------------------------
 // void usb_cdc_set_state(int mask)
@@ -141,12 +112,12 @@ void usb_cdc_init(void)
 //-----------------------------------------------------------------------------
 // static void usb_cdc_send_state_notify(void)
 // {
-//     if (usb_cdc_comm_busy) {
+//     if (comm_busy) {
 //         return;
 //     }
 
 //     if (usb_cdc_serial_state != usb_cdc_notify_message.value) {
-//         usb_cdc_comm_busy = true;
+//         comm_busy = true;
 //         usb_cdc_notify_message.value = usb_cdc_serial_state;
 
 //         usb_send(USB_CDC_EP_COMM, (uint8_t *)&usb_cdc_notify_message, sizeof(usb_cdc_notify_serial_state_t));
@@ -161,7 +132,7 @@ static void comm_callback(size_t size)
     //   USB_CDC_SERIAL_STATE_FRAMING | USB_CDC_SERIAL_STATE_PARITY |
     //   USB_CDC_SERIAL_STATE_OVERRUN;
 
-    usb_cdc_comm_busy = false;
+    comm_busy = false;
 
     // usb_cdc_notify_message.value &= ~one_shot;
     // usb_cdc_serial_state &= ~one_shot;
@@ -213,14 +184,52 @@ static void recv_callback(size_t size)
 
 
 //-----------------------------------------------------------------------------
-static void line_coding_handler(uint8_t *data, size_t size)
+static void line_coding_callback(uint8_t *data, size_t size)
 {
-    if (size != sizeof(usb_cdc_line_coding_t)) {
+    if (size != sizeof(cdc_line_coding_t)) {
        return;
     }
 
-    usb_cdc_line_coding = *((usb_cdc_line_coding_t *)data);
-    usb_cdc_line_coding_updated(&usb_cdc_line_coding);
+    line_coding = *((cdc_line_coding_t *)data);
+
+    printf("line_coding_callback\n");
+
+    printf("  baudrate: %d\n", line_coding.dwDTERate);
+    printf("  parity: %d\n", line_coding.bParityType);
+    printf("  bits: %d\n", line_coding.bDataBits);
+    printf("  charFormat: 0x%x\n", line_coding.bCharFormat);
+}
+
+
+//-----------------------------------------------------------------------------
+void usb_cdc_init(void)
+{
+    usb_set_endpoint_callback(USB_CDC_EP_COMM, comm_callback);
+    usb_set_endpoint_callback(USB_CDC_EP_SEND, send_callback);
+    usb_set_endpoint_callback(USB_CDC_EP_RECV, recv_callback);
+
+    usb_cdc_notify_message.request.bmRequestType =
+        USB_IN_TRANSFER |
+        USB_INTERFACE_RECIPIENT |
+        USB_CLASS_REQUEST;
+    usb_cdc_notify_message.request.bRequest = CDC_NOTIFY_SERIAL_STATE;
+    usb_cdc_notify_message.request.wValue = 0;
+    usb_cdc_notify_message.request.wIndex = 0;
+    usb_cdc_notify_message.request.wLength = sizeof(uint16_t);
+    usb_cdc_notify_message.value = 0;
+
+    usb_cdc_serial_state = 0;
+    comm_busy = false;
+}
+
+
+//-----------------------------------------------------------------------------
+void usb_cdc_configuration_callback(uint8_t config)
+{
+    // Prepare the receive endpoint to receive a packet of data
+    usb_recv(USB_CDC_EP_RECV, app_recv_buffer, sizeof(app_recv_buffer));
+
+    printf("usb_cdc_configuration_callback %d\n", config);
 }
 
 
@@ -232,17 +241,18 @@ bool usb_cdc_handle_class_request(usb_request_t *request)
 
     switch (request->bRequest) {
         case CDC_GET_LINE_CODING:
-            length = MIN(length, sizeof(usb_cdc_line_coding_t));
-            usb_control_send((uint8_t *)&usb_cdc_line_coding, length);
+            length = MIN(length, sizeof(cdc_line_coding_t));
+            usb_control_send((uint8_t *)&line_coding, length);
             return true;
 
         case CDC_SET_LINE_CODING:
-            length = MIN(length, sizeof(usb_cdc_line_coding_t));
-            usb_control_recv(line_coding_handler);
+            length = MIN(length, sizeof(cdc_line_coding_t));
+            usb_control_recv(line_coding_callback);
             return true;
 
         case CDC_SET_CONTROL_LINE_STATE:
-            usb_cdc_control_line_state_update(request->wValue);
+            printf("control_line_state_updated DTR=%d\n",
+                (request->wValue & CDC_CTRL_SIGNAL_DTE_PRESENT) ? 1 : 0);
             usb_control_send_zlp();
             return true;
 

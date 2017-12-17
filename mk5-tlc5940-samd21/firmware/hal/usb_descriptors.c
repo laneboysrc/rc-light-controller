@@ -4,14 +4,16 @@
 #include "hal_usb.h"
 #include "usb_descriptors.h"
 
+
 char usb_serial_number[33];
+
 
 const alignas(4) usb_device_descriptor_t usb_device_descriptor =
 {
   .bLength            = sizeof(usb_device_descriptor_t),
   .bDescriptorType    = USB_DEVICE_DESCRIPTOR,
   .bcdUSB             = 0x0110,
-  .bDeviceClass       = USB_CDC_DEVICE_CLASS,
+  .bDeviceClass       = CDC_DEVICE_CLASS,
   .bDeviceSubClass    = 0,
   .bDeviceProtocol    = 0,
   .bMaxPacketSize0    = 64,
@@ -45,42 +47,42 @@ const alignas(4) usb_configuration_hierarchy_t usb_configuration_hierarchy =
     .bInterfaceNumber    = 0,
     .bAlternateSetting   = 0,
     .bNumEndpoints       = 1,
-    .bInterfaceClass     = USB_CDC_COMM_CLASS,
-    .bInterfaceSubClass  = USB_CDC_ACM_SUBCLASS,
+    .bInterfaceClass     = CDC_COMM_CLASS,
+    .bInterfaceSubClass  = CDC_ACM_SUBCLASS,
     .bInterfaceProtocol  = 0,
     .iInterface          = 0,
   },
 
   .cdc_header =
   {
-    .bFunctionalLength   = sizeof(usb_cdc_header_functional_descriptor_t),
+    .bFunctionalLength   = sizeof(cdc_header_functional_descriptor_t),
     .bDescriptorType     = USB_CS_INTERFACE_DESCRIPTOR,
-    .bDescriptorSubtype  = USB_CDC_HEADER_SUBTYPE,
+    .bDescriptorSubtype  = CDC_HEADER_SUBTYPE,
     .bcdCDC              = 0x0110,
   },
 
   .cdc_acm =
   {
-    .bFunctionalLength   = sizeof(usb_cdc_abstract_control_managment_descriptor_t),
+    .bFunctionalLength   = sizeof(cdc_abstract_control_managment_descriptor_t),
     .bDescriptorType     = USB_CS_INTERFACE_DESCRIPTOR,
-    .bDescriptorSubtype  = USB_CDC_ACM_SUBTYPE,
-    .bmCapabilities      = USB_CDC_ACM_SUPPORT_LINE_REQUESTS,
+    .bDescriptorSubtype  = CDC_ACM_SUBTYPE,
+    .bmCapabilities      = CDC_ACM_SUPPORT_LINE_REQUESTS,
   },
 
   .cdc_call_mgmt =
   {
-    .bFunctionalLength   = sizeof(usb_cdc_call_managment_functional_descriptor_t),
+    .bFunctionalLength   = sizeof(cdc_call_managment_functional_descriptor_t),
     .bDescriptorType     = USB_CS_INTERFACE_DESCRIPTOR,
-    .bDescriptorSubtype  = USB_CDC_CALL_MGMT_SUBTYPE,
-    .bmCapabilities      = USB_CDC_CALL_MGMT_OVER_DCI,
+    .bDescriptorSubtype  = CDC_CALL_MGMT_SUBTYPE,
+    .bmCapabilities      = CDC_CALL_MGMT_OVER_DCI,
     .bDataInterface      = 1,
   },
 
   .cdc_union =
   {
-    .bFunctionalLength   = sizeof(usb_cdc_union_functional_descriptor_t),
+    .bFunctionalLength   = sizeof(cdc_union_functional_descriptor_t),
     .bDescriptorType     = USB_CS_INTERFACE_DESCRIPTOR,
-    .bDescriptorSubtype  = USB_CDC_UNION_SUBTYPE,
+    .bDescriptorSubtype  = CDC_UNION_SUBTYPE,
     .bMasterInterface    = 0,
     .bSlaveInterface0    = 1,
   },
@@ -102,7 +104,7 @@ const alignas(4) usb_configuration_hierarchy_t usb_configuration_hierarchy =
     .bInterfaceNumber    = 1,
     .bAlternateSetting   = 0,
     .bNumEndpoints       = 2,
-    .bInterfaceClass     = USB_CDC_DATA_CLASS,
+    .bInterfaceClass     = CDC_DATA_CLASS,
     .bInterfaceSubClass  = 0,
     .bInterfaceProtocol  = 0,
     .iInterface          = 0,
@@ -129,12 +131,14 @@ const alignas(4) usb_configuration_hierarchy_t usb_configuration_hierarchy =
   },
 };
 
+
 const alignas(4) usb_language_descriptor_t usb_language_descriptor =
 {
   .bLength               = sizeof(usb_language_descriptor_t),
   .bDescriptorType       = USB_STRING_DESCRIPTOR,
-  .wLANGID               = 0x0409, // English (United States)
+  .wLANGID               = 0x0409,        // English (United States)
 };
+
 
 const char * const usb_strings[] =
 {
@@ -142,6 +146,4 @@ const char * const usb_strings[] =
   [USB_STR_PRODUCT]       = "Virtual COM-Port",
   [USB_STR_SERIAL_NUMBER] = usb_serial_number,
 };
-
-
 

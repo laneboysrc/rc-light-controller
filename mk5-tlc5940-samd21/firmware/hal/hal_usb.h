@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdint.h>
+#include <stddef.h>
 #include <stdbool.h>
 
 #define USB_CMD(dir, rcpt, type, cmd) \
@@ -171,4 +172,12 @@ typedef struct __attribute__((packed))
 } usb_string_descriptor_t;
 
 
+typedef void (* usb_ep_callback_t)(size_t size);
+typedef void (* usb_recv_callback_t)(uint8_t *data, size_t size);
 
+extern void usb_set_endpoint_callback(uint8_t ep, void (*callback)(size_t size));
+extern void usb_send(uint8_t ep, uint8_t *data, size_t size);
+extern void usb_recv(uint8_t ep, uint8_t *data, size_t size);
+extern void usb_control_recv(usb_recv_callback_t callback);
+extern void usb_control_send(uint8_t *data, size_t size);
+extern void usb_control_send_zlp(void);

@@ -11,8 +11,6 @@
 #define MIN(a, b) (((a) < (b)) ? (a) : (b))
 
 
-typedef void (* usb_ep_callback_t)(size_t size);
-typedef void (* usb_recv_callback_t)(uint8_t *data, size_t size);
 
 
 void usb_init(void);
@@ -24,10 +22,6 @@ void usb_control_send(uint8_t *data, size_t size);
 void usb_control_recv(usb_recv_callback_t callback);
 void usb_set_endpoint_callback(uint8_t ep, usb_ep_callback_t callback);
 void usb_task(void);
-
-bool usb_cdc_handle_class_request(usb_request_t *request);
-void usb_cdc_configuration_callback(int config);
-
 
 #define SERIAL_NUMBER_WORD_0 (volatile uint32_t *)(0x0080a00c)
 #define SERIAL_NUMBER_WORD_1 (volatile uint32_t *)(0x0080a040)
