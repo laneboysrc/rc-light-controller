@@ -171,7 +171,7 @@ static void recv_callback(size_t size)
     printf("\"\n");
 
     // Data read, prepare endpoint to receive the next packet of data
-    USB_recv(USB_CDC_EP_RECV, app_recv_buffer, sizeof(app_recv_buffer));
+    USB_recv(USB_CDC_EP_RECEIVE, app_recv_buffer, sizeof(app_recv_buffer));
 
     // Dummy transfer to see if sending works
     if (app_recv_buffer[0] == '*') {
@@ -206,7 +206,7 @@ void USB_CDC_init(void)
 {
     USB_set_endpoint_callback(USB_CDC_EP_COMM, comm_callback);
     USB_set_endpoint_callback(USB_CDC_EP_SEND, send_callback);
-    USB_set_endpoint_callback(USB_CDC_EP_RECV, recv_callback);
+    USB_set_endpoint_callback(USB_CDC_EP_RECEIVE, recv_callback);
 
     usb_cdc_notify_message.request.bmRequestType =
         USB_IN_TRANSFER |
@@ -227,7 +227,7 @@ void USB_CDC_init(void)
 void USB_CDC_configuration_callback(uint8_t config)
 {
     // Prepare the receive endpoint to receive a packet of data
-    USB_recv(USB_CDC_EP_RECV, app_recv_buffer, sizeof(app_recv_buffer));
+    USB_recv(USB_CDC_EP_RECEIVE, app_recv_buffer, sizeof(app_recv_buffer));
 
     printf("usb_cdc_configuration_callback %d\n", config);
 }

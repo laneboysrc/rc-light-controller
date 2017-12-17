@@ -278,7 +278,7 @@ static bool send_descriptor(usb_request_t *request)
                 return true;
             }
 
-            if (index < USB_STR_COUNT) {
+            if (index < USB_STRING_COUNT) {
                 const char *str = usb_strings[index];
                 size_t len;
                 unsigned char buf[66];

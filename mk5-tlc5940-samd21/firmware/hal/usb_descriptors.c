@@ -18,11 +18,11 @@ const alignas(4) usb_device_descriptor_t usb_device_descriptor =
   .bDeviceProtocol    = 0,
   .bMaxPacketSize0    = MAX_PACKET_SIZE_0,
   .idVendor           = 0x6666,   // Prototype Vendor ID
-  .idProduct          = 0xcab1,   // Chosen PID
+  .idProduct          = 0xcab1,   // Chosen Product ID
   .bcdDevice          = 0x0100,
-  .iManufacturer      = USB_STR_MANUFACTURER,
-  .iProduct           = USB_STR_PRODUCT,
-  .iSerialNumber      = USB_STR_SERIAL_NUMBER,
+  .iManufacturer      = USB_STRING_MANUFACTURER,
+  .iProduct           = USB_STRING_PRODUCT,
+  .iSerialNumber      = USB_STRING_SERIAL_NUMBER,
   .bNumConfigurations = 1,
 };
 
@@ -124,7 +124,7 @@ const alignas(4) usb_configuration_hierarchy_t usb_configuration_hierarchy =
   {
     .bLength             = sizeof(usb_endpoint_descriptor_t),
     .bDescriptorType     = USB_ENDPOINT_DESCRIPTOR,
-    .bEndpointAddress    = USB_OUT_ENDPOINT | USB_CDC_EP_RECV,
+    .bEndpointAddress    = USB_OUT_ENDPOINT | USB_CDC_EP_RECEIVE,
     .bmAttributes        = USB_BULK_ENDPOINT,
     .wMaxPacketSize      = 64,
     .bInterval           = 0,
@@ -142,8 +142,8 @@ const alignas(4) usb_language_descriptor_t usb_language_descriptor =
 
 const char * const usb_strings[] =
 {
-  [USB_STR_MANUFACTURER]  = "LANE Boys RC",
-  [USB_STR_PRODUCT]       = "Virtual COM-Port",
-  [USB_STR_SERIAL_NUMBER] = usb_serial_number,
+  [USB_STRING_MANUFACTURER]  = "LANE Boys RC",
+  [USB_STRING_PRODUCT]       = "Virtual COM-Port",
+  [USB_STRING_SERIAL_NUMBER] = usb_serial_number,
 };
 
