@@ -113,6 +113,12 @@ DECLARE_GPIO(OUT_TX, GPIO_PORTA, 18)     //  TCC0/WO[2]  Dummy just for now
     ((*((uint32_t *)NVMCTRL_OTP4 + NVM_##name##_START / 32)) >> (NVM_##name##_START % 32)) & ((1 << (NVM_##name##_END - NVM_##name##_START + 1)) - 1)
 
 
+// FIXME: refactor using values from nvmctrl.h
+// USB_FUSES_TRANSN_ADDR
+// USB_FUSES_TRANSN_Pos
+// USB_FUSES_TRANSN_Msk
+// (ADDR & Msk) >> Pos
+
 
 #define RECEIVE_BUFFER_SIZE (16)        // Must be modulo 2 for speed
 #define RECEIVE_BUFFER_INDEX_MASK (RECEIVE_BUFFER_SIZE - 1)

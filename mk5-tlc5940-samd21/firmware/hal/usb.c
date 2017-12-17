@@ -283,9 +283,6 @@ static bool send_descriptor(usb_request_t *request)
                 size_t len;
                 unsigned char buf[66];
 
-                // FIXME: check that string does not cause buffer overflow
-                // FIXME: check that string does not cause buffer overflow
-
                 for (len = 0; *str; len++, str++) {
                     buf[2 + len*2] = *str;
                     buf[3 + len*2] = 0;
@@ -511,7 +508,7 @@ static void service_endpoints(void)
     // handled seperately.
     endpoint_interrupts = USB->DEVICE.EPINTSMRY.reg & 0xfe;
 
-    for (int i = 1; i < USB_EPT_NUM && endpoint_interrupts > 0; i++) {
+    for (int i = 1; (i < USB_EPT_NUM) && endpoint_interrupts; i++) {
         uint8_t flags;
 
         flags = USB->DEVICE.DeviceEndpoint[i].EPINTFLAG.reg;
@@ -551,16 +548,17 @@ void USB_init(void)
     USB->DEVICE.CTRLA.bit.SWRST = 1;
     while (USB->DEVICE.SYNCBUSY.bit.SWRST);
 
-    for (uint32_t i = 0; i < (sizeof(EP) / sizeof(uint32_t)); i++) {
-        ((uint32_t *)EP)[i] = 0;
+    for (size_t i = 0; i < sizeof(EP); i++) {
+        ((uint8_t *)EP)[i] = 0;
     }
 
     USB->DEVICE.DESCADD.reg = (uint32_t)EP;
 
-    USB->DEVICE.CTRLA.bit.MODE = USB_CTRLA_MODE_DEVICE_Val;
-    USB->DEVICE.CTRLA.bit.RUNSTDBY = 1;
-    USB->DEVICE.CTRLB.bit.SPDCONF = USB_DEVICE_CTRLB_SPDCONF_FS_Val;
-    USB->DEVICE.CTRLB.bit.DETACH = 0;
+    USB->DEVICE.CTRLA.reg =
+        USB_CTRLA_MODE_DEVICE |
+        USB_CTRLA_RUNSTDBY;
+
+    USB->DEVICE.CTRLB.reg = USB_DEVICE_CTRLB_SPDCONF_FS;
 
     USB->DEVICE.INTENSET.reg = USB_DEVICE_INTENSET_EORST;
     USB->DEVICE.DeviceEndpoint[0].EPINTENSET.bit.RXSTP = 1;
