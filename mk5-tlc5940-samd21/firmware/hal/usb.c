@@ -290,6 +290,9 @@ static bool usb_handle_standard_request(usb_request_t *request)
 
                 selected_configuration = request->wValue;
 
+                // Initialize all endpoints according to the configuration
+                // descriptor. Note that this code assumes that we only have
+                // one configuration, i.e. selected_configuration is always 1
                 size = usb_configuration_hierarchy.configuration.wTotalLength;
                 desc = (usb_descriptor_header_t *)&usb_configuration_hierarchy;
 
@@ -597,12 +600,15 @@ void USB_receive(uint8_t ep, uint8_t *data, size_t size)
 //-----------------------------------------------------------------------------
 void USB_control_send(uint8_t *data, size_t size)
 {
-    // USB controller does not have access to the flash memory, so here we do
-    // a manual multi-packet transfer. This way data can be located in in
-    // the flash memory (big constant descriptors).
+    // We send large amounts of data in chunks of MAX_PACKET_SIZE_0.
+    // Note that this means that this function may take a long time, i.e.
+    // multiple milliseconds.
+
+    uint32_t start = milliseconds;
+    uint32_t diff;
 
     while (size) {
-        size_t transfer_size = MIN(size, usb_device_descriptor.bMaxPacketSize0);
+        size_t transfer_size = MIN(size, MAX_PACKET_SIZE_0);
 
         for (uint16_t i = 0; i < transfer_size; i++) {
             usb_ctrl_in_buf[i] = data[i];
@@ -615,10 +621,16 @@ void USB_control_send(uint8_t *data, size_t size)
         USB->DEVICE.DeviceEndpoint[0].EPINTFLAG.reg = USB_DEVICE_EPINTFLAG_TRCPT1;
         USB->DEVICE.DeviceEndpoint[0].EPSTATUSSET.bit.BK1RDY = 1;
 
+        // Wait for the transfer to complete
         while (!USB->DEVICE.DeviceEndpoint[0].EPINTFLAG.bit.TRCPT1);
 
         size -= transfer_size;
         data += transfer_size;
+    }
+
+    diff = milliseconds - start;
+    if (diff) {
+        printf("USB_control_send took %d ms\n", milliseconds - start);
     }
 }
 
