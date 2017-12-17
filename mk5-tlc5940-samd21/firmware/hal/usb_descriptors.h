@@ -1,7 +1,9 @@
 #pragma once
 
-#include "hal_usb.h"
-#include "usb_cdc.h"
+#include <usb_api.h>
+#include <usb_cdc.h>
+
+#define MAX_PACKET_SIZE_0 64
 
 #define USB_STR_MANUFACTURER 1
 #define USB_STR_PRODUCT 2
@@ -11,6 +13,7 @@
 #define USB_CDC_EP_SEND 1
 #define USB_CDC_EP_RECV 2
 #define USB_CDC_EP_COMM 3
+
 
 typedef struct __attribute__((packed))
 {

@@ -3,11 +3,10 @@
 
 #include <hal.h>
 #include <printf.h>
-#include <hal_usb.h>
+
+#include <usb_api.h>
 #include <usb_cdc.h>
 
-void usb_init(void);
-void usb_task(void);
 
 
 static volatile bool new_raw_channel_data = false;
@@ -287,13 +286,12 @@ void SysTick_Handler(void)
 // ****************************************************************************
 void HAL_hardware_init_final(void)
 {
-    // Nothing to do...
-    // ------------------------------------------------
     USB->DEVICE.PADCAL.bit.TRANSN = NVM_GET_CALIBRATION_VALUE(USB_TRANSN);
     USB->DEVICE.PADCAL.bit.TRANSP = NVM_GET_CALIBRATION_VALUE(USB_TRANSP);
     USB->DEVICE.PADCAL.bit.TRIM   = NVM_GET_CALIBRATION_VALUE(USB_TRIM);
-    usb_init();
-    usb_cdc_init();
+
+    USB_init();
+    USB_CDC_init();
 }
 
 
@@ -334,7 +332,7 @@ void HAL_service(void)
     }
 #endif
 
-    usb_task();
+    USB_service();
 }
 
 

@@ -5,9 +5,9 @@
 #include <hal.h>
 #include <printf.h>
 
-#include "hal_usb.h"
-#include "usb_cdc.h"
-#include "usb_descriptors.h"
+#include <usb_api.h>
+#include <usb_cdc.h>
+#include <usb_descriptors.h>
 
 
 #define MIN(a, b) (((a) < (b)) ? (a) : (b))
@@ -171,14 +171,14 @@ static void recv_callback(size_t size)
     printf("\"\n");
 
     // Data read, prepare endpoint to receive the next packet of data
-    usb_recv(USB_CDC_EP_RECV, app_recv_buffer, sizeof(app_recv_buffer));
+    USB_recv(USB_CDC_EP_RECV, app_recv_buffer, sizeof(app_recv_buffer));
 
     // Dummy transfer to see if sending works
     if (app_recv_buffer[0] == '*') {
         static alignas(4) const char *message = "Hello world!\n";
 
         sprintf((char *)app_send_buffer, message);
-        usb_send(USB_CDC_EP_SEND, app_send_buffer, 13);
+        USB_send(USB_CDC_EP_SEND, app_send_buffer, 13);
     }
 }
 
@@ -202,11 +202,11 @@ static void line_coding_callback(uint8_t *data, size_t size)
 
 
 //-----------------------------------------------------------------------------
-void usb_cdc_init(void)
+void USB_CDC_init(void)
 {
-    usb_set_endpoint_callback(USB_CDC_EP_COMM, comm_callback);
-    usb_set_endpoint_callback(USB_CDC_EP_SEND, send_callback);
-    usb_set_endpoint_callback(USB_CDC_EP_RECV, recv_callback);
+    USB_set_endpoint_callback(USB_CDC_EP_COMM, comm_callback);
+    USB_set_endpoint_callback(USB_CDC_EP_SEND, send_callback);
+    USB_set_endpoint_callback(USB_CDC_EP_RECV, recv_callback);
 
     usb_cdc_notify_message.request.bmRequestType =
         USB_IN_TRANSFER |
@@ -224,17 +224,17 @@ void usb_cdc_init(void)
 
 
 //-----------------------------------------------------------------------------
-void usb_cdc_configuration_callback(uint8_t config)
+void USB_CDC_configuration_callback(uint8_t config)
 {
     // Prepare the receive endpoint to receive a packet of data
-    usb_recv(USB_CDC_EP_RECV, app_recv_buffer, sizeof(app_recv_buffer));
+    USB_recv(USB_CDC_EP_RECV, app_recv_buffer, sizeof(app_recv_buffer));
 
     printf("usb_cdc_configuration_callback %d\n", config);
 }
 
 
 //-----------------------------------------------------------------------------
-bool usb_cdc_handle_class_request(usb_request_t *request)
+bool USB_CDC_handle_class_request(usb_request_t *request)
 {
     unsigned int length = request->wLength;
     printf("usb_cdc_handle_class_request\n");
@@ -242,23 +242,23 @@ bool usb_cdc_handle_class_request(usb_request_t *request)
     switch (request->bRequest) {
         case CDC_GET_LINE_CODING:
             length = MIN(length, sizeof(cdc_line_coding_t));
-            usb_control_send((uint8_t *)&line_coding, length);
+            USB_control_send((uint8_t *)&line_coding, length);
             return true;
 
         case CDC_SET_LINE_CODING:
             length = MIN(length, sizeof(cdc_line_coding_t));
-            usb_control_recv(line_coding_callback);
+            USB_control_recv(line_coding_callback);
             return true;
 
         case CDC_SET_CONTROL_LINE_STATE:
             printf("control_line_state_updated DTR=%d\n",
                 (request->wValue & CDC_CTRL_SIGNAL_DTE_PRESENT) ? 1 : 0);
-            usb_control_send_zlp();
+            USB_control_send_zlp();
             return true;
 
         case CDC_SEND_BREAK:
             printf("CDC_SEND_BREAK %d\n", request->wValue);
-            usb_control_send_zlp();
+            USB_control_send_zlp();
             return true;
 
         default:

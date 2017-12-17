@@ -1,8 +1,8 @@
 #include <stdalign.h>
 #include <hal.h>
 
-#include "hal_usb.h"
-#include "usb_descriptors.h"
+#include <usb_api.h>
+#include <usb_descriptors.h>
 
 
 char usb_serial_number[33];
@@ -16,7 +16,7 @@ const alignas(4) usb_device_descriptor_t usb_device_descriptor =
   .bDeviceClass       = CDC_DEVICE_CLASS,
   .bDeviceSubClass    = 0,
   .bDeviceProtocol    = 0,
-  .bMaxPacketSize0    = 64,
+  .bMaxPacketSize0    = MAX_PACKET_SIZE_0,
   .idVendor           = 0x6666,   // Prototype Vendor ID
   .idProduct          = 0xcab1,   // Chosen PID
   .bcdDevice          = 0x0100,

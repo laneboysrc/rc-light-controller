@@ -1,27 +1,16 @@
 #include <stdbool.h>
 #include <string.h>
 #include <stdalign.h>
-#include <hal.h>
 
-#include "hal_usb.h"
-#include "usb_cdc.h"
-#include "usb_descriptors.h"
+#include <hal.h>
 #include <printf.h>
+
+#include <usb_api.h>
+#include <usb_cdc.h>
+#include <usb_descriptors.h>
 
 #define MIN(a, b) (((a) < (b)) ? (a) : (b))
 
-
-
-
-void usb_init(void);
-void usb_send(uint8_t ep, uint8_t *data, size_t size);
-void usb_recv(uint8_t ep, uint8_t *data, size_t size);
-void usb_control_send_zlp(void);
-void usb_control_stall(void);
-void usb_control_send(uint8_t *data, size_t size);
-void usb_control_recv(usb_recv_callback_t callback);
-void usb_set_endpoint_callback(uint8_t ep, usb_ep_callback_t callback);
-void usb_task(void);
 
 #define SERIAL_NUMBER_WORD_0 (volatile uint32_t *)(0x0080a00c)
 #define SERIAL_NUMBER_WORD_1 (volatile uint32_t *)(0x0080a040)
@@ -79,8 +68,8 @@ void usb_task(void);
 
 
 static alignas(4) UsbDeviceDescriptor EP[USB_EPT_NUM];
-static alignas(4) uint8_t usb_ctrl_in_buf[64];
-static alignas(4) uint8_t usb_ctrl_out_buf[64];
+static alignas(4) uint8_t usb_ctrl_in_buf[MAX_PACKET_SIZE_0];
+static alignas(4) uint8_t usb_ctrl_out_buf[MAX_PACKET_SIZE_0];
 
 static uint8_t selected_configuration = 0;
 
@@ -91,39 +80,34 @@ static usb_ep_callback_t ep_callbacks[USB_EPT_NUM];
 //-----------------------------------------------------------------------------
 static uint8_t get_PCKSIZE(uint16_t packet_size)
 {
-    if (packet_size <= 8) {
-        return PCKSIZE_SIZE_8;
-    }
+    switch (packet_size) {
+        case 8:
+            return PCKSIZE_SIZE_8;
 
-    if (packet_size <= 16) {
-        return PCKSIZE_SIZE_16;
-    }
+        case 16:
+            return PCKSIZE_SIZE_16;
 
-    if (packet_size <= 32) {
-        return PCKSIZE_SIZE_32;
-    }
+        case 32:
+            return PCKSIZE_SIZE_32;
 
-    if (packet_size <= 64) {
-        return PCKSIZE_SIZE_64;
-    }
+        case 64:
+            return PCKSIZE_SIZE_64;
 
-    if (packet_size <= 128) {
-        return PCKSIZE_SIZE_128;
-    }
+        case 128:
+            return PCKSIZE_SIZE_128;
 
-    if (packet_size <= 256) {
-        return PCKSIZE_SIZE_256;
-    }
+        case 256:
+            return PCKSIZE_SIZE_256;
 
-    if (packet_size <= 512) {
-        return PCKSIZE_SIZE_512;
-    }
+        case 512:
+            return PCKSIZE_SIZE_512;
 
-    if (packet_size <= 1023) {
-        return PCKSIZE_SIZE_1023;
-    }
+        case 1023:
+            return PCKSIZE_SIZE_1023;
 
-    return PCKSIZE_SIZE_8;
+        default:
+            return PCKSIZE_SIZE_8;
+    }
 }
 
 
@@ -277,20 +261,20 @@ static bool send_descriptor(usb_request_t *request)
         case USB_DEVICE_DESCRIPTOR:
             length = MIN(length, usb_device_descriptor.bLength);
             fprintf(STDOUT_DEBUG, "Get dev desc %d\n", length);
-            usb_control_send((uint8_t *)&usb_device_descriptor, length);
+            USB_control_send((uint8_t *)&usb_device_descriptor, length);
             return true;
 
         case USB_CONFIGURATION_DESCRIPTOR:
             length = MIN(length, usb_configuration_hierarchy.configuration.wTotalLength);
             fprintf(STDOUT_DEBUG, "Get config desc %d\n", length);
-            usb_control_send((uint8_t *)&usb_configuration_hierarchy, length);
+            USB_control_send((uint8_t *)&usb_configuration_hierarchy, length);
             return true;
 
         case USB_STRING_DESCRIPTOR:
             if (index == 0) {
                 length = MIN(length, sizeof(usb_language_descriptor));
                 fprintf(STDOUT_DEBUG, "Get language descriptor %d\n", length);
-                usb_control_send((uint8_t *)&usb_language_descriptor, length);
+                USB_control_send((uint8_t *)&usb_language_descriptor, length);
                 return true;
             }
 
@@ -313,7 +297,7 @@ static bool send_descriptor(usb_request_t *request)
                 length = MIN(length, buf[0]);
 
                 fprintf(STDOUT_DEBUG, "Get string desc index %d %d 0x%x\n", index, length, str);
-                usb_control_send(buf, length);
+                USB_control_send(buf, length);
                 return true;
             }
             return false;
@@ -329,14 +313,14 @@ static bool usb_handle_standard_request(usb_request_t *request)
 {
     switch (request->bRequest) {
         case GET_CONFIGURATION:
-            usb_control_send(&selected_configuration, sizeof(selected_configuration));
+            USB_control_send(&selected_configuration, sizeof(selected_configuration));
             return true;
 
         case GET_DESCRIPTOR:
             return send_descriptor(request);
 
         case SET_ADDRESS:
-            usb_control_send_zlp();
+            USB_control_send_zlp();
             USB->DEVICE.DADD.reg = USB_DEVICE_DADD_ADDEN | USB_DEVICE_DADD_DADD(request->wValue);
             return true;
 
@@ -359,8 +343,8 @@ static bool usb_handle_standard_request(usb_request_t *request)
                     desc = (usb_descriptor_header_t *)((uint8_t *)desc + desc->bLength);
                 }
 
-                usb_cdc_configuration_callback(selected_configuration);
-                usb_control_send_zlp();
+                USB_CDC_configuration_callback(selected_configuration);
+                USB_control_send_zlp();
                 return true;
             }
             return false;
@@ -370,7 +354,7 @@ static bool usb_handle_standard_request(usb_request_t *request)
                 // FIXME: use control buffer instead of
                 static uint16_t status = 0;
 
-                usb_control_send((uint8_t *)&status, sizeof(status));
+                USB_control_send((uint8_t *)&status, sizeof(status));
                 return true;
             }
             else if (request->bmRequestType == REQUEST_ENDPOINT) {
@@ -380,7 +364,7 @@ static bool usb_handle_standard_request(usb_request_t *request)
 
                 if (usb_endpoint_configured(ep, dir)) {
                     status = usb_endpoint_get_status(ep, dir);
-                    usb_control_send((uint8_t *)&status, sizeof(status));
+                    USB_control_send((uint8_t *)&status, sizeof(status));
                     return true;
                 }
                 else {
@@ -394,7 +378,7 @@ static bool usb_handle_standard_request(usb_request_t *request)
                 return false;
             }
             else if (request->bmRequestType == REQUEST_INTERFACE) {
-                usb_control_send_zlp();
+                USB_control_send_zlp();
                 return true;
             }
             else if (request->bmRequestType == REQUEST_ENDPOINT) {
@@ -403,7 +387,7 @@ static bool usb_handle_standard_request(usb_request_t *request)
 
                 if (0 == request->wValue && ep && usb_endpoint_configured(ep, dir)) {
                     usb_endpoint_set_feature(ep, dir);
-                    usb_control_send_zlp();
+                    USB_control_send_zlp();
                     return true;
                 }
                 return false;
@@ -414,7 +398,7 @@ static bool usb_handle_standard_request(usb_request_t *request)
                 return false;
             }
             else if (request->bmRequestType == REQUEST_INTERFACE) {
-                usb_control_send_zlp();
+                USB_control_send_zlp();
                 return true;
             }
             else if (request->bmRequestType == REQUEST_ENDPOINT) {
@@ -423,7 +407,7 @@ static bool usb_handle_standard_request(usb_request_t *request)
 
                 if (0 == request->wValue && ep && usb_endpoint_configured(ep, dir)) {
                     usb_endpoint_clear_feature(ep, dir);
-                    usb_control_send_zlp();
+                    USB_control_send_zlp();
                     return true;
                 }
                 return false;
@@ -484,7 +468,7 @@ static void service_ep0_receive_setup(void)
         request_handled = usb_handle_standard_request(request);
     }
     else {
-        request_handled = usb_cdc_handle_class_request(request);
+        request_handled = USB_CDC_handle_class_request(request);
     }
 
     if (request_handled) {
@@ -493,7 +477,7 @@ static void service_ep0_receive_setup(void)
         USB->DEVICE.DeviceEndpoint[0].EPINTFLAG.reg = USB_DEVICE_EPINTFLAG_TRCPT0;
     }
     else {
-        usb_control_stall();
+        USB_control_stall();
     }
 
     USB->DEVICE.DeviceEndpoint[0].EPINTFLAG.reg = USB_DEVICE_EPINTFLAG_RXSTP;
@@ -510,7 +494,7 @@ static void service_ep0_transmit_complete(void)
     if (control_recv_callback) {
         control_recv_callback(usb_ctrl_out_buf, EP[0].DeviceDescBank[OUT].PCKSIZE.bit.BYTE_COUNT);
         control_recv_callback = NULL;
-        usb_control_send_zlp();
+        USB_control_send_zlp();
     }
 
     USB->DEVICE.DeviceEndpoint[0].EPSTATUSSET.bit.BK0RDY = 1;
@@ -557,7 +541,7 @@ static void service_endpoints(void)
 
 
 //-----------------------------------------------------------------------------
-void usb_init(void)
+void USB_init(void)
 {
     GCLK->CLKCTRL.reg =
       GCLK_CLKCTRL_ID(USB_GCLK_ID) |
@@ -600,7 +584,14 @@ void usb_init(void)
 
 
 //-----------------------------------------------------------------------------
-void usb_task(void)
+void USB_set_endpoint_callback(uint8_t ep, usb_ep_callback_t callback)
+{
+    ep_callbacks[ep] = callback;
+}
+
+
+//-----------------------------------------------------------------------------
+void USB_service(void)
 {
     service_end_of_reset();
     service_ep0_receive_setup();
@@ -610,7 +601,7 @@ void usb_task(void)
 
 
 //-----------------------------------------------------------------------------
-void usb_send(uint8_t ep, uint8_t *data, size_t size)
+void USB_send(uint8_t ep, uint8_t *data, size_t size)
 {
     EP[ep].DeviceDescBank[IN].ADDR.reg = (uint32_t)data;
     EP[ep].DeviceDescBank[IN].PCKSIZE.bit.BYTE_COUNT = size;
@@ -621,7 +612,7 @@ void usb_send(uint8_t ep, uint8_t *data, size_t size)
 
 
 //-----------------------------------------------------------------------------
-void usb_recv(uint8_t ep, uint8_t *data, size_t size)
+void USB_recv(uint8_t ep, uint8_t *data, size_t size)
 {
     EP[ep].DeviceDescBank[OUT].ADDR.reg = (uint32_t)data;
     EP[ep].DeviceDescBank[OUT].PCKSIZE.bit.MULTI_PACKET_SIZE = size;
@@ -632,25 +623,7 @@ void usb_recv(uint8_t ep, uint8_t *data, size_t size)
 
 
 //-----------------------------------------------------------------------------
-void usb_control_send_zlp(void)
-{
-    EP[0].DeviceDescBank[IN].PCKSIZE.bit.BYTE_COUNT = 0;
-    USB->DEVICE.DeviceEndpoint[0].EPINTFLAG.reg = USB_DEVICE_EPINTFLAG_TRCPT1;
-    USB->DEVICE.DeviceEndpoint[0].EPSTATUSSET.bit.BK1RDY = 1;
-
-    while (0 == USB->DEVICE.DeviceEndpoint[0].EPINTFLAG.bit.TRCPT1);
-}
-
-
-//-----------------------------------------------------------------------------
-void usb_control_stall(void)
-{
-    USB->DEVICE.DeviceEndpoint[0].EPSTATUSSET.bit.STALLRQ1 = 1;
-}
-
-
-//-----------------------------------------------------------------------------
-void usb_control_send(uint8_t *data, size_t size)
+void USB_control_send(uint8_t *data, size_t size)
 {
     // USB controller does not have access to the flash memory, so here we do
     // a manual multi-packet transfer. This way data can be located in in
@@ -679,16 +652,27 @@ void usb_control_send(uint8_t *data, size_t size)
 
 
 //-----------------------------------------------------------------------------
-void usb_control_recv(usb_recv_callback_t callback)
+void USB_control_send_zlp(void)
+{
+    EP[0].DeviceDescBank[IN].PCKSIZE.bit.BYTE_COUNT = 0;
+    USB->DEVICE.DeviceEndpoint[0].EPINTFLAG.reg = USB_DEVICE_EPINTFLAG_TRCPT1;
+    USB->DEVICE.DeviceEndpoint[0].EPSTATUSSET.bit.BK1RDY = 1;
+
+    while (0 == USB->DEVICE.DeviceEndpoint[0].EPINTFLAG.bit.TRCPT1);
+}
+
+
+//-----------------------------------------------------------------------------
+void USB_control_recv(usb_recv_callback_t callback)
 {
     control_recv_callback = callback;
 }
 
 
 //-----------------------------------------------------------------------------
-void usb_set_endpoint_callback(uint8_t ep, usb_ep_callback_t callback)
+void USB_control_stall(void)
 {
-    ep_callbacks[ep] = callback;
+    USB->DEVICE.DeviceEndpoint[0].EPSTATUSSET.bit.STALLRQ1 = 1;
 }
 
 

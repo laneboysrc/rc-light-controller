@@ -4,7 +4,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 
-#include <hal_usb.h>
+#include <usb_api.h>
 
 
 #define CDC_DEVICE_CLASS 2                    // USB Communication Device Class
@@ -64,8 +64,8 @@ typedef struct __attribute__((packed)) {
 } cdc_union_functional_descriptor_t;
 
 
-void usb_cdc_init(void);
-void usb_cdc_configuration_callback(uint8_t config);
-bool usb_cdc_handle_class_request(usb_request_t *request);
+void USB_CDC_init(void);
+void USB_CDC_configuration_callback(uint8_t config);
+bool USB_CDC_handle_class_request(usb_request_t *request);
 
 
