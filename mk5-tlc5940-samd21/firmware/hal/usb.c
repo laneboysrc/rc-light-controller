@@ -317,6 +317,9 @@ static bool usb_handle_standard_request(usb_request_t *request)
 
                 USB_CDC_configuration_callback(selected_configuration);
                 USB_control_send_zlp();
+
+                fprintf(STDOUT_DEBUG, "CONNECTED\n");
+
                 return true;
             }
             return false;
@@ -386,6 +389,7 @@ static bool usb_handle_standard_request(usb_request_t *request)
             }
 
         default:
+            fprintf(STDOUT_DEBUG, "Unhandled std req %d", request->bRequest);
             return false;
     }
 }
@@ -398,6 +402,8 @@ static void service_end_of_reset(void)
         return;
     }
     USB->DEVICE.INTFLAG.reg = USB_DEVICE_INTFLAG_EORST;
+
+    selected_configuration = 0;
 
     USB->DEVICE.DADD.reg = USB_DEVICE_DADD_ADDEN;
 
@@ -421,6 +427,8 @@ static void service_end_of_reset(void)
 
     USB->DEVICE.DeviceEndpoint[0].EPINTENSET.bit.RXSTP = 1;
     USB->DEVICE.DeviceEndpoint[0].EPINTENSET.bit.TRCPT0 = 1;
+
+    fprintf(STDOUT_DEBUG, "DISCONNECTED\n");
 }
 
 
@@ -497,6 +505,10 @@ static void service_endpoints(void)
             if (ep_callbacks[i]) {
                 ep_callbacks[i](EP[i].DeviceDescBank[USB_OUT_TRANSFER].PCKSIZE.bit.BYTE_COUNT);
             }
+            else {
+                fprintf(STDOUT_DEBUG, "No out ep handler %d\n", i);
+            }
+
         }
 
         // Transmit Complete 1 (IN / data device to host)
@@ -506,6 +518,9 @@ static void service_endpoints(void)
 
             if (ep_callbacks[i]) {
                 ep_callbacks[i](0);
+            }
+            else {
+                fprintf(STDOUT_DEBUG, "No in ep handler %d\n", i);
             }
         }
     }

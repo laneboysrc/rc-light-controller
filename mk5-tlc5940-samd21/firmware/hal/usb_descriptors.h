@@ -13,6 +13,8 @@
 #define USB_CDC_EP_SEND 1
 #define USB_CDC_EP_RECEIVE 2
 #define USB_CDC_EP_COMM 3
+#define USB_WEBUSB_EP_SEND 4
+#define USB_WEBUSB_EP_RECEIVE 5
 
 
 typedef struct __attribute__((packed))
@@ -29,6 +31,10 @@ typedef struct __attribute__((packed))
     usb_interface_descriptor_t interface_data;
     usb_endpoint_descriptor_t ep_in;
     usb_endpoint_descriptor_t ep_out;
+
+    usb_interface_descriptor_t interface_webusb;
+    usb_endpoint_descriptor_t webusb_ep_in;
+    usb_endpoint_descriptor_t webusb_ep_out;
 } usb_configuration_hierarchy_t;
 
 

@@ -150,17 +150,17 @@ static void send_callback(size_t size)
     (void)size;
 
     app_send_buffer_free = true;
-    printf("send_callback\n");
+    // printf("send_callback\n");
 }
 
 
 //-----------------------------------------------------------------------------
-static void recv_callback(size_t size)
+static void receive_callback(size_t size)
 {
     app_recv_buffer_ptr = 0;
     app_recv_buffer_size = size;
 
-    printf("recv_callback %d \"", size);
+    printf("receive_callback %d \"", size);
 
     while (app_recv_buffer_size) {
         HAL_putc(STDOUT_DEBUG, app_recv_buffer[app_recv_buffer_ptr]);
@@ -206,7 +206,7 @@ void USB_CDC_init(void)
 {
     USB_set_endpoint_callback(USB_CDC_EP_COMM, comm_callback);
     USB_set_endpoint_callback(USB_CDC_EP_SEND, send_callback);
-    USB_set_endpoint_callback(USB_CDC_EP_RECEIVE, recv_callback);
+    USB_set_endpoint_callback(USB_CDC_EP_RECEIVE, receive_callback);
 
     usb_cdc_notify_message.request.bmRequestType =
         USB_IN_TRANSFER |

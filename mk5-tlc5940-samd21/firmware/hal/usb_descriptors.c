@@ -33,7 +33,7 @@ const alignas(4) usb_configuration_hierarchy_t usb_configuration_hierarchy =
     .bLength             = sizeof(usb_configuration_descriptor_t),
     .bDescriptorType     = USB_CONFIGURATION_DESCRIPTOR,
     .wTotalLength        = sizeof(usb_configuration_hierarchy_t),
-    .bNumInterfaces      = 2,
+    .bNumInterfaces      = 3,
     .bConfigurationValue = 1,
     .iConfiguration      = 0,
     .bmAttributes        = 0x80,
@@ -125,6 +125,39 @@ const alignas(4) usb_configuration_hierarchy_t usb_configuration_hierarchy =
     .bLength             = sizeof(usb_endpoint_descriptor_t),
     .bDescriptorType     = USB_ENDPOINT_DESCRIPTOR,
     .bEndpointAddress    = USB_OUT_ENDPOINT | USB_CDC_EP_RECEIVE,
+    .bmAttributes        = USB_BULK_ENDPOINT,
+    .wMaxPacketSize      = 64,
+    .bInterval           = 0,
+  },
+
+  .interface_webusb =
+  {
+    .bLength             = sizeof(usb_interface_descriptor_t),
+    .bDescriptorType     = USB_INTERFACE_DESCRIPTOR,
+    .bInterfaceNumber    = 2,
+    .bAlternateSetting   = 0,
+    .bNumEndpoints       = 2,
+    .bInterfaceClass     = 0xff,
+    .bInterfaceSubClass  = 0,
+    .bInterfaceProtocol  = 0,
+    .iInterface          = 0,
+  },
+
+  .webusb_ep_in =
+  {
+    .bLength             = sizeof(usb_endpoint_descriptor_t),
+    .bDescriptorType     = USB_ENDPOINT_DESCRIPTOR,
+    .bEndpointAddress    = USB_IN_ENDPOINT | USB_WEBUSB_EP_SEND,
+    .bmAttributes        = USB_BULK_ENDPOINT,
+    .wMaxPacketSize      = 64,
+    .bInterval           = 0,
+  },
+
+  .webusb_ep_out =
+  {
+    .bLength             = sizeof(usb_endpoint_descriptor_t),
+    .bDescriptorType     = USB_ENDPOINT_DESCRIPTOR,
+    .bEndpointAddress    = USB_OUT_ENDPOINT | USB_WEBUSB_EP_RECEIVE,
     .bmAttributes        = USB_BULK_ENDPOINT,
     .wMaxPacketSize      = 64,
     .bInterval           = 0,
