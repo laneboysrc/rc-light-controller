@@ -12,44 +12,6 @@
 #define MIN(a, b) (((a) < (b)) ? (a) : (b))
 
 
-#define SERIAL_NUMBER_WORD_0 (volatile uint32_t *)(0x0080a00c)
-#define SERIAL_NUMBER_WORD_1 (volatile uint32_t *)(0x0080a040)
-#define SERIAL_NUMBER_WORD_2 (volatile uint32_t *)(0x0080a044)
-#define SERIAL_NUMBER_WORD_3 (volatile uint32_t *)(0x0080a048)
-
-
-//  Standard requests
-#define GET_STATUS                  0
-#define CLEAR_FEATURE               1
-#define SET_FEATURE                 3
-#define SET_ADDRESS                 5
-#define GET_DESCRIPTOR              6
-#define SET_DESCRIPTOR              7
-#define GET_CONFIGURATION           8
-#define SET_CONFIGURATION           9
-#define GET_INTERFACE               10
-#define SET_INTERFACE               11
-
-// bmRequestType
-#define REQUEST_HOSTTODEVICE        0x00
-#define REQUEST_DEVICETOHOST        0x80
-#define REQUEST_DIRECTION           0x80
-
-#define REQUEST_STANDARD            0x00
-#define REQUEST_CLASS               0x20
-#define REQUEST_VENDOR              0x40
-#define REQUEST_TYPE                0x60
-
-#define REQUEST_DEVICE              0x00
-#define REQUEST_INTERFACE           0x01
-#define REQUEST_ENDPOINT            0x02
-#define REQUEST_OTHER               0x03
-#define REQUEST_RECIPIENT           0x1F
-
-// End point direction
-#define OUT 0
-#define IN 1
-
 #define EPTYPE_DISABLED 0
 #define EPTYPE_CONTROL 1
 #define EPTYPE_ISOCHRONOUS 2
@@ -73,7 +35,7 @@ static alignas(4) uint8_t usb_ctrl_out_buf[MAX_PACKET_SIZE_0];
 
 static uint8_t selected_configuration = 0;
 
-static usb_recv_callback_t control_recv_callback;
+static usb_receive_callback_t control_receive_callback;
 static usb_ep_callback_t ep_callbacks[USB_EPT_NUM];
 
 
@@ -175,14 +137,14 @@ static void usb_configure_endpoint(usb_endpoint_descriptor_t *desc)
         USB->DEVICE.DeviceEndpoint[ep].EPINTENSET.bit.TRCPT1 = 1;
         USB->DEVICE.DeviceEndpoint[ep].EPSTATUSCLR.bit.DTGLIN = 1;
         USB->DEVICE.DeviceEndpoint[ep].EPSTATUSCLR.bit.BK1RDY = 1;
-        EP[ep].DeviceDescBank[IN].PCKSIZE.bit.SIZE = size;
+        EP[ep].DeviceDescBank[USB_IN_TRANSFER].PCKSIZE.bit.SIZE = size;
     }
     else {
         USB->DEVICE.DeviceEndpoint[ep].EPCFG.bit.EPTYPE0 = type;
         USB->DEVICE.DeviceEndpoint[ep].EPINTENSET.bit.TRCPT0 = 1;
         USB->DEVICE.DeviceEndpoint[ep].EPSTATUSCLR.bit.DTGLOUT = 1;
         USB->DEVICE.DeviceEndpoint[ep].EPSTATUSSET.bit.BK0RDY = 1;
-        EP[ep].DeviceDescBank[OUT].PCKSIZE.bit.SIZE = size;
+        EP[ep].DeviceDescBank[USB_OUT_TRANSFER].PCKSIZE.bit.SIZE = size;
     }
 }
 
@@ -309,20 +271,20 @@ static bool send_descriptor(usb_request_t *request)
 static bool usb_handle_standard_request(usb_request_t *request)
 {
     switch (request->bRequest) {
-        case GET_CONFIGURATION:
+        case USB_GET_CONFIGURATION:
             USB_control_send(&selected_configuration, sizeof(selected_configuration));
             return true;
 
-        case GET_DESCRIPTOR:
+        case USB_GET_DESCRIPTOR:
             return send_descriptor(request);
 
-        case SET_ADDRESS:
+        case USB_SET_ADDRESS:
             USB_control_send_zlp();
             USB->DEVICE.DADD.reg = USB_DEVICE_DADD_ADDEN | USB_DEVICE_DADD_DADD(request->wValue);
             return true;
 
-        case SET_CONFIGURATION:
-            if ((request->bmRequestType & REQUEST_RECIPIENT) == REQUEST_DEVICE) {
+        case USB_SET_CONFIGURATION:
+            if ((request->bmRequestType & USB_REQUEST_RECIPIENT) == USB_REQUEST_DEVICE) {
                 size_t size;
                 usb_descriptor_header_t *desc;
 
@@ -346,15 +308,15 @@ static bool usb_handle_standard_request(usb_request_t *request)
             }
             return false;
 
-        case GET_STATUS:
-            if (request->bmRequestType == REQUEST_DEVICE) {
+        case USB_GET_STATUS:
+            if (request->bmRequestType == USB_REQUEST_DEVICE) {
                 // FIXME: use control buffer instead of
                 static uint16_t status = 0;
 
                 USB_control_send((uint8_t *)&status, sizeof(status));
                 return true;
             }
-            else if (request->bmRequestType == REQUEST_ENDPOINT) {
+            else if (request->bmRequestType == USB_REQUEST_ENDPOINT) {
                 int ep = request->wIndex & USB_INDEX_MASK;
                 int dir = request->wIndex & USB_DIRECTION_MASK;
                 static uint16_t status = 0;
@@ -370,15 +332,15 @@ static bool usb_handle_standard_request(usb_request_t *request)
             }
             return false;
 
-        case SET_FEATURE:
-            if (request->bmRequestType == REQUEST_DEVICE) {
+        case USB_SET_FEATURE:
+            if (request->bmRequestType == USB_REQUEST_DEVICE) {
                 return false;
             }
-            else if (request->bmRequestType == REQUEST_INTERFACE) {
+            else if (request->bmRequestType == USB_REQUEST_INTERFACE) {
                 USB_control_send_zlp();
                 return true;
             }
-            else if (request->bmRequestType == REQUEST_ENDPOINT) {
+            else if (request->bmRequestType == USB_REQUEST_ENDPOINT) {
                 int ep = request->wIndex & USB_INDEX_MASK;
                 int dir = request->wIndex & USB_DIRECTION_MASK;
 
@@ -390,15 +352,15 @@ static bool usb_handle_standard_request(usb_request_t *request)
                 return false;
             }
 
-        case CLEAR_FEATURE:
-            if (request->bmRequestType == REQUEST_DEVICE) {
+        case USB_CLEAR_FEATURE:
+            if (request->bmRequestType == USB_REQUEST_DEVICE) {
                 return false;
             }
-            else if (request->bmRequestType == REQUEST_INTERFACE) {
+            else if (request->bmRequestType == USB_REQUEST_INTERFACE) {
                 USB_control_send_zlp();
                 return true;
             }
-            else if (request->bmRequestType == REQUEST_ENDPOINT) {
+            else if (request->bmRequestType == USB_REQUEST_ENDPOINT) {
                 int ep = request->wIndex & USB_INDEX_MASK;
                 int dir = request->wIndex & USB_DIRECTION_MASK;
 
@@ -437,12 +399,12 @@ static void service_end_of_reset(void)
     USB->DEVICE.DeviceEndpoint[0].EPSTATUSSET.bit.BK0RDY = 1;
     USB->DEVICE.DeviceEndpoint[0].EPSTATUSCLR.bit.BK1RDY = 1;
 
-    EP[0].DeviceDescBank[IN].PCKSIZE.bit.SIZE = PCKSIZE_SIZE_64;
+    EP[0].DeviceDescBank[USB_IN_TRANSFER].PCKSIZE.bit.SIZE = PCKSIZE_SIZE_64;
 
-    EP[0].DeviceDescBank[OUT].ADDR.reg = (uint32_t)usb_ctrl_out_buf;
-    EP[0].DeviceDescBank[OUT].PCKSIZE.bit.SIZE = PCKSIZE_SIZE_64;
-    EP[0].DeviceDescBank[OUT].PCKSIZE.bit.MULTI_PACKET_SIZE = 64;
-    EP[0].DeviceDescBank[OUT].PCKSIZE.bit.BYTE_COUNT = 0;
+    EP[0].DeviceDescBank[USB_OUT_TRANSFER].ADDR.reg = (uint32_t)usb_ctrl_out_buf;
+    EP[0].DeviceDescBank[USB_OUT_TRANSFER].PCKSIZE.bit.SIZE = PCKSIZE_SIZE_64;
+    EP[0].DeviceDescBank[USB_OUT_TRANSFER].PCKSIZE.bit.MULTI_PACKET_SIZE = 64;
+    EP[0].DeviceDescBank[USB_OUT_TRANSFER].PCKSIZE.bit.BYTE_COUNT = 0;
 
     USB->DEVICE.DeviceEndpoint[0].EPINTENSET.bit.RXSTP = 1;
     USB->DEVICE.DeviceEndpoint[0].EPINTENSET.bit.TRCPT0 = 1;
@@ -461,7 +423,7 @@ static void service_ep0_receive_setup(void)
 
     request = (usb_request_t *)usb_ctrl_out_buf;
 
-    if ((request->bmRequestType & REQUEST_TYPE) == REQUEST_STANDARD) {
+    if ((request->bmRequestType & USB_REQUEST_TYPE) == USB_REQUEST_STANDARD) {
         request_handled = usb_handle_standard_request(request);
     }
     else {
@@ -469,7 +431,7 @@ static void service_ep0_receive_setup(void)
     }
 
     if (request_handled) {
-        EP[0].DeviceDescBank[OUT].PCKSIZE.bit.BYTE_COUNT = 0;
+        EP[0].DeviceDescBank[USB_OUT_TRANSFER].PCKSIZE.bit.BYTE_COUNT = 0;
         USB->DEVICE.DeviceEndpoint[0].EPSTATUSCLR.bit.BK0RDY = 1;
         USB->DEVICE.DeviceEndpoint[0].EPINTFLAG.reg = USB_DEVICE_EPINTFLAG_TRCPT0;
     }
@@ -488,9 +450,9 @@ static void service_ep0_transmit_complete(void)
         return;
     }
 
-    if (control_recv_callback) {
-        control_recv_callback(usb_ctrl_out_buf, EP[0].DeviceDescBank[OUT].PCKSIZE.bit.BYTE_COUNT);
-        control_recv_callback = NULL;
+    if (control_receive_callback) {
+        control_receive_callback(usb_ctrl_out_buf, EP[0].DeviceDescBank[USB_OUT_TRANSFER].PCKSIZE.bit.BYTE_COUNT);
+        control_receive_callback = NULL;
         USB_control_send_zlp();
     }
 
@@ -520,7 +482,7 @@ static void service_endpoints(void)
             USB->DEVICE.DeviceEndpoint[i].EPINTFLAG.reg = USB_DEVICE_EPINTFLAG_TRCPT0;
 
             if (ep_callbacks[i]) {
-                ep_callbacks[i](EP[i].DeviceDescBank[OUT].PCKSIZE.bit.BYTE_COUNT);
+                ep_callbacks[i](EP[i].DeviceDescBank[USB_OUT_TRANSFER].PCKSIZE.bit.BYTE_COUNT);
             }
         }
 
@@ -540,29 +502,49 @@ static void service_endpoints(void)
 //-----------------------------------------------------------------------------
 void USB_init(void)
 {
-    GCLK->CLKCTRL.reg =
-      GCLK_CLKCTRL_ID(USB_GCLK_ID) |
-      GCLK_CLKCTRL_GEN(0) |
-      GCLK_CLKCTRL_CLKEN;
+    // Local unnamed enumeration that holds the memory addresses of the
+    // locations where the 128 bit serial number is located.
+    enum {
+        SERIAL_NUMBER_WORD_0 = 0x0080a00c,
+        SERIAL_NUMBER_WORD_1 = 0x0080a040,
+        SERIAL_NUMBER_WORD_2 = 0x0080a044,
+        SERIAL_NUMBER_WORD_3 = 0x0080a048,
+    };
 
+    // Use GLKGEN0 (48 MHz) as clock source for USB
+    GCLK->CLKCTRL.reg =
+        GCLK_CLKCTRL_ID(USB_GCLK_ID) |
+        GCLK_CLKCTRL_GEN(0) |
+        GCLK_CLKCTRL_CLKEN;
+
+    // Reset the USB peripheral
     USB->DEVICE.CTRLA.bit.SWRST = 1;
     while (USB->DEVICE.SYNCBUSY.bit.SWRST);
 
+    // Build the USB serial number from the 128 bit SAM D21 serial number
+    // by simply representing it as hex digits. This makes the serial number
+    // 128 / 4 = 32 bytes/characters long (plus \0).
+    uint32_t_to_hex(*(volatile uint32_t *)SERIAL_NUMBER_WORD_0, usb_serial_number);
+    uint32_t_to_hex(*(volatile uint32_t *)SERIAL_NUMBER_WORD_1, usb_serial_number + 8);
+    uint32_t_to_hex(*(volatile uint32_t *)SERIAL_NUMBER_WORD_2, usb_serial_number + 16);
+    uint32_t_to_hex(*(volatile uint32_t *)SERIAL_NUMBER_WORD_3, usb_serial_number + 24);
+
+    // Initialize the endpoint buffer
     for (size_t i = 0; i < sizeof(EP); i++) {
         ((uint8_t *)EP)[i] = 0;
     }
 
     USB->DEVICE.DESCADD.reg = (uint32_t)EP;
 
+    // Set USB to device mode
     USB->DEVICE.CTRLA.reg =
         USB_CTRLA_MODE_DEVICE |
         USB_CTRLA_RUNSTDBY;
 
+    // We operate as full speed device
     USB->DEVICE.CTRLB.reg = USB_DEVICE_CTRLB_SPDCONF_FS;
 
-    USB->DEVICE.INTENSET.reg = USB_DEVICE_INTENSET_EORST;
-    USB->DEVICE.DeviceEndpoint[0].EPINTENSET.bit.RXSTP = 1;
-
+    // Enable the USB peripheral
     USB->DEVICE.CTRLA.reg |= USB_CTRLA_ENABLE;
 
     for (int i = 0; i < USB_EPT_NUM; i++) {
@@ -570,14 +552,6 @@ void USB_init(void)
         usb_reset_endpoint(i, USB_IN_ENDPOINT);
         usb_reset_endpoint(i, USB_OUT_ENDPOINT);
     }
-
-    // Build the USB serial number from the 128 bit SAM D21 serial number
-    // by simply representing it as hex digits. This makes the serial number
-    // 128 / 4 = 32 bytes/characters long (plus \0).
-    uint32_t_to_hex(*SERIAL_NUMBER_WORD_0, usb_serial_number);
-    uint32_t_to_hex(*SERIAL_NUMBER_WORD_1, usb_serial_number + 8);
-    uint32_t_to_hex(*SERIAL_NUMBER_WORD_2, usb_serial_number + 16);
-    uint32_t_to_hex(*SERIAL_NUMBER_WORD_3, usb_serial_number + 24);
 }
 
 
@@ -601,20 +575,20 @@ void USB_service(void)
 //-----------------------------------------------------------------------------
 void USB_send(uint8_t ep, uint8_t *data, size_t size)
 {
-    EP[ep].DeviceDescBank[IN].ADDR.reg = (uint32_t)data;
-    EP[ep].DeviceDescBank[IN].PCKSIZE.bit.BYTE_COUNT = size;
-    EP[ep].DeviceDescBank[IN].PCKSIZE.bit.MULTI_PACKET_SIZE = 0;
+    EP[ep].DeviceDescBank[USB_IN_TRANSFER].ADDR.reg = (uint32_t)data;
+    EP[ep].DeviceDescBank[USB_IN_TRANSFER].PCKSIZE.bit.BYTE_COUNT = size;
+    EP[ep].DeviceDescBank[USB_IN_TRANSFER].PCKSIZE.bit.MULTI_PACKET_SIZE = 0;
 
     USB->DEVICE.DeviceEndpoint[ep].EPSTATUSSET.bit.BK1RDY = 1;
 }
 
 
 //-----------------------------------------------------------------------------
-void USB_recv(uint8_t ep, uint8_t *data, size_t size)
+void USB_receive(uint8_t ep, uint8_t *data, size_t size)
 {
-    EP[ep].DeviceDescBank[OUT].ADDR.reg = (uint32_t)data;
-    EP[ep].DeviceDescBank[OUT].PCKSIZE.bit.MULTI_PACKET_SIZE = size;
-    EP[ep].DeviceDescBank[OUT].PCKSIZE.bit.BYTE_COUNT = 0;
+    EP[ep].DeviceDescBank[USB_OUT_TRANSFER].ADDR.reg = (uint32_t)data;
+    EP[ep].DeviceDescBank[USB_OUT_TRANSFER].PCKSIZE.bit.MULTI_PACKET_SIZE = size;
+    EP[ep].DeviceDescBank[USB_OUT_TRANSFER].PCKSIZE.bit.BYTE_COUNT = 0;
 
     USB->DEVICE.DeviceEndpoint[ep].EPSTATUSCLR.bit.BK0RDY = 1;
 }
@@ -634,9 +608,9 @@ void USB_control_send(uint8_t *data, size_t size)
             usb_ctrl_in_buf[i] = data[i];
         }
 
-        EP[0].DeviceDescBank[IN].ADDR.reg = (uint32_t)usb_ctrl_in_buf;
-        EP[0].DeviceDescBank[IN].PCKSIZE.bit.BYTE_COUNT = transfer_size;
-        EP[0].DeviceDescBank[IN].PCKSIZE.bit.MULTI_PACKET_SIZE = 0;
+        EP[0].DeviceDescBank[USB_IN_TRANSFER].ADDR.reg = (uint32_t)usb_ctrl_in_buf;
+        EP[0].DeviceDescBank[USB_IN_TRANSFER].PCKSIZE.bit.BYTE_COUNT = transfer_size;
+        EP[0].DeviceDescBank[USB_IN_TRANSFER].PCKSIZE.bit.MULTI_PACKET_SIZE = 0;
 
         USB->DEVICE.DeviceEndpoint[0].EPINTFLAG.reg = USB_DEVICE_EPINTFLAG_TRCPT1;
         USB->DEVICE.DeviceEndpoint[0].EPSTATUSSET.bit.BK1RDY = 1;
@@ -652,7 +626,7 @@ void USB_control_send(uint8_t *data, size_t size)
 //-----------------------------------------------------------------------------
 void USB_control_send_zlp(void)
 {
-    EP[0].DeviceDescBank[IN].PCKSIZE.bit.BYTE_COUNT = 0;
+    EP[0].DeviceDescBank[USB_IN_TRANSFER].PCKSIZE.bit.BYTE_COUNT = 0;
     USB->DEVICE.DeviceEndpoint[0].EPINTFLAG.reg = USB_DEVICE_EPINTFLAG_TRCPT1;
     USB->DEVICE.DeviceEndpoint[0].EPSTATUSSET.bit.BK1RDY = 1;
 
@@ -661,9 +635,9 @@ void USB_control_send_zlp(void)
 
 
 //-----------------------------------------------------------------------------
-void USB_control_recv(usb_recv_callback_t callback)
+void USB_control_receive(usb_receive_callback_t callback)
 {
-    control_recv_callback = callback;
+    control_receive_callback = callback;
 }
 
 
@@ -672,9 +646,4 @@ void USB_control_stall(void)
 {
     USB->DEVICE.DeviceEndpoint[0].EPSTATUSSET.bit.STALLRQ1 = 1;
 }
-
-
-
-
-
 

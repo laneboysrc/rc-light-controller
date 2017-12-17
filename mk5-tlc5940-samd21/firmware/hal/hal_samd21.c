@@ -526,10 +526,12 @@ void HAL_servo_output_init(void)
         GCLK_CLKCTRL_GEN(1);
 
     // --------------------------------------
-    // Setup TC4 in PWM mode with a period of 20 ms. Unfortunately in 16bit
-    // mode there is no period register, so we have to use Compare Channel 1
-    // to generate an event, which we then pass back as input event to TC4 via
-    // the Event System, re-triggering the timer.
+    // Setup TC4 in PWM mode with a period of 20 ms. The pulse width is
+    // via Compare Channel 0.
+    //
+    // Unfortunately in 16bit mode TC4 has no period register, so we have to
+    // use Compare Channel 1 to generate an event, which we then pass back as
+    // input event to TC4 via the Event System, re-triggering the timer.
 
     // Reset TC4
     TC4->COUNT16.CTRLA.reg = TC_CTRLA_SWRST;
