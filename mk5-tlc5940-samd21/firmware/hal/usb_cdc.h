@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdint.h>
+#include <stddef.h>
 #include <stdbool.h>
 #include "hal_usb.h"
 
@@ -183,13 +184,13 @@ typedef struct __attribute__((packed))
 
 /*- Prototypes --------------------------------------------------------------*/
 void usb_cdc_init(void);
-void usb_cdc_send(uint8_t *data, int size);
-void usb_cdc_recv(uint8_t *data, int size);
+void usb_cdc_send(uint8_t *data, size_t size);
+void usb_cdc_recv(uint8_t *data, size_t size);
 void usb_cdc_set_state(int mask);
 void usb_cdc_clear_state(int mask);
 
 void usb_cdc_send_callback(void);
-void usb_cdc_recv_callback(int size);
+void usb_cdc_recv_callback(size_t size);
 void usb_cdc_line_coding_updated(usb_cdc_line_coding_t *line_coding);
 void usb_cdc_control_line_state_update(int line_state);
 

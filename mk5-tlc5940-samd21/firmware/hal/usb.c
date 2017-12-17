@@ -16,17 +16,24 @@ typedef void (* usb_recv_callback_t)(uint8_t *data, size_t size);
 
 
 void usb_init(void);
-void usb_send(int ep, uint8_t *data, int size);
-void usb_recv(int ep, uint8_t *data, int size);
+void usb_send(uint8_t ep, uint8_t *data, size_t size);
+void usb_recv(uint8_t ep, uint8_t *data, size_t size);
 void usb_control_send_zlp(void);
 void usb_control_stall(void);
-void usb_control_send(uint8_t *data, int size);
+void usb_control_send(uint8_t *data, size_t size);
 void usb_control_recv(usb_recv_callback_t callback);
-void usb_set_endpoint_callback(int ep, usb_ep_callback_t callback);
+void usb_set_endpoint_callback(uint8_t ep, usb_ep_callback_t callback);
 void usb_task(void);
-bool usb_handle_class_request(usb_request_t *request);
-bool usb_handle_class_requestr(usb_request_t *request);
-void usb_configuration_callback(int config);
+
+bool usb_cdc_handle_class_request(usb_request_t *request);
+void usb_cdc_configuration_callback(int config);
+
+
+#define SERIAL_NUMBER_WORD_0 (volatile uint32_t *)(0x0080a00c)
+#define SERIAL_NUMBER_WORD_1 (volatile uint32_t *)(0x0080a040)
+#define SERIAL_NUMBER_WORD_2 (volatile uint32_t *)(0x0080a044)
+#define SERIAL_NUMBER_WORD_3 (volatile uint32_t *)(0x0080a048)
+
 
 //  Standard requests
 #define GET_STATUS                  0
@@ -125,6 +132,7 @@ static uint8_t get_PCKSIZE(uint16_t packet_size)
     return PCKSIZE_SIZE_8;
 }
 
+
 //-----------------------------------------------------------------------------
 static uint8_t get_EPTYPE(uint8_t type)
 {
@@ -146,6 +154,7 @@ static uint8_t get_EPTYPE(uint8_t type)
     }
 }
 
+
 //-----------------------------------------------------------------------------
 static void uint32_t_to_hex(uint32_t val, char* s) {
     static const char hex_chars[] = "0123456789abcdef";
@@ -154,6 +163,7 @@ static void uint32_t_to_hex(uint32_t val, char* s) {
         s[i] = hex_chars[val & 0x0f];
     }
 }
+
 
 //-----------------------------------------------------------------------------
 static void usb_reset_endpoint(int ep, int dir)
@@ -355,7 +365,7 @@ static bool usb_handle_standard_request(usb_request_t *request)
                     desc = (usb_descriptor_header_t *)((uint8_t *)desc + desc->bLength);
                 }
 
-                usb_configuration_callback(selected_configuration);
+                usb_cdc_configuration_callback(selected_configuration);
                 usb_control_send_zlp();
                 return true;
             }
@@ -480,7 +490,7 @@ static void service_ep0_receive_setup(void)
         request_handled = usb_handle_standard_request(request);
     }
     else {
-        request_handled = usb_handle_class_request(request);
+        request_handled = usb_cdc_handle_class_request(request);
     }
 
     if (request_handled) {
@@ -585,37 +595,13 @@ void usb_init(void)
         usb_reset_endpoint(i, USB_OUT_ENDPOINT);
     }
 
-    {
-        #define SERIAL_NUMBER_WORD_0 *(volatile uint32_t*)(0x0080A00C)
-        #define SERIAL_NUMBER_WORD_1 *(volatile uint32_t*)(0x0080A040)
-        #define SERIAL_NUMBER_WORD_2 *(volatile uint32_t*)(0x0080A044)
-        #define SERIAL_NUMBER_WORD_3 *(volatile uint32_t*)(0x0080A048)
-
-        // char name[ISERIAL_MAX_LEN];
-
-        uint32_t_to_hex(SERIAL_NUMBER_WORD_0, usb_serial_number);
-        uint32_t_to_hex(SERIAL_NUMBER_WORD_1, usb_serial_number + 8);
-        uint32_t_to_hex(SERIAL_NUMBER_WORD_2, usb_serial_number + 16);
-        uint32_t_to_hex(SERIAL_NUMBER_WORD_3, usb_serial_number + 24);
-
-
-        // uint8_t *s = 0x0080a00c;
-        // const char *c = "0123456789abcdef";
-
-        // printf("serial 0x%x\n", *((uint32_t *)s));
-
-        // for (int i = 0; i < 4; i++) {
-        //     uint8_t x = *(s++);
-
-        //     usb_serial_number[i * 2] = c[x & 0x0f];
-        //     usb_serial_number[i * 2 + 1] = c[x >> 4];
-        // }
-
-
-
-    }
-
-
+    // Build the USB serial number from the 128 bit SAM D21 serial number
+    // by simply representing it as hex digits. This makes the serial number
+    // 128 / 4 = 32 bytes/characters long (plus \0).
+    uint32_t_to_hex(*SERIAL_NUMBER_WORD_0, usb_serial_number);
+    uint32_t_to_hex(*SERIAL_NUMBER_WORD_1, usb_serial_number + 8);
+    uint32_t_to_hex(*SERIAL_NUMBER_WORD_2, usb_serial_number + 16);
+    uint32_t_to_hex(*SERIAL_NUMBER_WORD_3, usb_serial_number + 24);
 }
 
 
@@ -630,7 +616,7 @@ void usb_task(void)
 
 
 //-----------------------------------------------------------------------------
-void usb_send(int ep, uint8_t *data, int size)
+void usb_send(uint8_t ep, uint8_t *data, size_t size)
 {
     EP[ep].DeviceDescBank[IN].ADDR.reg = (uint32_t)data;
     EP[ep].DeviceDescBank[IN].PCKSIZE.bit.BYTE_COUNT = size;
@@ -641,7 +627,7 @@ void usb_send(int ep, uint8_t *data, int size)
 
 
 //-----------------------------------------------------------------------------
-void usb_recv(int ep, uint8_t *data, int size)
+void usb_recv(uint8_t ep, uint8_t *data, size_t size)
 {
     EP[ep].DeviceDescBank[OUT].ADDR.reg = (uint32_t)data;
     EP[ep].DeviceDescBank[OUT].PCKSIZE.bit.MULTI_PACKET_SIZE = size;
@@ -670,14 +656,14 @@ void usb_control_stall(void)
 
 
 //-----------------------------------------------------------------------------
-void usb_control_send(uint8_t *data, int size)
+void usb_control_send(uint8_t *data, size_t size)
 {
     // USB controller does not have access to the flash memory, so here we do
     // a manual multi-packet transfer. This way data can be located in in
     // the flash memory (big constant descriptors).
 
     while (size) {
-        int transfer_size = MIN(size, usb_device_descriptor.bMaxPacketSize0);
+        size_t transfer_size = MIN(size, usb_device_descriptor.bMaxPacketSize0);
 
         for (uint16_t i = 0; i < transfer_size; i++) {
             usb_ctrl_in_buf[i] = data[i];
@@ -706,7 +692,7 @@ void usb_control_recv(usb_recv_callback_t callback)
 
 
 //-----------------------------------------------------------------------------
-void usb_set_endpoint_callback(int ep, usb_ep_callback_t callback)
+void usb_set_endpoint_callback(uint8_t ep, usb_ep_callback_t callback)
 {
     ep_callbacks[ep] = callback;
 }
