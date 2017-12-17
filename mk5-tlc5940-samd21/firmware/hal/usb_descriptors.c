@@ -4,6 +4,7 @@
 #include "hal_usb.h"
 #include "usb_descriptors.h"
 
+char usb_serial_number[33];
 
 const alignas(4) usb_device_descriptor_t usb_device_descriptor =
 {
@@ -14,8 +15,8 @@ const alignas(4) usb_device_descriptor_t usb_device_descriptor =
   .bDeviceSubClass    = 0,
   .bDeviceProtocol    = 0,
   .bMaxPacketSize0    = 64,
-  .idVendor           = 0x6666,
-  .idProduct          = 0x8888,
+  .idVendor           = 0x6666,   // Prototype Vendor ID
+  .idProduct          = 0xcab1,   // Chosen PID
   .bcdDevice          = 0x0100,
   .iManufacturer      = USB_STR_MANUFACTURER,
   .iProduct           = USB_STR_PRODUCT,
@@ -135,7 +136,6 @@ const alignas(4) usb_language_descriptor_t usb_language_descriptor =
   .wLANGID               = 0x0409, // English (United States)
 };
 
-
 const char * const usb_strings[] =
 {
   [USB_STR_MANUFACTURER]  = "LANE Boys RC",
@@ -143,8 +143,5 @@ const char * const usb_strings[] =
   [USB_STR_SERIAL_NUMBER] = usb_serial_number,
 };
 
-char usb_serial_number[16];
 
-
-alignas(4) uint8_t usb_string_descriptor_buffer[64];
 

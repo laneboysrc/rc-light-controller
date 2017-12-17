@@ -265,12 +265,7 @@ void HAL_hardware_init(bool is_servo_reader, bool servo_output_enabled, bool uar
     EVSYS->CTRL.reg = EVSYS_CTRL_GCLKREQ;
 
 
-    // ------------------------------------------------
-    USB->DEVICE.PADCAL.bit.TRANSN = NVM_GET_CALIBRATION_VALUE(USB_TRANSN);
-    USB->DEVICE.PADCAL.bit.TRANSP = NVM_GET_CALIBRATION_VALUE(USB_TRANSP);
-    USB->DEVICE.PADCAL.bit.TRIM   = NVM_GET_CALIBRATION_VALUE(USB_TRIM);
-    usb_init();
-    usb_cdc_init();
+
 
 
     // ------------------------------------------------
@@ -293,6 +288,12 @@ void SysTick_Handler(void)
 void HAL_hardware_init_final(void)
 {
     // Nothing to do...
+    // ------------------------------------------------
+    USB->DEVICE.PADCAL.bit.TRANSN = NVM_GET_CALIBRATION_VALUE(USB_TRANSN);
+    USB->DEVICE.PADCAL.bit.TRANSP = NVM_GET_CALIBRATION_VALUE(USB_TRANSP);
+    USB->DEVICE.PADCAL.bit.TRIM   = NVM_GET_CALIBRATION_VALUE(USB_TRIM);
+    usb_init();
+    usb_cdc_init();
 }
 
 

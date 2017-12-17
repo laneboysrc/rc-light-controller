@@ -16,8 +16,8 @@ static void usb_cdc_ep_send_callback(int size);
 static void usb_cdc_ep_recv_callback(int size);
 
 
-bool usb_class_handle_request(usb_request_t *request);
-void usb_set_callback(int ep, void (*callback)(int size));
+bool usb_handle_class_request(usb_request_t *request);
+void usb_set_endpoint_callback(int ep, void (*callback)(int size));
 void usb_send(int ep, uint8_t *data, int size);
 void usb_recv(int ep, uint8_t *data, int size);
 void usb_control_recv(void (*callback)(uint8_t *data, int size));
@@ -129,9 +129,9 @@ void usb_cdc_control_line_state_update(int line_state)
 //-----------------------------------------------------------------------------
 void usb_cdc_init(void)
 {
-  usb_set_callback(USB_CDC_EP_COMM, usb_cdc_ep_comm_callback);
-  usb_set_callback(USB_CDC_EP_SEND, usb_cdc_ep_send_callback);
-  usb_set_callback(USB_CDC_EP_RECV, usb_cdc_ep_recv_callback);
+  usb_set_endpoint_callback(USB_CDC_EP_COMM, usb_cdc_ep_comm_callback);
+  usb_set_endpoint_callback(USB_CDC_EP_SEND, usb_cdc_ep_send_callback);
+  usb_set_endpoint_callback(USB_CDC_EP_RECV, usb_cdc_ep_recv_callback);
 
   usb_cdc_notify_message.request.bmRequestType = USB_IN_TRANSFER |
       USB_INTERFACE_RECIPIENT | USB_CLASS_REQUEST;
@@ -240,10 +240,10 @@ static void usb_cdc_set_line_coding_handler(uint8_t *data, int size)
 }
 
 //-----------------------------------------------------------------------------
-bool usb_class_handle_request(usb_request_t *request)
+bool usb_handle_class_request(usb_request_t *request)
 {
   unsigned int length = request->wLength;
-    printf("usb_class_handle_request\n");
+    printf("usb_handle_class_request\n");
 
   switch ((request->bRequest << 8) | request->bmRequestType)
   {

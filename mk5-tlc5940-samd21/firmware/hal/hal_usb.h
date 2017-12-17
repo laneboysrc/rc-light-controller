@@ -2,7 +2,6 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-// #include "utils.h"
 
 #define USB_CMD(dir, rcpt, type, cmd) \
     ((USB_##cmd << 8) | (USB_##dir##_TRANSFER << 7) | \
