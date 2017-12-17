@@ -13,23 +13,24 @@
 #define CDC_SET_LINE_CODING 0x20
 #define CDC_GET_LINE_CODING 0x21
 #define CDC_SET_CONTROL_LINE_STATE 0x22
+#define CDC_SEND_BREAK 0x23
 
 
 
 typedef void (* usb_recv_callback_t)(uint8_t *data, size_t size);
 
-void usb_set_endpoint_callback(uint8_t ep, void (*callback)(size_t size));
-void usb_send(uint8_t ep, uint8_t *data, size_t size);
-void usb_recv(uint8_t ep, uint8_t *data, size_t size);
-void usb_control_recv(usb_recv_callback_t callback);
-void usb_control_send(uint8_t *data, size_t size);
-void usb_control_send_zlp(void);
+extern void usb_set_endpoint_callback(uint8_t ep, void (*callback)(size_t size));
+extern void usb_send(uint8_t ep, uint8_t *data, size_t size);
+extern void usb_recv(uint8_t ep, uint8_t *data, size_t size);
+extern void usb_control_recv(usb_recv_callback_t callback);
+extern void usb_control_send(uint8_t *data, size_t size);
+extern void usb_control_send_zlp(void);
 
 bool usb_cdc_handle_class_request(usb_request_t *request);
 void usb_cdc_configuration_callback(uint8_t config);
 
 
-static void usb_cdc_send_state_notify(void);
+// static void usb_cdc_send_state_notify(void);
 static void comm_callback(size_t size);
 static void send_callback(size_t size);
 static void recv_callback(size_t size);
@@ -203,14 +204,10 @@ static void recv_callback(size_t size)
 
     // Dummy transfer to see if sending works
     if (app_recv_buffer[0] == '*') {
-        app_send_buffer[0] = 'H';
-        app_send_buffer[1] = 'e';
-        app_send_buffer[2] = 'l';
-        app_send_buffer[3] = 'l';
-        app_send_buffer[4] = 'o';
-        app_send_buffer[5] = '\n';
-        // usb_cdc_send(app_send_buffer, 6);
-        usb_send(USB_CDC_EP_SEND, app_send_buffer, 6);
+        static alignas(4) const char *message = "Hello world!\n";
+
+        sprintf((char *)app_send_buffer, message);
+        usb_send(USB_CDC_EP_SEND, app_send_buffer, 13);
     }
 }
 
@@ -233,8 +230,6 @@ bool usb_cdc_handle_class_request(usb_request_t *request)
     unsigned int length = request->wLength;
     printf("usb_cdc_handle_class_request\n");
 
-    // FIXME: handle BREAK?
-
     switch (request->bRequest) {
         case CDC_GET_LINE_CODING:
             length = MIN(length, sizeof(usb_cdc_line_coding_t));
@@ -251,7 +246,13 @@ bool usb_cdc_handle_class_request(usb_request_t *request)
             usb_control_send_zlp();
             return true;
 
+        case CDC_SEND_BREAK:
+            printf("CDC_SEND_BREAK %d\n", request->wValue);
+            usb_control_send_zlp();
+            return true;
+
         default:
+            printf("Unhanled class request %d\n", request->bRequest);
             return false;
     }
 }
