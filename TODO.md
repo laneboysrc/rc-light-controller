@@ -32,6 +32,23 @@
 
 ## MK5
 
+* Use DFU, using existing WebUSB DFU implementation
+
+* Use USB stack from https://github.com/kevinmehall/usb
+  - Sample at https://github.com/tessel/t2-firmware
+
+* Use gnu99 CFLAG, allows u"" strings for USB
+
+* Look at GPIO HAL from T2, e.g. pin_low, pin_out, ...
+
+* Low interrupt priority for Systick
+
+* Use DMA for UART TX?
+
+
+
+* Use Watchdog
+
 * Trigger bootloader from CDC like Arduino (1200 BAUD, DTR low)
     * Can we also detect BOSSAC?
     * Can we make a simple board manager compatible thing to integrate in Arduino?

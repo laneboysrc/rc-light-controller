@@ -86,7 +86,7 @@ DEPENDENCIES += makefile
 CPU_FLAGS = -mthumb -mcpu=cortex-m0plus
 
 CFLAGS += $(CPU_FLAGS)
-CFLAGS += -std=c99
+CFLAGS += -std=gnu99
 CFLAGS += -Os
 CFLAGS += -g
 CFLAGS += -W -Wall -Wextra -Wpedantic
