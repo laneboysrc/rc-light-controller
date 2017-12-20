@@ -38,45 +38,6 @@ alignas(4) uint8_t usbserial_buf_in[BUF_SIZE];
 alignas(4) uint8_t usbserial_buf_out[BUF_SIZE];
 alignas(4) uint8_t ep0_buffer[146];
 
-static void usbserial_init(void)
-{
-    printf("usbserial_init\n");
-    usb_enable_ep(USB_EP_CDC_NOTIFICATION, USB_EP_TYPE_INTERRUPT, 8);
-    usb_enable_ep(USB_EP_CDC_OUT, USB_EP_TYPE_BULK, 64);
-    usb_enable_ep(USB_EP_CDC_IN, USB_EP_TYPE_BULK, 64);
-
-    usb_ep_start_out(USB_EP_CDC_OUT, usbserial_buf_out, BUF_SIZE);
-}
-
-
-static void usbserial_out_completion(void)
-{
-    uint32_t len = usb_ep_out_length(USB_EP_CDC_OUT);
-
-    printf("usbserial_out_completion %d \"", len);
-    for (uint32_t i = 0; i < len ; i++) {
-        HAL_putc(STDOUT_DEBUG, usbserial_buf_out[i]);
-    }
-    printf("\"\n");
-
-    if (usbserial_buf_out[0] == '*') {
-
-        sprintf((char *)usbserial_buf_in, "Hello world\n");
-        usb_ep_start_in(USB_EP_CDC_IN, usbserial_buf_in, 12, false);
-    }
-
-    usb_ep_start_out(USB_EP_CDC_OUT, usbserial_buf_out, BUF_SIZE);
-}
-
-static void usbserial_in_completion(void)
-{
-    printf("usbserial_in_completion\n");
-}
-
-
-
-
-
 __attribute__((__aligned__(4))) const USB_DeviceDescriptor device_descriptor = {
     .bLength = sizeof(USB_DeviceDescriptor),
     .bDescriptorType = USB_DTYPE_Device,
@@ -217,23 +178,44 @@ alignas(4) const ConfigDesc configuration_descriptor = {
     }
 };
 
-alignas(4) const USB_StringDescriptor language_string = {
+
+typedef struct {
+    uint8_t bLength;
+    uint8_t bDescriptorType;
+    __CHAR16_TYPE__ bString[1];
+} __attribute__ ((packed)) language_string_t;
+
+alignas(4) const language_string_t language_string = {
     .bLength = USB_STRING_LEN(1),
     .bDescriptorType = USB_DTYPE_String,
-    .bString = {USB_LANGUAGE_EN_US},
+    .bString = { USB_LANGUAGE_EN_US }
 };
 
-// #define MSFT_ID_STR u"\xEE"
 
-alignas(4) const USB_StringDescriptor msft_os = {
+typedef struct {
+    uint8_t bLength;
+    uint8_t bDescriptorType;
+    __CHAR16_TYPE__ bString[8];
+} __attribute__((packed)) msft_os_t;
+
+alignas(4) const msft_os_t msft_os = {
     .bLength = 18,
     .bDescriptorType = USB_DTYPE_String,
-    .bString = u"MSFT100" u"\xEE"
+    .bString = { u"MSFT100\xEE" }
 };
 
 
+typedef struct {
+    uint32_t dwLength;
+    uint16_t bcdVersion;
+    uint16_t wIndex;
+    uint8_t bCount;
+    uint8_t reserved[7];
+    USB_MicrosoftCompatibleDescriptor_Interface interfaces[2];
+} __attribute__((packed)) msft_compatible_t;
 
-const USB_MicrosoftCompatibleDescriptor msft_compatible = {
+
+const msft_compatible_t msft_compatible = {
     .dwLength = sizeof(USB_MicrosoftCompatibleDescriptor) + (2 * sizeof(USB_MicrosoftCompatibleDescriptor_Interface)),
     .bcdVersion = 0x0100,
     .wIndex = 0x0004,
@@ -284,6 +266,99 @@ const USB_MicrosoftExtendedPropertiesDescriptor msft_extended = {
     .data = u"{3c33bbfd-71f9-4815-8b8f-7cd1ef928b3d}\0\0",
 };
 
+
+
+
+
+
+
+static void usbserial_init(void)
+{
+    printf("usbserial_init\n");
+    usb_enable_ep(USB_EP_CDC_NOTIFICATION, USB_EP_TYPE_INTERRUPT, 8);
+    usb_enable_ep(USB_EP_CDC_OUT, USB_EP_TYPE_BULK, 64);
+    usb_enable_ep(USB_EP_CDC_IN, USB_EP_TYPE_BULK, 64);
+
+    usb_ep_start_out(USB_EP_CDC_OUT, usbserial_buf_out, BUF_SIZE);
+}
+
+
+static void usbserial_out_completion(void)
+{
+    uint32_t len = usb_ep_out_length(USB_EP_CDC_OUT);
+
+    printf("usbserial_out_completion %d \"", len);
+    for (uint32_t i = 0; i < len ; i++) {
+        HAL_putc(STDOUT_DEBUG, usbserial_buf_out[i]);
+    }
+    printf("\"\n");
+
+    if (usbserial_buf_out[0] == '*') {
+
+        sprintf((char *)usbserial_buf_in, "Hello world\n");
+        usb_ep_start_in(USB_EP_CDC_IN, usbserial_buf_in, 12, false);
+    }
+
+    usb_ep_start_out(USB_EP_CDC_OUT, usbserial_buf_out, BUF_SIZE);
+}
+
+static void usbserial_in_completion(void)
+{
+    printf("usbserial_in_completion\n");
+}
+
+
+
+
+
+void dfu_cb_dnload_block(uint16_t block_num, uint16_t length) {
+    // if (usb_setup.wLength > DFU_TRANSFER_SIZE) {
+    //     dfu_error(DFU_STATUS_errUNKNOWN);
+    //     return;
+    // }
+
+    // if (block_num * DFU_TRANSFER_SIZE > FLASH_FW_SIZE) {
+    //     dfu_error(DFU_STATUS_errADDRESS);
+    //     return;
+    // }
+
+    // nvm_erase_row(FLASH_FW_START + block_num * DFU_TRANSFER_SIZE);
+
+    // printf("dfu_cb_dnload_block %d len=%d\n", block_num, length);
+    (void) block_num;
+    (void) length;
+
+}
+
+void dfu_cb_dnload_packet_completed(uint16_t block_num, uint16_t offset, uint8_t* data, uint16_t length) {
+    // unsigned addr = FLASH_FW_START + block_num * DFU_TRANSFER_SIZE + offset;
+    // nvm_write_page(addr, data, length);
+    // printf("dfu_cb_dnload_packet_completed %d len=%d\n", block_num, length);
+    (void) offset;
+    (void) data;
+    (void) block_num;
+    (void) length;
+}
+
+unsigned dfu_cb_dnload_block_completed(uint16_t block_num, uint16_t length) {
+    // printf("dfu_cb_dnload_block_completed %d len=%d\n", block_num, length);
+    return 0;
+    (void) block_num;
+    (void) length;
+}
+
+
+void dfu_cb_manifest(void) {
+    printf("dfu_cb_manifest\n");
+    // exit_and_jump = 1;
+
+    dfu_reset();
+}
+
+
+
+
+
 uint16_t usb_cb_get_descriptor(uint8_t type, uint8_t index, const uint8_t** ptr) {
     const void* address = NULL;
     uint16_t size = 0;
@@ -304,6 +379,7 @@ uint16_t usb_cb_get_descriptor(uint8_t type, uint8_t index, const uint8_t** ptr)
         case USB_DTYPE_String:
             switch (index) {
                 case USB_STRING_LANGUAGE:
+                    // address = &language_string;
                     address = &language_string;
                     break;
 
@@ -320,7 +396,7 @@ uint16_t usb_cb_get_descriptor(uint8_t type, uint8_t index, const uint8_t** ptr)
                     break;
 
                 case USB_STRING_DFU:
-                    address = usb_string_to_descriptor((char *)"Flash 0x00000000");
+                    address = usb_string_to_descriptor((char *)"Flash");
                     break;
 
                 case MSFT_ID:
@@ -439,7 +515,7 @@ void usb_cb_control_setup(void) {
 
         switch(usb_setup.bRequest) {
             case MSFT_ID:
-                handle_msft_compatible(&msft_compatible, &msft_extended);
+                handle_msft_compatible((USB_MicrosoftCompatibleDescriptor *)&msft_compatible, &msft_extended);
                 return;
 
             default:
@@ -450,7 +526,7 @@ void usb_cb_control_setup(void) {
     else if (recipient == USB_RECIPIENT_DEVICE) {
         switch(usb_setup.bRequest) {
             case MSFT_ID:
-                handle_msft_compatible(&msft_compatible, &msft_extended);
+                handle_msft_compatible((USB_MicrosoftCompatibleDescriptor *)&msft_compatible, &msft_extended);
                 return;
 
             default:
@@ -522,51 +598,4 @@ bool usb_cb_set_interface(uint16_t interface, uint16_t new_altsetting) {
 
 
     return false;
-}
-
-
-
-void dfu_cb_dnload_block(uint16_t block_num, uint16_t length) {
-    // if (usb_setup.wLength > DFU_TRANSFER_SIZE) {
-    //     dfu_error(DFU_STATUS_errUNKNOWN);
-    //     return;
-    // }
-
-    // if (block_num * DFU_TRANSFER_SIZE > FLASH_FW_SIZE) {
-    //     dfu_error(DFU_STATUS_errADDRESS);
-    //     return;
-    // }
-
-    // nvm_erase_row(FLASH_FW_START + block_num * DFU_TRANSFER_SIZE);
-
-    // printf("dfu_cb_dnload_block %d len=%d\n", block_num, length);
-
-}
-
-void dfu_cb_dnload_packet_completed(uint16_t block_num, uint16_t offset, uint8_t* data, uint16_t length) {
-    // unsigned addr = FLASH_FW_START + block_num * DFU_TRANSFER_SIZE + offset;
-    // nvm_write_page(addr, data, length);
-    // printf("dfu_cb_dnload_packet_completed %d len=%d\n", block_num, length);
-    (void) offset;
-    (void) data;
-}
-
-unsigned dfu_cb_dnload_block_completed(uint16_t block_num, uint16_t length) {
-    // printf("dfu_cb_dnload_block_completed %d len=%d\n", block_num, length);
-    return 0;
-}
-
-
-// static void delay_ms(uint32_t ms)
-// {
-//     uint32_t start = milliseconds;
-
-//     while (milliseconds - start <= ms);
-// }
-
-void dfu_cb_manifest(void) {
-    printf("dfu_cb_manifest\n");
-    // exit_and_jump = 1;
-
-    dfu_reset();
 }
