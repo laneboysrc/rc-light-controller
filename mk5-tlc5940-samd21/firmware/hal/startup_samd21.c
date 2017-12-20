@@ -1,6 +1,6 @@
 #include <stdint.h>
 
-#include <hal.h>
+#include <samd21.h>
 
 // The entropy variable is a true random number generated from the random RAM
 // contents after power-up.
