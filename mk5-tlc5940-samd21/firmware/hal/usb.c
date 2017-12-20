@@ -20,6 +20,7 @@ USB_ENDPOINTS(3)
 #define USB_STRING_PRODUCT 2
 #define USB_STRING_SERIAL_NUMBER 3
 #define USB_STRING_DFU 4
+#define USB_STRING_MSFT 0xee
 
 #define MSFT_ID 0xee
 
@@ -195,13 +196,17 @@ alignas(4) const language_string_t language_string = {
 typedef struct {
     uint8_t bLength;
     uint8_t bDescriptorType;
-    __CHAR16_TYPE__ bString[8];
+    __CHAR16_TYPE__ bString[7];
+    uint8_t bVendorCode;
+    uint8_t bPadding;
 } __attribute__((packed)) msft_os_t;
 
 alignas(4) const msft_os_t msft_os = {
     .bLength = 18,
     .bDescriptorType = USB_DTYPE_String,
-    .bString = { u"MSFT100\xEE" }
+    .bString = { u"MSFT100" },
+    .bVendorCode = 0x42,
+    .bPadding = 0
 };
 
 
@@ -253,6 +258,7 @@ typedef struct {
     uint8_t _padding[2];
 } __attribute__((packed)) USB_MicrosoftExtendedPropertiesDescriptor;
 
+// FIXME: check this...
 const USB_MicrosoftExtendedPropertiesDescriptor msft_extended = {
     .dwLength = 146,
     .bcdVersion = 0x0100,
@@ -262,8 +268,8 @@ const USB_MicrosoftExtendedPropertiesDescriptor msft_extended = {
     .dwType = 7,
     .wNameLength = 42,
     .name = u"DeviceInterfaceGUIDs\0",
-    .dwDataLength = 80,
-    .data = u"{3c33bbfd-71f9-4815-8b8f-7cd1ef928b3d}\0\0",
+    .dwDataLength = 78,
+    .data = u"{3c33bbfd-71f9-4815-8b8f-7cd1ef928b3d}",
 };
 
 
@@ -396,10 +402,10 @@ uint16_t usb_cb_get_descriptor(uint8_t type, uint8_t index, const uint8_t** ptr)
                     break;
 
                 case USB_STRING_DFU:
-                    address = usb_string_to_descriptor((char *)"Flash");
+                    address = usb_string_to_descriptor((char *)"Firmware update");
                     break;
 
-                case MSFT_ID:
+                case USB_STRING_MSFT:
                     address = &msft_os;
                     break;
 
