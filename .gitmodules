@@ -1,0 +1,3 @@
+[submodule "mk5-tlc5940-samd21/firmware/libs/usb"]
+	path = mk5-tlc5940-samd21/firmware/libs/usb
+	url = https://github.com/kevinmehall/usb
