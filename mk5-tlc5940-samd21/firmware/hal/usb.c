@@ -10,7 +10,10 @@
 
 #define DFU_TRANSFER_SIZE (FLASH_PAGE_SIZE * 4)
 
-USB_ENDPOINTS(5)
+#define DFU_RUNTIME_PROTOCOL 1
+#define DFU_DFU_PROTOCOL 2
+
+USB_ENDPOINTS(3)
 
 #define USB_STRING_LANGUAGE 0
 #define USB_STRING_MANUFACTURER 1
@@ -201,7 +204,7 @@ alignas(4) const ConfigDesc configuration_descriptor = {
         .bNumEndpoints = 0,
         .bInterfaceClass = DFU_INTERFACE_CLASS,
         .bInterfaceSubClass = DFU_INTERFACE_SUBCLASS,
-        .bInterfaceProtocol = DFU_INTERFACE_PROTOCOL,
+        .bInterfaceProtocol = DFU_RUNTIME_PROTOCOL,
         .iInterface = USB_STRING_DFU
     },
     .DFU_functional = {
@@ -210,7 +213,7 @@ alignas(4) const ConfigDesc configuration_descriptor = {
         .bmAttributes = DFU_ATTR_CAN_DOWNLOAD | DFU_ATTR_WILL_DETACH,
         .wDetachTimeout = 0,
         .wTransferSize = DFU_TRANSFER_SIZE,
-        .bcdDFUVersion = 0x0101,
+        .bcdDFUVersion = 0x0110,
     }
 };
 
@@ -317,7 +320,7 @@ uint16_t usb_cb_get_descriptor(uint8_t type, uint8_t index, const uint8_t** ptr)
                     break;
 
                 case USB_STRING_DFU:
-                    address = usb_string_to_descriptor((char *)"DFU");
+                    address = usb_string_to_descriptor((char *)"Flash 0x00000000");
                     break;
 
                 case MSFT_ID:
@@ -378,6 +381,8 @@ static void handle_msft_compatible(
     usb_ep0_out();
 }
 
+static bool detach = false;
+
 void usb_cb_control_setup(void) {
     uint8_t recipient = usb_setup.bmRequestType & USB_REQTYPE_RECIPIENT_MASK;
 
@@ -385,9 +390,11 @@ void usb_cb_control_setup(void) {
     if (recipient == USB_RECIPIENT_INTERFACE) {
         // Forward all DFU related requests
         if (usb_setup.wIndex == USB_INTERFACE_DFU) {
-            // switch (usb_setup.bRequest) {
-            //     case DFU_DETACH:
-            //         printf("DFU_DETACH\n");
+            switch (usb_setup.bRequest) {
+                case DFU_DETACH:
+                    printf("DFU_DETACH\n");
+                    detach = true;
+                    return;
             //         break;
             //     case DFU_DNLOAD:
             //         printf("DFU_DNLOAD\n");
@@ -395,9 +402,24 @@ void usb_cb_control_setup(void) {
             //     case DFU_UPLOAD:
             //         printf("DFU_UPLOAD\n");
             //         break;
-            //     case DFU_GETSTATUS:
-            //         printf("DFU_GETSTATUS\n");
-            //         break;
+                case DFU_GETSTATUS:
+                    printf("DFU_GETSTATUS\n");
+                    // break;
+                    {
+                     uint8_t len = usb_setup.wLength;
+                     DFU_StatusResponse* status = (DFU_StatusResponse*) ep0_buf_in;
+                     if (len > sizeof(DFU_StatusResponse)) len = sizeof(DFU_StatusResponse);
+                     status->bStatus = 0; // OK
+                     status->bwPollTimeout[0] = (dfu_poll_timeout >>  0) & 0xFF;
+                     status->bwPollTimeout[1] = (dfu_poll_timeout >>  8) & 0xFF;
+                     status->bwPollTimeout[2] = (dfu_poll_timeout >> 16) & 0xFF;
+                     status->bState = 0; // APP IDLE
+                     status->iString = 0;
+                     usb_ep0_in(len);
+                     usb_ep0_out();
+                    }
+                    return;
+
             //     case DFU_CLRSTATUS:
             //         printf("DFU_CLRSTATUS\n");
             //         break;
@@ -407,11 +429,11 @@ void usb_cb_control_setup(void) {
             //     case DFU_ABORT:
             //         printf("DFU_ABORT\n");
             //         break;
-            //     default:
-            //         printf("UNKNOWN: %d\n", usb_setup.bRequest);
-            //         break;
-            // }
-            dfu_control_setup();
+                default:
+                    // printf("UNKNOWN: %d\n", usb_setup.bRequest);
+                    break;
+            }
+            // dfu_control_setup();
             return;
         }
 
@@ -443,7 +465,7 @@ void usb_cb_control_setup(void) {
 void usb_cb_control_in_completion(void) {
     uint8_t recipient = usb_setup.bmRequestType & USB_REQTYPE_RECIPIENT_MASK;
 
-    // printf("usb_cb_control_in_completion\n");
+    printf("usb_cb_control_in_completion\n");
 
     if (recipient == USB_RECIPIENT_INTERFACE) {
         if (usb_setup.wIndex ==USB_INTERFACE_DFU) {
@@ -455,7 +477,13 @@ void usb_cb_control_in_completion(void) {
 void usb_cb_control_out_completion(void) {
     uint8_t recipient = usb_setup.bmRequestType & USB_REQTYPE_RECIPIENT_MASK;
 
-    // printf("usb_cb_control_out_completion\n");
+    printf("usb_cb_control_out_completion\n");
+
+    if (detach) {
+
+        usb_detach();
+    }
+
 
     if (recipient == USB_RECIPIENT_INTERFACE) {
         if (usb_setup.wIndex == USB_INTERFACE_DFU) {
@@ -488,7 +516,7 @@ bool usb_cb_set_interface(uint16_t interface, uint16_t new_altsetting) {
     }
 
     else if (interface == USB_INTERFACE_DFU) {
-        dfu_reset();
+        // dfu_reset();
         return true;
     }
 
