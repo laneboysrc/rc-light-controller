@@ -5,20 +5,35 @@
 #include <usb.h>
 #include <usb_samd.h>
 #include <class/cdc/cdc_standard.h>
+#include <class/dfu/dfu.h>
 #include <printf.h>
 
-USB_ENDPOINTS(3)
+#define DFU_TRANSFER_SIZE (FLASH_PAGE_SIZE * 4)
 
-#define USB_EP_CDC_NOTIFICATION 0x83
-#define USB_EP_CDC_IN           0x84
-#define USB_EP_CDC_OUT          0x04
+USB_ENDPOINTS(5)
 
+#define USB_STRING_LANGUAGE 0
+#define USB_STRING_MANUFACTURER 1
+#define USB_STRING_PRODUCT 2
+#define USB_STRING_SERIAL_NUMBER 3
+#define USB_STRING_DFU 4
 
+#define MSFT_ID 0xee
+
+#define USB_INTERFACE_CDC_CONTROL 0
+#define USB_INTERFACE_CDC_DATA 1
+#define USB_INTERFACE_DFU 2
+
+#define USB_EP0 (USB_IN + 0)
+#define USB_EP_CDC_NOTIFICATION (USB_IN + 1)
+#define USB_EP_CDC_IN (USB_IN + 2)
+#define USB_EP_CDC_OUT (USB_OUT + 3)
 
 #define BUF_SIZE 64
 
 alignas(4) uint8_t usbserial_buf_in[BUF_SIZE];
 alignas(4) uint8_t usbserial_buf_out[BUF_SIZE];
+alignas(4) uint8_t ep0_buffer[146];
 
 static void usbserial_init(void)
 {
@@ -34,7 +49,6 @@ static void usbserial_init(void)
 static void usbserial_out_completion(void)
 {
     uint32_t len = usb_ep_out_length(USB_EP_CDC_OUT);
-    // dma_sercom_start_tx(DMA_TERMINAL_TX, SERCOM_TERMINAL, usbserial_buf_out, len);
 
     printf("usbserial_out_completion %d \"", len);
     for (uint32_t i = 0; i < len ; i++) {
@@ -47,7 +61,6 @@ static void usbserial_out_completion(void)
         sprintf((char *)usbserial_buf_in, "Hello world\n");
         usb_ep_start_in(USB_EP_CDC_IN, usbserial_buf_in, 12, false);
     }
-
 
     usb_ep_start_out(USB_EP_CDC_OUT, usbserial_buf_out, BUF_SIZE);
 }
@@ -66,44 +79,27 @@ __attribute__((__aligned__(4))) const USB_DeviceDescriptor device_descriptor = {
     .bDescriptorType = USB_DTYPE_Device,
 
     .bcdUSB                 = 0x0200,
-    .bDeviceClass           = 0,
+    .bDeviceClass           = USB_CSCP_NoDeviceClass,
     .bDeviceSubClass        = USB_CSCP_NoDeviceSubclass,
     .bDeviceProtocol        = USB_CSCP_NoDeviceProtocol,
 
     .bMaxPacketSize0        = 64,
-    .idVendor               = 0x1209,
-    .idProduct              = 0x7551,
+    .idVendor               = 0x6666,
+    .idProduct              = 0xcab1,
     .bcdDevice              = 0x0111,
 
-    .iManufacturer          = 0x01,
-    .iProduct               = 0x02,
-    .iSerialNumber          = 0x03,
+    .iManufacturer          = USB_STRING_MANUFACTURER,
+    .iProduct               = USB_STRING_PRODUCT,
+    .iSerialNumber          = USB_STRING_SERIAL_NUMBER,
 
     .bNumConfigurations     = 1
 };
 
-uint16_t altsetting = 0;
-
-#define INTERFACE_VENDOR 0
-    #define ALTSETTING_FLASH 1
-    #define ALTSETTING_PIPE 2
-#define INTERFACE_CDC_CONTROL 1
-#define INTERFACE_CDC_DATA 2
 
 typedef struct ConfigDesc {
     USB_ConfigurationDescriptor Config;
-    // USB_InterfaceDescriptor OffInterface;
-
-    // USB_InterfaceDescriptor FlashInterface;
-    // USB_EndpointDescriptor FlashInEndpoint;
-    // USB_EndpointDescriptor FlashOutEndpoint;
-
-    // USB_InterfaceDescriptor PipeInterface;
-    // USB_EndpointDescriptor PipeInEndpoint;
-    // USB_EndpointDescriptor PipeOutEndpoint;
 
     USB_InterfaceDescriptor CDC_control_interface;
-
     CDC_FunctionalHeaderDescriptor CDC_functional_header;
     CDC_FunctionalACMDescriptor CDC_functional_ACM;
     CDC_FunctionalUnionDescriptor CDC_functional_union;
@@ -112,9 +108,13 @@ typedef struct ConfigDesc {
     USB_InterfaceDescriptor CDC_data_interface;
     USB_EndpointDescriptor CDC_out_endpoint;
     USB_EndpointDescriptor CDC_in_endpoint;
+
+    USB_InterfaceDescriptor DFU_interface;
+    DFU_FunctionalDescriptor DFU_functional;
+
 }  __attribute__((packed)) ConfigDesc;
 
-__attribute__((__aligned__(4))) const ConfigDesc configuration_descriptor = {
+alignas(4) const ConfigDesc configuration_descriptor = {
     .Config = {
         .bLength = sizeof(USB_ConfigurationDescriptor),
         .bDescriptorType = USB_DTYPE_Configuration,
@@ -123,12 +123,13 @@ __attribute__((__aligned__(4))) const ConfigDesc configuration_descriptor = {
         .bConfigurationValue = 1,
         .iConfiguration = 0,
         .bmAttributes = USB_CONFIG_ATTR_BUSPOWERED,
-        .bMaxPower = USB_CONFIG_POWER_MA(500)
+        .bMaxPower = USB_CONFIG_POWER_MA(100)
     },
+
     .CDC_control_interface = {
         .bLength = sizeof(USB_InterfaceDescriptor),
         .bDescriptorType = USB_DTYPE_Interface,
-        .bInterfaceNumber = INTERFACE_CDC_CONTROL,
+        .bInterfaceNumber = USB_INTERFACE_CDC_CONTROL,
         .bAlternateSetting = 0,
         .bNumEndpoints = 1,
         .bInterfaceClass = CDC_INTERFACE_CLASS,
@@ -152,8 +153,8 @@ __attribute__((__aligned__(4))) const ConfigDesc configuration_descriptor = {
         .bLength = sizeof(CDC_FunctionalUnionDescriptor),
         .bDescriptorType = USB_DTYPE_CSInterface,
         .bDescriptorSubtype = CDC_SUBTYPE_UNION,
-        .bMasterInterface = INTERFACE_CDC_CONTROL,
-        .bSlaveInterface = INTERFACE_CDC_DATA,
+        .bMasterInterface = USB_INTERFACE_CDC_CONTROL,
+        .bSlaveInterface = USB_INTERFACE_CDC_DATA,
     },
     .CDC_notification_endpoint = {
         .bLength = sizeof(USB_EndpointDescriptor),
@@ -163,10 +164,11 @@ __attribute__((__aligned__(4))) const ConfigDesc configuration_descriptor = {
         .wMaxPacketSize = 8,
         .bInterval = 0xFF
     },
+
     .CDC_data_interface = {
         .bLength = sizeof(USB_InterfaceDescriptor),
         .bDescriptorType = USB_DTYPE_Interface,
-        .bInterfaceNumber = INTERFACE_CDC_DATA,
+        .bInterfaceNumber = USB_INTERFACE_CDC_DATA,
         .bAlternateSetting = 0,
         .bNumEndpoints = 2,
         .bInterfaceClass = CDC_INTERFACE_CLASS_DATA,
@@ -190,31 +192,49 @@ __attribute__((__aligned__(4))) const ConfigDesc configuration_descriptor = {
         .wMaxPacketSize = 64,
         .bInterval = 0x05
     },
+
+    .DFU_interface = {
+        .bLength = sizeof(USB_InterfaceDescriptor),
+        .bDescriptorType = USB_DTYPE_Interface,
+        .bInterfaceNumber = USB_INTERFACE_DFU,
+        .bAlternateSetting = 0,
+        .bNumEndpoints = 0,
+        .bInterfaceClass = DFU_INTERFACE_CLASS,
+        .bInterfaceSubClass = DFU_INTERFACE_SUBCLASS,
+        .bInterfaceProtocol = DFU_INTERFACE_PROTOCOL,
+        .iInterface = USB_STRING_DFU
+    },
+    .DFU_functional = {
+        .bLength = sizeof(DFU_FunctionalDescriptor),
+        .bDescriptorType = DFU_DESCRIPTOR_TYPE,
+        .bmAttributes = DFU_ATTR_CAN_DOWNLOAD | DFU_ATTR_WILL_DETACH,
+        .wDetachTimeout = 0,
+        .wTransferSize = DFU_TRANSFER_SIZE,
+        .bcdDFUVersion = 0x0101,
+    }
 };
 
-__attribute__((__aligned__(4))) const USB_StringDescriptor language_string = {
+alignas(4) const USB_StringDescriptor language_string = {
     .bLength = USB_STRING_LEN(1),
     .bDescriptorType = USB_DTYPE_String,
     .bString = {USB_LANGUAGE_EN_US},
 };
 
-#define MSFT_ID 0xEE
-#define MSFT_ID_STR u"\xEE"
+// #define MSFT_ID_STR u"\xEE"
 
-__attribute__((__aligned__(4))) const USB_StringDescriptor msft_os = {
+alignas(4) const USB_StringDescriptor msft_os = {
     .bLength = 18,
     .bDescriptorType = USB_DTYPE_String,
-    .bString = u"MSFT100" MSFT_ID_STR
+    .bString = u"MSFT100" u"\xEE"
 };
 
-__attribute__((__aligned__(4))) uint8_t ep0_buffer[146];
 
-// TODO: this doesn't need to be in RAM if it is copied into usb_ep0_out one packet at a time
+
 const USB_MicrosoftCompatibleDescriptor msft_compatible = {
-    .dwLength = sizeof(USB_MicrosoftCompatibleDescriptor) + (3 * sizeof(USB_MicrosoftCompatibleDescriptor_Interface)),
+    .dwLength = sizeof(USB_MicrosoftCompatibleDescriptor) + (2 * sizeof(USB_MicrosoftCompatibleDescriptor_Interface)),
     .bcdVersion = 0x0100,
     .wIndex = 0x0004,
-    .bCount = 3,
+    .bCount = 2,
     .reserved = {0, 0, 0, 0, 0, 0, 0},
     .interfaces = {
         {
@@ -230,14 +250,7 @@ const USB_MicrosoftCompatibleDescriptor msft_compatible = {
             .compatibleID = "WINUSB\0\0",
             .subCompatibleID = {0, 0, 0, 0, 0, 0, 0, 0},
             .reserved2 = {0, 0, 0, 0, 0, 0},
-        },
-        {
-            .bFirstInterfaceNumber = 2,
-            .reserved1 = 0x01,
-            .compatibleID = "WINUSB\0\0",
-            .subCompatibleID = {0, 0, 0, 0, 0, 0, 0, 0},
-            .reserved2 = {0, 0, 0, 0, 0, 0},
-        },
+        }
     }
 };
 
@@ -279,25 +292,35 @@ uint16_t usb_cb_get_descriptor(uint8_t type, uint8_t index, const uint8_t** ptr)
             address = &device_descriptor;
             size    = sizeof(USB_DeviceDescriptor);
             break;
+
         case USB_DTYPE_Configuration:
             address = &configuration_descriptor;
-            size    = sizeof(ConfigDesc);
+            size = sizeof(ConfigDesc);
             break;
+
         case USB_DTYPE_String:
             switch (index) {
-                case 0x00:
+                case USB_STRING_LANGUAGE:
                     address = &language_string;
                     break;
-                case 0x01:
+
+                case USB_STRING_MANUFACTURER:
                     address = usb_string_to_descriptor((char *)"LANE Boys RC");
                     break;
-                case 0x02:
+
+                case USB_STRING_PRODUCT:
                     address = usb_string_to_descriptor((char *)"RC Light Controller");
                     break;
-                case 0x03:
+
+                case USB_STRING_SERIAL_NUMBER:
                     address = samd_serial_number_string_descriptor();
                     break;
-                case 0xee:
+
+                case USB_STRING_DFU:
+                    address = usb_string_to_descriptor((char *)"DFU");
+                    break;
+
+                case MSFT_ID:
                     address = &msft_os;
                     break;
 
@@ -329,8 +352,7 @@ bool usb_cb_set_configuration(uint8_t config) {
 }
 
 
-// TODO: Use the version in the USB library after making it handle descriptors larger than 64 bytes
-static inline void handle_msft_compatible(
+static void handle_msft_compatible(
     const USB_MicrosoftCompatibleDescriptor* msft_descriptor,
     const USB_MicrosoftExtendedPropertiesDescriptor* msft_extended_descriptor)
 {
@@ -347,33 +369,63 @@ static inline void handle_msft_compatible(
         usb_ep0_stall();
         return;
     }
+
     if (len > usb_setup.wLength) {
         len = usb_setup.wLength;
     }
-    usb_ep_start_in(0x80, ep0_buffer, len, true);
+
+    usb_ep_start_in(USB_EP0, ep0_buffer, len, true);
     usb_ep0_out();
 }
 
 void usb_cb_control_setup(void) {
     uint8_t recipient = usb_setup.bmRequestType & USB_REQTYPE_RECIPIENT_MASK;
 
-    printf("usb_cb_control_setup\n");
+    // printf("usb_cb_control_setup\n");
+    if (recipient == USB_RECIPIENT_INTERFACE) {
+        // Forward all DFU related requests
+        if (usb_setup.wIndex == USB_INTERFACE_DFU) {
+            // switch (usb_setup.bRequest) {
+            //     case DFU_DETACH:
+            //         printf("DFU_DETACH\n");
+            //         break;
+            //     case DFU_DNLOAD:
+            //         printf("DFU_DNLOAD\n");
+            //         break;
+            //     case DFU_UPLOAD:
+            //         printf("DFU_UPLOAD\n");
+            //         break;
+            //     case DFU_GETSTATUS:
+            //         printf("DFU_GETSTATUS\n");
+            //         break;
+            //     case DFU_CLRSTATUS:
+            //         printf("DFU_CLRSTATUS\n");
+            //         break;
+            //     case DFU_GETSTATE:
+            //         printf("DFU_GETSTATE\n");
+            //         break;
+            //     case DFU_ABORT:
+            //         printf("DFU_ABORT\n");
+            //         break;
+            //     default:
+            //         printf("UNKNOWN: %d\n", usb_setup.bRequest);
+            //         break;
+            // }
+            dfu_control_setup();
+            return;
+        }
 
-    if (recipient == USB_RECIPIENT_DEVICE) {
         switch(usb_setup.bRequest) {
             case MSFT_ID:
                 handle_msft_compatible(&msft_compatible, &msft_extended);
                 return;
-            // case REQ_PWR: return req_gpio(usb_setup.wIndex, usb_setup.wValue);
-            // case REQ_INFO: return req_info(usb_setup.wIndex);
-            // case REQ_BOOT: return req_boot();
-            // case REQ_RESET: return req_reset();
-            // case REQ_OPENWRT_BOOT_STATUS: return req_boot_status();
+
             default:
                 break;
         }
     }
-    else if (recipient == USB_RECIPIENT_INTERFACE) {
+
+    else if (recipient == USB_RECIPIENT_DEVICE) {
         switch(usb_setup.bRequest) {
             case MSFT_ID:
                 handle_msft_compatible(&msft_compatible, &msft_extended);
@@ -389,11 +441,27 @@ void usb_cb_control_setup(void) {
 }
 
 void usb_cb_control_in_completion(void) {
-    printf("usb_cb_control_in_completion\n");
+    uint8_t recipient = usb_setup.bmRequestType & USB_REQTYPE_RECIPIENT_MASK;
+
+    // printf("usb_cb_control_in_completion\n");
+
+    if (recipient == USB_RECIPIENT_INTERFACE) {
+        if (usb_setup.wIndex ==USB_INTERFACE_DFU) {
+            dfu_control_in_completion();
+        }
+    }
 }
 
 void usb_cb_control_out_completion(void) {
-    printf("usb_cb_control_out_completion\n");
+    uint8_t recipient = usb_setup.bmRequestType & USB_REQTYPE_RECIPIENT_MASK;
+
+    // printf("usb_cb_control_out_completion\n");
+
+    if (recipient == USB_RECIPIENT_INTERFACE) {
+        if (usb_setup.wIndex == USB_INTERFACE_DFU) {
+            dfu_control_out_completion();
+        }
+    }
 }
 
 void usb_cb_completion(void) {
@@ -411,34 +479,66 @@ void usb_cb_completion(void) {
 }
 
 bool usb_cb_set_interface(uint16_t interface, uint16_t new_altsetting) {
-    printf("usb_cb_set_interface\n");
-    if (interface == 0) {
-        // if (new_altsetting > 2) {
-        //     return false;
-        // }
+    (void) new_altsetting;
 
-        // if (altsetting == ALTSETTING_FLASH) {
-        //     flash_disable();
-        //     init_breathing_animation();
-        // } else if (altsetting == ALTSETTING_PIPE) {
-        //     usbpipe_disable();
-        // }
+    printf("usb_cb_set_interface %d\n", interface);
 
-        // if (altsetting != ALTSETTING_FLASH && new_altsetting == ALTSETTING_FLASH) {
-        //     bridge_disable();
-        // } else if (altsetting == ALTSETTING_FLASH && new_altsetting != ALTSETTING_FLASH) {
-        //     bridge_init();
-        // }
-
-        // if (new_altsetting == ALTSETTING_FLASH){
-        //     cancel_breathing_animation();
-        //     flash_init();
-        // } else if (booted && new_altsetting == ALTSETTING_PIPE) {
-        //     usbpipe_init();
-        // }
-
-        altsetting = new_altsetting;
+    if (interface == USB_INTERFACE_CDC_CONTROL) {
         return true;
     }
+
+    else if (interface == USB_INTERFACE_DFU) {
+        dfu_reset();
+        return true;
+    }
+
+
     return false;
+}
+
+
+
+void dfu_cb_dnload_block(uint16_t block_num, uint16_t length) {
+    // if (usb_setup.wLength > DFU_TRANSFER_SIZE) {
+    //     dfu_error(DFU_STATUS_errUNKNOWN);
+    //     return;
+    // }
+
+    // if (block_num * DFU_TRANSFER_SIZE > FLASH_FW_SIZE) {
+    //     dfu_error(DFU_STATUS_errADDRESS);
+    //     return;
+    // }
+
+    // nvm_erase_row(FLASH_FW_START + block_num * DFU_TRANSFER_SIZE);
+
+    // printf("dfu_cb_dnload_block %d len=%d\n", block_num, length);
+
+}
+
+void dfu_cb_dnload_packet_completed(uint16_t block_num, uint16_t offset, uint8_t* data, uint16_t length) {
+    // unsigned addr = FLASH_FW_START + block_num * DFU_TRANSFER_SIZE + offset;
+    // nvm_write_page(addr, data, length);
+    // printf("dfu_cb_dnload_packet_completed %d len=%d\n", block_num, length);
+    (void) offset;
+    (void) data;
+}
+
+unsigned dfu_cb_dnload_block_completed(uint16_t block_num, uint16_t length) {
+    // printf("dfu_cb_dnload_block_completed %d len=%d\n", block_num, length);
+    return 0;
+}
+
+
+// static void delay_ms(uint32_t ms)
+// {
+//     uint32_t start = milliseconds;
+
+//     while (milliseconds - start <= ms);
+// }
+
+void dfu_cb_manifest(void) {
+    printf("dfu_cb_manifest\n");
+    // exit_and_jump = 1;
+
+    dfu_reset();
 }
