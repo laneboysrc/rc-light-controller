@@ -201,7 +201,7 @@ clean:
 	$(ECHO) $(RM) -rf $(BUILD_DIR)
 
 debug: $(TARGET_ELF)
-	$(ECHO) $(GDB) -ex "target extended-remote | $(FLASH_TOOL) -f board/atmel_samr21_xplained_pro.cfg -c \"gdb_port pipe\"" -ex "load" --tui $<
+	$(ECHO) $(GDB) -q -ex "target extended-remote | $(FLASH_TOOL) -f board/atmel_samr21_xplained_pro.cfg -c \"gdb_port pipe\"" -ex "load" --tui $<
 
 
 
