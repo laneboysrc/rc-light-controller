@@ -2,11 +2,8 @@
 #include <stdio.h>
 
 #include <hal.h>
+#include <usb.h>
 #include <printf.h>
-
-#include <usb_api.h>
-#include <usb_cdc.h>
-
 
 
 static volatile bool new_raw_channel_data = false;
@@ -254,21 +251,21 @@ void SysTick_Handler(void)
 // ****************************************************************************
 void HAL_hardware_init_final(void)
 {
-    // Load USB calibration values from NVRAM
-    uint32_t *pad_transn_p = (uint32_t *)USB_FUSES_TRANSN_ADDR;
-    uint32_t *pad_transp_p = (uint32_t *)USB_FUSES_TRANSP_ADDR;
-    uint32_t *pad_trim_p   = (uint32_t *)USB_FUSES_TRIM_ADDR;
+    // // Load USB calibration values from NVRAM
+    // uint32_t *pad_transn_p = (uint32_t *)USB_FUSES_TRANSN_ADDR;
+    // uint32_t *pad_transp_p = (uint32_t *)USB_FUSES_TRANSP_ADDR;
+    // uint32_t *pad_trim_p   = (uint32_t *)USB_FUSES_TRIM_ADDR;
 
-    uint32_t pad_transn = (*pad_transn_p & USB_FUSES_TRANSN_Msk) >> USB_FUSES_TRANSN_Pos;
-    uint32_t pad_transp = (*pad_transp_p & USB_FUSES_TRANSP_Msk) >> USB_FUSES_TRANSP_Pos;
-    uint32_t pad_trim   = (*pad_trim_p   & USB_FUSES_TRIM_Msk  ) >> USB_FUSES_TRIM_Pos;
+    // uint32_t pad_transn = (*pad_transn_p & USB_FUSES_TRANSN_Msk) >> USB_FUSES_TRANSN_Pos;
+    // uint32_t pad_transp = (*pad_transp_p & USB_FUSES_TRANSP_Msk) >> USB_FUSES_TRANSP_Pos;
+    // uint32_t pad_trim   = (*pad_trim_p   & USB_FUSES_TRIM_Msk  ) >> USB_FUSES_TRIM_Pos;
 
-    USB->DEVICE.PADCAL.bit.TRANSN = pad_transn;
-    USB->DEVICE.PADCAL.bit.TRANSP = pad_transp;
-    USB->DEVICE.PADCAL.bit.TRIM   = pad_trim;
+    // USB->DEVICE.PADCAL.bit.TRANSN = pad_transn;
+    // USB->DEVICE.PADCAL.bit.TRANSP = pad_transp;
+    // USB->DEVICE.PADCAL.bit.TRIM   = pad_trim;
 
-    USB_init();
-    USB_CDC_init();
+    usb_init();
+    usb_attach();
 }
 
 
@@ -308,8 +305,6 @@ void HAL_service(void)
         fprintf(STDOUT_DEBUG, "Stack down to 0x%08x\n", (uint32_t)now);
     }
 #endif
-
-    USB_service();
 }
 
 

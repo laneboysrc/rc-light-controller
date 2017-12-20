@@ -62,13 +62,15 @@ SOURCES += $(SOURCE_PATH)/libs/printf/printf.c
 SOURCES += hal/hal_samd21.c
 SOURCES += hal/startup_samd21.c
 SOURCES += hal/usb.c
-SOURCES += hal/usb_cdc.c
-SOURCES += hal/usb_descriptors.c
+SOURCES += libs/usb/usb_requests.c
+SOURCES += libs/usb/samd/usb_samd.c
 
 INCLUDES += -I.
 INCLUDES += -I$(SOURCE_PATH)
 INCLUDES += -I./hal
 INCLUDES += -isystem./hal/samd21
+INCLUDES += -isystem./libs/usb
+INCLUDES += -isystem./libs/usb/samd
 INCLUDES += -isystem$(SOURCE_PATH)/libs/printf
 
 DEFINES += -D__SAMD21E15A__
@@ -96,17 +98,16 @@ CFLAGS += -Wold-style-definition -Wmissing-prototypes -Wmissing-declarations
 CFLAGS += -Wmissing-field-initializers -Wdouble-promotion -Wfloat-equal
 CFLAGS += -Wswitch-enum -Wswitch-default -Wuninitialized -Wunknown-pragmas
 CFLAGS += -Wundef
-CFLAGS += -fsigned-char
+CFLAGS += -funsigned-char
+CFLAGS += -funsigned-bitfields
 CFLAGS += -fdata-sections
 CFLAGS += -ffunction-sections
-CFLAGS += -fno-common
 CFLAGS += -fpack-struct=4
 CFLAGS += -MMD -MP -MT $(BUILD_DIR)/$(*F).o -MF $(BUILD_DIR)/$(@F).d
 CFLAGS += $(INCLUDES) $(DEFINES)
 
 LDFLAGS += $(CPU_FLAGS)
 LDFLAGS += -Wl,-T,$(LINKER_SCRIPT)
-LDFLAGS += -Wl,--warn-common
 LDFLAGS += -Wl,-nostdlib
 LDFLAGS += -Wl,--gc-sections
 LDFLAGS += -Wl,-Os
@@ -126,6 +127,9 @@ TARGET_MAP := $(addprefix $(BUILD_DIR)/, $(TARGET).map)
 
 $(OBJECTS): $(DEPENDENCIES)
 $(TARGET_MAP): $(TARGET_ELF)
+
+$(BUILD_DIR)/usb_requests.o: CFLAGS += -Wno-pedantic -Wno-missing-prototypes -Wno-switch-default -Wno-missing-declarations
+$(BUILD_DIR)/usb_samd.o: CFLAGS += -Wno-strict-prototypes -Wno-missing-prototypes
 
 
 ###############################################################################
