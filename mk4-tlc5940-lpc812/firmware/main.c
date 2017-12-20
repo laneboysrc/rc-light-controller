@@ -141,7 +141,7 @@ int main(void)
     HAL_hardware_init_final();
 
     next_tick = milliseconds + __SYSTICK_IN_MS;
-    fprintf(STDOUT_DEBUG, "Light controller initialized\n");
+    fprintf(STDOUT_DEBUG, "\n\n**********\nLight controller initialized\n");
 
     while (1) {
         service_systick();
