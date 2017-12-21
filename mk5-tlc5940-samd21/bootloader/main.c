@@ -6,7 +6,7 @@
 #include <flash_layout.h>
 #include <printf.h>
 
-// #define ENABLE_UART_DIAGNOSTICS
+#define ENABLE_UART_DIAGNOSTICS
 
 
 typedef struct {
@@ -283,6 +283,10 @@ static bool application_is_present(void)
 // ****************************************************************************
 static void bootloader(void)
 {
+    // Clear the value so that sub-sequent resets go back to load the
+    // application.
+    *magic_value = 0xffffffff;
+
     init_clock();
     init_systick();
 
@@ -317,9 +321,6 @@ static bool bootloader_requested(void)
     // the application and the bootloader know. If it does, the bootloader
     // knows that the app has requested for a firmware upgrade.
     if (*magic_value == BOOTLOADER_MAGIC) {
-        // Clear the value so that sub-sequent resets go back to load the
-        // application.
-        *magic_value = 0xffffffff;
         return true;
     }
 
@@ -352,8 +353,7 @@ static bool bootloader_requested(void)
         return false;
     }
 
-    // Second tap: we therefore activate the bootloader.
-    *magic_value = 0xffffffff;
+    // Second tap: activate the bootloader.
     return true;
 }
 
