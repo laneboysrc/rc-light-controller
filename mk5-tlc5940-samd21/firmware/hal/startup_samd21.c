@@ -6,7 +6,17 @@
 // contents after power-up.
 uint32_t entropy;
 
+
+// magic_value is a location in an unused RAM area that allows the application
+// to communicate with the bootloader.
+// The app writes a special value into this memory location which, when found
+// by the bootloader after reboot, causes the bootloader to stay in firmware
+// upgrade mode.
+//
 // Note: this address must be aligned to 4 bytes
+//
+// Since this file is utilized by both the application and the bootloader,
+// changing the address here updates both once recompiled.
 uint32_t * const magic_value = (uint32_t *)0x20000cac;
 
 

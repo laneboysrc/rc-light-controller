@@ -15,7 +15,13 @@ volatile uint32_t milliseconds;
 extern unsigned int _ram;
 extern unsigned int _stacktop;
 
+// magic_value is a location in an unused RAM area that allows the application
+// to communicate with the bootloader.
+// The app writes a special value into this memory location which, when found
+// by the bootloader after reboot, causes the bootloader to stay in firmware
+// upgrade mode.
 extern uint32_t * const magic_value;
+#define BOOTLOADER_MAGIC 0x47110815
 
 uint32_t saved_TCC0_cc_value = 1500;
 bool start_bootloader = false;
@@ -297,15 +303,22 @@ void HAL_service(void)
     if (start_bootloader) {
         uint32_t end = milliseconds + 50;
 
-        usb_detach();
         fprintf(STDOUT_DEBUG, "REBOOTING INTO BOOTLOADER\n");
+        usb_detach();
+
+        // Wait a short while ...
         while (milliseconds < end);
 
-        *magic_value = 0x47110815;
+        // Place a special value into a certain RAM location that is detected
+        // by the bootloader, so that it enters firmware upgrade mode
+        *magic_value = BOOTLOADER_MAGIC;
 
+        // Disable the interrupts as they are apparently not cleared by a
+        // system reset.
         NVIC_DisableIRQ(SERCOM0_IRQn);
         NVIC_DisableIRQ(USB_IRQn);
         NVIC_DisableIRQ(TCC0_IRQn);
+
         NVIC_SystemReset();
     }
 }
