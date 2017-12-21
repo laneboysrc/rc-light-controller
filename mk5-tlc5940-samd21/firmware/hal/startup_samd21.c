@@ -6,6 +6,9 @@
 // contents after power-up.
 uint32_t entropy;
 
+// Note: this address must be aligned to 4 bytes
+uint32_t * const magic_value = (uint32_t *)0x20000cac;
+
 
 // These are all defined by the linker via the linker script.
 extern unsigned int _text;
@@ -170,12 +173,14 @@ void Reset_Handler(void)
     }
 
 #ifndef NODEBUG
+#ifndef NO_STACK_CANARIES
     // Place stack canaries into RAM
     destination = &_ram;
     end = (unsigned int *)__get_MSP();
     while (destination < end) {
         *(destination++) = 0xcafebabe;
     }
+#endif
 #endif
 
     // FIXME: there seems to be a problem with initialization values?!?

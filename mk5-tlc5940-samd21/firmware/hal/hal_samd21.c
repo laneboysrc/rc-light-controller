@@ -9,13 +9,13 @@
 static volatile bool new_raw_channel_data = false;
 static uint32_t raw_data[3];
 
-
-
 volatile uint32_t milliseconds;
 
 // These are defined by the linker via the samd21e15.ld linker script.
 extern unsigned int _ram;
 extern unsigned int _stacktop;
+
+extern uint32_t * const magic_value;
 
 uint32_t saved_TCC0_cc_value = 1500;
 bool start_bootloader = false;
@@ -300,6 +300,12 @@ void HAL_service(void)
         usb_detach();
         fprintf(STDOUT_DEBUG, "REBOOTING INTO BOOTLOADER\n");
         while (milliseconds < end);
+
+        *magic_value = 0x47110815;
+
+        NVIC_DisableIRQ(SERCOM0_IRQn);
+        NVIC_DisableIRQ(USB_IRQn);
+        NVIC_DisableIRQ(TCC0_IRQn);
         NVIC_SystemReset();
     }
 }

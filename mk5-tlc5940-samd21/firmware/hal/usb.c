@@ -496,7 +496,7 @@ void usb_cb_control_setup(void) {
                     return;
 
                 default:
-                    break;
+                    return;
             }
         }
 
