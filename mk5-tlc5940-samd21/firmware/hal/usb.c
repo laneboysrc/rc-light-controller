@@ -39,6 +39,8 @@ alignas(4) uint8_t usbserial_buf_in[BUF_SIZE];
 alignas(4) uint8_t usbserial_buf_out[BUF_SIZE];
 alignas(4) uint8_t ep0_buffer[146];
 
+
+
 __attribute__((__aligned__(4))) const USB_DeviceDescriptor device_descriptor = {
     .bLength = sizeof(USB_DeviceDescriptor),
     .bDescriptorType = USB_DTYPE_Device,
@@ -361,6 +363,18 @@ void dfu_cb_manifest(void) {
     dfu_reset();
 }
 
+static void dfu_send_app_idle(void)
+{
+    DFU_StatusResponse* status = (DFU_StatusResponse*) ep0_buf_in;
+    status->bStatus = 0;                // OK
+    status->bwPollTimeout[0] = 0;
+    status->bwPollTimeout[1] = 0;
+    status->bwPollTimeout[2] = 0;
+    status->bState = 0;                 // APP IDLE
+    status->iString = 0;
+    usb_ep0_in(sizeof(DFU_StatusResponse));
+    usb_ep0_out();
+}
 
 
 
@@ -463,8 +477,6 @@ static void handle_msft_compatible(
     usb_ep0_out();
 }
 
-static bool detach = false;
-
 void usb_cb_control_setup(void) {
     uint8_t recipient = usb_setup.bmRequestType & USB_REQTYPE_RECIPIENT_MASK;
 
@@ -475,48 +487,17 @@ void usb_cb_control_setup(void) {
             switch (usb_setup.bRequest) {
                 case DFU_DETACH:
                     printf("DFU_DETACH\n");
-                    detach = true;
-                    return;
-            //         break;
-            //     case DFU_DNLOAD:
-            //         printf("DFU_DNLOAD\n");
-            //         break;
-            //     case DFU_UPLOAD:
-            //         printf("DFU_UPLOAD\n");
-            //         break;
-                case DFU_GETSTATUS:
-                    printf("DFU_GETSTATUS\n");
-                    // break;
-                    {
-                     uint8_t len = usb_setup.wLength;
-                     DFU_StatusResponse* status = (DFU_StatusResponse*) ep0_buf_in;
-                     if (len > sizeof(DFU_StatusResponse)) len = sizeof(DFU_StatusResponse);
-                     status->bStatus = 0; // OK
-                     status->bwPollTimeout[0] = (dfu_poll_timeout >>  0) & 0xFF;
-                     status->bwPollTimeout[1] = (dfu_poll_timeout >>  8) & 0xFF;
-                     status->bwPollTimeout[2] = (dfu_poll_timeout >> 16) & 0xFF;
-                     status->bState = 0; // APP IDLE
-                     status->iString = 0;
-                     usb_ep0_in(len);
-                     usb_ep0_out();
-                    }
+                    start_bootloader = true;
                     return;
 
-            //     case DFU_CLRSTATUS:
-            //         printf("DFU_CLRSTATUS\n");
-            //         break;
-            //     case DFU_GETSTATE:
-            //         printf("DFU_GETSTATE\n");
-            //         break;
-            //     case DFU_ABORT:
-            //         printf("DFU_ABORT\n");
-            //         break;
+                case DFU_GETSTATUS:
+                    printf("DFU_GETSTATUS\n");
+                    dfu_send_app_idle();
+                    return;
+
                 default:
-                    // printf("UNKNOWN: %d\n", usb_setup.bRequest);
                     break;
             }
-            // dfu_control_setup();
-            return;
         }
 
         switch(usb_setup.bRequest) {
@@ -561,12 +542,6 @@ void usb_cb_control_out_completion(void) {
 
     printf("usb_cb_control_out_completion\n");
 
-    if (detach) {
-
-        usb_detach();
-    }
-
-
     if (recipient == USB_RECIPIENT_INTERFACE) {
         if (usb_setup.wIndex == USB_INTERFACE_DFU) {
             dfu_control_out_completion();
@@ -605,3 +580,4 @@ bool usb_cb_set_interface(uint16_t interface, uint16_t new_altsetting) {
 
     return false;
 }
+

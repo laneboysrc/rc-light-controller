@@ -18,6 +18,7 @@ extern unsigned int _ram;
 extern unsigned int _stacktop;
 
 uint32_t saved_TCC0_cc_value = 1500;
+bool start_bootloader = false;
 
 __attribute__ ((section(".persistent_data")))
 static volatile const uint32_t persistent_data[HAL_NUMBER_OF_PERSISTENT_ELEMENTS];
@@ -292,6 +293,15 @@ void HAL_service(void)
         fprintf(STDOUT_DEBUG, "Stack down to 0x%08x\n", (uint32_t)now);
     }
 #endif
+
+    if (start_bootloader) {
+        uint32_t end = milliseconds + 50;
+
+        usb_detach();
+        fprintf(STDOUT_DEBUG, "REBOOTING INTO BOOTLOADER\n");
+        while (milliseconds < end);
+        NVIC_SystemReset();
+    }
 }
 
 
@@ -821,3 +831,4 @@ bool HAL_servo_reader_get_new_channels(uint32_t *out_us)
     out_us[2] = raw_data[2] / 2;
     return true;
 }
+
