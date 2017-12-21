@@ -8,8 +8,9 @@
 #include <class/dfu/dfu.h>
 #include <printf.h>
 
-#define DFU_TRANSFER_SIZE (FLASH_PAGE_SIZE * 4)
 
+// Transfer size conforms to one flash 'row', which consists of four 'pages'
+#define DFU_TRANSFER_SIZE (FLASH_PAGE_SIZE * 4)
 #define DFU_RUNTIME_PROTOCOL 1
 #define DFU_DFU_PROTOCOL 2
 
@@ -22,6 +23,7 @@ USB_ENDPOINTS(3)
 #define USB_STRING_DFU 4
 #define USB_STRING_MSFT 0xee
 
+// FIXME: is this the 'vendor id'?
 #define MSFT_ID 0xee
 
 #define USB_INTERFACE_CDC_CONTROL 0
@@ -40,26 +42,25 @@ alignas(4) uint8_t usbserial_buf_out[BUF_SIZE];
 alignas(4) uint8_t ep0_buffer[146];
 
 
-
 __attribute__((__aligned__(4))) const USB_DeviceDescriptor device_descriptor = {
     .bLength = sizeof(USB_DeviceDescriptor),
     .bDescriptorType = USB_DTYPE_Device,
 
-    .bcdUSB                 = 0x0200,
-    .bDeviceClass           = USB_CSCP_NoDeviceClass,
-    .bDeviceSubClass        = USB_CSCP_NoDeviceSubclass,
-    .bDeviceProtocol        = USB_CSCP_NoDeviceProtocol,
+    .bcdUSB = 0x0200,
+    .bDeviceClass = USB_CSCP_NoDeviceClass,
+    .bDeviceSubClass = USB_CSCP_NoDeviceSubclass,
+    .bDeviceProtocol = USB_CSCP_NoDeviceProtocol,
 
-    .bMaxPacketSize0        = 64,
-    .idVendor               = 0x6666,
-    .idProduct              = 0xcab1,
-    .bcdDevice              = 0x0111,
+    .bMaxPacketSize0 = 64,
+    .idVendor = 0x6666,
+    .idProduct = 0xcab1,
+    .bcdDevice = 0x0111,
 
-    .iManufacturer          = USB_STRING_MANUFACTURER,
-    .iProduct               = USB_STRING_PRODUCT,
-    .iSerialNumber          = USB_STRING_SERIAL_NUMBER,
+    .iManufacturer = USB_STRING_MANUFACTURER,
+    .iProduct = USB_STRING_PRODUCT,
+    .iSerialNumber = USB_STRING_SERIAL_NUMBER,
 
-    .bNumConfigurations     = 1
+    .bNumConfigurations = 1
 };
 
 
@@ -246,6 +247,7 @@ const msft_compatible_t msft_compatible = {
     }
 };
 
+
 typedef struct {
     uint32_t dwLength;
     uint16_t bcdVersion;
@@ -275,14 +277,37 @@ const USB_MicrosoftExtendedPropertiesDescriptor msft_extended = {
 };
 
 
+// ****************************************************************************
+static void handle_msft_compatible(
+    const USB_MicrosoftCompatibleDescriptor* msft_descriptor,
+    const USB_MicrosoftExtendedPropertiesDescriptor* msft_extended_descriptor)
+{
+    uint16_t len;
+    if (usb_setup.wIndex == 0x0005) {
+        len = msft_extended_descriptor->dwLength;
+        memcpy(ep0_buffer, msft_extended_descriptor, len);
+    }
+    else if (usb_setup.wIndex == 0x0004) {
+        len = msft_descriptor->dwLength;
+        memcpy(ep0_buffer, msft_descriptor, len);
+    }
+    else {
+        usb_ep0_stall();
+        return;
+    }
+
+    if (len > usb_setup.wLength) {
+        len = usb_setup.wLength;
+    }
+
+    usb_ep_start_in(USB_EP0, ep0_buffer, len, true);
+    usb_ep0_out();
+}
 
 
-
-
-
+// ****************************************************************************
 static void usbserial_init(void)
 {
-    printf("usbserial_init\n");
     usb_enable_ep(USB_EP_CDC_NOTIFICATION, USB_EP_TYPE_INTERRUPT, 8);
     usb_enable_ep(USB_EP_CDC_OUT, USB_EP_TYPE_BULK, 64);
     usb_enable_ep(USB_EP_CDC_IN, USB_EP_TYPE_BULK, 64);
@@ -291,6 +316,7 @@ static void usbserial_init(void)
 }
 
 
+// ****************************************************************************
 static void usbserial_out_completion(void)
 {
     uint32_t len = usb_ep_out_length(USB_EP_CDC_OUT);
@@ -310,59 +336,15 @@ static void usbserial_out_completion(void)
     usb_ep_start_out(USB_EP_CDC_OUT, usbserial_buf_out, BUF_SIZE);
 }
 
+
+// ****************************************************************************
 static void usbserial_in_completion(void)
 {
-    printf("usbserial_in_completion\n");
+    // Nothing to do
 }
 
 
-
-
-
-void dfu_cb_dnload_block(uint16_t block_num, uint16_t length) {
-    // if (usb_setup.wLength > DFU_TRANSFER_SIZE) {
-    //     dfu_error(DFU_STATUS_errUNKNOWN);
-    //     return;
-    // }
-
-    // if (block_num * DFU_TRANSFER_SIZE > FLASH_FW_SIZE) {
-    //     dfu_error(DFU_STATUS_errADDRESS);
-    //     return;
-    // }
-
-    // nvm_erase_row(FLASH_FW_START + block_num * DFU_TRANSFER_SIZE);
-
-    // printf("dfu_cb_dnload_block %d len=%d\n", block_num, length);
-    (void) block_num;
-    (void) length;
-
-}
-
-void dfu_cb_dnload_packet_completed(uint16_t block_num, uint16_t offset, uint8_t* data, uint16_t length) {
-    // unsigned addr = FLASH_FW_START + block_num * DFU_TRANSFER_SIZE + offset;
-    // nvm_write_page(addr, data, length);
-    // printf("dfu_cb_dnload_packet_completed %d len=%d\n", block_num, length);
-    (void) offset;
-    (void) data;
-    (void) block_num;
-    (void) length;
-}
-
-unsigned dfu_cb_dnload_block_completed(uint16_t block_num, uint16_t length) {
-    // printf("dfu_cb_dnload_block_completed %d len=%d\n", block_num, length);
-    return 0;
-    (void) block_num;
-    (void) length;
-}
-
-
-void dfu_cb_manifest(void) {
-    printf("dfu_cb_manifest\n");
-    // exit_and_jump = 1;
-
-    dfu_reset();
-}
-
+// ****************************************************************************
 static void dfu_send_app_idle(void)
 {
     DFU_StatusResponse* status = (DFU_StatusResponse*) ep0_buf_in;
@@ -377,8 +359,7 @@ static void dfu_send_app_idle(void)
 }
 
 
-
-
+// ****************************************************************************
 uint16_t usb_cb_get_descriptor(uint8_t type, uint8_t index, const uint8_t** ptr) {
     const void* address = NULL;
     uint16_t size = 0;
@@ -399,7 +380,6 @@ uint16_t usb_cb_get_descriptor(uint8_t type, uint8_t index, const uint8_t** ptr)
         case USB_DTYPE_String:
             switch (index) {
                 case USB_STRING_LANGUAGE:
-                    // address = &language_string;
                     address = &language_string;
                     break;
 
@@ -437,12 +417,15 @@ uint16_t usb_cb_get_descriptor(uint8_t type, uint8_t index, const uint8_t** ptr)
     return size;
 }
 
+
+// ****************************************************************************
 void usb_cb_reset(void) {
-    printf("usb_cb_reset\n");
+    // Nothing to do
 }
 
+
+// ****************************************************************************
 bool usb_cb_set_configuration(uint8_t config) {
-    printf("usb_cb_set_configuration\n");
     if (config <= 1) {
         usbserial_init();
         return true;
@@ -451,47 +434,19 @@ bool usb_cb_set_configuration(uint8_t config) {
 }
 
 
-static void handle_msft_compatible(
-    const USB_MicrosoftCompatibleDescriptor* msft_descriptor,
-    const USB_MicrosoftExtendedPropertiesDescriptor* msft_extended_descriptor)
-{
-    uint16_t len;
-    if (usb_setup.wIndex == 0x0005) {
-        len = msft_extended_descriptor->dwLength;
-        memcpy(ep0_buffer, msft_extended_descriptor, len);
-    }
-    else if (usb_setup.wIndex == 0x0004) {
-        len = msft_descriptor->dwLength;
-        memcpy(ep0_buffer, msft_descriptor, len);
-    }
-    else {
-        usb_ep0_stall();
-        return;
-    }
-
-    if (len > usb_setup.wLength) {
-        len = usb_setup.wLength;
-    }
-
-    usb_ep_start_in(USB_EP0, ep0_buffer, len, true);
-    usb_ep0_out();
-}
-
+// ****************************************************************************
 void usb_cb_control_setup(void) {
     uint8_t recipient = usb_setup.bmRequestType & USB_REQTYPE_RECIPIENT_MASK;
 
-    // printf("usb_cb_control_setup\n");
     if (recipient == USB_RECIPIENT_INTERFACE) {
         // Forward all DFU related requests
         if (usb_setup.wIndex == USB_INTERFACE_DFU) {
             switch (usb_setup.bRequest) {
                 case DFU_DETACH:
-                    printf("DFU_DETACH\n");
                     start_bootloader = true;
                     return;
 
                 case DFU_GETSTATUS:
-                    printf("DFU_GETSTATUS\n");
                     dfu_send_app_idle();
                     return;
 
@@ -525,33 +480,21 @@ void usb_cb_control_setup(void) {
     return;
 }
 
+
+// ****************************************************************************
 void usb_cb_control_in_completion(void) {
-    uint8_t recipient = usb_setup.bmRequestType & USB_REQTYPE_RECIPIENT_MASK;
-
-    printf("usb_cb_control_in_completion\n");
-
-    if (recipient == USB_RECIPIENT_INTERFACE) {
-        if (usb_setup.wIndex ==USB_INTERFACE_DFU) {
-            dfu_control_in_completion();
-        }
-    }
+    // Nothing to do
 }
 
+
+// ****************************************************************************
 void usb_cb_control_out_completion(void) {
-    uint8_t recipient = usb_setup.bmRequestType & USB_REQTYPE_RECIPIENT_MASK;
-
-    printf("usb_cb_control_out_completion\n");
-
-    if (recipient == USB_RECIPIENT_INTERFACE) {
-        if (usb_setup.wIndex == USB_INTERFACE_DFU) {
-            dfu_control_out_completion();
-        }
-    }
+    // Nothing to do
 }
 
-void usb_cb_completion(void) {
-    // printf("usb_cb_completion\n");
 
+// ****************************************************************************
+void usb_cb_completion(void) {
     if (usb_ep_pending(USB_EP_CDC_OUT)) {
         usbserial_out_completion();
         usb_ep_handled(USB_EP_CDC_OUT);
@@ -563,21 +506,18 @@ void usb_cb_completion(void) {
     }
 }
 
+
+// ****************************************************************************
 bool usb_cb_set_interface(uint16_t interface, uint16_t new_altsetting) {
     (void) new_altsetting;
 
-    printf("usb_cb_set_interface %d\n", interface);
+    switch (interface) {
+        case USB_INTERFACE_CDC_CONTROL:
+        case USB_INTERFACE_DFU:
+            return true;
 
-    if (interface == USB_INTERFACE_CDC_CONTROL) {
-        return true;
+        default:
+            return false;
     }
-
-    else if (interface == USB_INTERFACE_DFU) {
-        // dfu_reset();
-        return true;
-    }
-
-
-    return false;
 }
 

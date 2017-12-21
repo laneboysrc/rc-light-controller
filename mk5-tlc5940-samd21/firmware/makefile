@@ -64,7 +64,6 @@ SOURCES += hal/hal_samd21.c
 SOURCES += hal/startup_samd21.c
 SOURCES += hal/usb.c
 SOURCES += libs/usb/usb_requests.c
-SOURCES += libs/usb/class/dfu/dfu.c
 SOURCES += libs/usb/samd/usb_samd.c
 
 INCLUDES += -I.
@@ -133,7 +132,7 @@ $(TARGET_MAP): $(TARGET_ELF)
 
 # Remove certain warnings from the USB library
 $(BUILD_DIR)/usb_requests.o: CFLAGS += -Wno-pedantic -Wno-missing-prototypes -Wno-switch-default -Wno-missing-declarations
-$(BUILD_DIR)/dfu.o: CFLAGS += -Wno-pedantic -Wno-declaration-after-statement -Wno-switch-default
+# $(BUILD_DIR)/dfu.o: CFLAGS += -Wno-pedantic -Wno-declaration-after-statement -Wno-switch-default
 $(BUILD_DIR)/usb_samd.o: CFLAGS += -Wno-strict-prototypes -Wno-missing-prototypes
 
 
