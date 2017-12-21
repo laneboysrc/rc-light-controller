@@ -26,13 +26,15 @@ typedef struct {
 extern uint32_t _ram;
 extern uint32_t _eram;
 
-static volatile uint32_t milliseconds;
+extern uint32_t * const magic_value;
 
 static const gpio_t GPIO_TXD = { .port = 0, .bit = 4, .mux = UART_TXD_PMUX };
 static const gpio_t GPIO_USB_DM = { .port = 0, .bit = 24, .mux = PORT_PMUX_PMUXE_G_Val };
 static const gpio_t GPIO_USB_DP = { .port = 0, .bit = 25, .mux = PORT_PMUX_PMUXE_G_Val };
 
 bool bootloader_done = false;
+
+static volatile uint32_t milliseconds;
 
 // ****************************************************************************
 inline static void gpio_out(gpio_t gpio)
@@ -280,9 +282,21 @@ static void bootloader(void)
 
 
 // ****************************************************************************
+static bool bootloader_requested(void)
+{
+    if (*magic_value == 0x47110815) {
+        *magic_value = 0xffffffff;
+        return true;
+    }
+
+    return false;
+}
+
+
+// ****************************************************************************
 int main(void)
 {
-    if (!application_is_present()) {
+    if (bootloader_requested()  ||  !application_is_present()) {
         bootloader();
     }
 
