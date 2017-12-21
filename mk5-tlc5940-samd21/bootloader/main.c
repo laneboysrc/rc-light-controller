@@ -7,13 +7,6 @@
 #include <printf.h>
 
 
-#define UART_SERCOM SERCOM0
-#define UART_SERCOM_GCLK_ID SERCOM0_GCLK_ID_CORE
-#define UART_SERCOM_APBCMASK PM_APBCMASK_SERCOM0
-#define UART_TXD_PMUX PORT_PMUX_PMUXE_D_Val
-#define UART_RXD_PMUX PORT_PMUX_PMUXE_D_Val
-#define UART_TXD_PAD 0      // PAD0
-
 
 typedef struct {
     uint8_t bit;
@@ -21,20 +14,25 @@ typedef struct {
     uint8_t mux;
 } gpio_t;
 
-
-// These are all defined by the linker via the linker script.
-extern uint32_t _ram;
-extern uint32_t _eram;
-
-extern uint32_t * const magic_value;
-
-static const gpio_t GPIO_TXD = { .port = 0, .bit = 4, .mux = UART_TXD_PMUX };
+// static const gpio_t GPIO_TXD = { .port = 0, .bit = 4, .mux = PORT_PMUX_PMUXE_D_Val };
 static const gpio_t GPIO_USB_DM = { .port = 0, .bit = 24, .mux = PORT_PMUX_PMUXE_G_Val };
 static const gpio_t GPIO_USB_DP = { .port = 0, .bit = 25, .mux = PORT_PMUX_PMUXE_G_Val };
 
-bool bootloader_done = false;
+
+// magic_value is a location in an unused RAM area that allows the application
+// to communicate with the bootloader.
+// The app writes a special value into this memory location which, when found
+// by the bootloader after reboot, causes the bootloader to stay in firmware
+// upgrade mode.
+extern uint32_t * const magic_value;
+#define BOOTLOADER_MAGIC 0x47110815
+
+// Global flag that is set by the DFU class when a firmware upgrade has finished
+// and the MCU should be restarted.
+volatile bool bootloader_done = false;
 
 static volatile uint32_t milliseconds;
+
 
 // ****************************************************************************
 inline static void gpio_out(gpio_t gpio)
@@ -46,62 +44,62 @@ inline static void gpio_out(gpio_t gpio)
 // ****************************************************************************
 inline static void gpio_mux(gpio_t gpio)
 {
-    PORT->Group[gpio.port].PINCFG[gpio.bit].bit.PMUXEN = 1;
     if (gpio.bit & 1) {
         PORT->Group[gpio.port].PMUX[gpio.bit >> 1].bit.PMUXO = gpio.mux;
     }
     else {
         PORT->Group[gpio.port].PMUX[gpio.bit >> 1].bit.PMUXE = gpio.mux;
     }
+    PORT->Group[gpio.port].PINCFG[gpio.bit].bit.PMUXEN = 1;
 }
 
 
-// ****************************************************************************
-static void init_uart(uint32_t baudrate)
-{
-    #define UART_CLK 48000000
+// // ****************************************************************************
+// static void init_uart(uint32_t baudrate)
+// {
+//     #define UART_CLK 48000000
 
-    uint64_t brr = (uint64_t)65536 * (UART_CLK - 16 * baudrate) / UART_CLK;
+//     uint64_t brr = (uint64_t)65536 * (UART_CLK - 16 * baudrate) / UART_CLK;
 
-    gpio_out(GPIO_TXD);
-    gpio_mux(GPIO_TXD);
+//     gpio_out(GPIO_TXD);
+//     gpio_mux(GPIO_TXD);
 
-    // Turn on power to the USART peripheral
-    PM->APBCMASK.reg |= UART_SERCOM_APBCMASK;
+//     // Turn on power to the USART peripheral
+//     PM->APBCMASK.reg |= PM_APBCMASK_SERCOM0;
 
-    // Use GLKGEN0 (8 MHz) as clock source for the UART
-    GCLK->CLKCTRL.reg =
-        GCLK_CLKCTRL_ID(UART_SERCOM_GCLK_ID) |
-        GCLK_CLKCTRL_CLKEN |
-        GCLK_CLKCTRL_GEN(0);
+//     // Use GLKGEN0 (8 MHz) as clock source for the UART
+//     GCLK->CLKCTRL.reg =
+//         GCLK_CLKCTRL_ID(SERCOM0_GCLK_ID_CORE) |
+//         GCLK_CLKCTRL_GEN(0) |
+//         GCLK_CLKCTRL_CLKEN;
 
-    // Run UART from GCLK; Setup Tx pad
-    UART_SERCOM->USART.CTRLA.reg =
-        SERCOM_USART_CTRLA_DORD |
-        SERCOM_USART_CTRLA_MODE_USART_INT_CLK |
-        SERCOM_USART_CTRLA_TXPO(UART_TXD_PAD);
+//     // Run UART from GCLK; Setup Tx pad 0
+//     SERCOM0->USART.CTRLA.reg =
+//         SERCOM_USART_CTRLA_DORD |
+//         SERCOM_USART_CTRLA_MODE_USART_INT_CLK |
+//         SERCOM_USART_CTRLA_TXPO(0);
 
-    // Enable transmit only; 8 bit characters
-    UART_SERCOM->USART.CTRLB.reg =
-        SERCOM_USART_CTRLB_TXEN |
-        SERCOM_USART_CTRLB_CHSIZE(0);           // 8 bits
-    while (UART_SERCOM->USART.SYNCBUSY.reg);
+//     // Enable transmit only; 8 bit characters
+//     SERCOM0->USART.CTRLB.reg =
+//         SERCOM_USART_CTRLB_TXEN |
+//         SERCOM_USART_CTRLB_CHSIZE(0);
+//     while (SERCOM0->USART.SYNCBUSY.reg);
 
-    UART_SERCOM->USART.BAUD.reg = (uint16_t)brr;
-    while (UART_SERCOM->USART.SYNCBUSY.reg);
+//     SERCOM0->USART.BAUD.reg = (uint16_t)brr;
+//     while (SERCOM0->USART.SYNCBUSY.reg);
 
-    UART_SERCOM->USART.CTRLA.reg |= SERCOM_USART_CTRLA_ENABLE;
-    while (UART_SERCOM->USART.SYNCBUSY.reg);
-}
+//     SERCOM0->USART.CTRLA.reg |= SERCOM_USART_CTRLA_ENABLE;
+//     while (SERCOM0->USART.SYNCBUSY.reg);
+// }
 
 
-// ****************************************************************************
-static void uart_putc(void *p, char c)
-{
-    (void) p;
-    while (!(UART_SERCOM->USART.INTFLAG.reg & SERCOM_USART_INTFLAG_DRE));
-    UART_SERCOM->USART.DATA.reg = c;
-}
+// // ****************************************************************************
+// static void uart_putc(void *p, char c)
+// {
+//     (void) p;
+//     while (!(SERCOM0->USART.INTFLAG.reg & SERCOM_USART_INTFLAG_DRE));
+//     SERCOM0->USART.DATA.reg = c;
+// }
 
 
 // ****************************************************************************
@@ -121,6 +119,7 @@ void SysTick_Handler(void)
     ++milliseconds;
 }
 
+
 // ****************************************************************************
 static void delay_ms(uint32_t value_ms) {
     uint32_t end_ms = milliseconds + value_ms;
@@ -129,6 +128,7 @@ static void delay_ms(uint32_t value_ms) {
         __WFI();
     }
 }
+
 
 // ****************************************************************************
 static void init_clock(void)
@@ -199,14 +199,12 @@ static void init_usb(void)
     usb_attach();
 }
 
+
 // ****************************************************************************
-static void run_application(void)
+static inline void run_application(void)
 {
     uint32_t msp;
     uint32_t reset_vector;
-
-    msp = ((uint32_t *)FLASH_FIRMWARE_START)[0];
-    reset_vector = ((uint32_t *)FLASH_FIRMWARE_START)[1];
 
     // Disable all interrupts and the systick timer
     __disable_irq();
@@ -216,9 +214,11 @@ static void run_application(void)
     SCB->VTOR = FLASH_FIRMWARE_START & SCB_VTOR_TBLOFF_Msk;
 
     // Set up the stack pointer
+    msp = ((uint32_t *)FLASH_FIRMWARE_START)[0];
     __set_MSP(msp);
 
     // Jump to the application
+    reset_vector = ((uint32_t *)FLASH_FIRMWARE_START)[1];
     __asm__ volatile("bx %0" :: "r" (reset_vector));
 }
 
@@ -228,28 +228,38 @@ static bool application_is_present(void)
 {
     uint32_t sp;
     uint32_t pc;
-    uint32_t ram;
+    uint32_t ram_start;
     uint32_t ram_end;
+    uint32_t flash_start;
+    uint32_t flash_end;
 
     sp = ((uint32_t *)FLASH_FIRMWARE_START)[0];
     pc = ((uint32_t *)FLASH_FIRMWARE_START)[1];
-    ram = HMCRAMC0_ADDR;
+    ram_start = HMCRAMC0_ADDR;
     ram_end = HMCRAMC0_ADDR + HMCRAMC0_SIZE;
+    flash_start = FLASH_ADDR;
+    flash_end = FLASH_ADDR + FLASH_SIZE;
 
-    return ((sp >= ram)  &&  (sp <= ram_end)  &&  (pc < FLASH_SIZE));
+    // We examine the interrupt vector table.
+    // The application is assumed to be present when the initial stack pointer
+    // value points to a valid RAM location, and the reset vector points
+    // to a flash memory location.
+
+    return ((sp >= ram_start)  &&  (sp <= ram_end)  &&  (pc >= flash_start)  &&  (pc < flash_end));
 }
+
 
 // ****************************************************************************
 static void print_app_diagnostics(void)
 {
-    uint32_t sp;
-    uint32_t pc;
+    // uint32_t sp;
+    // uint32_t pc;
 
-    sp = ((uint32_t *)FLASH_FIRMWARE_START)[0];
-    pc = ((uint32_t *)FLASH_FIRMWARE_START)[1];
+    // sp = ((uint32_t *)FLASH_FIRMWARE_START)[0];
+    // pc = ((uint32_t *)FLASH_FIRMWARE_START)[1];
 
-    printf("MSP             0x%08x\n", sp);
-    printf("PC              0x%08x\n", pc);
+    // printf("MSP             0x%08x\n", sp);
+    // printf("PC              0x%08x\n", pc);
 }
 
 
@@ -258,22 +268,19 @@ static void bootloader(void)
 {
     init_clock();
     init_systick();
-    init_uart(115200);
-    init_printf(0, uart_putc);
+    // init_uart(115200);
+    // init_printf(0, uart_putc);
     init_usb();
 
-    printf("\n\n**********\nRC Light Controller Bootloader\n");
+    // printf("\n\n**********\nRC Light Controller Bootloader\n");
 
     print_app_diagnostics();
 
     while (!bootloader_done) {
-        if ((milliseconds % 1000) == 0) {
-            printf("%u\n", milliseconds / 1000);
-        }
         __WFI();
     }
 
-    printf("DFU completed, rebooting!\n");
+    // printf("DFU completed, rebooting!\n");
     delay_ms(25);
     usb_detach();
     delay_ms(100);
@@ -284,7 +291,12 @@ static void bootloader(void)
 // ****************************************************************************
 static bool bootloader_requested(void)
 {
-    if (*magic_value == 0x47110815) {
+    // Check if the special RAM location contains a magic value that both
+    // the application and the bootloader know. If it does, the bootloader
+    // knows that the app has requested for a firmware upgrade.
+    if (*magic_value == BOOTLOADER_MAGIC) {
+        // Clear the value so that sub-sequent resets go back to load the
+        // application.
         *magic_value = 0xffffffff;
         return true;
     }

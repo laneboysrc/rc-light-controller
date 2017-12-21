@@ -6,7 +6,6 @@
 #include <usb_samd.h>
 #include <class/dfu/dfu.h>
 #include <flash_layout.h>
-#include <printf.h>
 
 
 // We can only erase the flash in units of 'row', where each row consists of
@@ -29,16 +28,18 @@
 
 #define MSFT_ID 0xee
 
-
+// Declare the endpoints in use.
 USB_ENDPOINTS(1)
 
 alignas(4) uint8_t ep0_buffer[146];
 
-extern bool bootloader_done;
+// Global flag that is set by the DFU class when a firmware upgrade has finished
+// and the MCU should be restarted.
+extern volatile bool bootloader_done;
 
 
 
-__attribute__((__aligned__(4))) const USB_DeviceDescriptor device_descriptor = {
+alignas(4) const USB_DeviceDescriptor device_descriptor = {
     .bLength = sizeof(USB_DeviceDescriptor),
     .bDescriptorType = USB_DTYPE_Device,
 
@@ -188,6 +189,35 @@ const USB_MicrosoftExtendedPropertiesDescriptor msft_extended = {
 };
 
 
+// ****************************************************************************
+static void handle_msft_compatible(
+    const USB_MicrosoftCompatibleDescriptor* msft_descriptor,
+    const USB_MicrosoftExtendedPropertiesDescriptor* msft_extended_descriptor)
+{
+    uint16_t len;
+    if (usb_setup.wIndex == 0x0005) {
+        len = msft_extended_descriptor->dwLength;
+        memcpy(ep0_buffer, msft_extended_descriptor, len);
+    }
+    else if (usb_setup.wIndex == 0x0004) {
+        len = msft_descriptor->dwLength;
+        memcpy(ep0_buffer, msft_descriptor, len);
+    }
+    else {
+        usb_ep0_stall();
+        return;
+    }
+
+    if (len > usb_setup.wLength) {
+        len = usb_setup.wLength;
+    }
+
+    usb_ep_start_in(USB_EP0, ep0_buffer, len, true);
+    usb_ep0_out();
+}
+
+
+// ****************************************************************************
 void dfu_cb_dnload_block(uint16_t block_number, uint16_t length) {
     uint32_t address;
 
@@ -203,17 +233,15 @@ void dfu_cb_dnload_block(uint16_t block_number, uint16_t length) {
         return;
     }
 
-    printf("dfu_cb_dnload_block %d len=%d\n", block_number, length);
-
     // Erase the of flash memory row that corresponds to the given block_number
     address = FLASH_FIRMWARE_START + (block_number * DFU_TRANSFER_SIZE);
     NVMCTRL->ADDR.reg = address >> 1;
     NVMCTRL->CTRLA.reg = NVMCTRL_CTRLA_CMDEX_KEY | NVMCTRL_CTRLA_CMD(NVMCTRL_CTRLA_CMD_ER);
     while (!NVMCTRL->INTFLAG.bit.READY);
-
-    printf("done\n");
 }
 
+
+// ****************************************************************************
 void dfu_cb_dnload_packet_completed(uint16_t block_number, uint16_t offset, uint8_t* data, uint16_t length) {
     uint32_t address;
     uint32_t nvm_address;
@@ -238,33 +266,29 @@ void dfu_cb_dnload_packet_completed(uint16_t block_number, uint16_t offset, uint
     // Perform the write
     NVMCTRL->CTRLA.reg = NVMCTRL_CTRLA_CMDEX_KEY | NVMCTRL_CTRLA_CMD(NVMCTRL_CTRLA_CMD_WP);
     while (!NVMCTRL->INTFLAG.bit.READY);
-
-    printf("dfu_cb_dnload_packet_completed %d len=%d\n", block_number, length);
 }
 
+
+// ****************************************************************************
 unsigned dfu_cb_dnload_block_completed(uint16_t block_number, uint16_t length) {
     (void) block_number;
     (void) length;
-
-    printf("dfu_cb_dnload_block_completed %d len=%d\n", block_number, length);
     return 0;
 }
 
 
+// ****************************************************************************
 void dfu_cb_manifest(void) {
-    printf("dfu_cb_manifest\n");
+    // When we receive "manifest" from the host we detach from USB and reboot
+    // the MCU
     bootloader_done = true;
 }
 
 
-
-
-
+// ****************************************************************************
 uint16_t usb_cb_get_descriptor(uint8_t type, uint8_t index, const uint8_t** ptr) {
     const void* address = NULL;
     uint16_t size = 0;
-
-    // printf("usb_cb_get_descriptor\n");
 
     switch (type) {
         case USB_DTYPE_Device:
@@ -318,12 +342,15 @@ uint16_t usb_cb_get_descriptor(uint8_t type, uint8_t index, const uint8_t** ptr)
     return size;
 }
 
+
+// ****************************************************************************
 void usb_cb_reset(void) {
-    printf("usb_cb_reset\n");
+    // Nothing to do
 }
 
+
+// ****************************************************************************
 bool usb_cb_set_configuration(uint8_t config) {
-    printf("usb_cb_set_configuration\n");
     if (config <= 1) {
         return true;
     }
@@ -331,37 +358,25 @@ bool usb_cb_set_configuration(uint8_t config) {
 }
 
 
-static void handle_msft_compatible(
-    const USB_MicrosoftCompatibleDescriptor* msft_descriptor,
-    const USB_MicrosoftExtendedPropertiesDescriptor* msft_extended_descriptor)
-{
-    uint16_t len;
-    if (usb_setup.wIndex == 0x0005) {
-        len = msft_extended_descriptor->dwLength;
-        memcpy(ep0_buffer, msft_extended_descriptor, len);
-    }
-    else if (usb_setup.wIndex == 0x0004) {
-        len = msft_descriptor->dwLength;
-        memcpy(ep0_buffer, msft_descriptor, len);
-    }
-    else {
-        usb_ep0_stall();
-        return;
+// ****************************************************************************
+bool usb_cb_set_interface(uint16_t interface, uint16_t new_altsetting) {
+    (void) new_altsetting;
+
+    if (interface == USB_INTERFACE_DFU) {
+        // Reset the DFU interface
+        NVMCTRL->CTRLB.bit.MANW = 1;
+        dfu_reset();
+        return true;
     }
 
-    if (len > usb_setup.wLength) {
-        len = usb_setup.wLength;
-    }
-
-    usb_ep_start_in(USB_EP0, ep0_buffer, len, true);
-    usb_ep0_out();
+    return false;
 }
 
 
+// ****************************************************************************
 void usb_cb_control_setup(void) {
     uint8_t recipient = usb_setup.bmRequestType & USB_REQTYPE_RECIPIENT_MASK;
 
-    printf("usb_cb_control_setup\n");
     if (recipient == USB_RECIPIENT_INTERFACE) {
         // Forward all DFU related requests
         if (usb_setup.wIndex == USB_INTERFACE_DFU) {
@@ -396,6 +411,8 @@ void usb_cb_control_setup(void) {
     return;
 }
 
+
+// ****************************************************************************
 void usb_cb_control_in_completion(void) {
     uint8_t recipient = usb_setup.bmRequestType & USB_REQTYPE_RECIPIENT_MASK;
 
@@ -406,6 +423,8 @@ void usb_cb_control_in_completion(void) {
     }
 }
 
+
+// ****************************************************************************
 void usb_cb_control_out_completion(void) {
     uint8_t recipient = usb_setup.bmRequestType & USB_REQTYPE_RECIPIENT_MASK;
 
@@ -417,21 +436,7 @@ void usb_cb_control_out_completion(void) {
 }
 
 
+// ****************************************************************************
 void usb_cb_completion(void) {
-    // printf("usb_cb_completion\n");
-}
-
-
-bool usb_cb_set_interface(uint16_t interface, uint16_t new_altsetting) {
-    (void) new_altsetting;
-
-    printf("usb_cb_set_interface %d\n", interface);
-
-    if (interface == USB_INTERFACE_DFU) {
-        NVMCTRL->CTRLB.bit.MANW = 1;
-        dfu_reset();
-        return true;
-    }
-
-    return false;
+    // Nothing to do
 }

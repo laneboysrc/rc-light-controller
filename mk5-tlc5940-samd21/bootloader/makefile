@@ -25,7 +25,6 @@ GDB := arm-none-eabi-gdb
 
 MKDIR_P := mkdir -p
 FLASH_TOOL := openocd
-TERMINAL_PROGRAM := miniterm.py /dev/ttyACM0 115200
 
 
 ###############################################################################
