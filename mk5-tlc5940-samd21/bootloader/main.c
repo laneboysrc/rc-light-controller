@@ -6,6 +6,7 @@
 #include <flash_layout.h>
 #include <printf.h>
 
+// #define ENABLE_UART_DIAGNOSTICS
 
 
 typedef struct {
@@ -14,7 +15,6 @@ typedef struct {
     uint8_t mux;
 } gpio_t;
 
-// static const gpio_t GPIO_TXD = { .port = 0, .bit = 4, .mux = PORT_PMUX_PMUXE_D_Val };
 static const gpio_t GPIO_USB_DM = { .port = 0, .bit = 24, .mux = PORT_PMUX_PMUXE_G_Val };
 static const gpio_t GPIO_USB_DP = { .port = 0, .bit = 25, .mux = PORT_PMUX_PMUXE_G_Val };
 // static const gpio_t GPIO_LED = { .port = 0, .bit = 19 };
@@ -68,53 +68,70 @@ inline static void gpio_mux(gpio_t gpio)
 }
 
 
-// // ****************************************************************************
-// static void init_uart(uint32_t baudrate)
-// {
-//     #define UART_CLK 48000000
+#ifdef ENABLE_UART_DIAGNOSTICS
+static const gpio_t GPIO_TXD = { .port = 0, .bit = 4, .mux = PORT_PMUX_PMUXE_D_Val };
 
-//     uint64_t brr = (uint64_t)65536 * (UART_CLK - 16 * baudrate) / UART_CLK;
+// ****************************************************************************
+static void init_uart(uint32_t baudrate)
+{
+    #define UART_CLK 48000000
 
-//     gpio_out(GPIO_TXD);
-//     gpio_mux(GPIO_TXD);
+    uint64_t brr = (uint64_t)65536 * (UART_CLK - 16 * baudrate) / UART_CLK;
 
-//     // Turn on power to the USART peripheral
-//     PM->APBCMASK.reg |= PM_APBCMASK_SERCOM0;
+    gpio_out(GPIO_TXD);
+    gpio_mux(GPIO_TXD);
 
-//     // Use GLKGEN0 (8 MHz) as clock source for the UART
-//     GCLK->CLKCTRL.reg =
-//         GCLK_CLKCTRL_ID(SERCOM0_GCLK_ID_CORE) |
-//         GCLK_CLKCTRL_GEN(0) |
-//         GCLK_CLKCTRL_CLKEN;
+    // Turn on power to the USART peripheral
+    PM->APBCMASK.reg |= PM_APBCMASK_SERCOM0;
 
-//     // Run UART from GCLK; Setup Tx pad 0
-//     SERCOM0->USART.CTRLA.reg =
-//         SERCOM_USART_CTRLA_DORD |
-//         SERCOM_USART_CTRLA_MODE_USART_INT_CLK |
-//         SERCOM_USART_CTRLA_TXPO(0);
+    // Use GLKGEN0 (8 MHz) as clock source for the UART
+    GCLK->CLKCTRL.reg =
+        GCLK_CLKCTRL_ID(SERCOM0_GCLK_ID_CORE) |
+        GCLK_CLKCTRL_GEN(0) |
+        GCLK_CLKCTRL_CLKEN;
 
-//     // Enable transmit only; 8 bit characters
-//     SERCOM0->USART.CTRLB.reg =
-//         SERCOM_USART_CTRLB_TXEN |
-//         SERCOM_USART_CTRLB_CHSIZE(0);
-//     while (SERCOM0->USART.SYNCBUSY.reg);
+    // Run UART from GCLK; Setup Tx pad 0
+    SERCOM0->USART.CTRLA.reg =
+        SERCOM_USART_CTRLA_DORD |
+        SERCOM_USART_CTRLA_MODE_USART_INT_CLK |
+        SERCOM_USART_CTRLA_TXPO(0);
 
-//     SERCOM0->USART.BAUD.reg = (uint16_t)brr;
-//     while (SERCOM0->USART.SYNCBUSY.reg);
+    // Enable transmit only; 8 bit characters
+    SERCOM0->USART.CTRLB.reg =
+        SERCOM_USART_CTRLB_TXEN |
+        SERCOM_USART_CTRLB_CHSIZE(0);
+    while (SERCOM0->USART.SYNCBUSY.reg);
 
-//     SERCOM0->USART.CTRLA.reg |= SERCOM_USART_CTRLA_ENABLE;
-//     while (SERCOM0->USART.SYNCBUSY.reg);
-// }
+    SERCOM0->USART.BAUD.reg = (uint16_t)brr;
+    while (SERCOM0->USART.SYNCBUSY.reg);
+
+    SERCOM0->USART.CTRLA.reg |= SERCOM_USART_CTRLA_ENABLE;
+    while (SERCOM0->USART.SYNCBUSY.reg);
+}
 
 
-// // ****************************************************************************
-// static void uart_putc(void *p, char c)
-// {
-//     (void) p;
-//     while (!(SERCOM0->USART.INTFLAG.reg & SERCOM_USART_INTFLAG_DRE));
-//     SERCOM0->USART.DATA.reg = c;
-// }
+// ****************************************************************************
+static void uart_putc(void *p, char c)
+{
+    (void) p;
+    while (!(SERCOM0->USART.INTFLAG.reg & SERCOM_USART_INTFLAG_DRE));
+    SERCOM0->USART.DATA.reg = c;
+}
 
+
+// ****************************************************************************
+static void print_app_diagnostics(void)
+{
+    uint32_t sp;
+    uint32_t pc;
+
+    sp = ((uint32_t *)FLASH_FIRMWARE_START)[0];
+    pc = ((uint32_t *)FLASH_FIRMWARE_START)[1];
+
+    printf("MSP             0x%08x\n", sp);
+    printf("PC              0x%08x\n", pc);
+}
+#endif
 
 // ****************************************************************************
 static void init_systick(void)
@@ -264,37 +281,28 @@ static bool application_is_present(void)
 
 
 // ****************************************************************************
-static void print_app_diagnostics(void)
-{
-    // uint32_t sp;
-    // uint32_t pc;
-
-    // sp = ((uint32_t *)FLASH_FIRMWARE_START)[0];
-    // pc = ((uint32_t *)FLASH_FIRMWARE_START)[1];
-
-    // printf("MSP             0x%08x\n", sp);
-    // printf("PC              0x%08x\n", pc);
-}
-
-
-// ****************************************************************************
 static void bootloader(void)
 {
     init_clock();
     init_systick();
-    // init_uart(115200);
-    // init_printf(0, uart_putc);
-    init_usb();
 
-    // printf("\n\n**********\nRC Light Controller Bootloader\n");
-
+#ifdef ENABLE_UART_DIAGNOSTICS
+    init_uart(115200);
+    init_printf(0, uart_putc);
+    printf("\n\n**********\nRC Light Controller Bootloader\n");
     print_app_diagnostics();
+#endif
+
+    init_usb();
 
     while (!bootloader_done) {
         __WFI();
     }
 
-    // printf("DFU completed, rebooting!\n");
+#ifdef ENABLE_UART_DIAGNOSTICS
+    printf("DFU completed, rebooting!\n");
+#endif
+
     delay_ms(25);
     usb_detach();
     delay_ms(100);
