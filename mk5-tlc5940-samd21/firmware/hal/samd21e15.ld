@@ -22,14 +22,17 @@ SECTIONS
 
         . = ALIGN(4);
         *(.text*)
-        *(.rodata)
-        *(.rodata.*)
-
         KEEP(*(.init))
         KEEP(*(.fini))
 
         . =  ALIGN(4);
         _etext = .;
+    } > FLASH
+
+    .rodata : ALIGN(4)
+    {
+        *(.rodata)
+        *(.rodata.*)
     } > FLASH
 
     /* Section for libgcc */
