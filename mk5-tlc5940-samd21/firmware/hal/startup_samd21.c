@@ -7,7 +7,7 @@
 uint32_t entropy;
 
 
-// These are all defined by the linker via the samd11d14.ld linker script.
+// These are all defined by the linker via the linker script.
 extern unsigned int _text;
 extern unsigned int _etext;
 extern unsigned int _data;
