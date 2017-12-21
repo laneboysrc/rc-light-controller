@@ -1,6 +1,43 @@
-# TO DO LIST for the RC Light Controller
+# MK4
 
 * FW: Test revised dignostics selection on LPC812
+
+
+# MK5
+
+* Use DFU, using existing WebUSB DFU implementation
+
+* Look at GPIO HAL from T2, e.g. `pin_low`, `pin_out`, ...
+
+* Low interrupt priority for Systick
+
+* Use DMA for UART TX?
+
+* Make convenient script to flash app with bootloader, and debug as well
+
+* Use Watchdog
+
+* Does LED on PA01 interfere with Arduino hardware?
+
+* Button input via HAL (must be configurable)
+
+* How to deal with the USB shielding?
+
+* Implement CPPM reader?
+
+* FIX dfu-util reporting 'dfu-util: error detaching' when switching from run time mode to dfu mode
+* FIX dfu-util reporting 'dfu-util: unable to read DFU status after completion' after flashing
+
+* Implement a way for the user to be able to force the bootloader
+
+
+# MK5 PCB
+
+* TLC5940 footprint based on TI datasheet
+* Design for stencil 5mil/0.12mm thick
+
+
+# General improvements
 
 * DOC: When a priority program runs once, and another state takes precedence,
   the program has no effect and after the other state disappears, the lights
@@ -28,38 +65,3 @@
 * TOOLS: Add tool to extract light program source out of light controller config
 
 * TOOLS: Add watch folder to ISP tool
-
-
-## MK5
-
-* Use DFU, using existing WebUSB DFU implementation
-
-* Look at GPIO HAL from T2, e.g. `pin_low`, `pin_out`, ...
-
-* Low interrupt priority for Systick
-
-* Use DMA for UART TX?
-
-* FIXME: take care of .ARM.exidx in linker script!
-
-* Make convenient script to flash app with bootloader, and debug as well
-
-* Use Watchdog
-
-* Does LED on PA01 interfere with Arduino hardware?
-
-* Button input via HAL (must be configurable)
-
-* How to deal with the USB shielding?
-
-* Implement CPPM reader?
-
-* FIX dfu-util reporting 'dfu-util: error detaching' when switching from run time mode to dfu mode
-* FIX dfu-util reporting 'dfu-util: unable to read DFU status after completion' after flashing
-
-* Implement a way for the user to be able to force the bootloader
-
-# MK5 PCB
-
-* TLC5940 footprint based on TI datasheet
-* Design for stencil 5mil/0.12mm thick

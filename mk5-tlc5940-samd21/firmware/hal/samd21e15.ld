@@ -24,6 +24,7 @@ SECTIONS
         *(.text*)
         *(.rodata)
         *(.rodata.*)
+
         KEEP(*(.init))
         KEEP(*(.fini))
 
@@ -31,11 +32,17 @@ SECTIONS
         _etext = .;
     } > FLASH
 
+    /* Section for libgcc */
+    .libgcc : {
+        __exidx_start = .;
+        *(.ARM.exidx* .gnu.linkonce.armexidx.*)
+        __exidx_end = .;
+    } > FLASH
 
     .data : ALIGN(4)
     {
         _data = .;
-        FILL(0xff)
+        FILL(0x00)
 
         *(vtable)
         *(.data*)
@@ -44,10 +51,7 @@ SECTIONS
         _edata = .;
     } > RAM AT > FLASH
 
-
-    /* Light programs must be located at the end of the flash memory,
-     * which is after the RAM initialization data
-     (_etext + SIZEOF(.data))
+    /* Light programs must be located at the end of the flash memory
      */
     .light_programs : ALIGN(4)
     {

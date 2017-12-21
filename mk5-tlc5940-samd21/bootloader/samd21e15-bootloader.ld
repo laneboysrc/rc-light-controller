@@ -20,6 +20,7 @@ SECTIONS
         *(.text*)
         *(.rodata)
         *(.rodata.*)
+
         KEEP(*(.init))
         KEEP(*(.fini))
 
@@ -27,11 +28,17 @@ SECTIONS
         _etext = .;
     } > FLASH
 
+    /* Section for libgcc */
+    .libgcc : {
+        __exidx_start = .;
+        *(.ARM.exidx* .gnu.linkonce.armexidx.*)
+        __exidx_end = .;
+    } > FLASH
 
     .data : ALIGN(4)
     {
         _data = .;
-        FILL(0xff)
+        FILL(0x00)
 
         *(vtable)
         *(.data*)

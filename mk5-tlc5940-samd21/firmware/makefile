@@ -152,7 +152,6 @@ $(TARGET_ELF): $(BUILD_DIR) $(OBJECTS) $(LINKER_SCRIPT)
 $(TARGET_BIN): $(TARGET_ELF)
 	@echo [CP] $@
 	$(ECHO) $(OBJCOPY) $< -O binary $@
-	# $(ECHO) $(CONFIGURATION_VALIDATION_TOOL) $@
 
 $(TARGET_HEX): $(TARGET_ELF)
 	@echo [CP] $@
