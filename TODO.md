@@ -34,7 +34,7 @@
 
 * Use DFU, using existing WebUSB DFU implementation
 
-* Look at GPIO HAL from T2, e.g. pin_low, pin_out, ...
+* Look at GPIO HAL from T2, e.g. `pin_low`, `pin_out`, ...
 
 * Low interrupt priority for Systick
 
@@ -53,6 +53,11 @@
 * How to deal with the USB shielding?
 
 * Implement CPPM reader?
+
+* FIX dfu-util reporting 'dfu-util: error detaching' when switching from run time mode to dfu mode
+* FIX dfu-util reporting 'dfu-util: unable to read DFU status after completion' after flashing
+
+* Implement a way for the user to be able to force the bootloader
 
 # MK5 PCB
 
