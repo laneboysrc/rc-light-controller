@@ -34,11 +34,6 @@
 
 * Use DFU, using existing WebUSB DFU implementation
 
-* Use USB stack from https://github.com/kevinmehall/usb
-  - Sample at https://github.com/tessel/t2-firmware
-
-* Use gnu99 CFLAG, allows u"" strings for USB
-
 * Look at GPIO HAL from T2, e.g. pin_low, pin_out, ...
 
 * Low interrupt priority for Systick
@@ -47,13 +42,9 @@
 
 * FIXME: take care of .ARM.exidx in linker script!
 
+* Make convenient script to flash app with bootloader, and debug as well
 
 * Use Watchdog
-
-* Trigger bootloader from CDC like Arduino (1200 BAUD, DTR low)
-    * Can we also detect BOSSAC?
-    * Can we make a simple board manager compatible thing to integrate in Arduino?
-      https://github.com/arduino/Arduino/wiki/Arduino-IDE-1.5-3rd-party-Hardware-specification
 
 * Does LED on PA01 interfere with Arduino hardware?
 
