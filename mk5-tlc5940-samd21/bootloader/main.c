@@ -17,6 +17,7 @@ typedef struct {
 // static const gpio_t GPIO_TXD = { .port = 0, .bit = 4, .mux = PORT_PMUX_PMUXE_D_Val };
 static const gpio_t GPIO_USB_DM = { .port = 0, .bit = 24, .mux = PORT_PMUX_PMUXE_G_Val };
 static const gpio_t GPIO_USB_DP = { .port = 0, .bit = 25, .mux = PORT_PMUX_PMUXE_G_Val };
+// static const gpio_t GPIO_LED = { .port = 0, .bit = 19 };
 
 
 // magic_value is a location in an unused RAM area that allows the application
@@ -24,8 +25,9 @@ static const gpio_t GPIO_USB_DP = { .port = 0, .bit = 25, .mux = PORT_PMUX_PMUXE
 // The app writes a special value into this memory location which, when found
 // by the bootloader after reboot, causes the bootloader to stay in firmware
 // upgrade mode.
-extern uint32_t * const magic_value;
+extern volatile uint32_t * const magic_value;
 #define BOOTLOADER_MAGIC 0x47110815
+#define DOUBLE_TAP_MAGIC 0x0d06f00d
 
 // Global flag that is set by the DFU class when a firmware upgrade has finished
 // and the MCU should be restarted.
@@ -37,9 +39,21 @@ static volatile uint32_t milliseconds;
 // ****************************************************************************
 inline static void gpio_out(gpio_t gpio)
 {
-    PORT->Group[gpio.port].DIRSET.reg = (1<<gpio.bit);
+    PORT->Group[gpio.port].DIRSET.reg = 1 << gpio.bit;
 }
 
+// ****************************************************************************
+inline static void gpio_set(gpio_t gpio)
+{
+    PORT->Group[gpio.port].OUTSET.reg = 1 << gpio.bit;                            \
+}
+
+
+// ****************************************************************************
+inline static void gpio_clear(gpio_t gpio)
+{
+    PORT->Group[gpio.port].OUTCLR.reg = 1 << gpio.bit;                            \
+}
 
 // ****************************************************************************
 inline static void gpio_mux(gpio_t gpio)
@@ -301,7 +315,38 @@ static bool bootloader_requested(void)
         return true;
     }
 
-    return false;
+    // Algorithm to allow the user to force the bootloader through
+    // double-tapping of the reset pin.
+
+    // If we are dealing with any reset cause other than through the external
+    // reset pin we clear the magic value and launch the application.
+    if (!PM->RCAUSE.bit.EXT) {
+        *magic_value = 0xffffffff;
+        return false;
+    }
+
+    // If the magic RAM location does not contain the special double-tap value,
+    // it must be the first tap. We load our special value and then wait about
+    // 100 ms.
+    // If the user doesn't tap a second time during this waiting period then
+    // we clear the magic RAM location and proceed with a normal application
+    // boot.
+    // If the user taps on the reset pin again while within the waiting period,
+    // then the magic RAM location contains our special value when the MCU
+    // reaches this code again, and triggers the bootloader.
+    if (*magic_value != DOUBLE_TAP_MAGIC) {
+        *magic_value = DOUBLE_TAP_MAGIC;
+
+        // Timing loop of about 100 ms at the default system clock of 1 MHz
+        for (uint32_t volatile i = 0; i < 25000; i++);
+
+        *magic_value = 0xffffffff;
+        return false;
+    }
+
+    // Second tap: we therefore activate the bootloader.
+    *magic_value = 0xffffffff;
+    return true;
 }
 
 

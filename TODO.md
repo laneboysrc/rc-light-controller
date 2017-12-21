@@ -28,8 +28,6 @@
 * FIX dfu-util reporting 'dfu-util: error detaching' when switching from run time mode to dfu mode
 * FIX dfu-util reporting 'dfu-util: unable to read DFU status after completion' after flashing
 
-* Implement a way for the user to be able to force the bootloader
-
 
 # MK5 PCB
 
