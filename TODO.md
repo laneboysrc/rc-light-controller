@@ -45,6 +45,7 @@
 
 * Use DMA for UART TX?
 
+* FIXME: take care of .ARM.exidx in linker script!
 
 
 * Use Watchdog
