@@ -15,11 +15,8 @@
 
 * Button input via HAL (must be configurable)
 
-* How to deal with the USB shielding?
-
 * Implement CPPM reader?
 
-* FIX dfu-util reporting 'dfu-util: error detaching' when switching from run time mode to dfu mode
 * FIX dfu-util reporting 'dfu-util: unable to read DFU status after completion' after flashing
 
 * Print software version number on diagnostics
@@ -29,6 +26,7 @@
 
 * TLC5940 footprint based on TI datasheet
 * Design for stencil 5mil/0.12mm thick
+* How to deal with the USB shielding?
 
 
 # General improvements

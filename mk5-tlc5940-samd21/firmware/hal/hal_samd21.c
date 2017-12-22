@@ -279,10 +279,11 @@ void HAL_service(void)
         uint32_t end = milliseconds + 50;
 
         fprintf(STDOUT_DEBUG, "REBOOTING INTO BOOTLOADER\n");
-        usb_detach();
 
         // Wait a short while ...
         while (milliseconds < end);
+
+        usb_detach();
 
         // Place a special value into a certain RAM location that is detected
         // by the bootloader, so that it enters firmware upgrade mode

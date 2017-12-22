@@ -443,7 +443,9 @@ void usb_cb_control_setup(void) {
         if (usb_setup.wIndex == USB_INTERFACE_DFU) {
             switch (usb_setup.bRequest) {
                 case DFU_DETACH:
-                    start_bootloader = true;
+                    start_bootloader = 1;
+                    usb_ep0_in(0);
+                    usb_ep0_out();
                     return;
 
                 case DFU_GETSTATUS:
