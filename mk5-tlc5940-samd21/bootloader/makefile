@@ -24,7 +24,7 @@ SIZE := arm-none-eabi-size
 GDB := arm-none-eabi-gdb
 
 MKDIR_P := mkdir -p
-FLASH_TOOL := openocd
+FLASH_TOOL := openocd -f board/atmel_samr21_xplained_pro.cfg
 
 
 ###############################################################################
@@ -148,9 +148,19 @@ list: $(BUILD_DIR) $(OBJECTS:.o=.lst)
 
 # Invoke the tool to program the microcontroller
 program: $(TARGET_ELF)
-	$(QUIET) $(FLASH_TOOL) -f board/atmel_samr21_xplained_pro.cfg -c "init; reset halt ; flash write_image $< ; reset ; shutdown"
+	$(QUIET) $(FLASH_TOOL) -c "init; reset halt ; at91samd bootloader 0 ; reset halt ; flash write_image $< ; reset ; shutdown"
 
 flash: program
+
+# Set/clear the fuses that protect the bootloader from being accidentally
+# overwritten
+lock-bootloader:
+	$(ECHO) $(FLASH_TOOL) -c "init ; reset halt ; at91samd bootloader 8192; reset ; exit"
+	$(ECHO) sleep 1
+
+unlock-bootloader:
+	$(ECHO) $(FLASH_TOOL) -c "init ; reset halt ; at91samd bootloader 0; reset ; exit"
+	$(ECHO) sleep 1
 
 # Clean all generated files
 clean:
