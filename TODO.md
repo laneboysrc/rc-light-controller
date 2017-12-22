@@ -5,6 +5,10 @@
 
 # MK5
 
+* Bring 'pads' into bring into `HAL_GPIO_T`
+
+* Improve and check USB_MicrosoftExtendedPropertiesDescriptor
+
 * Use DFU, using existing WebUSB DFU implementation
 
 * Use DMA for UART TX?
@@ -27,6 +31,16 @@
 * How to deal with the USB shielding?
 
 
+#MK4 + MK5
+
+* It would be great if CH3 as switch would trigger `new_channel_data` independently of the other signals, i.e. set it if no other `new_channel_data` was seen in a certain amount of systicks
+
+* FW: Allow light programs to read input pin states
+
+* FW: Add Xenon lamp simulation
+
+
+
 # General improvements
 
 * DOC: When a priority program runs once, and another state takes precedence,
@@ -38,10 +52,6 @@
 * HW: issue with analog servo interfering with ISP
   Clearly an issue with some servos only. Need to disable ISP and rather provide
   a software way for those
-
-* FW: Allow light programs to read input pin states
-
-* FW: Add Xenon lamp simulation
 
 * TOOL: Configurator to have a shortcut for boilerplate for new light programs
     E.g. all LEDs pre-defined

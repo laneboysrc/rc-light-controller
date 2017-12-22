@@ -208,8 +208,6 @@ void Reset_Handler(void)
 #endif
 #endif
 
-    // FIXME: there seems to be a problem with initialization values?!?
-    //        e.g. line coding after reset is wrong
     // Copy initialization values from Flash to RAM
     source = &_etext;
     destination = &_data;
