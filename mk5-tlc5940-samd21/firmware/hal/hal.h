@@ -22,6 +22,7 @@ typedef struct {
     uint8_t group;
     uint8_t pin;
     uint8_t mux;
+    uint8_t pad;
 } HAL_GPIO_T;
 
 
@@ -77,8 +78,8 @@ typedef struct {
 
 #ifndef SAMR21_XPLAINED_PRO
 
-static const HAL_GPIO_T HAL_GPIO_RX = { .group = 0, .pin = 23, .mux = PORT_PMUX_PMUXE_D_Val };
-static const HAL_GPIO_T HAL_GPIO_TX = { .group = 0, .pin = 22, .mux = PORT_PMUX_PMUXE_D_Val };
+static const HAL_GPIO_T HAL_GPIO_RX = { .group = 0, .pin = 23, .mux = PORT_PMUX_PMUXE_D_Val, .pad = 1 };
+static const HAL_GPIO_T HAL_GPIO_TX = { .group = 0, .pin = 22, .mux = PORT_PMUX_PMUXE_D_Val, .pad = 0 };
 static const HAL_GPIO_T HAL_GPIO_OUT = { .group = 0, .pin = 22, .mux = PORT_PMUX_PMUXE_E_Val };
 static const HAL_GPIO_T HAL_GPIO_ST = { .group = 0, .pin = 16, .mux = PORT_PMUX_PMUXE_A_Val };
 static const HAL_GPIO_T HAL_GPIO_TH = { .group = 0, .pin = 17, .mux = PORT_PMUX_PMUXE_A_Val };
@@ -122,8 +123,8 @@ static const HAL_GPIO_T HAL_GPIO_USB_DP = { .group = 0, .pin = 25, .mux = PORT_P
 // ****************************************************************************
 #ifdef SAMR21_XPLAINED_PRO
 
-static const HAL_GPIO_T HAL_GPIO_RX = { .group = 0, .pin = 5, .mux = PORT_PMUX_PMUXE_D_Val };
-static const HAL_GPIO_T HAL_GPIO_TX = { .group = 0, .pin = 4, .mux = PORT_PMUX_PMUXE_D_Val };
+static const HAL_GPIO_T HAL_GPIO_RX = { .group = 0, .pin = 5, .mux = PORT_PMUX_PMUXE_D_Val, .pad = 1 };
+static const HAL_GPIO_T HAL_GPIO_TX = { .group = 0, .pin = 4, .mux = PORT_PMUX_PMUXE_D_Val, .pad = 0 };
 static const HAL_GPIO_T HAL_GPIO_OUT = { .group = 0, .pin = 22, .mux = PORT_PMUX_PMUXE_E_Val }; // Set GPIO to output TC4/W[0]
 static const HAL_GPIO_T HAL_GPIO_ST = { .group = 0, .pin = 16, .mux = PORT_PMUX_PMUXE_A_Val };  // Enable the EIC function on the ST pin (EXTINT0)
 static const HAL_GPIO_T HAL_GPIO_TH = { .group = 0, .pin = 17, .mux = PORT_PMUX_PMUXE_A_Val };  // Enable the EIC function on the TH pin (EXTINT1)

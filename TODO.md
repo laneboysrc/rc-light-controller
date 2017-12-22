@@ -5,8 +5,6 @@
 
 # MK5
 
-* Bring 'pads' into bring into `HAL_GPIO_T`
-
 * Improve and check USB_MicrosoftExtendedPropertiesDescriptor
 
 * Use DFU, using existing WebUSB DFU implementation

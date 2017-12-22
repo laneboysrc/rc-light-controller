@@ -12,8 +12,8 @@ static uint32_t raw_data[3];
 volatile uint32_t milliseconds;
 
 // These are defined by the linker via the samd21e15.ld linker script.
-extern unsigned int _ram;
-extern unsigned int _stacktop;
+extern uint32_t _ram;
+extern uint32_t _stacktop;
 
 // magic_value is a location in an unused RAM area that allows the application
 // to communicate with the bootloader.
@@ -35,30 +35,24 @@ static volatile const uint32_t persistent_data[HAL_NUMBER_OF_PERSISTENT_ELEMENTS
 #define UART_SERCOM SERCOM0
 #define UART_SERCOM_GCLK_ID SERCOM0_GCLK_ID_CORE
 #define UART_SERCOM_APBCMASK PM_APBCMASK_SERCOM0
-#define UART_TXD_PAD 0      // PAD0   FIXME: bring into HAL_GPIO_T
-#define UART_RXD_PAD 1      // PAD1
 
-#define SPI_SERCOM  SERCOM3
+#define SPI_SERCOM SERCOM3
 #define SPI_SERCOM_GCLK_ID SERCOM3_GCLK_ID_CORE
 #define SPI_SERCOM_APBCMASK PM_APBCMASK_SERCOM3
 
 #else
 
-// FIXME not tested, PMUX may be wrong
+// FIXME not tested
 #define UART_SERCOM SERCOM3
 #define UART_SERCOM_GCLK_ID SERCOM0_GCLK_ID_CORE
-#define UART_SERCOM_APBCMASK PM_APBCMASK_SERCOM0
-#define UART_TXD_PAD 0      // PAD0
-#define UART_RXD_PAD 1      // PAD1
+#define UART_SERCOM_APBCMASK PM_APBCMASK_SERCOM3
 
-#define SPI_SERCOM  SERCOM0
+#define SPI_SERCOM SERCOM0
 #define SPI_SERCOM_GCLK_ID SERCOM3_GCLK_ID_CORE
-#define SPI_SERCOM_APBCMASK PM_APBCMASK_SERCOM3
+#define SPI_SERCOM_APBCMASK PM_APBCMASK_SERCOM0
 
 #endif
 
-// FIXME
-// DECLARE_GPIO(OUT_TX, GPIO_PORTA, 18)     //  TCC0/WO[2]  Dummy just for now
 
 
 #define RECEIVE_BUFFER_SIZE (16)        // Must be modulo 2 for speed
@@ -69,6 +63,7 @@ static volatile uint16_t write_index = 0;
 
 // We use all 24 bits of TCC0, so the maximum period value is 0xffffff
 #define TCC0_PERIOD (0xfffffful)
+
 
 // ****************************************************************************
 void HAL_hardware_init(bool is_servo_reader, bool servo_output_enabled, bool uart_output_enabled)
@@ -260,7 +255,6 @@ void HAL_service(void)
 
     if (last_found == NULL) {
         last_found = (uint32_t *)&_stacktop;
-
     }
 
     now = last_found;
@@ -324,8 +318,8 @@ void HAL_uart_init(uint32_t baudrate)
     UART_SERCOM->USART.CTRLA.reg =
         SERCOM_USART_CTRLA_DORD |
         SERCOM_USART_CTRLA_MODE_USART_INT_CLK |
-        SERCOM_USART_CTRLA_RXPO(UART_RXD_PAD) |
-        SERCOM_USART_CTRLA_TXPO(UART_TXD_PAD);
+        SERCOM_USART_CTRLA_RXPO(HAL_GPIO_RX.pad) |
+        SERCOM_USART_CTRLA_TXPO(HAL_GPIO_TX.pad);
 
     // Enable transmit and receive; 8 bit characters
     UART_SERCOM->USART.CTRLB.reg =
