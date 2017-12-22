@@ -95,6 +95,15 @@ static const HAL_GPIO_T HAL_GPIO_LED = { .group = 0, .pin = 1 };
 static const HAL_GPIO_T HAL_GPIO_USB_DM = { .group = 0, .pin = 24, .mux = PORT_PMUX_PMUXE_G_Val };
 static const HAL_GPIO_T HAL_GPIO_USB_DP = { .group = 0, .pin = 25, .mux = PORT_PMUX_PMUXE_G_Val };
 
+// FIXME not tested
+#define UART_SERCOM SERCOM3
+#define UART_SERCOM_GCLK_ID SERCOM0_GCLK_ID_CORE
+#define UART_SERCOM_APBCMASK PM_APBCMASK_SERCOM3
+
+#define SPI_SERCOM SERCOM0
+#define SPI_SERCOM_GCLK_ID SERCOM3_GCLK_ID_CORE
+#define SPI_SERCOM_APBCMASK PM_APBCMASK_SERCOM0
+
 #endif
 
 
@@ -140,12 +149,19 @@ static const HAL_GPIO_T HAL_GPIO_LED = { .group = 0, .pin = 19 };
 static const HAL_GPIO_T HAL_GPIO_USB_DM = { .group = 0, .pin = 24, .mux = PORT_PMUX_PMUXE_G_Val };
 static const HAL_GPIO_T HAL_GPIO_USB_DP = { .group = 0, .pin = 25, .mux = PORT_PMUX_PMUXE_G_Val };
 
+#define UART_SERCOM SERCOM0
+#define UART_SERCOM_GCLK_ID SERCOM0_GCLK_ID_CORE
+#define UART_SERCOM_APBCMASK PM_APBCMASK_SERCOM0
+
+#define SPI_SERCOM SERCOM3
+#define SPI_SERCOM_GCLK_ID SERCOM3_GCLK_ID_CORE
+#define SPI_SERCOM_APBCMASK PM_APBCMASK_SERCOM3
+
 #endif
 
 
 static inline void HAL_gpio_in(const HAL_GPIO_T gpio)
 {
-    // PORT->Group[gpio.group].DIRCLR.bit[gpio.pin] = 1;
     PORT->Group[gpio.group].DIRCLR.reg = 1 << gpio.pin;
     PORT->Group[gpio.group].PINCFG[gpio.pin].reg |= PORT_PINCFG_INEN;
     PORT->Group[gpio.group].PINCFG[gpio.pin].reg &= ~PORT_PINCFG_PULLEN;

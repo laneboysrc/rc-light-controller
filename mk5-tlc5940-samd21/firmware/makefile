@@ -30,7 +30,7 @@ GENERIC_TOOL_PATH := ../../tools/
 BOOTLOADER_BIN := ../bootloader/build/bootloader.bin
 
 MKDIR_P := mkdir -p
-FLASH_TOOL := openocd -f board/atmel_samr21_xplained_pro.cfg
+FLASH_TOOL := openocd -l build/openocd.log -f board/atmel_samr21_xplained_pro.cfg
 DFU_UTIL := dfu-util
 TERMINAL_PROGRAM := miniterm.py -b 115200 /dev/ttyACM0
 PREPROCESSOR_SIMULATOR := $(GENERIC_TOOL_PATH)preprocessor-simulator.py /dev/ttyACM1

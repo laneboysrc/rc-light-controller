@@ -24,7 +24,7 @@ SIZE := arm-none-eabi-size
 GDB := arm-none-eabi-gdb
 
 MKDIR_P := mkdir -p
-FLASH_TOOL := openocd -f board/atmel_samr21_xplained_pro.cfg
+FLASH_TOOL := openocd -l build/openocd.log -f board/atmel_samr21_xplained_pro.cfg
 
 
 ###############################################################################
