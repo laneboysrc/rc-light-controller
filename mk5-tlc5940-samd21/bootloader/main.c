@@ -10,14 +10,14 @@
 
 
 typedef struct {
-    uint8_t bit;
-    uint8_t port;
+    uint8_t group;
+    uint8_t pin;
     uint8_t mux;
 } gpio_t;
 
-static const gpio_t GPIO_USB_DM = { .port = 0, .bit = 24, .mux = PORT_PMUX_PMUXE_G_Val };
-static const gpio_t GPIO_USB_DP = { .port = 0, .bit = 25, .mux = PORT_PMUX_PMUXE_G_Val };
-// static const gpio_t GPIO_LED = { .port = 0, .bit = 19 };
+static const gpio_t GPIO_USB_DM = { .group = 0, .pin = 24, .mux = PORT_PMUX_PMUXE_G_Val };
+static const gpio_t GPIO_USB_DP = { .group = 0, .pin = 25, .mux = PORT_PMUX_PMUXE_G_Val };
+// static const gpio_t GPIO_LED = { .group = 0, .pin = 19 };
 
 
 // magic_value is a location in an unused RAM area that allows the application
@@ -39,37 +39,37 @@ static volatile uint32_t milliseconds;
 // ****************************************************************************
 inline static void gpio_out(gpio_t gpio)
 {
-    PORT->Group[gpio.port].DIRSET.reg = 1 << gpio.bit;
+    PORT->Group[gpio.group].DIRSET.reg = 1 << gpio.pin;
 }
 
 // ****************************************************************************
 inline static void gpio_set(gpio_t gpio)
 {
-    PORT->Group[gpio.port].OUTSET.reg = 1 << gpio.bit;                            \
+    PORT->Group[gpio.group].OUTSET.reg = 1 << gpio.pin;
 }
 
 
 // ****************************************************************************
 inline static void gpio_clear(gpio_t gpio)
 {
-    PORT->Group[gpio.port].OUTCLR.reg = 1 << gpio.bit;                            \
+    PORT->Group[gpio.group].OUTCLR.reg = 1 << gpio.pin;
 }
 
 // ****************************************************************************
 inline static void gpio_mux(gpio_t gpio)
 {
-    if (gpio.bit & 1) {
-        PORT->Group[gpio.port].PMUX[gpio.bit >> 1].bit.PMUXO = gpio.mux;
+    if (gpio.pin & 1) {
+        PORT->Group[gpio.group].PMUX[gpio.pin >> 1].bit.PMUXO = gpio.mux;
     }
     else {
-        PORT->Group[gpio.port].PMUX[gpio.bit >> 1].bit.PMUXE = gpio.mux;
+        PORT->Group[gpio.group].PMUX[gpio.pin >> 1].bit.PMUXE = gpio.mux;
     }
-    PORT->Group[gpio.port].PINCFG[gpio.bit].bit.PMUXEN = 1;
+    PORT->Group[gpio.group].PINCFG[gpio.pin].bit.PMUXEN = 1;
 }
 
 
 #ifdef ENABLE_UART_DIAGNOSTICS
-static const gpio_t GPIO_TXD = { .port = 0, .bit = 4, .mux = PORT_PMUX_PMUXE_D_Val };
+static const gpio_t GPIO_TXD = { .group = 0, .pin = 4, .mux = PORT_PMUX_PMUXE_D_Val };
 
 // ****************************************************************************
 static void init_uart(uint32_t baudrate)
