@@ -282,6 +282,9 @@ void dfu_cb_manifest(void) {
     // When we receive "manifest" from the host we detach from USB and reboot
     // the MCU
     bootloader_done = true;
+
+    // Reset the DFU code to report IDLE state, which is checked by dfu-util
+    dfu_reset();
 }
 
 
@@ -304,7 +307,6 @@ uint16_t usb_cb_get_descriptor(uint8_t type, uint8_t index, const uint8_t** ptr)
         case USB_DTYPE_String:
             switch (index) {
                 case USB_STRING_LANGUAGE:
-                    // address = &language_string;
                     address = &language_string;
                     break;
 

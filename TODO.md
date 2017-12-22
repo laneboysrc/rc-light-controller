@@ -17,8 +17,6 @@
 
 * Implement CPPM reader?
 
-* FIX dfu-util reporting 'dfu-util: unable to read DFU status after completion' after flashing
-
 * Print software version number on diagnostics
 
 

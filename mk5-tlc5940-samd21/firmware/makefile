@@ -211,7 +211,7 @@ flash: program
 # Load the program using the USB DFU (Device Firmware Upgrade) tool
 # This will only work when the bootloader is already present in the device
 dfu-util: $(TARGET_BIN)
-	$(DFU_UTIL) -d 0x6666:0xcab1,:0xcab0 -D $<
+	$(DFU_UTIL) -d 0x6666:0xcab1,:0xcab0 -E 1 -D $<
 
 # Invoke a tool for UART communication
 terminal:

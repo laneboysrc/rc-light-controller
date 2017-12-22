@@ -304,7 +304,7 @@ static void bootloader(void)
     printf("DFU completed, rebooting!\n");
 #endif
 
-    delay_ms(25);
+    delay_ms(1000);
     usb_detach();
     delay_ms(100);
     NVIC_SystemReset();
