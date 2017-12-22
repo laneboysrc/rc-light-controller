@@ -17,7 +17,6 @@
 
 * Button input via HAL (must be configurable)
 
-* Implement CPPM reader?
 
 * Print software version number on diagnostics
 
@@ -37,6 +36,7 @@
 
 * FW: Add Xenon lamp simulation
 
+* Deprecate CPPM reader (to simplify things, no-one ever used it)
 
 
 # General improvements
