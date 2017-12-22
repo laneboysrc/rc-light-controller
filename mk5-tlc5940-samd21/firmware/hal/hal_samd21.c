@@ -217,7 +217,7 @@ void HAL_hardware_init(bool is_servo_reader, bool servo_output_enabled, bool uar
     // ------------------------------------------------
     // Configure the SYSTICK to create an interrupt every 1 millisecond
     SysTick_Config(48000);
-    NVIC_SetPriority(SysTick_IRQn, 0x0);
+    NVIC_SetPriority(SysTick_IRQn, 0);
 
     __enable_irq();
 }

@@ -1,6 +1,6 @@
 MEMORY
 {
-  FLASH (rx)  : ORIGIN = 8k,         LENGTH = 32k-8k
+  FLASH (rx)  : ORIGIN = 0,          LENGTH = 32k
   RAM   (rwx) : ORIGIN = 0x20000000, LENGTH = 4k
 }
 
@@ -8,6 +8,14 @@ ENTRY(Reset_Handler)
 
 SECTIONS
 {
+    /* Placeholder for the bootloader binary image */
+    .bootloader : ALIGN(4)
+    {
+        KEEP(*(.bootloader))
+        FILL(0xff)
+        . = 0x2000; /* 8K bootloader size */
+    } > FLASH
+
     .text : ALIGN(4)
     {
         _text = .;

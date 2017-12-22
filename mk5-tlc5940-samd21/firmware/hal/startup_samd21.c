@@ -174,6 +174,21 @@ void Reset_Handler(void)
     unsigned int *end;
     uint32_t temp_entropy;
 
+    // Switch to the the interrupt vector table of the application
+    //
+    // We put this here to solve an issue we faced when debugging using GDB:
+    // Originally the bootloader set VTOR before jumping to the application.
+    // However, when GDB was used this code seem to have been bypassed and
+    // the VTOR was still pointing to the one from the bootloader.
+    //
+    // The solution is to set VTOR here, and then everything works fine.
+    //
+    // Note that this file is shared between the application and the bootloader.
+    // All it means is that we waste a bit of ROM space in the bootloader as
+    // we set VTOR to the value it already is. Note that `vectors` points to
+    // different flash locations for the bootloader and the application!
+    SCB->VTOR = ((uint32_t) &vectors) & SCB_VTOR_TBLOFF_Msk;
+
     // Calculate the entropy random value from the RAM contents after reset
     temp_entropy = 0x0817;  // Just an arbitrary initialization value
     source = &_ram;

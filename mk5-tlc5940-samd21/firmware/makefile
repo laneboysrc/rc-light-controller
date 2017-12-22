@@ -20,12 +20,14 @@ endif
 ###############################################################################
 # Toolchain setup
 CC := arm-none-eabi-gcc
+LD := arm-none-eabi-ld
 OBJCOPY := arm-none-eabi-objcopy
 SIZE := arm-none-eabi-size
 GDB := arm-none-eabi-gdb
 
 TOOL_PATH := ../../mk4-tlc5940-lpc812/tools/
 GENERIC_TOOL_PATH := ../../tools/
+BOOTLOADER_BIN := ../bootloader/build/bootloader.bin
 
 MKDIR_P := mkdir -p
 FLASH_TOOL := openocd
@@ -36,7 +38,6 @@ CONFIGURATION_VALIDATION_TOOL := $(TOOL_PATH)validate_image_file.py
 LIGHT_PROGRAM_ASSEMBLER_PATH := $(TOOL_PATH)configurator/assembler
 DEFAULT_FIRMWARE_IMAGE_JS := $(TOOL_PATH)configurator/src/default_firmware_image.js
 TEXT2JS := $(TOOL_PATH)text2js.py
-
 
 ###############################################################################
 # Source files    Note: all source files must be relative paths!
@@ -125,6 +126,7 @@ TARGET_ELF := $(addprefix $(BUILD_DIR)/, $(TARGET).elf)
 TARGET_BIN := $(addprefix $(BUILD_DIR)/, $(TARGET).bin)
 TARGET_HEX := $(addprefix $(BUILD_DIR)/, $(TARGET).hex)
 TARGET_MAP := $(addprefix $(BUILD_DIR)/, $(TARGET).map)
+TARGET_ELF_WITH_BOOTLOADER := $(addprefix $(BUILD_DIR)/, $(TARGET)_with_bootloader.elf)
 
 $(OBJECTS): $(DEPENDENCIES)
 $(TARGET_MAP): $(TARGET_ELF)
@@ -156,6 +158,24 @@ $(TARGET_HEX): $(TARGET_ELF)
 	@echo [CP] $@
 	$(ECHO) $(OBJCOPY) $< -O ihex $@
 
+# For debugging and flashing the application via openocd we create a special
+# ELF file that includes the bootloader.
+# We transform the binary bootloader image into a .o file, which we link
+# at address 0 of the flash. This is done in the linker script.
+#
+# Source: https://visualgdb.com/tutorials/arm/bootloader/
+$(TARGET_ELF_WITH_BOOTLOADER): $(BUILD_DIR) $(OBJECTS) $(LINKER_SCRIPT) $(BUILD_DIR)/bootloader.o
+	@echo [LD bootloader] $@
+	$(ECHO) $(CC) $(LDFLAGS) $(OBJECTS) $(LIBS) $(BUILD_DIR)/bootloader.o -o $@
+
+$(BOOTLOADER_BIN) :
+	$(MAKE) -C ../bootloader
+
+$(BUILD_DIR)/bootloader.o: $(BOOTLOADER_BIN)
+	@echo [BOOTLOADER] $@
+	$(ECHO) $(LD) -r -b binary $< -o $@
+	$(ECHO) $(OBJCOPY) --rename-section .data=.bootloader $@
+
 %.o:
 	@echo [CC] $@
 	$(ECHO) $(CC) $(CFLAGS) $(filter %/$(subst .o,.c,$(@F)), $(addprefix ./,$(SOURCES))) -c -o $@
@@ -183,11 +203,13 @@ default_firmware_image: $(TARGET_HEX)
 list: $(BUILD_DIR) $(OBJECTS:.o=.lst)
 
 # Invoke the tool to program the microcontroller
-program: $(TARGET_ELF)
+program: $(TARGET_ELF_WITH_BOOTLOADER)
 	$(QUIET) $(FLASH_TOOL) -f board/atmel_samr21_xplained_pro.cfg -c "init; reset halt ; flash write_image $< ; reset ; shutdown"
 
 flash: program
 
+# Load the program using the USB DFU (Device Firmware Upgrade) tool
+# This will only work when the bootloader is already present in the device
 dfu-util: $(TARGET_BIN)
 	$(DFU_UTIL) -d 0x6666:0xcab1,:0xcab0 -D $<
 
@@ -204,7 +226,7 @@ clean:
 	@echo [RM] $(BUILD_DIR)
 	$(ECHO) $(RM) -rf $(BUILD_DIR)
 
-debug: $(TARGET_ELF)
+debug: $(TARGET_ELF_WITH_BOOTLOADER)
 	$(ECHO) $(GDB) -q -ex "target extended-remote | $(FLASH_TOOL) -f board/atmel_samr21_xplained_pro.cfg -c \"gdb_port pipe\"" -ex "load" --tui $<
 
 

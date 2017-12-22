@@ -9,8 +9,6 @@
 
 * Use DMA for UART TX?
 
-* Make convenient script to flash app with bootloader, and debug as well
-
 * Use Watchdog
 
 * Does LED on PA01 interfere with Arduino hardware?

@@ -59,6 +59,17 @@
             "cmd":
             [
                 "make",
+                "dfu-util"
+            ],
+            "file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$",
+            "name": "MK5 make dfu-util",
+            "syntax": "Packages/Makefile/Make Output.sublime-syntax",
+            "working_dir": "${project_path}/mk5-tlc5940-samd21/firmware"
+        },
+        {
+            "cmd":
+            [
+                "make",
                 "clean",
                 "all"
             ],
@@ -66,6 +77,17 @@
             "name": "MK5 make clean all",
             "syntax": "Packages/Makefile/Make Output.sublime-syntax",
             "working_dir": "${project_path}/mk5-tlc5940-samd21/firmware"
+        },
+        {
+            "cmd":
+            [
+                "make",
+                "program"
+            ],
+            "file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$",
+            "name": "MK5 bootloader program",
+            "syntax": "Packages/Makefile/Make Output.sublime-syntax",
+            "working_dir": "${project_path}/mk5-tlc5940-samd21/bootloader"
         }
     ],
 	"folders":

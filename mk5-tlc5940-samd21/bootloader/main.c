@@ -241,9 +241,6 @@ static inline void run_application(void)
     __disable_irq();
     SysTick->CTRL = 0;
 
-    // Switch to the the interrupt vector table of the application
-    SCB->VTOR = FLASH_FIRMWARE_START & SCB_VTOR_TBLOFF_Msk;
-
     // Set up the stack pointer
     msp = ((uint32_t *)FLASH_FIRMWARE_START)[0];
     __set_MSP(msp);
