@@ -30,10 +30,10 @@ GENERIC_TOOL_PATH := ../../tools/
 BOOTLOADER_BIN := ../bootloader/build/bootloader.bin
 
 MKDIR_P := mkdir -p
-FLASH_TOOL := openocd
+FLASH_TOOL := openocd -f board/atmel_samr21_xplained_pro.cfg
 DFU_UTIL := dfu-util
-TERMINAL_PROGRAM := miniterm.py /dev/ttyUSB0 -b 115200
-PREPROCESSOR_SIMULATOR := $(GENERIC_TOOL_PATH)preprocessor-simulator.py -b 38400
+TERMINAL_PROGRAM := miniterm.py -b 115200 /dev/ttyACM0
+PREPROCESSOR_SIMULATOR := $(GENERIC_TOOL_PATH)preprocessor-simulator.py /dev/ttyACM1
 CONFIGURATION_VALIDATION_TOOL := $(TOOL_PATH)validate_image_file.py
 LIGHT_PROGRAM_ASSEMBLER_PATH := $(TOOL_PATH)configurator/assembler
 DEFAULT_FIRMWARE_IMAGE_JS := $(TOOL_PATH)configurator/src/default_firmware_image.js
@@ -204,14 +204,24 @@ list: $(BUILD_DIR) $(OBJECTS:.o=.lst)
 
 # Invoke the tool to program the microcontroller
 program: $(TARGET_ELF_WITH_BOOTLOADER)
-	$(QUIET) $(FLASH_TOOL) -f board/atmel_samr21_xplained_pro.cfg -c "init; reset halt ; flash write_image $< ; reset ; shutdown"
+	$(ECHO) $(FLASH_TOOL) -c "init; reset halt ; at91samd bootloader 0; reset halt ; flash write_image $< ; at91samd bootloader 8192; reset ; exit"
 
 flash: program
 
 # Load the program using the USB DFU (Device Firmware Upgrade) tool
 # This will only work when the bootloader is already present in the device
 dfu-util: $(TARGET_BIN)
-	$(DFU_UTIL) -d 0x6666:0xcab1,:0xcab0 -E 1 -D $<
+	$(ECHO) $(DFU_UTIL) -d 0x6666:0xcab1,:0xcab0 -E 1 -D $<
+
+# Set/clear the fuses that protect the bootloader from being accidentally
+# overwritten
+lock-bootloader:
+	$(ECHO) $(FLASH_TOOL) -c "init ; reset halt ; at91samd bootloader 8192; reset ; exit"
+	$(ECHO) sleep 1
+
+unlock-bootloader:
+	$(ECHO) $(FLASH_TOOL) -c "init ; reset halt ; at91samd bootloader 0; reset ; exit"
+	$(ECHO) sleep 1
 
 # Invoke a tool for UART communication
 terminal:
@@ -226,11 +236,11 @@ clean:
 	@echo [RM] $(BUILD_DIR)
 	$(ECHO) $(RM) -rf $(BUILD_DIR)
 
-debug: $(TARGET_ELF_WITH_BOOTLOADER)
-	$(ECHO) $(GDB) -q -ex "target extended-remote | $(FLASH_TOOL) -f board/atmel_samr21_xplained_pro.cfg -c \"gdb_port pipe\"" -ex "load" --tui $<
+debug: $(TARGET_ELF_WITH_BOOTLOADER) unlock-bootloader
+	$(ECHO) $(GDB) -q -ex "target extended-remote | $(FLASH_TOOL) -c \"gdb_port pipe\"" -ex "load" --tui $<
 
 
 
-.PHONY : all clean debug echosize list program flash terminal default_firmware_image preprocessor-simulator
+.PHONY : all clean debug echosize list program flash dfu-util lock-bootloader unlock-bootloader terminal default_firmware_image preprocessor-simulator
 
 -include $(wildcard $(BUILD_DIR)/*.d)
