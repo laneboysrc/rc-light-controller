@@ -16,6 +16,15 @@
 #define HAL_NUMBER_OF_PERSISTENT_ELEMENTS 16
 
 
+extern bool start_bootloader;
+
+typedef struct {
+    uint8_t group;
+    uint8_t pin;
+    uint8_t mux;
+} HAL_GPIO_T;
+
+
 // ****************************************************************************
 // IO pins: (SAMD21E15 in QFN32 package)
 //
@@ -45,29 +54,8 @@
 // VDDCORE  (29)
 // 3.3V     (30)  VDDIN
 // 3.3V     (29)  VDDANA
-// ****************************************************************************
-#define GPIO_PORTA 0
-#define GPIO_PORTB 0
-
-#ifndef SAMR21_XPLAINED_PRO
-#define GPIO_BIT_RX 23
-#define GPIO_BIT_OUT_TX 22
-#define GPIO_BIT_ST 16
-#define GPIO_BIT_TH 17
-#define GPIO_BIT_CH3 19
-#define GPIO_BIT_SCK 5
-#define GPIO_BIT_SIN 4
-#define GPIO_BIT_XLAT 6
-#define GPIO_BIT_GSCLK 9
-#define GPIO_BIT_BLANK 7
-#define GPIO_BIT_PUSH_BUTTON 11
-#define GPIO_BIT_SWITCHED_LIGHT_OUTPUT 2
-#define GPIO_BIT_LED 1
-#define GPIO_BIT_USB_DM 24
-#define GPIO_BIT_USB_DP 25
-#endif
-
-// ****************************************************************************
+//
+//
 // Arduino MKRZero pin mapping:
 //
 // PA02     A0      OUT15S Switched light output
@@ -86,6 +74,28 @@
 // PB08             LED
 //
 // ****************************************************************************
+
+#ifndef SAMR21_XPLAINED_PRO
+
+static const HAL_GPIO_T HAL_GPIO_RX = { .group = 0, .pin = 23, .mux = PORT_PMUX_PMUXE_D_Val };
+static const HAL_GPIO_T HAL_GPIO_TX = { .group = 0, .pin = 22, .mux = PORT_PMUX_PMUXE_D_Val };
+static const HAL_GPIO_T HAL_GPIO_OUT = { .group = 0, .pin = 22, .mux = PORT_PMUX_PMUXE_E_Val };
+static const HAL_GPIO_T HAL_GPIO_ST = { .group = 0, .pin = 16, .mux = PORT_PMUX_PMUXE_A_Val };
+static const HAL_GPIO_T HAL_GPIO_TH = { .group = 0, .pin = 17, .mux = PORT_PMUX_PMUXE_A_Val };
+static const HAL_GPIO_T HAL_GPIO_CH3 = { .group = 0, .pin = 19 };
+static const HAL_GPIO_T HAL_GPIO_SCK = { .group = 0, .pin = 5, .mux = PORT_PMUX_PMUXE_C_Val };
+static const HAL_GPIO_T HAL_GPIO_SIN = { .group = 0, .pin = 4, .mux = PORT_PMUX_PMUXE_C_Val };
+static const HAL_GPIO_T HAL_GPIO_XLAT = { .group = 0, .pin = 6 };
+static const HAL_GPIO_T HAL_GPIO_GSCLK = { .group = 0, .pin = 9 };
+static const HAL_GPIO_T HAL_GPIO_BLANK = { .group = 0, .pin = 7 };
+static const HAL_GPIO_T HAL_GPIO_PUSH_BUTTON = { .group = 0, .pin = 11 };
+static const HAL_GPIO_T HAL_GPIO_SWITCHED_LIGHT_OUTPUT = { .group = 0, .pin = 2 };
+static const HAL_GPIO_T HAL_GPIO_LED = { .group = 0, .pin = 1 };
+static const HAL_GPIO_T HAL_GPIO_USB_DM = { .group = 0, .pin = 24, .mux = PORT_PMUX_PMUXE_G_Val };
+static const HAL_GPIO_T HAL_GPIO_USB_DP = { .group = 0, .pin = 25, .mux = PORT_PMUX_PMUXE_G_Val };
+
+#endif
+
 
 // ****************************************************************************
 // SAM R21 Xplained Pro mapping:
@@ -111,88 +121,80 @@
 //
 // ****************************************************************************
 #ifdef SAMR21_XPLAINED_PRO
-#define GPIO_BIT_RX 5
-#define GPIO_BIT_TX 4
-#define GPIO_BIT_OUT 22
-#define GPIO_BIT_ST 16
-#define GPIO_BIT_TH 17
-#define GPIO_BIT_CH3 0
-#define GPIO_BIT_SCK 8
-#define GPIO_BIT_SIN 23
-#define GPIO_BIT_XLAT 6
-#define GPIO_BIT_GSCLK 14
-#define GPIO_BIT_BLANK 8
-#define GPIO_BIT_PUSH_BUTTON 15
-#define GPIO_BIT_SWITCHED_LIGHT_OUTPUT 19
-#define GPIO_BIT_LED 19
-#define GPIO_BIT_USB_DM 24
-#define GPIO_BIT_USB_DP 25
+
+static const HAL_GPIO_T HAL_GPIO_RX = { .group = 0, .pin = 5, .mux = PORT_PMUX_PMUXE_D_Val };
+static const HAL_GPIO_T HAL_GPIO_TX = { .group = 0, .pin = 4, .mux = PORT_PMUX_PMUXE_D_Val };
+static const HAL_GPIO_T HAL_GPIO_OUT = { .group = 0, .pin = 22, .mux = PORT_PMUX_PMUXE_E_Val }; // Set GPIO to output TC4/W[0]
+static const HAL_GPIO_T HAL_GPIO_ST = { .group = 0, .pin = 16, .mux = PORT_PMUX_PMUXE_A_Val };  // Enable the EIC function on the ST pin (EXTINT0)
+static const HAL_GPIO_T HAL_GPIO_TH = { .group = 0, .pin = 17, .mux = PORT_PMUX_PMUXE_A_Val };  // Enable the EIC function on the TH pin (EXTINT1)
+static const HAL_GPIO_T HAL_GPIO_CH3 = { .group = 0, .pin = 0 };
+static const HAL_GPIO_T HAL_GPIO_SCK = { .group = 0, .pin = 8, .mux = PORT_PMUX_PMUXE_C_Val };
+static const HAL_GPIO_T HAL_GPIO_SIN = { .group = 0, .pin = 23, .mux = PORT_PMUX_PMUXE_C_Val };
+static const HAL_GPIO_T HAL_GPIO_XLAT = { .group = 0, .pin = 6 };
+static const HAL_GPIO_T HAL_GPIO_GSCLK = { .group = 0, .pin = 14 };
+static const HAL_GPIO_T HAL_GPIO_BLANK = { .group = 0, .pin = 8 };
+static const HAL_GPIO_T HAL_GPIO_PUSH_BUTTON = { .group = 0, .pin = 15 };
+static const HAL_GPIO_T HAL_GPIO_SWITCHED_LIGHT_OUTPUT = { .group = 0, .pin = 19 };
+static const HAL_GPIO_T HAL_GPIO_LED = { .group = 0, .pin = 19 };
+static const HAL_GPIO_T HAL_GPIO_USB_DM = { .group = 0, .pin = 24, .mux = PORT_PMUX_PMUXE_G_Val };
+static const HAL_GPIO_T HAL_GPIO_USB_DP = { .group = 0, .pin = 25, .mux = PORT_PMUX_PMUXE_G_Val };
+
 #endif
 
 
+static inline void HAL_gpio_in(const HAL_GPIO_T gpio)
+{
+    // PORT->Group[gpio.group].DIRCLR.bit[gpio.pin] = 1;
+    PORT->Group[gpio.group].DIRCLR.reg = 1 << gpio.pin;
+    PORT->Group[gpio.group].PINCFG[gpio.pin].reg |= PORT_PINCFG_INEN;
+    PORT->Group[gpio.group].PINCFG[gpio.pin].reg &= ~PORT_PINCFG_PULLEN;
+}
 
-#define DECLARE_GPIO(name, port, pin)                                       \
-                                                                            \
-    static inline void HAL_gpio_##name##_in(void)                           \
-    {                                                                       \
-        PORT->Group[port].DIRCLR.reg = (1 << pin);                          \
-        PORT->Group[port].PINCFG[pin].reg |= PORT_PINCFG_INEN;              \
-        PORT->Group[port].PINCFG[pin].reg &= ~PORT_PINCFG_PULLEN;           \
-    }                                                                       \
-                                                                            \
-    static inline void HAL_gpio_##name##_out(void)                          \
-    {                                                                       \
-        PORT->Group[port].DIRSET.reg = 1 << pin;                            \
-        PORT->Group[port].PINCFG[pin].reg |= PORT_PINCFG_INEN;              \
-    }                                                                       \
-                                                                            \
-    static inline void HAL_gpio_##name##_write(bool value)                  \
-    {                                                                       \
-        if (value) {                                                        \
-            PORT->Group[port].OUTSET.reg = 1 << pin;                        \
-        }                                                                   \
-        else {                                                              \
-            PORT->Group[port].OUTCLR.reg = 1 << pin;                        \
-        }                                                                   \
-    }                                                                       \
-                                                                            \
-    static inline bool HAL_gpio_##name##_read(void)                         \
-    {                                                                       \
-        return (PORT->Group[port].IN.reg & (1 << pin)) != 0;                \
-    }                                                                       \
-                                                                            \
-    static inline void HAL_gpio_##name##_set(void)                          \
-    {                                                                       \
-        PORT->Group[port].OUTSET.reg = 1 << pin;                            \
-    }                                                                       \
-                                                                            \
-    static inline void HAL_gpio_##name##_clear(void)                        \
-    {                                                                       \
-        PORT->Group[port].OUTCLR.reg = 1 << pin;                            \
-    }                                                                       \
-                                                                            \
-    static inline void HAL_gpio_##name##_toggle(void)                       \
-    {                                                                       \
-        PORT->Group[port].OUTTGL.reg = 1 << pin;                            \
-    }                                                                       \
-                                                                            \
-    static inline void HAL_gpio_##name##_pmuxen(int pmux)                   \
-    {                                                                       \
-        PORT->Group[port].PINCFG[pin].reg |= PORT_PINCFG_PMUXEN;            \
-        if (pin & 1) {                                                      \
-            PORT->Group[port].PMUX[pin >> 1].bit.PMUXO = pmux;              \
-        }                                                                   \
-        else {                                                              \
-            PORT->Group[port].PMUX[pin >> 1].bit.PMUXE = pmux;              \
-        }                                                                   \
+static inline void HAL_gpio_out(const HAL_GPIO_T gpio)
+{
+    PORT->Group[gpio.group].DIRSET.reg = 1 << gpio.pin;
+    PORT->Group[gpio.group].PINCFG[gpio.pin].reg |= PORT_PINCFG_INEN;
+}
+
+static inline void HAL_gpio_write(const HAL_GPIO_T gpio, bool value)
+{
+    if (value) {
+        PORT->Group[gpio.group].OUTSET.reg = 1 << gpio.pin;
     }
+    else {
+        PORT->Group[gpio.group].OUTCLR.reg = 1 << gpio.pin;
+    }
+}
 
-// NOTE: HAL_gpio_XXX_pmuxen is specific to the ATSAMD21 processor
+static inline bool HAL_gpio_read(const HAL_GPIO_T gpio)
+{
+    return (PORT->Group[gpio.group].IN.reg & (1 << gpio.pin)) != 0;
+}
 
+static inline void HAL_gpio_set(const HAL_GPIO_T gpio)
+{
+    PORT->Group[gpio.group].OUTSET.reg = 1 << gpio.pin;
+}
 
-DECLARE_GPIO(gsclk, GPIO_PORTA, GPIO_BIT_GSCLK)
-DECLARE_GPIO(blank, GPIO_PORTA, GPIO_BIT_BLANK)
-DECLARE_GPIO(ch3, GPIO_PORTA, GPIO_BIT_CH3)
-DECLARE_GPIO(switched_light_output, GPIO_PORTA, GPIO_BIT_SWITCHED_LIGHT_OUTPUT)
+static inline void HAL_gpio_clear(const HAL_GPIO_T gpio)
+{
+    PORT->Group[gpio.group].OUTCLR.reg = 1 << gpio.pin;
+}
 
-extern bool start_bootloader;
+static inline void HAL_gpio_toggle(const HAL_GPIO_T gpio)
+{
+    PORT->Group[gpio.group].OUTTGL.reg = 1 << gpio.pin;
+}
+
+// NOTE: HAL_gpio_pmuxen is specific to the ATSAMD21 processor
+static inline void HAL_gpio_pmuxen(const HAL_GPIO_T gpio)
+{
+    if (gpio.pin & 1) {
+        PORT->Group[gpio.group].PMUX[gpio.pin >> 1].bit.PMUXO = gpio.mux;
+    }
+    else {
+        PORT->Group[gpio.group].PMUX[gpio.pin >> 1].bit.PMUXE = gpio.mux;
+    }
+    PORT->Group[gpio.group].PINCFG[gpio.pin].reg |= PORT_PINCFG_PMUXEN;
+}
+

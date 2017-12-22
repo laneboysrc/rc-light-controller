@@ -7,10 +7,6 @@
 
 * Use DFU, using existing WebUSB DFU implementation
 
-* Look at GPIO HAL from T2, e.g. `pin_low`, `pin_out`, ...
-
-* Low interrupt priority for Systick
-
 * Use DMA for UART TX?
 
 * Make convenient script to flash app with bootloader, and debug as well
@@ -27,6 +23,8 @@
 
 * FIX dfu-util reporting 'dfu-util: error detaching' when switching from run time mode to dfu mode
 * FIX dfu-util reporting 'dfu-util: unable to read DFU status after completion' after flashing
+
+* Print software version number on diagnostics
 
 
 # MK5 PCB

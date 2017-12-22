@@ -98,25 +98,28 @@ void HAL_hardware_init(bool is_servo_reader, bool servo_output_enabled, bool uar
             LPC_SWM->PINASSIGN0 = (0xff << 24) |
                                   (0xff << 16) |
                                   (0xff << 8) |
-                                  (GPIO_BIT_OUT << 0);
+                                  (HAL_GPIO_OUT.pin << 0);
         }
     }
     else {
         // U0_TXT_O=PIO0_4 (TH), U0_RXD_I=PIO0_0 (ST)
         LPC_SWM->PINASSIGN0 = (0xff << 24) |
                               (0xff << 16) |
-                              (GPIO_BIT_ST << 8) |
-                              (GPIO_BIT_TH << 0);
+                              (HAL_GPIO_ST.pin << 8) |
+                              (HAL_GPIO_TH.pin << 0);
     }
 
     // Make the open drain ports PIO0_10, PIO0_11 outputs and pull to ground
     // to prevent them from floating.
+    HAL_gpio_clear(HAL_GPIO_PIN10);
+    HAL_gpio_out(HAL_GPIO_PIN10);
+
+    HAL_gpio_clear(HAL_GPIO_PIN11);
+    HAL_gpio_out(HAL_GPIO_PIN11);
+
     // Make the switched light output PIO0_9 an output and shut it off.
-    HAL_gpio_switched_light_output_clear();
-    LPC_GPIO_PORT->W0[10] = 0;
-    LPC_GPIO_PORT->W0[11] = 0;
-    LPC_GPIO_PORT->DIR0 |= (1 << 10) | (1 << 11) |
-                           (1 << GPIO_BIT_SWITCHED_LIGHT_OUTPUT);
+    HAL_gpio_clear(HAL_GPIO_SWITCHED_LIGHT_OUTPUT);
+    HAL_gpio_out(HAL_GPIO_SWITCHED_LIGHT_OUTPUT);
 
 
     // Enable glitch filtering on the IOs
@@ -128,17 +131,9 @@ void HAL_hardware_init(bool is_servo_reader, bool servo_output_enabled, bool uar
     // filtering on the IOs used for the capture timer. One clock cytle of the
     // main clock is enough, but with none weird things happen.
 
-    GPIO_IOCON_ST |= (1 << 5) |         // Enable Hysteresis
-                     (0x1 << 13) |      // Glitch filter 1
-                     (0x1 << 11);       // Reject 1 clock cycle of glitch filter
-
-    GPIO_IOCON_TH |= (1 << 5) |         // Enable Hysteresis
-                     (0x1 << 13) |      // Glitch filter 1
-                     (0x1 << 11);       // Reject 1 clock cycle of glitch filter
-
-    GPIO_IOCON_CH3 |= (1 << 5) |        // Enable Hysteresis
-                      (0x1 << 13) |     // Glitch filter 1
-                      (0x1 << 11);      // Reject 1 clock cycle of glitch filter
+    HAL_gpio_glitch_filter(HAL_GPIO_ST);
+    HAL_gpio_glitch_filter(HAL_GPIO_TH);
+    HAL_gpio_glitch_filter(HAL_GPIO_CH3);
 
 
     // ------------------------
@@ -626,9 +621,9 @@ void HAL_servo_reader_init(bool CPPM, uint32_t cppm_servo_pulse_max)
         }
 
         LPC_SWM->PINASSIGN6 = (0xff << 24) |
-                              (GPIO_BIT_CH3 << 16) |    // CTIN_3
-                              (GPIO_BIT_TH << 8) |      // CTIN_2
-                              (GPIO_BIT_ST << 0);       // CTIN_1
+                              (HAL_GPIO_CH3.pin << 16) |    // CTIN_3
+                              (HAL_GPIO_TH.pin << 8) |      // CTIN_2
+                              (HAL_GPIO_ST.pin << 0);       // CTIN_1
     }
 
     else { // CPPM reader
@@ -645,7 +640,7 @@ void HAL_servo_reader_init(bool CPPM, uint32_t cppm_servo_pulse_max)
         LPC_SWM->PINASSIGN6 = (0xff << 24) |
                               (0xff << 16) |
                               (0xff << 8) |
-                              (GPIO_BIT_ST << 0);   // CTIN_1
+                              (HAL_GPIO_ST.pin << 0);   // CTIN_1
     }
 
     LPC_SCT->CTRL_L &= ~(1 << 2);               // Start the SCTimer L
@@ -756,11 +751,11 @@ void SCT_irq_handler(void)
 // ****************************************************************************
 void HAL_spi_init(void)
 {
-    LPC_GPIO_PORT->W0[GPIO_BIT_XLAT] = 1;
+    HAL_gpio_set(HAL_GPIO_XLAT);
 
-    LPC_GPIO_PORT->DIR0 |= (1 << GPIO_BIT_SCK) |
-                           (1 << GPIO_BIT_XLAT) |
-                           (1 << GPIO_BIT_SIN);
+    HAL_gpio_out(HAL_GPIO_SCK);
+    HAL_gpio_out(HAL_GPIO_SIN);
+    HAL_gpio_out(HAL_GPIO_XLAT);
 
     // Use 2 MHz SPI clock. 16 bytes take about 50 us to transmit.
     LPC_SPI0->DIV = (HAL_SYSTEM_CLOCK / 2000000) - 1;
@@ -779,15 +774,15 @@ void HAL_spi_init(void)
 
     // We use the SSEL function for XLAT: low during the transmission, high
     // during the idle periood.
-    LPC_SWM->PINASSIGN3 = (GPIO_BIT_SCK << 24) |        // SCK
+    LPC_SWM->PINASSIGN3 = (HAL_GPIO_SCK.pin << 24) |        // SCK
                           (0xff << 16) |
                           (0xff << 8) |
                           (0xff << 0);
 
     LPC_SWM->PINASSIGN4 = (0xff << 24) |
-                          (GPIO_BIT_XLAT << 16) |       // XLAT (SSEL)
+                          (HAL_GPIO_XLAT.pin << 16) |       // XLAT (SSEL)
                           (0xff << 8) |
-                          (GPIO_BIT_SIN << 0);          // SIN (MOSI)
+                          (HAL_GPIO_SIN.pin << 0);          // SIN (MOSI)
 }
 
 

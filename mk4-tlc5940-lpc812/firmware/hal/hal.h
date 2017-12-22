@@ -9,6 +9,10 @@
 #define HAL_SYSTEM_CLOCK 12000000
 #define HAL_NUMBER_OF_PERSISTENT_ELEMENTS 16
 
+typedef struct {
+    uint8_t pin;
+    volatile uint32_t *iocon;
+} HAL_GPIO_T;
 
 // ****************************************************************************
 // IO pins: (LPC812 in TSSOP16 package)
@@ -32,60 +36,62 @@
 // 3.3V     (12)
 // ****************************************************************************
 
-#define GPIO_BIT_ST 0
-#define GPIO_BIT_TH 4
-#define GPIO_BIT_CH3 13
-#define GPIO_BIT_OUT 12
-#define GPIO_BIT_SWITCHED_LIGHT_OUTPUT 9
-#define GPIO_BIT_SCK 2
-#define GPIO_BIT_SIN 7
-#define GPIO_BIT_XLAT 3
-#define GPIO_BIT_GSCLK 1
-#define GPIO_BIT_BLANK 6
 
-#define GPIO_IOCON_ST LPC_IOCON->PIO0_0
-#define GPIO_IOCON_TH LPC_IOCON->PIO0_4
-#define GPIO_IOCON_CH3 LPC_IOCON->PIO0_13
+static const HAL_GPIO_T HAL_GPIO_ST = { .pin = 0, .iocon = &LPC_IOCON->PIO0_0 };
+static const HAL_GPIO_T HAL_GPIO_TH = { .pin = 4, .iocon = &LPC_IOCON->PIO0_4 };
+static const HAL_GPIO_T HAL_GPIO_CH3 = { .pin = 13, .iocon = &LPC_IOCON->PIO0_13 };
+static const HAL_GPIO_T HAL_GPIO_OUT = { .pin = 12 };
+static const HAL_GPIO_T HAL_GPIO_SWITCHED_LIGHT_OUTPUT = { .pin = 9 };
+static const HAL_GPIO_T HAL_GPIO_SCK = { .pin = 2 };
+static const HAL_GPIO_T HAL_GPIO_SIN = { .pin = 7 };
+static const HAL_GPIO_T HAL_GPIO_XLAT = { .pin = 3 };
+static const HAL_GPIO_T HAL_GPIO_GSCLK = { .pin = 1 };
+static const HAL_GPIO_T HAL_GPIO_BLANK = { .pin = 6 };
 
-#define DECLARE_GPIO(name, bit)                                             \
-                                                                            \
-    static inline void HAL_gpio_##name##_in(void)                           \
-    {                                                                       \
-        LPC_GPIO_PORT->DIR0 &= ~(1 << bit);                                 \
-    }                                                                       \
-                                                                            \
-    static inline void HAL_gpio_##name##_out(void)                          \
-    {                                                                       \
-        LPC_GPIO_PORT->DIR0 |= (1 << bit);                                  \
-    }                                                                       \
-                                                                            \
-    static inline void HAL_gpio_##name##_write(bool value)                  \
-    {                                                                       \
-        LPC_GPIO_PORT->W0[bit] = value;                                     \
-    }                                                                       \
-                                                                            \
-    static inline bool HAL_gpio_##name##_read(void)                         \
-    {                                                                       \
-        return LPC_GPIO_PORT->W0[bit];                                      \
-    }                                                                       \
-                                                                            \
-    static inline void HAL_gpio_##name##_set(void)                          \
-    {                                                                       \
-        LPC_GPIO_PORT->W0[bit] = 1;                                         \
-    }                                                                       \
-                                                                            \
-    static inline void HAL_gpio_##name##_clear(void)                        \
-    {                                                                       \
-        LPC_GPIO_PORT->W0[bit] = 0;                                         \
-    }                                                                       \
-                                                                            \
-    static inline void HAL_gpio_##name##_toggle(void)                       \
-    {                                                                       \
-        LPC_GPIO_PORT->NOT0 = 1 << bit;                                     \
-    }                                                                       \
+static const HAL_GPIO_T HAL_GPIO_PIN10 = { .pin = 10 };
+static const HAL_GPIO_T HAL_GPIO_PIN11 = { .pin = 11 };
 
 
-DECLARE_GPIO(gsclk, GPIO_BIT_GSCLK)
-DECLARE_GPIO(blank, GPIO_BIT_BLANK)
-DECLARE_GPIO(ch3, GPIO_BIT_CH3)
-DECLARE_GPIO(switched_light_output, GPIO_BIT_SWITCHED_LIGHT_OUTPUT)
+static inline void HAL_gpio_in(const HAL_GPIO_T gpio)
+{
+    LPC_GPIO_PORT->DIR0 &= ~(1 << gpio.pin);
+}
+
+static inline void HAL_gpio_out(const HAL_GPIO_T gpio)
+{
+    LPC_GPIO_PORT->DIR0 |= (1 << gpio.pin);
+}
+
+static inline void HAL_gpio_write(const HAL_GPIO_T gpio, bool value)
+{
+    LPC_GPIO_PORT->W0[gpio.pin] = value;
+}
+
+static inline bool HAL_gpio_read(const HAL_GPIO_T gpio)
+{
+    return LPC_GPIO_PORT->W0[gpio.pin];
+}
+
+static inline void HAL_gpio_set(const HAL_GPIO_T gpio)
+{
+    LPC_GPIO_PORT->W0[gpio.pin] = 1;
+}
+
+static inline void HAL_gpio_clear(const HAL_GPIO_T gpio)
+{
+    LPC_GPIO_PORT->W0[gpio.pin] = 0;
+}
+
+static inline void HAL_gpio_toggle(const HAL_GPIO_T gpio)
+{
+    LPC_GPIO_PORT->NOT0 = 1 << gpio.pin;
+}
+
+// NOTE: HAL_gpio_glitch_filter is specific to the LPC812 processor
+static inline void HAL_gpio_glitch_filter(const HAL_GPIO_T gpio)
+{
+    *gpio.iocon |= (1 << 5) |           // Enable Hysteresis
+                   (0x1 << 13) |        // Glitch filter 1
+                   (0x1 << 11);         // Reject 1 clock cycle of glitch filter
+}
+

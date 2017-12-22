@@ -30,38 +30,17 @@ __attribute__ ((section(".persistent_data")))
 static volatile const uint32_t persistent_data[HAL_NUMBER_OF_PERSISTENT_ELEMENTS];
 
 
-DECLARE_GPIO(UART_TXD, GPIO_PORTA, GPIO_BIT_TX)
-DECLARE_GPIO(UART_RXD, GPIO_PORTA, GPIO_BIT_RX)
-
-DECLARE_GPIO(SIN, GPIO_PORTA, GPIO_BIT_SIN)
-DECLARE_GPIO(SCLK, GPIO_PORTA, GPIO_BIT_SCK)
-DECLARE_GPIO(XLAT, GPIO_PORTA, GPIO_BIT_XLAT)
-
-DECLARE_GPIO(ST, GPIO_PORTA, GPIO_BIT_ST)
-DECLARE_GPIO(TH, GPIO_PORTA, GPIO_BIT_TH)
-DECLARE_GPIO(CH3, GPIO_PORTA, GPIO_BIT_CH3)
-
-DECLARE_GPIO(OUT, GPIO_PORTA, GPIO_BIT_OUT)
-
-DECLARE_GPIO(USB_DM, GPIO_PORTA, GPIO_BIT_USB_DM)
-DECLARE_GPIO(USB_DP, GPIO_PORTA, GPIO_BIT_USB_DP)
-
-
 #ifdef SAMR21_XPLAINED_PRO
 
 #define UART_SERCOM SERCOM0
 #define UART_SERCOM_GCLK_ID SERCOM0_GCLK_ID_CORE
 #define UART_SERCOM_APBCMASK PM_APBCMASK_SERCOM0
-#define UART_TXD_PMUX PORT_PMUX_PMUXE_D_Val
-#define UART_RXD_PMUX PORT_PMUX_PMUXE_D_Val
-#define UART_TXD_PAD 0      // PAD0
+#define UART_TXD_PAD 0      // PAD0   FIXME: bring into HAL_GPIO_T
 #define UART_RXD_PAD 1      // PAD1
 
 #define SPI_SERCOM  SERCOM3
 #define SPI_SERCOM_GCLK_ID SERCOM3_GCLK_ID_CORE
 #define SPI_SERCOM_APBCMASK PM_APBCMASK_SERCOM3
-#define SPI_SCLK_PMUX PORT_PMUX_PMUXE_C_Val
-#define SPI_SIN_PMUX PORT_PMUX_PMUXE_C_Val
 
 #else
 
@@ -69,21 +48,17 @@ DECLARE_GPIO(USB_DP, GPIO_PORTA, GPIO_BIT_USB_DP)
 #define UART_SERCOM SERCOM3
 #define UART_SERCOM_GCLK_ID SERCOM0_GCLK_ID_CORE
 #define UART_SERCOM_APBCMASK PM_APBCMASK_SERCOM0
-#define UART_TXD_PMUX PORT_PMUX_PMUXE_D_Val
-#define UART_RXD_PMUX PORT_PMUX_PMUXE_D_Val
 #define UART_TXD_PAD 0      // PAD0
 #define UART_RXD_PAD 1      // PAD1
 
 #define SPI_SERCOM  SERCOM0
 #define SPI_SERCOM_GCLK_ID SERCOM3_GCLK_ID_CORE
 #define SPI_SERCOM_APBCMASK PM_APBCMASK_SERCOM3
-#define SPI_SCLK_PMUX PORT_PMUX_PMUXE_C_Val
-#define SPI_SIN_PMUX PORT_PMUX_PMUXE_C_Val
 
 #endif
 
 // FIXME
-DECLARE_GPIO(OUT_TX, GPIO_PORTA, 18)     //  TCC0/WO[2]  Dummy just for now
+// DECLARE_GPIO(OUT_TX, GPIO_PORTA, 18)     //  TCC0/WO[2]  Dummy just for now
 
 
 #define RECEIVE_BUFFER_SIZE (16)        // Must be modulo 2 for speed
@@ -108,32 +83,32 @@ void HAL_hardware_init(bool is_servo_reader, bool servo_output_enabled, bool uar
 
     // ------------------------------------------------
     // Perform GPIO initialization as early as possible
-    HAL_gpio_UART_TXD_out();
-    HAL_gpio_UART_TXD_pmuxen(UART_TXD_PMUX);
+    HAL_gpio_out(HAL_GPIO_TX);
+    HAL_gpio_pmuxen(HAL_GPIO_TX);
 
-    HAL_gpio_UART_RXD_in();
-    HAL_gpio_UART_RXD_pmuxen(UART_RXD_PMUX);
+    HAL_gpio_in(HAL_GPIO_RX);
+    HAL_gpio_pmuxen(HAL_GPIO_RX);
 
-    HAL_gpio_XLAT_out();
-    HAL_gpio_switched_light_output_out();
+    HAL_gpio_out(HAL_GPIO_XLAT);
+    HAL_gpio_out(HAL_GPIO_SWITCHED_LIGHT_OUTPUT);
 
-    HAL_gpio_SIN_out();
-    HAL_gpio_SIN_pmuxen(SPI_SIN_PMUX);
+    HAL_gpio_out(HAL_GPIO_SIN);
+    HAL_gpio_pmuxen(HAL_GPIO_SIN);
 
-    HAL_gpio_SCLK_out();
-    HAL_gpio_SCLK_pmuxen(SPI_SCLK_PMUX);
+    HAL_gpio_out(HAL_GPIO_SCK);
+    HAL_gpio_pmuxen(HAL_GPIO_SCK);
 
-    HAL_gpio_OUT_out();
-    HAL_gpio_OUT_pmuxen(PORT_PMUX_PMUXE_E_Val);     // Set GPIO to output TC4/W[0]
+    HAL_gpio_out(HAL_GPIO_OUT);
+    HAL_gpio_pmuxen(HAL_GPIO_OUT);
 
-    HAL_gpio_ST_in();
-    HAL_gpio_ST_pmuxen(PORT_PMUX_PMUXE_A_Val);      // Enable the EIC function on the ST pin (EXTINT0)
-    HAL_gpio_TH_in();
-    HAL_gpio_TH_pmuxen(PORT_PMUX_PMUXE_A_Val);      // Enable the EIC function on the TH pin (EXTINT1)
-    HAL_gpio_CH3_in();
+    HAL_gpio_in(HAL_GPIO_ST);
+    HAL_gpio_pmuxen(HAL_GPIO_ST);
+    HAL_gpio_in(HAL_GPIO_TH);
+    HAL_gpio_pmuxen(HAL_GPIO_TH);
+    HAL_gpio_in(HAL_GPIO_CH3);
 
-    HAL_gpio_USB_DM_pmuxen(PORT_PMUX_PMUXE_G_Val);
-    HAL_gpio_USB_DP_pmuxen(PORT_PMUX_PMUXE_G_Val);
+    HAL_gpio_pmuxen(HAL_GPIO_USB_DM);
+    HAL_gpio_pmuxen(HAL_GPIO_USB_DP);
 
 
     // ------------------------------------------------
@@ -459,7 +434,7 @@ void HAL_spi_init(void)
 // ****************************************************************************
 void HAL_spi_transaction(uint8_t *data, uint8_t count)
 {
-    HAL_gpio_XLAT_clear();
+    HAL_gpio_clear(HAL_GPIO_XLAT);
 
     for (uint8_t i = 0; i < count; i++) {
         SPI_SERCOM->SPI.DATA.reg = data[i];
@@ -471,7 +446,7 @@ void HAL_spi_transaction(uint8_t *data, uint8_t count)
     // Wait until the last byte has been sent completely
     while (!SPI_SERCOM->SPI.INTFLAG.bit.TXC);
 
-    HAL_gpio_XLAT_set();
+    HAL_gpio_set(HAL_GPIO_XLAT);
 }
 
 
