@@ -7,6 +7,8 @@
 
 * Improve and check USB_MicrosoftExtendedPropertiesDescriptor
 
+* Add interface association descriptor (See Black Magic Probe bootloader)
+
 * Use DFU, using existing WebUSB DFU implementation
 
 * Use DMA for UART TX?
