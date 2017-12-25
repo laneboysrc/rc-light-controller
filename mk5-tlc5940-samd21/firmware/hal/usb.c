@@ -222,7 +222,7 @@ typedef struct {
     USB_MicrosoftCompatibleDescriptor_Interface interfaces[2];
 } __attribute__((packed)) msft_compatible_t;
 
-
+// FIXME: needs to be for all interfaces according to Tessel 2 change log
 const msft_compatible_t msft_compatible = {
     .dwLength = sizeof(USB_MicrosoftCompatibleDescriptor) + (2 * sizeof(USB_MicrosoftCompatibleDescriptor_Interface)),
     .bcdVersion = 0x0100,
@@ -232,14 +232,14 @@ const msft_compatible_t msft_compatible = {
     .interfaces = {
         {
             .bFirstInterfaceNumber = 0,
-            .reserved1 = 0x01,
+            .reserved1 = 0,
             .compatibleID = "WINUSB\0\0",
             .subCompatibleID = {0, 0, 0, 0, 0, 0, 0, 0},
             .reserved2 = {0, 0, 0, 0, 0, 0},
         },
         {
             .bFirstInterfaceNumber = 1,
-            .reserved1 = 0x01,
+            .reserved1 = 0,
             .compatibleID = "WINUSB\0\0",
             .subCompatibleID = {0, 0, 0, 0, 0, 0, 0, 0},
             .reserved2 = {0, 0, 0, 0, 0, 0},
@@ -272,8 +272,8 @@ const USB_MicrosoftExtendedPropertiesDescriptor msft_extended = {
     .dwType = 7,
     .wNameLength = 42,
     .name = u"DeviceInterfaceGUIDs\0",
-    .dwDataLength = 78,
-    .data = u"{3c33bbfd-71f9-4815-8b8f-7cd1ef928b3d}",
+    .dwDataLength = 80,
+    .data = u"{3c33bbfd-71f9-4815-8b8f-7cd1ef928b3d}\0\0",
 };
 
 
