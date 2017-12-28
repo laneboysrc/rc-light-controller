@@ -26,9 +26,12 @@ USB_ENDPOINTS(3)
 // FIXME: is this the 'vendor id'?
 #define MSFT_ID 0xee
 
+
+#define USB_NUMBER_OF_INTERFACES 3
 #define USB_INTERFACE_CDC_CONTROL 0
 #define USB_INTERFACE_CDC_DATA 1
 #define USB_INTERFACE_DFU 2
+
 
 #define USB_EP0 (USB_IN + 0)
 #define USB_EP_CDC_NOTIFICATION (USB_IN + 1)
@@ -37,12 +40,13 @@ USB_ENDPOINTS(3)
 
 #define BUF_SIZE 64
 
+
 alignas(4) uint8_t usbserial_buf_in[BUF_SIZE];
 alignas(4) uint8_t usbserial_buf_out[BUF_SIZE];
 alignas(4) uint8_t ep0_buffer[146];
 
 
-__attribute__((__aligned__(4))) const USB_DeviceDescriptor device_descriptor = {
+static alignas(4) const USB_DeviceDescriptor device_descriptor = {
     .bLength = sizeof(USB_DeviceDescriptor),
     .bDescriptorType = USB_DTYPE_Device,
 
@@ -64,8 +68,10 @@ __attribute__((__aligned__(4))) const USB_DeviceDescriptor device_descriptor = {
 };
 
 
-typedef struct ConfigDesc {
+typedef struct {
     USB_ConfigurationDescriptor Config;
+
+    USB_InterfaceAssociationDescriptor CDC_interface_association;
 
     USB_InterfaceDescriptor CDC_control_interface;
     CDC_FunctionalHeaderDescriptor CDC_functional_header;
@@ -77,21 +83,34 @@ typedef struct ConfigDesc {
     USB_EndpointDescriptor CDC_out_endpoint;
     USB_EndpointDescriptor CDC_in_endpoint;
 
+    USB_InterfaceAssociationDescriptor DFU_interface_association;
+
     USB_InterfaceDescriptor DFU_interface;
     DFU_FunctionalDescriptor DFU_functional;
 
-}  __attribute__((packed)) ConfigDesc;
+}  __attribute__((packed)) configuration_descriptor_t;
 
-alignas(4) const ConfigDesc configuration_descriptor = {
+static alignas(4) const configuration_descriptor_t configuration_descriptor = {
     .Config = {
         .bLength = sizeof(USB_ConfigurationDescriptor),
         .bDescriptorType = USB_DTYPE_Configuration,
-        .wTotalLength  = sizeof(ConfigDesc),
+        .wTotalLength  = sizeof(configuration_descriptor_t),
         .bNumInterfaces = 3,
         .bConfigurationValue = 1,
         .iConfiguration = 0,
         .bmAttributes = USB_CONFIG_ATTR_BUSPOWERED,
         .bMaxPower = USB_CONFIG_POWER_MA(100)
+    },
+
+    .CDC_interface_association = {
+        .bLength = sizeof(USB_InterfaceAssociationDescriptor),
+        .bDescriptorType = USB_DTYPE_InterfaceAssociation,
+        .bFirstInterface = USB_INTERFACE_CDC_CONTROL,
+        .bInterfaceCount = 2,
+        .bFunctionClass = CDC_INTERFACE_CLASS,
+        .bFunctionSubClass = CDC_INTERFACE_SUBCLASS_ACM,
+        .bFunctionProtocol = 0,         // USB_CDC_PROTOCOL_NONE
+        .iFunction = 0,
     },
 
     .CDC_control_interface = {
@@ -161,6 +180,17 @@ alignas(4) const ConfigDesc configuration_descriptor = {
         .bInterval = 0x05
     },
 
+    .DFU_interface_association = {
+        .bLength = sizeof(USB_InterfaceAssociationDescriptor),
+        .bDescriptorType = USB_DTYPE_InterfaceAssociation,
+        .bFirstInterface = USB_INTERFACE_DFU,
+        .bInterfaceCount = 1,
+        .bFunctionClass = DFU_INTERFACE_CLASS,
+        .bFunctionSubClass = DFU_INTERFACE_SUBCLASS,
+        .bFunctionProtocol = DFU_RUNTIME_PROTOCOL,
+        .iFunction = 0,
+    },
+
     .DFU_interface = {
         .bLength = sizeof(USB_InterfaceDescriptor),
         .bDescriptorType = USB_DTYPE_Interface,
@@ -189,7 +219,7 @@ typedef struct {
     __CHAR16_TYPE__ bString[1];
 } __attribute__ ((packed)) language_string_t;
 
-alignas(4) const language_string_t language_string = {
+static alignas(4) const language_string_t language_string = {
     .bLength = USB_STRING_LEN(1),
     .bDescriptorType = USB_DTYPE_String,
     .bString = { USB_LANGUAGE_EN_US }
@@ -204,7 +234,7 @@ typedef struct {
     uint8_t bPadding;
 } __attribute__((packed)) msft_os_t;
 
-alignas(4) const msft_os_t msft_os = {
+static alignas(4) const msft_os_t msft_os = {
     .bLength = 18,
     .bDescriptorType = USB_DTYPE_String,
     .bString = { u"MSFT100" },
@@ -223,7 +253,7 @@ typedef struct {
 } __attribute__((packed)) msft_compatible_t;
 
 // FIXME: needs to be for all interfaces according to Tessel 2 change log
-const msft_compatible_t msft_compatible = {
+static const msft_compatible_t msft_compatible = {
     .dwLength = sizeof(USB_MicrosoftCompatibleDescriptor) + (2 * sizeof(USB_MicrosoftCompatibleDescriptor_Interface)),
     .bcdVersion = 0x0100,
     .wIndex = 0x0004,
@@ -374,7 +404,7 @@ uint16_t usb_cb_get_descriptor(uint8_t type, uint8_t index, const uint8_t** ptr)
 
         case USB_DTYPE_Configuration:
             address = &configuration_descriptor;
-            size = sizeof(ConfigDesc);
+            size = sizeof(configuration_descriptor_t);
             break;
 
         case USB_DTYPE_String:
