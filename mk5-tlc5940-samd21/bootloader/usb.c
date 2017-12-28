@@ -64,6 +64,8 @@ alignas(4) const USB_DeviceDescriptor device_descriptor = {
 typedef struct ConfigDesc {
     USB_ConfigurationDescriptor Config;
 
+    USB_InterfaceAssociationDescriptor DFU_interface_association;
+
     USB_InterfaceDescriptor DFU_interface;
     DFU_FunctionalDescriptor DFU_functional;
 
@@ -79,6 +81,17 @@ alignas(4) const ConfigDesc configuration_descriptor = {
         .iConfiguration = 0,
         .bmAttributes = USB_CONFIG_ATTR_BUSPOWERED,
         .bMaxPower = USB_CONFIG_POWER_MA(100)
+    },
+
+    .DFU_interface_association = {
+        .bLength = sizeof(USB_InterfaceAssociationDescriptor),
+        .bDescriptorType = USB_DTYPE_InterfaceAssociation,
+        .bFirstInterface = USB_INTERFACE_DFU,
+        .bInterfaceCount = 1,
+        .bFunctionClass = DFU_INTERFACE_CLASS,
+        .bFunctionSubClass = DFU_INTERFACE_SUBCLASS,
+        .bFunctionProtocol = DFU_DFU_MODE_PROTOCOL,
+        .iFunction = 0,
     },
 
     .DFU_interface = {
