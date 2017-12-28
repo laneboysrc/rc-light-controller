@@ -23,9 +23,8 @@ USB_ENDPOINTS(3)
 #define USB_STRING_DFU 4
 #define USB_STRING_MSFT 0xee
 
-// FIXME: is this the 'vendor id'?
-#define MSFT_ID 0xee
-
+// Our arbitrary vendor code, used to retrieve the Microsoft Compatible descritpros
+#define VENDOR_CODE 42
 
 #define USB_NUMBER_OF_INTERFACES 3
 #define USB_INTERFACE_CDC_CONTROL 0
@@ -43,7 +42,9 @@ USB_ENDPOINTS(3)
 
 alignas(4) uint8_t usbserial_buf_in[BUF_SIZE];
 alignas(4) uint8_t usbserial_buf_out[BUF_SIZE];
-alignas(4) uint8_t ep0_buffer[146];
+// IMPORTANT: the Endpoint 0 buffer must be able to hold a full copy of the
+// USB_MicrosoftExtendedPropertiesDescriptor descriptor!
+alignas(4) uint8_t ep0_buffer[256];
 
 
 static alignas(4) const USB_DeviceDescriptor device_descriptor = {
@@ -58,7 +59,7 @@ static alignas(4) const USB_DeviceDescriptor device_descriptor = {
     .bMaxPacketSize0 = 64,
     .idVendor = 0x6666,
     .idProduct = 0xcab1,
-    .bcdDevice = 0x0111,
+    .bcdDevice = 0x0102,
 
     .iManufacturer = USB_STRING_MANUFACTURER,
     .iProduct = USB_STRING_PRODUCT,
@@ -95,7 +96,7 @@ static alignas(4) const configuration_descriptor_t configuration_descriptor = {
         .bLength = sizeof(USB_ConfigurationDescriptor),
         .bDescriptorType = USB_DTYPE_Configuration,
         .wTotalLength  = sizeof(configuration_descriptor_t),
-        .bNumInterfaces = 3,
+        .bNumInterfaces = USB_NUMBER_OF_INTERFACES,
         .bConfigurationValue = 1,
         .iConfiguration = 0,
         .bmAttributes = USB_CONFIG_ATTR_BUSPOWERED,
@@ -226,6 +227,13 @@ static alignas(4) const language_string_t language_string = {
 };
 
 
+// WCID descriptors
+// A WCID device, where WCID stands for "Windows Compatible ID", is an USB
+// device that provides extra information to a Windows system, in order to
+// facilitate automated driver installation and, in most circumstances, allow
+// immediate access.
+//
+// Info: https://github.com/pbatard/libwdi/wiki/WCID-Devices
 typedef struct {
     uint8_t bLength;
     uint8_t bDescriptorType;
@@ -238,10 +246,9 @@ static alignas(4) const msft_os_t msft_os = {
     .bLength = 18,
     .bDescriptorType = USB_DTYPE_String,
     .bString = { u"MSFT100" },
-    .bVendorCode = 0x42,
+    .bVendorCode = VENDOR_CODE,
     .bPadding = 0
 };
-
 
 typedef struct {
     uint32_t dwLength;
@@ -249,27 +256,33 @@ typedef struct {
     uint16_t wIndex;
     uint8_t bCount;
     uint8_t reserved[7];
-    USB_MicrosoftCompatibleDescriptor_Interface interfaces[2];
-} __attribute__((packed)) msft_compatible_t;
+    USB_MicrosoftCompatibleDescriptor_Interface interfaces[USB_NUMBER_OF_INTERFACES];
+} __attribute__((packed)) USB_MicrosoftCompatibleDescriptor_t;
 
-// FIXME: needs to be for all interfaces according to Tessel 2 change log
-static const msft_compatible_t msft_compatible = {
-    .dwLength = sizeof(USB_MicrosoftCompatibleDescriptor) + (2 * sizeof(USB_MicrosoftCompatibleDescriptor_Interface)),
+static const USB_MicrosoftCompatibleDescriptor_t msft_compatible = {
+    .dwLength = sizeof(USB_MicrosoftCompatibleDescriptor_t),
     .bcdVersion = 0x0100,
-    .wIndex = 0x0004,
-    .bCount = 2,
+    .wIndex = 4,
+    .bCount = USB_NUMBER_OF_INTERFACES,
     .reserved = {0, 0, 0, 0, 0, 0, 0},
     .interfaces = {
         {
             .bFirstInterfaceNumber = 0,
-            .reserved1 = 0,
+            .reserved1 = 1,
             .compatibleID = "WINUSB\0\0",
             .subCompatibleID = {0, 0, 0, 0, 0, 0, 0, 0},
             .reserved2 = {0, 0, 0, 0, 0, 0},
         },
         {
             .bFirstInterfaceNumber = 1,
-            .reserved1 = 0,
+            .reserved1 = 1,
+            .compatibleID = "WINUSB\0\0",
+            .subCompatibleID = {0, 0, 0, 0, 0, 0, 0, 0},
+            .reserved2 = {0, 0, 0, 0, 0, 0},
+        },
+        {
+            .bFirstInterfaceNumber = 2,
+            .reserved1 = 1,
             .compatibleID = "WINUSB\0\0",
             .subCompatibleID = {0, 0, 0, 0, 0, 0, 0, 0},
             .reserved2 = {0, 0, 0, 0, 0, 0},
@@ -277,58 +290,50 @@ static const msft_compatible_t msft_compatible = {
     }
 };
 
-
+// Microsoft Extended Properties Feature Descriptor
+#define M1_NAME u"DeviceInterfaceGUID"
+#define M1_GUID u"{4d36e978-e325-11ce-bfc1-08002be10318}"
 typedef struct {
     uint32_t dwLength;
     uint16_t bcdVersion;
     uint16_t wIndex;
     uint16_t wCount;
+
     uint32_t dwPropLength;
     uint32_t dwType;
     uint16_t wNameLength;
-    uint16_t name[21];
+    __CHAR16_TYPE__ name[sizeof(M1_NAME)/2];
     uint32_t dwDataLength;
-    uint16_t data[40];
+    __CHAR16_TYPE__ data[sizeof(M1_GUID)/2];
     uint8_t _padding[2];
-} __attribute__((packed)) USB_MicrosoftExtendedPropertiesDescriptor;
+} __attribute__((packed)) USB_MicrosoftExtendedPropertiesDescriptor_t;
 
-// FIXME: check this...
-const USB_MicrosoftExtendedPropertiesDescriptor msft_extended = {
-    .dwLength = 146,
+const USB_MicrosoftExtendedPropertiesDescriptor_t msft_extended_properties = {
+    .dwLength = sizeof(USB_MicrosoftExtendedPropertiesDescriptor_t),
     .bcdVersion = 0x0100,
-    .wIndex = 0x05,
-    .wCount = 0x01,
-    .dwPropLength = 136,
-    .dwType = 7,
-    .wNameLength = 42,
-    .name = u"DeviceInterfaceGUIDs\0",
-    .dwDataLength = 80,
-    .data = u"{3c33bbfd-71f9-4815-8b8f-7cd1ef928b3d}\0\0",
+    .wIndex = 5,
+    .wCount = 1,
+
+    .dwPropLength = sizeof(M1_NAME) + sizeof(M1_GUID) + 14,
+    .dwType = 1,                    // Unicode string
+    .wNameLength = sizeof(M1_NAME),
+    .name = M1_NAME,
+    .dwDataLength = sizeof(M1_GUID),
+    .data = M1_GUID,
 };
 
 
 // ****************************************************************************
-static void handle_msft_compatible(
-    const USB_MicrosoftCompatibleDescriptor* msft_descriptor,
-    const USB_MicrosoftExtendedPropertiesDescriptor* msft_extended_descriptor)
+static void send_microsoft_descriptors(const USB_MicrosoftCompatibleDescriptor_t* msft_descriptor)
 {
     uint16_t len;
-    if (usb_setup.wIndex == 0x0005) {
-        len = msft_extended_descriptor->dwLength;
-        memcpy(ep0_buffer, msft_extended_descriptor, len);
-    }
-    else if (usb_setup.wIndex == 0x0004) {
-        len = msft_descriptor->dwLength;
-        memcpy(ep0_buffer, msft_descriptor, len);
-    }
-    else {
-        usb_ep0_stall();
-        return;
-    }
 
+    len = msft_descriptor->dwLength;
     if (len > usb_setup.wLength) {
         len = usb_setup.wLength;
     }
+
+    memcpy(ep0_buffer, msft_descriptor, len);
 
     usb_ep_start_in(USB_EP0, ep0_buffer, len, true);
     usb_ep0_out();
@@ -394,12 +399,12 @@ uint16_t usb_cb_get_descriptor(uint8_t type, uint8_t index, const uint8_t** ptr)
     const void* address = NULL;
     uint16_t size = 0;
 
-    printf("usb_cb_get_descriptor\n");
+    printf("usb_cb_get_descriptor type=%d index=%d len=%d\n", type, index, usb_setup.wLength);
 
     switch (type) {
         case USB_DTYPE_Device:
             address = &device_descriptor;
-            size    = sizeof(USB_DeviceDescriptor);
+            size = sizeof(USB_DeviceDescriptor);
             break;
 
         case USB_DTYPE_Configuration:
@@ -468,6 +473,9 @@ bool usb_cb_set_configuration(uint8_t config) {
 void usb_cb_control_setup(void) {
     uint8_t recipient = usb_setup.bmRequestType & USB_REQTYPE_RECIPIENT_MASK;
 
+    printf("usb_cb_control_setup bmRequestType=%x bRequest=%d wIndex=%d len=%d\n",
+        usb_setup.bmRequestType, usb_setup.bRequest, usb_setup.wIndex, usb_setup.wLength);
+
     if (recipient == USB_RECIPIENT_INTERFACE) {
         // Forward all DFU related requests
         if (usb_setup.wIndex == USB_INTERFACE_DFU) {
@@ -488,9 +496,12 @@ void usb_cb_control_setup(void) {
         }
 
         switch(usb_setup.bRequest) {
-            case MSFT_ID:
-                handle_msft_compatible((USB_MicrosoftCompatibleDescriptor *)&msft_compatible, &msft_extended);
-                return;
+            case VENDOR_CODE:
+                if (usb_setup.wIndex == 0x0005) {
+                    send_microsoft_descriptors((const USB_MicrosoftCompatibleDescriptor_t*) &msft_extended_properties);
+                    return;
+                }
+                break;
 
             default:
                 break;
@@ -499,9 +510,19 @@ void usb_cb_control_setup(void) {
 
     else if (recipient == USB_RECIPIENT_DEVICE) {
         switch(usb_setup.bRequest) {
-            case MSFT_ID:
-                handle_msft_compatible((USB_MicrosoftCompatibleDescriptor *)&msft_compatible, &msft_extended);
-                return;
+            case VENDOR_CODE:
+                if (usb_setup.wIndex == 0x0004) {
+                    send_microsoft_descriptors(&msft_compatible);
+                    return;
+                }
+                // Work around WINUSB bug by responding with the extended properties
+                // descriptor on device level too.
+                // See https://github.com/pbatard/libwdi/wiki/WCID-Devices#defining-a-device-interface-guid-or-other-device-specific-properties
+                else if (usb_setup.wIndex == 0x0005) {
+                    send_microsoft_descriptors((const USB_MicrosoftCompatibleDescriptor_t*) &msft_extended_properties);
+                    return;
+                }
+                break;
 
             default:
                 break;
