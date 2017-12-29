@@ -23,6 +23,10 @@ USB_ENDPOINTS(3)
 #define USB_STRING_DFU 4
 #define USB_STRING_MSFT 0xee
 
+#define USB_DTYPE_BOS 15
+#define WEBUSB_REQUEST_GET_URL 2
+#define MS_OS_20_REQUEST_DESCRIPTOR 7
+
 // Our arbitrary vendor code, used to retrieve the Microsoft Compatible descritpros
 #define VENDOR_CODE 42
 
@@ -30,6 +34,8 @@ USB_ENDPOINTS(3)
 #define USB_INTERFACE_CDC_CONTROL 0
 #define USB_INTERFACE_CDC_DATA 1
 #define USB_INTERFACE_DFU 2
+
+
 
 
 #define USB_EP0 (USB_IN + 0)
@@ -326,6 +332,69 @@ const USB_MicrosoftExtendedPropertiesDescriptor_t msft_extended_properties = {
     .data = M1_GUID,
 };
 
+// WebUSB descriptor (Binary Object Store descriptor)
+const uint8_t BOS_Descriptor[] = {
+    0x05,           // Length
+    0x0F,           // Binary Object Store descriptor
+    0x39, 0x00,     // Total length
+    0x02,           // Number of device capabilities
+
+    // WebUSB Platform Capability descriptor (bVendorCode == 0x01).
+    0x18,           // Length
+    0x10,           // Device Capability descriptor
+    0x05,           // Platform Capability descriptor
+    0x00,           // Reserved
+    0x38, 0xB6, 0x08, 0x34, 0xA9, 0x09, 0xA0, 0x47,
+    0x8B, 0xFD, 0xA0, 0x76, 0x88, 0x15, 0xB6, 0x65,  // WebUSB GUID
+    0x00, 0x01,     // Version 1.0
+    0x01,           // Vendor request code
+
+    0x01,           // Landing page URL is available
+
+    // Microsoft OS 2.0 Platform Capability Descriptor (MS_VendorCode == 0x02)
+    0x1C,           // Length
+    0x10,           // Device Capability descriptor
+    0x05,           // Platform Capability descriptor
+    0x00,           // Reserved
+    0xDF, 0x60, 0xDD, 0xD8, 0x89, 0x45, 0xC7, 0x4C,
+    0x9C, 0xD2, 0x65, 0x9D, 0x9E, 0x64, 0x8A, 0x9F,  // MS OS 2.0 GUID
+    0x00, 0x00, 0x03, 0x06,  // Windows version
+    0x2e, 0x00,     // Descriptor set length
+    0x02,           // Vendor request code
+    0x00            // Alternate enumeration code
+};
+
+const uint8_t MS_OS_20_Descriptor[] = {
+    // Microsoft OS 2.0 descriptor set header (table 10)
+    0x0A, 0x00,  // Descriptor size (10 bytes)
+    0x00, 0x00,  // MS OS 2.0 descriptor set header
+    0x00, 0x00, 0x03, 0x06,  // Windows version (8.1) (0x06030000)
+    0x2e, 0x00,  // Size, MS OS 2.0 descriptor set
+
+    // Microsoft OS 2.0 configuration subset header
+    0x08, 0x00,  // Descriptor size (8 bytes)
+    0x01, 0x00,  // MS OS 2.0 configuration subset header
+    0x00,        // bConfigurationValue
+    0x00,        // Reserved
+    0x24, 0x00,  // Size, MS OS 2.0 configuration subset
+
+    // Microsoft OS 2.0 function subset header
+    0x08, 0x00,  // Descriptor size (8 bytes)
+    0x02, 0x00,  // MS OS 2.0 function subset header
+
+    USB_INTERFACE_DFU,   // First interface number (1 byte) sent here.
+
+    0x00,        // Reserved
+    0x1c, 0x00,  // Size, MS OS 2.0 function subset
+
+    // Microsoft OS 2.0 compatible ID descriptor (table 13)
+    0x14, 0x00,  // wLength
+    0x03, 0x00,  // MS_OS_20_FEATURE_COMPATIBLE_ID
+    'W',  'I',  'N',  'U',  'S',  'B',  0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+};
+
+
 
 // ****************************************************************************
 static void send_microsoft_descriptors(const USB_MicrosoftCompatibleDescriptor_t* msft_descriptor)
@@ -448,6 +517,11 @@ uint16_t usb_cb_get_descriptor(uint8_t type, uint8_t index, const uint8_t** ptr)
             size = (((USB_StringDescriptor*)address))->bLength;
             break;
 
+        case USB_DTYPE_BOS:
+            address = &BOS_Descriptor;
+            size = sizeof(BOS_Descriptor);
+            break;
+
         default:
             break;
     }
@@ -476,6 +550,7 @@ bool usb_cb_set_configuration(uint8_t config) {
 // ****************************************************************************
 void usb_cb_control_setup(void) {
     uint8_t recipient = usb_setup.bmRequestType & USB_REQTYPE_RECIPIENT_MASK;
+    uint8_t requestType = usb_setup.bmRequestType & USB_REQTYPE_TYPE_MASK;
 
     printf("usb_cb_control_setup bmRequestType=%x bRequest=%d wIndex=%d len=%d\n",
         usb_setup.bmRequestType, usb_setup.bRequest, usb_setup.wIndex, usb_setup.wLength);
@@ -513,6 +588,35 @@ void usb_cb_control_setup(void) {
     }
 
     else if (recipient == USB_RECIPIENT_DEVICE) {
+        if (requestType == USB_REQTYPE_VENDOR &&
+                usb_setup.bRequest == 0x01 &&       // VENDOR_CODE! See BOS descriptor
+                usb_setup.wIndex == WEBUSB_REQUEST_GET_URL) {
+            // if (setup.wValueL != 1)
+            //     return false;
+            // uint8_t urlLength = strlen(landingPageUrl);
+            // uint8_t descriptorLength = urlLength + 3;
+            // if (USB_SendControl(0, &descriptorLength, 1) < 0)
+            //     return false;
+            // uint8_t descriptorType = 3;
+            // if (USB_SendControl(0, &descriptorType, 1) < 0)
+            //     return false;
+            // if (USB_SendControl(0, &landingPageScheme, 1) < 0)
+            //     return false;
+            // return USB_SendControl(0, landingPageUrl, urlLength) >= 0;
+        }
+        else if (usb_setup.bRequest == 0x02 &&      // VENDOR_CODE! See BOS descriptor
+                    usb_setup.wIndex == MS_OS_20_REQUEST_DESCRIPTOR)
+        {
+            // if (USB_SendControl(TRANSFER_PGM, &MS_OS_20_DESCRIPTOR_PREFIX, sizeof(MS_OS_20_DESCRIPTOR_PREFIX)) < 0)
+            //     return false;
+            // if (USB_SendControl(0, &pluggedInterface, 1) < 0)
+            //     return false;
+            // return USB_SendControl(TRANSFER_PGM, &MS_OS_20_DESCRIPTOR_SUFFIX, sizeof(MS_OS_20_DESCRIPTOR_SUFFIX)) >= 0;
+
+            send_microsoft_descriptors((const USB_MicrosoftCompatibleDescriptor_t*) &MS_OS_20_Descriptor);
+            return;
+        }
+
         switch(usb_setup.bRequest) {
             case VENDOR_CODE:
                 if (usb_setup.wIndex == 0x0004) {
@@ -532,6 +636,7 @@ void usb_cb_control_setup(void) {
                 break;
         }
     }
+
 
     usb_ep0_stall();
     return;
