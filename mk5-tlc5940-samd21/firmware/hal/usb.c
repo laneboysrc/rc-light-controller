@@ -292,7 +292,11 @@ static const USB_MicrosoftCompatibleDescriptor_t msft_compatible = {
 
 // Microsoft Extended Properties Feature Descriptor
 #define M1_NAME u"DeviceInterfaceGUID"
+// Ports | Windows 10 only
 #define M1_GUID u"{4d36e978-e325-11ce-bfc1-08002be10318}"
+// Modem | Windows 7 and up, but requires custom INF that references mdmcpq.inf
+// See https://msdn.microsoft.com/en-us/library/windows/hardware/ff538820(v=vs.85).aspx
+// #define M1_GUID u"{4d36e96d-e325-11ce-bfc1-08002be10318}"
 typedef struct {
     uint32_t dwLength;
     uint16_t bcdVersion;

@@ -5,9 +5,9 @@
 
 # MK5
 
-* Improve and check USB_MicrosoftExtendedPropertiesDescriptor
+* Add WebUSB descriptor
 
-* Add interface association descriptor (See Black Magic Probe bootloader)
+* Create INF file
 
 * Use DFU, using existing WebUSB DFU implementation
 
