@@ -25,7 +25,6 @@ USB_ENDPOINTS(3)
 
 #define USB_DTYPE_BOS 15
 #define WEBUSB_REQUEST_GET_URL 2
-#define MS_OS_20_REQUEST_DESCRIPTOR 7
 
 // Our arbitrary vendor code, used to retrieve the Microsoft Compatible descritpros
 #define VENDOR_CODE 42
@@ -337,10 +336,10 @@ const uint8_t BOS_Descriptor[] = {
     0x05,           // Length
     0x0F,           // Binary Object Store descriptor
     0x39, 0x00,     // Total length
-    0x02,           // Number of device capabilities
+    0x01,           // Number of device capabilities
 
     // WebUSB Platform Capability descriptor (bVendorCode == 0x01).
-    0x18,           // Length
+    24,             // Length
     0x10,           // Device Capability descriptor
     0x05,           // Platform Capability descriptor
     0x00,           // Reserved
@@ -350,50 +349,7 @@ const uint8_t BOS_Descriptor[] = {
     0x01,           // Vendor request code
 
     0x01,           // Landing page URL is available
-
-    // Microsoft OS 2.0 Platform Capability Descriptor (MS_VendorCode == 0x02)
-    0x1C,           // Length
-    0x10,           // Device Capability descriptor
-    0x05,           // Platform Capability descriptor
-    0x00,           // Reserved
-    0xDF, 0x60, 0xDD, 0xD8, 0x89, 0x45, 0xC7, 0x4C,
-    0x9C, 0xD2, 0x65, 0x9D, 0x9E, 0x64, 0x8A, 0x9F,  // MS OS 2.0 GUID
-    0x00, 0x00, 0x03, 0x06,  // Windows version
-    0x2e, 0x00,     // Descriptor set length
-    0x02,           // Vendor request code
-    0x00            // Alternate enumeration code
 };
-
-const uint8_t MS_OS_20_Descriptor[] = {
-    // Microsoft OS 2.0 descriptor set header (table 10)
-    0x0A, 0x00,  // Descriptor size (10 bytes)
-    0x00, 0x00,  // MS OS 2.0 descriptor set header
-    0x00, 0x00, 0x03, 0x06,  // Windows version (8.1) (0x06030000)
-    0x2e, 0x00,  // Size, MS OS 2.0 descriptor set
-
-    // Microsoft OS 2.0 configuration subset header
-    0x08, 0x00,  // Descriptor size (8 bytes)
-    0x01, 0x00,  // MS OS 2.0 configuration subset header
-    0x00,        // bConfigurationValue
-    0x00,        // Reserved
-    0x24, 0x00,  // Size, MS OS 2.0 configuration subset
-
-    // Microsoft OS 2.0 function subset header
-    0x08, 0x00,  // Descriptor size (8 bytes)
-    0x02, 0x00,  // MS OS 2.0 function subset header
-
-    USB_INTERFACE_DFU,   // First interface number (1 byte) sent here.
-
-    0x00,        // Reserved
-    0x1c, 0x00,  // Size, MS OS 2.0 function subset
-
-    // Microsoft OS 2.0 compatible ID descriptor (table 13)
-    0x14, 0x00,  // wLength
-    0x03, 0x00,  // MS_OS_20_FEATURE_COMPATIBLE_ID
-    'W',  'I',  'N',  'U',  'S',  'B',  0x00, 0x00,
-    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-};
-
 
 
 // ****************************************************************************
@@ -603,18 +559,6 @@ void usb_cb_control_setup(void) {
             // if (USB_SendControl(0, &landingPageScheme, 1) < 0)
             //     return false;
             // return USB_SendControl(0, landingPageUrl, urlLength) >= 0;
-        }
-        else if (usb_setup.bRequest == 0x02 &&      // VENDOR_CODE! See BOS descriptor
-                    usb_setup.wIndex == MS_OS_20_REQUEST_DESCRIPTOR)
-        {
-            // if (USB_SendControl(TRANSFER_PGM, &MS_OS_20_DESCRIPTOR_PREFIX, sizeof(MS_OS_20_DESCRIPTOR_PREFIX)) < 0)
-            //     return false;
-            // if (USB_SendControl(0, &pluggedInterface, 1) < 0)
-            //     return false;
-            // return USB_SendControl(TRANSFER_PGM, &MS_OS_20_DESCRIPTOR_SUFFIX, sizeof(MS_OS_20_DESCRIPTOR_SUFFIX)) >= 0;
-
-            send_microsoft_descriptors((const USB_MicrosoftCompatibleDescriptor_t*) &MS_OS_20_Descriptor);
-            return;
         }
 
         switch(usb_setup.bRequest) {
