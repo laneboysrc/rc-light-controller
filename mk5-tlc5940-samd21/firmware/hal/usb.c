@@ -340,8 +340,8 @@ const uint8_t BOS_Descriptor[] = {
 
     // WebUSB Platform Capability descriptor (bVendorCode == 0x01).
     24,             // Length
-    0x10,           // Device Capability descriptor
-    0x05,           // Platform Capability descriptor
+    16,             // Value for "Device Capability" descriptor
+    5,              // Value to signify a "Platform" capability descriptor
     0x00,           // Reserved
     0x38, 0xB6, 0x08, 0x34, 0xA9, 0x09, 0xA0, 0x47,
     0x8B, 0xFD, 0xA0, 0x76, 0x88, 0x15, 0xB6, 0x65,  // WebUSB GUID
