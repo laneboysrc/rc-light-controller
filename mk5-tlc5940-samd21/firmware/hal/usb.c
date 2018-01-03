@@ -26,8 +26,9 @@ USB_ENDPOINTS(3)
 #define USB_DTYPE_BOS 15
 #define WEBUSB_REQUEST_GET_URL 2
 
-// Our arbitrary vendor code, used to retrieve the Microsoft Compatible descritpros
-#define VENDOR_CODE 42
+// Our arbitrary vendor codes
+#define VENDOR_CODE_MS 42       // Retrieve the Microsoft Compatible descritpros
+#define VENDOR_CODE_WEBUSB 69   // Retrieve WebUSB landing page URL
 
 #define USB_NUMBER_OF_INTERFACES 3
 #define USB_INTERFACE_CDC_CONTROL 0
@@ -219,13 +220,11 @@ static alignas(4) const configuration_descriptor_t configuration_descriptor = {
 };
 
 
-typedef struct {
+static const struct {
     uint8_t bLength;
     uint8_t bDescriptorType;
     __CHAR16_TYPE__ bString[1];
-} __attribute__ ((packed)) language_string_t;
-
-static alignas(4) const language_string_t language_string = {
+}  __attribute__ ((packed)) alignas(4) language_string = {
     .bLength = USB_STRING_LEN(1),
     .bDescriptorType = USB_DTYPE_String,
     .bString = { USB_LANGUAGE_EN_US }
@@ -239,33 +238,29 @@ static alignas(4) const language_string_t language_string = {
 // immediate access.
 //
 // Info: https://github.com/pbatard/libwdi/wiki/WCID-Devices
-typedef struct {
+static const struct {
     uint8_t bLength;
     uint8_t bDescriptorType;
     __CHAR16_TYPE__ bString[7];
     uint8_t bVendorCode;
     uint8_t bPadding;
-} __attribute__((packed)) msft_os_t;
-
-static alignas(4) const msft_os_t msft_os = {
+} __attribute__((packed)) alignas(4) msft_os = {
     .bLength = 18,
     .bDescriptorType = USB_DTYPE_String,
     .bString = { u"MSFT100" },
-    .bVendorCode = VENDOR_CODE,
+    .bVendorCode = VENDOR_CODE_MS,
     .bPadding = 0
 };
 
-typedef struct {
+static const struct {
     uint32_t dwLength;
     uint16_t bcdVersion;
     uint16_t wIndex;
     uint8_t bCount;
     uint8_t reserved[7];
     USB_MicrosoftCompatibleDescriptor_Interface interfaces[USB_NUMBER_OF_INTERFACES];
-} __attribute__((packed)) USB_MicrosoftCompatibleDescriptor_t;
-
-static const USB_MicrosoftCompatibleDescriptor_t msft_compatible = {
-    .dwLength = sizeof(USB_MicrosoftCompatibleDescriptor_t),
+} __attribute__((packed)) alignas(4) msft_compatible = {
+    .dwLength = sizeof(msft_compatible),
     .bcdVersion = 0x0100,
     .wIndex = 4,
     .bCount = USB_NUMBER_OF_INTERFACES,
@@ -295,14 +290,15 @@ static const USB_MicrosoftCompatibleDescriptor_t msft_compatible = {
     }
 };
 
+
 // Microsoft Extended Properties Feature Descriptor
 #define M1_NAME u"DeviceInterfaceGUID"
 // Ports | Windows 10 only
-#define M1_GUID u"{4d36e978-e325-11ce-bfc1-08002be10318}"
+// #define M1_GUID u"{4d36e978-e325-11ce-bfc1-08002be10318}"
 // Modem | Windows 7 and up, but requires custom INF that references mdmcpq.inf
 // See https://msdn.microsoft.com/en-us/library/windows/hardware/ff538820(v=vs.85).aspx
-// #define M1_GUID u"{4d36e96d-e325-11ce-bfc1-08002be10318}"
-typedef struct {
+#define M1_GUID u"{4d36e96d-e325-11ce-bfc1-08002be10318}"
+static const struct {
     uint32_t dwLength;
     uint16_t bcdVersion;
     uint16_t wIndex;
@@ -315,10 +311,8 @@ typedef struct {
     uint32_t dwDataLength;
     __CHAR16_TYPE__ data[sizeof(M1_GUID)/2];
     uint8_t _padding[2];
-} __attribute__((packed)) USB_MicrosoftExtendedPropertiesDescriptor_t;
-
-const USB_MicrosoftExtendedPropertiesDescriptor_t msft_extended_properties = {
-    .dwLength = sizeof(USB_MicrosoftExtendedPropertiesDescriptor_t),
+} __attribute__((packed)) alignas(4) msft_extended_properties = {
+    .dwLength = sizeof(msft_extended_properties),
     .bcdVersion = 0x0100,
     .wIndex = 5,
     .wCount = 1,
@@ -332,7 +326,7 @@ const USB_MicrosoftExtendedPropertiesDescriptor_t msft_extended_properties = {
 };
 
 // WebUSB descriptor (Binary Object Store descriptor)
-struct {
+static const struct {
     uint8_t bLength;
     uint8_t bDescriptorType;
     uint16_t wTotalLength;
@@ -350,7 +344,7 @@ struct {
         uint8_t iLandingPage;
     } __attribute__((packed)) WebUSBDeviceCapability;
 
-} __attribute__((packed)) const BOS_Descriptor = {
+} __attribute__((packed)) alignas(4) BOS_Descriptor = {
     .bLength = 5,
     .bDescriptorType = 15,          // Binary Object Store descriptor
     .wTotalLength = 5 + 24,
@@ -364,19 +358,19 @@ struct {
         .bReserved = 0,
         .PlatformCapabilityUUID = {0x38, 0xb6, 0x08, 0x34, 0xa9, 0x09, 0xa0, 0x47, 0x8b, 0xfd, 0xa0, 0x76, 0x88, 0x15, 0xb6, 0x65},
         .bcdVersion = 0x0100,
-        .bVendorCode = 0x01,
+        .bVendorCode = VENDOR_CODE_WEBUSB,
         .iLandingPage = 1
     }
 };
 
 
 #define URL1 "laneboysrc.github.io/rc-light-controller"
-struct {
+static const struct {
     uint8_t bLength;
     uint8_t bDescriptorType;
     uint8_t bScheme;
     uint8_t URL[sizeof(URL1)];
-} __attribute__((packed)) const LandingPageDescriptor = {
+} __attribute__((packed)) alignas(4) LandingPageDescriptor = {
     .bLength = 3 + sizeof(URL1),
     .bDescriptorType = 3,       // WebUSB URL
     .bScheme = 1,               // https://
@@ -385,18 +379,14 @@ struct {
 
 
 // ****************************************************************************
-static void send_microsoft_descriptors(const USB_MicrosoftCompatibleDescriptor_t* msft_descriptor)
+static void send_descriptor(const void * descriptor, uint16_t length)
 {
-    uint16_t len;
-
-    len = msft_descriptor->dwLength;
-    if (len > usb_setup.wLength) {
-        len = usb_setup.wLength;
+    if (length > usb_setup.wLength) {
+        length = usb_setup.wLength;
     }
 
-    memcpy(ep0_buffer, msft_descriptor, len);
-
-    usb_ep_start_in(USB_EP0, ep0_buffer, len, true);
+    memcpy(ep0_buf_in, descriptor, length);
+    usb_ep0_in(length);
     usb_ep0_out();
 }
 
@@ -534,7 +524,6 @@ bool usb_cb_set_configuration(uint8_t config) {
     return false;
 }
 
-
 // ****************************************************************************
 void usb_cb_control_setup(void) {
     uint8_t recipient = usb_setup.bmRequestType & USB_REQTYPE_RECIPIENT_MASK;
@@ -563,9 +552,9 @@ void usb_cb_control_setup(void) {
         }
 
         switch(usb_setup.bRequest) {
-            case VENDOR_CODE:
+            case VENDOR_CODE_MS:
                 if (usb_setup.wIndex == 0x0005) {
-                    send_microsoft_descriptors((const USB_MicrosoftCompatibleDescriptor_t*) &msft_extended_properties);
+                    send_descriptor(&msft_extended_properties, sizeof(msft_extended_properties));
                     return;
                 }
                 break;
@@ -575,28 +564,25 @@ void usb_cb_control_setup(void) {
         }
     }
 
-    else if (recipient == USB_RECIPIENT_DEVICE) {
-        if (requestType == USB_REQTYPE_VENDOR &&
-                usb_setup.bRequest == 0x01 &&       // VENDOR_CODE! See BOS descriptor
-            usb_setup.wIndex == WEBUSB_REQUEST_GET_URL) {
-
-            memcpy(ep0_buf_in, &LandingPageDescriptor, sizeof(LandingPageDescriptor));
-            usb_ep0_in(sizeof(LandingPageDescriptor));
-            usb_ep0_out();
-            return;
-        }
-
+    else if (recipient == USB_RECIPIENT_DEVICE  &&  requestType == USB_REQTYPE_VENDOR) {
         switch(usb_setup.bRequest) {
-            case VENDOR_CODE:
+            case VENDOR_CODE_WEBUSB:
+                if (usb_setup.wIndex == WEBUSB_REQUEST_GET_URL) {
+                    send_descriptor(&LandingPageDescriptor, sizeof(LandingPageDescriptor));
+                    return;
+                }
+                break;
+
+            case VENDOR_CODE_MS:
                 if (usb_setup.wIndex == 0x0004) {
-                    send_microsoft_descriptors(&msft_compatible);
+                    send_descriptor(&msft_compatible, sizeof(msft_compatible));
                     return;
                 }
                 // Work around WINUSB bug by responding with the extended properties
                 // descriptor on device level too.
                 // See https://github.com/pbatard/libwdi/wiki/WCID-Devices#defining-a-device-interface-guid-or-other-device-specific-properties
                 else if (usb_setup.wIndex == 0x0005) {
-                    send_microsoft_descriptors((const USB_MicrosoftCompatibleDescriptor_t*) &msft_extended_properties);
+                    send_descriptor(&msft_extended_properties,sizeof(msft_extended_properties));
                     return;
                 }
                 break;
