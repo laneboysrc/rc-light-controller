@@ -56,7 +56,7 @@ static alignas(4) const USB_DeviceDescriptor device_descriptor = {
     .bLength = sizeof(USB_DeviceDescriptor),
     .bDescriptorType = USB_DTYPE_Device,
 
-    .bcdUSB = 0x0200,
+    .bcdUSB = 0x0210,
     .bDeviceClass = USB_CSCP_NoDeviceClass,
     .bDeviceSubClass = USB_CSCP_NoDeviceSubclass,
     .bDeviceProtocol = USB_CSCP_NoDeviceProtocol,
@@ -64,7 +64,7 @@ static alignas(4) const USB_DeviceDescriptor device_descriptor = {
     .bMaxPacketSize0 = 64,
     .idVendor = 0x6666,
     .idProduct = 0xcab1,
-    .bcdDevice = 0x0102,
+    .bcdDevice = 0x0103,
 
     .iManufacturer = USB_STRING_MANUFACTURER,
     .iProduct = USB_STRING_PRODUCT,
@@ -332,23 +332,55 @@ const USB_MicrosoftExtendedPropertiesDescriptor_t msft_extended_properties = {
 };
 
 // WebUSB descriptor (Binary Object Store descriptor)
-const uint8_t BOS_Descriptor[] = {
-    0x05,           // Length
-    0x0F,           // Binary Object Store descriptor
-    0x39, 0x00,     // Total length
-    0x01,           // Number of device capabilities
+struct {
+    uint8_t bLength;
+    uint8_t bDescriptorType;
+    uint16_t wTotalLength;
+    uint8_t bNumDeviceCaps;
 
-    // WebUSB Platform Capability descriptor (bVendorCode == 0x01).
-    24,             // Length
-    16,             // Value for "Device Capability" descriptor
-    5,              // Value to signify a "Platform" capability descriptor
-    0x00,           // Reserved
-    0x38, 0xB6, 0x08, 0x34, 0xA9, 0x09, 0xA0, 0x47,
-    0x8B, 0xFD, 0xA0, 0x76, 0x88, 0x15, 0xB6, 0x65,  // WebUSB GUID
-    0x00, 0x01,     // Version 1.0
-    0x01,           // Vendor request code
+    struct {
+        uint8_t bLength;
+        uint8_t bDescriptorType;
+        uint8_t bDevCapabilityType;
 
-    0x01,           // Landing page URL is available
+        uint8_t bReserved;
+        uint8_t PlatformCapabilityUUID[16];
+        uint16_t bcdVersion;
+        uint8_t bVendorCode;
+        uint8_t iLandingPage;
+    } __attribute__((packed)) WebUSBDeviceCapability;
+
+} __attribute__((packed)) const BOS_Descriptor = {
+    .bLength = 5,
+    .bDescriptorType = 15,          // Binary Object Store descriptor
+    .wTotalLength = 5 + 24,
+    .bNumDeviceCaps = 1,
+
+    .WebUSBDeviceCapability = {
+        .bLength = 24,
+        .bDescriptorType = 16,      // "Device Capability" descriptor
+        .bDevCapabilityType = 5,    // "Platform" capability descriptor
+
+        .bReserved = 0,
+        .PlatformCapabilityUUID = {0x38, 0xb6, 0x08, 0x34, 0xa9, 0x09, 0xa0, 0x47, 0x8b, 0xfd, 0xa0, 0x76, 0x88, 0x15, 0xb6, 0x65},
+        .bcdVersion = 0x0100,
+        .bVendorCode = 0x01,
+        .iLandingPage = 1
+    }
+};
+
+
+#define URL1 "laneboysrc.github.io/rc-light-controller"
+struct {
+    uint8_t bLength;
+    uint8_t bDescriptorType;
+    uint8_t bScheme;
+    uint8_t URL[sizeof(URL1)];
+} __attribute__((packed)) const LandingPageDescriptor = {
+    .bLength = 3 + sizeof(URL1),
+    .bDescriptorType = 3,       // WebUSB URL
+    .bScheme = 1,               // https://
+    .URL = URL1
 };
 
 
@@ -546,19 +578,12 @@ void usb_cb_control_setup(void) {
     else if (recipient == USB_RECIPIENT_DEVICE) {
         if (requestType == USB_REQTYPE_VENDOR &&
                 usb_setup.bRequest == 0x01 &&       // VENDOR_CODE! See BOS descriptor
-                usb_setup.wIndex == WEBUSB_REQUEST_GET_URL) {
-            // if (setup.wValueL != 1)
-            //     return false;
-            // uint8_t urlLength = strlen(landingPageUrl);
-            // uint8_t descriptorLength = urlLength + 3;
-            // if (USB_SendControl(0, &descriptorLength, 1) < 0)
-            //     return false;
-            // uint8_t descriptorType = 3;
-            // if (USB_SendControl(0, &descriptorType, 1) < 0)
-            //     return false;
-            // if (USB_SendControl(0, &landingPageScheme, 1) < 0)
-            //     return false;
-            // return USB_SendControl(0, landingPageUrl, urlLength) >= 0;
+            usb_setup.wIndex == WEBUSB_REQUEST_GET_URL) {
+
+            memcpy(ep0_buf_in, &LandingPageDescriptor, sizeof(LandingPageDescriptor));
+            usb_ep0_in(sizeof(LandingPageDescriptor));
+            usb_ep0_out();
+            return;
         }
 
         switch(usb_setup.bRequest) {
