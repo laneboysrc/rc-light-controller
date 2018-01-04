@@ -17,6 +17,7 @@
 
 * Button input via HAL (must be configurable)
 
+* Bootloader needs MS OS and WebUSB descriptor
 
 * Print software version number on diagnostics
 
