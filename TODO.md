@@ -5,9 +5,7 @@
 
 # MK5
 
-* Add WebUSB descriptor
-
-* Create INF file
+* Create INF file for Windows 7
 
 * Use DFU, using existing WebUSB DFU implementation
 

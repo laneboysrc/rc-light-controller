@@ -21,13 +21,12 @@ USB_ENDPOINTS(3)
 #define USB_STRING_PRODUCT 2
 #define USB_STRING_SERIAL_NUMBER 3
 #define USB_STRING_DFU 4
-#define USB_STRING_MSFT 0xee
 
 #define USB_DTYPE_BOS 15
 #define WEBUSB_REQUEST_GET_URL 2
 
 // Our arbitrary vendor codes
-#define VENDOR_CODE_MS 42       // Retrieve the Microsoft Compatible descritpros
+#define VENDOR_CODE_MS 42       // Retrieve the Microsoft OS 2.0 descriptor
 #define VENDOR_CODE_WEBUSB 69   // Retrieve WebUSB landing page URL
 
 #define USB_NUMBER_OF_INTERFACES 3
@@ -231,101 +230,7 @@ static const struct {
 };
 
 
-// WCID descriptors
-// A WCID device, where WCID stands for "Windows Compatible ID", is an USB
-// device that provides extra information to a Windows system, in order to
-// facilitate automated driver installation and, in most circumstances, allow
-// immediate access.
-//
-// Info: https://github.com/pbatard/libwdi/wiki/WCID-Devices
-static const struct {
-    uint8_t bLength;
-    uint8_t bDescriptorType;
-    __CHAR16_TYPE__ bString[7];
-    uint8_t bVendorCode;
-    uint8_t bPadding;
-} __attribute__((packed)) alignas(4) msft_os = {
-    .bLength = 18,
-    .bDescriptorType = USB_DTYPE_String,
-    .bString = { u"MSFT100" },
-    .bVendorCode = VENDOR_CODE_MS,
-    .bPadding = 0
-};
-
-static const struct {
-    uint32_t dwLength;
-    uint16_t bcdVersion;
-    uint16_t wIndex;
-    uint8_t bCount;
-    uint8_t reserved[7];
-    USB_MicrosoftCompatibleDescriptor_Interface interfaces[USB_NUMBER_OF_INTERFACES];
-} __attribute__((packed)) alignas(4) msft_compatible = {
-    .dwLength = sizeof(msft_compatible),
-    .bcdVersion = 0x0100,
-    .wIndex = 4,
-    .bCount = USB_NUMBER_OF_INTERFACES,
-    .reserved = {0, 0, 0, 0, 0, 0, 0},
-    .interfaces = {
-        {
-            .bFirstInterfaceNumber = 0,
-            .reserved1 = 1,
-            .compatibleID = "WINUSB\0\0",
-            .subCompatibleID = {0, 0, 0, 0, 0, 0, 0, 0},
-            .reserved2 = {0, 0, 0, 0, 0, 0},
-        },
-        {
-            .bFirstInterfaceNumber = 1,
-            .reserved1 = 1,
-            .compatibleID = "WINUSB\0\0",
-            .subCompatibleID = {0, 0, 0, 0, 0, 0, 0, 0},
-            .reserved2 = {0, 0, 0, 0, 0, 0},
-        },
-        {
-            .bFirstInterfaceNumber = 2,
-            .reserved1 = 1,
-            .compatibleID = "WINUSB\0\0",
-            .subCompatibleID = {0, 0, 0, 0, 0, 0, 0, 0},
-            .reserved2 = {0, 0, 0, 0, 0, 0},
-        }
-    }
-};
-
-
-// Microsoft Extended Properties Feature Descriptor
-#define M1_NAME u"DeviceInterfaceGUID"
-// Ports | Windows 10 only
-// #define M1_GUID u"{4d36e978-e325-11ce-bfc1-08002be10318}"
-// Modem | Windows 7 and up, but requires custom INF that references mdmcpq.inf
-// See https://msdn.microsoft.com/en-us/library/windows/hardware/ff538820(v=vs.85).aspx
-#define M1_GUID u"{4d36e96d-e325-11ce-bfc1-08002be10318}"
-static const struct {
-    uint32_t dwLength;
-    uint16_t bcdVersion;
-    uint16_t wIndex;
-    uint16_t wCount;
-
-    uint32_t dwPropLength;
-    uint32_t dwType;
-    uint16_t wNameLength;
-    __CHAR16_TYPE__ name[sizeof(M1_NAME)/2];
-    uint32_t dwDataLength;
-    __CHAR16_TYPE__ data[sizeof(M1_GUID)/2];
-    uint8_t _padding[2];
-} __attribute__((packed)) alignas(4) msft_extended_properties = {
-    .dwLength = sizeof(msft_extended_properties),
-    .bcdVersion = 0x0100,
-    .wIndex = 5,
-    .wCount = 1,
-
-    .dwPropLength = sizeof(M1_NAME) + sizeof(M1_GUID) + 14,
-    .dwType = 1,                    // Unicode string
-    .wNameLength = sizeof(M1_NAME),
-    .name = M1_NAME,
-    .dwDataLength = sizeof(M1_GUID),
-    .data = M1_GUID,
-};
-
-// WebUSB descriptor (Binary Object Store descriptor)
+// Binary Object Store descriptor
 static const struct {
     uint8_t bLength;
     uint8_t bDescriptorType;
@@ -342,15 +247,28 @@ static const struct {
         uint16_t bcdVersion;
         uint8_t bVendorCode;
         uint8_t iLandingPage;
-    } __attribute__((packed)) WebUSBDeviceCapability;
+    } __attribute__((packed)) WebUSB_Descriptor;
+
+    struct {
+        uint8_t bLength;
+        uint8_t bDescriptorType;
+        uint8_t bDevCapabilityType;
+
+        uint8_t bReserved;
+        uint8_t PlatformCapabilityUUID[16];
+        uint32_t dwVersion;
+        uint16_t wLength;
+        uint8_t bVendorCode;
+        uint8_t bAlternateEnumerationCode;
+    } __attribute__((packed)) MS_OS_20_Descriptor;
 
 } __attribute__((packed)) alignas(4) BOS_Descriptor = {
     .bLength = 5,
     .bDescriptorType = 15,          // Binary Object Store descriptor
     .wTotalLength = 5 + 24,
-    .bNumDeviceCaps = 1,
+    .bNumDeviceCaps = 2,
 
-    .WebUSBDeviceCapability = {
+    .WebUSB_Descriptor = {
         .bLength = 24,
         .bDescriptorType = 16,      // "Device Capability" descriptor
         .bDevCapabilityType = 5,    // "Platform" capability descriptor
@@ -360,9 +278,20 @@ static const struct {
         .bcdVersion = 0x0100,
         .bVendorCode = VENDOR_CODE_WEBUSB,
         .iLandingPage = 1
+    },
+    .MS_OS_20_Descriptor = {
+        .bLength = 24,
+        .bDescriptorType = 16,      // "Device Capability" descriptor
+        .bDevCapabilityType = 5,    // "Platform" capability descriptor
+
+        .bReserved = 0,
+        .PlatformCapabilityUUID = {0xdf, 0x60, 0xdd, 0xd8, 0x89, 0x45, 0xc7, 0x4c, 0x9c, 0xd2, 0x65, 0x9d, 0x9e, 0x64, 0x8a, 0x9f},
+        .dwVersion = 0x06030000,    // Windows version (8.1)
+        .wLength = 46,
+        .bVendorCode = VENDOR_CODE_MS,
+        .bAlternateEnumerationCode = 0
     }
 };
-
 
 #define URL1 "laneboysrc.github.io/rc-light-controller"
 static const struct {
@@ -377,6 +306,68 @@ static const struct {
     .URL = URL1
 };
 
+
+static const struct {
+    // Microsoft OS 2.0 descriptor set header (table 10)
+    struct {
+        uint16_t wLength;
+        uint16_t wHeaderType;
+        uint32_t dwVersion;
+        uint16_t wSize;
+    } __attribute__((packed)) Descriptor_Set_Header;
+
+    struct {
+        uint16_t wLength;
+        uint16_t wHeaderType;
+        uint8_t bConfigurationValue;
+        uint8_t bReserved;
+        uint16_t wSize;
+    } __attribute__((packed)) Configuration_Subset_Header;
+
+    struct {
+        uint16_t wLength;
+        uint16_t wHeaderType;
+        uint8_t iFirstInterfaceNumber;
+        uint8_t bReserved;
+        uint16_t wSize;
+    } __attribute__((packed)) Function_Subset_Header;
+
+    struct {
+        uint16_t wLength;
+        uint16_t wHeaderType;
+        uint8_t bId[16];
+    } __attribute__((packed)) Compatible_Id_Descriptor;
+
+} __attribute__((packed)) alignas(4) MS_OS_20_Descriptor = {
+    .Descriptor_Set_Header = {
+        .wLength = sizeof(MS_OS_20_Descriptor.Descriptor_Set_Header),
+        .wHeaderType = 0,           // MS OS 2.0 descriptor set header
+        .dwVersion = 0x06030000,    // Windows version (8.1)
+        .wSize = 46
+    },
+
+    .Configuration_Subset_Header = {
+        .wLength = sizeof(MS_OS_20_Descriptor.Configuration_Subset_Header),
+        .wHeaderType = 1,       // MS OS 2.0 configuration subset header
+        .bConfigurationValue = 0,
+        .bReserved = 0,
+        .wSize = 36
+    },
+
+    .Function_Subset_Header = {
+        .wLength = sizeof(MS_OS_20_Descriptor.Function_Subset_Header),
+        .wHeaderType = 2,       // MS OS 2.0 function subset header
+        .iFirstInterfaceNumber = 0,
+        .bReserved = 0,
+        .wSize = 28
+    },
+
+    .Compatible_Id_Descriptor = {
+        .wLength = sizeof(MS_OS_20_Descriptor.Compatible_Id_Descriptor),
+        .wHeaderType = 3,       // MS OS 2.0 compatible ID descriptor
+        .bId = "WINUSB"
+    }
+};
 
 
 // ****************************************************************************
@@ -506,10 +497,6 @@ uint16_t usb_cb_get_descriptor(uint8_t type, uint8_t index, const uint8_t** ptr)
                     address = usb_string_to_descriptor((char *)"Firmware update");
                     break;
 
-                case USB_STRING_MSFT:
-                    address = &msft_os;
-                    break;
-
                 default:
                     break;
             }
@@ -571,18 +558,6 @@ void usb_cb_control_setup(void) {
                     return;
             }
         }
-
-        switch(usb_setup.bRequest) {
-            case VENDOR_CODE_MS:
-                if (usb_setup.wIndex == 0x0005) {
-                    send_descriptor(&msft_extended_properties, sizeof(msft_extended_properties));
-                    return;
-                }
-                break;
-
-            default:
-                break;
-        }
     }
 
     else if (recipient == USB_RECIPIENT_DEVICE  &&  requestType == USB_REQTYPE_VENDOR) {
@@ -595,18 +570,8 @@ void usb_cb_control_setup(void) {
                 break;
 
             case VENDOR_CODE_MS:
-                if (usb_setup.wIndex == 0x0004) {
-                    send_descriptor(&msft_compatible, sizeof(msft_compatible));
-                    return;
-                }
-                // Work around WINUSB bug by responding with the extended properties
-                // descriptor on device level too.
-                // See https://github.com/pbatard/libwdi/wiki/WCID-Devices#defining-a-device-interface-guid-or-other-device-specific-properties
-                else if (usb_setup.wIndex == 0x0005) {
-                    send_descriptor(&msft_extended_properties,sizeof(msft_extended_properties));
-                    return;
-                }
-                break;
+                send_descriptor(&MS_OS_20_Descriptor, sizeof(MS_OS_20_Descriptor));
+                return;
 
             default:
                 break;
