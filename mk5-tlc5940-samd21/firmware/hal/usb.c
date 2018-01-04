@@ -31,9 +31,9 @@ USB_ENDPOINTS(3)
 #define VENDOR_CODE_WEBUSB 69   // Retrieve WebUSB landing page URL
 
 #define USB_NUMBER_OF_INTERFACES 3
-#define USB_INTERFACE_CDC_CONTROL 0
-#define USB_INTERFACE_CDC_DATA 1
-#define USB_INTERFACE_DFU 2
+#define USB_INTERFACE_DFU 0
+#define USB_INTERFACE_CDC_CONTROL 1
+#define USB_INTERFACE_CDC_DATA 2
 
 
 
@@ -46,11 +46,12 @@ USB_ENDPOINTS(3)
 #define BUF_SIZE 64
 
 
-alignas(4) uint8_t usbserial_buf_in[BUF_SIZE];
-alignas(4) uint8_t usbserial_buf_out[BUF_SIZE];
-// IMPORTANT: the Endpoint 0 buffer must be able to hold a full copy of the
-// USB_MicrosoftExtendedPropertiesDescriptor descriptor!
-alignas(4) uint8_t ep0_buffer[256];
+static alignas(4) uint8_t usbserial_buf_in[BUF_SIZE];
+static alignas(4) uint8_t usbserial_buf_out[BUF_SIZE];
+
+
+static const uint8_t* data;
+static uint16_t data_length;
 
 
 static alignas(4) const USB_DeviceDescriptor device_descriptor = {
@@ -78,6 +79,11 @@ static alignas(4) const USB_DeviceDescriptor device_descriptor = {
 typedef struct {
     USB_ConfigurationDescriptor Config;
 
+    USB_InterfaceAssociationDescriptor DFU_interface_association;
+
+    USB_InterfaceDescriptor DFU_interface;
+    DFU_FunctionalDescriptor DFU_functional;
+
     USB_InterfaceAssociationDescriptor CDC_interface_association;
 
     USB_InterfaceDescriptor CDC_control_interface;
@@ -89,12 +95,6 @@ typedef struct {
     USB_InterfaceDescriptor CDC_data_interface;
     USB_EndpointDescriptor CDC_out_endpoint;
     USB_EndpointDescriptor CDC_in_endpoint;
-
-    USB_InterfaceAssociationDescriptor DFU_interface_association;
-
-    USB_InterfaceDescriptor DFU_interface;
-    DFU_FunctionalDescriptor DFU_functional;
-
 }  __attribute__((packed)) configuration_descriptor_t;
 
 static alignas(4) const configuration_descriptor_t configuration_descriptor = {
@@ -107,6 +107,37 @@ static alignas(4) const configuration_descriptor_t configuration_descriptor = {
         .iConfiguration = 0,
         .bmAttributes = USB_CONFIG_ATTR_BUSPOWERED,
         .bMaxPower = USB_CONFIG_POWER_MA(100)
+    },
+
+    .DFU_interface_association = {
+        .bLength = sizeof(USB_InterfaceAssociationDescriptor),
+        .bDescriptorType = USB_DTYPE_InterfaceAssociation,
+        .bFirstInterface = USB_INTERFACE_DFU,
+        .bInterfaceCount = 1,
+        .bFunctionClass = DFU_INTERFACE_CLASS,
+        .bFunctionSubClass = DFU_INTERFACE_SUBCLASS,
+        .bFunctionProtocol = DFU_RUNTIME_PROTOCOL,
+        .iFunction = 0,
+    },
+
+    .DFU_interface = {
+        .bLength = sizeof(USB_InterfaceDescriptor),
+        .bDescriptorType = USB_DTYPE_Interface,
+        .bInterfaceNumber = USB_INTERFACE_DFU,
+        .bAlternateSetting = 0,
+        .bNumEndpoints = 0,
+        .bInterfaceClass = DFU_INTERFACE_CLASS,
+        .bInterfaceSubClass = DFU_INTERFACE_SUBCLASS,
+        .bInterfaceProtocol = DFU_RUNTIME_PROTOCOL,
+        .iInterface = USB_STRING_DFU
+    },
+    .DFU_functional = {
+        .bLength = sizeof(DFU_FunctionalDescriptor),
+        .bDescriptorType = DFU_DESCRIPTOR_TYPE,
+        .bmAttributes = DFU_ATTR_CAN_DOWNLOAD | DFU_ATTR_WILL_DETACH,
+        .wDetachTimeout = 0,
+        .wTransferSize = DFU_TRANSFER_SIZE,
+        .bcdDFUVersion = 0x0110,
     },
 
     .CDC_interface_association = {
@@ -185,37 +216,6 @@ static alignas(4) const configuration_descriptor_t configuration_descriptor = {
         .bmAttributes = (USB_EP_TYPE_BULK | ENDPOINT_ATTR_NO_SYNC | ENDPOINT_USAGE_DATA),
         .wMaxPacketSize = 64,
         .bInterval = 0x05
-    },
-
-    .DFU_interface_association = {
-        .bLength = sizeof(USB_InterfaceAssociationDescriptor),
-        .bDescriptorType = USB_DTYPE_InterfaceAssociation,
-        .bFirstInterface = USB_INTERFACE_DFU,
-        .bInterfaceCount = 1,
-        .bFunctionClass = DFU_INTERFACE_CLASS,
-        .bFunctionSubClass = DFU_INTERFACE_SUBCLASS,
-        .bFunctionProtocol = DFU_RUNTIME_PROTOCOL,
-        .iFunction = 0,
-    },
-
-    .DFU_interface = {
-        .bLength = sizeof(USB_InterfaceDescriptor),
-        .bDescriptorType = USB_DTYPE_Interface,
-        .bInterfaceNumber = USB_INTERFACE_DFU,
-        .bAlternateSetting = 0,
-        .bNumEndpoints = 0,
-        .bInterfaceClass = DFU_INTERFACE_CLASS,
-        .bInterfaceSubClass = DFU_INTERFACE_SUBCLASS,
-        .bInterfaceProtocol = DFU_RUNTIME_PROTOCOL,
-        .iInterface = USB_STRING_DFU
-    },
-    .DFU_functional = {
-        .bLength = sizeof(DFU_FunctionalDescriptor),
-        .bDescriptorType = DFU_DESCRIPTOR_TYPE,
-        .bmAttributes = DFU_ATTR_CAN_DOWNLOAD | DFU_ATTR_WILL_DETACH,
-        .wDetachTimeout = 0,
-        .wTransferSize = DFU_TRANSFER_SIZE,
-        .bcdDFUVersion = 0x0110,
     }
 };
 
@@ -378,6 +378,27 @@ static const struct {
 };
 
 
+
+// ****************************************************************************
+static void send_descriptor_multi(void) {
+    uint16_t transfer_length = data_length;
+
+    if (transfer_length > USB_EP0_SIZE) {
+        transfer_length = USB_EP0_SIZE;
+    }
+
+    memcpy(ep0_buf_in, data, transfer_length);
+    usb_ep_start_in(0x80, ep0_buf_in, transfer_length, false);
+
+    if (transfer_length == 0) {
+        usb_ep0_out();
+    }
+
+    data_length -= transfer_length;
+    data += transfer_length;
+}
+
+
 // ****************************************************************************
 static void send_descriptor(const void * descriptor, uint16_t length)
 {
@@ -385,9 +406,9 @@ static void send_descriptor(const void * descriptor, uint16_t length)
         length = usb_setup.wLength;
     }
 
-    memcpy(ep0_buf_in, descriptor, length);
-    usb_ep0_in(length);
-    usb_ep0_out();
+    data_length = length;
+    data = descriptor;
+    send_descriptor_multi();
 }
 
 
@@ -460,7 +481,7 @@ uint16_t usb_cb_get_descriptor(uint8_t type, uint8_t index, const uint8_t** ptr)
 
         case USB_DTYPE_Configuration:
             address = &configuration_descriptor;
-            size = sizeof(configuration_descriptor_t);
+            size = sizeof(configuration_descriptor);
             break;
 
         case USB_DTYPE_String:
@@ -592,7 +613,6 @@ void usb_cb_control_setup(void) {
         }
     }
 
-
     usb_ep0_stall();
     return;
 }
@@ -600,7 +620,8 @@ void usb_cb_control_setup(void) {
 
 // ****************************************************************************
 void usb_cb_control_in_completion(void) {
-    // Nothing to do
+    printf("usb_cb_control_in_completion\n");
+    send_descriptor_multi();
 }
 
 
