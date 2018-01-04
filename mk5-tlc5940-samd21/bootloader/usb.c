@@ -43,21 +43,21 @@ alignas(4) const USB_DeviceDescriptor device_descriptor = {
     .bLength = sizeof(USB_DeviceDescriptor),
     .bDescriptorType = USB_DTYPE_Device,
 
-    .bcdUSB                 = 0x0200,
-    .bDeviceClass           = USB_CSCP_NoDeviceClass,
-    .bDeviceSubClass        = USB_CSCP_NoDeviceSubclass,
-    .bDeviceProtocol        = USB_CSCP_NoDeviceProtocol,
+    .bcdUSB = 0x0210,
+    .bDeviceClass = USB_CSCP_NoDeviceClass,
+    .bDeviceSubClass = USB_CSCP_NoDeviceSubclass,
+    .bDeviceProtocol = USB_CSCP_NoDeviceProtocol,
 
-    .bMaxPacketSize0        = 64,
-    .idVendor               = 0x6666,
-    .idProduct              = 0xcab0,
-    .bcdDevice              = 0x0111,
+    .bMaxPacketSize0 = 64,
+    .idVendor = 0x6666,
+    .idProduct = 0xcab1,
+    .bcdDevice = 0x0103,
 
-    .iManufacturer          = USB_STRING_MANUFACTURER,
-    .iProduct               = USB_STRING_PRODUCT,
-    .iSerialNumber          = USB_STRING_SERIAL_NUMBER,
+    .iManufacturer = USB_STRING_MANUFACTURER,
+    .iProduct = USB_STRING_PRODUCT,
+    .iSerialNumber = USB_STRING_SERIAL_NUMBER,
 
-    .bNumConfigurations     = 1
+    .bNumConfigurations = 1
 };
 
 
