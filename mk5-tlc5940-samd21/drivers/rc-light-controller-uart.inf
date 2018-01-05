@@ -1,0 +1,56 @@
+[Strings]
+DriverPackageDisplayName="RC Light Controller Mk5 UART Driver"
+ManufacturerName="LANE Boys RC"
+ServiceName="USB UART Driver"
+rc_light_controller.DeviceName="RC Light Controller (UART)"
+
+[DefaultInstall]
+CopyINF=rc-light-controller.inf
+
+[Version]
+Class=Ports
+ClassGuid={4D36E978-E325-11CE-BFC1-08002BE10318}
+Signature="$Windows NT$"
+Provider=%ManufacturerName%
+DriverPackageDisplayName=%DriverPackageDisplayName%
+; Format: MM/DD/YYYY
+DriverVer=01/04/2018,1.0.0.0
+
+[Manufacturer]
+%ManufacturerName%=DeviceList, NTamd64, NTia64
+
+[DestinationDirs]
+FakeModemCopyFileSection=12
+DefaultDestDir=12
+
+[DeviceList]
+%rc_light_controller.DeviceName%=DriverInstall, USB\VID_6666&PID_CAB1&MI_01
+
+[DeviceList.NTamd64]
+%rc_light_controller.DeviceName%=DriverInstall, USB\VID_6666&PID_CAB1&MI_01
+
+[DeviceList.NTia64]
+%rc_light_controller.DeviceName%=DriverInstall, USB\VID_6666&PID_CAB1&MI_01
+
+[DriverInstall]
+include=mdmcpq.inf,usb.inf
+CopyFiles=FakeModemCopyFileSection
+AddReg=DriverAddReg
+
+[DriverAddReg]
+HKR,,DevLoader,,*ntkern
+HKR,,NTMPDriver,,usbser.sys
+HKR,,EnumPropPages32,,"MsPorts.dll,SerialPortPropPageProvider"
+
+[DriverInstall.Services]
+include=mdmcpq.inf
+AddService=usbser, 0x00000002, DriverService
+
+[DriverService]
+DisplayName=%ServiceName%
+ServiceType=1
+StartType=3
+ErrorControl=1
+ServiceBinary=%12%\usbser.sys
+LoadOrderGroup=Base
+
