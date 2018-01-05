@@ -5,8 +5,6 @@
 
 # MK5
 
-* Create INF file for Windows 7
-
 * Use DFU, using existing WebUSB DFU implementation
 
 * Use DMA for UART TX?
@@ -16,10 +14,6 @@
 * Does LED on PA01 interfere with Arduino hardware?
 
 * Button input via HAL (must be configurable)
-
-* Bootloader needs MS OS and WebUSB descriptor
-
-* Print software version number on diagnostics
 
 
 # MK5 PCB
