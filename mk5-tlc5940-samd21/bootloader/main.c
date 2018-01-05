@@ -17,7 +17,7 @@ typedef struct {
 
 static const gpio_t GPIO_USB_DM = { .group = 0, .pin = 24, .mux = PORT_PMUX_PMUXE_G_Val };
 static const gpio_t GPIO_USB_DP = { .group = 0, .pin = 25, .mux = PORT_PMUX_PMUXE_G_Val };
-// static const gpio_t GPIO_LED = { .group = 0, .pin = 19 };
+static const gpio_t GPIO_LED = { .group = 0, .pin = 19 };
 
 
 // magic_value is a location in an unused RAM area that allows the application
@@ -43,20 +43,20 @@ inline static void gpio_out(gpio_t gpio)
 }
 
 // ****************************************************************************
-inline static void gpio_set(gpio_t gpio)
+inline static void gpio_set(const gpio_t gpio)
 {
     PORT->Group[gpio.group].OUTSET.reg = 1 << gpio.pin;
 }
 
 
 // ****************************************************************************
-inline static void gpio_clear(gpio_t gpio)
+inline static void gpio_clear(const gpio_t gpio)
 {
     PORT->Group[gpio.group].OUTCLR.reg = 1 << gpio.pin;
 }
 
 // ****************************************************************************
-inline static void gpio_mux(gpio_t gpio)
+inline static void gpio_mux(const gpio_t gpio)
 {
     if (gpio.pin & 1) {
         PORT->Group[gpio.group].PMUX[gpio.pin >> 1].bit.PMUXO = gpio.mux;
@@ -65,6 +65,12 @@ inline static void gpio_mux(gpio_t gpio)
         PORT->Group[gpio.group].PMUX[gpio.pin >> 1].bit.PMUXE = gpio.mux;
     }
     PORT->Group[gpio.group].PINCFG[gpio.pin].bit.PMUXEN = 1;
+}
+
+// ****************************************************************************
+static inline void gpio_toggle(const gpio_t gpio)
+{
+    PORT->Group[gpio.group].OUTTGL.reg = 1 << gpio.pin;
 }
 
 
@@ -295,8 +301,13 @@ static void bootloader(void)
 #endif
 
     init_usb();
+    gpio_out(GPIO_LED);
+    gpio_clear(GPIO_LED);
 
     while (!bootloader_done) {
+        if ((milliseconds % 300) == 0) {
+            gpio_toggle(GPIO_LED);
+        }
         __WFI();
     }
 
