@@ -21,6 +21,7 @@ USB_ENDPOINTS(3)
 #define USB_STRING_PRODUCT 2
 #define USB_STRING_SERIAL_NUMBER 3
 #define USB_STRING_DFU 4
+#define USB_STRING_UART 5
 
 #define USB_DTYPE_BOS 15
 #define WEBUSB_REQUEST_GET_URL 2
@@ -159,7 +160,7 @@ static alignas(4) const configuration_descriptor_t configuration_descriptor = {
         .bInterfaceClass = CDC_INTERFACE_CLASS,
         .bInterfaceSubClass = CDC_INTERFACE_SUBCLASS_ACM,
         .bInterfaceProtocol = 0,
-        .iInterface = 0,
+        .iInterface = USB_STRING_UART,
     },
     .CDC_functional_header = {
         .bLength = sizeof(CDC_FunctionalHeaderDescriptor),
@@ -198,7 +199,7 @@ static alignas(4) const configuration_descriptor_t configuration_descriptor = {
         .bInterfaceClass = CDC_INTERFACE_CLASS_DATA,
         .bInterfaceSubClass = 0,
         .bInterfaceProtocol = 0,
-        .iInterface = 0,
+        .iInterface = USB_STRING_UART,
     },
     .CDC_out_endpoint = {
         .bLength = sizeof(USB_EndpointDescriptor),
@@ -494,7 +495,11 @@ uint16_t usb_cb_get_descriptor(uint8_t type, uint8_t index, const uint8_t** ptr)
                     break;
 
                 case USB_STRING_DFU:
-                    address = usb_string_to_descriptor((char *)"Firmware update");
+                    address = usb_string_to_descriptor((char *)"RC Light Controller (DFU)");
+                    break;
+
+                case USB_STRING_UART:
+                    address = usb_string_to_descriptor((char *)"RC Light Controller (UART)");
                     break;
 
                 default:

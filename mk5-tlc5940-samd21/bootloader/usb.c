@@ -336,7 +336,7 @@ uint16_t usb_cb_get_descriptor(uint8_t type, uint8_t index, const uint8_t** ptr)
                     break;
 
                 case USB_STRING_DFU:
-                    address = usb_string_to_descriptor((char *)"Firmware update");
+                    address = usb_string_to_descriptor((char *)"RC Light Controller (DFU-bootloader)");
                     break;
 
                 case USB_STRING_MSFT:
