@@ -139,11 +139,51 @@ static void print_app_diagnostics(void)
 }
 #endif
 
+
+// ****************************************************************************
+static void LED_breathing(void)
+{
+    const uint8_t MIN = 3;
+    const uint8_t MAX = 150;
+
+    static uint8_t counter = 0;
+    static uint8_t compare = MIN;
+    static bool fade_up = false;
+
+    // Simple PWM routined that fades the LED brightness in a triangular fashion.
+    // 'counter' runs from 0..255. When it overflows to 0 we turn the LED
+    // on. When counter reaches the 'compare' brightness value, we switch
+    // the LED off.
+    // At every counter overflow we increase/decrease the target brightness
+    // until we hit MIN/MAX, where we change direction.
+    //
+    // This function expects to be called from within the system tick
+    // interrupt every 20 microsecond.
+
+    if (counter == 0) {
+        gpio_clear(GPIO_LED);
+
+        if (compare <= MIN) {
+            fade_up = true;
+        }
+        else if (compare >= MAX) {
+            fade_up = false;
+        }
+        compare += (fade_up ? 1 : -1);
+    }
+
+    if (counter == compare) {
+        gpio_set(GPIO_LED);
+    }
+    ++counter;
+}
+
+
 // ****************************************************************************
 static void init_systick(void)
 {
-    // Configure the SYSTICK to create an interrupt every 1 millisecond
-    SysTick_Config(48000);
+    // Configure the SYSTICK to create an interrupt every 20 microseconds
+    SysTick_Config(960);
     NVIC_SetPriority(SysTick_IRQn, 0x0);
 
     __enable_irq();
@@ -153,7 +193,15 @@ static void init_systick(void)
 // ****************************************************************************
 void SysTick_Handler(void)
 {
-    ++milliseconds;
+    static uint8_t prescaler = 0;
+
+    LED_breathing();
+
+    ++prescaler;
+    if (prescaler == 50) {
+        prescaler = 0;
+        ++milliseconds;
+    }
 }
 
 
@@ -302,12 +350,9 @@ static void bootloader(void)
 
     init_usb();
     gpio_out(GPIO_LED);
-    gpio_clear(GPIO_LED);
+    gpio_set(GPIO_LED);
 
     while (!bootloader_done) {
-        if ((milliseconds % 300) == 0) {
-            gpio_toggle(GPIO_LED);
-        }
         __WFI();
     }
 
