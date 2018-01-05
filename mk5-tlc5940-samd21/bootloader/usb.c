@@ -50,7 +50,7 @@ alignas(4) const USB_DeviceDescriptor device_descriptor = {
 
     .bMaxPacketSize0 = 64,
     .idVendor = 0x6666,
-    .idProduct = 0xcab1,
+    .idProduct = 0xcab0,
     .bcdDevice = 0x0103,
 
     .iManufacturer = USB_STRING_MANUFACTURER,
