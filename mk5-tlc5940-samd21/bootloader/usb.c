@@ -6,6 +6,7 @@
 #include <usb_samd.h>
 #include <class/dfu/dfu.h>
 #include <flash_layout.h>
+#include <usb_bos.h>
 
 
 // We can only erase the flash in units of 'row', where each row consists of
@@ -17,12 +18,13 @@
 
 #define USB_INTERFACE_DFU 0
 
+#define WEBUSB_REQUEST_GET_URL 2
+
 #define USB_STRING_LANGUAGE 0
 #define USB_STRING_MANUFACTURER 1
 #define USB_STRING_PRODUCT 2
 #define USB_STRING_SERIAL_NUMBER 3
 #define USB_STRING_DFU 4
-#define USB_STRING_MSFT 0xee
 
 #define USB_EP0 (USB_IN + 0)
 
@@ -31,13 +33,12 @@
 // Declare the endpoints in use.
 USB_ENDPOINTS(1)
 
-alignas(4) uint8_t ep0_buffer[146];
-
 // Global flag that is set by the DFU class when a firmware upgrade has finished
 // and the MCU should be restarted.
 extern volatile bool bootloader_done;
 
-
+static const uint8_t* data;
+static uint16_t data_length;
 
 alignas(4) const USB_DeviceDescriptor device_descriptor = {
     .bLength = sizeof(USB_DeviceDescriptor),
@@ -129,105 +130,6 @@ alignas(4) const language_string_t language_string = {
 };
 
 
-typedef struct {
-    uint8_t bLength;
-    uint8_t bDescriptorType;
-    __CHAR16_TYPE__ bString[7];
-    uint8_t bVendorCode;
-    uint8_t bPadding;
-} __attribute__((packed)) msft_os_t;
-
-alignas(4) const msft_os_t msft_os = {
-    .bLength = 18,
-    .bDescriptorType = USB_DTYPE_String,
-    .bString = { u"MSFT100" },
-    .bVendorCode = 0x42,
-    .bPadding = 0
-};
-
-
-typedef struct {
-    uint32_t dwLength;
-    uint16_t bcdVersion;
-    uint16_t wIndex;
-    uint8_t bCount;
-    uint8_t reserved[7];
-    USB_MicrosoftCompatibleDescriptor_Interface interfaces[2];
-} __attribute__((packed)) msft_compatible_t;
-
-
-const msft_compatible_t msft_compatible = {
-    .dwLength = sizeof(USB_MicrosoftCompatibleDescriptor) + (2 * sizeof(USB_MicrosoftCompatibleDescriptor_Interface)),
-    .bcdVersion = 0x0100,
-    .wIndex = 0x0004,
-    .bCount = 1,
-    .reserved = {0, 0, 0, 0, 0, 0, 0},
-    .interfaces = {
-        {
-            .bFirstInterfaceNumber = 0,
-            .reserved1 = 0x01,
-            .compatibleID = "WINUSB\0\0",
-            .subCompatibleID = {0, 0, 0, 0, 0, 0, 0, 0},
-            .reserved2 = {0, 0, 0, 0, 0, 0},
-        }
-    }
-};
-
-typedef struct {
-    uint32_t dwLength;
-    uint16_t bcdVersion;
-    uint16_t wIndex;
-    uint16_t wCount;
-    uint32_t dwPropLength;
-    uint32_t dwType;
-    uint16_t wNameLength;
-    uint16_t name[21];
-    uint32_t dwDataLength;
-    uint16_t data[40];
-    uint8_t _padding[2];
-} __attribute__((packed)) USB_MicrosoftExtendedPropertiesDescriptor;
-
-// FIXME: check this...
-const USB_MicrosoftExtendedPropertiesDescriptor msft_extended = {
-    .dwLength = 146,
-    .bcdVersion = 0x0100,
-    .wIndex = 0x05,
-    .wCount = 0x01,
-    .dwPropLength = 136,
-    .dwType = 7,
-    .wNameLength = 42,
-    .name = u"DeviceInterfaceGUIDs\0",
-    .dwDataLength = 78,
-    .data = u"{3c33bbfd-71f9-4815-8b8f-7cd1ef928b3d}",
-};
-
-
-// ****************************************************************************
-static void handle_msft_compatible(
-    const USB_MicrosoftCompatibleDescriptor* msft_descriptor,
-    const USB_MicrosoftExtendedPropertiesDescriptor* msft_extended_descriptor)
-{
-    uint16_t len;
-    if (usb_setup.wIndex == 0x0005) {
-        len = msft_extended_descriptor->dwLength;
-        memcpy(ep0_buffer, msft_extended_descriptor, len);
-    }
-    else if (usb_setup.wIndex == 0x0004) {
-        len = msft_descriptor->dwLength;
-        memcpy(ep0_buffer, msft_descriptor, len);
-    }
-    else {
-        usb_ep0_stall();
-        return;
-    }
-
-    if (len > usb_setup.wLength) {
-        len = usb_setup.wLength;
-    }
-
-    usb_ep_start_in(USB_EP0, ep0_buffer, len, true);
-    usb_ep0_out();
-}
 
 
 // ****************************************************************************
@@ -255,7 +157,7 @@ void dfu_cb_dnload_block(uint16_t block_number, uint16_t length) {
 
 
 // ****************************************************************************
-void dfu_cb_dnload_packet_completed(uint16_t block_number, uint16_t offset, uint8_t* data, uint16_t length) {
+void dfu_cb_dnload_packet_completed(uint16_t block_number, uint16_t offset, uint8_t* payload, uint16_t length) {
     uint32_t address;
     uint32_t nvm_address;
 
@@ -268,9 +170,9 @@ void dfu_cb_dnload_packet_completed(uint16_t block_number, uint16_t offset, uint
     for (uint16_t i = 0; i < length; i += 2) {
         uint16_t word;
 
-        word = data[i];
+        word = payload[i];
         if ((i + 1) < length) {
-            word |= data[i + 1] << 8;
+            word |= payload[i + 1] << 8;
         }
 
         ((volatile uint16_t *)FLASH_ADDR)[nvm_address++] = word;
@@ -298,6 +200,39 @@ void dfu_cb_manifest(void) {
 
     // Reset the DFU code to report IDLE state, which is checked by dfu-util
     dfu_reset();
+}
+
+
+// ****************************************************************************
+static void send_descriptor_multi(void) {
+    uint16_t transfer_length = data_length;
+
+    if (transfer_length > USB_EP0_SIZE) {
+        transfer_length = USB_EP0_SIZE;
+    }
+
+    memcpy(ep0_buf_in, data, transfer_length);
+    usb_ep_start_in(0x80, ep0_buf_in, transfer_length, false);
+
+    if (transfer_length == 0) {
+        usb_ep0_out();
+    }
+
+    data_length -= transfer_length;
+    data += transfer_length;
+}
+
+
+// ****************************************************************************
+static void send_descriptor(const void * descriptor, uint16_t length)
+{
+    if (length > usb_setup.wLength) {
+        length = usb_setup.wLength;
+    }
+
+    data_length = length;
+    data = descriptor;
+    send_descriptor_multi();
 }
 
 
@@ -337,10 +272,6 @@ uint16_t usb_cb_get_descriptor(uint8_t type, uint8_t index, const uint8_t** ptr)
 
                 case USB_STRING_DFU:
                     address = usb_string_to_descriptor((char *)"RC Light Controller (DFU-bootloader)");
-                    break;
-
-                case USB_STRING_MSFT:
-                    address = &msft_os;
                     break;
 
                 default:
@@ -391,6 +322,7 @@ bool usb_cb_set_interface(uint16_t interface, uint16_t new_altsetting) {
 // ****************************************************************************
 void usb_cb_control_setup(void) {
     uint8_t recipient = usb_setup.bmRequestType & USB_REQTYPE_RECIPIENT_MASK;
+    uint8_t requestType = usb_setup.bmRequestType & USB_REQTYPE_TYPE_MASK;
 
     if (recipient == USB_RECIPIENT_INTERFACE) {
         // Forward all DFU related requests
@@ -398,23 +330,19 @@ void usb_cb_control_setup(void) {
             dfu_control_setup();
             return;
         }
-
-        switch(usb_setup.bRequest) {
-            case MSFT_ID:
-                // FIXME: only one should be here, read docs!
-                handle_msft_compatible((USB_MicrosoftCompatibleDescriptor *)&msft_compatible, &msft_extended);
-                return;
-
-            default:
-                break;
-        }
     }
 
-    else if (recipient == USB_RECIPIENT_DEVICE) {
+    else if (recipient == USB_RECIPIENT_DEVICE  &&  requestType == USB_REQTYPE_VENDOR) {
         switch(usb_setup.bRequest) {
-            case MSFT_ID:
-                // FIXME: only one should be here, read docs!
-                handle_msft_compatible((USB_MicrosoftCompatibleDescriptor *)&msft_compatible, &msft_extended);
+            case VENDOR_CODE_WEBUSB:
+                if (usb_setup.wIndex == WEBUSB_REQUEST_GET_URL) {
+                    send_descriptor(&LandingPageDescriptor, sizeof(LandingPageDescriptor));
+                    return;
+                }
+                break;
+
+            case VENDOR_CODE_MS:
+                send_descriptor(&MS_OS_20_Descriptor, sizeof(MS_OS_20_Descriptor));
                 return;
 
             default:
@@ -435,6 +363,9 @@ void usb_cb_control_in_completion(void) {
         if (usb_setup.wIndex ==USB_INTERFACE_DFU) {
             dfu_control_in_completion();
         }
+    }
+    else {
+        send_descriptor_multi();
     }
 }
 
