@@ -57,22 +57,22 @@ typedef struct {
 // 3.3V     (29)  VDDANA
 //
 //
-// Arduino MKRZero pin mapping:
+// Arduino Zero (and Protoneer Nano-ARM) pin mapping:
 //
 // PA02     A0      OUT15S Switched light output
 // PA04     A3      TLC5940 SIN
 // PA05     A4      TLC5940 SCLK
-// PA06     A5      TLC5940 XLAT
-// PA07     A6      TLC5940 BLANK
-// PA09     D12     TLC5940 GSCLK
-// PA11     D3      Push button
-// PA16     D9      Steering input
-// PA17     D9      Throttle input
-// PA19     D10     CH3 input
-// PA22     D0      OUT / Tx
-// PA23     D1      Rx
+// PA06     D8      TLC5940 XLAT
+// PA07     D9      TLC5940 BLANK
+// PA09     D3      TLC5940 GSCLK
+// PA11     D0      Push button
+// PA16     D11     Steering input
+//                  Throttle input
+// PA19     D12     CH3 input
+// PA22     SDA     OUT / Tx
+// PA23     SCL     Rx
 //
-// PB08             LED
+// PA17     D13       LED
 //
 // ****************************************************************************
 

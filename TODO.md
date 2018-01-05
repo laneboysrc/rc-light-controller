@@ -22,6 +22,8 @@
 * Design for stencil 5mil/0.12mm thick
 * How to deal with the USB shielding?
 
+* Move TH to PA18. Because PA17 is LED/D13 on Arduino Zero
+* Can we use other pins than PA22/PA23? They are not convenient on the Protoneer
 
 #MK4 + MK5
 
