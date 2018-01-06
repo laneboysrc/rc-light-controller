@@ -150,7 +150,7 @@ $(BUILD_DIR):
 	@echo [MKDIR] $@
 	@mkdir -p $@
 
-$(TARGET_ELF): $(BUILD_DIR) $(OBJECTS) $(LINKER_SCRIPT)
+$(TARGET_ELF): $(BUILD_DIR) config_light_programs.c $(OBJECTS) $(LINKER_SCRIPT)
 	@echo [LD] $@
 	$(ECHO) $(CC) $(LDFLAGS) $(OBJECTS) $(LIBS) -o $@
 
