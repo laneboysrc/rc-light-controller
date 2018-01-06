@@ -15,6 +15,7 @@
 
 * Button input via HAL (must be configurable)
 
+* PLL coarse and fine; USB are taken from USER instead of FACTORY CAL area!
 
 # MK5 PCB
 
