@@ -195,8 +195,7 @@ void HAL_service(void)
     if (now < last_found) {
         last_found = now;
 
-        // FIXME: output this to diagnostics port
-        printf("Stack down to 0x%08x\n", (uint32_t)now);
+        fprintf(STDOUT_DEBUG, "Stack down to 0x%08x\n", (uint32_t)now);
     }
 #endif
 }
@@ -327,7 +326,7 @@ void UART0_irq_handler(void)
 void HAL_putc(void *p, char c)
 {
     // Ignore diagnostics requests if disabled
-    if (!diagnostics_on_uart  &&  p == STDOUT_DEBUG) {
+        if (!diagnostics_on_uart  &&  p == STDOUT_DEBUG) {
         return;
     }
 
@@ -566,7 +565,13 @@ static void output_raw_channels(uint16_t result[3])
     raw_data[1] = result[1] ;
     raw_data[2] = result[2] ;
 
-    result[0] = result[1] = result[2] = 0;
+
+    // Do not clear the results, rather keep them at their current value. This
+    // is important for receivers that output the 3 channels asynchronously or
+    // at different rates, like the Spektrum 4210 and 4220.
+
+    // result[0] = result[1] = result[2] = 0;
+
     new_raw_channel_data = true;
 }
 

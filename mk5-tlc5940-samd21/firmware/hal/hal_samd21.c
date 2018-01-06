@@ -760,7 +760,12 @@ void TCC0_Handler(void)
                     raw_data[2] = result[2];
                     new_raw_channel_data = true;
 
-                    result[0] = result[1] = result[2] = 0;
+                    // Do not clear the results, rather keep them at their
+                    // current value. This is important for receivers that
+                    // output the 3 channels asynchronously or at different
+                    // rates, like the Spektrum 4210 and 4220.
+
+                    // result[0] = result[1] = result[2] = 0;
                 }
                 channel_flags |= (1 << i);
             }
