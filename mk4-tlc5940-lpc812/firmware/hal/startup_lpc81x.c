@@ -10,6 +10,7 @@ uint32_t entropy;
 extern unsigned int _text;
 extern unsigned int _etext;
 extern unsigned int _data;
+extern unsigned int _data_load;
 extern unsigned int _edata;
 extern unsigned int _bss;
 extern unsigned int _ebss;
@@ -145,7 +146,7 @@ void Reset_handler(void)
 #endif
 
     // Copy initialization values from Flash to RAM
-    source = &_etext;
+    source = &_data_load;
     destination = &_data;
     end = &_edata;
     while (destination < end) {

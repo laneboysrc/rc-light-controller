@@ -52,6 +52,7 @@ SECTIONS
 
     .data : ALIGN(4)
     {
+        _data_load = LOADADDR (.data);
         _data = .;
         FILL(0x00)
 
