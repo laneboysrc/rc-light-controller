@@ -36,6 +36,8 @@
 
 * Deprecate CPPM reader (to simplify things, no-one ever used it)
 
+* Shelf Queen mode
+
 
 # General improvements
 
