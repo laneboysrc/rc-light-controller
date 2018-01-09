@@ -759,7 +759,7 @@ Text Label 8150 3250 0    60   ~ 0
 GSCLK
 Text Label 6800 2350 2    60   ~ 0
 BLANK
-Text Label 6800 3350 2    60   ~ 0
+Text Label 6800 3250 2    60   ~ 0
 TH
 Text Label 6800 2550 2    60   ~ 0
 GSCLK
@@ -775,7 +775,7 @@ Text Label 5450 5600 0    60   ~ 0
 RESET
 Text Label 3400 1650 0    60   ~ 0
 RESET
-Text Label 6800 3150 2    60   ~ 0
+Text Label 6800 3350 2    60   ~ 0
 CH3
 $Comp
 L GND #PWR024
@@ -1244,15 +1244,12 @@ Wire Wire Line
 Wire Wire Line
 	6350 3050 6800 3050
 Wire Wire Line
-	6350 3150 6800 3150
-Wire Wire Line
 	6350 3350 6800 3350
 NoConn ~ 6350 1650
 NoConn ~ 6350 2850
 NoConn ~ 6350 3850
 NoConn ~ 6350 3950
-NoConn ~ 6800 3150
-NoConn ~ 6350 3250
+NoConn ~ 6800 3250
 NoConn ~ 6800 3350
 $Comp
 L PRTR5V0U2X D2
@@ -1341,4 +1338,7 @@ Wire Wire Line
 	6350 1750 6800 1750
 Text Label 6800 1750 2    60   ~ 0
 LED
+Wire Wire Line
+	6350 3250 6800 3250
+NoConn ~ 6350 3150
 $EndSCHEMATC
