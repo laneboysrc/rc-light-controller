@@ -2,6 +2,7 @@
 
 * FW: Test revised dignostics selection on LPC812
 
+* Use watchdog
 
 # MK5
 
@@ -12,17 +13,31 @@
 * Use Watchdog
 
 * Does LED on PA01 interfere with Arduino hardware?
+* Support LED on PA01 and PA17 (Arduino) simulatinously
+    * Also in the bootloader
+
+* What does the led do in the light controller?
+    * Flash when no signal
+    * Light up during initialization stage
+    * Off during normal operation
 
 * Button input via HAL (must be configurable)
 
 * PLL coarse and fine; USB are taken from USER instead of FACTORY CAL area!
+
+* Can we add a microphone for firmware update?
+    * See Blinkenrocket for reference FSK code?
+
+* Use watchdog
 
 # MK5 PCB
 
 * TLC5940 footprint based on TI datasheet
 * Design for stencil 5mil/0.12mm thick
 
-* Can we have pins for ST and TH? So that we can make adapter boards that directly plug into the receiver
+* Can we have pins for ST, TH and CH3? So that we can make adapter boards that directly plug into the receiver
+
+
 
 #MK4 + MK5
 
@@ -61,3 +76,16 @@
 * TOOLS: Add tool to extract light program source out of light controller config
 
 * TOOLS: Add watch folder to ISP tool
+
+* DOC: Add more connection diagrams
+    - Overall RC system with preprocessor
+    - Overall RC system with servo reader
+    - Overall RC system with 2 light controllers
+    - LED connection
+    - Light bar connection directly powered from LiPo
+
+* DOC: make a nicer diagram for the programming cable
+
+* DOC: make a diagram how to program the preprocessor
+
+* DOC: add more documentation to preprocessor and distribution boards
