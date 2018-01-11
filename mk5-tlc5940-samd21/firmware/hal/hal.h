@@ -38,7 +38,7 @@ typedef struct {
 // PA09     (12)                            TLC5940 GSCLK
 // PA11     (14)                            Push button
 // PA16     (17 EXTINT[0])                  Steering input
-// PA17     (18 EXTINT[1])                  Throttle input
+// PA18     (19 EXTINT[1])                  Throttle input
 // PA19     (20 EXTINT[3])                  CH3 input
 // PA22     (21 SERCOM3/PAD0, TC4/W[0])     OUT / Tx
 // PA23     (22 SERCOM3/PAD1)               Rx
@@ -59,6 +59,7 @@ typedef struct {
 //
 // Arduino Zero (and Protoneer Nano-ARM) pin mapping:
 //
+// PA01             32.768 kHz crystal
 // PA02     A0      OUT15S Switched light output
 // PA04     A3      TLC5940 SIN
 // PA05     A4      TLC5940 SCLK
@@ -67,12 +68,15 @@ typedef struct {
 // PA09     D3      TLC5940 GSCLK
 // PA11     D0      Push button
 // PA16     D11     Steering input
-//                  Throttle input
+// PA18     D10     Throttle input
 // PA19     D12     CH3 input
 // PA22     SDA     OUT / Tx
 // PA23     SCL     Rx
 //
-// PA17     D13       LED
+// PA24     (23)    USB-DM
+// PA25     (24)    USB-DP
+//
+// PA17     D13     LED
 //
 // ****************************************************************************
 
@@ -82,8 +86,8 @@ static const HAL_GPIO_T HAL_GPIO_RX = { .group = 0, .pin = 23, .mux = PORT_PMUX_
 static const HAL_GPIO_T HAL_GPIO_TX = { .group = 0, .pin = 22, .mux = PORT_PMUX_PMUXE_D_Val, .pad = 0 };
 static const HAL_GPIO_T HAL_GPIO_OUT = { .group = 0, .pin = 22, .mux = PORT_PMUX_PMUXE_E_Val };
 static const HAL_GPIO_T HAL_GPIO_ST = { .group = 0, .pin = 16, .mux = PORT_PMUX_PMUXE_A_Val };
-static const HAL_GPIO_T HAL_GPIO_TH = { .group = 0, .pin = 17, .mux = PORT_PMUX_PMUXE_A_Val };
-static const HAL_GPIO_T HAL_GPIO_CH3 = { .group = 0, .pin = 19 };
+static const HAL_GPIO_T HAL_GPIO_TH = { .group = 0, .pin = 18, .mux = PORT_PMUX_PMUXE_A_Val };
+static const HAL_GPIO_T HAL_GPIO_CH3 = { .group = 0, .pin = 19, .mux = PORT_PMUX_PMUXE_A_Val };
 static const HAL_GPIO_T HAL_GPIO_SCK = { .group = 0, .pin = 5, .mux = PORT_PMUX_PMUXE_C_Val };
 static const HAL_GPIO_T HAL_GPIO_SIN = { .group = 0, .pin = 4, .mux = PORT_PMUX_PMUXE_C_Val };
 static const HAL_GPIO_T HAL_GPIO_XLAT = { .group = 0, .pin = 6 };
@@ -92,6 +96,7 @@ static const HAL_GPIO_T HAL_GPIO_BLANK = { .group = 0, .pin = 7 };
 static const HAL_GPIO_T HAL_GPIO_PUSH_BUTTON = { .group = 0, .pin = 11 };
 static const HAL_GPIO_T HAL_GPIO_SWITCHED_LIGHT_OUTPUT = { .group = 0, .pin = 2 };
 static const HAL_GPIO_T HAL_GPIO_LED = { .group = 0, .pin = 1 };
+static const HAL_GPIO_T HAL_GPIO_LED2 = { .group = 0, .pin = 17 };
 static const HAL_GPIO_T HAL_GPIO_USB_DM = { .group = 0, .pin = 24, .mux = PORT_PMUX_PMUXE_G_Val };
 static const HAL_GPIO_T HAL_GPIO_USB_DP = { .group = 0, .pin = 25, .mux = PORT_PMUX_PMUXE_G_Val };
 

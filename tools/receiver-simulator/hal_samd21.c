@@ -29,8 +29,6 @@ void HAL_hardware_init(bool is_servo_reader, bool servo_output_enabled, bool uar
 {
     uint32_t *coarse_p;
     uint32_t coarse;
-    uint32_t *fine_p;
-    uint32_t fine;
 
     (void) is_servo_reader;
     (void) servo_output_enabled;
@@ -78,9 +76,7 @@ void HAL_hardware_init(bool is_servo_reader, bool servo_output_enabled, bool uar
     // Load PLL calibration values from NVRAM
     coarse_p = (uint32_t *)FUSES_DFLL48M_COARSE_CAL_ADDR;
     coarse = (*coarse_p & FUSES_DFLL48M_COARSE_CAL_Msk) >> FUSES_DFLL48M_COARSE_CAL_Pos;
-    fine_p = (uint32_t *)FUSES_DFLL48M_FINE_CAL_ADDR;
-    fine = (*fine_p & FUSES_DFLL48M_FINE_CAL_Msk) >> FUSES_DFLL48M_FINE_CAL_Pos;
-    SYSCTRL->DFLLVAL.reg = SYSCTRL_DFLLVAL_COARSE(coarse) | SYSCTRL_DFLLVAL_FINE(fine);
+    SYSCTRL->DFLLVAL.reg = SYSCTRL_DFLLVAL_COARSE(coarse) | SYSCTRL_DFLLVAL_FINE(512);
 
     SYSCTRL->DFLLCTRL.reg =
             SYSCTRL_DFLLCTRL_ENABLE |

@@ -23,8 +23,6 @@
 
 * Button input via HAL (must be configurable)
 
-* PLL coarse and fine; USB are taken from USER instead of FACTORY CAL area!
-
 * Can we add a microphone for firmware update?
     * See Blinkenrocket for reference FSK code?
 
