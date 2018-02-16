@@ -68,8 +68,9 @@ void HAL_hardware_init(bool is_servo_reader, bool servo_output_enabled, bool uar
     HAL_gpio_out(HAL_GPIO_SCK);
     HAL_gpio_pmuxen(HAL_GPIO_SCK);
 
-    HAL_gpio_out(HAL_GPIO_OUT);
-    HAL_gpio_pmuxen(HAL_GPIO_OUT);
+    // FIXME: shared with TX pin
+    // HAL_gpio_out(HAL_GPIO_OUT);
+    // HAL_gpio_pmuxen(HAL_GPIO_OUT);
 
     HAL_gpio_in(HAL_GPIO_ST);
     HAL_gpio_pmuxen(HAL_GPIO_ST);
@@ -311,12 +312,12 @@ void HAL_uart_init(uint32_t baudrate)
 
     // Enable the receive interrupt
     UART_SERCOM->USART.INTENSET.reg = SERCOM_USART_INTENSET_RXC;
-    NVIC_EnableIRQ(SERCOM0_IRQn);
+    NVIC_EnableIRQ(SERCOM3_IRQn);
 }
 
 
 // ****************************************************************************
-void SERCOM0_Handler(void)
+void SERCOM3_Handler(void)
 {
     if (UART_SERCOM->USART.INTFLAG.bit.RXC) {
         receive_buffer[write_index++] = (uint8_t)UART_SERCOM->USART.DATA.reg;
