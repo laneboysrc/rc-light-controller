@@ -204,7 +204,9 @@ list: $(BUILD_DIR) $(OBJECTS:.o=.lst)
 
 # Invoke the tool to program the microcontroller
 program: $(TARGET_ELF_WITH_BOOTLOADER)
-	$(ECHO) $(FLASH_TOOL) -c "init; reset halt ; at91samd bootloader 0; reset halt ; flash write_image $< ; at91samd bootloader 8192; reset ; exit"
+	@echo [PROGRAM] $<
+	$(ECHO)$(GDB) -nx -quiet -batch -command gdb.flash.script
+#	$(ECHO) $(FLASH_TOOL) -c "init; reset halt ; at91samd bootloader 0; reset halt ; flash write_image $< ; at91samd bootloader 8192; reset ; exit"
 
 flash: program
 
@@ -236,8 +238,10 @@ clean:
 	@echo [RM] $(BUILD_DIR)
 	$(ECHO) $(RM) -rf $(BUILD_DIR)
 
-debug: $(TARGET_ELF_WITH_BOOTLOADER) unlock-bootloader
-	$(ECHO) $(GDB) -q -ex "target extended-remote | $(FLASH_TOOL) -c \"gdb_port pipe\"" -ex "load" --tui $<
+# debug: $(TARGET_ELF_WITH_BOOTLOADER) unlock-bootloader
+	# $(ECHO) $(GDB) -q -ex "target extended-remote | $(FLASH_TOOL) -c \"gdb_port pipe\"" -ex "load" --tui $<
+debug: $(TARGET_ELF_WITH_BOOTLOADER)
+	$(ECHO) $(GDB) -nx -quiet -command gdb.debug.script
 
 
 

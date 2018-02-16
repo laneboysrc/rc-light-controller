@@ -9,7 +9,7 @@
 
 // Enable this design when testing on the SAM R21 Xplained Pro board
 // See below for pin-out differences
-#define SAMR21_XPLAINED_PRO
+// #define SAMR21_XPLAINED_PRO
 
 
 // One flash page is 64 bytes, so 16 * 4 words
