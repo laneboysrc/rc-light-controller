@@ -81,8 +81,8 @@ static const HAL_GPIO_T HAL_GPIO_OUT = { .group = 0, .pin = 22, .mux = PORT_PMUX
 static const HAL_GPIO_T HAL_GPIO_ST = { .group = 0, .pin = 16, .mux = PORT_PMUX_PMUXE_A_Val };
 static const HAL_GPIO_T HAL_GPIO_TH = { .group = 0, .pin = 18, .mux = PORT_PMUX_PMUXE_A_Val };
 static const HAL_GPIO_T HAL_GPIO_CH3 = { .group = 0, .pin = 19, .mux = PORT_PMUX_PMUXE_A_Val };
-static const HAL_GPIO_T HAL_GPIO_SCK = { .group = 0, .pin = 5, .mux = PORT_PMUX_PMUXE_C_Val };
-static const HAL_GPIO_T HAL_GPIO_SIN = { .group = 0, .pin = 4, .mux = PORT_PMUX_PMUXE_C_Val };
+static const HAL_GPIO_T HAL_GPIO_SCK = { .group = 0, .pin = 5, .mux = PORT_PMUX_PMUXE_D_Val };
+static const HAL_GPIO_T HAL_GPIO_SIN = { .group = 0, .pin = 4, .mux = PORT_PMUX_PMUXE_D_Val };
 static const HAL_GPIO_T HAL_GPIO_XLAT = { .group = 0, .pin = 6 };
 static const HAL_GPIO_T HAL_GPIO_GSCLK = { .group = 0, .pin = 9 };
 static const HAL_GPIO_T HAL_GPIO_BLANK = { .group = 0, .pin = 7 };
