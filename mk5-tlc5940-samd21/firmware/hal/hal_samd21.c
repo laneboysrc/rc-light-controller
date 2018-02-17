@@ -261,7 +261,7 @@ void HAL_service(void)
 
         // Disable the interrupts as they are apparently not cleared by a
         // system reset.
-        NVIC_DisableIRQ(SERCOM0_IRQn);
+        NVIC_DisableIRQ(UART_SERCOM_IRQN);
         NVIC_DisableIRQ(USB_IRQn);
         NVIC_DisableIRQ(TCC0_IRQn);
 
@@ -312,12 +312,12 @@ void HAL_uart_init(uint32_t baudrate)
 
     // Enable the receive interrupt
     UART_SERCOM->USART.INTENSET.reg = SERCOM_USART_INTENSET_RXC;
-    NVIC_EnableIRQ(SERCOM3_IRQn);
+    NVIC_EnableIRQ(UART_SERCOM_IRQN);
 }
 
 
 // ****************************************************************************
-void SERCOM3_Handler(void)
+void UART_SERCOM_HANDLER(void)
 {
     if (UART_SERCOM->USART.INTFLAG.bit.RXC) {
         receive_buffer[write_index++] = (uint8_t)UART_SERCOM->USART.DATA.reg;

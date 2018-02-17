@@ -35,6 +35,10 @@
 
 * Can we have pins for ST, TH and CH3? So that we can make adapter boards that directly plug into the receiver
 
+* Electret microphone input for SW update via modem?
+
+* Each MCU signal needs series resistor; then we also can get rid of test points
+
 
 
 #MK4 + MK5
