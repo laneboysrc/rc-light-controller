@@ -1,8 +1,7 @@
 # MK4
 
-* FW: Test revised dignostics selection on LPC812
-
 * Use watchdog
+
 
 # MK5
 
@@ -23,10 +22,6 @@
 
 * Button input via HAL (must be configurable)
 
-* Can we add a microphone for firmware update?
-    * See Blinkenrocket for reference FSK code?
-
-* Use watchdog
 
 # MK5 PCB
 
@@ -35,10 +30,7 @@
 
 * Can we have pins for ST, TH and CH3? So that we can make adapter boards that directly plug into the receiver
 
-* Electret microphone input for SW update via modem?
-
 * Each MCU signal needs series resistor; then we also can get rid of test points
-
 
 
 #MK4 + MK5
