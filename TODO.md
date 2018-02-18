@@ -18,10 +18,12 @@
 * What does the led do in the light controller?
     * Flash when no signal
     * Light up during initialization stage
+    * Breathe during bootloader
     * Off during normal operation
 
 * Button input via HAL (must be configurable)
 
+* Combined ST+Rx pin
 
 # MK5 PCB
 
