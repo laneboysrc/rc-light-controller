@@ -22,9 +22,10 @@ extern uint32_t _stacktop;
 // upgrade mode.
 extern uint32_t * const magic_value;
 #define BOOTLOADER_MAGIC 0x47110815
-
-uint32_t saved_TCC0_cc_value = 1500;
 bool start_bootloader = false;
+
+static uint32_t saved_TCC0_cc_value = 1500;
+static uint8_t tx_pad;
 
 __attribute__ ((section(".persistent_data")))
 static volatile const uint32_t persistent_data[HAL_NUMBER_OF_PERSISTENT_ELEMENTS];
@@ -46,19 +47,12 @@ void HAL_hardware_init(bool is_servo_reader, bool servo_output_enabled, bool uar
     uint32_t *coarse_p;
     uint32_t coarse;
 
-    (void) is_servo_reader;
-    (void) servo_output_enabled;
+    // FIXME: output diagnostics on UART only if uart_output_enabled is false
     (void) uart_output_enabled;
 
 
     // ------------------------------------------------
     // Perform GPIO initialization as early as possible
-    HAL_gpio_out(HAL_GPIO_TX);
-    HAL_gpio_pmuxen(HAL_GPIO_TX);
-
-    HAL_gpio_in(HAL_GPIO_RX);
-    HAL_gpio_pmuxen(HAL_GPIO_RX);
-
     HAL_gpio_out(HAL_GPIO_XLAT);
     HAL_gpio_out(HAL_GPIO_SWITCHED_LIGHT_OUTPUT);
 
@@ -68,18 +62,49 @@ void HAL_hardware_init(bool is_servo_reader, bool servo_output_enabled, bool uar
     HAL_gpio_out(HAL_GPIO_SCK);
     HAL_gpio_pmuxen(HAL_GPIO_SCK);
 
-    // FIXME: shared with TX pin
-    // HAL_gpio_out(HAL_GPIO_OUT);
-    // HAL_gpio_pmuxen(HAL_GPIO_OUT);
-
-    HAL_gpio_in(HAL_GPIO_ST);
-    HAL_gpio_pmuxen(HAL_GPIO_ST);
-    HAL_gpio_in(HAL_GPIO_TH);
-    HAL_gpio_pmuxen(HAL_GPIO_TH);
     HAL_gpio_in(HAL_GPIO_CH3);
+    HAL_gpio_pmuxen(HAL_GPIO_CH3);
 
     HAL_gpio_pmuxen(HAL_GPIO_USB_DM);
     HAL_gpio_pmuxen(HAL_GPIO_USB_DP);
+
+
+    // ------------------------------------------------
+    // Configure GPIOs shared between servo inputs, servo output and UART
+
+    // Output UART Tx on OUT in all cases when the servo output is disabled
+    if (servo_output_enabled) {
+        HAL_gpio_out(HAL_GPIO_OUT);
+        HAL_gpio_pmuxen(HAL_GPIO_OUT);
+    }
+    else {
+        HAL_gpio_out(HAL_GPIO_TX_ON_OUT);
+        HAL_gpio_pmuxen(HAL_GPIO_TX_ON_OUT);
+        tx_pad = HAL_GPIO_TX_ON_OUT.pad;
+    }
+
+    if (is_servo_reader) {
+        HAL_gpio_in(HAL_GPIO_ST);
+        HAL_gpio_pmuxen(HAL_GPIO_ST);
+        HAL_gpio_in(HAL_GPIO_TH);
+        HAL_gpio_pmuxen(HAL_GPIO_TH);
+    }
+    else {
+        HAL_gpio_in(HAL_GPIO_RX);
+        HAL_gpio_pmuxen(HAL_GPIO_RX);
+
+        // In case we have a UART and a servi output, TH is unused. We can
+        // use TH as Tx signal, just like in the LPC812 Mk4 light controller
+        if (servo_output_enabled) {
+            HAL_gpio_out(HAL_GPIO_TX_ON_TH);
+            HAL_gpio_pmuxen(HAL_GPIO_TX_ON_TH);
+            tx_pad = HAL_GPIO_TX_ON_TH.pad;
+        }
+        else {
+            HAL_gpio_in(HAL_GPIO_TH);
+            HAL_gpio_pmuxen(HAL_GPIO_TH);
+        }
+    }
 
 
     // ------------------------------------------------
@@ -295,7 +320,7 @@ void HAL_uart_init(uint32_t baudrate)
         SERCOM_USART_CTRLA_DORD |
         SERCOM_USART_CTRLA_MODE_USART_INT_CLK |
         SERCOM_USART_CTRLA_RXPO(HAL_GPIO_RX.pad) |
-        SERCOM_USART_CTRLA_TXPO(HAL_GPIO_TX.pad);
+        SERCOM_USART_CTRLA_TXPO(tx_pad);
 
     // Enable transmit and receive; 8 bit characters
     UART_SERCOM->USART.CTRLB.reg =
@@ -568,7 +593,7 @@ void HAL_servo_output_disable(void)
 // The Event System triggers one of three Capture Channels on TCC0 on each
 // event.
 //
-// ST  uses EXTINT0, EVSYS channel 0, TCC CC0
+// ST  uses EXTINT7, EVSYS channel 0, TCC CC0
 // TH  uses EXTINT1, EVSYS channel 1, TCC CC1
 // CH3 uses EXTINT3, EVSYS channel 2, TCC CC2
 void HAL_servo_reader_init(bool CPPM, uint32_t max_pulse)
@@ -592,7 +617,7 @@ void HAL_servo_reader_init(bool CPPM, uint32_t max_pulse)
 
     // Enable event generation when an edge is detected
     EIC->EVCTRL.reg =
-        EIC_EVCTRL_EXTINTEO0 |
+        EIC_EVCTRL_EXTINTEO7 |
         EIC_EVCTRL_EXTINTEO1 |
         EIC_EVCTRL_EXTINTEO3;
 
@@ -606,12 +631,12 @@ void HAL_servo_reader_init(bool CPPM, uint32_t max_pulse)
         EVSYS_USER_USER(0x06) |             // TCC0 MC0
         EVSYS_USER_CHANNEL(0+1);
 
-    // Set-up Channel 0 to trigger synchronously on EXTINT0 (ST)
+    // Set-up Channel 0 to trigger synchronously on EXTINT7 (ST)
     EVSYS->CHANNEL.reg =
         EVSYS_CHANNEL_CHANNEL(0) |
         EVSYS_CHANNEL_PATH_SYNCHRONOUS |
         EVSYS_CHANNEL_EDGSEL_RISING_EDGE |
-        EVSYS_CHANNEL_EVGEN(0x0c);          // EIC EXTINT0
+        EVSYS_CHANNEL_EVGEN(0x13);          // EIC EXTINT7
 
     // Set-up Event System channel 1 to output to Match/Capture 1 of TCC0
     EVSYS->USER.reg =

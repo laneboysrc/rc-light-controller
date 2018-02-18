@@ -32,17 +32,14 @@ typedef struct {
 // PA07     (8)                             TLC5940 BLANK
 // PA09     (12)                            TLC5940 GSCLK
 // PA11     (14)                            Push button
-// PA16     (17 EXTINT[0])                  Steering input
-// PA18     (19 EXTINT[1])                  Throttle input
+// PA18     (19 SERCOM3/PAD2, EXTINT[1])    Throttle input
 // PA19     (20 EXTINT[3])                  CH3 input
 // PA22     (21 SERCOM3/PAD0, TC4/W[0])     OUT / Tx
-// PA23     (22 SERCOM3/PAD1)               Rx
-//
-//
-// PA24     (23)  USB-DM
-// PA25     (24)  USB-DP
-// PA30     (31)  SWCLK
-// PA31     (32)  SWDIO
+// PA23     (22 EXTINT[7], SERCOM3/PAD1)    Steering input / Rx
+// PA24     (23 USB-DM)
+// PA25     (24 USB-DP)
+// PA30     (31 SWCLK)
+// PA31     (32 SWDIO)
 // RESET    (26)
 //
 // GND      (10)
@@ -62,25 +59,30 @@ typedef struct {
 // PA07     D9      TLC5940 BLANK
 // PA09     D3      TLC5940 GSCLK
 // PA11     D0      Push button
-// PA16     D11     Steering input
+// PA17     D13     LED
 // PA18     D10     Throttle input
 // PA19     D12     CH3 input
 // PA22     SDA     OUT / Tx
-// PA23     SCL     Rx
-//
-// PA24     (23)    USB-DM
-// PA25     (24)    USB-DP
-//
-// PA17     D13     LED
+// PA23     SCL     Steering input / Rx
+// PA24     USB-DM
+// PA25     USB-DP
 //
 // ****************************************************************************
 
+// ST and RX share the same pin, but have configurable functionality
+static const HAL_GPIO_T HAL_GPIO_ST = { .group = 0, .pin = 23, .mux = PORT_PMUX_PMUXE_A_Val };
 static const HAL_GPIO_T HAL_GPIO_RX = { .group = 0, .pin = 23, .mux = PORT_PMUX_PMUXE_C_Val, .pad = 1 };
-static const HAL_GPIO_T HAL_GPIO_TX = { .group = 0, .pin = 22, .mux = PORT_PMUX_PMUXE_C_Val, .pad = 0 };
-static const HAL_GPIO_T HAL_GPIO_OUT = { .group = 0, .pin = 22, .mux = PORT_PMUX_PMUXE_E_Val };
-static const HAL_GPIO_T HAL_GPIO_ST = { .group = 0, .pin = 16, .mux = PORT_PMUX_PMUXE_A_Val };
+
+// TH and TX share the same pin in some configurations, but have configurable functionality
 static const HAL_GPIO_T HAL_GPIO_TH = { .group = 0, .pin = 18, .mux = PORT_PMUX_PMUXE_A_Val };
+static const HAL_GPIO_T HAL_GPIO_TX_ON_TH = { .group = 0, .pin = 18, .mux = PORT_PMUX_PMUXE_C_Val, .pad = 2 };
+
 static const HAL_GPIO_T HAL_GPIO_CH3 = { .group = 0, .pin = 19, .mux = PORT_PMUX_PMUXE_A_Val };
+
+// OUT and TX share the same pin, but have configurable functionality
+static const HAL_GPIO_T HAL_GPIO_OUT = { .group = 0, .pin = 22, .mux = PORT_PMUX_PMUXE_E_Val };
+static const HAL_GPIO_T HAL_GPIO_TX_ON_OUT = { .group = 0, .pin = 22, .mux = PORT_PMUX_PMUXE_C_Val, .pad = 0 };
+
 static const HAL_GPIO_T HAL_GPIO_SCK = { .group = 0, .pin = 5, .mux = PORT_PMUX_PMUXE_D_Val };
 static const HAL_GPIO_T HAL_GPIO_SIN = { .group = 0, .pin = 4, .mux = PORT_PMUX_PMUXE_D_Val };
 static const HAL_GPIO_T HAL_GPIO_XLAT = { .group = 0, .pin = 6 };

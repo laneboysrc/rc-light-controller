@@ -23,16 +23,12 @@
 
 * Button input via HAL (must be configurable)
 
-* Combined ST+Rx pin
+* UART switching between OUT and TX pin like MK4 (SERCOM3 PAD2)
 
 # MK5 PCB
 
 * TLC5940 footprint based on TI datasheet
 * Design for stencil 5mil/0.12mm thick
-
-* Can we have pins for ST, TH and CH3? So that we can make adapter boards that directly plug into the receiver
-
-* Each MCU signal needs series resistor; then we also can get rid of test points
 
 
 #MK4 + MK5
@@ -65,7 +61,8 @@
 
 * TOOL: Configurator: Add support for addressing LEDs without having to use an
     led x = led[y] statement. This is useful for light patterns where the
-    LED sequence is important.
+    LED sequence is important. This could be as easy as translating names like
+    'indicator' to the appropriate led[0..31] values.
 
 * TOOL: Configurator: Make pre-processor configuration in drop-down box
 
