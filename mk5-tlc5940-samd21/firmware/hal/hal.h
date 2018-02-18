@@ -75,7 +75,7 @@ static const HAL_GPIO_T HAL_GPIO_RX = { .group = 0, .pin = 23, .mux = PORT_PMUX_
 
 // TH and TX share the same pin in some configurations, but have configurable functionality
 static const HAL_GPIO_T HAL_GPIO_TH = { .group = 0, .pin = 18, .mux = PORT_PMUX_PMUXE_A_Val };
-static const HAL_GPIO_T HAL_GPIO_TX_ON_TH = { .group = 0, .pin = 18, .mux = PORT_PMUX_PMUXE_C_Val, .pad = 2 };
+static const HAL_GPIO_T HAL_GPIO_TX_ON_TH = { .group = 0, .pin = 18, .mux = PORT_PMUX_PMUXE_D_Val, .pad = 1 };
 
 static const HAL_GPIO_T HAL_GPIO_CH3 = { .group = 0, .pin = 19, .mux = PORT_PMUX_PMUXE_A_Val };
 
