@@ -67,6 +67,8 @@ void HAL_hardware_init(bool is_servo_reader, bool servo_output_enabled, bool uar
     HAL_gpio_in(HAL_GPIO_CH3);
     HAL_gpio_pmuxen(HAL_GPIO_CH3);
 
+    HAL_gpio_in(HAL_GPIO_PUSH_BUTTON);
+
     HAL_gpio_pmuxen(HAL_GPIO_USB_DM);
     HAL_gpio_pmuxen(HAL_GPIO_USB_DP);
 
@@ -849,3 +851,46 @@ bool HAL_servo_reader_get_new_channels(uint32_t *out_us)
     return true;
 }
 
+
+// ****************************************************************************
+bool HAL_switch_triggered(void)
+{
+    static bool transitioned = false;
+    static bool initialized = false;
+
+    if (config.flags.local_switch_is_momentary) {
+        if (transitioned) {
+            if (HAL_gpio_read(HAL_GPIO_PUSH_BUTTON)) {
+                transitioned = false;
+            }
+        }
+        else {
+            if (!HAL_gpio_read(HAL_GPIO_PUSH_BUTTON)) {
+                transitioned = true;
+                return true;
+            }
+        }
+        return false;
+    }
+    else {
+        if (!initialized) {
+            initialized = true;
+            transitioned = HAL_gpio_read(HAL_GPIO_PUSH_BUTTON);
+            return false;
+        }
+
+        if (transitioned) {
+            if (!HAL_gpio_read(HAL_GPIO_PUSH_BUTTON)) {
+                transitioned = false;
+                return true;
+            }
+        }
+        else {
+            if (HAL_gpio_read(HAL_GPIO_PUSH_BUTTON)) {
+                transitioned = true;
+                return true;
+            }
+        }
+        return false;
+    }
+}

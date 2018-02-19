@@ -197,7 +197,15 @@ void process_ch3_clicks(void)
     if (!ch3_flags.initialized) {
         ch3_flags.initialized = true;
         ch3_flags.last_state = (channel[CH3].normalized > 0) ? true : false;
+        HAL_switch_triggered();
         return;
+    }
+
+    // If the local switch has triggered then add a click.
+    // Note that the local switch is only processed when there is a valid
+    // signal from the receiver.
+    if (HAL_switch_triggered()) {
+        add_click();
     }
 
     if (config.flags.ch3_is_momentary || config.flags.ch3_is_local_switch) {

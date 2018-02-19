@@ -11,21 +11,11 @@
 
 * Use Watchdog
 
-* Does LED on PA01 interfere with Arduino hardware?
-* Support LED on PA01 and PA17 (Arduino) simulatinously
-    * Also in the bootloader
-
-* What does the led do in the light controller?
-    * Flash when no signal
-    * Light up during initialization stage
-    * Breathe during bootloader
-    * Off during normal operation
-
-* Button input via HAL (must be configurable)
-
-* UART switching between OUT and TX pin like MK4 (SERCOM3 PAD2)
+* Diagnostics output like MK4
 
 * Bootloader to support serial protocol like LPC812
+
+* Add `local_switch_is_momentary` to configurator
 
 
 # MK5 PCB
