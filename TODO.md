@@ -15,20 +15,12 @@
 
 * Use Watchdog
 
-* Support LED on PA01 and PA17 (Arduino) simulatinously
-    * Also in the bootloader
+* Diagnostics output like MK4
 
-* What does the led do in the light controller?
-    * Flash when no signal
-    * Light up during initialization stage
-    * Breathe during bootloader
-    * Off during normal operation
+* Bootloader to support serial protocol like LPC812
 
-* Button input via HAL (must be configurable)
+* Add `local_switch_is_momentary` to configurator
 
-* Use 2nd UART for diagnostics even when OUT uses UART?
-
-* Check GPIO configuration re pull-up, drive strength ...
 
 # MK5 PCB
 
@@ -47,6 +39,10 @@
 * Deprecate CPPM reader (to simplify things, no-one ever used it)
 
 * Shelf Queen mode
+
+* More sophisticated servo reader initialization:
+  * Require constant stream of data, not just one pulse
+  * Plausibility check?
 
 
 # General improvements

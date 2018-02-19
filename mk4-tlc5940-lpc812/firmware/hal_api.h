@@ -22,6 +22,8 @@ void HAL_spi_transaction(uint8_t *data, uint8_t count);
 volatile const uint32_t *HAL_persistent_storage_read(void);
 const char *HAL_persistent_storage_write(const uint32_t *new_data);
 
+bool HAL_switch_triggered(void);
+
 void HAL_servo_output_init(void);
 void HAL_servo_output_set_pulse(uint16_t servo_pulse);
 void HAL_servo_output_enable(void);

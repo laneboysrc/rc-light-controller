@@ -33,6 +33,8 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
         .ch3_is_momentary = false,
         .ch3_is_two_button = false,
 
+        .local_switch_is_momentary = true,
+
         .auto_brake_lights_forward_enabled = true,
         .auto_brake_lights_reverse_enabled = true,
     },

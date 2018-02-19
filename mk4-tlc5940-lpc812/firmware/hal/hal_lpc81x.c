@@ -814,3 +814,9 @@ void HAL_spi_transaction(uint8_t *data, uint8_t count)
     while (!(LPC_SPI0->STAT & (1 << 8)));
 }
 
+
+// ****************************************************************************
+bool HAL_switch_triggered(void)
+{
+    return false;
+}
