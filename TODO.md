@@ -7,11 +7,14 @@
 
 * Use DFU, using existing WebUSB DFU implementation
 
+* USB CDC: preprocessor-simulator, diagnostics output
+
+* USB: Use proprietary DFU commands for pre-processor and diagnostics?
+
 * Use DMA for UART TX?
 
 * Use Watchdog
 
-* Does LED on PA01 interfere with Arduino hardware?
 * Support LED on PA01 and PA17 (Arduino) simulatinously
     * Also in the bootloader
 
@@ -23,7 +26,9 @@
 
 * Button input via HAL (must be configurable)
 
-* UART switching between OUT and TX pin like MK4 (SERCOM3 PAD2)
+* Use 2nd UART for diagnostics even when OUT uses UART?
+
+* Check GPIO configuration re pull-up, drive strength ...
 
 # MK5 PCB
 
