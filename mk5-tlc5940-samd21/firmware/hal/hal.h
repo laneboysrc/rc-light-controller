@@ -17,7 +17,8 @@ typedef struct {
     uint8_t group;
     uint8_t pin;
     uint8_t mux;
-    uint8_t pad;
+    uint8_t txpo;
+    uint8_t rxpo;
 } HAL_GPIO_T;
 
 
@@ -71,17 +72,17 @@ typedef struct {
 
 // ST and RX share the same pin, but have configurable functionality
 static const HAL_GPIO_T HAL_GPIO_ST = { .group = 0, .pin = 23, .mux = PORT_PMUX_PMUXE_A_Val };
-static const HAL_GPIO_T HAL_GPIO_RX = { .group = 0, .pin = 23, .mux = PORT_PMUX_PMUXE_C_Val, .pad = 1 };
+static const HAL_GPIO_T HAL_GPIO_RX = { .group = 0, .pin = 23, .mux = PORT_PMUX_PMUXE_C_Val, .rxpo = 1 };
 
 // TH and TX share the same pin in some configurations, but have configurable functionality
 static const HAL_GPIO_T HAL_GPIO_TH = { .group = 0, .pin = 18, .mux = PORT_PMUX_PMUXE_A_Val };
-static const HAL_GPIO_T HAL_GPIO_TX_ON_TH = { .group = 0, .pin = 18, .mux = PORT_PMUX_PMUXE_D_Val, .pad = 1 };
+static const HAL_GPIO_T HAL_GPIO_TX_ON_TH = { .group = 0, .pin = 18, .mux = PORT_PMUX_PMUXE_D_Val, .txpo = 1 };
 
 static const HAL_GPIO_T HAL_GPIO_CH3 = { .group = 0, .pin = 19, .mux = PORT_PMUX_PMUXE_A_Val };
 
 // OUT and TX share the same pin, but have configurable functionality
 static const HAL_GPIO_T HAL_GPIO_OUT = { .group = 0, .pin = 22, .mux = PORT_PMUX_PMUXE_E_Val };
-static const HAL_GPIO_T HAL_GPIO_TX_ON_OUT = { .group = 0, .pin = 22, .mux = PORT_PMUX_PMUXE_C_Val, .pad = 0 };
+static const HAL_GPIO_T HAL_GPIO_TX_ON_OUT = { .group = 0, .pin = 22, .mux = PORT_PMUX_PMUXE_C_Val, .txpo = 0 };
 
 static const HAL_GPIO_T HAL_GPIO_SCK = { .group = 0, .pin = 5, .mux = PORT_PMUX_PMUXE_D_Val };
 static const HAL_GPIO_T HAL_GPIO_SIN = { .group = 0, .pin = 4, .mux = PORT_PMUX_PMUXE_D_Val };

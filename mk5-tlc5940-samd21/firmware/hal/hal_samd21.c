@@ -1,6 +1,8 @@
 #include <stdint.h>
 #include <stdio.h>
 
+#include <globals.h>
+
 #include <hal.h>
 #include <usb.h>
 #include <printf.h>
@@ -68,6 +70,11 @@ void HAL_hardware_init(bool is_servo_reader, bool servo_output_enabled, bool uar
     HAL_gpio_pmuxen(HAL_GPIO_USB_DM);
     HAL_gpio_pmuxen(HAL_GPIO_USB_DP);
 
+    // Turn the status LED on to signify we are initializing
+    HAL_gpio_out(HAL_GPIO_LED);
+    HAL_gpio_out(HAL_GPIO_LED2);
+    HAL_gpio_set(HAL_GPIO_LED);
+    HAL_gpio_set(HAL_GPIO_LED2);
 
     // ------------------------------------------------
     // Configure GPIOs shared between servo inputs, servo output and UART
@@ -80,7 +87,7 @@ void HAL_hardware_init(bool is_servo_reader, bool servo_output_enabled, bool uar
     else {
         HAL_gpio_out(HAL_GPIO_TX_ON_OUT);
         HAL_gpio_pmuxen(HAL_GPIO_TX_ON_OUT);
-        tx_pad = HAL_GPIO_TX_ON_OUT.pad;
+        tx_pad = HAL_GPIO_TX_ON_OUT.txpo;
     }
 
     if (is_servo_reader) {
@@ -98,7 +105,7 @@ void HAL_hardware_init(bool is_servo_reader, bool servo_output_enabled, bool uar
         if (servo_output_enabled) {
             HAL_gpio_out(HAL_GPIO_TX_ON_TH);
             HAL_gpio_pmuxen(HAL_GPIO_TX_ON_TH);
-            tx_pad = HAL_GPIO_TX_ON_TH.pad;
+            tx_pad = HAL_GPIO_TX_ON_TH.txpo;
         }
         else {
             HAL_gpio_in(HAL_GPIO_TH);
@@ -292,6 +299,21 @@ void HAL_service(void)
 
         NVIC_SystemReset();
     }
+
+    // Status LED handling: Light up if initializing, blink if no signal,
+    // otherwise off
+    if (global_flags.initializing) {
+        HAL_gpio_set(HAL_GPIO_LED);
+        HAL_gpio_set(HAL_GPIO_LED2);
+    }
+    else if (global_flags.no_signal) {
+        HAL_gpio_write(HAL_GPIO_LED, global_flags.blink_flag);
+        HAL_gpio_write(HAL_GPIO_LED2, global_flags.blink_flag);
+    }
+    else {
+        HAL_gpio_set(HAL_GPIO_LED);
+        HAL_gpio_set(HAL_GPIO_LED2);
+    }
 }
 
 
@@ -319,7 +341,7 @@ void HAL_uart_init(uint32_t baudrate)
     UART_SERCOM->USART.CTRLA.reg =
         SERCOM_USART_CTRLA_DORD |
         SERCOM_USART_CTRLA_MODE_USART_INT_CLK |
-        SERCOM_USART_CTRLA_RXPO(HAL_GPIO_RX.pad) |
+        SERCOM_USART_CTRLA_RXPO(HAL_GPIO_RX.rxpo) |
         SERCOM_USART_CTRLA_TXPO(tx_pad);
 
     // Enable transmit and receive; 8 bit characters

@@ -25,6 +25,9 @@
 
 * UART switching between OUT and TX pin like MK4 (SERCOM3 PAD2)
 
+* Bootloader to support serial protocol like LPC812
+
+
 # MK5 PCB
 
 * TLC5940 footprint based on TI datasheet
@@ -42,6 +45,10 @@
 * Deprecate CPPM reader (to simplify things, no-one ever used it)
 
 * Shelf Queen mode
+
+* More sophisticated servo reader initialization:
+  * Require constant stream of data, not just one pulse
+  * Plausibility check?
 
 
 # General improvements

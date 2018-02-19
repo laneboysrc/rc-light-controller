@@ -13,11 +13,13 @@ typedef struct {
     uint8_t group;
     uint8_t pin;
     uint8_t mux;
+    uint8_t txpo;
 } gpio_t;
 
 static const gpio_t GPIO_USB_DM = { .group = 0, .pin = 24, .mux = PORT_PMUX_PMUXE_G_Val };
 static const gpio_t GPIO_USB_DP = { .group = 0, .pin = 25, .mux = PORT_PMUX_PMUXE_G_Val };
-static const gpio_t GPIO_LED = { .group = 0, .pin = 19 };
+static const gpio_t GPIO_LED = { .group = 0, .pin = 1 };
+static const gpio_t GPIO_LED2 = { .group = 0, .pin = 17 };
 
 
 // magic_value is a location in an unused RAM area that allows the application
@@ -75,7 +77,7 @@ static inline void gpio_toggle(const gpio_t gpio)
 
 
 #ifdef ENABLE_UART_DIAGNOSTICS
-static const gpio_t GPIO_TXD = { .group = 0, .pin = 4, .mux = PORT_PMUX_PMUXE_D_Val };
+static const gpio_t GPIO_TXD = { .group = 0, .pin = 18, .mux = PORT_PMUX_PMUXE_D_Val, .txpo = 1 };
 
 // ****************************************************************************
 static void init_uart(uint32_t baudrate)
@@ -100,7 +102,7 @@ static void init_uart(uint32_t baudrate)
     SERCOM0->USART.CTRLA.reg =
         SERCOM_USART_CTRLA_DORD |
         SERCOM_USART_CTRLA_MODE_USART_INT_CLK |
-        SERCOM_USART_CTRLA_TXPO(0);
+        SERCOM_USART_CTRLA_TXPO(GPIO_TXD.txpo);
 
     // Enable transmit only; 8 bit characters
     SERCOM0->USART.CTRLB.reg =
@@ -162,6 +164,7 @@ static void LED_breathing(void)
 
     if (counter == 0) {
         gpio_clear(GPIO_LED);
+        gpio_clear(GPIO_LED2);
 
         if (compare <= MIN) {
             fade_up = true;
@@ -174,6 +177,7 @@ static void LED_breathing(void)
 
     if (counter == compare) {
         gpio_set(GPIO_LED);
+        gpio_set(GPIO_LED2);
     }
     ++counter;
 }
@@ -350,7 +354,9 @@ static void bootloader(void)
 
     init_usb();
     gpio_out(GPIO_LED);
+    gpio_out(GPIO_LED2);
     gpio_set(GPIO_LED);
+    gpio_set(GPIO_LED2);
 
     while (!bootloader_done) {
         __WFI();
