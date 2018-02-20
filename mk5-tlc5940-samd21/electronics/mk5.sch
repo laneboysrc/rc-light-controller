@@ -1437,6 +1437,36 @@ Text Notes 8750 2100 0    60   ~ 0
 Constant-current LED driver
 Text Notes 9400 5500 0    60   ~ 0
 LED supply connections
-NoConn ~ 3400 1650
 Connection ~ 2200 3200
+$Comp
+L TEST TP3
+U 1 1 5A8BCF2D
+P 5700 6400
+F 0 "TP3" V 5700 6600 50  0000 L BNN
+F 1 "RESET" V 5750 6600 50  0000 L CNN
+F 2 "SMD-pads:Measurement_Point_Round-SMD-Pad_1mm" H 5700 6400 50  0001 C CNN
+F 3 "" H 5700 6400 50  0001 C CNN
+	1    5700 6400
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	5200 6400 5700 6400
+Text Label 5200 6400 0    60   ~ 0
+RESET
+$Comp
+L TEST TP5
+U 1 1 5A8BE653
+P 5700 6600
+F 0 "TP5" V 5700 6800 50  0000 L BNN
+F 1 "RESET" V 5750 6800 50  0000 L CNN
+F 2 "SMD-pads:Measurement_Point_Round-SMD-Pad_1mm" H 5700 6600 50  0001 C CNN
+F 3 "" H 5700 6600 50  0001 C CNN
+	1    5700 6600
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	5700 6600 5600 6600
+Wire Wire Line
+	5600 6600 5600 6400
+Connection ~ 5600 6400
 $EndSCHEMATC
