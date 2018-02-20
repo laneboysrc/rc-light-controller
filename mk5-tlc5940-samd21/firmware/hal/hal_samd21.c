@@ -13,6 +13,8 @@ static uint32_t raw_data[3];
 
 volatile uint32_t milliseconds;
 
+static bool diagnostics_on_uart;
+
 // These are defined by the linker via the samd21e15.ld linker script.
 extern uint32_t _ram;
 extern uint32_t _stacktop;
@@ -224,6 +226,25 @@ void HAL_hardware_init(bool is_servo_reader, bool servo_output_enabled, bool uar
     SysTick_Config(48000);
     NVIC_SetPriority(SysTick_IRQn, 0);
 
+
+    // ------------------------
+    // The UART Tx can be used for diagnostics output if it is not in use.
+    // The pin is in use when HAL gets passed "uart_output_enabled==true"
+    // (UART used for pre-processor, winch or slave output), or when we
+    // have a servo reader and the servo output is enabled.
+    //
+    // Or in other words: the UART can output diagnostics on the OUT pin
+    // when it is not in use, or the UART can output diagnostics on the TH/Tx
+    // pin when we the UART reader is in use and no UART output function is
+    // configured.
+    diagnostics_on_uart = !uart_output_enabled;
+    if (is_servo_reader) {
+        if (servo_output_enabled) {
+            diagnostics_on_uart = false;
+        }
+    }
+
+
     __enable_irq();
 }
 
@@ -410,10 +431,10 @@ uint8_t HAL_getchar(void)
 // ****************************************************************************
 void HAL_putc(void *p, char c)
 {
-    (void) p;
-    // FIXME: check for STDOUT and STDOUT_DEBUG
-    // if (p == STDOUT_DEBUG) {
-    // }
+    // Ignore diagnostics requests if disabled
+    if (!diagnostics_on_uart  &&  p == STDOUT_DEBUG) {
+        return;
+    }
 
     while (!(UART_SERCOM->USART.INTFLAG.reg & SERCOM_USART_INTFLAG_DRE));
     UART_SERCOM->USART.DATA.reg = c;

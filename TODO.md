@@ -1,8 +1,3 @@
-# MK4
-
-* Use watchdog
-
-
 # MK5
 
 * Use DFU, using existing WebUSB DFU implementation
@@ -11,21 +6,22 @@
 
 * USB: Use proprietary DFU commands for pre-processor and diagnostics?
 
-* Use DMA for UART TX?
-
-* Use Watchdog
-
-* Diagnostics output like MK4
+* Add `local_switch_is_momentary` to configurator
 
 * Bootloader to support serial protocol like LPC812
 
-* Add `local_switch_is_momentary` to configurator
+* Bootloader/Updater should flash first block last, so that if flashing fails there is no partial image that could be executed.
+  * Erase block 0
+  * Flash blocks 1..last
+  * Flash block 0
 
 
 # MK5 PCB
 
 * TLC5940 footprint based on TI datasheet
 * Design for stencil 5mil/0.12mm thick
+* Reset pin should be accessible, for double-tapping the bootloader
+* Cap on the reset pin?
 
 
 #MK4 + MK5

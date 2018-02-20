@@ -326,7 +326,7 @@ void UART0_irq_handler(void)
 void HAL_putc(void *p, char c)
 {
     // Ignore diagnostics requests if disabled
-        if (!diagnostics_on_uart  &&  p == STDOUT_DEBUG) {
+    if (!diagnostics_on_uart  &&  p == STDOUT_DEBUG) {
         return;
     }
 
