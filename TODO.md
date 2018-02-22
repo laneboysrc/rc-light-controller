@@ -20,10 +20,8 @@
 
 * TLC5940 footprint based on TI datasheet
 * Design for stencil 5mil/0.12mm thick
-* Reset pin should be accessible, for double-tapping the bootloader
 * C 100n on the reset pin (with 330R series resistor for safe switching?)
 * Pull-up on the SWDCLK pin
-* Replace series resistors on TLC5940 lines with test points
 
 
 #MK4 + MK5
