@@ -20,8 +20,6 @@
 
 * TLC5940 footprint based on TI datasheet
 * Design for stencil 5mil/0.12mm thick
-* C 100n on the reset pin (with 330R series resistor for safe switching?)
-* Pull-up on the SWDCLK pin
 
 
 #MK4 + MK5
