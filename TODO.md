@@ -15,6 +15,7 @@
   * Flash blocks 1..last
   * Flash block 0
 
+* Bootloader should pull BLANK line to blank LEDs, and OUT15 too
 
 # MK5 PCB
 
