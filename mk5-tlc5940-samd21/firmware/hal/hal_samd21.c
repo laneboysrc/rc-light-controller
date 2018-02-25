@@ -475,10 +475,37 @@ void HAL_spi_init(void)
 // ****************************************************************************
 void HAL_spi_transaction(uint8_t *data, uint8_t count)
 {
+    uint8_t data8bit[12];
+    uint8_t j;
+
+    (void) count;
+
     HAL_gpio_clear(HAL_GPIO_XLAT);
 
-    for (uint8_t i = 0; i < count; i++) {
-        SPI_SERCOM->SPI.DATA.reg = data[i];
+    // 6-2 4-4 2-6
+    j = 0;
+    for (uint8_t i = 0; i < sizeof(data8bit); i++) {
+        if (i % 3 == 0) {
+            data8bit[i] = data[j] << 2;
+            ++j;
+            data8bit[i] |= (data[j] >> 4) & 0x03;
+        }
+        else if (i % 3 == 1) {
+            data8bit[i] = data[j] << 4;
+            ++j;
+            data8bit[i] |= (data[j] >> 2) & 0x0f;
+        }
+        else if (i % 3 == 2) {
+            data8bit[i] = data[j] << 6;
+            ++j;
+            data8bit[i] |= data[j] & 0x3f;
+            ++j;
+        }
+    }
+
+
+    for (uint8_t i = 0; i < sizeof(data8bit); i++) {
+        SPI_SERCOM->SPI.DATA.reg = data8bit[i];
 
         // Wait until the next byte can be written to the data register
         while (!SPI_SERCOM->SPI.INTFLAG.bit.DRE);
