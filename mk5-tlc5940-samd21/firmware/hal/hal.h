@@ -111,8 +111,8 @@ static const HAL_GPIO_T HAL_GPIO_USB_DP = { .group = 0, .pin = 25, .mux = PORT_P
 static inline void HAL_gpio_in(const HAL_GPIO_T gpio)
 {
     PORT->Group[gpio.group].DIRCLR.reg = 1 << gpio.pin;
-    PORT->Group[gpio.group].PINCFG[gpio.pin].reg |= PORT_PINCFG_INEN;
-    PORT->Group[gpio.group].PINCFG[gpio.pin].reg &= ~PORT_PINCFG_PULLEN;
+    PORT->Group[gpio.group].PINCFG[gpio.pin].reg |= PORT_PINCFG_INEN | PORT_PINCFG_PULLEN;
+    PORT->Group[gpio.group].OUTSET.reg = 1 << gpio.pin;
 }
 
 static inline void HAL_gpio_out(const HAL_GPIO_T gpio)

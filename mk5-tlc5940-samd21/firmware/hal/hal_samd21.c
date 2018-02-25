@@ -334,8 +334,8 @@ void HAL_service(void)
         HAL_gpio_write(HAL_GPIO_LED2, global_flags.blink_flag);
     }
     else {
-        HAL_gpio_set(HAL_GPIO_LED);
-        HAL_gpio_set(HAL_GPIO_LED2);
+        HAL_gpio_clear(HAL_GPIO_LED);
+        HAL_gpio_clear(HAL_GPIO_LED2);
     }
 }
 
