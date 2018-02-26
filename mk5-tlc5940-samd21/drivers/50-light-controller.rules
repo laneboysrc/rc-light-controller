@@ -12,4 +12,5 @@
 # After this file is installed, physically unplug and reconnect the
 # light controller.
 #
-SUBSYSTEMS=="usb", ATTRS{idVendor}=="6666", ATTRS{idProduct}=="cab[01]", GROUP="plugdev", MODE="0666"
+
+SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", GROUP="plugdev", MODE="0664"
