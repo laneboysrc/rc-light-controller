@@ -57,8 +57,13 @@ void HAL_hardware_init(bool is_servo_reader, bool servo_output_enabled, bool uar
 
     // ------------------------------------------------
     // Perform GPIO initialization as early as possible
-    HAL_gpio_out(HAL_GPIO_XLAT);
+    HAL_gpio_out(HAL_GPIO_BLANK);
+    HAL_gpio_set(HAL_GPIO_BLANK);
+
     HAL_gpio_out(HAL_GPIO_SWITCHED_LIGHT_OUTPUT);
+    HAL_gpio_clear(HAL_GPIO_SWITCHED_LIGHT_OUTPUT);
+
+    HAL_gpio_out(HAL_GPIO_XLAT);
 
     HAL_gpio_out(HAL_GPIO_SIN);
     HAL_gpio_pmuxen(HAL_GPIO_SIN);

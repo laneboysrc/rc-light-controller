@@ -21,6 +21,10 @@ static const gpio_t GPIO_USB_DP = { .group = 0, .pin = 25, .mux = PORT_PMUX_PMUX
 static const gpio_t GPIO_LED = { .group = 0, .pin = 1 };
 static const gpio_t GPIO_LED2 = { .group = 0, .pin = 17 };
 
+// We shut off the TLC5940 and the switched light output during the bootloader
+static const gpio_t GPIO_BLANK = { .group = 0, .pin = 7 };
+static const gpio_t GPIO_SWITCHED_LIGHT_OUTPUT = { .group = 0, .pin = 2 };
+
 
 // magic_value is a location in an unused RAM area that allows the application
 // to communicate with the bootloader.
@@ -353,10 +357,15 @@ static void bootloader(void)
 #endif
 
     init_usb();
+    gpio_out(GPIO_BLANK);
+    gpio_set(GPIO_BLANK);
+    gpio_out(GPIO_SWITCHED_LIGHT_OUTPUT);
+    gpio_clear(GPIO_SWITCHED_LIGHT_OUTPUT);
     gpio_out(GPIO_LED);
-    gpio_out(GPIO_LED2);
     gpio_set(GPIO_LED);
+    gpio_out(GPIO_LED2);
     gpio_set(GPIO_LED2);
+
 
     while (!bootloader_done) {
         __WFI();
