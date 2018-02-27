@@ -15,6 +15,7 @@
 
 * Use GDB to flash bootloader
 * Lock bootloader during GDB flashing
+* Bootloader LED breathing is not going dim enough
 
 # MK5 PCB
 

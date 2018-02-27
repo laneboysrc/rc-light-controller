@@ -216,7 +216,7 @@ flash: program
 # Load the program using the USB DFU (Device Firmware Upgrade) tool
 # This will only work when the bootloader is already present in the device
 dfu-util: $(TARGET_BIN)
-	$(ECHO) $(DFU_UTIL) -d 0x6666:0xcab1,:0xcab0 -E 1 -D $<
+	$(ECHO) $(DFU_UTIL) -d 0x6666:0xcab1,:0xcab0 -E 2 -D $<
 
 # Set/clear the fuses that protect the bootloader from being accidentally
 # overwritten
