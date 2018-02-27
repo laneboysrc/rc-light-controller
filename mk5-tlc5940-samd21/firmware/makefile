@@ -140,7 +140,7 @@ $(BUILD_DIR)/usb_samd.o: CFLAGS += -Wno-strict-prototypes -Wno-missing-prototype
 
 ###############################################################################
 # Rules
-all : $(TARGET_BIN) $(TARGET_HEX) echosize
+all: $(TARGET_BIN) $(TARGET_HEX) echosize
 
 $(BUILD_DIR):
 	@echo [MKDIR] $@
@@ -168,7 +168,7 @@ $(TARGET_ELF_WITH_BOOTLOADER): $(BUILD_DIR) $(OBJECTS) $(LINKER_SCRIPT) $(BUILD_
 	@echo [LD bootloader] $@
 	$(ECHO) $(CC) $(LDFLAGS) $(OBJECTS) $(LIBS) $(BUILD_DIR)/bootloader.o -o $@
 
-$(BOOTLOADER_BIN) :
+$(BOOTLOADER_BIN):
 	$(MAKE) -C ../bootloader
 
 $(BUILD_DIR)/bootloader.o: $(BOOTLOADER_BIN)
@@ -188,6 +188,9 @@ echosize: $(TARGET_ELF)
 	-@echo ''
 	$(ECHO) $(SIZE) $(TARGET_ELF)
 	-@echo ''
+
+
+$(BUILD_DIR)/config_light_programs.o: config_light_programs.c
 
 config_light_programs.c: $(DEFAULT_LIGHT_PROGRAM)
 	@echo [ASM] $@
