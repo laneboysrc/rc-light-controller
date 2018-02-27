@@ -20,7 +20,6 @@
 
 * TLC5940 footprint based on TI datasheet
 * Design for stencil 5mil/0.12mm thick
-* Pull-up on BLANK pin to avoid flashing before MCU kicks in
 
 
 # MK4 + MK5
