@@ -8,20 +8,22 @@
 
 * Add `local_switch_is_momentary` to configurator
 
-* Bootloader to support serial protocol like LPC812
-
 * Bootloader/Updater should flash first block last, so that if flashing fails there is no partial image that could be executed.
   * Erase block 0
   * Flash blocks 1..last
   * Flash block 0
 
+* Use GDB to flash bootloader
+* Lock bootloader during GDB flashing
+
 # MK5 PCB
 
 * TLC5940 footprint based on TI datasheet
 * Design for stencil 5mil/0.12mm thick
+* Pull-up on BLANK pin to avoid flashing before MCU kicks in
 
 
-#MK4 + MK5
+# MK4 + MK5
 
 * It would be great if CH3 as switch would trigger `new_channel_data` independently of the other signals, i.e. set it if no other `new_channel_data` was seen in a certain amount of systicks
 
