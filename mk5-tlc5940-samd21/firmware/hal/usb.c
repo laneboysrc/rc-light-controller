@@ -9,6 +9,9 @@
 #include <printf.h>
 #include <usb_bos.h>
 
+bool usbserial_is_write_busy(void);
+void usbserial_write(uint8_t *data, uint8_t length);
+extern void add_uint8_to_receive_buffer(uint8_t byte);
 
 // Transfer size conforms to one flash 'row', which consists of four 'pages'
 #define DFU_TRANSFER_SIZE (FLASH_PAGE_SIZE * 4)
@@ -45,7 +48,7 @@ USB_ENDPOINTS(3)
 
 static alignas(4) uint8_t usbserial_buf_in[BUF_SIZE];
 static alignas(4) uint8_t usbserial_buf_out[BUF_SIZE];
-
+static bool usbserial_buf_in_busy = false;
 
 static const uint8_t* data;
 static uint16_t data_length;
@@ -276,28 +279,51 @@ static void usbserial_init(void)
 // ****************************************************************************
 static void usbserial_out_completion(void)
 {
-    uint32_t len = usb_ep_out_length(USB_EP_CDC_OUT);
+    uint32_t length = usb_ep_out_length(USB_EP_CDC_OUT);
 
-    printf("usbserial_out_completion %d \"", len);
-    for (uint32_t i = 0; i < len ; i++) {
-        HAL_putc(STDOUT_DEBUG, usbserial_buf_out[i]);
+    for (uint32_t i = 0; i < length ; i++) {
+        add_uint8_to_receive_buffer(usbserial_buf_out[i]);
     }
-    printf("\"\n");
 
-    if (usbserial_buf_out[0] == '*') {
 
-        sprintf((char *)usbserial_buf_in, "Hello world\n");
-        usb_ep_start_in(USB_EP_CDC_IN, usbserial_buf_in, 12, false);
-    }
+    // printf("usbserial_out_completion %d \"", length);
+    // for (uint32_t i = 0; i < length ; i++) {
+    //     HAL_putc(STDOUT_DEBUG, usbserial_buf_out[i]);
+    // }
+    // printf("\"\n");
+
+    // if (usbserial_buf_out[0] == 0x87) {
+
+    //     sprintf((char *)usbserial_buf_in, "Hello world\n");
+    //     usb_ep_start_in(USB_EP_CDC_IN, usbserial_buf_in, 12, false);
+    // }
 
     usb_ep_start_out(USB_EP_CDC_OUT, usbserial_buf_out, BUF_SIZE);
 }
 
+// ****************************************************************************
+bool usbserial_is_write_busy(void)
+{
+    return usbserial_buf_in_busy;
+}
+
+// ****************************************************************************
+void usbserial_write(uint8_t *data_to_send, uint8_t length)
+{
+    if (length) {
+        usbserial_buf_in_busy = true;
+
+        for (uint32_t i = 0; i < length ; i++) {
+            usbserial_buf_in[i] = data_to_send[i];
+        }
+        usb_ep_start_in(USB_EP_CDC_IN, usbserial_buf_in, length, false);
+    }
+}
 
 // ****************************************************************************
 static void usbserial_in_completion(void)
 {
-    // Nothing to do
+    usbserial_buf_in_busy = false;
 }
 
 
@@ -382,7 +408,7 @@ uint16_t usb_cb_get_descriptor(uint8_t type, uint8_t index, const uint8_t** ptr)
 
 // ****************************************************************************
 void usb_cb_reset(void) {
-    // Nothing to do
+    usbserial_buf_in_busy = false;
 }
 
 

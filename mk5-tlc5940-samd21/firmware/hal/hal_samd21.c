@@ -7,6 +7,9 @@
 #include <usb.h>
 #include <printf.h>
 
+void add_uint8_to_receive_buffer(uint8_t byte);
+extern bool usbserial_is_write_busy(void);
+extern void usbserial_write(uint8_t *data, uint8_t length);
 
 static volatile bool new_raw_channel_data = false;
 static uint32_t raw_data[3];
@@ -41,8 +44,13 @@ static uint8_t receive_buffer[RECEIVE_BUFFER_SIZE];
 static volatile uint16_t read_index = 0;
 static volatile uint16_t write_index = 0;
 
+#define SEND_BUFFER_SIZE (64)
+static uint8_t send_buffer[SEND_BUFFER_SIZE];
+static volatile uint16_t send_buffer_index = 0;
+
 // We use all 24 bits of TCC0, so the maximum period value is 0xffffff
 #define TCC0_PERIOD (0xfffffful)
+
 
 
 // ****************************************************************************
@@ -342,6 +350,16 @@ void HAL_service(void)
         HAL_gpio_clear(HAL_GPIO_LED);
         HAL_gpio_clear(HAL_GPIO_LED2);
     }
+
+
+    // If we have data to send via USB serial, and USB serial is available to
+    // send, then do it
+    if (send_buffer_index) {
+        if (!usbserial_is_write_busy()) {
+            usbserial_write(send_buffer, send_buffer_index);
+            send_buffer_index = 0;
+        }
+    }
 }
 
 
@@ -395,17 +413,24 @@ void HAL_uart_init(uint32_t baudrate)
 void UART_SERCOM_HANDLER(void)
 {
     if (UART_SERCOM->USART.INTFLAG.bit.RXC) {
-        receive_buffer[write_index++] = (uint8_t)UART_SERCOM->USART.DATA.reg;
+        add_uint8_to_receive_buffer((uint8_t)UART_SERCOM->USART.DATA.reg);
+    }
+}
 
-        // Wrap around the write pointer. This works because the buffer size is
-        // a modulo of 2.
-        write_index &= RECEIVE_BUFFER_INDEX_MASK;
 
-        // If we are bumping into the read pointer we are dealing with a buffer
-        // overflow. Back off and rather destroy the last value.
-        if (write_index == read_index) {
-            write_index = (write_index - 1) & RECEIVE_BUFFER_INDEX_MASK;
-        }
+// ****************************************************************************
+void add_uint8_to_receive_buffer(uint8_t byte)
+{
+    receive_buffer[write_index++] = byte;
+
+    // Wrap around the write pointer. This works because the buffer size is
+    // a modulo of 2.
+    write_index &= RECEIVE_BUFFER_INDEX_MASK;
+
+    // If we are bumping into the read pointer we are dealing with a buffer
+    // overflow. Back off and rather destroy the last value.
+    if (write_index == read_index) {
+        write_index = (write_index - 1) & RECEIVE_BUFFER_INDEX_MASK;
     }
 }
 
@@ -434,8 +459,20 @@ uint8_t HAL_getchar(void)
 
 
 // ****************************************************************************
+static void usbserial_putc(char c) {
+    if (send_buffer_index < SEND_BUFFER_SIZE) {
+        send_buffer[send_buffer_index++] = c;
+    }
+}
+
+
+// ****************************************************************************
 void HAL_putc(void *p, char c)
 {
+    if (p == STDOUT_DEBUG) {
+        usbserial_putc(c);
+    }
+
     // Ignore diagnostics requests if disabled
     if (!diagnostics_on_uart  &&  p == STDOUT_DEBUG) {
         return;
