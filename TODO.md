@@ -2,8 +2,6 @@
 
 * Use DFU, using existing WebUSB DFU implementation
 
-* USB CDC: preprocessor-simulator, diagnostics output
-
 * USB: Use proprietary DFU commands for pre-processor and diagnostics?
 
 * Add `local_switch_is_momentary` to configurator
@@ -15,7 +13,7 @@
 
 * Use GDB to flash bootloader
 * Lock bootloader during GDB flashing
-* Bootloader LED breathing is not going dim enough
+
 
 # MK5 PCB
 

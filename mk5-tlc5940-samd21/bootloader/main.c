@@ -145,8 +145,8 @@ static void print_app_diagnostics(void)
 // ****************************************************************************
 static void LED_breathing(void)
 {
-    const uint8_t MIN = 3;
-    const uint8_t MAX = 150;
+    const uint8_t MIN = 100;
+    const uint8_t MAX = 245;
 
     static uint8_t counter = 0;
     static uint8_t compare = MIN;
