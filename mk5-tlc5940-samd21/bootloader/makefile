@@ -148,7 +148,8 @@ list: $(BUILD_DIR) $(OBJECTS:.o=.lst)
 
 # Invoke the tool to program the microcontroller
 program: $(TARGET_ELF)
-	$(QUIET) $(FLASH_TOOL) -c "init; reset halt ; at91samd bootloader 0 ; reset halt ; flash write_image $< ; reset ; shutdown"
+	$(ECHO) $(GDB) -nx -quiet -batch -command gdb.flash.script
+	# $(ECHO) $(FLASH_TOOL) -c "init; reset halt ; at91samd bootloader 0 ; reset halt ; flash write_image $< ; reset ; shutdown"
 
 flash: program
 
@@ -168,7 +169,8 @@ clean:
 	$(ECHO) $(RM) -rf $(BUILD_DIR)
 
 debug: $(TARGET_ELF)
-	$(ECHO) $(GDB) -q -ex "target extended-remote | $(FLASH_TOOL) -f board/atmel_samr21_xplained_pro.cfg -c \"gdb_port pipe\"" -ex "load" --tui $<
+	$(ECHO) $(GDB) -nx -quiet -command gdb.debug.script
+	#$(ECHO) $(GDB) -q -ex "target extended-remote | $(FLASH_TOOL) -f board/atmel_samr21_xplained_pro.cfg -c \"gdb_port pipe\"" -ex "load" --tui $<
 
 
 

@@ -11,7 +11,6 @@
   * Flash blocks 1..last
   * Flash block 0
 
-* Use GDB to flash bootloader
 * Lock bootloader during GDB flashing
 
 

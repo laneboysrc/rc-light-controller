@@ -209,7 +209,7 @@ list: $(BUILD_DIR) $(OBJECTS:.o=.lst)
 program: $(TARGET_ELF_WITH_BOOTLOADER)
 	@echo [PROGRAM] $<
 	$(ECHO)$(GDB) -nx -quiet -batch -command gdb.flash.script
-#	$(ECHO) $(FLASH_TOOL) -c "init; reset halt ; at91samd bootloader 0; reset halt ; flash write_image $< ; at91samd bootloader 8192; reset ; exit"
+	#	$(ECHO) $(FLASH_TOOL) -c "init; reset halt ; at91samd bootloader 0; reset halt ; flash write_image $< ; at91samd bootloader 8192; reset ; exit"
 
 flash: program
 
