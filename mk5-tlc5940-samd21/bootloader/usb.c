@@ -244,7 +244,7 @@ uint16_t usb_cb_get_descriptor(uint8_t type, uint8_t index, const uint8_t** ptr)
     switch (type) {
         case USB_DTYPE_Device:
             address = &device_descriptor;
-            size    = sizeof(USB_DeviceDescriptor);
+            size = sizeof(USB_DeviceDescriptor);
             break;
 
         case USB_DTYPE_Configuration:
@@ -271,7 +271,7 @@ uint16_t usb_cb_get_descriptor(uint8_t type, uint8_t index, const uint8_t** ptr)
                     break;
 
                 case USB_STRING_DFU:
-                    address = usb_string_to_descriptor((char *)"RC Light Controller (DFU-bootloader)");
+                    address = usb_string_to_descriptor((char *)"RC Light Controller (DFU-boot)");
                     break;
 
                 default:
