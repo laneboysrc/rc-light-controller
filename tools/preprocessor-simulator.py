@@ -137,7 +137,13 @@ class PreprocessorApp(object):
 
             while not app.done:
                 app.uart.timeout = 0.1
-                data = app.uart.readline()
+                try:
+                    data = app.uart.readline()
+                except serial.SerialException as error:
+                    print("Reading from serial port failed: %s" % error)
+                    app.errorShutdown()
+                    return
+
                 if len(data):
                     current_time = time.time()
                     time_difference = current_time - time_of_last_line
@@ -169,13 +175,19 @@ class PreprocessorApp(object):
 
                 data = bytearray(
                     [SLAVE_MAGIC_BYTE, steering, throttle, last_byte])
-                app.uart.write(data)
-                app.uart.flush()
+
+                try:
+                    app.uart.write(data)
+                    app.uart.flush()
+                except serial.SerialException as error:
+                    print("Writing to serial port failed: %s" % error)
+                    app.errorShutdown()
+                    return
 
                 time.sleep(0.02)
 
-        server = HTTPServer(('', self.args.port), CustomHTTPRequestHandler)
-        server.preprocessor = self
+        self.server = HTTPServer(('', self.args.port), CustomHTTPRequestHandler)
+        self.server.preprocessor = self
 
         print("Please call up the user interface on localhost:{port}".format(
             port=self.args.port))
@@ -184,7 +196,7 @@ class PreprocessorApp(object):
         self.write_thread = threading.Thread(target=writer, args=([self]))
         self.read_thread.start()
         self.write_thread.start()
-        server.serve_forever()
+        self.server.serve_forever()
 
     def shutdown(self):
         ''' Shut down the application, wait for the uart thread to finish '''
@@ -194,6 +206,12 @@ class PreprocessorApp(object):
         if not self.read_thread is None:
             self.read_thread.join()
 
+    def errorShutdown(self):
+        ''' Shut down the application in case an error occured '''
+        self.done = True
+        self.uart.close()
+        self.server.shutdown()
+        sys.exit(1)
 
 def main():
     ''' Program start '''
