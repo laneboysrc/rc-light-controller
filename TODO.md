@@ -11,8 +11,6 @@
   * Flash blocks 1..last
   * Flash block 0
 
-* Lock bootloader during GDB flashing
-
 
 # MK5 PCB
 
