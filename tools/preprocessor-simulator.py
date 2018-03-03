@@ -52,8 +52,11 @@ def parse_commandline():
     parser.add_argument("-p", "--port", type=int, default=1234,
         help='HTTP port for the web UI. Default is localhost:1234.')
 
+    parser.add_argument("-u", "--usb", "--webusb", action='store_true',
+        help='Use WebUSB to connect to the light controller instead of a serial port')
+
     parser.add_argument("tty", nargs="?", default="/dev/ttyUSB0",
-        help="serial port to use. ")
+        help="Serial port to use. ")
 
     return parser.parse_args()
 
@@ -65,6 +68,8 @@ class CustomHTTPRequestHandler(QuietBaseHTTPRequestHandler):
         ''' GET request handler '''
         self.send_response(200)
         self.send_header('Content-type', 'text/html')
+        if not self.server.preprocessor.args.usb:
+            self.send_header('Set-Cookie', 'mode=xhr;max-age=1')
         self.end_headers()
 
         html_path = os.path.join(
@@ -107,6 +112,9 @@ class PreprocessorApp(object):
         self.read_thread = None
         self.write_thread = None
         self.done = False
+
+        if self.args.usb:
+            return
 
         try:
             self.uart = serial.Serial(self.args.tty, self.args.baudrate)
@@ -192,10 +200,11 @@ class PreprocessorApp(object):
         print("Please call up the user interface on localhost:{port}".format(
             port=self.args.port))
 
-        self.read_thread = threading.Thread(target=reader, args=([self]))
-        self.write_thread = threading.Thread(target=writer, args=([self]))
-        self.read_thread.start()
-        self.write_thread.start()
+        if not self.args.usb:
+            self.read_thread = threading.Thread(target=reader, args=([self]))
+            self.write_thread = threading.Thread(target=writer, args=([self]))
+            self.read_thread.start()
+            self.write_thread.start()
         self.server.serve_forever()
 
     def shutdown(self):
