@@ -1,23 +1,19 @@
 # MK5
 
-
 * Add `local_switch_is_momentary` to configurator
 
-* Bootloader/Updater should flash first block last, so that if flashing fails there is no partial image that could be executed.
-  * Erase block 0
-  * Flash blocks 1..last
-  * Flash block 0
-
+* Remove USB diagnostics
 
 # MK5 PCB
 
 * TLC5940 footprint based on TI datasheet
 * Design for stencil 5mil/0.12mm thick
 
-
 # MK4 + MK5
 
-* Startup mode resets light_switch_position and drive mode?
+* UART reader should still be operational if servo reader is requested, so that
+  WebUSB or hardware with dedicated UART port still works. The HAL should make
+  the selection based on state.
 
 * It would be great if CH3 as switch would trigger `new_channel_data` independently of the other signals, i.e. set it if no other `new_channel_data` was seen in a certain amount of systicks
 
