@@ -1,99 +1,72 @@
 (function() {
   'use strict';
 
-  document.addEventListener('DOMContentLoaded', event => {
+  document.addEventListener('DOMContentLoaded', async event => {
     let connectButton = document.querySelector("#connect");
     let statusDisplay = document.querySelector('#status');
 
-    function connect() {
-      port.connect().then(() => {
-        statusDisplay.textContent = '';
-        connectButton.textContent = 'Disconnect';
-
-        port.onReceive = data => {
-          let textDecoder = new TextDecoder();
-          console.log(textDecoder.decode(data));
-        }
-        port.onReceiveError = error => {
-          console.error(error);
-        };
-      }, error => {
-        statusDisplay.textContent = error;
-      });
-    }
-
-
-    connectButton.addEventListener('click', function() {
-      // if (port) {
-      //   port.disconnect();
-      //   connectButton.textContent = 'Connect';
-      //   statusDisplay.textContent = '';
-      //   port = null;
-      // } else {
-      //   serial.requestPort().then(selectedPort => {
-      //     port = selectedPort;
-      //     connect();
-      //   }).catch(error => {
-      //     statusDisplay.textContent = error;
-      //   });
-      // }
-
+    connectButton.addEventListener('click', async function() {
       const filters = [
-        { 'vendorId': 0x6666, 'productId': 0xcab1 }
+        { 'vendorId': 0x6666 }
       ];
 
+      let device;
+      try {
+        device = await navigator.usb.requestDevice({ 'filters': filters });
+      }
+      catch (e) {
+        console.log("requestDevice(): " + e);
+      }
 
-      navigator.usb.requestDevice({ 'filters': filters }).then(
-        device => {
-          device.open().then(() => {
-            console.log(device.configuration);
-            if (device.configuration === null) {
-              return device.selectConfiguration(1);
-            }
-          })
-
-          // .then(() => device.claimInterface(2))
-          // .then(() => this.device_.selectAlternateInterface(2, 0))
-          // .then(() => device.controlTransferOut({
-          //     'requestType': 'class',
-          //     'recipient': 'interface',
-          //     'request': 0x22,
-          //     'value': 0x01,
-          //     'index': 0x02}))
-          // .then(() => {
-          //   readLoop();
-          // })
-          .catch(e => {
-            console.error(e);
-          });
-
-        let readLoop = () => {
-          device.transferIn(5, 64).then(result => {
-            console.log(result.data);
-            readLoop();
-          }, error => {
-            console.error(error);
-          });
-        };
-      });
-
-
+      if (device) {
+        connect(device)
+      }
     });
 
-    navigator.usb.getDevices().then(devices => {
-      devices.map(device => console.log);
-    })
-    .catch(e => {
-      console.error(e);
-    });
-    // serial.getPorts().then(ports => {
-    //   if (ports.length == 0) {
-    //     statusDisplay.textContent = 'No device found.';
-    //   } else {
-    //     statusDisplay.textContent = 'Connecting...';
-    //     port = ports[0];
-    //     connect();
-    //   }
-    // });
+    let devices = await navigator.usb.getDevices();
+    console.log(devices);
+    let device = devices[0];
+    if (device) {
+      connect(device)
+    }
   });
+
+  async function connect(device) {
+    console.log(device);
+    await device.open();
+    if (device.configuration === null) {
+      await device.selectConfiguration(1);
+    }
+    // await device.claimInterface(0);
+    console.log("Device ready!");
+
+    let data = string2arraybuffer('Hello world!\n');
+
+    const setup = {
+      "requestType": "vendor",
+      "recipient": "device",
+      "request": 72,
+      "value": 0,
+      "index": 0
+    };
+
+    let result = await device.controlTransferOut(setup, data);
+    if (result.status == "ok") {
+      console.log("OK " + result.bytesWritten);
+    }
+    else {
+      console.log("FAIL " + result.staus);
+    }
+    // await device.close();
+  }
+
+  function string2arraybuffer(str) {
+    var buf = new ArrayBuffer(str.length);
+    var bufView = new Uint8Array(buf);
+    for (var i=0, strLen=str.length; i<strLen; i++) {
+      bufView[i] = str.charCodeAt(i);
+    }
+    return buf;
+  }
+
 })();
