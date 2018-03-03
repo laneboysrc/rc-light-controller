@@ -462,6 +462,10 @@ void usb_cb_control_setup(void) {
                 send_descriptor(&MS_OS_20_Descriptor, sizeof(MS_OS_20_Descriptor));
                 return;
 
+            case VENDOR_CODE_SIMULATOR:
+                usb_ep0_out();
+                return;
+
             default:
                 break;
         }
@@ -481,7 +485,22 @@ void usb_cb_control_in_completion(void) {
 
 // ****************************************************************************
 void usb_cb_control_out_completion(void) {
-    // Nothing to do
+    uint8_t recipient = usb_setup.bmRequestType & USB_REQTYPE_RECIPIENT_MASK;
+    uint8_t requestType = usb_setup.bmRequestType & USB_REQTYPE_TYPE_MASK;
+
+    if (recipient == USB_RECIPIENT_DEVICE  &&  requestType == USB_REQTYPE_VENDOR) {
+        if (usb_setup.bRequest == VENDOR_CODE_SIMULATOR) {
+            uint16_t length = usb_ep_out_length(0);
+            if (length == 4) {
+                for (uint16_t i = 0; i < length ; i++) {
+                    add_uint8_to_receive_buffer(ep0_buf_out[i]);
+                }
+            }
+
+            usb_ep0_in(0);
+        }
+    }
+
 }
 
 
