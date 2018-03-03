@@ -8,18 +8,14 @@
 
     <style type = "text/css">
         * {
-            font-size: 14px;
             padding: 0;
             margin: 0;
+            box-sizing: border-box;
         }
 
         body {
             font-family: sans-serif;
             color: black;
-        }
-
-        dummy {
-             border: 1px solid red;
         }
 
         h1, h1 a, h1 a:visited, h1 a:active, h1 a:hover {
@@ -29,10 +25,7 @@
         }
 
         h2 {
-        }
-
-        pre {
-            font-size: 13px;
+            font-size: 1em;
         }
 
         select {
@@ -47,9 +40,20 @@
             margin-top: 0px;
         }
 
-        .column {
-            float: left;
-            width: auto;
+        label {
+            font-size: 0.9em;
+        }
+
+        @media all and (min-width: 600px) {
+            .page {
+                display: flex;
+                align-items: stretch;
+                flex-flow: row wrap;
+            }
+
+            .column {
+                width: 50%;
+            }
         }
 
         .box, .widebox {
@@ -58,17 +62,8 @@
             margin: 10px;
         }
 
-        .box {
-            width: 420px;
-        }
-
         .widebox {
             margin-bottom: 0;
-            clear: both;
-        }
-
-        .tooltip button {
-            font-size: 12px;
         }
 
         .heading {
@@ -91,12 +86,18 @@
             text-align: center;
         }
 
-        .controls, .features, .upload, .vehicles, .reversing, .luci {
+        .controls, .features {
             background-color: #FFCF0D;
         }
 
-        .response > div {
-            margin: 12px 0;
+        .message {
+            font-family: monospace;
+            line-height: 1.25em;
+            min-height: 1.25em;
+        }
+
+        .debug {
+             border: 1px solid red;
         }
 
         #throttle, #steering {
@@ -142,16 +143,16 @@
             <form class="box controls">
                 <h2>Steering</h2>
                 <div>
-                    <input id="steering" type="range" min ="-100" max="100" step ="1" value ="0" oninput="sendSteering(this.value);" onchange="sendSteering(this.value);"/>
+                    <input id="steering" type="range" min ="-100" max="100" step ="1" value ="0">
                     <div class="centered">
-                        <button id="steering-neutral" type="button" onclick="document.getElementById('steering').value = 0; sendSteering(0);">neutral</button>
+                        <button id="steering-neutral">neutral</button>
                     </div>
                 </div>
                 <h2>Throttle</h2>
                 <div>
-                    <input id="throttle" type="range" min ="-100" max="100" step ="1" value ="0" oninput="sendThrottle(this.value);" onchange="sendThrottle(this.value);"/>
+                    <input id="throttle" type="range" min ="-100" max="100" step ="1" value ="0">
                     <div class="centered">
-                        <button id="throttle-neutral" type="button" onclick="document.getElementById('throttle').value = 0; sendThrottle(0);">neutral</button>
+                        <button id="throttle-neutral">neutral</button>
                     </div>
                 </div>
             </form>
@@ -160,128 +161,55 @@
         <div class="column">
             <form class="box features">
                 <div>
-                    <label><input id="startup-mode" type="checkbox" onchange="sendStartup(this.checked);" /> Startup</label>
+                    <input id="startup-mode" type="checkbox"> <label for="startup-mode">Startup</label>
                 </div>
             </form>
             <form class="box features">
                 <span style="float: right;">
-                <label><input id="momentary" type="checkbox" /> Momemtary</label>
+                    <input id="momentary" type="checkbox"> <label for="momentary">Momemtary</label>
                 </span>
                 <h2>CH3 / AUX</h2>
                 <div>
-                    <button type="button" onclick="sendCh3('click');" onmousedown="sendCh3('down');" onmouseup="sendCh3('up');">CH3</button>
+                    <button id="ch3">CH3</button>
                 </div>
         </div>
     </div>
 
     <div class="widebox response">
         <h2>Response</h2>
-        <pre id="response">
-        </pre>
+        <div class="message" id="response"></div>
     </div>
 
     <script>
         var throttle = 0;
-        var sendingThrottle = false;
-
         var steering = 0;
-        var sendingSteering = false;
-
         var ch3 = 0
-
-        var momentaryElement = document.getElementById("momentary");
-
-        var connected = true;
-
-        const minBoxWidth = 300;
-        const paddingAndMargin = 10 + 10 + 10 + 10;
-
-        var send;
-
+        var sendingThrottle = false;
+        var sendingSteering = false;
         var startupMode = true;
 
-        var pingTimer;
+        var elWebusbConnect;
+        var elNotConnected;
+        var elStartupMode;
+        var elSteering;
+        var elThrottle;
+        var elCH3;
+        var elMomentary;
+        var elSteeringNeutral;
+        var elThrottleNeutral;
+        var elResponse;
+
+        var send_function;
+
+        var webusb_device;
 
         const SLAVE_MAGIC_BYTE = 0x87;
         const VENDOR_ID = 0x6666;
         const VENDOR_CODE_SIMULATOR = 72;
 
-        var webusb_device;
+        // Pressing any of those keys triggers CH3
+        const CH3_KEYS = '3acux';
 
-        /**
-         * Provides python-like string interpolation.
-         * It supports value interpolation either by keys of a dictionary or
-         * by index of an array.
-         *
-         * Examples::
-         *
-         *      interpolate("Hello %s.", ["World"]) == "Hello World."
-         *      interpolate("Hello %(name)s.", {name: "World"}) == "Hello World."
-         *      interpolate("Hello %%.", {name: "World"}) == "Hello %."
-         *
-         * This version doesn't do any type checks and doesn't provide
-         * formating support.
-         *
-         * Source: https://djangosnippets.org/snippets/2074/
-         */
-        function interpolate(s, args) {
-            var i = 0;
-            return s.replace(/%(?:\(([^)]+)\))?([%diouxXeEfFgGcrs])/g, function (match, v, t) {
-                if (t == "%") return "%";
-                return args[v || i++];
-            });
-        }
-
-        /* returns the value of the element style of the rule in the stylesheet
-         *  If no value is given, reads the value
-         *  If value is given, the value is changed and returned
-         *  If '' (empty string) is given, erases the value.
-         *  The browser will apply the default one
-         *
-         * string stylesheet: part of the .css name to be recognized, e.g. 'default'
-         * string selectorText: css selector, e.g. '#myId', '.myClass', 'thead td'
-         * string style: camelCase element style, e.g. 'fontSize'
-         * string value optionnal : the new value
-         *
-         * Source: http://stackoverflow.com/questions/566203/changing-css-values-with-javascript
-         */
-        function CCSStylesheetRuleStyle(selectorText, style, value) {
-            var CCSstyle = undefined;
-            var rulesString = document.all ? 'rules' : 'cssRules'
-            for (var m in document.styleSheets) {
-                rules = document.styleSheets[m][rulesString];
-                for (var n in rules) {
-                    if (rules[n].selectorText == selectorText) {
-                        CCSstyle = rules[n].style;
-                        break;
-                    }
-                }
-            }
-            if (value === undefined)
-                return CCSstyle[style];
-            else
-                return CCSstyle[style] = value;
-        }
-
-        function resizeColumns() {
-            var minColumnWidth = minBoxWidth + paddingAndMargin;
-
-            var availableWidth = document.getElementsByTagName('body')[0].clientWidth;
-
-            // Use bit-wise OR to truncate float to int
-            var numColumns = (availableWidth / minColumnWidth) | 0;
-            if (numColumns > 2) {
-                numColumns = 2;
-            }
-
-            var columnWidth = (availableWidth / numColumns) | 0;
-            columnWidth = columnWidth - paddingAndMargin;
-            if (columnWidth < minBoxWidth) {
-                columnWidth = minBoxWidth;
-            }
-
-            CCSStylesheetRuleStyle(".box", "width", columnWidth + "px");
-        }
 
         function createXMLHttpRequest() {
             try { return new XMLHttpRequest(); } catch(e) {}
@@ -293,25 +221,56 @@
             var params = cmd + "=" + value;
 
             var xhr = createXMLHttpRequest();
-            xhr.onerror = function(evt) {
+            xhr.onerror = function () {
                 msg = "ERR Unable to send XMLHttpRequest";
-                document.getElementById("response").innerHTML = msg;
-                callback != null && callback(msg);
+                elResponse.textContent = msg;
+                if (callback) {
+                    callback(msg);
+                }
             }
 
-            xhr.onload = function(evt) {
-                document.getElementById("response").innerHTML = xhr.responseText;
-                callback != null && callback(xhr.responseText);
+            xhr.onload = function () {
+                elResponse.textContent = xhr.responseText;
+                if (callback) {
+                    callback(xhr.responseText);
+                }
             }
 
+            elResponse.textContent = ' ';
             xhr.open("POST", "/", true);
-
             xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-            // xhr.setRequestHeader("Content-length", params.length);
-            // xhr.setRequestHeader("Connection", "close");
-
-            document.getElementById("response").innerHTML = "&nbsp";
             xhr.send(params);
+        }
+
+        function center_steering(event) {
+            event.preventDefault();
+            elSteering.value = 0;
+            sendSteering(0);
+        }
+
+        function center_throttle(event) {
+            event.preventDefault();
+            elThrottle.value = 0;
+            sendThrottle(0);
+        }
+
+        function steering_changed(event) {
+            event.preventDefault();
+            sendSteering(parseInt(elSteering.value));
+        }
+
+        function throttle_changed(event) {
+            event.preventDefault();
+            sendThrottle(parseInt(elThrottle.value));
+        }
+
+        function ch3_changed(event) {
+            event.preventDefault();
+            sendCh3(this);
+        }
+
+        function startup_mode_changed(event) {
+            sendStartup(elStartupMode.checked);
         }
 
         // Moving the throttle slider causes a lot of update events. Sending
@@ -336,7 +295,7 @@
                 // If the value we sent has changed in the meantime we trigger
                 // another transmission to ensure the most recent value is
                 // sent to the rc-sound-module
-                if (sentThrottle != throttle) {
+                if (sentThrottle !== throttle) {
                     sendThrottleCommand();
                 }
             };
@@ -347,12 +306,11 @@
             function sendThrottleCommand() {
                 sendingThrottle = true;
                 sentThrottle = throttle;
-                send('TH', throttle, cb);
+                send_function('TH', throttle, cb);
             }
 
-
             // Ignore multiple events of the same throttle value
-            if (value == throttle) {
+            if (value === throttle) {
                 return;
             }
             throttle = value;
@@ -375,7 +333,7 @@
                 // If the value we sent has changed in the meantime we trigger
                 // another transmission to ensure the most recent value is
                 // sent to the rc-sound-module
-                if (sentSteering != steering) {
+                if (sentSteering !== steering) {
                     sendSteeringCommand();
                 }
             };
@@ -386,12 +344,12 @@
             function sendSteeringCommand() {
                 sendingSteering = true;
                 sentSteering = steering;
-                send('ST', steering, cb);
+                send_function('ST', steering, cb);
             }
 
 
             // Ignore multiple events of the same throttle value
-            if (value == steering) {
+            if (value === steering) {
                 return;
             }
             steering = value;
@@ -406,20 +364,20 @@
         }
 
         function sendCh3(action) {
-            if (momentaryElement.checked) {
-                if (action == 'down') {
+            if (elMomentary.checked) {
+                if (action === 'down') {
                     ch3 = 1;
-                    send("CH3", ch3);
+                    send_function("CH3", ch3);
                 }
-                if (action == 'up') {
+                if (action === 'up') {
                     ch3 = 0;
-                    send("CH3", ch3);
+                    send_function("CH3", ch3);
                 }
             }
             else {
-                if (action == 'click') {
+                if (action === 'click') {
                     ch3 = ch3 ? 0 : 1;
-                    send("CH3", ch3);
+                    send_function("CH3", ch3);
                 }
             }
             return false;
@@ -427,70 +385,73 @@
 
         function sendStartup(mode) {
             if (mode) {
-                document.getElementById("steering-neutral").click();
-                document.getElementById("throttle-neutral").click();
+                elSteeringNeutral.click();
+                elThrottleNeutral.click();
             }
             startupMode = mode ? 1 : 0;
-            send('STARTUP_MODE', startupMode);
+            send_function('STARTUP_MODE', startupMode);
         }
 
         function reset_ui() {
-            document.getElementById("throttle").value = throttle;
-            document.getElementById("steering").value = steering;
-            send("ST", steering);
-            send("TH", throttle);
-            send("CH3", ch3);
-            document.getElementById("startup-mode").checked = true
-            sendStartup(true)
-        }
+            elSteering.value = steering;
+            elThrottle.value = throttle;
+            elStartupMode.checked = true;
 
-        function ping_callback(msg) {
-            if (msg != "OK") {
-                connected = false;
-                document.getElementById("not-connected").style.visibility = 'visible';
-            }
-            else {
-                if (!connected) {
-                    reset_ui();
-                }
-                connected = true;
-                document.getElementById("not-connected").style.visibility = 'hidden';
-            }
-
-            if (pingTimer) {
-                clearTimeout(pingTimer);
-            }
-            pingTimer = setTimeout(send_ping, 3000);
+            send_function("ST", steering);
+            send_function("TH", throttle);
+            send_function("CH3", ch3);
+            sendStartup(true);
         }
 
         function send_ping() {
-            send("PING", 1, ping_callback);
+            let pingTimer;
+
+            function ping_callback(msg) {
+                if (msg !== "OK") {
+                    elNotConnected.style.visibility = 'visible';
+                }
+                else {
+                    if (elNotConnected.style.visibility === 'visible') {
+                        reset_ui();
+                    }
+                    elNotConnected.style.visibility = 'hidden';
+                }
+
+                if (pingTimer) {
+                    clearTimeout(pingTimer);
+                }
+                pingTimer = setTimeout(send_ping, 3000);
+            }
+
+            send_function("PING", 1, ping_callback);
         }
 
+        let update_ui = send_ping;
+
         function keydown_event_handler(event) {
-            if (event.key == 'a' || event.key == 'u' || event.key == 'x' ||
-                    event.key == 'c' || event.key == '3') {
+            if (CH3_KEYS.indexOf(event.key) >= 0) {
                 sendCh3('click');
                 sendCh3('down');
             }
-            else if (event.key == 's') {
-                document.getElementById("startup-mode").click();
+            else if (event.key === 's') {
+                elStartupMode.click();
             }
             return true;
         }
 
         function keyup_event_handler(event) {
-            if (event.key == 'a' || event.key == 'u' || event.key == 'x' ||
-                    event.key == 'c' || event.key == '3') {
+            if (CH3_KEYS.indexOf(event.key) >= 0) {
                 sendCh3('up');
             }
             return true;
         }
 
 
-        function send_webusb(cmd, value, callback = null) {
-            callback != null && callback(webusb_device ? "OK" : "NOT CONNECTED");
-            // callback != null && callback("OK");
+        function send_webusb(cmd, value, callback) {
+            if (callback) {
+                callback(webusb_device ? "OK" : "NOT CONNECTED");
+                // callback("OK");
+            }
         }
 
         async function webusb_connect(device) {
@@ -505,20 +466,20 @@
                 return
             }
 
-            document.getElementById("response").innerHTML =
+            elResponse.textContent =
                 'Connected to Light Controller with serial number ' + device.serialNumber;
             webusb_device = device;
             webusb_send_data();
-            send_ping();
+            update_ui();
         }
 
         async function webusb_disconnect() {
             if (webusb_device) {
                 try { await webusb_device.close(); } catch (e) { };
                 webusb_device = undefined;
-                document.getElementById("response").innerHTML = '&nbsp;';
+                elResponse.textContent = ' ';
             }
-            send_ping();
+            update_ui();
         }
 
         async function webusb_send_data() {
@@ -540,10 +501,10 @@
                 last_byte += 0x10
             }
 
-            let data = new Uint8Array(4);
+            let data = new Uint8ClampedArray(4);
             data[0] = SLAVE_MAGIC_BYTE;
-            data[1] = steering;
-            data[2] = throttle;
+            data[1] = st;
+            data[2] = th;
             data[3] = last_byte;
 
             const setup = {
@@ -554,20 +515,18 @@
                 "index": 0
             };
 
-            let result;
             try {
-                result = await webusb_device.controlTransferOut(setup, data);
+                let result = await webusb_device.controlTransferOut(setup, data);
+                if (result.status === "ok") {
+                    setTimeout(webusb_send_data, 20);
+                }
+                else {
+                    console.log("controlTransferOut() failed:", result.staus);
+                }
             }
             catch (e) {
                 console.log("controlTransferOut() exception:", e);
                 return;
-            }
-
-            if (result.status === "ok") {
-                setTimeout(webusb_send_data, 20);
-            }
-            else {
-                console.log("controlTransferOut() failed:", result.staus);
             }
         }
 
@@ -590,30 +549,52 @@
         }
 
         window.addEventListener("load", async function () {
+            elMomentary = document.getElementById('momentary');
+            elWebusbConnect = document.getElementById('webusb-connect');
+            elNotConnected = document.getElementById('not-connected');
+            elStartupMode = document.getElementById('startup-mode');
+            elSteering = document.getElementById('steering');
+            elThrottle = document.getElementById('throttle');
+            elCH3 = document.getElementById('ch3');
+            elSteeringNeutral = document.getElementById('steering-neutral');
+            elThrottleNeutral = document.getElementById('throttle-neutral');
+            elResponse = document.getElementById('response');
+
+            // If we are using the preprocessor-simulator.py script, then
+            // the operating mode can be either via serial port (via Python), or
+            // WebUSB. The python program sets a cookie named 'mode' if the
+            // serial port mode is requested.
+            // By default the code uses WebUSB, i.e. when served from a
+            // webserver (Github!)
             let use_webusb = true;
+
             if (document.cookie.split(';').indexOf('mode=xhr') >= 0) {
-                console.log('XHR mode requested')
+                console.log('XHR mode requested (serial port')
                 // Clear the cookie
                 document.cookie = "mode=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
                 use_webusb = false;
             }
 
+            send_function = use_webusb ? send_webusb : send_xmlhttp;
+
             if (use_webusb) {
-                send = send_webusb;
-                if (typeof navigator.usb !== 'undefined') {
+                // Check if the browser supports WebUSB. If not, show a message
+                // to the user.
+                if (typeof navigator.usb === 'undefined') {
+                    document.getElementById('webusb-not-available').style.display = 'block';
+                }
+                else {
                     navigator.usb.addEventListener('connect', webusb_device_connected);
                     navigator.usb.addEventListener('disconnect', webusb_device_disconnected);
 
                     let devices = await navigator.usb.getDevices();
-                    console.log(devices)
                     if (devices.length) {
                         webusb_connect(devices[0])
                     }
                     else {
                         // Show the connect button
-                        let btn = document.getElementById('webusb-connect');
-                        btn.style.visibility = 'visible';
-                        btn.addEventListener('click', async (event) => {
+                        elWebusbConnect.style.visibility = 'visible';
+                        elWebusbConnect.addEventListener('click', async (event) => {
                             event.preventDefault();
                             const options = {filters:[{vendorId: VENDOR_ID}]};
                             let device;
@@ -623,7 +604,7 @@
                                 if (device) {
                                     await webusb_connect(device);
                                     if (webusb_device) {
-                                        btn.style.visibility = 'hidden';
+                                        elWebusbConnect.style.visibility = 'hidden';
                                     }
                                 }
                             }
@@ -633,24 +614,24 @@
                         });
                     }
                 }
-                else {
-                    document.getElementById('webusb-not-available').style.display = 'block';
-                }
             }
-            else {
-                send = send_xmlhttp;
-            }
-
-            reset_ui();
-
-            window.addEventListener("resize", resizeColumns, true);
-            resizeColumns();
 
             document.addEventListener("keydown", keydown_event_handler);
             document.addEventListener("keyup", keyup_event_handler);
+            elSteeringNeutral.addEventListener('click', center_steering);
+            elThrottleNeutral.addEventListener('click', center_throttle);
+            elSteering.addEventListener('input', steering_changed);
+            elSteering.addEventListener('change', steering_changed);
+            elThrottle.addEventListener('input', throttle_changed);
+            elThrottle.addEventListener('change', throttle_changed);
+            elCH3.addEventListener('click', ch3_changed.bind('click'));
+            elCH3.addEventListener('mousedown', ch3_changed.bind('down'));
+            elCH3.addEventListener('mouseup', ch3_changed.bind('up'));
+            elStartupMode.addEventListener('change', startup_mode_changed);
 
-            send_ping();
-        }, false);
+            reset_ui();
+            update_ui();
+        });
 
     </script>
 </body>

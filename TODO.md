@@ -1,8 +1,5 @@
 # MK5
 
-* Use DFU, using existing WebUSB DFU implementation
-
-* USB: Use proprietary DFU commands for pre-processor and diagnostics?
 
 * Add `local_switch_is_momentary` to configurator
 
@@ -19,6 +16,8 @@
 
 
 # MK4 + MK5
+
+* Startup mode resets light_switch_position and drive mode?
 
 * It would be great if CH3 as switch would trigger `new_channel_data` independently of the other signals, i.e. set it if no other `new_channel_data` was seen in a certain amount of systicks
 
