@@ -71,7 +71,8 @@ static const struct {
     }
 };
 
-#define URL1 "laneboysrc.github.io/rc-light-controller"
+// #define URL1 "laneboysrc.github.io/rc-light-controller"
+#define URL1 "laneboysrc.github.io/rc-light-controller/preprocessor-simulator.html"
 static const struct {
     uint8_t bLength;
     uint8_t bDescriptorType;
