@@ -1,6 +1,5 @@
 # MK5
 
-* Add `local_switch_is_momentary` to configurator
 
 # MK5 PCB
 
@@ -24,6 +23,23 @@
   * Plausibility check?
 
 
+# Configurator
+
+* Configurator to have a shortcut for boilerplate for new light programs
+    E.g. all LEDs pre-defined
+
+* Add support for addressing LEDs without having to use an
+    led x = led[y] statement. This is useful for light patterns where the
+    LED sequence is important. This could be as easy as translating names like
+    'indicator' to the appropriate led[0..31] values.
+
+* Add `local_switch_is_momentary` for MK5
+
+* Make pre-processor configuration in drop-down box
+
+* Add 'save light program as text' button
+
+
 # General improvements
 
 * DOC: When a priority program runs once, and another state takes precedence,
@@ -31,24 +47,6 @@
   are still wrong. Solution is to output constantly in a loop,
   including fade commands!.
   Needs documenting.
-
-* HW: issue with analog servo interfering with ISP
-  Clearly an issue with some servos only. Need to disable ISP and rather provide
-  a software way for those
-
-* TOOL: Configurator to have a shortcut for boilerplate for new light programs
-    E.g. all LEDs pre-defined
-
-* TOOL: Configurator: Add support for addressing LEDs without having to use an
-    led x = led[y] statement. This is useful for light patterns where the
-    LED sequence is important. This could be as easy as translating names like
-    'indicator' to the appropriate led[0..31] values.
-
-* TOOL: Configurator: Make pre-processor configuration in drop-down box
-
-* TOOLS: Add tool to extract light program source out of light controller config
-
-* TOOLS: Add watch folder to ISP tool
 
 * DOC: Add more connection diagrams
     - Overall RC system with preprocessor
