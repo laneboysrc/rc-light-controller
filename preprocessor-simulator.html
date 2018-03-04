@@ -295,7 +295,7 @@
                 // If the value we sent has changed in the meantime we trigger
                 // another transmission to ensure the most recent value is
                 // sent to the rc-sound-module
-                if (sentThrottle !== throttle) {
+                if (sentThrottle != throttle) {
                     sendThrottleCommand();
                 }
             };
@@ -310,7 +310,7 @@
             }
 
             // Ignore multiple events of the same throttle value
-            if (value === throttle) {
+            if (value == throttle) {
                 return;
             }
             throttle = value;
@@ -333,7 +333,7 @@
                 // If the value we sent has changed in the meantime we trigger
                 // another transmission to ensure the most recent value is
                 // sent to the rc-sound-module
-                if (sentSteering !== steering) {
+                if (sentSteering != steering) {
                     sendSteeringCommand();
                 }
             };
@@ -349,7 +349,7 @@
 
 
             // Ignore multiple events of the same throttle value
-            if (value === steering) {
+            if (value == steering) {
                 return;
             }
             steering = value;
@@ -365,17 +365,17 @@
 
         function sendCh3(action) {
             if (elMomentary.checked) {
-                if (action === 'down') {
+                if (action == 'down') {
                     ch3 = 1;
                     send_function("CH3", ch3);
                 }
-                if (action === 'up') {
+                if (action == 'up') {
                     ch3 = 0;
                     send_function("CH3", ch3);
                 }
             }
             else {
-                if (action === 'click') {
+                if (action == 'click') {
                     ch3 = ch3 ? 0 : 1;
                     send_function("CH3", ch3);
                 }
@@ -407,11 +407,11 @@
             let pingTimer;
 
             function ping_callback(msg) {
-                if (msg !== "OK") {
+                if (msg != "OK") {
                     elNotConnected.style.visibility = 'visible';
                 }
                 else {
-                    if (elNotConnected.style.visibility === 'visible') {
+                    if (elNotConnected.style.visibility == 'visible') {
                         reset_ui();
                     }
                     elNotConnected.style.visibility = 'hidden';
@@ -429,18 +429,20 @@
         let update_ui = send_ping;
 
         function keydown_event_handler(event) {
-            if (CH3_KEYS.indexOf(event.key) >= 0) {
+            const key = event.key.toLowerCase();
+            if (CH3_KEYS.indexOf(key) >= 0) {
                 sendCh3('click');
                 sendCh3('down');
             }
-            else if (event.key === 's') {
+            else if (key == 's') {
                 elStartupMode.click();
             }
             return true;
         }
 
         function keyup_event_handler(event) {
-            if (CH3_KEYS.indexOf(event.key) >= 0) {
+            const key = event.key.toLowerCase();
+            if (CH3_KEYS.indexOf(key) >= 0) {
                 sendCh3('up');
             }
             return true;
@@ -517,7 +519,7 @@
 
             try {
                 let result = await webusb_device.controlTransferOut(setup, data);
-                if (result.status === "ok") {
+                if (result.status == "ok") {
                     setTimeout(webusb_send_data, 20);
                 }
                 else {
@@ -534,7 +536,7 @@
             const device = connection_event.device;
             console.log('USB device connected:', device);
             if (!webusb_device) {
-                if (device && device.vendorId === VENDOR_ID) {
+                if (device && device.vendorId == VENDOR_ID) {
                     webusb_connect(device)
                 }
             }
@@ -543,7 +545,7 @@
         function webusb_device_disconnected(connection_event) {
             console.log('USB device disconnected:', connection_event);
             const disconnected_device = connection_event.device;
-            if (webusb_device &&  disconnected_device === webusb_device) {
+            if (webusb_device &&  disconnected_device == webusb_device) {
                 webusb_disconnect();
             }
         }
