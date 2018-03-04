@@ -6,7 +6,6 @@
 #include <usb_samd.h>
 #include <class/cdc/cdc_standard.h>
 #include <class/dfu/dfu.h>
-#include <printf.h>
 #include <usb_bos.h>
 
 bool usbserial_is_write_busy(void);
@@ -285,19 +284,6 @@ static void usbserial_out_completion(void)
         add_uint8_to_receive_buffer(usbserial_buf_out[i]);
     }
 
-
-    // printf("usbserial_out_completion %d \"", length);
-    // for (uint32_t i = 0; i < length ; i++) {
-    //     HAL_putc(STDOUT_DEBUG, usbserial_buf_out[i]);
-    // }
-    // printf("\"\n");
-
-    // if (usbserial_buf_out[0] == 0x87) {
-
-    //     sprintf((char *)usbserial_buf_in, "Hello world\n");
-    //     usb_ep_start_in(USB_EP_CDC_IN, usbserial_buf_in, 12, false);
-    // }
-
     usb_ep_start_out(USB_EP_CDC_OUT, usbserial_buf_out, BUF_SIZE);
 }
 
@@ -346,8 +332,6 @@ static void dfu_send_app_idle(void)
 uint16_t usb_cb_get_descriptor(uint8_t type, uint8_t index, const uint8_t** ptr) {
     const void* address = NULL;
     uint16_t size = 0;
-
-    printf("usb_cb_get_descriptor type=%d index=%d len=%d\n", type, index, usb_setup.wLength);
 
     switch (type) {
         case USB_DTYPE_Device:
@@ -426,9 +410,6 @@ void usb_cb_control_setup(void) {
     uint8_t recipient = usb_setup.bmRequestType & USB_REQTYPE_RECIPIENT_MASK;
     uint8_t requestType = usb_setup.bmRequestType & USB_REQTYPE_TYPE_MASK;
 
-    printf("usb_cb_control_setup bmRequestType=%x bRequest=%d wIndex=%d len=%d\n",
-        usb_setup.bmRequestType, usb_setup.bRequest, usb_setup.wIndex, usb_setup.wLength);
-
     if (recipient == USB_RECIPIENT_INTERFACE) {
         // Forward all DFU related requests
         if (usb_setup.wIndex == USB_INTERFACE_DFU) {
@@ -478,7 +459,6 @@ void usb_cb_control_setup(void) {
 
 // ****************************************************************************
 void usb_cb_control_in_completion(void) {
-    printf("usb_cb_control_in_completion\n");
     send_descriptor_multi();
 }
 

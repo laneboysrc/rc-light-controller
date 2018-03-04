@@ -2,8 +2,6 @@
 
 * Add `local_switch_is_momentary` to configurator
 
-* Remove USB diagnostics
-
 # MK5 PCB
 
 * TLC5940 footprint based on TI datasheet

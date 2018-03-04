@@ -6,7 +6,7 @@
 #include <flash_layout.h>
 #include <printf.h>
 
-#define ENABLE_UART_DIAGNOSTICS
+// #define ENABLE_UART_DIAGNOSTICS
 
 
 typedef struct {
@@ -49,7 +49,6 @@ inline static void gpio_set(const gpio_t gpio)
 {
     PORT->Group[gpio.group].OUTSET.reg = 1 << gpio.pin;
 }
-
 
 // ****************************************************************************
 inline static void gpio_clear(const gpio_t gpio)
@@ -117,7 +116,6 @@ static void init_uart(uint32_t baudrate)
     while (SERCOM0->USART.SYNCBUSY.reg);
 }
 
-
 // ****************************************************************************
 static void uart_putc(void *p, char c)
 {
@@ -125,7 +123,6 @@ static void uart_putc(void *p, char c)
     while (!(SERCOM0->USART.INTFLAG.reg & SERCOM_USART_INTFLAG_DRE));
     SERCOM0->USART.DATA.reg = c;
 }
-
 
 // ****************************************************************************
 static void print_app_diagnostics(void)
@@ -149,12 +146,12 @@ static void LED_breathing(void)
     const uint8_t MAX = 245;
 
     static uint8_t counter = 0;
-    static uint8_t compare = MIN;
+    static uint8_t limit = MIN;
     static bool fade_up = false;
 
     // Simple PWM routined that fades the LED brightness in a triangular fashion.
     // 'counter' runs from 0..255. When it overflows to 0 we turn the LED
-    // on. When counter reaches the 'compare' brightness value, we switch
+    // on. When counter reaches the 'limit' brightness value, we switch
     // the LED off.
     // At every counter overflow we increase/decrease the target brightness
     // until we hit MIN/MAX, where we change direction.
@@ -166,16 +163,16 @@ static void LED_breathing(void)
         gpio_clear(GPIO_LED);
         gpio_clear(GPIO_LED2);
 
-        if (compare <= MIN) {
+        if (limit <= MIN) {
             fade_up = true;
         }
-        else if (compare >= MAX) {
+        else if (limit >= MAX) {
             fade_up = false;
         }
-        compare += (fade_up ? 1 : -1);
+        limit += (fade_up ? 1 : -1);
     }
 
-    if (counter == compare) {
+    if (counter == limit) {
         gpio_set(GPIO_LED);
         gpio_set(GPIO_LED2);
     }
