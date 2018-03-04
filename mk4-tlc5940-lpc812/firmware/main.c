@@ -122,6 +122,7 @@ int main(void)
         config.flags.winch_output;
 
     global_flags.no_signal = true;
+    global_flags.initializing = true;
 
     HAL_hardware_init(is_servo_reader, global_flags.servo_output_enabled, global_flags.uart_output_enabled);
     load_persistent_storage();
@@ -151,6 +152,7 @@ int main(void)
     while (1) {
         service_systick();
 
+        global_flags.new_channel_data = false;
         read_all_servo_channels();
         read_preprocessor();
         process_ch3_clicks();

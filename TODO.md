@@ -11,10 +11,6 @@
 
 # MK4 + MK5
 
-* UART reader should still be operational if servo reader is requested, so that
-  WebUSB or hardware with dedicated UART port still works. The HAL should make
-  the selection based on state.
-
 * It would be great if CH3 as switch would trigger `new_channel_data` independently of the other signals, i.e. set it if no other `new_channel_data` was seen in a certain amount of systicks
 
 * FW: Allow light programs to read input pin states

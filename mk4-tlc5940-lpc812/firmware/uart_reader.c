@@ -56,11 +56,7 @@ typedef enum {
 // ****************************************************************************
 void init_uart_reader(void)
 {
-    if (config.mode != MASTER_WITH_UART_READER) {
-        return;
-    }
-
-    global_flags.initializing = 1;
+    // Nothing to do
 }
 
 
@@ -113,12 +109,15 @@ void read_preprocessor(void)
 
     uint8_t uart_byte;
 
-    if (config.mode != MASTER_WITH_UART_READER) {
-        return;
-    }
 
+    // We let the read_preprocessor function operate even if SERVO_READER
+    // is active, so that for test purpose the UART can still send us
+    // servo data (e.g. via WebUSB, or a dedicated serial port).
+    // It is up to the HAL to make the actual function available.
 
-    global_flags.new_channel_data = false;
+    // if (config.mode != MASTER_WITH_UART_READER) {
+    //     return;
+    // }
 
     while (HAL_getchar_pending()) {
         uart_byte = HAL_getchar();

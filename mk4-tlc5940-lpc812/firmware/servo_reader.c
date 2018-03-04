@@ -29,8 +29,6 @@ void init_servo_reader(void)
     }
 
     HAL_servo_reader_init(config.mode == MASTER_WITH_CPPM_READER, config.servo_pulse_max);
-
-    global_flags.initializing = 1;
 }
 
 
@@ -115,8 +113,6 @@ void read_all_servo_channels(void)
             --servo_reader_timer;
         }
     }
-
-    global_flags.new_channel_data = false;
 
     if (!HAL_servo_reader_get_new_channels(raw_data)) {
         return;
