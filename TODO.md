@@ -5,6 +5,7 @@
 
 * TLC5940 footprint based on TI datasheet
 * Design for stencil 5mil/0.12mm thick
+* Verify Micro-USB footprint fits
 
 # MK4 + MK5
 
