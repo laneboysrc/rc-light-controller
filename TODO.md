@@ -1,5 +1,7 @@
 # MK5
 
+* Fix USB on Windows and Raspi
+
 
 # MK5 PCB
 
