@@ -817,7 +817,7 @@ F 1 "BAT54C" H 1450 6725 50  0000 L CNN
 F 2 "TO_SOT_Packages_SMD:SOT-23" H 1775 6725 50  0001 L CNN
 F 3 "" H 1570 6600 50  0001 C CNN
 	1    1700 6600
-	0    -1   1    0   
+	0    -1   -1   0   
 $EndComp
 $Comp
 L GND #PWR7
