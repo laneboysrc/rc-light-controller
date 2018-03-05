@@ -85,29 +85,42 @@ static const struct {
 
         uint8_t bReserved;
         uint8_t PlatformCapabilityUUID[16];
+        uint32_t dwVersion;
+        uint16_t wLength;
+        uint8_t bVendorCode;
+        uint8_t bAlternateEnumerationCode;
+    } __attribute__((packed)) MS_OS_20_Descriptor;
+
+    struct {
+        uint8_t bLength;
+        uint8_t bDescriptorType;
+        uint8_t bDevCapabilityType;
+
+        uint8_t bReserved;
+        uint8_t PlatformCapabilityUUID[16];
         uint16_t bcdVersion;
         uint8_t bVendorCode;
         uint8_t iLandingPage;
     } __attribute__((packed)) WebUSB_Descriptor;
 
-    // struct {
-    //     uint8_t bLength;
-    //     uint8_t bDescriptorType;
-    //     uint8_t bDevCapabilityType;
-
-    //     uint8_t bReserved;
-    //     uint8_t PlatformCapabilityUUID[16];
-    //     uint32_t dwVersion;
-    //     uint16_t wLength;
-    //     uint8_t bVendorCode;
-    //     uint8_t bAlternateEnumerationCode;
-    // } __attribute__((packed)) MS_OS_20_Descriptor;
-
 } __attribute__((packed)) alignas(4) BOS_Descriptor = {
     .bLength = 5,
     .bDescriptorType = 15,          // Binary Object Store descriptor
     .wTotalLength = sizeof(BOS_Descriptor),
-    .bNumDeviceCaps = 1,
+    .bNumDeviceCaps = 2,
+
+    .MS_OS_20_Descriptor = {
+        .bLength = sizeof(BOS_Descriptor.MS_OS_20_Descriptor),
+        .bDescriptorType = 16,      // "Device Capability" descriptor
+        .bDevCapabilityType = 5,    // "Platform" capability descriptor
+
+        .bReserved = 0,
+        .PlatformCapabilityUUID = {0xdf, 0x60, 0xdd, 0xd8, 0x89, 0x45, 0xc7, 0x4c, 0x9c, 0xd2, 0x65, 0x9d, 0x9e, 0x64, 0x8a, 0x9f},
+        .dwVersion = 0x06030000,    // Windows version (8.1)
+        .wLength = sizeof(MS_OS_20_Descriptor),
+        .bVendorCode = VENDOR_CODE_MS,
+        .bAlternateEnumerationCode = 0
+    },
 
     .WebUSB_Descriptor = {
         .bLength = sizeof(BOS_Descriptor.WebUSB_Descriptor),
@@ -119,20 +132,7 @@ static const struct {
         .bcdVersion = 0x0100,
         .bVendorCode = VENDOR_CODE_WEBUSB,
         .iLandingPage = 1
-    },
-
-    // .MS_OS_20_Descriptor = {
-    //     .bLength = sizeof(BOS_Descriptor.MS_OS_20_Descriptor),
-    //     .bDescriptorType = 16,      // "Device Capability" descriptor
-    //     .bDevCapabilityType = 5,    // "Platform" capability descriptor
-
-    //     .bReserved = 0,
-    //     .PlatformCapabilityUUID = {0xdf, 0x60, 0xdd, 0xd8, 0x89, 0x45, 0xc7, 0x4c, 0x9c, 0xd2, 0x65, 0x9d, 0x9e, 0x64, 0x8a, 0x9f},
-    //     .dwVersion = 0x06030000,    // Windows version (8.1)
-    //     .wLength = sizeof(MS_OS_20_Descriptor),
-    //     .bVendorCode = VENDOR_CODE_MS,
-    //     .bAlternateEnumerationCode = 0
-    // }
+    }
 };
 
 // #define URL1 "laneboysrc.github.io/rc-light-controller"
