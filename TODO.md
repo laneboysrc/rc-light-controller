@@ -2,6 +2,7 @@
 
 * Fix USB on Windows and Raspi
 
+* WebUSB: append ?vid=&serial= to URL
 
 # MK5 PCB
 
