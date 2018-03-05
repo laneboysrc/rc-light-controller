@@ -29,7 +29,7 @@ USB_ENDPOINTS(3)
 #define USB_DTYPE_BOS 15
 #define WEBUSB_REQUEST_GET_URL 2
 
-#define USB_NUMBER_OF_INTERFACES 3
+#define USB_NUMBER_OF_INTERFACES 1
 #define USB_INTERFACE_DFU 0
 #define USB_INTERFACE_CDC_CONTROL 1
 #define USB_INTERFACE_CDC_DATA 2
@@ -116,7 +116,7 @@ static alignas(4) const configuration_descriptor_t configuration_descriptor = {
         .bFunctionClass = DFU_INTERFACE_CLASS,
         .bFunctionSubClass = DFU_INTERFACE_SUBCLASS,
         .bFunctionProtocol = DFU_RUNTIME_PROTOCOL,
-        .iFunction = 0,
+        .iFunction = USB_STRING_DFU,
     },
 
     .DFU_interface = {
@@ -147,7 +147,7 @@ static alignas(4) const configuration_descriptor_t configuration_descriptor = {
         .bFunctionClass = CDC_INTERFACE_CLASS,
         .bFunctionSubClass = CDC_INTERFACE_SUBCLASS_ACM,
         .bFunctionProtocol = 0,         // USB_CDC_PROTOCOL_NONE
-        .iFunction = 0,
+        .iFunction = USB_STRING_UART,
     },
 
     .CDC_control_interface = {

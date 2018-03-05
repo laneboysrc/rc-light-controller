@@ -106,7 +106,7 @@ static const struct {
 } __attribute__((packed)) alignas(4) BOS_Descriptor = {
     .bLength = 5,
     .bDescriptorType = 15,          // Binary Object Store descriptor
-    .wTotalLength = sizeof(BOS_Descriptor),
+    .wTotalLength = 5 + sizeof(BOS_Descriptor.MS_OS_20_Descriptor) + sizeof(BOS_Descriptor.WebUSB_Descriptor),
     .bNumDeviceCaps = 2,
 
     .MS_OS_20_Descriptor = {
