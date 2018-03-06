@@ -53,7 +53,7 @@ static const uint8_t* data;
 static uint16_t data_length;
 
 
-static alignas(4) const USB_DeviceDescriptor device_descriptor = {
+static const USB_DeviceDescriptor device_descriptor = {
     .bLength = sizeof(USB_DeviceDescriptor),
     .bDescriptorType = USB_DTYPE_Device,
 
@@ -96,7 +96,7 @@ typedef struct {
 }  __attribute__((packed)) configuration_descriptor_t;
 
 
-static alignas(4) const configuration_descriptor_t configuration_descriptor = {
+static const configuration_descriptor_t configuration_descriptor = {
     .Config = {
         .bLength = sizeof(USB_ConfigurationDescriptor),
         .bDescriptorType = USB_DTYPE_Configuration,
@@ -223,7 +223,7 @@ static const struct {
     uint8_t bLength;
     uint8_t bDescriptorType;
     __CHAR16_TYPE__ bString[1];
-}  __attribute__ ((packed)) alignas(4) language_string = {
+}  __attribute__ ((packed)) language_string = {
     .bLength = USB_STRING_LEN(1),
     .bDescriptorType = USB_DTYPE_String,
     .bString = { USB_LANGUAGE_EN_US }

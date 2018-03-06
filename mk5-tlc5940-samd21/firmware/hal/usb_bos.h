@@ -89,7 +89,7 @@ typedef struct {
 } __attribute__((packed)) ms_os_20_descriptor_t;
 
 
-static alignas(4) const ms_os_20_descriptor_t ms_os_20_descriptor = {
+static const ms_os_20_descriptor_t ms_os_20_descriptor = {
     .Descriptor_Set_Header = {
         .wLength = sizeof(ms_os_20_descriptor.Descriptor_Set_Header),
         .wHeaderType = 0,           // MS OS 2.0 descriptor set header
@@ -121,18 +121,15 @@ static alignas(4) const ms_os_20_descriptor_t ms_os_20_descriptor = {
 };
 
 
-static alignas(4) const landing_page_descriptor_t landing_page_descriptor = {
+static const landing_page_descriptor_t landing_page_descriptor = {
     .bLength = 3 + sizeof(URL1),
     .bDescriptorType = 3,       // WebUSB URL
     .bScheme = 1,               // https://
     .URL = URL1
 };
 
-// IMPORTANT: always use sizeof(struct) and not sizeof(const_variable) because
-// alignas(4) causes padding, which leads to an improper number of bytes sent
-// to the USB host
 
-static alignas(4) const bos_descriptor_t bos_descriptor = {
+static const bos_descriptor_t bos_descriptor = {
     .bLength = 5,
     .bDescriptorType = 15,          // Binary Object Store descriptor
     .wTotalLength = sizeof(bos_descriptor_t),
