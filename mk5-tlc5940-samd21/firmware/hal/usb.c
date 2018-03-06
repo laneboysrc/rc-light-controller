@@ -74,7 +74,6 @@ static alignas(4) const USB_DeviceDescriptor device_descriptor = {
     .bNumConfigurations = 1
 };
 
-
 typedef struct {
     USB_ConfigurationDescriptor Config;
 
@@ -95,6 +94,7 @@ typedef struct {
     USB_EndpointDescriptor CDC_out_endpoint;
     USB_EndpointDescriptor CDC_in_endpoint;
 }  __attribute__((packed)) configuration_descriptor_t;
+
 
 static alignas(4) const configuration_descriptor_t configuration_descriptor = {
     .Config = {
@@ -341,7 +341,7 @@ uint16_t usb_cb_get_descriptor(uint8_t type, uint8_t index, const uint8_t** ptr)
 
         case USB_DTYPE_Configuration:
             address = &configuration_descriptor;
-            size = sizeof(configuration_descriptor);
+            size = sizeof(configuration_descriptor_t);
             break;
 
         case USB_DTYPE_String:
@@ -373,12 +373,12 @@ uint16_t usb_cb_get_descriptor(uint8_t type, uint8_t index, const uint8_t** ptr)
                 default:
                     break;
             }
-            size = (((USB_StringDescriptor*)address))->bLength;
+            size = (((USB_StringDescriptor *)address))->bLength;
             break;
 
         case USB_DTYPE_BOS:
-            address = &BOS_Descriptor;
-            size = sizeof(BOS_Descriptor);
+            address = &bos_descriptor;
+            size = (((USB_StringDescriptor *)address))->bLength;
             break;
 
         default:
@@ -434,13 +434,13 @@ void usb_cb_control_setup(void) {
         switch(usb_setup.bRequest) {
             case VENDOR_CODE_WEBUSB:
                 if (usb_setup.wIndex == WEBUSB_REQUEST_GET_URL) {
-                    send_descriptor(&LandingPageDescriptor, sizeof(LandingPageDescriptor));
+                    send_descriptor(&landing_page_descriptor, sizeof(landing_page_descriptor_t));
                     return;
                 }
                 break;
 
             case VENDOR_CODE_MS:
-                send_descriptor(&MS_OS_20_Descriptor, sizeof(MS_OS_20_Descriptor));
+                send_descriptor(&ms_os_20_descriptor, sizeof(ms_os_20_descriptor_t));
                 return;
 
             case VENDOR_CODE_SIMULATOR:
