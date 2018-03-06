@@ -378,7 +378,7 @@ uint16_t usb_cb_get_descriptor(uint8_t type, uint8_t index, const uint8_t** ptr)
 
         case USB_DTYPE_BOS:
             address = &bos_descriptor;
-            size = (((USB_StringDescriptor *)address))->bLength;
+            size = sizeof(bos_descriptor_t);
             break;
 
         default:
