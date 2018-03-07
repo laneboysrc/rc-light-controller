@@ -445,6 +445,7 @@ void usb_cb_control_setup(void) {
                    send_descriptor(&ms_os_20_descriptor, sizeof(ms_os_20_descriptor_t));
                     return;
                 }
+                break;
 
             case VENDOR_CODE_SIMULATOR:
                 usb_ep0_out();
