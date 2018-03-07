@@ -28,6 +28,7 @@ USB_ENDPOINTS(3)
 
 #define USB_DTYPE_BOS 15
 #define WEBUSB_REQUEST_GET_URL 2
+#define WINUSB_REQUEST_DESCRIPTOR 7
 
 #define USB_NUMBER_OF_INTERFACES 1
 #define USB_INTERFACE_DFU 0
@@ -53,27 +54,6 @@ static const uint8_t* data;
 static uint16_t data_length;
 
 
-static const USB_DeviceDescriptor device_descriptor = {
-    .bLength = sizeof(USB_DeviceDescriptor),
-    .bDescriptorType = USB_DTYPE_Device,
-
-    .bcdUSB = 0x0210,
-    .bDeviceClass = USB_CSCP_NoDeviceClass,
-    .bDeviceSubClass = USB_CSCP_NoDeviceSubclass,
-    .bDeviceProtocol = USB_CSCP_NoDeviceProtocol,
-
-    .bMaxPacketSize0 = 64,
-    .idVendor = 0x6666,
-    .idProduct = 0xcab1,
-    .bcdDevice = 0x0103,
-
-    .iManufacturer = USB_STRING_MANUFACTURER,
-    .iProduct = USB_STRING_PRODUCT,
-    .iSerialNumber = USB_STRING_SERIAL_NUMBER,
-
-    .bNumConfigurations = 1
-};
-
 typedef struct {
     USB_ConfigurationDescriptor Config;
 
@@ -95,12 +75,39 @@ typedef struct {
     USB_EndpointDescriptor CDC_in_endpoint;
 }  __attribute__((packed)) configuration_descriptor_t;
 
+typedef struct {
+    uint8_t bLength;
+    uint8_t bDescriptorType;
+    __CHAR16_TYPE__ bString[1];
+}  __attribute__ ((packed)) language_string_t;
+
+
+static const USB_DeviceDescriptor device_descriptor = {
+    .bLength = sizeof(USB_DeviceDescriptor),
+    .bDescriptorType = USB_DTYPE_Device,
+
+    .bcdUSB = 0x0210,
+    .bDeviceClass = USB_CSCP_NoDeviceClass,
+    .bDeviceSubClass = USB_CSCP_NoDeviceSubclass,
+    .bDeviceProtocol = USB_CSCP_NoDeviceProtocol,
+
+    .bMaxPacketSize0 = 64,
+    .idVendor = 0x6666,
+    .idProduct = 0xcab1,
+    .bcdDevice = 0x0103,
+
+    .iManufacturer = USB_STRING_MANUFACTURER,
+    .iProduct = USB_STRING_PRODUCT,
+    .iSerialNumber = USB_STRING_SERIAL_NUMBER,
+
+    .bNumConfigurations = 1
+};
 
 static const configuration_descriptor_t configuration_descriptor = {
     .Config = {
         .bLength = sizeof(USB_ConfigurationDescriptor),
         .bDescriptorType = USB_DTYPE_Configuration,
-        .wTotalLength  = sizeof(configuration_descriptor_t),
+        .wTotalLength  = sizeof(configuration_descriptor),
         .bNumInterfaces = USB_NUMBER_OF_INTERFACES,
         .bConfigurationValue = 1,
         .iConfiguration = 0,
@@ -218,17 +225,11 @@ static const configuration_descriptor_t configuration_descriptor = {
     }
 };
 
-
-static const struct {
-    uint8_t bLength;
-    uint8_t bDescriptorType;
-    __CHAR16_TYPE__ bString[1];
-}  __attribute__ ((packed)) language_string = {
+static const language_string_t language_string = {
     .bLength = USB_STRING_LEN(1),
     .bDescriptorType = USB_DTYPE_String,
     .bString = { USB_LANGUAGE_EN_US }
 };
-
 
 
 // ****************************************************************************
@@ -440,8 +441,10 @@ void usb_cb_control_setup(void) {
                 break;
 
             case VENDOR_CODE_MS:
-                send_descriptor(&ms_os_20_descriptor, sizeof(ms_os_20_descriptor_t));
-                return;
+                if (usb_setup.wIndex == WINUSB_REQUEST_DESCRIPTOR) {
+                   send_descriptor(&ms_os_20_descriptor, sizeof(ms_os_20_descriptor_t));
+                    return;
+                }
 
             case VENDOR_CODE_SIMULATOR:
                 usb_ep0_out();
