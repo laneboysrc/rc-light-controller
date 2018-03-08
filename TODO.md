@@ -4,6 +4,8 @@
 
 * WebUSB: append ?vid=&serial= to URL
 
+* Tidy-up the bootloader descriptors (e.g. alignas(4))
+
 # MK5 PCB
 
 * TLC5940 footprint based on TI datasheet
