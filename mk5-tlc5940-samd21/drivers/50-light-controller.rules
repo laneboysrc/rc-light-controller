@@ -13,4 +13,5 @@
 # light controller.
 #
 
-SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", GROUP="plugdev", MODE="0664"
+SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTRS{idVendor}=="6666", ATTRS{idProduct}=="cab0", MODE="0666"
+SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTRS{idVendor}=="6666", ATTRS{idProduct}=="cab1", MODE="0666"
