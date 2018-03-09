@@ -16,9 +16,14 @@
 #define DFU_RUNTIME_PROTOCOL 1
 #define DFU_DFU_MODE_PROTOCOL 2
 
-#define USB_INTERFACE_DFU 0
-
+#define USB_DTYPE_BOS 15
 #define WEBUSB_REQUEST_GET_URL 2
+#define WINUSB_REQUEST_DESCRIPTOR 7
+
+enum {
+    USB_INTERFACE_DFU,
+    USB_NUMBER_OF_INTERFACES
+};
 
 #define USB_STRING_LANGUAGE 0
 #define USB_STRING_MANUFACTURER 1
@@ -27,8 +32,6 @@
 #define USB_STRING_DFU 4
 
 #define USB_EP0 (USB_IN + 0)
-
-#define MSFT_ID 0xee
 
 // Declare the endpoints in use.
 USB_ENDPOINTS(1)
@@ -40,7 +43,25 @@ extern volatile bool bootloader_done;
 static const uint8_t* data;
 static uint16_t data_length;
 
-alignas(4) const USB_DeviceDescriptor device_descriptor = {
+
+typedef struct {
+    USB_ConfigurationDescriptor Config;
+
+    USB_InterfaceAssociationDescriptor DFU_interface_association;
+
+    USB_InterfaceDescriptor DFU_interface;
+    DFU_FunctionalDescriptor DFU_functional;
+
+}  __attribute__((packed)) configuration_descriptor_t;
+
+typedef struct {
+    uint8_t bLength;
+    uint8_t bDescriptorType;
+    __CHAR16_TYPE__ bString[1];
+} __attribute__ ((packed)) language_string_t;
+
+
+const USB_DeviceDescriptor device_descriptor = {
     .bLength = sizeof(USB_DeviceDescriptor),
     .bDescriptorType = USB_DTYPE_Device,
 
@@ -61,23 +82,12 @@ alignas(4) const USB_DeviceDescriptor device_descriptor = {
     .bNumConfigurations = 1
 };
 
-
-typedef struct ConfigDesc {
-    USB_ConfigurationDescriptor Config;
-
-    USB_InterfaceAssociationDescriptor DFU_interface_association;
-
-    USB_InterfaceDescriptor DFU_interface;
-    DFU_FunctionalDescriptor DFU_functional;
-
-}  __attribute__((packed)) ConfigDesc;
-
-alignas(4) const ConfigDesc configuration_descriptor = {
+const configuration_descriptor_t configuration_descriptor = {
     .Config = {
         .bLength = sizeof(USB_ConfigurationDescriptor),
         .bDescriptorType = USB_DTYPE_Configuration,
-        .wTotalLength  = sizeof(ConfigDesc),
-        .bNumInterfaces = 1,
+        .wTotalLength  = sizeof(configuration_descriptor_t),
+        .bNumInterfaces = USB_NUMBER_OF_INTERFACES,
         .bConfigurationValue = 1,
         .iConfiguration = 0,
         .bmAttributes = USB_CONFIG_ATTR_BUSPOWERED,
@@ -116,19 +126,11 @@ alignas(4) const ConfigDesc configuration_descriptor = {
     }
 };
 
-
-typedef struct {
-    uint8_t bLength;
-    uint8_t bDescriptorType;
-    __CHAR16_TYPE__ bString[1];
-} __attribute__ ((packed)) language_string_t;
-
-alignas(4) const language_string_t language_string = {
+const language_string_t language_string = {
     .bLength = USB_STRING_LEN(1),
     .bDescriptorType = USB_DTYPE_String,
     .bString = { USB_LANGUAGE_EN_US }
 };
-
 
 
 
@@ -188,6 +190,7 @@ void dfu_cb_dnload_packet_completed(uint16_t block_number, uint16_t offset, uint
 unsigned dfu_cb_dnload_block_completed(uint16_t block_number, uint16_t length) {
     (void) block_number;
     (void) length;
+
     return 0;
 }
 
@@ -249,7 +252,7 @@ uint16_t usb_cb_get_descriptor(uint8_t type, uint8_t index, const uint8_t** ptr)
 
         case USB_DTYPE_Configuration:
             address = &configuration_descriptor;
-            size = sizeof(ConfigDesc);
+            size = sizeof(configuration_descriptor_t);
             break;
 
         case USB_DTYPE_String:
@@ -278,6 +281,11 @@ uint16_t usb_cb_get_descriptor(uint8_t type, uint8_t index, const uint8_t** ptr)
                     break;
             }
             size = (((USB_StringDescriptor*)address))->bLength;
+            break;
+
+        case USB_DTYPE_BOS:
+            address = &bos_descriptor;
+            size = sizeof(bos_descriptor_t);
             break;
 
         default:
@@ -336,14 +344,17 @@ void usb_cb_control_setup(void) {
         switch(usb_setup.bRequest) {
             case VENDOR_CODE_WEBUSB:
                 if (usb_setup.wIndex == WEBUSB_REQUEST_GET_URL) {
-                    send_descriptor(&LandingPageDescriptor, sizeof(LandingPageDescriptor));
+                    send_descriptor(&landing_page_descriptor, sizeof(landing_page_descriptor_t));
                     return;
                 }
                 break;
 
             case VENDOR_CODE_MS:
-                send_descriptor(&MS_OS_20_Descriptor, sizeof(MS_OS_20_Descriptor));
-                return;
+                if (usb_setup.wIndex == WINUSB_REQUEST_DESCRIPTOR) {
+                   send_descriptor(&ms_os_20_descriptor, sizeof(ms_os_20_descriptor_t));
+                    return;
+                }
+                break;
 
             default:
                 break;
