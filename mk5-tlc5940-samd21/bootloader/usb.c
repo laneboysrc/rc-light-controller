@@ -33,6 +33,7 @@ enum {
 
 #define USB_EP0 (USB_IN + 0)
 
+
 // Declare the endpoints in use.
 USB_ENDPOINTS(1)
 
@@ -61,7 +62,7 @@ typedef struct {
 } __attribute__ ((packed)) language_string_t;
 
 
-const USB_DeviceDescriptor device_descriptor = {
+static const USB_DeviceDescriptor device_descriptor = {
     .bLength = sizeof(USB_DeviceDescriptor),
     .bDescriptorType = USB_DTYPE_Device,
 
@@ -73,7 +74,7 @@ const USB_DeviceDescriptor device_descriptor = {
     .bMaxPacketSize0 = 64,
     .idVendor = 0x6666,
     .idProduct = 0xcab0,
-    .bcdDevice = 0x0103,
+    .bcdDevice = 0x0104,
 
     .iManufacturer = USB_STRING_MANUFACTURER,
     .iProduct = USB_STRING_PRODUCT,
@@ -82,7 +83,7 @@ const USB_DeviceDescriptor device_descriptor = {
     .bNumConfigurations = 1
 };
 
-const configuration_descriptor_t configuration_descriptor = {
+static const configuration_descriptor_t configuration_descriptor = {
     .Config = {
         .bLength = sizeof(USB_ConfigurationDescriptor),
         .bDescriptorType = USB_DTYPE_Configuration,
@@ -102,7 +103,7 @@ const configuration_descriptor_t configuration_descriptor = {
         .bFunctionClass = DFU_INTERFACE_CLASS,
         .bFunctionSubClass = DFU_INTERFACE_SUBCLASS,
         .bFunctionProtocol = DFU_DFU_MODE_PROTOCOL,
-        .iFunction = 0,
+        .iFunction = USB_STRING_DFU,
     },
 
     .DFU_interface = {
@@ -126,7 +127,7 @@ const configuration_descriptor_t configuration_descriptor = {
     }
 };
 
-const language_string_t language_string = {
+static const language_string_t language_string = {
     .bLength = USB_STRING_LEN(1),
     .bDescriptorType = USB_DTYPE_String,
     .bString = { USB_LANGUAGE_EN_US }
@@ -278,7 +279,8 @@ uint16_t usb_cb_get_descriptor(uint8_t type, uint8_t index, const uint8_t** ptr)
                     break;
 
                 default:
-                    break;
+                    *ptr = NULL;
+                    return 0;
             }
             size = (((USB_StringDescriptor*)address))->bLength;
             break;
@@ -351,7 +353,7 @@ void usb_cb_control_setup(void) {
 
             case VENDOR_CODE_MS:
                 if (usb_setup.wIndex == WINUSB_REQUEST_DESCRIPTOR) {
-                   send_descriptor(&ms_os_20_descriptor, sizeof(ms_os_20_descriptor_t));
+                    send_descriptor(&ms_os_20_descriptor, sizeof(ms_os_20_descriptor_t));
                     return;
                 }
                 break;
