@@ -26,11 +26,10 @@ typedef struct {
 
         uint8_t bReserved;
         uint8_t PlatformCapabilityUUID[16];
-        uint32_t dwVersion;
-        uint16_t wLength;
+        uint16_t bcdVersion;
         uint8_t bVendorCode;
-        uint8_t bAlternateEnumerationCode;
-    } __attribute__((packed)) MS_OS_20_Descriptor;
+        uint8_t iLandingPage;
+    } __attribute__((packed)) WebUSB_Descriptor;
 
     struct {
         uint8_t bLength;
@@ -39,10 +38,11 @@ typedef struct {
 
         uint8_t bReserved;
         uint8_t PlatformCapabilityUUID[16];
-        uint16_t bcdVersion;
+        uint32_t dwVersion;
+        uint16_t wLength;
         uint8_t bVendorCode;
-        uint8_t iLandingPage;
-    } __attribute__((packed)) WebUSB_Descriptor;
+        uint8_t bAlternateEnumerationCode;
+    } __attribute__((packed)) MS_OS_20_Descriptor;
 
 } __attribute__((packed)) bos_descriptor_t;
 
@@ -63,21 +63,21 @@ typedef struct {
         uint16_t wSize;
     } __attribute__((packed)) Descriptor_Set_Header;
 
-    struct {
-        uint16_t wLength;
-        uint16_t wHeaderType;
-        uint8_t bConfigurationValue;
-        uint8_t bReserved;
-        uint16_t wSize;
-    } __attribute__((packed)) Configuration_Subset_Header;
+    // struct {
+    //     uint16_t wLength;
+    //     uint16_t wHeaderType;
+    //     uint8_t bConfigurationValue;
+    //     uint8_t bReserved;
+    //     uint16_t wSize;
+    // } __attribute__((packed)) Configuration_Subset_Header;
 
-    struct {
-        uint16_t wLength;
-        uint16_t wHeaderType;
-        uint8_t iFirstInterfaceNumber;
-        uint8_t bReserved;
-        uint16_t wSize;
-    } __attribute__((packed)) Function_Subset_Header;
+    // struct {
+    //     uint16_t wLength;
+    //     uint16_t wHeaderType;
+    //     uint8_t iFirstInterfaceNumber;
+    //     uint8_t bReserved;
+    //     uint16_t wSize;
+    // } __attribute__((packed)) Function_Subset_Header;
 
     struct {
         uint16_t wLength;
@@ -94,6 +94,18 @@ static const bos_descriptor_t bos_descriptor = {
     .wTotalLength = sizeof(bos_descriptor),
     .bNumDeviceCaps = 2,
 
+    .WebUSB_Descriptor = {
+        .bLength = sizeof(bos_descriptor.WebUSB_Descriptor),
+        .bDescriptorType = 16,      // "Device Capability" descriptor
+        .bDevCapabilityType = 5,    // "Platform" capability descriptor
+
+        .bReserved = 0,
+        .PlatformCapabilityUUID = {0x38, 0xb6, 0x08, 0x34, 0xa9, 0x09, 0xa0, 0x47, 0x8b, 0xfd, 0xa0, 0x76, 0x88, 0x15, 0xb6, 0x65},
+        .bcdVersion = 0x0100,
+        .bVendorCode = VENDOR_CODE_WEBUSB,
+        .iLandingPage = 1
+    },
+
     .MS_OS_20_Descriptor = {
         .bLength = sizeof(bos_descriptor.MS_OS_20_Descriptor),
         .bDescriptorType = 16,      // "Device Capability" descriptor
@@ -105,18 +117,6 @@ static const bos_descriptor_t bos_descriptor = {
         .wLength = sizeof(ms_os_20_descriptor_t),
         .bVendorCode = VENDOR_CODE_MS,
         .bAlternateEnumerationCode = 0
-    },
-
-    .WebUSB_Descriptor = {
-        .bLength = sizeof(bos_descriptor.WebUSB_Descriptor),
-        .bDescriptorType = 16,      // "Device Capability" descriptor
-        .bDevCapabilityType = 5,    // "Platform" capability descriptor
-
-        .bReserved = 0,
-        .PlatformCapabilityUUID = {0x38, 0xb6, 0x08, 0x34, 0xa9, 0x09, 0xa0, 0x47, 0x8b, 0xfd, 0xa0, 0x76, 0x88, 0x15, 0xb6, 0x65},
-        .bcdVersion = 0x0100,
-        .bVendorCode = VENDOR_CODE_WEBUSB,
-        .iLandingPage = 1
     }
 };
 
@@ -135,21 +135,21 @@ static const ms_os_20_descriptor_t ms_os_20_descriptor = {
         .wSize = sizeof(ms_os_20_descriptor)
     },
 
-    .Configuration_Subset_Header = {
-        .wLength = sizeof(ms_os_20_descriptor.Configuration_Subset_Header),
-        .wHeaderType = 1,       // MS OS 2.0 configuration subset header
-        .bConfigurationValue = 0,
-        .bReserved = 0,
-        .wSize = 36
-    },
+    // .Configuration_Subset_Header = {
+    //     .wLength = sizeof(ms_os_20_descriptor.Configuration_Subset_Header),
+    //     .wHeaderType = 1,       // MS OS 2.0 configuration subset header
+    //     .bConfigurationValue = 0,
+    //     .bReserved = 0,
+    //     .wSize = 36
+    // },
 
-    .Function_Subset_Header = {
-        .wLength = sizeof(ms_os_20_descriptor.Function_Subset_Header),
-        .wHeaderType = 2,       // MS OS 2.0 function subset header
-        .iFirstInterfaceNumber = 0,
-        .bReserved = 0,
-        .wSize = 28
-    },
+    // .Function_Subset_Header = {
+    //     .wLength = sizeof(ms_os_20_descriptor.Function_Subset_Header),
+    //     .wHeaderType = 2,       // MS OS 2.0 function subset header
+    //     .iFirstInterfaceNumber = 0,
+    //     .bReserved = 0,
+    //     .wSize = 28
+    // },
 
     .Compatible_Id_Descriptor = {
         .wLength = sizeof(ms_os_20_descriptor.Compatible_Id_Descriptor),
