@@ -2,13 +2,17 @@
 
 * UART emulation over WebUSB
 
-* Separate interface for DFU and Control?
+* Remove CDC
+
+* Separate interface for DFU and control
 
 * Remove UART from driver
 
-* Make short URL for WebUSB configurator
-
 * Add SYMLINK and ACL to udev rules, see Trezor
+
+* Investigate outputs sometimes not working on Android board
+
+* Make DEB for udev rules, see Trezor
 
 # MK5 PCB
 
@@ -30,6 +34,8 @@
 
 
 # Configurator
+
+* Go-based stand-alone program, and on-line WebUSB
 
 * Refactor UI using BetaFlight as inspiration (Tabs, left side menu)
 
