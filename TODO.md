@@ -1,20 +1,14 @@
 # MK5
 
-* Fix USB on Windows and Raspi
-
-* WebUSB: append ?vid=&serial= to URL
-
-* Tidy-up the bootloader descriptors (e.g. alignas(4))
-
 # MK5 PCB
 
 * TLC5940 footprint based on TI datasheet
-* Design for stencil 5mil/0.12mm thick
+* Output stencil 5mil/0.12mm thick
 * Verify Micro-USB footprint fits
 
 # MK4 + MK5
 
-* It would be great if CH3 as switch would trigger `new_channel_data` independently of the other signals, i.e. set it if no other `new_channel_data` was seen in a certain amount of systicks
+* Support servo reader and uart reader, just lights based on light program and local button push
 
 * FW: Allow light programs to read input pin states
 
