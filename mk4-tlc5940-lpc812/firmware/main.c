@@ -72,6 +72,11 @@ static void check_no_signal(void)
 {
     static uint16_t no_signal_timeout = 0;
 
+    if (config.mode == STAND_ALONE) {
+        global_flags.no_signal = false;
+        return;
+    }
+
     if (global_flags.new_channel_data) {
         global_flags.no_signal = false;
         no_signal_timeout = config.no_signal_timeout;
@@ -121,8 +126,10 @@ int main(void)
         config.flags.preprocessor_output ||
         config.flags.winch_output;
 
-    global_flags.no_signal = true;
-    global_flags.initializing = true;
+    if (config.mode != STAND_ALONE) {
+        global_flags.no_signal = true;
+        global_flags.initializing = true;
+    }
 
     HAL_hardware_init(is_servo_reader, global_flags.servo_output_enabled, global_flags.uart_output_enabled);
     load_persistent_storage();

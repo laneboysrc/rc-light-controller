@@ -2,11 +2,13 @@
 
 * UART emulation over WebUSB
 
-* Remove UART from driver
-
 * Separate interface for DFU and Control?
 
+* Remove UART from driver
+
 * Make short URL for WebUSB configurator
+
+* Add SYMLINK and ACL to udev rules, see Trezor
 
 # MK5 PCB
 
@@ -15,10 +17,6 @@
 * Verify Micro-USB footprint fits
 
 # MK4 + MK5
-
-* Support servo reader and uart reader, just lights based on light program and local button push
-
-* FW: Allow light programs to read input pin states
 
 * FW: Add Xenon lamp simulation
 
@@ -48,7 +46,9 @@
 
 * Add `local_switch_is_momentary` for MK5
 
-* Make pre-processor configuration in drop-down box
+* Add `stand-alone` mode
+
+* Make `pre-processor` a configuration in the drop-down box
 
 * Add 'save light program as text' button
 

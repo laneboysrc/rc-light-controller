@@ -190,13 +190,19 @@ void process_ch3_clicks(void)
         ch3_flags.initialized = false;
     }
 
-    if (!global_flags.new_channel_data) {
-        return;
+    // Ignore the new channel data flag in STAND ALONE mode, but bail out
+    // if it is set in any other mode.
+    if (config.mode != STAND_ALONE) {
+        if (!global_flags.new_channel_data) {
+            return;
+        }
     }
 
     if (!ch3_flags.initialized) {
         ch3_flags.initialized = true;
         ch3_flags.last_state = (channel[CH3].normalized > 0) ? true : false;
+
+        // Flush the pending switch state, if any
         HAL_switch_triggered();
         return;
     }
