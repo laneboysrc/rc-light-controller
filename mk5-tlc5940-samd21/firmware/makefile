@@ -38,6 +38,7 @@ CONFIGURATION_VALIDATION_TOOL := $(TOOL_PATH)validate_image_file.py
 LIGHT_PROGRAM_ASSEMBLER_PATH := $(TOOL_PATH)configurator/assembler
 DEFAULT_FIRMWARE_IMAGE_JS := $(TOOL_PATH)configurator/src/default_firmware_image.js
 TEXT2JS := $(TOOL_PATH)text2js.py
+BOSSAC := ~/.arduino15/packages/arduino/tools/bossac/1.7.0/bossac
 
 ###############################################################################
 # Source files    Note: all source files must be relative paths!
@@ -212,6 +213,10 @@ program: $(TARGET_ELF_WITH_BOOTLOADER)
 	#	$(ECHO) $(FLASH_TOOL) -c "init; reset halt ; at91samd bootloader 0; reset halt ; flash write_image $< ; at91samd bootloader 8192; reset ; exit"
 
 flash: program
+
+flash-arduino: $(TARGET_BIN)
+	@echo [PROGRAM ARDUINO] $<
+	$(BOSSAC) -e -w -v -R $<
 
 # Load the program using the USB DFU (Device Firmware Upgrade) tool
 # This will only work when the bootloader is already present in the device
