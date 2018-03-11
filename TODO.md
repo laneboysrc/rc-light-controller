@@ -1,5 +1,13 @@
 # MK5
 
+* UART emulation over WebUSB
+
+* Remove UART from driver
+
+* Separate interface for DFU and Control?
+
+* Make short URL for WebUSB configurator
+
 # MK5 PCB
 
 * TLC5940 footprint based on TI datasheet
@@ -24,6 +32,11 @@
 
 
 # Configurator
+
+* Refactor UI using BetaFlight as inspiration (Tabs, left side menu)
+
+* Add MK5
+  * How to determine whether MK4 or MK5 firmware? Use Stack pointer location?
 
 * Configurator to have a shortcut for boilerplate for new light programs
     E.g. all LEDs pre-defined
