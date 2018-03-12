@@ -3,10 +3,11 @@ DriverPackageDisplayName="RC Light Controller Mk5 DFU Driver"
 ManufacturerName="LANE Boys RC"
 ServiceName="DFU"
 rc_light_controller.dfu.DeviceName="RC Light Controller (DFU)"
+rc_light_controller.test.DeviceName="RC Light Controller (Test)"
 rc_light_controller.dfu.boot.DeviceName="RC Light Controller (DFU-bootloader)"
 
 [DefaultInstall]
-CopyINF=rc-light-controller-dfu.inf
+CopyINF=rc-light-controller.inf
 
 [Version]
 Class=USBDevice
@@ -26,14 +27,17 @@ DefaultDestDir=12
 
 [DeviceList]
 %rc_light_controller.dfu.DeviceName%=DriverInstall, USB\VID_6666&PID_CAB1&MI_00
+%rc_light_controller.test.DeviceName%=DriverInstall, USB\VID_6666&PID_CAB1&MI_01
 %rc_light_controller.dfu.boot.DeviceName%=DriverInstall, USB\VID_6666&PID_CAB0
 
 [DeviceList.NTamd64]
 %rc_light_controller.dfu.DeviceName%=DriverInstall, USB\VID_6666&PID_CAB1&MI_00
+%rc_light_controller.test.DeviceName%=DriverInstall, USB\VID_6666&PID_CAB1&MI_01
 %rc_light_controller.dfu.boot.DeviceName%=DriverInstall, USB\VID_6666&PID_CAB0
 
 [DeviceList.NTia64]
 %rc_light_controller.dfu.DeviceName%=DriverInstall, USB\VID_6666&PID_CAB1&MI_00
+%rc_light_controller.test.DeviceName%=DriverInstall, USB\VID_6666&PID_CAB1&MI_01
 %rc_light_controller.dfu.boot.DeviceName%=DriverInstall, USB\VID_6666&PID_CAB0
 
 [DriverInstall]

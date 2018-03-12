@@ -6,7 +6,6 @@
 // Our arbitrary vendor codes
 #define VENDOR_CODE_MS 42           // Retrieve the Microsoft OS 2.0 descriptor
 #define VENDOR_CODE_WEBUSB 69       // Retrieve WebUSB landing page URL
-#define VENDOR_CODE_SIMULATOR 72    // Preprocessor simulator input
 
 // #define URL1 "laneboysrc.github.io/rc-light-controller"
 #define URL1 "laneboysrc.github.io/rc-light-controller/preprocessor-simulator.html"

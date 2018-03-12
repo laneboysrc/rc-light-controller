@@ -8,8 +8,8 @@
 #include <printf.h>
 
 void add_uint8_to_receive_buffer(uint8_t byte);
-extern bool usbserial_is_write_busy(void);
-extern void usbserial_write(uint8_t *data, uint8_t length);
+extern bool test_interface_is_write_busy(void);
+extern void test_interface_write(uint8_t *data, uint8_t length);
 
 static volatile bool new_raw_channel_data = false;
 static uint32_t raw_data[3];
@@ -355,8 +355,8 @@ void HAL_service(void)
     // If we have data to send via USB serial, and USB serial is available to
     // send, then do it
     if (send_buffer_index) {
-        if (!usbserial_is_write_busy()) {
-            usbserial_write(send_buffer, send_buffer_index);
+        if (!test_interface_is_write_busy()) {
+            test_interface_write(send_buffer, send_buffer_index);
             send_buffer_index = 0;
         }
     }

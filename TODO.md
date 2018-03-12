@@ -37,6 +37,8 @@
 
 * Go-based stand-alone program, and on-line WebUSB
 
+* WebUSB version needs to redirect to HTTPS on Github!
+
 * Refactor UI using BetaFlight as inspiration (Tabs, left side menu)
 
 * Add MK5

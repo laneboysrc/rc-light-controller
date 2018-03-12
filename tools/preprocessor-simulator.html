@@ -183,7 +183,7 @@
     <script>
         var throttle = 0;
         var steering = 0;
-        var ch3 = 0
+        var ch3 = 0;
         var sendingThrottle = false;
         var sendingSteering = false;
         var startupMode = true;
@@ -204,41 +204,44 @@
         var webusb_device;
 
         const SLAVE_MAGIC_BYTE = 0x87;
-        const VENDOR_ID = 0x6666;
-        const VENDOR_CODE_SIMULATOR = 72;
 
         // Pressing any of those keys triggers CH3
         const CH3_KEYS = '3acux';
 
+        const VENDOR_ID = 0x6666;
+        const TEST_INTERFACE = 1;
+        const TEST_EP_IN = 0x81;
+        const TEST_EP_OUT = 2;
+
 
         function createXMLHttpRequest() {
             try { return new XMLHttpRequest(); } catch(e) {}
-            try { return new ActiveXObject("Msxml2.XMLHTTP"); } catch (e) {}
+            try { return new ActiveXObject('Msxml2.XMLHTTP'); } catch (e) {}
             return null;
         }
 
         function send_xmlhttp(cmd, value, callback = null) {
-            var params = cmd + "=" + value;
+            var params = cmd + '=' + value;
 
             var xhr = createXMLHttpRequest();
             xhr.onerror = function () {
-                msg = "ERR Unable to send XMLHttpRequest";
+                let msg = 'ERR Unable to send XMLHttpRequest';
                 elResponse.textContent = msg;
                 if (callback) {
                     callback(msg);
                 }
-            }
+            };
 
             xhr.onload = function () {
                 elResponse.textContent = xhr.responseText;
                 if (callback) {
                     callback(xhr.responseText);
                 }
-            }
+            };
 
             elResponse.textContent = ' ';
-            xhr.open("POST", "/", true);
-            xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            xhr.open('POST', '/', true);
+            xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
             xhr.send(params);
         }
 
@@ -298,7 +301,7 @@
                 if (sentThrottle != throttle) {
                     sendThrottleCommand();
                 }
-            };
+            }
 
             // This local function sends the actual throttle command. It sets
             // the "transmission in progress flag sendingThrottle, and stores
@@ -336,7 +339,7 @@
                 if (sentSteering != steering) {
                     sendSteeringCommand();
                 }
-            };
+            }
 
             // This local function sends the actual throttle command. It sets
             // the "transmission in progress flag sendingThrottle, and stores
@@ -367,17 +370,17 @@
             if (elMomentary.checked) {
                 if (action == 'down') {
                     ch3 = 1;
-                    send_function("CH3", ch3);
+                    send_function('CH3', ch3);
                 }
                 if (action == 'up') {
                     ch3 = 0;
-                    send_function("CH3", ch3);
+                    send_function('CH3', ch3);
                 }
             }
             else {
                 if (action == 'click') {
                     ch3 = ch3 ? 0 : 1;
-                    send_function("CH3", ch3);
+                    send_function('CH3', ch3);
                 }
             }
             return false;
@@ -397,9 +400,9 @@
             elThrottle.value = throttle;
             elStartupMode.checked = true;
 
-            send_function("ST", steering);
-            send_function("TH", throttle);
-            send_function("CH3", ch3);
+            send_function('ST', steering);
+            send_function('TH', throttle);
+            send_function('CH3', ch3);
             sendStartup(true);
         }
 
@@ -407,7 +410,7 @@
             let pingTimer;
 
             function ping_callback(msg) {
-                if (msg != "OK") {
+                if (msg != 'OK') {
                     elNotConnected.style.visibility = 'visible';
                 }
                 else {
@@ -423,7 +426,7 @@
                 pingTimer = setTimeout(send_ping, 3000);
             }
 
-            send_function("PING", 1, ping_callback);
+            send_function('PING', 1, ping_callback);
         }
 
         let update_ui = send_ping;
@@ -451,8 +454,8 @@
 
         function send_webusb(cmd, value, callback) {
             if (callback) {
-                callback(webusb_device ? "OK" : "NOT CONNECTED");
-                // callback("OK");
+                callback(webusb_device ? 'OK' : 'NOT CONNECTED');
+                // callback('OK');
             }
         }
 
@@ -462,10 +465,12 @@
                 if (device.configuration === null) {
                     await device.selectConfiguration(1);
                 }
+
+                await device.claimInterface(TEST_INTERFACE);
             }
             catch (e) {
-                console.log('Failed to open the device', e)
-                return
+                console.log('Failed to open the device', e);
+                return;
             }
 
             elResponse.textContent =
@@ -477,9 +482,13 @@
 
         async function webusb_disconnect() {
             if (webusb_device) {
-                try { await webusb_device.close(); } catch (e) { };
-                webusb_device = undefined;
-                elResponse.textContent = ' ';
+                try {
+                    await webusb_device.close();
+                }
+                finally {
+                    webusb_device = undefined;
+                    elResponse.textContent = ' ';
+                }
             }
             update_ui();
         }
@@ -495,12 +504,12 @@
                 th = 256 + th;
             }
 
-            let last_byte = 0
+            let last_byte = 0;
             if (ch3) {
-                last_byte += 0x01
+                last_byte += 0x01;
             }
             if (startupMode) {
-                last_byte += 0x10
+                last_byte += 0x10;
             }
 
             let data = new Uint8ClampedArray(4);
@@ -509,25 +518,17 @@
             data[2] = th;
             data[3] = last_byte;
 
-            const setup = {
-                "requestType": "vendor",
-                "recipient": "device",
-                "request": VENDOR_CODE_SIMULATOR,
-                "value": 0,
-                "index": 0
-            };
-
             try {
-                let result = await webusb_device.controlTransferOut(setup, data);
-                if (result.status == "ok") {
+                let result = await webusb_device.transferOut(TEST_EP_OUT, data);
+                if (result.status == 'ok') {
                     setTimeout(webusb_send_data, 20);
                 }
                 else {
-                    console.log("controlTransferOut() failed:", result.staus);
+                    console.log('transferOut() failed:', result.status);
                 }
             }
             catch (e) {
-                console.log("controlTransferOut() exception:", e);
+                console.log('controlTransferOut() exception:', e);
                 return;
             }
         }
@@ -537,7 +538,7 @@
             console.log('USB device connected:', device);
             if (!webusb_device) {
                 if (device && device.vendorId == VENDOR_ID) {
-                    webusb_connect(device)
+                    webusb_connect(device);
                 }
             }
         }
@@ -550,7 +551,7 @@
             }
         }
 
-        window.addEventListener("load", async function () {
+        window.addEventListener('load', async function () {
             elMomentary = document.getElementById('momentary');
             elWebusbConnect = document.getElementById('webusb-connect');
             elNotConnected = document.getElementById('not-connected');
@@ -571,9 +572,9 @@
             let use_webusb = true;
 
             if (document.cookie.split(';').indexOf('mode=xhr') >= 0) {
-                console.log('XHR mode requested (serial port')
+                console.log('XHR mode requested (serial port');
                 // Clear the cookie
-                document.cookie = "mode=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+                document.cookie = 'mode=; expires=Thu, 01 Jan 1970 00:00:00 GMT';
                 use_webusb = false;
             }
 
@@ -591,7 +592,7 @@
 
                     let devices = await navigator.usb.getDevices();
                     if (devices.length) {
-                        webusb_connect(devices[0])
+                        webusb_connect(devices[0]);
                     }
                     else {
                         // Show the connect button
@@ -618,8 +619,8 @@
                 }
             }
 
-            document.addEventListener("keydown", keydown_event_handler);
-            document.addEventListener("keyup", keyup_event_handler);
+            document.addEventListener('keydown', keydown_event_handler);
+            document.addEventListener('keyup', keyup_event_handler);
             elSteeringNeutral.addEventListener('click', center_steering);
             elThrottleNeutral.addEventListener('click', center_throttle);
             elSteering.addEventListener('input', steering_changed);

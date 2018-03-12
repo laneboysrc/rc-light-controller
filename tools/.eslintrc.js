@@ -1,11 +1,12 @@
 module.exports = {
     "env": {
         "browser": true,
-        "es6": true,
-        "es7": true,
         "node": true
     },
     "extends": "eslint:recommended",
+    "parserOptions": {
+        "ecmaVersion": 2017
+    },
     "rules": {
         "indent": [
             "error",
@@ -22,6 +23,9 @@ module.exports = {
         "semi": [
             "error",
             "always"
+        ],
+        "no-console": [
+            "off"
         ]
     }
 };
