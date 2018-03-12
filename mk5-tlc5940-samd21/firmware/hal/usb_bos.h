@@ -62,22 +62,6 @@ typedef struct {
         uint16_t wSize;
     } __attribute__((packed)) Descriptor_Set_Header;
 
-    // struct {
-    //     uint16_t wLength;
-    //     uint16_t wHeaderType;
-    //     uint8_t bConfigurationValue;
-    //     uint8_t bReserved;
-    //     uint16_t wSize;
-    // } __attribute__((packed)) Configuration_Subset_Header;
-
-    // struct {
-    //     uint16_t wLength;
-    //     uint16_t wHeaderType;
-    //     uint8_t iFirstInterfaceNumber;
-    //     uint8_t bReserved;
-    //     uint16_t wSize;
-    // } __attribute__((packed)) Function_Subset_Header;
-
     struct {
         uint16_t wLength;
         uint16_t wHeaderType;
@@ -133,22 +117,6 @@ static const ms_os_20_descriptor_t ms_os_20_descriptor = {
         .dwVersion = 0x06030000,    // Windows version (8.1)
         .wSize = sizeof(ms_os_20_descriptor)
     },
-
-    // .Configuration_Subset_Header = {
-    //     .wLength = sizeof(ms_os_20_descriptor.Configuration_Subset_Header),
-    //     .wHeaderType = 1,       // MS OS 2.0 configuration subset header
-    //     .bConfigurationValue = 0,
-    //     .bReserved = 0,
-    //     .wSize = 36
-    // },
-
-    // .Function_Subset_Header = {
-    //     .wLength = sizeof(ms_os_20_descriptor.Function_Subset_Header),
-    //     .wHeaderType = 2,       // MS OS 2.0 function subset header
-    //     .iFirstInterfaceNumber = 0,
-    //     .bReserved = 0,
-    //     .wSize = 28
-    // },
 
     .Compatible_Id_Descriptor = {
         .wLength = sizeof(ms_os_20_descriptor.Compatible_Id_Descriptor),

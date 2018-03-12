@@ -63,8 +63,8 @@ typedef struct {
 
     USB_InterfaceAssociationDescriptor Test_interface_association;
     USB_InterfaceDescriptor Test_interface;
-    USB_EndpointDescriptor Test_interface_out_endpoint;
     USB_EndpointDescriptor Test_interface_in_endpoint;
+    USB_EndpointDescriptor Test_interface_out_endpoint;
 }  __attribute__((packed)) configuration_descriptor_t;
 
 typedef struct {
@@ -86,7 +86,7 @@ static const USB_DeviceDescriptor device_descriptor = {
     .bMaxPacketSize0 = 64,
     .idVendor = 0x6666,
     .idProduct = 0xcab1,
-    .bcdDevice = 0x0104,
+    .bcdDevice = 0x0109,
 
     .iManufacturer = USB_STRING_MANUFACTURER,
     .iProduct = USB_STRING_PRODUCT,
@@ -160,18 +160,18 @@ static const configuration_descriptor_t configuration_descriptor = {
         .bInterfaceProtocol = 0,
         .iInterface = USB_STRING_TEST,
     },
-    .Test_interface_out_endpoint = {
-        .bLength = sizeof(USB_EndpointDescriptor),
-        .bDescriptorType = USB_DTYPE_Endpoint,
-        .bEndpointAddress = USB_EP_TEST_OUT,
-        .bmAttributes = (USB_EP_TYPE_BULK | ENDPOINT_ATTR_NO_SYNC | ENDPOINT_USAGE_DATA),
-        .wMaxPacketSize = BUF_SIZE,
-        .bInterval = 0x05
-    },
     .Test_interface_in_endpoint = {
         .bLength = sizeof(USB_EndpointDescriptor),
         .bDescriptorType = USB_DTYPE_Endpoint,
         .bEndpointAddress = USB_EP_TEST_IN,
+        .bmAttributes = (USB_EP_TYPE_BULK | ENDPOINT_ATTR_NO_SYNC | ENDPOINT_USAGE_DATA),
+        .wMaxPacketSize = BUF_SIZE,
+        .bInterval = 0x05
+    },
+    .Test_interface_out_endpoint = {
+        .bLength = sizeof(USB_EndpointDescriptor),
+        .bDescriptorType = USB_DTYPE_Endpoint,
+        .bEndpointAddress = USB_EP_TEST_OUT,
         .bmAttributes = (USB_EP_TYPE_BULK | ENDPOINT_ATTR_NO_SYNC | ENDPOINT_USAGE_DATA),
         .wMaxPacketSize = BUF_SIZE,
         .bInterval = 0x05
@@ -324,9 +324,9 @@ uint16_t usb_cb_get_descriptor(uint8_t type, uint8_t index, const uint8_t** ptr)
                     address = usb_string_to_descriptor((char *)"RC Light Controller (DFU)");
                     break;
 
-                case USB_STRING_TEST:
-                    address = usb_string_to_descriptor((char *)"RC Light Controller (Test)");
-                    break;
+                // case USB_STRING_TEST:
+                //     address = usb_string_to_descriptor((char *)"RC Light Controller (Test)");
+                //     break;
 
                 default:
                     *ptr = NULL;
@@ -433,11 +433,7 @@ void usb_cb_control_setup(void) {
 
 // ****************************************************************************
 void usb_cb_control_in_completion(void) {
-    uint8_t recipient = usb_setup.bmRequestType & USB_REQTYPE_RECIPIENT_MASK;
-
-    if (recipient == USB_RECIPIENT_DEVICE) {
-        send_descriptor_multi();
-    }
+    send_descriptor_multi();
 }
 
 
