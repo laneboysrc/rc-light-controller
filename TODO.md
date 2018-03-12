@@ -1,18 +1,10 @@
 # MK5
 
-* UART emulation over WebUSB
-
-* Remove CDC
-
-* Separate interface for DFU and control
-
-* Remove UART from driver
-
 * Add SYMLINK and ACL to udev rules, see Trezor
 
 * Investigate outputs sometimes not working on Android board
 
-* Make DEB for udev rules, see Trezor
+* Make DEB and RPM for udev rules, see Trezor
 
 # MK5 PCB
 
