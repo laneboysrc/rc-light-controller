@@ -149,8 +149,10 @@ func main() {
     go writer()
     go reader()
 
-    log.Printf("Please call up the user interface on localhost:%d", port)
+    url := fmt.Sprintf("http://localhost:%d/", port)
 
-    open.Start(fmt.Sprintf("http://localhost:%d/", port))
+    open.Start(url)
+
+    log.Printf("Please call up the user interface at %s", url)
     log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", port), nil))
 }
