@@ -8,6 +8,7 @@ import (
     "time"
 
     "github.com/google/gousb"
+    "github.com/skratchdot/open-golang/open"
 )
 
 var receiver map[string]int
@@ -149,5 +150,7 @@ func main() {
     go reader()
 
     log.Printf("Please call up the user interface on localhost:%d", port)
+
+    open.Start(fmt.Sprintf("http://localhost:%d/", port))
     log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", port), nil))
 }
