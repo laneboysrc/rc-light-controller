@@ -1,10 +1,6 @@
 # MK5
 
-* Add SYMLINK and ACL to udev rules, see Trezor
-
 * Investigate outputs sometimes not working on Android board
-
-* Make DEB and RPM for udev rules, see Trezor
 
 # MK5 PCB
 

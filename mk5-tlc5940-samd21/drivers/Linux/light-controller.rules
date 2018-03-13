@@ -1,17 +1,18 @@
-# UDEV Rules for the DIY RC Light Controller Mk5
+# UDEV rules for the   LANE Boys RC   Light Controller Mk5
 #
-# This will allow reflashing with DFU-util without using sudo on Ubuntu.
+# Installing this rule allows ordinary users to access the Light Controller via
+# USB, e.g. using the browser based configurator (WebUSB) or dfu-util to
+# update the firmware.
 #
-# This file must be placed at:
 #
-# /etc/udev/rules.d/50-light-controller.rules
+# For manual installation use the following command:
 #
-# To install, type this command in a terminal:
-#   sudo cp 50-light-controller.rules /etc/udev/rules.d/50-light-controller.rules
+#   sudo cp light-controller.rules /etc/udev/rules.d/52-laneboysrc-light-controller.rules
 #
 # After this file is installed, physically unplug and reconnect the
-# light controller.
+# Light Controller.
 #
+# When installed via .deb or .rpm this file resides in /usr/lib/udev/rules.d/
 
-SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTRS{idVendor}=="6666", ATTRS{idProduct}=="cab0", MODE="0666"
-SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTRS{idVendor}=="6666", ATTRS{idProduct}=="cab1", MODE="0666"
+SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTRS{idVendor}=="6666", ATTRS{idProduct}=="cab0", TAG+="uaccess"
+SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTRS{idVendor}=="6666", ATTRS{idProduct}=="cab1", TAG+="uaccess", SYMLINK+="light-controller-$attr{serial}"
