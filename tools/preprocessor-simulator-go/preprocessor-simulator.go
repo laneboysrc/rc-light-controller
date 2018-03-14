@@ -4,25 +4,29 @@ import (
     "fmt"
     "log"
     "net/http"
+    "flag"
     "strconv"
     "time"
+    "io"
 
     "github.com/google/gousb"
-    "github.com/skratchdot/open-golang/open"
+    // "github.com/skratchdot/open-golang/open"
 )
 
-var receiver map[string]int
+var receiver map[string]int = make(map[string]int)
 
 var ep_out *gousb.OutEndpoint
 var ep_in *gousb.InEndpoint
 
-const port = 8080
+var useWebusb bool
 
 func httpHandler(w http.ResponseWriter, r *http.Request) {
     switch r.Method {
     case "GET":
-        cookie := http.Cookie{Name: "mode", Value: "xhr", MaxAge: 1}
-        http.SetCookie(w, &cookie)
+        if !useWebusb {
+            cookie := http.Cookie{Name: "mode", Value: "xhr", MaxAge: 1}
+            http.SetCookie(w, &cookie)
+        }
         http.ServeFile(w, r, "./preprocessor-simulator.html")
         return
 
@@ -49,23 +53,11 @@ func httpHandler(w http.ResponseWriter, r *http.Request) {
     }
 }
 
-func writer() {
+
+func writer(port io.Writer) {
+    const SLAVE_MAGIC_BYTE = 0x87
+
     for {
-        time.Sleep(20 * time.Millisecond)
-
-        data := make([]byte, 4)
-        data[0] = byte(0x87)
-
-        st := receiver["ST"]
-        if st < 0 {
-            st = 256 + st
-        }
-
-        th := receiver["TH"]
-        if th < 0 {
-            th = 256 + th
-        }
-
         last_byte := 0
         if receiver["CH3"] != 0 {
             last_byte += 0x01
@@ -74,34 +66,40 @@ func writer() {
             last_byte += 0x10
         }
 
-        data[1] = byte(st)
-        data[2] = byte(th)
+        data := make([]byte, 4)
+        data[0] = byte(SLAVE_MAGIC_BYTE)
+        data[1] = uint8(receiver["ST"])
+        data[2] = uint8(receiver["TH"])
         data[3] = byte(last_byte)
 
-        numBytes, err := ep_out.Write(data)
+        numBytes, err := port.Write(data)
         if numBytes != 4 {
-            log.Fatalf("%s.Write(): only %d bytes written, returned error is %v", ep_out, numBytes, err)
+            log.Fatalf("%s.Write(): only %d bytes written, returned error is %v", port, numBytes, err)
         }
+
+        time.Sleep(20 * time.Millisecond)
     }
 }
 
-func reader() {
+func reader(port io.Reader) {
     buf := make([]byte, 64)
 
     for {
-        time.Sleep(20 * time.Millisecond)
-
-        numBytes, err:= ep_in.Read(buf)
+        numBytes, err:= port.Read(buf)
         if err != nil {
-            log.Fatalf("%s.Read(): returned error %v", ep_in, err)
+            log.Printf("%s.Read(): returned error %v", port, err)
+            return
         } else {
             log.Print(string(buf[:numBytes]))
         }
     }
 }
 
+func serialControl(serialPort string) {
+    log.Printf("serialControl is not implemented yet. tty=%s", serialPort)
+}
 
-func usbtest() {
+func usbControl() {
     // Initialize a new Context.
     ctx := gousb.NewContext()
     // defer ctx.Close()
@@ -111,7 +109,12 @@ func usbtest() {
     if err != nil {
         log.Fatalf("Could not open a device: %v", err)
     }
+    if dev == nil {
+        log.Println("No LANE Boys RC Light Controller connected via USB")
+        return;
+    }
     // defer dev.Close()
+
 
     cfg, err := dev.Config(1)
     if err != nil {
@@ -137,22 +140,40 @@ func usbtest() {
     if err != nil {
         log.Fatalf("%s.InEndpoint(1): %v", intf, err)
     }
+
+    if serial, err := dev.SerialNumber(); err == nil {
+        log.Printf("Connected to Light Controller with serial number %s", serial)
+    }
+
+    go writer(ep_out)
+    go reader(ep_in)
 }
 
 func main() {
-    receiver = make(map[string]int)
+    var port int
+    var baudrate int
+    var serialPort string
 
-    usbtest()
+    flag.IntVar(&baudrate, "baudrate", 38400, "Baudrate to use. Default is 38400.")
+    flag.IntVar(&baudrate, "b", 38400, "Baudrate to use. Default is 38400.")
+    flag.IntVar(&port, "port", 1234, "HTTP port for the web UI. Default is localhost:1234.")
+    flag.IntVar(&port, "p", 1234, "HTTP port for the web UI. Default is localhost:1234.")
+    flag.StringVar(&serialPort, "tty", "", "Serial port to use. If not specified, USB is used.")
+    flag.BoolVar(&useWebusb, "webusb", false, "Use WebUSB to connect to the light controller")
+    flag.BoolVar(&useWebusb, "u", false, "Use WebUSB to connect to the light controller")
+    flag.Parse()
+
+    if useWebusb {
+        // Do nothing
+    } else if serialPort != "" {
+        serialControl(serialPort)
+    } else {
+        usbControl()
+    }
 
     http.HandleFunc("/", httpHandler)
-
-    go writer()
-    go reader()
-
     url := fmt.Sprintf("http://localhost:%d/", port)
-
-    open.Start(url)
-
+    // open.Start(url)
     log.Printf("Please call up the user interface at %s", url)
     log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", port), nil))
 }
