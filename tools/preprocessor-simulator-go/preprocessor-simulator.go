@@ -23,7 +23,7 @@ import (
 	"github.com/tarm/serial"
 )
 
-var receiver map[string]int = make(map[string]int)
+var receiver = make(map[string]int)
 
 // Command line parameters
 var (
@@ -34,7 +34,7 @@ var (
 	launchBrowser bool
 )
 
-var retryTimeout time.Duration = 500 * time.Millisecond
+var retryTimeout = 500 * time.Millisecond
 
 func httpHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
@@ -74,22 +74,22 @@ func httpHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func writer(port io.Writer) {
-	const SLAVE_MAGIC_BYTE = 0x87
+	const slaveMagicByte = 0x87
 
 	for {
-		last_byte := 0
+		lastByte := 0
 		if receiver["CH3"] != 0 {
-			last_byte += 0x01
+			lastByte += 0x01
 		}
 		if receiver["STARTUP_MODE"] != 0 {
-			last_byte += 0x10
+			lastByte += 0x10
 		}
 
 		data := make([]byte, 4)
-		data[0] = byte(SLAVE_MAGIC_BYTE)
+		data[0] = byte(slaveMagicByte)
 		data[1] = uint8(receiver["ST"])
 		data[2] = uint8(receiver["TH"])
-		data[3] = byte(last_byte)
+		data[3] = byte(lastByte)
 
 		numBytes, err := port.Write(data)
 		if numBytes != 4 {
@@ -109,9 +109,8 @@ func reader(port io.Reader) {
 		if err != nil {
 			log.Printf("%s.Read(): returned error %v", port, err)
 			return
-		} else {
-			log.Print(string(buf[:numBytes]))
 		}
+		log.Print(string(buf[:numBytes]))
 	}
 }
 
@@ -199,13 +198,13 @@ func usbControl() {
 			}
 			defer intf.Close()
 
-			ep_out, err := intf.OutEndpoint(2)
+			epOut, err := intf.OutEndpoint(2)
 			if err != nil {
 				log.Printf("%s.OutEndpoint(2): %v", intf, err)
 				return
 			}
 
-			ep_in, err := intf.InEndpoint(1)
+			epIn, err := intf.InEndpoint(1)
 			if err != nil {
 				log.Printf("%s.InEndpoint(1): %v", intf, err)
 				return
@@ -216,7 +215,7 @@ func usbControl() {
 			}
 
 			receiver["CONNECTED"] = 1
-			useDevice(ep_out, ep_in)
+			useDevice(epOut, epIn)
 			log.Printf("USB connection closed")
 		}()
 
