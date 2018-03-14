@@ -44,7 +44,11 @@ func httpHandler(w http.ResponseWriter, r *http.Request) {
             }
         }
 
-        fmt.Fprintf(w, "OK")
+        if receiver["CONNECTED"] != 0 {
+            fmt.Fprintf(w, "OK")
+        } else {
+            fmt.Fprintf(w, "No device connected")
+        }
         return
 
     default:
@@ -74,7 +78,8 @@ func writer(port io.Writer) {
 
         numBytes, err := port.Write(data)
         if numBytes != 4 {
-            log.Fatalf("%s.Write(): only %d bytes written, returned error is %v", port, numBytes, err)
+            log.Printf("%s.Write(): only %d bytes written, returned error is %v", port, numBytes, err)
+            return
         }
 
         time.Sleep(20 * time.Millisecond)
@@ -100,53 +105,66 @@ func serialControl(serialPort string) {
 }
 
 func usbControl() {
-    // Initialize a new Context.
-    ctx := gousb.NewContext()
-    // defer ctx.Close()
+    first := true
 
-    // Open any device with a given VID/PID using a convenience function.
-    dev, err := ctx.OpenDeviceWithVIDPID(0x6666, 0xcab1)
-    if err != nil {
-        log.Fatalf("Could not open a device: %v", err)
+    for {
+        func () {
+            ctx := gousb.NewContext()
+            defer ctx.Close()
+
+            dev, err := ctx.OpenDeviceWithVIDPID(0x6666, 0xcab1)
+            if err != nil {
+                log.Fatalf("Could not open a device: %v", err)
+            }
+            if dev == nil {
+                if first {
+                    first = false
+                    log.Printf("No LANE Boys RC Light Controller connected via USB")
+                }
+                return;
+            }
+            defer dev.Close()
+            first = false
+
+            cfg, err := dev.Config(1)
+            if err != nil {
+                log.Printf("%s.Config(1): %v", dev, err)
+                return;
+            }
+            defer cfg.Close()
+
+            intf, err := cfg.Interface(1, 0)
+            if err != nil {
+                log.Printf("%s.Interface(1, 0): %v", cfg, err)
+                return;
+            }
+            defer intf.Close()
+
+            ep_out, err = intf.OutEndpoint(2)
+            if err != nil {
+                log.Printf("%s.OutEndpoint(2): %v", intf, err)
+                return
+            }
+
+            ep_in, err = intf.InEndpoint(1)
+            if err != nil {
+                log.Printf("%s.InEndpoint(1): %v", intf, err)
+                return
+            }
+
+            if serial, err := dev.SerialNumber(); err == nil {
+                log.Printf("Connected to Light Controller with serial number %s", serial)
+            }
+
+            receiver["CONNECTED"] = 1
+            go writer(ep_out)
+            reader(ep_in)
+            log.Printf("Device closed, scanning for new one")
+        }()
+
+        receiver["CONNECTED"] = 0
+        time.Sleep(100 * time.Millisecond)
     }
-    if dev == nil {
-        log.Println("No LANE Boys RC Light Controller connected via USB")
-        return;
-    }
-    // defer dev.Close()
-
-
-    cfg, err := dev.Config(1)
-    if err != nil {
-        log.Fatalf("%s.Config(1): %v", dev, err)
-    }
-    // defer cfg.Close()
-
-    // In the config #1, claim interface #2 with alt setting #0.
-    intf, err := cfg.Interface(1, 0)
-    if err != nil {
-        log.Fatalf("%s.Interface(1, 0): %v", cfg, err)
-    }
-    // defer intf.Close()
-
-    // Open an OUT endpoint.
-    ep_out, err = intf.OutEndpoint(2)
-    if err != nil {
-        log.Fatalf("%s.OutEndpoint(2): %v", intf, err)
-    }
-
-    // Open an IN endpoint.
-    ep_in, err = intf.InEndpoint(1)
-    if err != nil {
-        log.Fatalf("%s.InEndpoint(1): %v", intf, err)
-    }
-
-    if serial, err := dev.SerialNumber(); err == nil {
-        log.Printf("Connected to Light Controller with serial number %s", serial)
-    }
-
-    go writer(ep_out)
-    go reader(ep_in)
 }
 
 func main() {
@@ -164,11 +182,11 @@ func main() {
     flag.Parse()
 
     if useWebusb {
-        // Do nothing
+        // Do nothing, everything is handled by the HTML
     } else if serialPort != "" {
         serialControl(serialPort)
     } else {
-        usbControl()
+        go usbControl()
     }
 
     http.HandleFunc("/", httpHandler)
