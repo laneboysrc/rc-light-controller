@@ -198,7 +198,7 @@
         var ch3 = 0;
         var sendingThrottle = false;
         var sendingSteering = false;
-        var startupMode = true;
+        var startupMode = false;
 
         var elWebusbConnect;
         var elNotConnected;
@@ -414,12 +414,10 @@
         function reset_ui() {
             elSteering.value = steering;
             elThrottle.value = throttle;
-            elStartupMode.checked = true;
 
             send_function('ST', steering);
             send_function('TH', throttle);
             send_function('CH3', ch3);
-            sendStartup(true);
         }
 
         function send_ping() {

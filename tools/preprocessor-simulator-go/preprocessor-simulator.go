@@ -1,24 +1,41 @@
+/*
+
+Simulate a receiver with built-in preprocessor. This allow testing of the
+light controller functionality without hooking up a RC system.
+
+A web browser is used for the user interface.
+
+*/
 package main
 
 import (
+    "flag"
     "fmt"
+    "io"
     "log"
     "net/http"
-    "flag"
     "strconv"
+    "sync"
     "time"
-    "io"
 
     "github.com/google/gousb"
-    // "github.com/skratchdot/open-golang/open"
+    "github.com/skratchdot/open-golang/open"
+    "github.com/tarm/serial"
 )
 
 var receiver map[string]int = make(map[string]int)
 
-var ep_out *gousb.OutEndpoint
-var ep_in *gousb.InEndpoint
+// Command line parameters
+var (
+    useWebusb bool
+    port int
+    baudrate int
+    serialPort string
+    launchBrowser bool
+)
 
-var useWebusb bool
+var retryTimeout time.Duration = 500 * time.Millisecond
+
 
 func httpHandler(w http.ResponseWriter, r *http.Request) {
     switch r.Method {
@@ -27,7 +44,7 @@ func httpHandler(w http.ResponseWriter, r *http.Request) {
             cookie := http.Cookie{Name: "mode", Value: "xhr", MaxAge: 1}
             http.SetCookie(w, &cookie)
         }
-        http.ServeFile(w, r, "./preprocessor-simulator.html")
+        http.ServeFile(w, r, "../preprocessor-simulator.html")
         return
 
     case "POST":
@@ -56,7 +73,6 @@ func httpHandler(w http.ResponseWriter, r *http.Request) {
         return
     }
 }
-
 
 func writer(port io.Writer) {
     const SLAVE_MAGIC_BYTE = 0x87
@@ -100,8 +116,52 @@ func reader(port io.Reader) {
     }
 }
 
-func serialControl(serialPort string) {
-    log.Printf("serialControl is not implemented yet. tty=%s", serialPort)
+func useDevice(w io.Writer, r io.Reader) {
+    // We use sync.WaitGroup to wait for the two goroutines reader() and
+    // writer() to finish. To do so we Add(2), and defer Done() in each
+    // goroutine. We the use Wait() to wait for the goroutines to
+    // finish.
+    var wg sync.WaitGroup
+
+    wg.Add(2)
+    go func () {
+        defer wg.Done()
+        writer(w)
+    }()
+
+    go func () {
+        defer wg.Done()
+        reader(r)
+    }()
+
+    wg.Wait()
+}
+
+func serialControl(serialPort string, baudrate int) {
+    first := true
+
+    for {
+        func () {
+            c := &serial.Config{Name: serialPort, Baud: baudrate}
+            s, err := serial.OpenPort(c)
+            if err != nil {
+                if first {
+                    first = false
+                    log.Printf("Can not open %s: %s", serialPort, err)
+                }
+                return
+            }
+            defer s.Close()
+
+            receiver["CONNECTED"] = 1
+            log.Printf("Connected on serial port %s", serialPort)
+            useDevice(s, s)
+            log.Printf("Serial port connection closed")
+        }()
+
+        receiver["CONNECTED"] = 0
+        time.Sleep(retryTimeout)
+    }
 }
 
 func usbControl() {
@@ -109,10 +169,10 @@ func usbControl() {
 
     for {
         func () {
-            ctx := gousb.NewContext()
-            defer ctx.Close()
+            context := gousb.NewContext()
+            defer context.Close()
 
-            dev, err := ctx.OpenDeviceWithVIDPID(0x6666, 0xcab1)
+            dev, err := context.OpenDeviceWithVIDPID(0x6666, 0xcab1)
             if err != nil {
                 log.Fatalf("Could not open a device: %v", err)
             }
@@ -140,13 +200,13 @@ func usbControl() {
             }
             defer intf.Close()
 
-            ep_out, err = intf.OutEndpoint(2)
+            ep_out, err := intf.OutEndpoint(2)
             if err != nil {
                 log.Printf("%s.OutEndpoint(2): %v", intf, err)
                 return
             }
 
-            ep_in, err = intf.InEndpoint(1)
+            ep_in, err := intf.InEndpoint(1)
             if err != nil {
                 log.Printf("%s.InEndpoint(1): %v", intf, err)
                 return
@@ -157,41 +217,42 @@ func usbControl() {
             }
 
             receiver["CONNECTED"] = 1
-            go writer(ep_out)
-            reader(ep_in)
-            log.Printf("Device closed, scanning for new one")
+            useDevice(ep_out, ep_in)
+            log.Printf("USB connection closed")
         }()
 
         receiver["CONNECTED"] = 0
-        time.Sleep(100 * time.Millisecond)
+        time.Sleep(retryTimeout)
     }
 }
 
-func main() {
-    var port int
-    var baudrate int
-    var serialPort string
+func init() {
+    flag.IntVar(&port, "p", 1234, "HTTP `port` for the web UI")
+    flag.StringVar(&serialPort, "tty", "", "serial port connection to the light controller. If not specified, USB is used")
+    flag.IntVar(&baudrate, "b", 38400, "`baudrate` to use. Only applicable when -tty is specified")
+    flag.BoolVar(&useWebusb, "webusb", false, "use WebUSB to connect to the light controller")
+    flag.BoolVar(&launchBrowser, "l", false, "launch the app in the web browser")
+}
 
-    flag.IntVar(&baudrate, "baudrate", 38400, "Baudrate to use. Default is 38400.")
-    flag.IntVar(&baudrate, "b", 38400, "Baudrate to use. Default is 38400.")
-    flag.IntVar(&port, "port", 1234, "HTTP port for the web UI. Default is localhost:1234.")
-    flag.IntVar(&port, "p", 1234, "HTTP port for the web UI. Default is localhost:1234.")
-    flag.StringVar(&serialPort, "tty", "", "Serial port to use. If not specified, USB is used.")
-    flag.BoolVar(&useWebusb, "webusb", false, "Use WebUSB to connect to the light controller")
-    flag.BoolVar(&useWebusb, "u", false, "Use WebUSB to connect to the light controller")
+func main() {
     flag.Parse()
 
-    if useWebusb {
-        // Do nothing, everything is handled by the HTML
-    } else if serialPort != "" {
-        serialControl(serialPort)
-    } else {
+    switch {
+    default:
         go usbControl()
+    case serialPort != "":
+        go serialControl(serialPort, baudrate)
+    case useWebusb:
+        // Do nothing, everything is handled by the HTML
     }
 
-    http.HandleFunc("/", httpHandler)
     url := fmt.Sprintf("http://localhost:%d/", port)
-    // open.Start(url)
+
+    if launchBrowser {
+        open.Start(url)
+    }
+
     log.Printf("Please call up the user interface at %s", url)
+    http.HandleFunc("/", httpHandler)
     log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", port), nil))
 }
