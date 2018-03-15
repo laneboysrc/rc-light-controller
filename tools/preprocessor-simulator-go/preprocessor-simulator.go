@@ -26,6 +26,7 @@ import (
 )
 
 var receiver = make(map[string]int)
+var receiverMutex sync.Mutex
 
 // Command line parameters
 var (
@@ -76,6 +77,7 @@ func httpHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		receiverMutex.Lock()
 		for name, values := range r.Form {
 			if value, err := strconv.ParseInt(values[0], 10, 32); err == nil {
 				receiver[name] = int(value)
@@ -87,6 +89,7 @@ func httpHandler(w http.ResponseWriter, r *http.Request) {
 		} else {
 			fmt.Fprintf(w, "No device connected")
 		}
+		receiverMutex.Unlock()
 		return
 
 	default:
@@ -129,6 +132,7 @@ func websocketLoop(c *websocket.Conn) {
             	continue
         	}
 
+			receiverMutex.Lock()
         	for n, d := range m {
         		switch d.(type) {
         		case float64:
@@ -138,6 +142,7 @@ func websocketLoop(c *websocket.Conn) {
         			}
         		}
 			}
+			receiverMutex.Unlock()
         }
     }
 
@@ -150,7 +155,11 @@ func writer(port io.Writer) {
 	const slaveMagicByte = 0x87
 
 	for {
+		data := make([]byte, 4)
 		lastByte := 0
+
+		receiverMutex.Lock()
+
 		if receiver["CH3"] != 0 {
 			lastByte += 0x01
 		}
@@ -158,11 +167,12 @@ func writer(port io.Writer) {
 			lastByte += 0x10
 		}
 
-		data := make([]byte, 4)
 		data[0] = byte(slaveMagicByte)
 		data[1] = uint8(receiver["ST"])
 		data[2] = uint8(receiver["TH"])
 		data[3] = byte(lastByte)
+
+		receiverMutex.Unlock()
 
 		numBytes, err := port.Write(data)
 		if numBytes != 4 {
@@ -235,13 +245,18 @@ func serialControl(serialPort string, baudrate int) {
 			}
 			defer s.Close()
 
+			receiverMutex.Lock()
 			receiver["CONNECTED"] = 1
+			receiverMutex.Unlock()
+
 			log.Printf("Connected on serial port %s at %d BAUD", serialPort, baudrate)
 			useDevice(s, s)
 			log.Printf("Serial port connection closed")
 		}()
 
+		receiverMutex.Lock()
 		receiver["CONNECTED"] = 0
+		receiverMutex.Unlock()
 		time.Sleep(retryTimeout)
 	}
 }
@@ -298,12 +313,16 @@ func usbControl() {
 				log.Printf("Connected to Light Controller with serial number %s", serial)
 			}
 
+			receiverMutex.Lock()
 			receiver["CONNECTED"] = 1
+			receiverMutex.Unlock()
 			useDevice(epOut, epIn)
 			log.Printf("USB connection closed")
 		}()
 
+		receiverMutex.Lock()
 		receiver["CONNECTED"] = 0
+		receiverMutex.Unlock()
 		time.Sleep(retryTimeout)
 	}
 }

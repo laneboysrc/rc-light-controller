@@ -2,10 +2,6 @@
 
 * Investigate outputs sometimes not working on Android board
 
-* Fix receiver[] being accessed from multiple goroutines
-
-* Fix newline received in buffer, split to multiple lines
-
 # MK5 PCB
 
 * TLC5940 footprint based on TI datasheet
