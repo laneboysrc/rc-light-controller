@@ -1,8 +1,5 @@
 #pragma once
 
-#define STDOUT ((void *) 0)
-#define STDOUT_DEBUG ((void *) 1)
-
 extern uint32_t entropy;
 extern volatile uint32_t milliseconds;
 

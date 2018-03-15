@@ -2,6 +2,10 @@
 
 * Investigate outputs sometimes not working on Android board
 
+* Fix receiver[] being accessed from multiple goroutines
+
+* Fix newline received in buffer, split to multiple lines
+
 # MK5 PCB
 
 * TLC5940 footprint based on TI datasheet
@@ -9,8 +13,6 @@
 * Verify Micro-USB footprint fits
 
 # MK4 + MK5
-
-* More diagnostics, e.g. when setting reversing etc
 
 * FW: Add Xenon lamp simulation
 

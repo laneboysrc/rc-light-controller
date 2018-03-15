@@ -5,6 +5,8 @@
 
 #include <hal.h>
 #include <globals.h>
+#include <printf.h>
+
 
 static bool next = false;
 static uint16_t servo_pulse;
@@ -78,8 +80,8 @@ void gearbox_action(uint8_t ch3_clicks)
         }
     }
 
-    // FIXME: we need to ensure this is active for one mainloop!
     global_flags.gear_changed = true;
+    fprintf(STDOUT_DEBUG, "Gear %d\n", global_flags.gear);
     activate_gearbox_servo();
 }
 
@@ -96,6 +98,7 @@ void servo_output_setup_action(uint8_t ch3_clicks)
         servo_output_endpoint.centre = 1500;
         servo_output_endpoint.right = 2100;
         global_flags.servo_output_setup = SERVO_OUTPUT_SETUP_LEFT;
+        fprintf(STDOUT_DEBUG, "Servo setup left\n");
     }
     else {
         if (ch3_clicks == 1) {
@@ -107,6 +110,7 @@ void servo_output_setup_action(uint8_t ch3_clicks)
             // More than 1 click: cancel setup
             global_flags.servo_output_setup = SERVO_OUTPUT_SETUP_OFF;
             load_persistent_storage();
+            fprintf(STDOUT_DEBUG, "Servo setup cancelled\n");
         }
     }
 }
@@ -161,6 +165,7 @@ void process_servo_output(void)
                 case SERVO_OUTPUT_SETUP_LEFT:
                     servo_setup_endpoint.left = servo_pulse;
                     global_flags.servo_output_setup = SERVO_OUTPUT_SETUP_CENTRE;
+                    fprintf(STDOUT_DEBUG, "Servo setup center\n");
                     break;
 
                 case SERVO_OUTPUT_SETUP_CENTRE:
@@ -175,9 +180,11 @@ void process_servo_output(void)
                         write_persistent_storage();
 
                         global_flags.servo_output_setup = SERVO_OUTPUT_SETUP_OFF;
+                        fprintf(STDOUT_DEBUG, "Servo setup done\n");
                     }
                     else {
                         global_flags.servo_output_setup = SERVO_OUTPUT_SETUP_RIGHT;
+                        fprintf(STDOUT_DEBUG, "Servo setup right\n");
                     }
                     break;
 
@@ -190,6 +197,7 @@ void process_servo_output(void)
                     write_persistent_storage();
 
                     global_flags.servo_output_setup = SERVO_OUTPUT_SETUP_OFF;
+                    fprintf(STDOUT_DEBUG, "Servo setup done\n");
                     break;
 
                 default:

@@ -98,7 +98,6 @@
 #include <stdbool.h>
 
 #include <globals.h>
-#include <hal.h>
 #include <printf.h>
 #include <utils.h>
 

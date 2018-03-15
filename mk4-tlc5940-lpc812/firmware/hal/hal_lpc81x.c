@@ -4,6 +4,7 @@
 
 #include <LPC8xx.h>
 #include <LPC8xx_ROM_API.h>
+#include <globals.h>
 #include <hal.h>
 #include <printf.h>
 

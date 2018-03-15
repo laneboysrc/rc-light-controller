@@ -12,6 +12,7 @@ light controller knows the direction of the throttle channel.
 #include <stdbool.h>
 
 #include <globals.h>
+#include <printf.h>
 
 
 // ****************************************************************************
@@ -22,9 +23,12 @@ void reversing_setup_action(uint8_t ch3_clicks)
     if (global_flags.reversing_setup == REVERSING_SETUP_OFF) {
         global_flags.reversing_setup =
             REVERSING_SETUP_STEERING | REVERSING_SETUP_THROTTLE;
+            fprintf(STDOUT_DEBUG, "Reversing setup start\n");
+
     }
     else {
         global_flags.reversing_setup = REVERSING_SETUP_OFF;
+        fprintf(STDOUT_DEBUG, "Reversing setup cancelled\n");
     }
 }
 
@@ -51,6 +55,7 @@ void process_channel_reversing_setup(void)
                 channel[ST].reversed = !channel[ST].reversed;
             }
             global_flags.reversing_setup &= ~REVERSING_SETUP_STEERING;
+            fprintf(STDOUT_DEBUG, "Steering reversed: %d\n", channel[ST].reversed);
         }
     }
 
@@ -65,10 +70,12 @@ void process_channel_reversing_setup(void)
                 channel[TH].reversed = !channel[TH].reversed;
             }
             global_flags.reversing_setup &= ~REVERSING_SETUP_THROTTLE;
+            fprintf(STDOUT_DEBUG, "Throttle reversed: %d\n", channel[ST].reversed);
         }
     }
 
     if (global_flags.reversing_setup == REVERSING_SETUP_OFF) {
         write_persistent_storage();
+        fprintf(STDOUT_DEBUG, "Reversing setup saved\n");
     }
 }

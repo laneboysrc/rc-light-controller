@@ -4,6 +4,11 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+
+#define STDOUT ((void *) 0)
+#define STDOUT_DEBUG ((void *) 1)
+
+
 #define CONFIG_VERSION 1
 #define __SYSTICK_IN_MS 20
 

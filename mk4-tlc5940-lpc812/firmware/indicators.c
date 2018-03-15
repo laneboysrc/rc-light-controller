@@ -14,6 +14,7 @@
 #include <stdbool.h>
 
 #include <globals.h>
+#include <printf.h>
 
 
 static enum {
@@ -50,6 +51,10 @@ static void synchronize_blinking(void)
 static void set_not_neutral(void)
 {
     indicator_state = NOT_NEUTRAL;
+    if (global_flags.blink_indicator_left || global_flags.blink_indicator_right) {
+        fprintf(STDOUT_DEBUG, "Indicator off\n");
+    }
+
     global_flags.blink_indicator_left = false;
     global_flags.blink_indicator_right = false;
 }
@@ -61,6 +66,8 @@ static void set_blink_left(void)
     synchronize_blinking();
     indicator_state = BLINK_LEFT;
     global_flags.blink_indicator_left = true;
+    fprintf(STDOUT_DEBUG, "Indicator left\n");
+
 }
 
 
@@ -70,6 +77,7 @@ static void set_blink_right(void)
     synchronize_blinking();
     indicator_state = BLINK_RIGHT;
     global_flags.blink_indicator_right = true;
+    fprintf(STDOUT_DEBUG, "Indicator right\n");
 }
 
 
@@ -78,6 +86,7 @@ void toggle_hazard_lights(void)
 {
     synchronize_blinking();
     global_flags.blink_hazard = ~global_flags.blink_hazard;
+    fprintf(STDOUT_DEBUG, "Hazard %d\n", global_flags.blink_hazard);
 }
 
 

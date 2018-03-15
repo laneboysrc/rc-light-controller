@@ -17,6 +17,7 @@
 #include <stdbool.h>
 
 #include <globals.h>
+#include <printf.h>
 #include <utils.h>
 
 
@@ -123,6 +124,8 @@ static void throttle_not_neutral(void)
 // ****************************************************************************
 void process_drive_mode(void)
 {
+    static GLOBAL_FLAGS_T last_flags;
+
     if (global_flags.systick) {
         if (drive_mode.brake_disarm) {
             if (--brake_disarm_counter == 0) {
@@ -146,21 +149,29 @@ void process_drive_mode(void)
         }
     }
 
-    if (!global_flags.new_channel_data) {
-        return;
+    if (global_flags.new_channel_data) {
+        // Initialization as the compile complains that config.* is not static.
+        if (throttle_threshold == 0xffff) {
+            throttle_threshold = config.centre_threshold_high;
+        }
+
+        if (channel[TH].absolute < throttle_threshold) {
+            // We are in neutral
+            throttle_neutral();
+        }
+        else {
+            throttle_not_neutral();
+        }
     }
 
-    // Initialization as the compile complains that config.* is not static.
-    if (throttle_threshold == 0xffff) {
-        throttle_threshold = config.centre_threshold_high;
+    if (last_flags.braking != global_flags.braking) {
+        last_flags.braking = global_flags.braking;
+        fprintf(STDOUT_DEBUG, "Brake %d\n", global_flags.braking);
     }
 
-    if (channel[TH].absolute < throttle_threshold) {
-        // We are in neutral
-        throttle_neutral();
-    }
-    else {
-        throttle_not_neutral();
+    if (last_flags.reversing != global_flags.reversing) {
+        last_flags.reversing = global_flags.reversing;
+        fprintf(STDOUT_DEBUG, "Reversing %d\n", global_flags.reversing);
     }
 }
 
