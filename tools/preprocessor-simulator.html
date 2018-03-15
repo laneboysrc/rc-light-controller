@@ -475,16 +475,23 @@
         }
 
         function diagnostics(msg) {
-            const el = document.createElement('div');
-            el.textContent += msg;
-            if (elUART.firstChild) {
-                elUART.insertBefore(el, elUART.firstChild);
-                while (elUART.childElementCount > MAX_UART_LOG_LINES) {
-                    elUART.removeChild(elUART.lastChild);
+            const lines = msg.trim().split('\n');
+            for (msg of lines) {
+                msg = new Date(Date.now()).toISOString() + ' ' + msg;
+
+                console.log(msg);
+
+                const el = document.createElement('div');
+                el.textContent += msg;
+                if (elUART.firstChild) {
+                    elUART.insertBefore(el, elUART.firstChild);
+                    while (elUART.childElementCount > MAX_UART_LOG_LINES) {
+                        elUART.removeChild(elUART.lastChild);
+                    }
                 }
-            }
-            else {
-                elUART.appendChild(el);
+                else {
+                    elUART.appendChild(el);
+                }
             }
         }
 
@@ -589,11 +596,7 @@
                     if (result.status == 'ok') {
                         const decoder = new TextDecoder('utf-8');
                         const value = decoder.decode(result.data);
-
-                        let msg = new Date(Date.now()).toISOString() + ' ' + value;
-
-                        console.log(msg);
-                        diagnostics(msg);
+                        diagnostics(value);
                     }
                     else {
                         console.error('transferIn() failed:', result.status);
