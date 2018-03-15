@@ -17,6 +17,7 @@ import (
 	"net/http"
 	"strconv"
 	"sync"
+	"strings"
 	"time"
 
 	"github.com/google/gousb"
@@ -196,8 +197,12 @@ func reader(port io.Reader) {
 
 		message := string(buf[:numBytes])
 
-		// Print the message on the console
-		log.Print(message)
+		// Print the message on the console. Note that the message could have
+		// newlines in it, we parse that out.
+		arr := strings.Split(strings.Trim(message, "\n"), "\n")
+		for _, msg := range arr {
+			log.Print(msg)
+		}
 
 		// Also send the message to all websocket clients
 		sessionsMutex.Lock()
