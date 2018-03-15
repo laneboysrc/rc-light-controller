@@ -10,6 +10,8 @@
 
 # MK4 + MK5
 
+* More diagnostics, e.g. when setting reversing etc
+
 * FW: Add Xenon lamp simulation
 
 * Deprecate CPPM reader (to simplify things, no-one ever used it)

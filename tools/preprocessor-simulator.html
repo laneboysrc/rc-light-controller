@@ -3,8 +3,9 @@
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Preprocessor simulator - DIY RC Light Controller</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Preprocessor simulator - DIY RC Light Controller</title>
 
     <style type = "text/css">
         * {
@@ -216,6 +217,7 @@
         var send_function;
 
         var webusb_device;
+        var websocket;
 
         const SLAVE_MAGIC_BYTE = 0x87;
 
@@ -412,12 +414,19 @@
         }
 
         function reset_ui() {
+            startupMode = true;
+            steering = 0;
+            throttle = 0;
+            ch3 = 0;
+
             elSteering.value = steering;
             elThrottle.value = throttle;
+            elStartupMode.checked = startupMode;
 
             send_function('ST', steering);
             send_function('TH', throttle);
             send_function('CH3', ch3);
+            sendStartup(startupMode);
         }
 
         function send_ping() {
@@ -465,11 +474,36 @@
             return true;
         }
 
+        function diagnostics(msg) {
+            const el = document.createElement('div');
+            el.textContent += msg;
+            if (elUART.firstChild) {
+                elUART.insertBefore(el, elUART.firstChild);
+                while (elUART.childElementCount > MAX_UART_LOG_LINES) {
+                    elUART.removeChild(elUART.lastChild);
+                }
+            }
+            else {
+                elUART.appendChild(el);
+            }
+        }
+
 
         function send_webusb(cmd, value, callback) {
             if (callback) {
                 callback(webusb_device ? 'OK' : 'NOT CONNECTED');
                 // callback('OK');
+            }
+        }
+
+        function send_ws(cmd, value, callback) {
+            if (websocket) {
+                let packet = {};
+                packet[cmd] = value;
+                websocket.send(JSON.stringify(packet));
+            }
+            if (callback) {
+                callback(websocket ? 'OK' : 'NOT CONNECTED');
             }
         }
 
@@ -559,18 +593,7 @@
                         let msg = new Date(Date.now()).toISOString() + ' ' + value;
 
                         console.log(msg);
-                        const el = document.createElement('div');
-                        el.textContent += msg;
-                        if (elUART.firstChild) {
-                            elUART.insertBefore(el, elUART.firstChild);
-                            while (elUART.childElementCount > MAX_UART_LOG_LINES) {
-                                elUART.removeChild(elUART.lastChild);
-                            }
-                        }
-                        else {
-                            elUART.appendChild(el);
-                        }
-
+                        diagnostics(msg);
                     }
                     else {
                         console.error('transferIn() failed:', result.status);
@@ -601,6 +624,84 @@
             }
         }
 
+        function ws_closed(event) {
+            console.log('ws_closed');
+            websocket = undefined;
+            elResponse.textContent = ' ';
+            setTimeout(ws_init, 3000);
+        }
+
+        function ws_error(event) {
+            console.log('ws_error');
+            event.target.close();
+        }
+
+        function ws_message(message) {
+            console.log(message.data);
+            diagnostics(message.data);
+        }
+
+        function ws_opened(event) {
+            console.log('ws_opened');
+            elResponse.textContent = 'OK';
+            websocket = event.target;
+            send_ping();
+        }
+
+        function ws_init() {
+            let host = window.location.hostname;
+            let port = window.location.port;
+
+            let ws = new WebSocket(`ws://${host}:${port}/websocket`);
+            ws.onopen = ws_opened;
+            ws.onclose = ws_closed;
+            ws.onerror = ws_error;
+            ws.onmessage = ws_message;
+
+            elDiagnostics.classList.remove('hidden');
+        }
+
+        async function webusb_init() {
+            // Check if the browser supports WebUSB. If not, show a message
+            // to the user.
+            if (typeof navigator.usb === 'undefined') {
+                document.getElementById('webusb-not-available').style.display = 'block';
+            }
+            else {
+                elDiagnostics.classList.remove('hidden');
+
+                navigator.usb.addEventListener('connect', webusb_device_connected);
+                navigator.usb.addEventListener('disconnect', webusb_device_disconnected);
+
+                let devices = await navigator.usb.getDevices();
+                if (devices.length) {
+                    webusb_connect(devices[0]);
+                }
+                else {
+                    // Show the connect button
+                    elWebusbConnect.style.visibility = 'visible';
+                    elWebusbConnect.addEventListener('click', async (event) => {
+                        event.preventDefault();
+                        const options = {filters:[{vendorId: VENDOR_ID}]};
+                        let device;
+                        try {
+                            device = await navigator.usb.requestDevice(options);
+                            console.log(device);
+                            if (device) {
+                                await webusb_connect(device);
+                                if (webusb_device) {
+                                    elWebusbConnect.style.visibility = 'hidden';
+                                }
+                            }
+                        }
+                        catch (e) {
+                            console.log('requestDevice failed:' + e);
+                        }
+                    });
+                }
+            }
+        }
+
         window.addEventListener('load', async function () {
             elMomentary = document.getElementById('momentary');
             elWebusbConnect = document.getElementById('webusb-connect');
@@ -622,6 +723,7 @@
             // By default the code uses WebUSB, i.e. when served from a
             // webserver (Github!)
             let use_webusb = true;
+            let use_ws = false;
 
             if (document.cookie.split(';').indexOf('mode=xhr') >= 0) {
                 console.log('XHR mode requested (serial port');
@@ -629,48 +731,23 @@
                 document.cookie = 'mode=; expires=Thu, 01 Jan 1970 00:00:00 GMT';
                 use_webusb = false;
             }
-
-            send_function = use_webusb ? send_webusb : send_xmlhttp;
+            if (document.cookie.split(';').indexOf('mode=ws') >= 0) {
+                console.log('XHR mode requested (serial port');
+                document.cookie = 'mode=; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+                use_webusb = false;
+                use_ws = true;
+            }
 
             if (use_webusb) {
-                // Check if the browser supports WebUSB. If not, show a message
-                // to the user.
-                if (typeof navigator.usb === 'undefined') {
-                    document.getElementById('webusb-not-available').style.display = 'block';
-                }
-                else {
-                    elDiagnostics.classList.remove('hidden');
-
-                    navigator.usb.addEventListener('connect', webusb_device_connected);
-                    navigator.usb.addEventListener('disconnect', webusb_device_disconnected);
-
-                    let devices = await navigator.usb.getDevices();
-                    if (devices.length) {
-                        webusb_connect(devices[0]);
-                    }
-                    else {
-                        // Show the connect button
-                        elWebusbConnect.style.visibility = 'visible';
-                        elWebusbConnect.addEventListener('click', async (event) => {
-                            event.preventDefault();
-                            const options = {filters:[{vendorId: VENDOR_ID}]};
-                            let device;
-                            try {
-                                device = await navigator.usb.requestDevice(options);
-                                console.log(device);
-                                if (device) {
-                                    await webusb_connect(device);
-                                    if (webusb_device) {
-                                        elWebusbConnect.style.visibility = 'hidden';
-                                    }
-                                }
-                            }
-                            catch (e) {
-                                console.log('requestDevice failed:' + e);
-                            }
-                        });
-                    }
-                }
+                send_function = send_webusb;
+                webusb_init();
+            }
+            else if (use_ws) {
+                send_function = send_ws;
+                ws_init();
+            }
+            else {
+                send_function = send_xmlhttp;
             }
 
             document.addEventListener('keydown', keydown_event_handler);

@@ -9,6 +9,7 @@ A web browser is used for the user interface.
 package main
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
 	"io"
@@ -21,6 +22,7 @@ import (
 	"github.com/google/gousb"
 	"github.com/skratchdot/open-golang/open"
 	"github.com/tarm/serial"
+	"github.com/gorilla/websocket"
 )
 
 var receiver = make(map[string]int)
@@ -36,11 +38,31 @@ var (
 
 var retryTimeout = 500 * time.Millisecond
 
+var upgrader = websocket.Upgrader{
+    ReadBufferSize:  1024,
+    WriteBufferSize: 1024,
+}
+
+type session struct {
+	id 	int
+	c 	*websocket.Conn
+}
+
+var sessions = make(map[int]*session)
+var sessionsMutex sync.Mutex
+var latestSessionId = 0
+
+func newSession() int {
+	latestSessionId++
+	return latestSessionId
+}
+
 func httpHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
 		if !useWebusb {
-			cookie := http.Cookie{Name: "mode", Value: "xhr", MaxAge: 1}
+			// cookie := http.Cookie{Name: "mode", Value: "xhr", MaxAge: 1}
+			cookie := http.Cookie{Name: "mode", Value: "ws", MaxAge: 1}
 			http.SetCookie(w, &cookie)
 		}
 		http.ServeFile(w, r, "../preprocessor-simulator.html")
@@ -71,6 +93,57 @@ func httpHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Unsupported method", http.StatusMethodNotAllowed)
 		return
 	}
+}
+
+func websocketHandler(w http.ResponseWriter, r *http.Request) {
+    conn, err := upgrader.Upgrade(w, r, nil)
+    if err != nil {
+        log.Println(err)
+        return
+    }
+    log.Printf("Websocket connection established")
+
+    go websocketLoop(conn)
+}
+
+func websocketLoop(c *websocket.Conn) {
+	sessionsMutex.Lock()
+	s := &session{id: newSession(), c: c}
+	sessions[s.id] = s
+	sessionsMutex.Unlock()
+
+    for {
+    	messageType, r, err := c.NextReader()
+        if err != nil {
+        	log.Printf("Websocket: closed")
+            c.Close()
+            break
+        }
+
+        if messageType == websocket.TextMessage {
+			var m map[string]interface{}
+
+			dec := json.NewDecoder(r)
+			if err := dec.Decode(&m); err != nil {
+            	log.Println(err)
+            	continue
+        	}
+
+        	for n, d := range m {
+        		switch d.(type) {
+        		case float64:
+        			v, ok := d.(float64)
+        			if ok {
+        				receiver[n] = int(v)
+        			}
+        		}
+			}
+        }
+    }
+
+	sessionsMutex.Lock()
+    delete(sessions, s.id)
+	sessionsMutex.Unlock()
 }
 
 func writer(port io.Writer) {
@@ -110,7 +183,18 @@ func reader(port io.Reader) {
 			log.Printf("%s.Read(): returned error %v", port, err)
 			return
 		}
-		log.Print(string(buf[:numBytes]))
+
+		message := string(buf[:numBytes])
+
+		// Print the message on the console
+		log.Print(message)
+
+		// Also send the message to all websocket clients
+		sessionsMutex.Lock()
+		for _, s := range sessions {
+			s.c.WriteMessage(websocket.TextMessage, []byte(message))
+		}
+		sessionsMutex.Unlock()
 	}
 }
 
@@ -152,7 +236,7 @@ func serialControl(serialPort string, baudrate int) {
 			defer s.Close()
 
 			receiver["CONNECTED"] = 1
-			log.Printf("Connected on serial port %s", serialPort)
+			log.Printf("Connected on serial port %s at %d BAUD", serialPort, baudrate)
 			useDevice(s, s)
 			log.Printf("Serial port connection closed")
 		}()
@@ -252,5 +336,6 @@ func main() {
 
 	log.Printf("Please call up the user interface at %s", url)
 	http.HandleFunc("/", httpHandler)
+	http.HandleFunc("/websocket", websocketHandler)
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", port), nil))
 }
