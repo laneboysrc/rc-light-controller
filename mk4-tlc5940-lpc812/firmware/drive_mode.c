@@ -166,12 +166,12 @@ void process_drive_mode(void)
 
     if (last_flags.braking != global_flags.braking) {
         last_flags.braking = global_flags.braking;
-        fprintf(STDOUT_DEBUG, "Brake %d\n", global_flags.braking);
+        fprintf(STDOUT_DEBUG, "brake %d\n", global_flags.braking);
     }
 
     if (last_flags.reversing != global_flags.reversing) {
         last_flags.reversing = global_flags.reversing;
-        fprintf(STDOUT_DEBUG, "Reversing %d\n", global_flags.reversing);
+        fprintf(STDOUT_DEBUG, "reverse %d\n", global_flags.reversing);
     }
 }
 
