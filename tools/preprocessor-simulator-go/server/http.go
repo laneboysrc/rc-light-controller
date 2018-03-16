@@ -27,8 +27,15 @@ func httpHandler(w http.ResponseWriter, r *http.Request) {
 			cookie := http.Cookie{Name: "mode", Value: "ws", MaxAge: 2}
 			http.SetCookie(w, &cookie)
 		}
-		http.ServeFile(w, r, "../preprocessor-simulator.html")
-		return
+
+		data, err := Asset("preprocessor-simulator.html")
+		if err != nil {
+			http.NotFound(w, r)
+		} else {
+		    w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		    w.WriteHeader(http.StatusOK)
+			fmt.Fprint(w, string(data))
+		}
 
 	case "POST":
 		err := r.ParseForm()
@@ -49,10 +56,8 @@ func httpHandler(w http.ResponseWriter, r *http.Request) {
 		} else {
 			fmt.Fprintf(w, "No device connected")
 		}
-		return
 
 	default:
 		http.Error(w, "Unsupported method", http.StatusMethodNotAllowed)
-		return
 	}
 }
