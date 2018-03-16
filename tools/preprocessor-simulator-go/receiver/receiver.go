@@ -20,4 +20,3 @@ func Get(k string) int {
 
 	return v
 }
-

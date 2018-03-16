@@ -12,7 +12,7 @@ import (
 var setModeCookie bool
 
 func RegisterHttp(useWebusb bool) {
-	setModeCookie =  !useWebusb
+	setModeCookie = !useWebusb
 	http.HandleFunc("/", httpHandler)
 }
 
@@ -32,8 +32,8 @@ func httpHandler(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			http.NotFound(w, r)
 		} else {
-		    w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		    w.WriteHeader(http.StatusOK)
+			w.Header().Set("Content-Type", "text/html; charset=utf-8")
+			w.WriteHeader(http.StatusOK)
 			fmt.Fprint(w, string(data))
 		}
 

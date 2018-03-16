@@ -2,9 +2,9 @@ package comm
 
 import (
 	"io"
-	"sync"
 	"log"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/laneboysrc/rc-light-controller/tools/preprocessor-simulator-go/receiver"
