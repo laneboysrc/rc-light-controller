@@ -16,14 +16,14 @@ import (
 	"log"
 	"net/http"
 	"strconv"
-	"sync"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/google/gousb"
+	"github.com/gorilla/websocket"
 	"github.com/skratchdot/open-golang/open"
 	"github.com/tarm/serial"
-	"github.com/gorilla/websocket"
 )
 
 var receiver = make(map[string]int)
@@ -31,11 +31,11 @@ var receiverMutex sync.Mutex
 
 // Command line parameters
 var (
-	useWebusb     bool
-	port          int
-	baudrate      int
-	serialPort    string
-	launchBrowser bool
+	useWebusb     = flag.Bool("webusb", false, "use WebUSB to connect to the light controller")
+	port          = flag.Int("p", 1234, "HTTP `port` for the web UI")
+	baudrate      = flag.Int("b", 38400, "`baudrate` to use. Only applicable when -tty is specified")
+	serialPort    = flag.String("tty", "", "serial port connection to the light controller. If not specified, USB is used")
+	launchBrowser = flag.Bool("l", false, "launch the app in the web browser")
 )
 
 var retryTimeout = 500 * time.Millisecond
@@ -62,7 +62,7 @@ func newSession() int {
 func httpHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
-		if !useWebusb {
+		if !*useWebusb {
 			// cookie := http.Cookie{Name: "mode", Value: "xhr", MaxAge: 1}
 			cookie := http.Cookie{Name: "mode", Value: "ws", MaxAge: 1}
 			http.SetCookie(w, &cookie)
@@ -332,34 +332,26 @@ func usbControl() {
 	}
 }
 
-func init() {
-	flag.IntVar(&port, "p", 1234, "HTTP `port` for the web UI")
-	flag.StringVar(&serialPort, "tty", "", "serial port connection to the light controller. If not specified, USB is used")
-	flag.IntVar(&baudrate, "b", 38400, "`baudrate` to use. Only applicable when -tty is specified")
-	flag.BoolVar(&useWebusb, "webusb", false, "use WebUSB to connect to the light controller")
-	flag.BoolVar(&launchBrowser, "l", false, "launch the app in the web browser")
-}
-
 func main() {
 	flag.Parse()
 
 	switch {
 	default:
 		go usbControl()
-	case serialPort != "":
-		go serialControl(serialPort, baudrate)
-	case useWebusb:
+	case *serialPort != "":
+		go serialControl(*serialPort, *baudrate)
+	case *useWebusb:
 		// Do nothing, everything is handled by the HTML
 	}
 
-	url := fmt.Sprintf("http://localhost:%d/", port)
+	url := fmt.Sprintf("http://localhost:%d/", *port)
 
-	if launchBrowser {
+	if *launchBrowser {
 		open.Start(url)
 	}
 
 	log.Printf("Please call up the user interface at %s", url)
 	http.HandleFunc("/", httpHandler)
 	http.HandleFunc("/websocket", websocketHandler)
-	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", port), nil))
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", *port), nil))
 }
