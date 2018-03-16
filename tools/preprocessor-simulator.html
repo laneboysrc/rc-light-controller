@@ -646,7 +646,6 @@ function ws_error(event) {
 }
 
 function ws_message(message) {
-    console.log(message.data);
     diagnostics(message.data);
 }
 
@@ -661,6 +660,7 @@ function ws_init() {
     let host = window.location.hostname;
     let port = window.location.port;
 
+    console.log('ws_init');
     let ws = new WebSocket(`ws://${host}:${port}/websocket`);
     ws.onopen = ws_opened;
     ws.onclose = ws_closed;
@@ -735,13 +735,13 @@ window.addEventListener('load', async function () {
     let use_ws = false;
 
     if (document.cookie.split(';').indexOf('mode=xhr') >= 0) {
-        console.log('XHR mode requested (serial port');
+        console.log('XHR mode requested');
         // Clear the cookie
         document.cookie = 'mode=; expires=Thu, 01 Jan 1970 00:00:00 GMT';
         use_webusb = false;
     }
     if (document.cookie.split(';').indexOf('mode=ws') >= 0) {
-        console.log('XHR mode requested (serial port');
+        console.log('WS mode requested');
         document.cookie = 'mode=; expires=Thu, 01 Jan 1970 00:00:00 GMT';
         use_webusb = false;
         use_ws = true;
