@@ -9,25 +9,15 @@ A web browser is used for the user interface.
 package main
 
 import (
-	"encoding/json"
 	"flag"
 	"fmt"
-	"io"
 	"log"
-	"net/http"
-	"strconv"
-	"strings"
-	"sync"
-	"time"
 
-	"github.com/google/gousb"
-	"github.com/gorilla/websocket"
 	"github.com/skratchdot/open-golang/open"
-	"github.com/tarm/serial"
-)
 
-var receiver = make(map[string]int)
-var receiverMutex sync.Mutex
+	"github.com/laneboysrc/rc-light-controller/tools/preprocessor-simulator-go/comm"
+	"github.com/laneboysrc/rc-light-controller/tools/preprocessor-simulator-go/server"
+)
 
 // Command line parameters
 var (
@@ -38,308 +28,14 @@ var (
 	launchBrowser = flag.Bool("l", false, "launch the app in the web browser")
 )
 
-var retryTimeout = 500 * time.Millisecond
-
-var upgrader = websocket.Upgrader{
-    ReadBufferSize:  1024,
-    WriteBufferSize: 1024,
-}
-
-type session struct {
-	id 	int
-	c 	*websocket.Conn
-}
-
-var sessions = make(map[int]*session)
-var sessionsMutex sync.Mutex
-var latestSessionId = 0
-
-func newSession() int {
-	latestSessionId++
-	return latestSessionId
-}
-
-func httpHandler(w http.ResponseWriter, r *http.Request) {
-	switch r.Method {
-	case "GET":
-		if !*useWebusb {
-			// cookie := http.Cookie{Name: "mode", Value: "xhr", MaxAge: 1}
-			cookie := http.Cookie{Name: "mode", Value: "ws", MaxAge: 1}
-			http.SetCookie(w, &cookie)
-		}
-		http.ServeFile(w, r, "../preprocessor-simulator.html")
-		return
-
-	case "POST":
-		err := r.ParseForm()
-		if err != nil {
-			log.Println(err)
-			http.Error(w, "Form parsing failed", http.StatusInternalServerError)
-			return
-		}
-
-		receiverMutex.Lock()
-		for name, values := range r.Form {
-			if value, err := strconv.ParseInt(values[0], 10, 32); err == nil {
-				receiver[name] = int(value)
-			}
-		}
-
-		if receiver["CONNECTED"] != 0 {
-			fmt.Fprintf(w, "OK")
-		} else {
-			fmt.Fprintf(w, "No device connected")
-		}
-		receiverMutex.Unlock()
-		return
-
-	default:
-		http.Error(w, "Unsupported method", http.StatusMethodNotAllowed)
-		return
-	}
-}
-
-func websocketHandler(w http.ResponseWriter, r *http.Request) {
-    conn, err := upgrader.Upgrade(w, r, nil)
-    if err != nil {
-        log.Println(err)
-        return
-    }
-    log.Printf("Websocket connection established")
-
-    go websocketLoop(conn)
-}
-
-func websocketLoop(c *websocket.Conn) {
-	sessionsMutex.Lock()
-	s := &session{id: newSession(), c: c}
-	sessions[s.id] = s
-	sessionsMutex.Unlock()
-
-    for {
-    	messageType, r, err := c.NextReader()
-        if err != nil {
-        	log.Printf("Websocket: closed")
-            c.Close()
-            break
-        }
-
-        if messageType == websocket.TextMessage {
-			var m map[string]interface{}
-
-			dec := json.NewDecoder(r)
-			if err := dec.Decode(&m); err != nil {
-            	log.Println(err)
-            	continue
-        	}
-
-			receiverMutex.Lock()
-        	for n, d := range m {
-        		switch d.(type) {
-        		case float64:
-        			v, ok := d.(float64)
-        			if ok {
-        				receiver[n] = int(v)
-        			}
-        		}
-			}
-			receiverMutex.Unlock()
-        }
-    }
-
-	sessionsMutex.Lock()
-    delete(sessions, s.id)
-	sessionsMutex.Unlock()
-}
-
-func writer(port io.Writer) {
-	const slaveMagicByte = 0x87
-
-	for {
-		data := make([]byte, 4)
-		lastByte := 0
-
-		receiverMutex.Lock()
-
-		if receiver["CH3"] != 0 {
-			lastByte += 0x01
-		}
-		if receiver["STARTUP_MODE"] != 0 {
-			lastByte += 0x10
-		}
-
-		data[0] = byte(slaveMagicByte)
-		data[1] = uint8(receiver["ST"])
-		data[2] = uint8(receiver["TH"])
-		data[3] = byte(lastByte)
-
-		receiverMutex.Unlock()
-
-		numBytes, err := port.Write(data)
-		if numBytes != 4 {
-			log.Printf("%s.Write(): only %d bytes written, returned error is %v", port, numBytes, err)
-			return
-		}
-
-		time.Sleep(20 * time.Millisecond)
-	}
-}
-
-func reader(port io.Reader) {
-	buf := make([]byte, 64)
-
-	for {
-		numBytes, err := port.Read(buf)
-		if err != nil {
-			log.Printf("%s.Read(): returned error %v", port, err)
-			return
-		}
-
-		message := string(buf[:numBytes])
-
-		// Print the message on the console. Note that the message could have
-		// newlines in it, we parse that out.
-		arr := strings.Split(strings.Trim(message, "\n"), "\n")
-		for _, msg := range arr {
-			log.Print(msg)
-		}
-
-		// Also send the message to all websocket clients
-		sessionsMutex.Lock()
-		for _, s := range sessions {
-			s.c.WriteMessage(websocket.TextMessage, []byte(message))
-		}
-		sessionsMutex.Unlock()
-	}
-}
-
-func useDevice(w io.Writer, r io.Reader) {
-	// We use sync.WaitGroup to wait for the two goroutines reader() and
-	// writer() to finish. To do so we Add(2), and defer Done() in each
-	// goroutine. We the use Wait() to wait for the goroutines to
-	// finish.
-	var wg sync.WaitGroup
-
-	wg.Add(2)
-	go func() {
-		defer wg.Done()
-		writer(w)
-	}()
-
-	go func() {
-		defer wg.Done()
-		reader(r)
-	}()
-
-	wg.Wait()
-}
-
-func serialControl(serialPort string, baudrate int) {
-	first := true
-
-	for {
-		func() {
-			c := &serial.Config{Name: serialPort, Baud: baudrate}
-			s, err := serial.OpenPort(c)
-			if err != nil {
-				if first {
-					first = false
-					log.Printf("Can not open %s: %s", serialPort, err)
-				}
-				return
-			}
-			defer s.Close()
-
-			receiverMutex.Lock()
-			receiver["CONNECTED"] = 1
-			receiverMutex.Unlock()
-
-			log.Printf("Connected on serial port %s at %d BAUD", serialPort, baudrate)
-			useDevice(s, s)
-			log.Printf("Serial port connection closed")
-		}()
-
-		receiverMutex.Lock()
-		receiver["CONNECTED"] = 0
-		receiverMutex.Unlock()
-		time.Sleep(retryTimeout)
-	}
-}
-
-func usbControl() {
-	first := true
-
-	for {
-		func() {
-			context := gousb.NewContext()
-			defer context.Close()
-
-			dev, err := context.OpenDeviceWithVIDPID(0x6666, 0xcab1)
-			if err != nil {
-				log.Fatalf("Could not open a device: %v", err)
-			}
-			if dev == nil {
-				if first {
-					first = false
-					log.Printf("No LANE Boys RC Light Controller connected via USB")
-				}
-				return
-			}
-			defer dev.Close()
-			first = false
-
-			cfg, err := dev.Config(1)
-			if err != nil {
-				log.Printf("%s.Config(1): %v", dev, err)
-				return
-			}
-			defer cfg.Close()
-
-			intf, err := cfg.Interface(1, 0)
-			if err != nil {
-				log.Printf("%s.Interface(1, 0): %v", cfg, err)
-				return
-			}
-			defer intf.Close()
-
-			epOut, err := intf.OutEndpoint(2)
-			if err != nil {
-				log.Printf("%s.OutEndpoint(2): %v", intf, err)
-				return
-			}
-
-			epIn, err := intf.InEndpoint(1)
-			if err != nil {
-				log.Printf("%s.InEndpoint(1): %v", intf, err)
-				return
-			}
-
-			if serial, err := dev.SerialNumber(); err == nil {
-				log.Printf("Connected to Light Controller with serial number %s", serial)
-			}
-
-			receiverMutex.Lock()
-			receiver["CONNECTED"] = 1
-			receiverMutex.Unlock()
-			useDevice(epOut, epIn)
-			log.Printf("USB connection closed")
-		}()
-
-		receiverMutex.Lock()
-		receiver["CONNECTED"] = 0
-		receiverMutex.Unlock()
-		time.Sleep(retryTimeout)
-	}
-}
-
 func main() {
 	flag.Parse()
 
 	switch {
 	default:
-		go usbControl()
+		go comm.UseUsb()
 	case *serialPort != "":
-		go serialControl(*serialPort, *baudrate)
+		go comm.UseSerial(*serialPort, *baudrate)
 	case *useWebusb:
 		// Do nothing, everything is handled by the HTML
 	}
@@ -351,7 +47,7 @@ func main() {
 	}
 
 	log.Printf("Please call up the user interface at %s", url)
-	http.HandleFunc("/", httpHandler)
-	http.HandleFunc("/websocket", websocketHandler)
-	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", *port), nil))
+	server.RegisterHttp(*useWebusb)
+	server.RegisterWebsocket()
+	log.Fatal(server.Run(fmt.Sprintf(":%d", *port)))
 }
