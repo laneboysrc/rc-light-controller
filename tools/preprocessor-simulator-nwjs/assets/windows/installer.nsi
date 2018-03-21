@@ -10,7 +10,7 @@
 
 # Some definitions
 !define SOURCE_FILES          ".\preprocessor-simulator\${PLATFORM}\*"
-!define APP_NAME              "Betaflight Configurator"
+!define APP_NAME              "Preprocessor Simulator"
 !define COMPANY_NAME          "LANE Boys RC"
 !define GROUP_NAME            "LANE Boys RC"
 !define FOLDER_NAME           "Preprocessor-Simulator"
@@ -24,8 +24,8 @@ Name "${APP_NAME}"
 BrandingText "${COMPANY_NAME}"
 
 # set the icon
-!define MUI_ICON ".\bf_installer_icon.ico"
-!define MUI_UNICON ".\bf_uninstaller_icon.ico"
+!define MUI_ICON ".\installer.ico"
+!define MUI_UNICON ".\uninstaller.ico"
 
 #Define uninstall list name
 !define UninstName "uninbf00"
@@ -46,14 +46,6 @@ OutFile "..\..\${DEST_FOLDER}\${FILE_NAME_INSTALLER}"
 
 !insertmacro MUI_PAGE_FINISH
 !insertmacro MUI_LANGUAGE "English"
-!insertmacro MUI_LANGUAGE "Catalan"
-!insertmacro MUI_LANGUAGE "French"
-!insertmacro MUI_LANGUAGE "German"
-!insertmacro MUI_LANGUAGE "Italian"
-!insertmacro MUI_LANGUAGE "Korean"
-!insertmacro MUI_LANGUAGE "Latvian"
-!insertmacro MUI_LANGUAGE "SimpChinese"
-!insertmacro MUI_LANGUAGE "Spanish"
 
 # detect default install folder
 Function .onInit
