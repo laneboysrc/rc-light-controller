@@ -24,7 +24,7 @@ Name "${APP_NAME}"
 BrandingText "${COMPANY_NAME}"
 
 # set the icon
-!define MUI_ICON ".\installer.ico"
+!define MUI_ICON ".\assets\windows\installer.ico"
 !define MUI_UNICON ".\uninstaller.ico"
 
 #Define uninstall list name
