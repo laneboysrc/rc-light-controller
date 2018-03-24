@@ -860,7 +860,7 @@ U 1 1 5A1150A8
 P 3750 6850
 F 0 "C2" H 3775 6950 50  0000 L CNN
 F 1 "47u/6.3V Polymer 0805" H 3775 6750 50  0000 L CNN
-F 2 "Capacitors_Tantalum_SMD:CP_Tantalum_Case-R_EIA-2012-12_Reflow" H 3788 6700 50  0001 C CNN
+F 2 "Capacitors_SMD:C_0805" H 3788 6700 50  0001 C CNN
 F 3 "" H 3750 6850 50  0001 C CNN
 	1    3750 6850
 	1    0    0    -1  
@@ -1002,13 +1002,9 @@ PA27
 Text Label 6450 3950 0    60   ~ 0
 PA28
 Wire Wire Line
-	3750 4050 3750 4150
+	3750 4050 3750 4250
 Wire Wire Line
-	3750 4150 3750 4250
-Wire Wire Line
-	9250 2350 9250 2450
-Wire Wire Line
-	9250 2450 9250 2650
+	9250 2350 9250 2650
 Wire Wire Line
 	6350 2150 7450 2150
 Wire Wire Line
@@ -1028,15 +1024,9 @@ Wire Wire Line
 Wire Wire Line
 	9550 1000 9550 1150
 Wire Wire Line
-	8050 2450 8450 2450
+	8050 2450 9350 2450
 Wire Wire Line
-	8450 2450 9250 2450
-Wire Wire Line
-	9250 2450 9350 2450
-Wire Wire Line
-	8450 2450 8450 2950
-Wire Wire Line
-	8450 2950 8450 3150
+	8450 2450 8450 3150
 Wire Wire Line
 	8450 2950 8550 2950
 Connection ~ 9250 2450
@@ -1058,9 +1048,7 @@ Wire Wire Line
 Wire Wire Line
 	3550 6600 3750 6600
 Wire Wire Line
-	3750 6500 3750 6600
-Wire Wire Line
-	3750 6600 3750 6700
+	3750 6500 3750 6700
 Connection ~ 3750 6600
 Wire Wire Line
 	3750 7000 3750 7100
@@ -1069,21 +1057,11 @@ Wire Wire Line
 Connection ~ 2700 6600
 Connection ~ 2300 6600
 Wire Wire Line
-	1700 4800 1700 4950
+	1700 4800 1700 6300
 Wire Wire Line
-	1700 4950 1700 5950
+	1550 5150 3350 5150
 Wire Wire Line
-	1700 5950 1700 6200
-Wire Wire Line
-	1700 6200 1700 6300
-Wire Wire Line
-	1550 5150 2350 5150
-Wire Wire Line
-	2350 5150 3350 5150
-Wire Wire Line
-	1550 5250 2550 5250
-Wire Wire Line
-	2550 5250 3350 5250
+	1550 5250 3350 5250
 Wire Wire Line
 	1250 5550 1250 5650
 Wire Wire Line
@@ -1124,44 +1102,24 @@ Wire Wire Line
 Wire Wire Line
 	1300 1850 1500 1850
 Wire Wire Line
-	1500 1150 1500 1850
-Wire Wire Line
-	1500 1850 1500 2150
-Wire Wire Line
-	1500 2150 1500 2250
+	1500 1150 1500 2250
 Wire Wire Line
 	850  6650 850  7000
 Wire Wire Line
-	1650 1100 1650 1250
+	1650 1100 1650 1750
 Wire Wire Line
-	1650 1250 1650 1750
-Wire Wire Line
-	8600 1350 9100 1350
-Wire Wire Line
-	9100 1350 9250 1350
+	8600 1350 9250 1350
 Wire Wire Line
 	2400 1550 2800 1550
 Wire Wire Line
 	2050 1250 2050 1100
 Wire Wire Line
-	1300 1250 1650 1250
-Wire Wire Line
-	1650 1250 2050 1250
+	1300 1250 2050 1250
 Connection ~ 1650 1250
 Wire Wire Line
 	8850 5950 8850 6250
 Wire Wire Line
-	8850 6250 9450 6250
-Wire Wire Line
-	9450 6250 9650 6250
-Wire Wire Line
-	9650 6250 9850 6250
-Wire Wire Line
-	9850 6250 10050 6250
-Wire Wire Line
-	10050 6250 10250 6250
-Wire Wire Line
-	10250 6250 10450 6250
+	8850 6250 10450 6250
 Wire Wire Line
 	9450 6250 9450 6050
 Wire Wire Line
@@ -1192,9 +1150,7 @@ Wire Wire Line
 	1750 2150 1500 2150
 Connection ~ 1500 2150
 Wire Wire Line
-	9250 4750 9250 4900
-Wire Wire Line
-	9250 4900 9250 5000
+	9250 4750 9250 5000
 Wire Wire Line
 	9150 4750 9150 4900
 Wire Wire Line
@@ -1219,23 +1175,15 @@ Wire Wire Line
 Wire Wire Line
 	7800 3050 7800 3150
 Wire Wire Line
-	5400 5450 5800 5450
-Wire Wire Line
-	5800 5450 5850 5450
+	5400 5450 5850 5450
 Wire Wire Line
 	5850 5700 5400 5700
 Wire Wire Line
-	850  7000 1300 7000
-Wire Wire Line
-	1300 7000 1700 7000
+	850  7000 1700 7000
 Wire Wire Line
 	1700 7000 1700 6900
 Wire Wire Line
-	1900 6600 2300 6600
-Wire Wire Line
-	2300 6600 2700 6600
-Wire Wire Line
-	2700 6600 2950 6600
+	1900 6600 2950 6600
 Wire Wire Line
 	2300 6450 2300 6600
 Wire Notes Line
@@ -1255,9 +1203,7 @@ Wire Wire Line
 Wire Wire Line
 	2050 3100 2050 3000
 Wire Wire Line
-	1100 3200 1950 3200
-Wire Wire Line
-	1950 3200 2500 3200
+	1100 3200 2500 3200
 Wire Wire Line
 	1300 6800 1300 7000
 Connection ~ 1300 7000
@@ -1267,11 +1213,7 @@ Wire Wire Line
 	1300 6200 1700 6200
 Connection ~ 1700 6200
 Wire Wire Line
-	3700 1950 3700 2050
-Wire Wire Line
-	3700 2050 3700 2550
-Wire Wire Line
-	3700 2550 3700 2650
+	3700 1950 3700 2650
 Wire Wire Line
 	3700 2050 3850 2050
 Wire Wire Line
@@ -1363,39 +1305,21 @@ Constant-current LED driver
 Text Notes 9400 5500 0    60   ~ 0
 LED supply connections
 Connection ~ 1950 3200
+Wire Wire Line
+	5350 6350 5850 6350
+Text Label 5350 6350 0    60   ~ 0
+RESET
 $Comp
-L TEST TP3
-U 1 1 5A8BCF2D
+L TEST TP5
+U 1 1 5A8BE653
 P 5850 6350
-F 0 "TP3" V 5850 6550 50  0000 L BNN
+F 0 "TP5" V 5850 6550 50  0000 L BNN
 F 1 "RESET" V 5900 6550 50  0000 L CNN
 F 2 "SMD-pads:Measurement_Point_Round-SMD-Pad_1mm" H 5850 6350 50  0001 C CNN
 F 3 "" H 5850 6350 50  0001 C CNN
 	1    5850 6350
 	0    1    1    0   
 $EndComp
-Wire Wire Line
-	5350 6350 5750 6350
-Wire Wire Line
-	5750 6350 5850 6350
-Text Label 5350 6350 0    60   ~ 0
-RESET
-$Comp
-L TEST TP5
-U 1 1 5A8BE653
-P 5850 6550
-F 0 "TP5" V 5850 6750 50  0000 L BNN
-F 1 "RESET" V 5900 6750 50  0000 L CNN
-F 2 "SMD-pads:Measurement_Point_Round-SMD-Pad_1mm" H 5850 6550 50  0001 C CNN
-F 3 "" H 5850 6550 50  0001 C CNN
-	1    5850 6550
-	0    1    1    0   
-$EndComp
-Wire Wire Line
-	5850 6550 5750 6550
-Wire Wire Line
-	5750 6550 5750 6350
-Connection ~ 5750 6350
 $Comp
 L TEST TP7
 U 1 1 5A8E31C0
