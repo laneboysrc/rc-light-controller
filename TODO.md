@@ -7,6 +7,8 @@
 * TLC5940 footprint based on TI datasheet
 * Output stencil 5mil/0.12mm thick
 * Verify Micro-USB footprint fits
+* QR code to configurator for phone/webusb
+
 
 # MK4 + MK5
 
