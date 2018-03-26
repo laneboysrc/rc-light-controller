@@ -9,7 +9,7 @@
 # ${DEST_FOLDER} - Destination folder for the installer files
 
 # Some definitions
-!define SOURCE_FILES          ".\preprocessor-simulator\${PLATFORM}\*"
+!define SOURCE_FILES          "..\..\build\release\preprocessor-simulator\${PLATFORM}\*"
 !define APP_NAME              "Preprocessor Simulator"
 !define COMPANY_NAME          "LANE Boys RC"
 !define GROUP_NAME            "LANE Boys RC"
@@ -24,7 +24,7 @@ Name "${APP_NAME}"
 BrandingText "${COMPANY_NAME}"
 
 # set the icon
-!define MUI_ICON ".\assets\windows\installer.ico"
+!define MUI_ICON ".\installer.ico"
 !define MUI_UNICON ".\uninstaller.ico"
 
 #Define uninstall list name
