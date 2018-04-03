@@ -99,7 +99,6 @@
 
 #include <globals.h>
 #include <printf.h>
-#include <utils.h>
 
 #define MAX_INSTRUCTIONS_PER_SYSTICK 30
 

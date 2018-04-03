@@ -37,8 +37,8 @@
  *****************************************************************************/
 #include <stdint.h>
 
-#include <globals.h>
 #include <hal.h>
+#include <globals.h>
 
 
 #define SLAVE_MAGIC_BYTE 0x87

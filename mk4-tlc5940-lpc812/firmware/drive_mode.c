@@ -18,7 +18,6 @@
 
 #include <globals.h>
 #include <printf.h>
-#include <utils.h>
 
 
 static uint16_t throttle_threshold = 0xffff;    // Signify uninitialized value

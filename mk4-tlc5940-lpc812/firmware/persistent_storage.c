@@ -14,7 +14,6 @@
 #include <stdbool.h>
 
 #include <hal.h>
-
 #include <globals.h>
 #include <printf.h>
 

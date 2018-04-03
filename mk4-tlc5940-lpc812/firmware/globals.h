@@ -565,4 +565,6 @@ void light_switch_up(void);
 void light_switch_down(void);
 void toggle_light_switch(void);
 
+uint16_t random_min_max(uint16_t min, uint16_t max);
+
 #endif // __GLOBALS_H

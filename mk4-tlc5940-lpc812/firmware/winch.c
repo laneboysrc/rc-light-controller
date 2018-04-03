@@ -3,8 +3,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include <printf.h>
 #include <globals.h>
+#include <printf.h>
 
 static uint16_t winch_command_repeat_counter;
 
