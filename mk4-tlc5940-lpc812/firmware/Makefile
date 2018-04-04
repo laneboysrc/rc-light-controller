@@ -74,7 +74,7 @@ INCLUDES += -isystem./hal/LPC8xx
 
 LIBS := -lnosys
 
-DEPENDENCIES := makefile
+DEPENDENCIES := Makefile
 
 
 ###############################################################################

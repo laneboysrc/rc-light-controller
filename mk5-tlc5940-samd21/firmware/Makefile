@@ -83,7 +83,7 @@ DEFINES += -DNODEBUG
 
 LIBS +=
 
-DEPENDENCIES += makefile
+DEPENDENCIES += Makefile
 
 
 ###############################################################################
