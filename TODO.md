@@ -27,6 +27,19 @@
 
 # Configurator
 
+* Replace gulp with make
+  * We still need node-js for inline-source-cli
+  * Template can be replaced with sed "s/yyyymmdd/$(date '+%Y%m%d')/g" abc.fil
+    * http://gnuwin32.sourceforge.net/packages/sed.htm
+
+* Modernize class_manipulation.js
+
+* Merge disassembler with assembler
+
+* Move intelhex, codemirror, filesaver into vendor directory
+
+* Fix documentation skip if blinkfag -> skip if is ...
+
 * nw.js based stand-alone program, and on-line WebUSB
 
 * Integrate LPC812 programmer
