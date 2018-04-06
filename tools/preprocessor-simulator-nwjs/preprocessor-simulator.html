@@ -774,6 +774,17 @@ window.addEventListener('load', async function () {
 
     reset_ui();
     update_ui();
+
+    if (typeof(chrome) !== 'undefined'  &&  chrome.serial) {
+        chrome.serial.getDevices(ports => {
+            ports.forEach(port => {
+                elResponse.textContent += port.path + ' ' + port.displayName;
+            });
+        });
+    }
+    else {
+        elResponse.textContent = 'Serial ports are not supported';
+    }
 });
 
     </script>
