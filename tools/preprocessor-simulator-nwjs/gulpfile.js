@@ -36,7 +36,7 @@ const RELEASE_DIR = './build/release/';
 const SUPPORTED_PLATFORMS = ['linux64', 'linux32', 'osx64', 'win32', 'win64'];
 
 var nwBuilderOptions = {
-    version: '0.29.1',
+    version: '0.29.3',
     files: DIST_DIR + '**/*',
     // winIco: './images/laneboysrc.ico',
     // macIcns: './images/laneboysrc.icns',
@@ -404,10 +404,8 @@ function get_build_platforms() {
 
 function mkdir_p(dir) {
     fs.mkdir(dir, '0775', function(error) {
-        if (error) {
-            if (error.code !== 'EEXIST') {
-                throw error;
-            }
+        if (error  &&  error.code !== 'EEXIST') {
+            throw error;
         }
     });
 }
