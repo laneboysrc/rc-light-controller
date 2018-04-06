@@ -2,6 +2,8 @@
 
 * Investigate outputs sometimes not working on Android board
 
+* DFU Upload (for configurator)
+
 # MK5 PCB
 
 * TLC5940 footprint based on TI datasheet
@@ -25,14 +27,19 @@
 
 # Configurator
 
-* Go-based stand-alone program, and on-line WebUSB
+* nw.js based stand-alone program, and on-line WebUSB
+
+* Integrate LPC812 programmer
+
+* Integrate preprocessor-simulator
 
 * WebUSB version needs to redirect to HTTPS on Github!
 
 * Refactor UI using BetaFlight as inspiration (Tabs, left side menu)
 
 * Add MK5
-  * How to determine whether MK4 or MK5 firmware? Use Stack pointer location?
+  * User-select for UI
+  * When loading hex file, autodetect as per stack pointer location
 
 * Configurator to have a shortcut for boilerplate for new light programs
     E.g. all LEDs pre-defined
@@ -42,13 +49,13 @@
     LED sequence is important. This could be as easy as translating names like
     'indicator' to the appropriate led[0..31] values.
 
+* Fix skip if blinkfag, add more tests
+
 * Add `local_switch_is_momentary` for MK5
 
 * Add `stand-alone` mode
 
 * Make `pre-processor` a configuration in the drop-down box
-
-* Add 'save light program as text' button
 
 
 # General improvements
