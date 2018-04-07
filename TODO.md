@@ -29,8 +29,6 @@
 
 * Modernize class_manipulation.js
 
-* Fix documentation skip if blinkfag -> skip if is ...
-
 * nw.js based stand-alone program, and on-line WebUSB
 
 * Integrate LPC812 programmer
