@@ -2,8 +2,6 @@
 
 * Investigate outputs sometimes not working on Android board
 
-* DFU Upload (for configurator)
-
 # MK5 PCB
 
 * TLC5940 footprint based on TI datasheet
