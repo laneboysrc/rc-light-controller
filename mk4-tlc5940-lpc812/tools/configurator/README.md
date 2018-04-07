@@ -7,7 +7,7 @@ This tool makes use of many **awesome** open source components. Refer to [config
 
 ## Build instructions
 
-The "source" can be run and edited by simply opening [configurator.html](configurator.html) with the web browser.
+The "source" can be run and edited by simply opening [index.html](src/index.html) with the web browser.
 
 To compile all source files into a single HTML file for distribution the following tools are needed:
 
