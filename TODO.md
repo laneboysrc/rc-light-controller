@@ -34,8 +34,6 @@
 
 * Modernize class_manipulation.js
 
-* Move intelhex, codemirror, filesaver into vendor directory
-
 * Fix documentation skip if blinkfag -> skip if is ...
 
 * nw.js based stand-alone program, and on-line WebUSB
