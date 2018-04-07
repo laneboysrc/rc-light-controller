@@ -30,7 +30,7 @@ gulp.task('default', function () {
         swallowErrors: false,
     };
 
-    return gulp.src('./source.html')
+    return gulp.src('./src/index.html')
         .pipe(template({date: get_date()}))
         .pipe(inlinesource(options)).on('error', errorHandler)
         .pipe(rename('configurator.html'))
