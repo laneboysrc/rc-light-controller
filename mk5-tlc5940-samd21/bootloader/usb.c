@@ -253,6 +253,20 @@ static void send_descriptor(const void * descriptor, uint16_t length)
 
 // ****************************************************************************
 static void dfu_upload_block(uint16_t block_number, uint16_t length) {
+    static uint32_t last_used_address = 0;
+    uint32_t address;
+    uint32_t transfer_length;
+
+    // Find the last address in the flash that is not empty
+    if (last_used_address == 0) {
+        last_used_address = FLASH_FIRMWARE_START + FLASH_FIRMWARE_SIZE - 4;
+
+        while (last_used_address > FLASH_FIRMWARE_START && *(uint32_t *)last_used_address == 0xffffffff) {
+            last_used_address -= 4;
+        }
+    }
+
+
     if (length > DFU_TRANSFER_SIZE) {
         dfu_error(DFU_STATUS_errUNKNOWN);
         usb_ep0_stall();
@@ -266,10 +280,15 @@ static void dfu_upload_block(uint16_t block_number, uint16_t length) {
     }
 
     // Send the content of the given block number
-    data = (uint8_t *)(FLASH_FIRMWARE_START + (block_number * DFU_TRANSFER_SIZE));
-    memcpy(ep0_buf_in, data, DFU_TRANSFER_SIZE);
+    address = FLASH_FIRMWARE_START + (block_number * DFU_TRANSFER_SIZE);
 
-    usb_ep_start_in(USB_IN, ep0_buf_in, DFU_TRANSFER_SIZE, false);
+    transfer_length = last_used_address - address + 4;
+    if (transfer_length > DFU_TRANSFER_SIZE) {
+        transfer_length = DFU_TRANSFER_SIZE;
+    }
+
+    memcpy(ep0_buf_in, (void *)address, transfer_length);
+    usb_ep_start_in(USB_IN, ep0_buf_in, transfer_length, false);
     usb_ep0_out();
 }
 
