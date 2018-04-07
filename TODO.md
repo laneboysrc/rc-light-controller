@@ -34,8 +34,6 @@
 
 * Modernize class_manipulation.js
 
-* Merge disassembler with assembler
-
 * Move intelhex, codemirror, filesaver into vendor directory
 
 * Fix documentation skip if blinkfag -> skip if is ...

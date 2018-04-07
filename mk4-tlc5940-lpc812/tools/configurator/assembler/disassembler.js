@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 /*jslint browser: true, bitwise: true, vars: true, plusplus: true */
 /*global  */
 
@@ -34,56 +34,56 @@ var disassembler = (function () {
     var state  = STATE_PRIORITY;
 
     var opcodes = {
-        "GOTO": 0x01,
-        "SET": 0x02,
-        "SET_I": 0x03,
-        "FADE": 0x04,
-        "FADE_I": 0x05,
-        "SLEEP": 0x06,
-        "SLEEP_I": 0x07,
-        "ASSIGN": 0x10,
-        "ASSIGN_I": 0x11,
-        "ADD": 0x12,
-        "ADD_I": 0x13,
-        "SUBTRACT": 0x14,
-        "SUBTRACT_I": 0x15,
-        "MULTIPLY": 0x16,
-        "MULTIPLY_I": 0x17,
-        "DIVIDE": 0x18,
-        "DIVIDE_I": 0x19,
-        "AND": 0x1a,
-        "AND_I": 0x1b,
-        "OR": 0x1c,
-        "OR_I": 0x1d,
-        "XOR": 0x1e,
-        "XOR_I": 0x1f,
-        "ABS": 0x40,                // VAR = |VAR| (steering, throttle)
-        "SKIP_IF_EQ_V": 0x20,       // ==       var, type, id
-        "SKIP_IF_EQ_VI": 0x21,      // ==       var, immediate
-        "SKIP_IF_EQ_L": 0x22,       // ==       led, type, id
-        "SKIP_IF_EQ_LI": 0x23,      // ==       led, immediate
-        "SKIP_IF_NE_V": 0x24,       // !=       var, type, id
-        "SKIP_IF_NE_VI": 0x25,      // !=       var, immediate
-        "SKIP_IF_NE_L": 0x26,       // !=       led, type, id
-        "SKIP_IF_NE_LI": 0x27,      // !=       led, immediate
-        "SKIP_IF_GE_V": 0x28,       // >=       var, type, id
-        "SKIP_IF_GE_VI": 0x29,      // >=       var, immediate
-        "SKIP_IF_GE_L": 0x2a,       // >=       led, type, id
-        "SKIP_IF_GE_LI": 0x2b,      // >=       led, immediate
-        "SKIP_IF_GT_V": 0x2c,       // >        var, type, id
-        "SKIP_IF_GT_VI": 0x2d,      // >        var, immediate
-        "SKIP_IF_GT_L": 0x2e,       // >        led, type, id
-        "SKIP_IF_GT_LI": 0x2f,      // >        led, immediate
-        "SKIP_IF_LE_V": 0x30,       // >=       var, type, id
-        "SKIP_IF_LE_VI": 0x31,      // >=       var, immediate
-        "SKIP_IF_LE_L": 0x32,       // >=       led, type, id
-        "SKIP_IF_LE_LI": 0x33,      // >=       led, immediate
-        "SKIP_IF_LT_V": 0x34,       // >        var, type, id
-        "SKIP_IF_LT_VI": 0x35,      // >        var, immediate
-        "SKIP_IF_LT_L": 0x36,       // >        led, type, id
-        "SKIP_IF_LT_LI": 0x37,      // >        led, immediate
-        "END_OF_PROGRAM": 0xfe,
-        "END_OF_PROGRAMS": 0xff
+        'GOTO': 0x01,
+        'SET': 0x02,
+        'SET_I': 0x03,
+        'FADE': 0x04,
+        'FADE_I': 0x05,
+        'SLEEP': 0x06,
+        'SLEEP_I': 0x07,
+        'ASSIGN': 0x10,
+        'ASSIGN_I': 0x11,
+        'ADD': 0x12,
+        'ADD_I': 0x13,
+        'SUBTRACT': 0x14,
+        'SUBTRACT_I': 0x15,
+        'MULTIPLY': 0x16,
+        'MULTIPLY_I': 0x17,
+        'DIVIDE': 0x18,
+        'DIVIDE_I': 0x19,
+        'AND': 0x1a,
+        'AND_I': 0x1b,
+        'OR': 0x1c,
+        'OR_I': 0x1d,
+        'XOR': 0x1e,
+        'XOR_I': 0x1f,
+        'ABS': 0x40,                // VAR = |VAR| (steering, throttle)
+        'SKIP_IF_EQ_V': 0x20,       // ==       var, type, id
+        'SKIP_IF_EQ_VI': 0x21,      // ==       var, immediate
+        'SKIP_IF_EQ_L': 0x22,       // ==       led, type, id
+        'SKIP_IF_EQ_LI': 0x23,      // ==       led, immediate
+        'SKIP_IF_NE_V': 0x24,       // !=       var, type, id
+        'SKIP_IF_NE_VI': 0x25,      // !=       var, immediate
+        'SKIP_IF_NE_L': 0x26,       // !=       led, type, id
+        'SKIP_IF_NE_LI': 0x27,      // !=       led, immediate
+        'SKIP_IF_GE_V': 0x28,       // >=       var, type, id
+        'SKIP_IF_GE_VI': 0x29,      // >=       var, immediate
+        'SKIP_IF_GE_L': 0x2a,       // >=       led, type, id
+        'SKIP_IF_GE_LI': 0x2b,      // >=       led, immediate
+        'SKIP_IF_GT_V': 0x2c,       // >        var, type, id
+        'SKIP_IF_GT_VI': 0x2d,      // >        var, immediate
+        'SKIP_IF_GT_L': 0x2e,       // >        led, type, id
+        'SKIP_IF_GT_LI': 0x2f,      // >        led, immediate
+        'SKIP_IF_LE_V': 0x30,       // >=       var, type, id
+        'SKIP_IF_LE_VI': 0x31,      // >=       var, immediate
+        'SKIP_IF_LE_L': 0x32,       // >=       led, type, id
+        'SKIP_IF_LE_LI': 0x33,      // >=       led, immediate
+        'SKIP_IF_LT_V': 0x34,       // >        var, type, id
+        'SKIP_IF_LT_VI': 0x35,      // >        var, immediate
+        'SKIP_IF_LT_L': 0x36,       // >        led, type, id
+        'SKIP_IF_LT_LI': 0x37,      // >        led, immediate
+        'END_OF_PROGRAM': 0xfe,
+        'END_OF_PROGRAMS': 0xff
     };
 
     var FIRST_SKIP_IF_OPCODE = 0x20;
@@ -185,28 +185,28 @@ var disassembler = (function () {
         }
 
         if (instruction & RUN_WHEN_NO_SIGNAL) {
-            asm[offset++].decleration = "run when no-signal";
+            asm[offset++].decleration = 'run when no-signal';
         }
         if (instruction & RUN_WHEN_INITIALIZING) {
-            asm[offset++].decleration = "run when initializing";
+            asm[offset++].decleration = 'run when initializing';
         }
         if (instruction & RUN_WHEN_SERVO_OUTPUT_SETUP_CENTRE) {
-            asm[offset++].decleration = "run when servo-output-setup-centre";
+            asm[offset++].decleration = 'run when servo-output-setup-centre';
         }
         if (instruction & RUN_WHEN_SERVO_OUTPUT_SETUP_LEFT) {
-            asm[offset++].decleration = "run when servo-output-setup-left";
+            asm[offset++].decleration = 'run when servo-output-setup-left';
         }
         if (instruction & RUN_WHEN_SERVO_OUTPUT_SETUP_RIGHT) {
-            asm[offset++].decleration = "run when servo-output-setup-right";
+            asm[offset++].decleration = 'run when servo-output-setup-right';
         }
         if (instruction & RUN_WHEN_REVERSING_SETUP_STEERING) {
-            asm[offset++].decleration = "run when reversing-setup-steering";
+            asm[offset++].decleration = 'run when reversing-setup-steering';
         }
         if (instruction & RUN_WHEN_REVERSING_SETUP_THROTTLE) {
-            asm[offset++].decleration = "run when reversing-setup-throttle";
+            asm[offset++].decleration = 'run when reversing-setup-throttle';
         }
         if (instruction & RUN_WHEN_GEAR_CHANGED) {
-            asm[offset++].decleration = "run when gear-changed";
+            asm[offset++].decleration = 'run when gear-changed';
         }
     };
 
@@ -218,78 +218,78 @@ var disassembler = (function () {
         }
 
         if (instruction & RUN_ALWAYS) {
-            asm[offset++].decleration = "run always";
+            asm[offset++].decleration = 'run always';
             return;
         }
 
         if (instruction & RUN_WHEN_LIGHT_SWITCH_POSITION_0) {
-            asm[offset++].decleration = "run when light-switch-position-0";
+            asm[offset++].decleration = 'run when light-switch-position-0';
         }
         if (instruction & RUN_WHEN_LIGHT_SWITCH_POSITION_1) {
-            asm[offset++].decleration = "run when light-switch-position-1";
+            asm[offset++].decleration = 'run when light-switch-position-1';
         }
         if (instruction & RUN_WHEN_LIGHT_SWITCH_POSITION_2) {
-            asm[offset++].decleration = "run when light-switch-position-2";
+            asm[offset++].decleration = 'run when light-switch-position-2';
         }
         if (instruction & RUN_WHEN_LIGHT_SWITCH_POSITION_3) {
-            asm[offset++].decleration = "run when light-switch-position-3";
+            asm[offset++].decleration = 'run when light-switch-position-3';
         }
         if (instruction & RUN_WHEN_LIGHT_SWITCH_POSITION_4) {
-            asm[offset++].decleration = "run when light-switch-position-4";
+            asm[offset++].decleration = 'run when light-switch-position-4';
         }
         if (instruction & RUN_WHEN_LIGHT_SWITCH_POSITION_5) {
-            asm[offset++].decleration = "run when light-switch-position-5";
+            asm[offset++].decleration = 'run when light-switch-position-5';
         }
         if (instruction & RUN_WHEN_LIGHT_SWITCH_POSITION_6) {
-            asm[offset++].decleration = "run when light-switch-position-6";
+            asm[offset++].decleration = 'run when light-switch-position-6';
         }
         if (instruction & RUN_WHEN_LIGHT_SWITCH_POSITION_7) {
-            asm[offset++].decleration = "run when light-switch-position-7";
+            asm[offset++].decleration = 'run when light-switch-position-7';
         }
         if (instruction & RUN_WHEN_LIGHT_SWITCH_POSITION_8) {
-            asm[offset++].decleration = "run when light-switch-position-8";
+            asm[offset++].decleration = 'run when light-switch-position-8';
         }
         if (instruction & RUN_WHEN_NEUTRAL) {
-            asm[offset++].decleration = "run when neutral";
+            asm[offset++].decleration = 'run when neutral';
         }
         if (instruction & RUN_WHEN_FORWARD) {
-            asm[offset++].decleration = "run when forward";
+            asm[offset++].decleration = 'run when forward';
         }
         if (instruction & RUN_WHEN_REVERSING) {
-            asm[offset++].decleration = "run when reversing";
+            asm[offset++].decleration = 'run when reversing';
         }
         if (instruction & RUN_WHEN_BRAKING) {
-            asm[offset++].decleration = "run when braking";
+            asm[offset++].decleration = 'run when braking';
         }
         if (instruction & RUN_WHEN_INDICATOR_LEFT) {
-            asm[offset++].decleration = "run when indicator-left";
+            asm[offset++].decleration = 'run when indicator-left';
         }
         if (instruction & RUN_WHEN_INDICATOR_RIGHT) {
-            asm[offset++].decleration = "run when indicator-right";
+            asm[offset++].decleration = 'run when indicator-right';
         }
         if (instruction & RUN_WHEN_HAZARD) {
-            asm[offset++].decleration = "run when hazard";
+            asm[offset++].decleration = 'run when hazard';
         }
         if (instruction & RUN_WHEN_BLINK_FLAG) {
-            asm[offset++].decleration = "run when blink-flag";
+            asm[offset++].decleration = 'run when blink-flag';
         }
         if (instruction & RUN_WHEN_BLINK_LEFT) {
-            asm[offset++].decleration = "run when blink-left";
+            asm[offset++].decleration = 'run when blink-left';
         }
         if (instruction & RUN_WHEN_BLINK_RIGHT) {
-            asm[offset++].decleration = "run when blink-right";
+            asm[offset++].decleration = 'run when blink-right';
         }
         if (instruction & RUN_WHEN_WINCH_DISABLERD) {
-            asm[offset++].decleration = "run when winch-disabled";
+            asm[offset++].decleration = 'run when winch-disabled';
         }
         if (instruction & RUN_WHEN_WINCH_IDLE) {
-            asm[offset++].decleration = "run when winch-idle";
+            asm[offset++].decleration = 'run when winch-idle';
         }
         if (instruction & RUN_WHEN_WINCH_IN) {
-            asm[offset++].decleration = "run when winch-in";
+            asm[offset++].decleration = 'run when winch-in';
         }
         if (instruction & RUN_WHEN_WINCH_OUT) {
-            asm[offset++].decleration = "run when winch-out";
+            asm[offset++].decleration = 'run when winch-out';
         }
     };
 
@@ -306,7 +306,7 @@ var disassembler = (function () {
         if (leds_used === (Math.pow(2, NUMBER_OF_LEDS) - 1)) {
             asm[leds_to_declare_offset].leds_to_declare = 0;
 
-            asm[offset++].decleration = "use all leds";
+            asm[offset++].decleration = 'use all leds';
             asm[offset++].decleration = '';  // Empty line
         }
 
@@ -314,7 +314,7 @@ var disassembler = (function () {
             if (instruction & Math.pow(2, i)) {
                 asm[offset].led = i;
                 asm[offset++].decleration =
-                    "led led" + i + " = led[" + i + "]";
+                    'led led' + i + ' = led[' + i + ']';
                 any_led = true;
             }
         }
@@ -332,10 +332,10 @@ var disassembler = (function () {
         var result = '';
         var led_bit_mask = 0;
 
-        // If all used LEDs are used in the instruction then output "all leds"
+        // If all used LEDs are used in the instruction then output 'all leds'
         // instead of a giant list of leds.
         if (start === 0  &&  stop === (NUMBER_OF_LEDS - 1)) {
-            return "all leds";
+            return 'all leds';
         }
 
         while (start <= stop) {
@@ -367,31 +367,31 @@ var disassembler = (function () {
         switch (parameter_type) {
         case PARAMETER_TYPE_VARIABLE:
             if (index === 0) {
-                return "clicks";
+                return 'clicks';
             }
             if (index === 1) {
-                return "light-switch-position";
+                return 'light-switch-position';
             }
             set_variable_used(index, current_program);
-            return "var" + index;
+            return 'var' + index;
 
         case PARAMETER_TYPE_LED:
-            return "led" + index;
+            return 'led' + index;
 
         case PARAMETER_TYPE_RANDOM:
-            return "random";
+            return 'random';
 
         case PARAMETER_TYPE_STEERING:
-            return "steering";
+            return 'steering';
 
         case PARAMETER_TYPE_THROTTLE:
-            return "throttle";
+            return 'throttle';
 
         case PARAMETER_TYPE_GEAR:
-            return "gear";
+            return 'gear';
 
         default:
-            return "ERROR: unknown parameter type " + parameter_type;
+            return 'ERROR: unknown parameter type ' + parameter_type;
         }
     };
 
@@ -417,7 +417,7 @@ var disassembler = (function () {
                 decimal = -0x10000 + decimal;
             }
             return result + decimal +
-                "   // 0x" + number.toString(16).toUpperCase();
+                '   // 0x' + number.toString(16).toUpperCase();
         }
 
         return result + decode_right_parameter(instruction);
@@ -435,7 +435,7 @@ var disassembler = (function () {
             if (decimal >= 0x8000) {
                 decimal = -0x10000 + decimal;
             }
-            return decimal + "   // 0x" + number.toString(16).toUpperCase();
+            return decimal + '   // 0x' + number.toString(16).toUpperCase();
         }
 
         parameter_type = (instruction >> 8) & 0xff;
@@ -445,28 +445,28 @@ var disassembler = (function () {
         switch (parameter_type) {
         case PARAMETER_TYPE_VARIABLE:
             if (index === 0) {
-                return "clicks";
+                return 'clicks';
             }
             if (index === 1) {
-                return "light-switch-position";
+                return 'light-switch-position';
             }
             set_variable_used(index, current_program);
-            return "var" + index;
+            return 'var' + index;
 
         case PARAMETER_TYPE_LED:
-            return "led" + index;
+            return 'led' + index;
 
         case PARAMETER_TYPE_STEERING:
-            return "steering";
+            return 'steering';
 
         case PARAMETER_TYPE_THROTTLE:
-            return "throttle";
+            return 'throttle';
 
         case PARAMETER_TYPE_GEAR:
-            return "gear";
+            return 'gear';
 
         default:
-            return "ERROR: unknown parameter type " + parameter_type;
+            return 'ERROR: unknown parameter type ' + parameter_type;
         }
     };
 
@@ -477,17 +477,17 @@ var disassembler = (function () {
         var right;
 
         if (opcode & 0x02) {
-            left = "led" + ((instruction >> 16) & 0xff);
+            left = 'led' + ((instruction >> 16) & 0xff);
         } else {
             var index = (instruction >> 16) & 0xff;
 
             if (index === 0) {
-                left = "clicks";
+                left = 'clicks';
             } else if (index === 1) {
-                left = "light-switch-position";
+                left = 'light-switch-position';
             } else {
                 set_variable_used(index, current_program);
-                left = "var" + index;
+                left = 'var' + index;
             }
         }
 
@@ -531,7 +531,7 @@ var disassembler = (function () {
             return left + ' < ' + right;
 
         default:
-            return "ERROR: unknown 'skip if' opcode " + opcode;
+            return 'ERROR: unknown "skip if" opcode ' + opcode;
         }
     };
 
@@ -654,7 +654,7 @@ var disassembler = (function () {
             ++count;
         }
 
-        return " " + ((count > 1) ? plural : singular) + result;
+        return ' ' + ((count > 1) ? plural : singular) + result;
     };
 
 
@@ -662,17 +662,17 @@ var disassembler = (function () {
     var process_opcode = function (opcode, instruction) {
         if ((opcode & 0xe0) === OPCODE_SKIP_IF_ANY) {
             asm[offset + pc++].code =
-                'skip if' + decode_car_state(instruction, "is", "any");
+                'skip if' + decode_car_state(instruction, 'is', 'any');
             return STATE_PROGRAM;
         }
         if ((opcode & 0xe0) === OPCODE_SKIP_IF_ALL) {
             asm[offset + pc++].code =
-                'skip if' + decode_car_state(instruction, "all", "all");
+                'skip if' + decode_car_state(instruction, 'all', 'all');
             return STATE_PROGRAM;
         }
         if ((opcode & 0xe0) === OPCODE_SKIP_IF_NONE) {
             asm[offset + pc++].code =
-                'skip if' + decode_car_state(instruction, "not", "none");
+                'skip if' + decode_car_state(instruction, 'not', 'none');
             return STATE_PROGRAM;
         }
 
@@ -713,7 +713,7 @@ var disassembler = (function () {
 
         case opcodes.SET_I:
             asm[offset + pc++].code =
-                decode_leds(instruction) + ' = ' + (instruction & 0xff) + "%";
+                decode_leds(instruction) + ' = ' + (instruction & 0xff) + '%';
             break;
 
         case opcodes.SLEEP:
@@ -734,7 +734,7 @@ var disassembler = (function () {
             if ((instruction & 0xff) !== 0) {
                 asm[offset + pc++].code = 'fade ' +
                     decode_leds(instruction) + ' stepsize ' +
-                        (instruction & 0xff) + "%";
+                        (instruction & 0xff) + '%';
             } else {
                 asm[offset + pc++].code = 'fade ' +
                     decode_leds(instruction) + ' stepsize 0   // (no fading)';
@@ -906,7 +906,7 @@ var disassembler = (function () {
 
     // *************************************************************************
     var output_source_code = function () {
-        var source_code = "";
+        var source_code = '';
         var program = 1;
         var i;
         var led_bit_mask;
@@ -924,20 +924,20 @@ var disassembler = (function () {
             }
             if (asm[i].decleration !== null) {
                 if (asm[i].led === null) {
-                    source_code += asm[i].decleration + "\n";
+                    source_code += asm[i].decleration + '\n';
                 } else {
 
                     led_bit_mask = Math.pow(2, asm[i].led);
                     if (leds_to_declare & led_bit_mask) {
-                        source_code += asm[i].decleration + "\n";
+                        source_code += asm[i].decleration + '\n';
                     }
                 }
             }
             if (asm[i].label !== null) {
-                source_code += asm[i].label + ":\n";
+                source_code += asm[i].label + ':\n';
             }
             if (asm[i].code !== null) {
-                source_code += "    " + asm[i].code + "\n";
+                source_code += '    ' + asm[i].code + '\n';
             }
         }
 
@@ -951,7 +951,7 @@ var disassembler = (function () {
 
         for (i = 0; i < asm.length; i++) {
             asm[i] = {'decleration' : null, 'label' : null, 'code' : null,
-                      'led' : null, 'leds_to_declare' : null};
+                'led' : null, 'leds_to_declare' : null};
         }
 
         variables = {};
@@ -977,7 +977,7 @@ var disassembler = (function () {
     // light_programs data structure LIGHT_PROGRAMS_T
     var parse_c_code = function (input) {
         var instructions = [];
-        var lines = input.split("\n");
+        var lines = input.split('\n');
         var index;
         var line;
         var instruction;
@@ -1006,6 +1006,6 @@ var disassembler = (function () {
 
 // node.js exports; hide from browser where exports is undefined and use strict
 // would trigger.
-if (typeof exports !== "undefined") {
+if (typeof exports !== 'undefined') {
     exports.disassembler = disassembler;
 }

@@ -11,11 +11,13 @@ Y_SOURCES := $(foreach sdir, $(SOURCE_DIRS), $(wildcard $(sdir)/*.y))
 
 ###############################################################################
 # Toolchain setup
-YACC := jison
+YACC := ./node_modules/.bin/jison
 MKDIR_P = mkdir -p
 TEST_RUNNER = test/run-tests.sh
 NPM = npm
-DISASSEMBLER = ../disassembler/test/test-disassembler.js
+DISASSEMBLER = ./light_program_disassembler.js
+
+NODE_MODULES = ./node_modules/commander/package.json
 
 
 ###############################################################################
@@ -37,18 +39,16 @@ YFLAGS :=
 
 ###############################################################################
 # Plumbing for rules
+
+# Always create the build directory and install node modules
+dummy := $(shell $(MKDIR_P) $(BUILD_DIR))
+
 vpath %.c $(SOURCE_DIRS)
-
-$(shell $(MKDIR_P) $(BUILD_DIR))   # Always create the build directory
-
 define compile-objects
-
-
-
 $1/%.js: %.y scanner.l
 	$(ECHO) [YACC] $$<
+	$(NPM) install
 	$(QUIET) $(YACC) $(YFLAGS) -o $$@ $$< scanner.l
-
 endef
 
 $(foreach bdir, $(BUILD_DIR), $(eval $(call compile-objects,$(bdir))))
@@ -63,10 +63,12 @@ OBJECTS += $(patsubst %.y, $(BUILD_DIR)/%.js, $(Y_SOURCES))
 
 ###############################################################################
 # Rules
-all : $(TARGET_BIN)
+all: $(TARGET_BIN)
 
-$(TARGET_BIN): $(OBJECTS)
-	$(QUIET) $(NPM) install
+$(NODE_MODULES):
+	$(NPM) install
+
+$(TARGET_BIN): $(OBJECTS) $(NODE_MODULES)
 
 run: $(TARGET_BIN)
 	$(ECHO) [RUN] $<

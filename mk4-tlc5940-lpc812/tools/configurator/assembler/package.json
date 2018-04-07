@@ -12,6 +12,7 @@
   },
   "author": "LANE Boys RC",
   "devDependencies": {
-    "commander": "~2.5.0"
+    "commander": "~2.5.0",
+    "jison": "^0.4.18"
   }
 }

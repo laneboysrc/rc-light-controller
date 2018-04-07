@@ -1,7 +1,7 @@
 /*jslint bitwise: true, vars: true */
 
 var emitter = (function () {
-    "use strict";
+    'use strict';
 
     var MAX_LIGHT_PROGRAMS = 25;
     // var MAX_LIGHT_PROGRAM_VARIABLES = 100;
@@ -28,23 +28,23 @@ var emitter = (function () {
 
     var parser;
 
-    var MODULE = "EMIT";
+    var MODULE = 'EMIT';
 
 
     // *************************************************************************
     var hex = function (number) {
         var s = number.toString(16).toUpperCase();
         while (s.length < 8) {
-            s = "0" + s;
+            s = '0' + s;
         }
 
-        return "0x" + s;
+        return '0x' + s;
     };
 
 
     // *************************************************************************
     var yyerror = function (str, hash) {
-        parser.yy.logger.log(MODULE, "ERROR", str);
+        parser.yy.logger.log(MODULE, 'ERROR', str);
 
         errors.push({
             str: str,
@@ -83,7 +83,7 @@ var emitter = (function () {
             f = forward_declarations[i];
 
             if (f.symbol.opcode < 0) {
-                yyerror("Label '" + f.symbol.name + "' used but not defined.", {
+                yyerror('Label "' + f.symbol.name + '" used but not defined.', {
                     loc: f.location
                 });
             } else if (f.symbol.opcode !== f.pc) {
@@ -104,11 +104,11 @@ var emitter = (function () {
         var i;
 
         if (led_index < 0) {
-            // "All used LEDs" requested
+            // 'All used LEDs' requested
             var leds_used = parser.yy.symbols.get_leds_used();
             led_list = [];
 
-            parser.yy.logger.log(MODULE, "INFO", "Adding all LEDs: " + hex(leds_used));
+            parser.yy.logger.log(MODULE, 'INFO', 'Adding all LEDs: ' + hex(leds_used));
 
             for (i = 0; i < NUMBER_OF_LEDS; i += 1) {
                 if (leds_used & Math.pow(2, i)) {
@@ -121,8 +121,8 @@ var emitter = (function () {
         // Discard duplicates
         for (i = 0; i < led_list.length; i += 1) {
             if (led_list[i] === led_index) {
-                parser.yy.logger.log(MODULE, "WARNING", "Duplicate LED " + led_index +
-                    " in list");
+                parser.yy.logger.log(MODULE, 'WARNING', 'Duplicate LED ' + led_index +
+                    ' in list');
                 return;
             }
         }
@@ -130,14 +130,14 @@ var emitter = (function () {
         if (led_list.length < NUMBER_OF_LEDS) {
             led_list.push(led_index);
         } else {
-            throw new Error("led_list is full");
+            throw new Error('led_list is full');
         }
     };
 
 
     // *************************************************************************
     var emit = function (instruction, location) {
-        parser.yy.logger.log(MODULE, "INFO", "INSTRUCTION: " + hex(instruction));
+        parser.yy.logger.log(MODULE, 'INFO', 'INSTRUCTION: ' + hex(instruction));
 
         last_location = location;
 
@@ -152,16 +152,16 @@ var emitter = (function () {
         var stop;
         var i;
 
-        parser.yy.logger.log(MODULE, "INFO", "LED instruction: " + hex(instruction) +
-            " (" + led_list.length + " leds)");
+        parser.yy.logger.log(MODULE, 'INFO', 'LED instruction: ' + hex(instruction) +
+            ' (' + led_list.length + ' leds)');
 
         if (led_list.length === 0) {
-            throw new Error("Internal parser error: led_list.length is 0");
+            throw new Error('Internal parser error: led_list.length is 0');
         }
 
         if (led_list.length > 1  &&  pc > 0  &&
                 is_skip_if(instruction_list[instruction_list.length - 1])) {
-            yyerror("Commands using multiple LEDs can not follow 'skip if'", {
+            yyerror('Commands using multiple LEDs can not follow "skip if"', {
                 loc: location
             });
         }
@@ -189,21 +189,21 @@ var emitter = (function () {
 
     // *************************************************************************
     var emit_run_condition = function (priority_run_condition, run_condition) {
-        parser.yy.logger.log(MODULE, "INFO", "PRIORITY code: " + hex(priority_run_condition));
-        parser.yy.logger.log(MODULE, "INFO", "RUN code: " + hex(run_condition));
+        parser.yy.logger.log(MODULE, 'INFO', 'PRIORITY code: ' + hex(priority_run_condition));
+        parser.yy.logger.log(MODULE, 'INFO', 'RUN code: ' + hex(run_condition));
 
         instruction_list.push(priority_run_condition);
         instruction_list.push(run_condition);
-        instruction_list.push(0);   // Placeholder for "leds used"
+        instruction_list.push(0);   // Placeholder for 'leds used'
     };
 
 
     // *************************************************************************
     var emit_end_of_program = function () {
-        parser.yy.logger.log(MODULE, "INFO", "emit_end_of_program()");
+        parser.yy.logger.log(MODULE, 'INFO', 'emit_end_of_program()');
 
         if (pc > 0  &&  is_skip_if(instruction_list[instruction_list.length - 1])) {
-            yyerror("Last operation in a program can not be 'skip if'.", {
+            yyerror('Last operation in a program can not be "skip if".', {
                 loc: last_location
             });
         }
@@ -237,32 +237,32 @@ var emitter = (function () {
     var output_programs = function () {
         var i;
 
-        // Add the "END OF PROGRAMS" instruction to mark the end
+        // Add the 'END OF PROGRAMS' instruction to mark the end
         instruction_list.push(0xff000000);
 
         // Print a summary
-        var msg = "\n";
-        msg += "Number of programs: " + number_of_programs + "\n";
+        var msg = '\n';
+        msg += 'Number of programs: ' + number_of_programs + '\n';
 
-        msg += "Start offset locations:\n";
+        msg += 'Start offset locations:\n';
         for (i = 0; i < number_of_programs; i += 1) {
-            msg += i + ": " + start_offset[i] + "\n";
+            msg += i + ': ' + start_offset[i] + '\n';
         }
-        msg += "\n";
-        parser.yy.logger.log(MODULE, "INFO", msg);
+        msg += '\n';
+        parser.yy.logger.log(MODULE, 'INFO', msg);
 
         if (errors.length !== 0) {
-            throw new Error("Errors occured while processing the light programs:");
+            throw new Error('Errors occured while processing the light programs:');
         }
 
         var light_switch_positions =
             parser.yy.symbols.get_number_of_light_switch_positions();
 
         var result = {
-            "number_of_programs": number_of_programs,
-            "start_offset": start_offset,
-            "instructions": instruction_list,
-            "light_switch_positions": light_switch_positions
+            'number_of_programs': number_of_programs,
+            'start_offset': start_offset,
+            'instructions': instruction_list,
+            'light_switch_positions': light_switch_positions
         };
 
         return result;
@@ -319,6 +319,6 @@ var emitter = (function () {
 
 // node.js exports; hide from browser where exports is undefined and use strict
 // would trigger.
-if (typeof exports !== "undefined") {
+if (typeof exports !== 'undefined') {
     exports.emitter = emitter;
 }

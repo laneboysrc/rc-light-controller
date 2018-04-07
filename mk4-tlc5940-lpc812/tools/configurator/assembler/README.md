@@ -12,6 +12,4 @@ The following tools are needed:
 
 - Node.js - [http://nodejs.org/](http://nodejs.org/)
 
-- Jison - [https://zaach.github.io/jison/](https://zaach.github.io/jison/)
-
 After installing these tools, run ``make`` to build the assembler as needed for the configurator, plus a command line version.
