@@ -47,7 +47,7 @@ $(INLINE_SOURCE):
 
 $(TARGET): $(BUILD_DIR) $(INLINE_SOURCE) $(SOURCES)
 	$(ECHO) make -C assembler all
-	$(ECHO) cd src ; $(INLINE_SOURCE) index.html ../$@
+	$(ECHO) cd src ; $(INLINE_SOURCE) --compress index.html ../$@
 	$(ECHO) sed -i -e 's:#{this.date}:'$(shell date +%Y-%m-%d)':g' $@
 
 clean:
