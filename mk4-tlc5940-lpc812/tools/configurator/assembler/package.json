@@ -11,6 +11,7 @@
     "test": "make test"
   },
   "author": "LANE Boys RC",
+  "license": "MIT",
   "devDependencies": {
     "commander": "~2.5.0",
     "jison": "^0.4.18"

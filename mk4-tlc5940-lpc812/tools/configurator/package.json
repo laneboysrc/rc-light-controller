@@ -5,10 +5,9 @@
   "main": "configurator.html",
   "repository": "https://github.com/laneboysrc/rc-light-controller.git",
   "author": "LANE Boys RC",
+  "license": "MIT",
   "devDependencies": {
-    "gulp": "~3.8.10",
-    "gulp-inline-source": "^3.0.0",
-    "gulp-j140": "0.0.2",
-    "gulp-rename": "^1.2.2"
-  }
+    "inline-source-cli": "^1.2.0"
+  },
+  "dependencies": {}
 }
