@@ -49,8 +49,6 @@
     LED sequence is important. This could be as easy as translating names like
     'indicator' to the appropriate led[0..31] values.
 
-* Fix skip if blinkfag, add more tests
-
 * Add `local_switch_is_momentary` for MK5
 
 * Add `stand-alone` mode
