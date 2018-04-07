@@ -10,8 +10,13 @@
 
 
 // We can only erase the flash in units of 'row', where each row consists of
-// four pages. We therefore have the DFU transfer in blocks of 4 pages = 1 ROW
-#define DFU_TRANSFER_SIZE (FLASH_PAGE_SIZE * 4)
+// four pages.
+#define ROW_SIZE (FLASH_PAGE_SIZE * 4)
+
+// The transfer size is set to the USB endpoint 0 size as we haven't been
+// able to figure output uploading the firmware if one transfer requires
+// multiple endpoint transactions.
+#define DFU_TRANSFER_SIZE USB_EP0_SIZE
 
 #define DFU_RUNTIME_PROTOCOL 1
 #define DFU_DFU_MODE_PROTOCOL 2
@@ -120,7 +125,7 @@ static const configuration_descriptor_t configuration_descriptor = {
     .DFU_functional = {
         .bLength = sizeof(DFU_FunctionalDescriptor),
         .bDescriptorType = DFU_DESCRIPTOR_TYPE,
-        .bmAttributes = DFU_ATTR_CAN_DOWNLOAD | DFU_ATTR_WILL_DETACH,
+        .bmAttributes = DFU_ATTR_CAN_DOWNLOAD | DFU_ATTR_CAN_UPLOAD | DFU_ATTR_WILL_DETACH,
         .wDetachTimeout = 0,
         .wTransferSize = DFU_TRANSFER_SIZE,
         .bcdDFUVersion = 0x0110,
@@ -152,6 +157,11 @@ void dfu_cb_dnload_block(uint16_t block_number, uint16_t length) {
     }
 
     // Erase the of flash memory row that corresponds to the given block_number
+    // if the block number matches the first address in a row.
+    if (block_number % (ROW_SIZE / DFU_TRANSFER_SIZE)) {
+        return;
+    }
+
     address = FLASH_FIRMWARE_START + (block_number * DFU_TRANSFER_SIZE);
     NVMCTRL->ADDR.reg = address >> 1;
     NVMCTRL->CTRLA.reg = NVMCTRL_CTRLA_CMDEX_KEY | NVMCTRL_CTRLA_CMD(NVMCTRL_CTRLA_CMD_ER);
@@ -207,6 +217,7 @@ void dfu_cb_manifest(void) {
 }
 
 
+
 // ****************************************************************************
 static void send_descriptor_multi(void) {
     uint16_t transfer_length = data_length;
@@ -216,7 +227,7 @@ static void send_descriptor_multi(void) {
     }
 
     memcpy(ep0_buf_in, data, transfer_length);
-    usb_ep_start_in(0x80, ep0_buf_in, transfer_length, false);
+    usb_ep_start_in(USB_IN, ep0_buf_in, transfer_length, false);
 
     if (transfer_length == 0) {
         usb_ep0_out();
@@ -237,6 +248,29 @@ static void send_descriptor(const void * descriptor, uint16_t length)
     data_length = length;
     data = descriptor;
     send_descriptor_multi();
+}
+
+
+// ****************************************************************************
+static void dfu_upload_block(uint16_t block_number, uint16_t length) {
+    if (length > DFU_TRANSFER_SIZE) {
+        dfu_error(DFU_STATUS_errUNKNOWN);
+        usb_ep0_stall();
+        return;
+    }
+
+    if ((block_number * DFU_TRANSFER_SIZE) >= FLASH_FIRMWARE_SIZE) {
+        usb_ep0_in(0);
+        usb_ep0_out();
+        return;
+    }
+
+    // Send the content of the given block number
+    data = (uint8_t *)(FLASH_FIRMWARE_START + (block_number * DFU_TRANSFER_SIZE));
+    memcpy(ep0_buf_in, data, DFU_TRANSFER_SIZE);
+
+    usb_ep_start_in(USB_IN, ep0_buf_in, DFU_TRANSFER_SIZE, false);
+    usb_ep0_out();
 }
 
 
@@ -335,8 +369,15 @@ void usb_cb_control_setup(void) {
     uint8_t requestType = usb_setup.bmRequestType & USB_REQTYPE_TYPE_MASK;
 
     if (recipient == USB_RECIPIENT_INTERFACE) {
-        // Forward all DFU related requests
         if (usb_setup.wIndex == USB_INTERFACE_DFU) {
+            // The USB library does not support firmware upload, so we patch
+            // it in ourself.
+            if (usb_setup.bRequest == DFU_UPLOAD) {
+                dfu_upload_block(usb_setup.wValue, usb_setup.wLength);
+                return;
+            }
+
+            // Forward all other DFU related requests to the USB library
             dfu_control_setup();
             return;
         }

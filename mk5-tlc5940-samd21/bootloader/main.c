@@ -65,7 +65,7 @@ inline static void gpio_mux(const gpio_t gpio)
     else {
         PORT->Group[gpio.group].PMUX[gpio.pin >> 1].bit.PMUXE = gpio.mux;
     }
-    PORT->Group[gpio.group].PINCFG[gpio.pin].bit.PMUXEN = 1;
+    PORT->Group[gpio.group].PINCFG[gpio.pin].reg |= PORT_PINCFG_PMUXEN;
 }
 
 // ****************************************************************************
@@ -76,7 +76,12 @@ static inline void gpio_toggle(const gpio_t gpio)
 
 
 #ifdef ENABLE_UART_DIAGNOSTICS
-static const gpio_t GPIO_TXD = { .group = 0, .pin = 18, .mux = PORT_PMUX_PMUXE_D_Val, .txpo = 1 };
+
+// Note: this outputs the UART on the TH pin, using SERCOM3
+// static const gpio_t GPIO_TXD = { .group = 0, .pin = 18, .mux = PORT_PMUX_PMUXE_D_Val, .txpo = 1 };
+
+// Note: this outputs the UART on the OUT pin, using SERCOM3
+static const gpio_t GPIO_TXD = { .group = 0, .pin = 22, .mux = PORT_PMUX_PMUXE_C_Val, .txpo = 0 };
 
 // ****************************************************************************
 static void init_uart(uint32_t baudrate)
@@ -89,39 +94,39 @@ static void init_uart(uint32_t baudrate)
     gpio_mux(GPIO_TXD);
 
     // Turn on power to the USART peripheral
-    PM->APBCMASK.reg |= PM_APBCMASK_SERCOM0;
+    PM->APBCMASK.reg |= PM_APBCMASK_SERCOM3;
 
     // Use GLKGEN0 (8 MHz) as clock source for the UART
     GCLK->CLKCTRL.reg =
-        GCLK_CLKCTRL_ID(SERCOM0_GCLK_ID_CORE) |
+        GCLK_CLKCTRL_ID(SERCOM3_GCLK_ID_CORE) |
         GCLK_CLKCTRL_GEN(0) |
         GCLK_CLKCTRL_CLKEN;
 
     // Run UART from GCLK; Setup Tx pad 0
-    SERCOM0->USART.CTRLA.reg =
+    SERCOM3->USART.CTRLA.reg =
         SERCOM_USART_CTRLA_DORD |
         SERCOM_USART_CTRLA_MODE_USART_INT_CLK |
         SERCOM_USART_CTRLA_TXPO(GPIO_TXD.txpo);
 
     // Enable transmit only; 8 bit characters
-    SERCOM0->USART.CTRLB.reg =
+    SERCOM3->USART.CTRLB.reg =
         SERCOM_USART_CTRLB_TXEN |
         SERCOM_USART_CTRLB_CHSIZE(0);
-    while (SERCOM0->USART.SYNCBUSY.reg);
+    while (SERCOM3->USART.SYNCBUSY.reg);
 
-    SERCOM0->USART.BAUD.reg = (uint16_t)brr;
-    while (SERCOM0->USART.SYNCBUSY.reg);
+    SERCOM3->USART.BAUD.reg = (uint16_t)brr;
+    while (SERCOM3->USART.SYNCBUSY.reg);
 
-    SERCOM0->USART.CTRLA.reg |= SERCOM_USART_CTRLA_ENABLE;
-    while (SERCOM0->USART.SYNCBUSY.reg);
+    SERCOM3->USART.CTRLA.reg |= SERCOM_USART_CTRLA_ENABLE;
+    while (SERCOM3->USART.SYNCBUSY.reg);
 }
 
 // ****************************************************************************
 static void uart_putc(void *p, char c)
 {
     (void) p;
-    while (!(SERCOM0->USART.INTFLAG.reg & SERCOM_USART_INTFLAG_DRE));
-    SERCOM0->USART.DATA.reg = c;
+    while (!(SERCOM3->USART.INTFLAG.reg & SERCOM_USART_INTFLAG_DRE));
+    SERCOM3->USART.DATA.reg = c;
 }
 
 // ****************************************************************************
