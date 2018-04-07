@@ -27,8 +27,6 @@
 
 # Configurator
 
-* Modernize class_manipulation.js
-
 * nw.js based stand-alone program, and on-line WebUSB
 
 * Integrate LPC812 programmer

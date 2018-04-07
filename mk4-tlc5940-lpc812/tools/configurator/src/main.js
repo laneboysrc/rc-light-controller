@@ -1,8 +1,8 @@
-"use strict";
+'use strict';
 /*jslint browser: true, bitwise: true, vars: true */
-/*global emitter, symbols, CodeMirror, ui, gamma, disassembler, assembler,
+/*global emitter, symbols, CodeMirror, ui, gamma, disassembler,
     intel_hex, parser, default_firmware_image, default_light_program,
-    FileReader, Blob, saveAs, addClass, removeClass,
+    FileReader, Blob, saveAs,
     hardware_test_configuration, logger */
 
 var app = (function () {
@@ -25,11 +25,11 @@ var app = (function () {
 
     var light_switch_positions;
 
-    var SECTION_CONFIG = "Configuration";
-    var SECTION_GAMMA = "Gamma table";
-    var SECTION_LIGHT_PROGRAMS = "Light programs";
-    var SECTION_LOCAL_LEDS = "Local LEDs";
-    var SECTION_SLAVE_LEDS = "Slave LEDs";
+    var SECTION_CONFIG = 'Configuration';
+    var SECTION_GAMMA = 'Gamma table';
+    var SECTION_LIGHT_PROGRAMS = 'Light programs';
+    var SECTION_LOCAL_LEDS = 'Local LEDs';
+    var SECTION_SLAVE_LEDS = 'Slave LEDs';
 
     var SECTIONS = {
         0x01: SECTION_CONFIG,
@@ -46,11 +46,11 @@ var app = (function () {
     };
 
 
-    var MASTER_WITH_SERVO_READER = "Master, servo inputs";
-    var MASTER_WITH_UART_READER = "Master, pre-processor input";
-    var MASTER_WITH_CPPM_READER = "Master, CPPM input";
-    var SLAVE = "Slave";
-    var TEST = "Hardware test";
+    var MASTER_WITH_SERVO_READER = 'Master, servo inputs';
+    var MASTER_WITH_UART_READER = 'Master, pre-processor input';
+    var MASTER_WITH_CPPM_READER = 'Master, CPPM input';
+    var SLAVE = 'Slave';
+    var TEST = 'Hardware test';
 
     var MODE = {
         0: MASTER_WITH_SERVO_READER,
@@ -67,10 +67,10 @@ var app = (function () {
     };
 
 
-    // var ESC_FORWARD_BRAKE_REVERSE_TIMEOUT = "Forward/Brake/Reverse with timeout";
-    // var ESC_FORWARD_BRAKE_REVERSE = "Forward/Brake/Reverse no timeout";
-    // var ESC_FORWARD_REVERSE = "Forward/Reverse";
-    // var ESC_FORWARD_BRAKE = "Forward/Brake";
+    // var ESC_FORWARD_BRAKE_REVERSE_TIMEOUT = 'Forward/Brake/Reverse with timeout';
+    // var ESC_FORWARD_BRAKE_REVERSE = 'Forward/Brake/Reverse no timeout';
+    // var ESC_FORWARD_REVERSE = 'Forward/Reverse';
+    // var ESC_FORWARD_BRAKE = 'Forward/Brake';
 
     // var ESC_MODE = {
     //     0: ESC_FORWARD_BRAKE_REVERSE_TIMEOUT,
@@ -112,8 +112,8 @@ var app = (function () {
     var set_uint8 = function (data, offset, value) {
         value = parseInt(value, 10);
         if (isNaN(value)) {
-            console.log("ERROR in set_uint8 when setting offset " + offset +
-                ": value='" + value + "'");
+            console.log('ERROR in set_uint8 when setting offset ' + offset +
+                ': value="' + value + '"');
             value = 0;
         }
 
@@ -125,8 +125,8 @@ var app = (function () {
     var set_uint16 = function (data, offset, value) {
         value = parseInt(value, 10);
         if (isNaN(value)) {
-            console.log("ERROR in set_uint16 when setting offset " + offset +
-                ": value='" + value + "'");
+            console.log('ERROR in set_uint16 when setting offset ' + offset +
+                ': value="' + value + '"');
             value = 0;
         }
 
@@ -142,8 +142,8 @@ var app = (function () {
     var set_uint32 = function (data, offset, value) {
         value = parseInt(value, 10);
         if (isNaN(value)) {
-            console.log("ERROR in set_uint32 when setting offset " + offset +
-                ": value='" + value + "'");
+            console.log('ERROR in set_uint32 when setting offset ' + offset +
+                ': value="' + value + '"');
             value = 0;
         }
 
@@ -351,10 +351,10 @@ var app = (function () {
                 config_version = (image_data[i + 7] * 256) + image_data[i + 6];
 
                 if (SECTIONS[section_id] === undefined) {
-                    console.log("Warning: unknown section " + i);
+                    console.log('Warning: unknown section ' + i);
                 } else {
                     if (config_version !== 1) {
-                        throw new Error("Unknown configuration version " +
+                        throw new Error('Unknown configuration version ' +
                             config_version);
                     }
 
@@ -372,8 +372,8 @@ var app = (function () {
     var update_led_fields = function () {
         function set_led_field(prefix, led_number, field_number, value) {
             var cell = document.getElementById(prefix + led_number +
-                "field" + field_number
-                );
+                'field' + field_number
+            );
 
             while (cell.firstChild) {
                 cell.removeChild(cell.firstChild);
@@ -390,9 +390,9 @@ var app = (function () {
         function set_led_feature(prefix, led_number, field_suffix, value) {
             var cell = document.getElementById(prefix + led_number +
                 field_suffix
-                );
+            );
 
-            if (cell.type === "checkbox") {
+            if (cell.type === 'checkbox') {
                 cell.checked = Boolean(value);
             } else {
                 cell.value = value;
@@ -422,28 +422,28 @@ var app = (function () {
                 set_led_field(prefix, i, 13, led.indicator_left);
                 set_led_field(prefix, i, 14, led.indicator_right);
 
-                set_led_feature(prefix, i, "incandescent",
+                set_led_feature(prefix, i, 'incandescent',
                     Math.round(led.max_change_per_systick * 100 / 255));
-                set_led_feature(prefix, i, "weak_ground", led.reduction_percent);
-                set_led_feature(prefix, i, "checkbox0", led.weak_light_switch_position0);
-                set_led_feature(prefix, i, "checkbox1", led.weak_light_switch_position1);
-                set_led_feature(prefix, i, "checkbox2", led.weak_light_switch_position2);
-                set_led_feature(prefix, i, "checkbox3", led.weak_light_switch_position3);
-                set_led_feature(prefix, i, "checkbox4", led.weak_light_switch_position4);
-                set_led_feature(prefix, i, "checkbox5", led.weak_light_switch_position5);
-                set_led_feature(prefix, i, "checkbox6", led.weak_light_switch_position6);
-                set_led_feature(prefix, i, "checkbox7", led.weak_light_switch_position7);
-                set_led_feature(prefix, i, "checkbox8", led.weak_light_switch_position8);
-                set_led_feature(prefix, i, "checkbox9", led.weak_tail_light);
-                set_led_feature(prefix, i, "checkbox10", led.weak_brake_light);
-                set_led_feature(prefix, i, "checkbox11", led.weak_reversing_light);
-                set_led_feature(prefix, i, "checkbox12", led.weak_indicator_left);
-                set_led_feature(prefix, i, "checkbox13", led.weak_indicator_right);
+                set_led_feature(prefix, i, 'weak_ground', led.reduction_percent);
+                set_led_feature(prefix, i, 'checkbox0', led.weak_light_switch_position0);
+                set_led_feature(prefix, i, 'checkbox1', led.weak_light_switch_position1);
+                set_led_feature(prefix, i, 'checkbox2', led.weak_light_switch_position2);
+                set_led_feature(prefix, i, 'checkbox3', led.weak_light_switch_position3);
+                set_led_feature(prefix, i, 'checkbox4', led.weak_light_switch_position4);
+                set_led_feature(prefix, i, 'checkbox5', led.weak_light_switch_position5);
+                set_led_feature(prefix, i, 'checkbox6', led.weak_light_switch_position6);
+                set_led_feature(prefix, i, 'checkbox7', led.weak_light_switch_position7);
+                set_led_feature(prefix, i, 'checkbox8', led.weak_light_switch_position8);
+                set_led_feature(prefix, i, 'checkbox9', led.weak_tail_light);
+                set_led_feature(prefix, i, 'checkbox10', led.weak_brake_light);
+                set_led_feature(prefix, i, 'checkbox11', led.weak_reversing_light);
+                set_led_feature(prefix, i, 'checkbox12', led.weak_indicator_left);
+                set_led_feature(prefix, i, 'checkbox13', led.weak_indicator_right);
             }
         }
 
-        set_led_fields(local_leds, "master");
-        set_led_fields(slave_leds, "slave");
+        set_led_fields(local_leds, 'master');
+        set_led_fields(slave_leds, 'slave');
     };
 
 
@@ -476,112 +476,112 @@ var app = (function () {
 
         var new_mode = parseInt(el.mode.options[el.mode.selectedIndex].value,
             10
-            );
+        );
 
         switch (new_mode) {
         case MODE.MASTER_WITH_SERVO_READER:
-            el.mode_master_servo.style.display = "";
-            el.mode_master_uart.style.display = "none";
-            el.mode_master_cppm.style.display = "none";
-            el.mode_slave.style.display = "none";
-            el.mode_test.style.display = "none";
-            el.config_light_programs.style.display = "";
-            el.config_leds.style.display = "";
-            el.config_basic.style.display = "";
-            el.config_basic_esc_type.style.display = "";
-            el.config_basic_ch3.style.display = "";
-            el.config_basic_output.style.display = "";
-            el.config_advanced.style.display = "";
-            set_visibility(el.single_output, "");
-            set_visibility(el.dual_output, "none");
-            set_name(el.dual_output_th, "output_out");
+            el.mode_master_servo.style.display = '';
+            el.mode_master_uart.style.display = 'none';
+            el.mode_master_cppm.style.display = 'none';
+            el.mode_slave.style.display = 'none';
+            el.mode_test.style.display = 'none';
+            el.config_light_programs.style.display = '';
+            el.config_leds.style.display = '';
+            el.config_basic.style.display = '';
+            el.config_basic_esc_type.style.display = '';
+            el.config_basic_ch3.style.display = '';
+            el.config_basic_output.style.display = '';
+            el.config_advanced.style.display = '';
+            set_visibility(el.single_output, '');
+            set_visibility(el.dual_output, 'none');
+            set_name(el.dual_output_th, 'output_out');
             config.mode = new_mode;
             break;
 
         case MODE.MASTER_WITH_UART_READER:
-            el.mode_master_servo.style.display = "none";
-            el.mode_master_uart.style.display = "";
-            el.mode_master_cppm.style.display = "none";
-            el.mode_slave.style.display = "none";
-            el.mode_test.style.display = "none";
-            el.config_basic.style.display = "";
-            el.config_light_programs.style.display = "";
-            el.config_leds.style.display = "";
-            el.config_basic.style.display = "";
-            el.config_basic_esc_type.style.display = "";
-            el.config_basic_ch3.style.display = "";
-            el.config_basic_output.style.display = "";
-            el.config_advanced.style.display = "";
-            set_visibility(el.single_output, "none");
-            set_visibility(el.dual_output, "");
-            set_name(el.dual_output_th, "output_th");
+            el.mode_master_servo.style.display = 'none';
+            el.mode_master_uart.style.display = '';
+            el.mode_master_cppm.style.display = 'none';
+            el.mode_slave.style.display = 'none';
+            el.mode_test.style.display = 'none';
+            el.config_basic.style.display = '';
+            el.config_light_programs.style.display = '';
+            el.config_leds.style.display = '';
+            el.config_basic.style.display = '';
+            el.config_basic_esc_type.style.display = '';
+            el.config_basic_ch3.style.display = '';
+            el.config_basic_output.style.display = '';
+            el.config_advanced.style.display = '';
+            set_visibility(el.single_output, 'none');
+            set_visibility(el.dual_output, '');
+            set_name(el.dual_output_th, 'output_th');
             config.mode = new_mode;
             break;
 
         case MODE.MASTER_WITH_CPPM_READER:
-            el.mode_master_servo.style.display = "none";
-            el.mode_master_uart.style.display = "none";
-            el.mode_master_cppm.style.display = "";
-            el.mode_slave.style.display = "none";
-            el.mode_test.style.display = "none";
-            el.config_basic.style.display = "";
-            el.config_light_programs.style.display = "";
-            el.config_leds.style.display = "";
-            el.config_basic.style.display = "";
-            el.config_basic_esc_type.style.display = "";
-            el.config_basic_ch3.style.display = "";
-            el.config_basic_output.style.display = "";
-            el.config_advanced.style.display = "";
-            set_visibility(el.single_output, "none");
-            set_visibility(el.dual_output, "");
-            set_name(el.dual_output_th, "output_th");
+            el.mode_master_servo.style.display = 'none';
+            el.mode_master_uart.style.display = 'none';
+            el.mode_master_cppm.style.display = '';
+            el.mode_slave.style.display = 'none';
+            el.mode_test.style.display = 'none';
+            el.config_basic.style.display = '';
+            el.config_light_programs.style.display = '';
+            el.config_leds.style.display = '';
+            el.config_basic.style.display = '';
+            el.config_basic_esc_type.style.display = '';
+            el.config_basic_ch3.style.display = '';
+            el.config_basic_output.style.display = '';
+            el.config_advanced.style.display = '';
+            set_visibility(el.single_output, 'none');
+            set_visibility(el.dual_output, '');
+            set_name(el.dual_output_th, 'output_th');
             config.mode = new_mode;
             break;
 
         case MODE.SLAVE:
-            el.mode_master_servo.style.display = "none";
-            el.mode_master_uart.style.display = "none";
-            el.mode_master_cppm.style.display = "none";
-            el.mode_slave.style.display = "";
-            el.mode_test.style.display = "none";
-            el.config_light_programs.style.display = "none";
-            el.config_leds.style.display = "none";
-            el.config_basic.style.display = "";
-            el.config_basic_esc_type.style.display = "none";
-            el.config_basic_ch3.style.display = "none";
-            el.config_basic_output.style.display = "none";
-            el.config_advanced.style.display = "none";
+            el.mode_master_servo.style.display = 'none';
+            el.mode_master_uart.style.display = 'none';
+            el.mode_master_cppm.style.display = 'none';
+            el.mode_slave.style.display = '';
+            el.mode_test.style.display = 'none';
+            el.config_light_programs.style.display = 'none';
+            el.config_leds.style.display = 'none';
+            el.config_basic.style.display = '';
+            el.config_basic_esc_type.style.display = 'none';
+            el.config_basic_ch3.style.display = 'none';
+            el.config_basic_output.style.display = 'none';
+            el.config_advanced.style.display = 'none';
             config.mode = new_mode;
             break;
 
         case MODE.TEST:
-            el.mode_master_servo.style.display = "none";
-            el.mode_master_uart.style.display = "none";
-            el.mode_master_cppm.style.display = "none";
-            el.mode_slave.style.display = "none";
-            el.mode_test.style.display = "";
-            el.config_light_programs.style.display = "none";
-            el.config_leds.style.display = "none";
-            el.config_basic.style.display = "none";
-            el.config_advanced.style.display = "none";
+            el.mode_master_servo.style.display = 'none';
+            el.mode_master_uart.style.display = 'none';
+            el.mode_master_cppm.style.display = 'none';
+            el.mode_slave.style.display = 'none';
+            el.mode_test.style.display = '';
+            el.config_light_programs.style.display = 'none';
+            el.config_leds.style.display = 'none';
+            el.config_basic.style.display = 'none';
+            el.config_advanced.style.display = 'none';
             config.mode = new_mode;
             break;
         }
 
-        ensure_one_is_checked("output_out");
-        ensure_one_is_checked("output_th");
+        ensure_one_is_checked('output_out');
+        ensure_one_is_checked('output_th');
 
         if (el.preprocessor_output.checked || el.slave_output.checked) {
-            el.winch_output.style.display = "none";
-            el.winch_enable.style.display = "";
+            el.winch_output.style.display = 'none';
+            el.winch_enable.style.display = '';
         }
         else {
-            el.winch_output.style.display = "";
-            el.winch_enable.style.display = "none";
+            el.winch_output.style.display = '';
+            el.winch_enable.style.display = 'none';
         }
 
         el.leds_slave.style.display =
-            el.slave_output.checked ? "" : "none";
+            el.slave_output.checked ? '' : 'none';
     };
 
 
@@ -597,22 +597,22 @@ var app = (function () {
             var checkboxes;
             var spanner;
             var led_div = document.getElementById(led_div_id);
-            var led_config_rows = led_div.getElementsByClassName("led_config");
+            var led_config_rows = led_div.getElementsByClassName('led_config');
             var led_feature_rows =
-                led_div.getElementsByClassName("led_features");
+                led_div.getElementsByClassName('led_features');
 
             for (i = 0; i < led_feature_rows.length; i += 1) {
                 advanced_feature_used = false;
 
                 incandescent = parseInt(document.getElementById(prefix + i +
-                    "incandescent").value, 10);
+                    'incandescent').value, 10);
 
                 weak_ground = parseInt(document.getElementById(prefix + i +
-                    "weak_ground").value, 10);
+                    'weak_ground').value, 10);
 
                 any_checkbox_ticked = false;
                 checkboxes = led_feature_rows[i].getElementsByClassName(
-                    "checkbox"
+                    'checkbox'
                 );
 
                 for (c = 0; c < checkboxes.length; c += 1) {
@@ -631,18 +631,18 @@ var app = (function () {
                 }
 
 
-                spanner = led_config_rows[i].getElementsByClassName("spanner")[0];
+                spanner = led_config_rows[i].getElementsByClassName('spanner')[0];
 
                 if (advanced_feature_used) {
-                    addClass(spanner, "led_feature_active");
+                    spanner.classList.add('led_feature_active');
                 } else {
-                    removeClass(spanner, "led_feature_active");
+                    spanner.classList.remove('led_feature_active');
                 }
             }
         }
 
-        set_feature_active("leds_master", "master");
-        set_feature_active("leds_slave", "slave");
+        set_feature_active('leds_master', 'master');
+        set_feature_active('leds_slave', 'slave');
     };
 
 
@@ -652,7 +652,7 @@ var app = (function () {
         el.mode.selectedIndex = config.mode;
 
         // Firmware version
-        el.firmware_version.innerHTML = config_version + "." +
+        el.firmware_version.innerHTML = config_version + '.' +
             config.firmware_version;
 
         // ESC type
@@ -775,10 +775,10 @@ var app = (function () {
         local_leds = undefined;
         slave_leds = undefined;
         gamma_object = undefined;
-        light_programs = "";
+        light_programs = '';
 
-        el.light_programs.value = "";
-        el.light_programs_errors.style.display = "none";
+        el.light_programs.value = '';
+        el.light_programs_errors.style.display = 'none';
 
         try {
             firmware = parse_firmware_structure(intel_hex_data);
@@ -794,7 +794,7 @@ var app = (function () {
             ui.update_editor();
         } catch (e) {
             window.alert(
-                "Unable to load Intel-hex formatted firmware image:\n" + e
+                'Unable to load Intel-hex formatted firmware image:\n' + e
             );
         }
     };
@@ -803,7 +803,7 @@ var app = (function () {
     // *************************************************************************
     var parse_light_program_code = function (light_programs) {
         el.light_programs_errors.style.display = 'none';
-        el.light_programs_ok.style.display = "none";
+        el.light_programs_ok.style.display = 'none';
 
         // If we run multiple times, we need to reset the modules inbetween,
         // especially if there was an error before.
@@ -814,10 +814,10 @@ var app = (function () {
 
         try {
             var machine_code = parser.parse(light_programs);
-            el.light_programs_ok.style.display = "";
+            el.light_programs_ok.style.display = '';
             return machine_code;
         } catch (e) {
-            var msg = "Errors occured while assembling light programs\n";
+            var msg = 'Errors occured while assembling light programs\n';
             var errors = emitter.get_errors();
             var cm_error;
             var cm_errors = [];
@@ -825,9 +825,9 @@ var app = (function () {
             var loc;
 
             if (errors.length > 0) {
-                msg += "\n";
+                msg += '\n';
                 for (i = 0; i < errors.length; i += 1) {
-                    msg += errors[i].str + "\n\n";
+                    msg += errors[i].str + '\n\n';
 
                     if (errors[i].hash  &&  errors[i].hash.loc) {
                         loc = errors[i].hash.loc;
@@ -846,7 +846,7 @@ var app = (function () {
 
             ui.update_errors(cm_errors);
 
-            throw new Error("Errors occured while assembling light programs");
+            throw new Error('Errors occured while assembling light programs');
         }
     };
 
@@ -1015,7 +1015,7 @@ var app = (function () {
             (4 * machine_code.instructions.length);
 
         // Create an array with length code_size. We could use
-        // "new Array(code_size)", but JSLint doesn't like that as Array could
+        // 'new Array(code_size)', but JSLint doesn't like that as Array could
         // have been redefined.
         var code = [];
         for (i = 0; i < code_size; i += 1) {
@@ -1067,7 +1067,7 @@ var app = (function () {
 
         // Instead of using the disassebled source code, we use the original
         // sourcecode with comments and original variable names.
-        // This is achieved by running "make defaul_firmware_image" in
+        // This is achieved by running 'make defaul_firmware_image' in
         // the firmware/tlc5940-lpc812 directory.
         light_programs = default_light_program;
 
@@ -1088,9 +1088,9 @@ var app = (function () {
             parse_firmware(e.target.result);
 
             if (default_firmware_version > config.firmware_version) {
-                msg = "A new firmware version is available.\n";
-                msg += "Click OK to update the firmware, keeping your settings.\n";
-                msg += "Click Cancel to keep the original firmware.\n";
+                msg = 'A new firmware version is available.\n';
+                msg += 'Click OK to update the firmware, keeping your settings.\n';
+                msg += 'Click Cancel to keep the original firmware.\n';
                 if (window.confirm(msg)) {
                     firmware = parse_firmware_structure(default_firmware_image);
                     config.firmware_version = default_firmware_version;
@@ -1105,12 +1105,12 @@ var app = (function () {
     // *************************************************************************
     var update_led_config = function () {
         function get_led_field(prefix, led_number, field_number) {
-            var cell = document.getElementById(prefix + led_number + "field" +
+            var cell = document.getElementById(prefix + led_number + 'field' +
                 field_number
-                );
+            );
 
             var value = cell.textContent;
-            if (value === "") {
+            if (value === '') {
                 return 0;
             }
 
@@ -1120,9 +1120,9 @@ var app = (function () {
         function get_led_feature(prefix, led_number, field_suffix) {
             var cell = document.getElementById(prefix + led_number +
                 field_suffix
-                );
+            );
 
-            if (cell.type === "checkbox") {
+            if (cell.type === 'checkbox') {
                 return Boolean(cell.checked);
             }
             return parseInt(cell.value, 10);
@@ -1152,28 +1152,28 @@ var app = (function () {
                 led.indicator_right = get_led_field(prefix, i, 14);
 
                 led.max_change_per_systick = Math.round(
-                    get_led_feature(prefix, i, "incandescent") * 255 / 100
+                    get_led_feature(prefix, i, 'incandescent') * 255 / 100
                 );
-                led.reduction_percent = get_led_feature(prefix, i, "weak_ground");
-                led.weak_light_switch_position0 = get_led_feature(prefix, i, "checkbox0");
-                led.weak_light_switch_position1 = get_led_feature(prefix, i, "checkbox1");
-                led.weak_light_switch_position2 = get_led_feature(prefix, i, "checkbox2");
-                led.weak_light_switch_position3 = get_led_feature(prefix, i, "checkbox3");
-                led.weak_light_switch_position4 = get_led_feature(prefix, i, "checkbox4");
-                led.weak_light_switch_position5 = get_led_feature(prefix, i, "checkbox5");
-                led.weak_light_switch_position6 = get_led_feature(prefix, i, "checkbox6");
-                led.weak_light_switch_position7 = get_led_feature(prefix, i, "checkbox7");
-                led.weak_light_switch_position8 = get_led_feature(prefix, i, "checkbox8");
-                led.weak_tail_light = get_led_feature(prefix, i, "checkbox9");
-                led.weak_brake_light = get_led_feature(prefix, i, "checkbox10");
-                led.weak_reversing_light = get_led_feature(prefix, i, "checkbox11");
-                led.weak_indicator_left = get_led_feature(prefix, i, "checkbox12");
-                led.weak_indicator_right = get_led_feature(prefix, i, "checkbox13");
+                led.reduction_percent = get_led_feature(prefix, i, 'weak_ground');
+                led.weak_light_switch_position0 = get_led_feature(prefix, i, 'checkbox0');
+                led.weak_light_switch_position1 = get_led_feature(prefix, i, 'checkbox1');
+                led.weak_light_switch_position2 = get_led_feature(prefix, i, 'checkbox2');
+                led.weak_light_switch_position3 = get_led_feature(prefix, i, 'checkbox3');
+                led.weak_light_switch_position4 = get_led_feature(prefix, i, 'checkbox4');
+                led.weak_light_switch_position5 = get_led_feature(prefix, i, 'checkbox5');
+                led.weak_light_switch_position6 = get_led_feature(prefix, i, 'checkbox6');
+                led.weak_light_switch_position7 = get_led_feature(prefix, i, 'checkbox7');
+                led.weak_light_switch_position8 = get_led_feature(prefix, i, 'checkbox8');
+                led.weak_tail_light = get_led_feature(prefix, i, 'checkbox9');
+                led.weak_brake_light = get_led_feature(prefix, i, 'checkbox10');
+                led.weak_reversing_light = get_led_feature(prefix, i, 'checkbox11');
+                led.weak_indicator_left = get_led_feature(prefix, i, 'checkbox12');
+                led.weak_indicator_right = get_led_feature(prefix, i, 'checkbox13');
             }
         }
 
-        get_led_fields(local_leds, "master");
-        get_led_fields(slave_leds, "slave");
+        get_led_fields(local_leds, 'master');
+        get_led_fields(slave_leds, 'slave');
     };
 
 
@@ -1197,23 +1197,23 @@ var app = (function () {
             var g = parseFloat(el[key].value);
 
             if (isNaN(g)) {
-                gamma_object[key] = "2.2";
+                gamma_object[key] = '2.2';
                 return;
             }
 
             if (g < 0.1) {
-                gamma_object[key] = "0.1";
+                gamma_object[key] = '0.1';
                 return;
             }
             if (g > 9.9) {
-                gamma_object[key] = "9.9";
+                gamma_object[key] = '9.9';
                 return;
             }
 
             g = g.toString();
             if (g.length < 3) {
                 // Append .0 if we are dealing with an integer value
-                g += ".0";
+                g += '.0';
             }
 
             gamma_object[key] = g;
@@ -1228,7 +1228,7 @@ var app = (function () {
 
 
         // Master/Slave
-        update_int("mode");
+        update_int('mode');
 
 
         // ESC mode
@@ -1276,7 +1276,7 @@ var app = (function () {
 
 
         // Baudrate
-        update_int("baudrate");
+        update_int('baudrate');
 
 
         // LEDs
@@ -1284,48 +1284,48 @@ var app = (function () {
 
 
         // Update advanced settings
-        update_boolean("auto_brake_lights_forward_enabled");
-        update_time("auto_brake_counter_value_forward_min");
-        update_time("auto_brake_counter_value_forward_max");
+        update_boolean('auto_brake_lights_forward_enabled');
+        update_time('auto_brake_counter_value_forward_min');
+        update_time('auto_brake_counter_value_forward_max');
 
-        update_boolean("auto_brake_lights_reverse_enabled");
-        update_time("auto_brake_counter_value_reverse_min");
-        update_time("auto_brake_counter_value_reverse_max");
+        update_boolean('auto_brake_lights_reverse_enabled');
+        update_time('auto_brake_counter_value_reverse_min');
+        update_time('auto_brake_counter_value_reverse_max');
 
-        update_time("brake_disarm_counter_value");
+        update_time('brake_disarm_counter_value');
 
-        update_time("auto_reverse_counter_value_min");
-        update_time("auto_reverse_counter_value_max");
+        update_time('auto_reverse_counter_value_min');
+        update_time('auto_reverse_counter_value_max');
 
-        update_time("blink_counter_value");
-        update_time("indicator_idle_time_value");
-        update_time("indicator_off_timeout_value");
-        update_int("blink_threshold");
+        update_time('blink_counter_value');
+        update_time('indicator_idle_time_value');
+        update_time('indicator_off_timeout_value');
+        update_int('blink_threshold');
 
-        update_int("centre_threshold_low");
-        update_int("centre_threshold_high");
-        update_int("initial_endpoint_delta");
+        update_int('centre_threshold_low');
+        update_int('centre_threshold_high');
+        update_int('initial_endpoint_delta');
 
-        update_time("ch3_multi_click_timeout");
-        update_time("winch_command_repeat_time");
-        update_time("no_signal_timeout");
-        update_int("number_of_gears");
-        update_time("gearbox_servo_active_time");
-        update_time("gearbox_servo_idle_time");
+        update_time('ch3_multi_click_timeout');
+        update_time('winch_command_repeat_time');
+        update_time('no_signal_timeout');
+        update_int('number_of_gears');
+        update_time('gearbox_servo_active_time');
+        update_time('gearbox_servo_idle_time');
 
-        update_int("initial_light_switch_position");
+        update_int('initial_light_switch_position');
 
-        update_int("servo_pulse_min");
-        update_int("servo_pulse_max");
-        update_time("startup_time");
+        update_int('servo_pulse_min');
+        update_int('servo_pulse_max');
+        update_time('startup_time');
 
 
         if (config.mode === MODE.SLAVE) {
             // Force gamma to 1.0 in slave mode as the gamma correction is
             // already handled in the master
-            gamma_object.gamma_value = "1.0";
+            gamma_object.gamma_value = '1.0';
         } else {
-            update_gamma("gamma_value");
+            update_gamma('gamma_value');
         }
 
 
@@ -1351,19 +1351,19 @@ var app = (function () {
             assemble_firmware(data);
         } catch (e) {
             window.alert(
-                "Failed to assemble the firmware. Reason:\n\n" + e.message
+                'Failed to assemble the firmware. Reason:\n\n' + e.message
             );
             return;
         }
 
         var intelhex = intel_hex.fromArray(firmware.data);
 
-        var blob = new Blob([intelhex], {type: "text/plain;charset=utf-8"});
+        var blob = new Blob([intelhex], {type: 'text/plain;charset=utf-8'});
 
         var filename = window.prompt('Filename for the firmware image:',
             'light_controller.hex');
 
-        if (filename !== null  &&  filename !== "") {
+        if (filename !== null  &&  filename !== '') {
             saveAs(blob, filename);
         }
     };
@@ -1392,8 +1392,8 @@ var app = (function () {
                 config.firmware_version = default_firmware_version;
             } catch (err) {
                 window.alert(
-                    "Failed to load configuration.\n" +
-                        "File may not be a light controller configuration file (JSON format)"
+                    'Failed to load configuration.\n' +
+                        'File may not be a light controller configuration file (JSON format)'
                 );
             }
 
@@ -1414,13 +1414,13 @@ var app = (function () {
         var configuration_string = JSON.stringify(data, null, 2);
 
         var blob = new Blob([configuration_string], {
-            type: "text/plain;charset=utf-8"
+            type: 'text/plain;charset=utf-8'
         });
 
         var filename = window.prompt('Filename for the configuration file:',
-                'light_controller.config.txt');
+            'light_controller.config.txt');
 
-        if (filename !== null  &&  filename !== "") {
+        if (filename !== null  &&  filename !== '') {
             saveAs(blob, filename);
         }
     };
@@ -1439,7 +1439,7 @@ var app = (function () {
 
             result.led_count = led_count;
 
-            function clear_led(data, offset) {
+            function clear_led() {
                 var led = {};
 
                 led.max_change_per_systick = 0;
@@ -1499,12 +1499,12 @@ var app = (function () {
             logger: logger
         };
 
-        logger.set_log_level("ERROR");
+        logger.set_log_level('ERROR');
 
         emitter.set_parser(parser);
         symbols.set_parser(parser);
 
-        el.light_programs_ok.style.display = "none";
+        el.light_programs_ok.style.display = 'none';
     };
 
 
@@ -1517,173 +1517,173 @@ var app = (function () {
             var input_elements;
             var led_section = document.getElementById(led_id);
             var feature_rows =
-                led_section.getElementsByClassName("led_features");
+                led_section.getElementsByClassName('led_features');
 
             for (row = 0; row < feature_rows.length; row += 1) {
                 input_elements =
-                    feature_rows[row].getElementsByTagName("input");
+                    feature_rows[row].getElementsByTagName('input');
 
                 for (i = 0; i < input_elements.length; i += 1) {
-                    input_elements[i].addEventListener("change",
+                    input_elements[i].addEventListener('change',
                         update_led_feature_usage, true
-                        );
+                    );
                 }
             }
         }
 
-        el.firmware_version = document.getElementById("firmware_version");
-        el.save_config = document.getElementById("save_config");
-        el.load_config = document.getElementById("load_config");
-        el.save_firmware = document.getElementById("save_firmware");
-        el.load_firmware = document.getElementById("load_firmware");
+        el.firmware_version = document.getElementById('firmware_version');
+        el.save_config = document.getElementById('save_config');
+        el.load_config = document.getElementById('load_config');
+        el.save_firmware = document.getElementById('save_firmware');
+        el.load_firmware = document.getElementById('load_firmware');
 
-        el.mode = document.getElementById("mode");
-        el.mode_master_servo = document.getElementById("mode_master_servo");
-        el.mode_master_uart = document.getElementById("mode_master_uart");
-        el.mode_master_cppm = document.getElementById("mode_master_cppm");
-        el.mode_slave = document.getElementById("mode_slave");
-        el.mode_test = document.getElementById("mode_test");
+        el.mode = document.getElementById('mode');
+        el.mode_master_servo = document.getElementById('mode_master_servo');
+        el.mode_master_uart = document.getElementById('mode_master_uart');
+        el.mode_master_cppm = document.getElementById('mode_master_cppm');
+        el.mode_slave = document.getElementById('mode_slave');
+        el.mode_test = document.getElementById('mode_test');
 
-        el.config_leds = document.getElementById("config_leds");
-        el.leds_master = document.getElementById("leds_master");
-        el.leds_slave = document.getElementById("leds_slave");
+        el.config_leds = document.getElementById('config_leds');
+        el.leds_master = document.getElementById('leds_master');
+        el.leds_slave = document.getElementById('leds_slave');
 
-        el.config_basic = document.getElementById("config_basic");
+        el.config_basic = document.getElementById('config_basic');
         el.config_basic_esc_type =
-            document.getElementById("config_basic_esc_type");
-        el.config_basic_ch3 = document.getElementById("config_basic_ch3");
+            document.getElementById('config_basic_esc_type');
+        el.config_basic_ch3 = document.getElementById('config_basic_ch3');
         el.config_basic_output =
-            document.getElementById("config_basic_output");
+            document.getElementById('config_basic_output');
         el.config_basic_baudrate =
-            document.getElementById("config_basic_baudrate");
+            document.getElementById('config_basic_baudrate');
 
-        el.baudrate = document.getElementById("baudrate");
-        el.esc = document.getElementsByName("esc");
-        el.ch3 = document.getElementsByName("ch3");
+        el.baudrate = document.getElementById('baudrate');
+        el.esc = document.getElementsByName('esc');
+        el.ch3 = document.getElementsByName('ch3');
 
-        el.output_out = document.getElementsByName("output_out");
-        el.single_output = document.getElementsByClassName("single_output");
-        el.dual_output = document.getElementsByClassName("dual_output");
+        el.output_out = document.getElementsByName('output_out');
+        el.single_output = document.getElementsByClassName('single_output');
+        el.dual_output = document.getElementsByClassName('dual_output');
         el.dual_output_th =
-            document.getElementsByClassName("dual_output_th");
-        el.winch_enable = document.getElementById("winch_output_checkbox");
+            document.getElementsByClassName('dual_output_th');
+        el.winch_enable = document.getElementById('winch_output_checkbox');
 
-        el.slave_output = document.getElementById("slave_output");
+        el.slave_output = document.getElementById('slave_output');
         el.preprocessor_output =
-            document.getElementById("preprocessor_output");
+            document.getElementById('preprocessor_output');
         el.steering_wheel_servo_output =
-            document.getElementById("steering_wheel_servo_output");
+            document.getElementById('steering_wheel_servo_output');
         el.gearbox_servo_output =
-            document.getElementById("gearbox_servo_output");
-        el.winch_output = document.getElementById("winch_output");
+            document.getElementById('gearbox_servo_output');
+        el.winch_output = document.getElementById('winch_output');
 
-        el.leds_clear = document.getElementById("leds_clear");
+        el.leds_clear = document.getElementById('leds_clear');
 
         el.config_light_programs =
-            document.getElementById("config_light_programs");
-        el.light_programs = document.getElementById("light_programs");
+            document.getElementById('config_light_programs');
+        el.light_programs = document.getElementById('light_programs');
         el.light_programs_errors =
-            document.getElementById("light_programs_errors");
+            document.getElementById('light_programs_errors');
         el.light_programs_assembler =
-            document.getElementById("light_programs_assembler");
-        el.light_programs_ok = document.getElementById("light_programs_ok");
+            document.getElementById('light_programs_assembler');
+        el.light_programs_ok = document.getElementById('light_programs_ok');
 
-        el.config_advanced = document.getElementById("config_advanced");
+        el.config_advanced = document.getElementById('config_advanced');
 
         el.auto_brake_lights_forward_enabled =
-            document.getElementById("auto_brake_lights_forward_enabled");
+            document.getElementById('auto_brake_lights_forward_enabled');
         el.auto_brake_counter_value_forward_min =
-            document.getElementById("auto_brake_counter_value_forward_min");
+            document.getElementById('auto_brake_counter_value_forward_min');
         el.auto_brake_counter_value_forward_max =
-            document.getElementById("auto_brake_counter_value_forward_max");
+            document.getElementById('auto_brake_counter_value_forward_max');
 
         el.auto_brake_lights_reverse_enabled =
-            document.getElementById("auto_brake_lights_reverse_enabled");
+            document.getElementById('auto_brake_lights_reverse_enabled');
         el.auto_brake_counter_value_reverse_min =
-            document.getElementById("auto_brake_counter_value_reverse_min");
+            document.getElementById('auto_brake_counter_value_reverse_min');
         el.auto_brake_counter_value_reverse_max =
-            document.getElementById("auto_brake_counter_value_reverse_max");
+            document.getElementById('auto_brake_counter_value_reverse_max');
 
         el.brake_disarm_timeout_enabled =
-            document.getElementById("brake_disarm_timeout_enabled");
+            document.getElementById('brake_disarm_timeout_enabled');
         el.brake_disarm_counter_value =
-            document.getElementById("brake_disarm_counter_value");
+            document.getElementById('brake_disarm_counter_value');
 
         el.auto_reverse_counter_value_min =
-            document.getElementById("auto_reverse_counter_value_min");
+            document.getElementById('auto_reverse_counter_value_min');
         el.auto_reverse_counter_value_max =
-            document.getElementById("auto_reverse_counter_value_max");
+            document.getElementById('auto_reverse_counter_value_max');
 
         el.blink_counter_value =
-            document.getElementById("blink_counter_value");
+            document.getElementById('blink_counter_value');
         el.indicator_idle_time_value =
-            document.getElementById("indicator_idle_time_value");
+            document.getElementById('indicator_idle_time_value');
         el.indicator_off_timeout_value =
-            document.getElementById("indicator_off_timeout_value");
-        el.blink_threshold = document.getElementById("blink_threshold");
+            document.getElementById('indicator_off_timeout_value');
+        el.blink_threshold = document.getElementById('blink_threshold');
 
         el.centre_threshold_low =
-            document.getElementById("centre_threshold_low");
+            document.getElementById('centre_threshold_low');
         el.centre_threshold_high =
-            document.getElementById("centre_threshold_high");
+            document.getElementById('centre_threshold_high');
 
         el.initial_endpoint_delta =
-            document.getElementById("initial_endpoint_delta");
+            document.getElementById('initial_endpoint_delta');
         el.ch3_multi_click_timeout =
-            document.getElementById("ch3_multi_click_timeout");
+            document.getElementById('ch3_multi_click_timeout');
         el.winch_command_repeat_time =
-            document.getElementById("winch_command_repeat_time");
-        el.no_signal_timeout = document.getElementById("no_signal_timeout");
+            document.getElementById('winch_command_repeat_time');
+        el.no_signal_timeout = document.getElementById('no_signal_timeout');
 
-        el.number_of_gears = document.getElementById("number_of_gears");
+        el.number_of_gears = document.getElementById('number_of_gears');
         el.gearbox_servo_active_time =
-            document.getElementById("gearbox_servo_active_time");
+            document.getElementById('gearbox_servo_active_time');
         el.gearbox_servo_idle_time =
-            document.getElementById("gearbox_servo_idle_time");
+            document.getElementById('gearbox_servo_idle_time');
 
         el.initial_light_switch_position =
-            document.getElementById("initial_light_switch_position");
+            document.getElementById('initial_light_switch_position');
 
-        el.servo_pulse_min = document.getElementById("servo_pulse_min");
-        el.servo_pulse_max = document.getElementById("servo_pulse_max");
+        el.servo_pulse_min = document.getElementById('servo_pulse_min');
+        el.servo_pulse_max = document.getElementById('servo_pulse_max');
 
-        el.startup_time = document.getElementById("startup_time");
+        el.startup_time = document.getElementById('startup_time');
 
-        el.gamma_value = document.getElementById("gamma_value");
+        el.gamma_value = document.getElementById('gamma_value');
 
 
-        el.mode.addEventListener("change", update_section_visibility, false);
+        el.mode.addEventListener('change', update_section_visibility, false);
 
-        el.config_basic_output.addEventListener("change",
+        el.config_basic_output.addEventListener('change',
             update_section_visibility, false
-            );
+        );
 
-        set_led_feature_handler("leds_master", "master");
-        set_led_feature_handler("leds_slave", "slave");
+        set_led_feature_handler('leds_master', 'master');
+        set_led_feature_handler('leds_slave', 'slave');
 
-        el.load_firmware.addEventListener("change", load_firmware_from_disk,
+        el.load_firmware.addEventListener('change', load_firmware_from_disk,
             false
-            );
+        );
 
-        el.save_firmware.addEventListener("click", save_firmware, false);
+        el.save_firmware.addEventListener('click', save_firmware, false);
 
-        el.load_config.addEventListener("change", load_configuration_from_disk,
+        el.load_config.addEventListener('change', load_configuration_from_disk,
             false
-            );
+        );
 
-        el.save_config.addEventListener("click", save_configuration, false);
+        el.save_config.addEventListener('click', save_configuration, false);
 
-        el.leds_clear.addEventListener("click", function () {
-            if (window.confirm("Clear all LED configurations? This can not be undone.")) {
+        el.leds_clear.addEventListener('click', function () {
+            if (window.confirm('Clear all LED configurations? This can not be undone.')) {
                 clear_leds();
             }
         }, false);
 
-        el.light_programs_assembler.addEventListener("click", function () {
+        el.light_programs_assembler.addEventListener('click', function () {
             parse_light_program_code(ui.get_editor_content());
         }, false);
 
-        el.light_programs_errors.style.display = "none";
+        el.light_programs_errors.style.display = 'none';
 
         init_assembler();
         load_default_firmware();
@@ -1699,7 +1699,7 @@ var app = (function () {
 
 
 // *****************************************************************************
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener('DOMContentLoaded', function () {
     ui.init();
     app.init();
 }, false);
