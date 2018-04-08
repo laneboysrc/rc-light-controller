@@ -82,6 +82,10 @@ nav .menu-label {
   /*flex: 1;*/
 }
 
+.selected {
+  font-weight: bold;
+}
+
 @media (min-width: 768px) {
   nav {
     /*flex: 0 0 12em;*/
@@ -176,11 +180,11 @@ nav.box {
   padding-right: 40px;
 }
 
-#config_basic .radio_item {
+.configuration .radio_item {
   margin-bottom: 1em;
 }
 
-#config_basic label {
+.configuration label {
   font-weight: bold;
 }
 

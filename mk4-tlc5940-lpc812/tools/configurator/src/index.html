@@ -74,7 +74,8 @@
       <ul>
         <li><button data="load_and_save"><i class="fa fa-save"></i><span class="menu-label">Load and Save</span></button></li>
         <li><button data="config_mode"><i class="fa fa-wrench"></i><span class="menu-label">Operating mode</span></button></li>
-        <li><button data="config_basic"><i class="fa fa-car"></i><span class="menu-label">ESC type</span></button></li>
+        <li><button data="config_esc"><i class="fa fa-car"></i><span class="menu-label">ESC type</span></button></li>
+        <li><button data="config_ch3"><i class="fa fa-toggle-on"></i><span class="menu-label">CH3/AUX type</span></button></li>
         <li><button data="config_output"><i class="fa fa-external-link"></i><span class="menu-label">Output functions</span></button></li>
         <li><button data="config_leds"><i class="fa fa-lightbulb-o"></i><span class="menu-label">LED configuration</span></button></li>
         <li><button data="config_light_programs"><i class="fa fa-code"></i><span class="menu-label">Light programs</span></button></li>
@@ -84,7 +85,7 @@
     </nav>
 
     <div class="page" id="main">
-      <div id="load_and_save" class="box configuration">
+      <div id="load_and_save" class="box configuration hidden">
         <h2>Load and Save</h2>
         <div>
           Firmware version: <span id="firmware_version"></span>
@@ -199,170 +200,9 @@
             power is applied the LEDs flash in certain patterns.
           </div>
         </div>
-      </div>
 
-
-      <div id="config_basic" class="box configuration hidden">
-        <h2>Basic configuration</h2>
-        <div id="config_basic_esc_type">
-          <h3>ESC type</h2>
-          <div>
-            <div class="radio_item">
-              <input type="radio" name="esc" value="0" id="esc_fbr_with_timeout">
-              <label for="esc_fbr_with_timeout">Forward/Brake/Reverse (with timeout)</label>
-              <br>
-              After going forward, the ESC allows going in reverse when the throttle
-              has been in neutral for a certain amount of time.
-              <br>
-              Examples: HPI SC-15WP, HobbyKing HK-SENS-60A
-            </div>
-            <div class="radio_item">
-              <input type="radio" name="esc" value="1" id="esc_fbr_no_timeout">
-              <label for="esc_fbr_no_timeout">Forward/Brake/Reverse (no timeout)</label>
-              <br>
-              After going forward, the first push backwards on the throttle is
-              always engagin the brake function, regardless whether the throttle
-              has been in neutral for a long time. The second push on the throttle
-              engages reverse function. Note: the timeout can be adjusted in the
-              advanced configuration section below.
-              <br>
-              Examples: Tamiya TEU-104BK, TEU-105BK.
-            </div>
-            <div class="radio_item">
-              <input type="radio" name="esc" value="2" id="esc_fr">
-              <label for="esc_fr">Forward/Reverse (crawler mode)</label>
-              <br>
-              Forward and reverse engage immediately when the throttle is moved
-              to the corresponding position. Many ESC call this behaviour a &quot;crawler mode&quot;
-            </div>
-            <div class="radio_item">
-              <input type="radio" name="esc" value="3"id="esc_fb">
-              <label for="esc_fb">Forward/Brake (racing mode)</label>
-              <br>
-              For racing purpose some ESC can be configured to disable reverse.
-            </div>
-          </div>
-        </div>
-
-        <div id="config_basic_ch3">
-          <h3>CH3/AUX function</h2>
-          <div>
-            <div class="radio_item">
-              <input type="radio" name="ch3" value="0" id="ch3_two_position">
-              <label for="ch3_two_position">Two-position switch</label>
-              <br>
-              The CH3/AUX function on the transmitter is either a two-position
-              switch, or a toggle button that moves the servo between two endpoints.
-              <br>
-              Examples: FlySky GT3 series, HobbyKing HK310
-            </div>
-            <div class="radio_item">
-              <input type="radio" name="ch3" value="1" id="ch3_two_position_up_down">
-              <label for="ch3_two_position">Two-position switch with up/down buttons</label>
-              <br>
-              The CH3/AUX function on the transmitter has two positions that are selected
-              with two buttons on the transmitter. Pressing the down button moves
-              to position 1, pressing the up button moves to position 2.
-              <br>
-              Selecting this option requires to always press the down button first before
-              entering the desired number of clicks
-              <br>
-              Examples: HobbyKing X3S, Tactic TTX300
-            </div>
-            <div class="radio_item">
-              <input type="radio" name="ch3" value="2" id="ch3_momentary">
-              <label for="ch3_momentary">Momentary push button</label>
-              <br>
-              The CH3/AUX function on the transmitter is a push button that moves
-              the servo to the opposite endpoint while the button is pushed, but
-              moves the servo back to the original position once the button is
-              released.
-              <br>
-              Examples: Futaba 4PL
-            </div>
-            <div class="radio_item">
-              <input type="radio" name="ch3" value="3" id="ch3_local">
-              <label for="ch3_local">Push button on the light controller</label>
-              <br>
-              A push button directly connected to the light controller's CH3 input
-              (i.e. a physical button, not a servo signal from the receiver).
-              Useful for 2-channel radios.
-            </div>
-          </div>
-        </div>
-
-        <div id="config_basic_output">
-          <h3 class="single_output">Output function on pin OUT/ISP</h2>
-          <h3 class="dual_output">Servo output function on pin OUT/ISP</h2>
-          <div>
-            <div class="radio_item">
-              <input type="radio" name="output_out" value="0" id="single_off">
-              <label for="single_off">(no output function)</label>
-              <br>
-              No signal on the OUT/ISP pin of the light controller.
-            </div>
-            <div class="radio_item">
-              <input type="radio" name="output_out" value="3" id="steering_wheel_servo_output">
-              <label for="steering_wheel_servo_output">Steering wheel servo output</label>
-              <br>
-              The light controller can be connected to a servo, that moves the
-              steering wheel in the cabin of the car. The output follows the
-              steering input, but the endpoints and direction can be configured
-              independently of the steering function of the car.
-            </div>
-            <div class="radio_item">
-              <input type="radio" name="output_out" value="4" id="gearbox_servo_output">
-              <label for="gearbox_servo_output">Gearbox servo output</label>
-              <br>
-              When enabled, a servo signal is generated that allows control of a
-              two-speed gearbox.
-              <br>
-              <label for="number_of_gears">Number of gears:</label> <select id="number_of_gears">
-                <option value="2">2</option>
-                <option value="3">3</option>
-              </select>
-            </div>
-          </div>
-          <h3 class="dual_output">Output function on pin TH/Tx</h2>
-          <div class="radio_item dual_output">
-            <input type="radio" name="output_th" value="0" id="dual_off">
-            <label for="single_off">(no output function)</label>
-            <br>
-            No signal on the TH/Tx pin of the light controller.
-          </div>
-          <div class="radio_item">
-            <input class="dual_output_th" type="radio" name="output_out" value="1" id="slave_output">
-            <label for="slave_ouput">Slave output</label>
-            <br>
-            By using a second light controller configured as <em>slave</em>
-            a total of 32 LEDs can be controlled. A single cable must be run
-            between the <em>master</em>
-            <span class="single_output">OUT/ISP</span><span class="dual_output">TH/Tx</span>
-            pin and the <em>slave</em> ST/Rx pin.
-            <br>
-            When this option is selected, a second set of LED configuration
-            becomes visible below.
-          </div>
-          <div class="radio_item">
-            <input class="dual_output_th" type="radio" name="output_out" value="2" id="preprocessor_output">
-            <label for="preprocessor_output">Pre-processour output</label>
-            <br>
-            When enabled, the light controller outputs the steering, throttle
-            and CH3/AUX signals as serial data stream. This function can be
-            useful for connecting custom hardware to the light controller.
-          </div>
-          <div class="radio_item">
-            <input class="dual_output_th" type="radio" name="output_out" value="5" id="winch_output">
-            <input class="dual_output_th" type="checkbox" name="winch_enable" value="5" id="winch_output_checkbox">
-            <label for="winch_output">Winch output</label>
-            <br>
-            Enables control of the
-            <a href="https://github.com/laneboysrc/rc-winch-controller" target="_blank">LANE Boys RC winch controller</a><br>
-          </div>
-        </div>
-
-        <div id="config_basic_baudrate">
-          <h3>Baudrate</h3>
+        <div id="config_baudrate">
+          <h2>Baudrate</h2>
           <select id="baudrate">
             <option value="38400">38400</option>
             <option value="115200">115200</option>
@@ -374,6 +214,168 @@
           Ensure that master and slave are using the same baudrate. Note that the
           winch controller and the pre-processor that is based on the Microchip
           PIC operate only at 34800 baud.
+        </div>
+
+
+      </div>
+
+
+      <div id="config_esc" class="box configuration hidden">
+        <h2>ESC type</h2>
+        <div>
+          <div class="radio_item">
+            <input type="radio" name="esc" value="0" id="esc_fbr_with_timeout">
+            <label for="esc_fbr_with_timeout">Forward/Brake/Reverse (with timeout)</label>
+            <br>
+            After going forward, the ESC allows going in reverse when the throttle
+            has been in neutral for a certain amount of time.
+            <br>
+            Examples: HPI SC-15WP, HobbyKing HK-SENS-60A
+          </div>
+          <div class="radio_item">
+            <input type="radio" name="esc" value="1" id="esc_fbr_no_timeout">
+            <label for="esc_fbr_no_timeout">Forward/Brake/Reverse (no timeout)</label>
+            <br>
+            After going forward, the first push backwards on the throttle is
+            always engagin the brake function, regardless whether the throttle
+            has been in neutral for a long time. The second push on the throttle
+            engages reverse function. Note: the timeout can be adjusted in the
+            advanced configuration section below.
+            <br>
+            Examples: Tamiya TEU-104BK, TEU-105BK.
+          </div>
+          <div class="radio_item">
+            <input type="radio" name="esc" value="2" id="esc_fr">
+            <label for="esc_fr">Forward/Reverse (crawler mode)</label>
+            <br>
+            Forward and reverse engage immediately when the throttle is moved
+            to the corresponding position. Many ESC call this behaviour a &quot;crawler mode&quot;
+          </div>
+          <div class="radio_item">
+            <input type="radio" name="esc" value="3"id="esc_fb">
+            <label for="esc_fb">Forward/Brake (racing mode)</label>
+            <br>
+            For racing purpose some ESC can be configured to disable reverse.
+          </div>
+        </div>
+      </div>
+
+
+      <div id="config_ch3" class="box configuration hidden">
+        <h2>CH3/AUX type</h2>
+        <div>
+          <div class="radio_item">
+            <input type="radio" name="ch3" value="0" id="ch3_two_position">
+            <label for="ch3_two_position">Two-position switch</label>
+            <br>
+            The CH3/AUX function on the transmitter is either a two-position
+            switch, or a toggle button that moves the servo between two endpoints.
+            <br>
+            Examples: FlySky GT3 series, HobbyKing HK310
+          </div>
+          <div class="radio_item">
+            <input type="radio" name="ch3" value="1" id="ch3_two_position_up_down">
+            <label for="ch3_two_position">Two-position switch with up/down buttons</label>
+            <br>
+            The CH3/AUX function on the transmitter has two positions that are selected
+            with two buttons on the transmitter. Pressing the down button moves
+            to position 1, pressing the up button moves to position 2.
+            <br>
+            Selecting this option requires to always press the down button first before
+            entering the desired number of clicks
+            <br>
+            Examples: HobbyKing X3S, Tactic TTX300
+          </div>
+          <div class="radio_item">
+            <input type="radio" name="ch3" value="2" id="ch3_momentary">
+            <label for="ch3_momentary">Momentary push button</label>
+            <br>
+            The CH3/AUX function on the transmitter is a push button that moves
+            the servo to the opposite endpoint while the button is pushed, but
+            moves the servo back to the original position once the button is
+            released.
+            <br>
+            Examples: Futaba 4PL
+          </div>
+          <div class="radio_item">
+            <input type="radio" name="ch3" value="3" id="ch3_local">
+            <label for="ch3_local">Push button on the light controller</label>
+            <br>
+            A push button directly connected to the light controller's CH3 input
+            (i.e. a physical button, not a servo signal from the receiver).
+            Useful for 2-channel radios.
+          </div>
+        </div>
+      </div>
+
+
+      <div id="config_output" class="box configuration hidden">
+        <h2 class="single_output">Output function on pin OUT/ISP</h2>
+        <h2 class="dual_output">Servo output function on pin OUT/ISP</h2>
+        <div>
+          <div class="radio_item">
+            <input type="radio" name="output_out" value="0" id="single_off">
+            <label for="single_off">(no output function)</label>
+            <br>
+            No signal on the OUT/ISP pin of the light controller.
+          </div>
+          <div class="radio_item">
+            <input type="radio" name="output_out" value="3" id="steering_wheel_servo_output">
+            <label for="steering_wheel_servo_output">Steering wheel servo output</label>
+            <br>
+            The light controller can be connected to a servo, that moves the
+            steering wheel in the cabin of the car. The output follows the
+            steering input, but the endpoints and direction can be configured
+            independently of the steering function of the car.
+          </div>
+          <div class="radio_item">
+            <input type="radio" name="output_out" value="4" id="gearbox_servo_output">
+            <label for="gearbox_servo_output">Gearbox servo output</label>
+            <br>
+            When enabled, a servo signal is generated that allows control of a
+            two-speed gearbox.
+            <br>
+            <label for="number_of_gears">Number of gears:</label> <select id="number_of_gears">
+              <option value="2">2</option>
+              <option value="3">3</option>
+            </select>
+          </div>
+        </div>
+        <h3 class="dual_output">Output function on pin TH/Tx</h2>
+        <div class="radio_item dual_output">
+          <input type="radio" name="output_th" value="0" id="dual_off">
+          <label for="single_off">(no output function)</label>
+          <br>
+          No signal on the TH/Tx pin of the light controller.
+        </div>
+        <div class="radio_item">
+          <input class="dual_output_th" type="radio" name="output_out" value="1" id="slave_output">
+          <label for="slave_ouput">Slave output</label>
+          <br>
+          By using a second light controller configured as <em>slave</em>
+          a total of 32 LEDs can be controlled. A single cable must be run
+          between the <em>master</em>
+          <span class="single_output">OUT/ISP</span><span class="dual_output">TH/Tx</span>
+          pin and the <em>slave</em> ST/Rx pin.
+          <br>
+          When this option is selected, a second set of LED configuration
+          becomes visible below.
+        </div>
+        <div class="radio_item">
+          <input class="dual_output_th" type="radio" name="output_out" value="2" id="preprocessor_output">
+          <label for="preprocessor_output">Pre-processour output</label>
+          <br>
+          When enabled, the light controller outputs the steering, throttle
+          and CH3/AUX signals as serial data stream. This function can be
+          useful for connecting custom hardware to the light controller.
+        </div>
+        <div class="radio_item">
+          <input class="dual_output_th" type="radio" name="output_out" value="5" id="winch_output">
+          <input class="dual_output_th" type="checkbox" name="winch_enable" value="5" id="winch_output_checkbox">
+          <label for="winch_output">Winch output</label>
+          <br>
+          Enables control of the
+          <a href="https://github.com/laneboysrc/rc-winch-controller" target="_blank">LANE Boys RC winch controller</a><br>
         </div>
       </div>
 
@@ -472,7 +474,7 @@
 
 
       <div id="config_light_programs" class="box configuration hidden">
-        <h2>Light programs:</h2>
+        <h2>Light programs</h2>
         <div>
           Light programs are small scripts that can perform custom light
           sequences. See <a href="https://github.com/laneboysrc/rc-light-controller/blob/master/mk4-tlc5940-lpc812/doc/light-programs.md">light-programs.md</a> for an details on the

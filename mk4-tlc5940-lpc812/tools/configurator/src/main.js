@@ -487,10 +487,9 @@ var app = (function () {
             el.mode_test.style.display = 'none';
             el.config_light_programs.style.display = '';
             el.config_leds.style.display = '';
-            el.config_basic.style.display = '';
-            el.config_basic_esc_type.style.display = '';
-            el.config_basic_ch3.style.display = '';
-            el.config_basic_output.style.display = '';
+            el.config_esc.style.display = '';
+            el.config_ch3.style.display = '';
+            el.config_output.style.display = '';
             el.config_advanced.style.display = '';
             set_visibility(el.single_output, '');
             set_visibility(el.dual_output, 'none');
@@ -504,13 +503,11 @@ var app = (function () {
             el.mode_master_cppm.style.display = 'none';
             el.mode_slave.style.display = 'none';
             el.mode_test.style.display = 'none';
-            el.config_basic.style.display = '';
             el.config_light_programs.style.display = '';
             el.config_leds.style.display = '';
-            el.config_basic.style.display = '';
-            el.config_basic_esc_type.style.display = '';
-            el.config_basic_ch3.style.display = '';
-            el.config_basic_output.style.display = '';
+            el.config_esc.style.display = '';
+            el.config_ch3.style.display = '';
+            el.config_output.style.display = '';
             el.config_advanced.style.display = '';
             set_visibility(el.single_output, 'none');
             set_visibility(el.dual_output, '');
@@ -524,13 +521,11 @@ var app = (function () {
             el.mode_master_cppm.style.display = '';
             el.mode_slave.style.display = 'none';
             el.mode_test.style.display = 'none';
-            el.config_basic.style.display = '';
             el.config_light_programs.style.display = '';
             el.config_leds.style.display = '';
-            el.config_basic.style.display = '';
-            el.config_basic_esc_type.style.display = '';
-            el.config_basic_ch3.style.display = '';
-            el.config_basic_output.style.display = '';
+            el.config_esc.style.display = '';
+            el.config_ch3.style.display = '';
+            el.config_output.style.display = '';
             el.config_advanced.style.display = '';
             set_visibility(el.single_output, 'none');
             set_visibility(el.dual_output, '');
@@ -546,10 +541,9 @@ var app = (function () {
             el.mode_test.style.display = 'none';
             el.config_light_programs.style.display = 'none';
             el.config_leds.style.display = 'none';
-            el.config_basic.style.display = '';
-            el.config_basic_esc_type.style.display = 'none';
-            el.config_basic_ch3.style.display = 'none';
-            el.config_basic_output.style.display = 'none';
+            el.config_esc.style.display = 'none';
+            el.config_ch3.style.display = 'none';
+            el.config_output.style.display = '';
             el.config_advanced.style.display = 'none';
             config.mode = new_mode;
             break;
@@ -562,7 +556,7 @@ var app = (function () {
             el.mode_test.style.display = '';
             el.config_light_programs.style.display = 'none';
             el.config_leds.style.display = 'none';
-            el.config_basic.style.display = 'none';
+            el.config_output.style.display = 'none';
             el.config_advanced.style.display = 'none';
             config.mode = new_mode;
             break;
@@ -1491,18 +1485,18 @@ var app = (function () {
     };
 
     // *************************************************************************
-    var select_page = function (event) {
-        var selected_page = event.currentTarget.getAttribute('data');
-
+    var select_page = function (selected_page) {
         for (var button of el.menu_buttons) {
             var page_name = button.getAttribute('data');
             var page = document.querySelector('#' + page_name);
             if (page) {
                 if (page_name == selected_page) {
                     page.classList.remove('hidden');
+                    button.classList.add('selected');
                 }
                 else {
                     page.classList.add('hidden');
+                    button.classList.remove('selected');
                 }
             }
         }
@@ -1562,18 +1556,17 @@ var app = (function () {
         el.mode_slave = document.getElementById('mode_slave');
         el.mode_test = document.getElementById('mode_test');
 
+        el.config_baudrate = document.getElementById('config_baudrate');
+
         el.config_leds = document.getElementById('config_leds');
         el.leds_master = document.getElementById('leds_master');
         el.leds_slave = document.getElementById('leds_slave');
 
-        el.config_basic = document.getElementById('config_basic');
-        el.config_basic_esc_type =
-            document.getElementById('config_basic_esc_type');
-        el.config_basic_ch3 = document.getElementById('config_basic_ch3');
-        el.config_basic_output =
-            document.getElementById('config_basic_output');
-        el.config_basic_baudrate =
-            document.getElementById('config_basic_baudrate');
+        el.config_esc = document.getElementById('config_esc');
+
+        el.config_ch3 = document.getElementById('config_ch3');
+
+        el.config_output = document.getElementById('config_output');
 
         el.baudrate = document.getElementById('baudrate');
         el.esc = document.getElementsByName('esc');
@@ -1674,7 +1667,7 @@ var app = (function () {
 
         el.mode.addEventListener('change', update_section_visibility, false);
 
-        el.config_basic_output.addEventListener('change',
+        el.config_output.addEventListener('change',
             update_section_visibility, false
         );
 
@@ -1706,12 +1699,15 @@ var app = (function () {
         el.light_programs_errors.style.display = 'none';
 
         for (var button of el.menu_buttons) {
-            button.addEventListener('click', select_page);
+            button.addEventListener('click', function (event) {
+                var selected_page = event.currentTarget.getAttribute('data');
+                select_page(selected_page);
+            });
         }
-
 
         init_assembler();
         load_default_firmware();
+        select_page('load_and_save');
     };
 
 
