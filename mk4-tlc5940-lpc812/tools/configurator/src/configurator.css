@@ -90,7 +90,7 @@ nav .menu-label {
   font-weight: bold;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 1023px) {
   nav {
     /*flex: 0 0 12em;*/
   }
