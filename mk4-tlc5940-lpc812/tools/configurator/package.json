@@ -15,7 +15,7 @@
     "title": "Light Controller Configurator",
     "icon": "favicon.ico",
     "width": 1024,
-    "height": 768,
+    "height": 700,
     "position": "center",
     "resizable": true,
     "toolbar": false,
