@@ -46,6 +46,7 @@ $(INLINE_SOURCE):
 	$(ECHO) $(NPM) install
 
 $(TARGET): $(BUILD_DIR) $(INLINE_SOURCE) $(SOURCES)
+	@echo [BUILD]
 	$(ECHO) make -C ../light-program-assembler all
 	$(ECHO) cd src ; ../$(INLINE_SOURCE) $(COMPRESS) index.html ../$@
 	$(ECHO) sed -i -e 's:#{this.date}:'$(shell date +%Y-%m-%d)':g' $@
@@ -56,9 +57,11 @@ clean:
 
 debug: $(TARGET)
 	@echo [NW.JS debug]
-	$(ECHO) ./node_modules/.bin/nwbuild -p linux64 -v 0.29.3 --cacheDir ./cache/ -r .
+	$(ECHO) ./node_modules/.bin/nwbuild -p linux64 -v 0.29.3 --flavor sdk --cacheDir ./cache/ -r .
 
 release: COMPRESS=--compress
 release: $(TARGET)
+
+
 
 .PHONY : all clean debug release

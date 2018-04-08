@@ -1,6 +1,7 @@
 * {
   padding: 0;
   margin: 0;
+  box-sizing: border-box;
 }
 
 body {
@@ -83,7 +84,6 @@ nav .menu-label {
 
 .body {
   display: flex;
-  /*flex: 1;*/
 }
 
 .selected {
@@ -313,3 +313,36 @@ nav.box {
   background-color: #e44;
   overflow: auto;
 }
+
+.response {
+  background-color: #FFEDA5;
+  color: gray;
+}
+
+@media all and (min-width: 600px) {
+  .preprocessor-page {
+    display: flex;
+    align-items: stretch;
+    flex-flow: row wrap;
+  }
+
+  .column {
+    width: 50%;
+  }
+}
+
+.message {
+  font-family: monospace;
+  line-height: 1.25em;
+  min-height: 1.25em;
+  white-space: pre;
+}
+
+.centered {
+  text-align: center;
+}
+
+#throttle, #steering {
+  width: 100%;
+}
+
