@@ -2,7 +2,7 @@
 /*jslint browser: true, bitwise: true, vars: true */
 /*global emitter, symbols, CodeMirror, ui, gamma, disassembler,
     intel_hex, parser, default_firmware_image, default_light_program,
-    FileReader, Blob, saveAs,
+    FileReader, Blob, saveAs, preprocessor
     hardware_test_configuration, logger */
 
 var app = (function () {
@@ -1801,4 +1801,5 @@ var app = (function () {
 document.addEventListener('DOMContentLoaded', function () {
     ui.init();
     app.init();
+    preprocessor.init();
 }, false);
