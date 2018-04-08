@@ -1801,5 +1801,5 @@ var app = (function () {
 document.addEventListener('DOMContentLoaded', function () {
     ui.init();
     app.init();
-    preprocessor.init();
+    preprocessor.init('usb');
 }, false);

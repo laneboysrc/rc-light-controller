@@ -40,37 +40,6 @@ var preprocessor = (function () {
 
     const MAX_UART_LOG_LINES = 20;
 
-    var createXMLHttpRequest = function () {
-        try { return new XMLHttpRequest(); } catch(e) {}
-        try { return new ActiveXObject('Msxml2.XMLHTTP'); } catch (e) {}
-        return null;
-    }
-
-    var send_xmlhttp = function (cmd, value, callback = null) {
-        var params = cmd + '=' + value;
-
-        var xhr = createXMLHttpRequest();
-        xhr.onerror = function () {
-            let msg = 'ERR Unable to send XMLHttpRequest';
-            elResponse.textContent = msg;
-            if (callback) {
-                callback(msg);
-            }
-        };
-
-        xhr.onload = function () {
-            elResponse.textContent = xhr.responseText;
-            if (callback) {
-                callback(xhr.responseText);
-            }
-        };
-
-        elResponse.textContent = ' ';
-        xhr.open('POST', '/', true);
-        xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-        xhr.send(params);
-    }
-
     var center_steering = function (event) {
         event.preventDefault();
         elSteering.value = 0;
@@ -311,17 +280,6 @@ var preprocessor = (function () {
         }
     }
 
-    var send_ws = function (cmd, value, callback) {
-        if (websocket) {
-            let packet = {};
-            packet[cmd] = value;
-            websocket.send(JSON.stringify(packet));
-        }
-        if (callback) {
-            callback(websocket ? 'OK' : 'NOT CONNECTED');
-        }
-    }
-
     var webusb_connect = async function (device) {
         try {
             await device.open();
@@ -435,43 +393,6 @@ var preprocessor = (function () {
         }
     }
 
-    var ws_closed = function () {
-        console.log('ws_closed');
-        websocket = undefined;
-        elResponse.textContent = ' ';
-        setTimeout(ws_init, 3000);
-    }
-
-    var ws_error = function (event) {
-        console.log('ws_error');
-        event.target.close();
-    }
-
-    var ws_message = function (message) {
-        diagnostics(message.data);
-    }
-
-    var ws_opened = function (event) {
-        console.log('ws_opened');
-        elResponse.textContent = 'OK';
-        websocket = event.target;
-        send_ping();
-    }
-
-    var ws_init = function () {
-        let host = window.location.hostname;
-        let port = window.location.port;
-
-        console.log('ws_init');
-        let ws = new WebSocket(`ws://${host}:${port}/websocket`);
-        ws.onopen = ws_opened;
-        ws.onclose = ws_closed;
-        ws.onerror = ws_error;
-        ws.onmessage = ws_message;
-
-        elDiagnostics.classList.remove('hidden');
-    }
-
     var webusb_init = async function () {
         // Check if the browser supports WebUSB. If not, show a message
         // to the user.
@@ -513,7 +434,7 @@ var preprocessor = (function () {
         }
     }
 
-    var init = async function () {
+    var init = async function (port, baudrate) {
         elMomentary = document.getElementById('momentary');
         elWebusbConnect = document.getElementById('webusb-connect');
         elNotConnected = document.getElementById('not-connected');
@@ -527,38 +448,12 @@ var preprocessor = (function () {
         elUART = document.getElementById('uart');
         elDiagnostics = document.getElementById('diagnostics');
 
-        // If we are using the preprocessor-simulator.py script, then
-        // the operating mode can be either via serial port (via Python), or
-        // WebUSB. The python program sets a cookie named 'mode' if the
-        // serial port mode is requested.
-        // By default the code uses WebUSB, i.e. when served from a
-        // webserver (Github!)
-        let use_webusb = true;
-        let use_ws = false;
-
-        if (document.cookie.split(';').indexOf('mode=xhr') >= 0) {
-            console.log('XHR mode requested');
-            // Clear the cookie
-            document.cookie = 'mode=; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-            use_webusb = false;
-        }
-        if (document.cookie.split(';').indexOf('mode=ws') >= 0) {
-            console.log('WS mode requested');
-            document.cookie = 'mode=; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-            use_webusb = false;
-            use_ws = true;
-        }
-
-        if (use_webusb) {
+        if (port == 'usb') {
             send_function = send_webusb;
             webusb_init();
         }
-        else if (use_ws) {
-            send_function = send_ws;
-            ws_init();
-        }
         else {
-            send_function = send_xmlhttp;
+            // send_function = send_xmlhttp;
         }
 
         document.addEventListener('keydown', keydown_event_handler);
