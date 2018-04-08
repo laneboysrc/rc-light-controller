@@ -1,3 +1,7 @@
+# MK4
+
+* Enable entering ISP mode via UART while firmware is running?
+
 # MK5
 
 * Investigate outputs sometimes not working on Android board
