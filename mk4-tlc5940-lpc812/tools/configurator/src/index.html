@@ -72,14 +72,14 @@
 
     <nav class="menu box  ">
       <ul>
-        <li><button><i class="fa fa-save"></i><span class="menu-label">Load and Save</span></button></li>
-        <li><button><i class="fa fa-wrench"></i><span class="menu-label">Operating mode</span></button></li>
-        <li><button><i class="fa fa-car"></i><span class="menu-label">ESC type</span></button></li>
-        <li><button><i class="fa fa-external-link"></i><span class="menu-label">Output functions</span></button></li>
-        <li><button><i class="fa fa-lightbulb-o"></i><span class="menu-label">LED configuration</span></button></li>
-        <li><button><i class="fa fa-code"></i><span class="menu-label">Light programs</span></button></li>
-        <li><button><i class="fa fa-cogs"></i><span class="menu-label">Advanced settings</span></button></li>
-        <li><button><i class="fa fa-sliders"></i><span class="menu-label">Testing</span></button></li>
+        <li><button data="load_and_save"><i class="fa fa-save"></i><span class="menu-label">Load and Save</span></button></li>
+        <li><button data="config_mode"><i class="fa fa-wrench"></i><span class="menu-label">Operating mode</span></button></li>
+        <li><button data="config_basic"><i class="fa fa-car"></i><span class="menu-label">ESC type</span></button></li>
+        <li><button data="config_output"><i class="fa fa-external-link"></i><span class="menu-label">Output functions</span></button></li>
+        <li><button data="config_leds"><i class="fa fa-lightbulb-o"></i><span class="menu-label">LED configuration</span></button></li>
+        <li><button data="config_light_programs"><i class="fa fa-code"></i><span class="menu-label">Light programs</span></button></li>
+        <li><button data="config_advanced"><i class="fa fa-cogs"></i><span class="menu-label">Advanced settings</span></button></li>
+        <li><button data="testing"><i class="fa fa-sliders"></i><span class="menu-label">Testing</span></button></li>
       </ul>
     </nav>
 
@@ -123,7 +123,7 @@
       </div>
 
 
-      <div id="config_mode" class="box configuration">
+      <div id="config_mode" class="box configuration hidden">
         <h2>Operating mode</h2>
         <div>
           <select id="mode">
@@ -202,7 +202,7 @@
       </div>
 
 
-      <div id="config_basic" class="box configuration">
+      <div id="config_basic" class="box configuration hidden">
         <h2>Basic configuration</h2>
         <div id="config_basic_esc_type">
           <h3>ESC type</h2>
@@ -378,7 +378,7 @@
       </div>
 
 
-      <div id="config_leds" class="box configuration">
+      <div id="config_leds" class="box configuration hidden">
         <h2>LED configuration</h2>
         <div>
           Click on a field in the table to set the LED brighness value in percent for a particular function.
@@ -471,7 +471,7 @@
       </div>
 
 
-      <div id="config_light_programs" class="box configuration">
+      <div id="config_light_programs" class="box configuration hidden">
         <h2>Light programs:</h2>
         <div>
           Light programs are small scripts that can perform custom light
@@ -499,7 +499,7 @@
       </div>
 
 
-      <div id="config_advanced" class="box configuration">
+      <div id="config_advanced" class="box configuration hidden">
         <h2>Advanced configuration</h2>
           Note: all timing values have a resolution of 20 ms.
 

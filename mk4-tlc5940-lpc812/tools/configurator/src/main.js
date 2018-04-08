@@ -1490,6 +1490,24 @@ var app = (function () {
         update_ui();
     };
 
+    // *************************************************************************
+    var select_page = function (event) {
+        var selected_page = event.currentTarget.getAttribute('data');
+
+        for (var button of el.menu_buttons) {
+            var page_name = button.getAttribute('data');
+            var page = document.querySelector('#' + page_name);
+            if (page) {
+                if (page_name == selected_page) {
+                    page.classList.remove('hidden');
+                }
+                else {
+                    page.classList.add('hidden');
+                }
+            }
+        }
+
+    };
 
     // *************************************************************************
     var init_assembler = function () {
@@ -1651,6 +1669,8 @@ var app = (function () {
 
         el.gamma_value = document.getElementById('gamma_value');
 
+        el.menu_buttons = document.querySelectorAll('nav button');
+
 
         el.mode.addEventListener('change', update_section_visibility, false);
 
@@ -1684,6 +1704,11 @@ var app = (function () {
         }, false);
 
         el.light_programs_errors.style.display = 'none';
+
+        for (var button of el.menu_buttons) {
+            button.addEventListener('click', select_page);
+        }
+
 
         init_assembler();
         load_default_firmware();
