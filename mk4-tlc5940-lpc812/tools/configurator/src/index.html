@@ -11,6 +11,8 @@
   <link inline rel="stylesheet" href="../vendor/codemirror/addon/dialog/dialog.css">
   <link inline rel="stylesheet" href="../vendor/codemirror/addon/lint/lint.css">
 
+  <link inline rel="stylesheet" href="../node_modules/font-awesome-base64/index.css">
+
   <link inline rel="stylesheet" href="configurator.css">
 
   <script inline src="../vendor/codemirror/lib/codemirror.js"></script>
@@ -52,6 +54,7 @@
     <br>Please check out <a href="https://github.com/laneboysrc/rc-light-controller">https://github.com/laneboysrc/rc-light-controller</a> for a description of the RC Light Controller this tool belongs to.
   </div>
 
+
   <div id="runtime-error" style="display: none; margin: 10px; padding: 10px; background: red; color: white">
     <h1 style="color: white">ATTENTION</h1>
     <strong>
@@ -65,806 +68,839 @@
       To fix this error during development, change to the &quot;assembler/&quot; directory and run &quot;make&quot;.
   </div>
 
-  <div class="page" id="main">
-    <div id="load_and_save" class="box configuration">
-      <h2>Load and Save</h2>
-      <div>
-        Firmware version: <span id="firmware_version"></span>
-      </div>
-      <table class="load_save_table">
-        <tr>
-          <td><button id="save_firmware">Save firmware image...</button></td>
-          <td>Load firmware image: <input type="file" id="load_firmware"></td>
-        </tr>
-        <tr>
-          <td><button id="save_config">Save configuration...</button></td>
-          <td>Load configuration file: <input type="file" id="load_config"></td>
-        </tr>
-      </table>
-      <div class="info">
-        <div>
-          This tool has the light controller firmware already embedded. Below
-          you can adjust the configuration according to your needs.
-        </div>
-        <div>
-          After you are done, you can save the firmware image. It will appear
-          in the download folder of your web browser.
-        </div>
-        <div>
-          You can also save the configuration into a text file, which
-          can be loaded at a later point in time, e.g. to make further tweaks.
-        </div>
-        <div>
-          It is advisable that you always keep a copy of the saved
-          configuration. While it is possible to retrieve all settings from
-          a firmware image, some data especially in the light programs, like
-          variable names and comments, are lost as they are not placed into
-          the firmware image.
-        </div>
-      </div>
-    </div>
+  <div class="body">
 
+    <nav class="menu box  ">
+      <ul>
+        <li><a href="#">
+          <i class="fa fa-save"></i><span class="menu-label">Load and Save</span>
+        </a></li>
+        <li><a href="#">
+          <i class="fa fa-wrench"></i><span class="menu-label">Operating mode</span>
+        </a></li>
+        <li><a href="#">
+          <i class="fa fa-car"></i><span class="menu-label">ESC type</span>
+        </a></li>
+        <li><a href="#">
+          <i class="fa fa-external-link"></i><span class="menu-label">Output functions</span>
+        </a></li>
+        <li><a href="#">
+          <i class="fa fa-lightbulb-o"></i><span class="menu-label">LED configuration</span>
+        </a></li>
+        <li><a href="#">
+          <i class="fa fa-code"></i><span class="menu-label">Light programs</span>
+        </a></li>
+        <li><a href="#">
+          <i class="fa fa-cogs"></i><span class="menu-label">Advanced settings</span>
+        </a></li>
+        <li><a href="#">
+          <i class="fa fa-sliders"></i><span class="menu-label">Testing</span>
+        </a></li>
+      </ul>
+    </nav>
 
-    <div id="config_mode" class="box configuration">
-      <h2>Operating mode</h2>
-      <div>
-        <select id="mode">
-          <option value="0">Master, servo inputs</option>
-          <option value="1">Master, pre-processor input</option>
-          <option value="2">Master, CPPM input</option>
-          <option value="3">Slave</option>
-          <option value="99">Hardware test</option>
-        </select>
-      </div>
-      <div id="mode_master_servo" class="info">
+    <div class="page" id="main">
+      <div id="load_and_save" class="box configuration">
+        <h2>Load and Save</h2>
         <div>
-          The light controller reads servo signals from the receiver. The
-          steering signal must be connected to input <strong>ST/Rx</strong> on
-          the light controller, the throttle signal to <strong>TH/Tx</strong>
-          and the Channel 3 (AUX) signal to the <strong>CH3</strong> input.
+          Firmware version: <span id="firmware_version"></span>
         </div>
-      </div>
-      <div id="mode_master_uart" class="info">
-        <div>
-          The light controller does not read servo signals directly, but from a
-          <em>pre-processor</em>. The <em>pre-processor</em> is a
-          microcontroller directly built into the receiver. It reads the servo
-          signals and converts them into a serial data stream so that the light
-          controller can be connected with a single servo extension cable. This
-          simplifies wiring of a RC car, especially when the light controller
-          resides on the body while the receiver is mounted on the chassis.
-        </div>
-        <div>
-          For more information on the preprocessor please read our blog articles:
-          <ul>
-            <li><a href="http://laneboysrc.blogspot.com/2012/12/pre-processor-for-diy-rc-light.html" target="_blank">Pre-processor for the DIY RC Light controller</a></li>
-            <li><a href="http://laneboysrc.blogspot.com/2013/01/pre-processor-miniaturization.html">pre-processor miniaturization</a></li>
-          </ul>
-        </div>
-        <div>
-          The output from the <em>pre-processor</em> must be connected to the
-          <strong>ST/Rx</strong> input of the light controller.
-        </div>
-      </div>
-      <div id="mode_master_cppm" class="info">
-        <div>
-          Some receiver have a CPPM output, which encodes information of all
-          servos in a single electrical signal. The light controller can read
-          this signal, so only a single cable needs to be connected from the
-          receiver to the light controller.
-        </div>
-        <div>
-          Please consult your the instructions of your RC system to check
-          whether your receiver has a CPPM output.
-        </div>
-      </div>
-      <div id="mode_slave" class="info">
-        <div>
-          In case more than 16 LEDs are required, it is possible to daisy-chain
-          two light controllers. One needs to be configured as <em>master</em>
-          and have the <em>slave output</em> activated, the other one
-          must be configured as <em>slave</em>, for a total of 32 LEDs.
-        </div>
-        <div>
-          The output from the <em>master</em> must be fed into the
-          <strong>ST/Rx</strong> input on the <em>slave</em>.
-        </div>
-        <div>
-          The <em>master</em> controls the light functions of both light
-          controllers. Ensure that the baudrate of both <em>master</em> and
-          <em>slave</em> match.
-        </div>
-      </div>
-      <div id="mode_test" class="info">
-        <div>
-          Generates a firmware image suitable for hardware test. As soon as
-          power is applied the LEDs flash in certain patterns.
-        </div>
-      </div>
-    </div>
-
-
-    <div id="config_basic" class="box configuration">
-      <h2>Basic configuration</h2>
-      <div id="config_basic_esc_type">
-        <h3>ESC type</h2>
-        <div>
-          <div class="radio_item">
-            <input type="radio" name="esc" value="0" id="esc_fbr_with_timeout">
-            <label for="esc_fbr_with_timeout">Forward/Brake/Reverse (with timeout)</label>
-            <br>
-            After going forward, the ESC allows going in reverse when the throttle
-            has been in neutral for a certain amount of time.
-            <br>
-            Examples: HPI SC-15WP, HobbyKing HK-SENS-60A
+        <table class="load_save_table">
+          <tr>
+            <td><button id="save_firmware">Save firmware image...</button></td>
+            <td>Load firmware image: <input type="file" id="load_firmware"></td>
+          </tr>
+          <tr>
+            <td><button id="save_config">Save configuration...</button></td>
+            <td>Load configuration file: <input type="file" id="load_config"></td>
+          </tr>
+        </table>
+        <div class="info">
+          <div>
+            This tool has the light controller firmware already embedded. Below
+            you can adjust the configuration according to your needs.
           </div>
-          <div class="radio_item">
-            <input type="radio" name="esc" value="1" id="esc_fbr_no_timeout">
-            <label for="esc_fbr_no_timeout">Forward/Brake/Reverse (no timeout)</label>
-            <br>
-            After going forward, the first push backwards on the throttle is
-            always engagin the brake function, regardless whether the throttle
-            has been in neutral for a long time. The second push on the throttle
-            engages reverse function. Note: the timeout can be adjusted in the
-            advanced configuration section below.
-            <br>
-            Examples: Tamiya TEU-104BK, TEU-105BK.
+          <div>
+            After you are done, you can save the firmware image. It will appear
+            in the download folder of your web browser.
           </div>
-          <div class="radio_item">
-            <input type="radio" name="esc" value="2" id="esc_fr">
-            <label for="esc_fr">Forward/Reverse (crawler mode)</label>
-            <br>
-            Forward and reverse engage immediately when the throttle is moved
-            to the corresponding position. Many ESC call this behaviour a &quot;crawler mode&quot;
+          <div>
+            You can also save the configuration into a text file, which
+            can be loaded at a later point in time, e.g. to make further tweaks.
           </div>
-          <div class="radio_item">
-            <input type="radio" name="esc" value="3"id="esc_fb">
-            <label for="esc_fb">Forward/Brake (racing mode)</label>
-            <br>
-            For racing purpose some ESC can be configured to disable reverse.
+          <div>
+            It is advisable that you always keep a copy of the saved
+            configuration. While it is possible to retrieve all settings from
+            a firmware image, some data especially in the light programs, like
+            variable names and comments, are lost as they are not placed into
+            the firmware image.
           </div>
         </div>
       </div>
 
-      <div id="config_basic_ch3">
-        <h3>CH3/AUX function</h2>
+
+      <div id="config_mode" class="box configuration">
+        <h2>Operating mode</h2>
         <div>
-          <div class="radio_item">
-            <input type="radio" name="ch3" value="0" id="ch3_two_position">
-            <label for="ch3_two_position">Two-position switch</label>
-            <br>
-            The CH3/AUX function on the transmitter is either a two-position
-            switch, or a toggle button that moves the servo between two endpoints.
-            <br>
-            Examples: FlySky GT3 series, HobbyKing HK310
+          <select id="mode">
+            <option value="0">Master, servo inputs</option>
+            <option value="1">Master, pre-processor input</option>
+            <option value="2">Master, CPPM input</option>
+            <option value="3">Slave</option>
+            <option value="99">Hardware test</option>
+          </select>
+        </div>
+        <div id="mode_master_servo" class="info">
+          <div>
+            The light controller reads servo signals from the receiver. The
+            steering signal must be connected to input <strong>ST/Rx</strong> on
+            the light controller, the throttle signal to <strong>TH/Tx</strong>
+            and the Channel 3 (AUX) signal to the <strong>CH3</strong> input.
           </div>
-          <div class="radio_item">
-            <input type="radio" name="ch3" value="1" id="ch3_two_position_up_down">
-            <label for="ch3_two_position">Two-position switch with up/down buttons</label>
-            <br>
-            The CH3/AUX function on the transmitter has two positions that are selected
-            with two buttons on the transmitter. Pressing the down button moves
-            to position 1, pressing the up button moves to position 2.
-            <br>
-            Selecting this option requires to always press the down button first before
-            entering the desired number of clicks
-            <br>
-            Examples: HobbyKing X3S, Tactic TTX300
+        </div>
+        <div id="mode_master_uart" class="info">
+          <div>
+            The light controller does not read servo signals directly, but from a
+            <em>pre-processor</em>. The <em>pre-processor</em> is a
+            microcontroller directly built into the receiver. It reads the servo
+            signals and converts them into a serial data stream so that the light
+            controller can be connected with a single servo extension cable. This
+            simplifies wiring of a RC car, especially when the light controller
+            resides on the body while the receiver is mounted on the chassis.
           </div>
-          <div class="radio_item">
-            <input type="radio" name="ch3" value="2" id="ch3_momentary">
-            <label for="ch3_momentary">Momentary push button</label>
-            <br>
-            The CH3/AUX function on the transmitter is a push button that moves
-            the servo to the opposite endpoint while the button is pushed, but
-            moves the servo back to the original position once the button is
-            released.
-            <br>
-            Examples: Futaba 4PL
+          <div>
+            For more information on the preprocessor please read our blog articles:
+            <ul>
+              <li><a href="http://laneboysrc.blogspot.com/2012/12/pre-processor-for-diy-rc-light.html" target="_blank">Pre-processor for the DIY RC Light controller</a></li>
+              <li><a href="http://laneboysrc.blogspot.com/2013/01/pre-processor-miniaturization.html">pre-processor miniaturization</a></li>
+            </ul>
           </div>
-          <div class="radio_item">
-            <input type="radio" name="ch3" value="3" id="ch3_local">
-            <label for="ch3_local">Push button on the light controller</label>
-            <br>
-            A push button directly connected to the light controller's CH3 input
-            (i.e. a physical button, not a servo signal from the receiver).
-            Useful for 2-channel radios.
+          <div>
+            The output from the <em>pre-processor</em> must be connected to the
+            <strong>ST/Rx</strong> input of the light controller.
+          </div>
+        </div>
+        <div id="mode_master_cppm" class="info">
+          <div>
+            Some receiver have a CPPM output, which encodes information of all
+            servos in a single electrical signal. The light controller can read
+            this signal, so only a single cable needs to be connected from the
+            receiver to the light controller.
+          </div>
+          <div>
+            Please consult your the instructions of your RC system to check
+            whether your receiver has a CPPM output.
+          </div>
+        </div>
+        <div id="mode_slave" class="info">
+          <div>
+            In case more than 16 LEDs are required, it is possible to daisy-chain
+            two light controllers. One needs to be configured as <em>master</em>
+            and have the <em>slave output</em> activated, the other one
+            must be configured as <em>slave</em>, for a total of 32 LEDs.
+          </div>
+          <div>
+            The output from the <em>master</em> must be fed into the
+            <strong>ST/Rx</strong> input on the <em>slave</em>.
+          </div>
+          <div>
+            The <em>master</em> controls the light functions of both light
+            controllers. Ensure that the baudrate of both <em>master</em> and
+            <em>slave</em> match.
+          </div>
+        </div>
+        <div id="mode_test" class="info">
+          <div>
+            Generates a firmware image suitable for hardware test. As soon as
+            power is applied the LEDs flash in certain patterns.
           </div>
         </div>
       </div>
 
-      <div id="config_basic_output">
-        <h3 class="single_output">Output function on pin OUT/ISP</h2>
-        <h3 class="dual_output">Servo output function on pin OUT/ISP</h2>
-        <div>
-          <div class="radio_item">
-            <input type="radio" name="output_out" value="0" id="single_off">
+
+      <div id="config_basic" class="box configuration">
+        <h2>Basic configuration</h2>
+        <div id="config_basic_esc_type">
+          <h3>ESC type</h2>
+          <div>
+            <div class="radio_item">
+              <input type="radio" name="esc" value="0" id="esc_fbr_with_timeout">
+              <label for="esc_fbr_with_timeout">Forward/Brake/Reverse (with timeout)</label>
+              <br>
+              After going forward, the ESC allows going in reverse when the throttle
+              has been in neutral for a certain amount of time.
+              <br>
+              Examples: HPI SC-15WP, HobbyKing HK-SENS-60A
+            </div>
+            <div class="radio_item">
+              <input type="radio" name="esc" value="1" id="esc_fbr_no_timeout">
+              <label for="esc_fbr_no_timeout">Forward/Brake/Reverse (no timeout)</label>
+              <br>
+              After going forward, the first push backwards on the throttle is
+              always engagin the brake function, regardless whether the throttle
+              has been in neutral for a long time. The second push on the throttle
+              engages reverse function. Note: the timeout can be adjusted in the
+              advanced configuration section below.
+              <br>
+              Examples: Tamiya TEU-104BK, TEU-105BK.
+            </div>
+            <div class="radio_item">
+              <input type="radio" name="esc" value="2" id="esc_fr">
+              <label for="esc_fr">Forward/Reverse (crawler mode)</label>
+              <br>
+              Forward and reverse engage immediately when the throttle is moved
+              to the corresponding position. Many ESC call this behaviour a &quot;crawler mode&quot;
+            </div>
+            <div class="radio_item">
+              <input type="radio" name="esc" value="3"id="esc_fb">
+              <label for="esc_fb">Forward/Brake (racing mode)</label>
+              <br>
+              For racing purpose some ESC can be configured to disable reverse.
+            </div>
+          </div>
+        </div>
+
+        <div id="config_basic_ch3">
+          <h3>CH3/AUX function</h2>
+          <div>
+            <div class="radio_item">
+              <input type="radio" name="ch3" value="0" id="ch3_two_position">
+              <label for="ch3_two_position">Two-position switch</label>
+              <br>
+              The CH3/AUX function on the transmitter is either a two-position
+              switch, or a toggle button that moves the servo between two endpoints.
+              <br>
+              Examples: FlySky GT3 series, HobbyKing HK310
+            </div>
+            <div class="radio_item">
+              <input type="radio" name="ch3" value="1" id="ch3_two_position_up_down">
+              <label for="ch3_two_position">Two-position switch with up/down buttons</label>
+              <br>
+              The CH3/AUX function on the transmitter has two positions that are selected
+              with two buttons on the transmitter. Pressing the down button moves
+              to position 1, pressing the up button moves to position 2.
+              <br>
+              Selecting this option requires to always press the down button first before
+              entering the desired number of clicks
+              <br>
+              Examples: HobbyKing X3S, Tactic TTX300
+            </div>
+            <div class="radio_item">
+              <input type="radio" name="ch3" value="2" id="ch3_momentary">
+              <label for="ch3_momentary">Momentary push button</label>
+              <br>
+              The CH3/AUX function on the transmitter is a push button that moves
+              the servo to the opposite endpoint while the button is pushed, but
+              moves the servo back to the original position once the button is
+              released.
+              <br>
+              Examples: Futaba 4PL
+            </div>
+            <div class="radio_item">
+              <input type="radio" name="ch3" value="3" id="ch3_local">
+              <label for="ch3_local">Push button on the light controller</label>
+              <br>
+              A push button directly connected to the light controller's CH3 input
+              (i.e. a physical button, not a servo signal from the receiver).
+              Useful for 2-channel radios.
+            </div>
+          </div>
+        </div>
+
+        <div id="config_basic_output">
+          <h3 class="single_output">Output function on pin OUT/ISP</h2>
+          <h3 class="dual_output">Servo output function on pin OUT/ISP</h2>
+          <div>
+            <div class="radio_item">
+              <input type="radio" name="output_out" value="0" id="single_off">
+              <label for="single_off">(no output function)</label>
+              <br>
+              No signal on the OUT/ISP pin of the light controller.
+            </div>
+            <div class="radio_item">
+              <input type="radio" name="output_out" value="3" id="steering_wheel_servo_output">
+              <label for="steering_wheel_servo_output">Steering wheel servo output</label>
+              <br>
+              The light controller can be connected to a servo, that moves the
+              steering wheel in the cabin of the car. The output follows the
+              steering input, but the endpoints and direction can be configured
+              independently of the steering function of the car.
+            </div>
+            <div class="radio_item">
+              <input type="radio" name="output_out" value="4" id="gearbox_servo_output">
+              <label for="gearbox_servo_output">Gearbox servo output</label>
+              <br>
+              When enabled, a servo signal is generated that allows control of a
+              two-speed gearbox.
+              <br>
+              <label for="number_of_gears">Number of gears:</label> <select id="number_of_gears">
+                <option value="2">2</option>
+                <option value="3">3</option>
+              </select>
+            </div>
+          </div>
+          <h3 class="dual_output">Output function on pin TH/Tx</h2>
+          <div class="radio_item dual_output">
+            <input type="radio" name="output_th" value="0" id="dual_off">
             <label for="single_off">(no output function)</label>
             <br>
-            No signal on the OUT/ISP pin of the light controller.
+            No signal on the TH/Tx pin of the light controller.
           </div>
           <div class="radio_item">
-            <input type="radio" name="output_out" value="3" id="steering_wheel_servo_output">
-            <label for="steering_wheel_servo_output">Steering wheel servo output</label>
+            <input class="dual_output_th" type="radio" name="output_out" value="1" id="slave_output">
+            <label for="slave_ouput">Slave output</label>
             <br>
-            The light controller can be connected to a servo, that moves the
-            steering wheel in the cabin of the car. The output follows the
-            steering input, but the endpoints and direction can be configured
-            independently of the steering function of the car.
+            By using a second light controller configured as <em>slave</em>
+            a total of 32 LEDs can be controlled. A single cable must be run
+            between the <em>master</em>
+            <span class="single_output">OUT/ISP</span><span class="dual_output">TH/Tx</span>
+            pin and the <em>slave</em> ST/Rx pin.
+            <br>
+            When this option is selected, a second set of LED configuration
+            becomes visible below.
           </div>
           <div class="radio_item">
-            <input type="radio" name="output_out" value="4" id="gearbox_servo_output">
-            <label for="gearbox_servo_output">Gearbox servo output</label>
+            <input class="dual_output_th" type="radio" name="output_out" value="2" id="preprocessor_output">
+            <label for="preprocessor_output">Pre-processour output</label>
             <br>
-            When enabled, a servo signal is generated that allows control of a
-            two-speed gearbox.
+            When enabled, the light controller outputs the steering, throttle
+            and CH3/AUX signals as serial data stream. This function can be
+            useful for connecting custom hardware to the light controller.
+          </div>
+          <div class="radio_item">
+            <input class="dual_output_th" type="radio" name="output_out" value="5" id="winch_output">
+            <input class="dual_output_th" type="checkbox" name="winch_enable" value="5" id="winch_output_checkbox">
+            <label for="winch_output">Winch output</label>
             <br>
-            <label for="number_of_gears">Number of gears:</label> <select id="number_of_gears">
-              <option value="2">2</option>
-              <option value="3">3</option>
-            </select>
+            Enables control of the
+            <a href="https://github.com/laneboysrc/rc-winch-controller" target="_blank">LANE Boys RC winch controller</a><br>
           </div>
         </div>
-        <h3 class="dual_output">Output function on pin TH/Tx</h2>
-        <div class="radio_item dual_output">
-          <input type="radio" name="output_th" value="0" id="dual_off">
-          <label for="single_off">(no output function)</label>
+
+        <div id="config_basic_baudrate">
+          <h3>Baudrate</h3>
+          <select id="baudrate">
+            <option value="38400">38400</option>
+            <option value="115200">115200</option>
+          </select>
           <br>
-          No signal on the TH/Tx pin of the light controller.
-        </div>
-        <div class="radio_item">
-          <input class="dual_output_th" type="radio" name="output_out" value="1" id="slave_output">
-          <label for="slave_ouput">Slave output</label>
+          The baudrate for serial input/output functions. This applies to the
+          pre-processor input and output, the slave input and output, and the winch controller.
           <br>
-          By using a second light controller configured as <em>slave</em>
-          a total of 32 LEDs can be controlled. A single cable must be run
-          between the <em>master</em>
-          <span class="single_output">OUT/ISP</span><span class="dual_output">TH/Tx</span>
-          pin and the <em>slave</em> ST/Rx pin.
-          <br>
-          When this option is selected, a second set of LED configuration
-          becomes visible below.
-        </div>
-        <div class="radio_item">
-          <input class="dual_output_th" type="radio" name="output_out" value="2" id="preprocessor_output">
-          <label for="preprocessor_output">Pre-processour output</label>
-          <br>
-          When enabled, the light controller outputs the steering, throttle
-          and CH3/AUX signals as serial data stream. This function can be
-          useful for connecting custom hardware to the light controller.
-        </div>
-        <div class="radio_item">
-          <input class="dual_output_th" type="radio" name="output_out" value="5" id="winch_output">
-          <input class="dual_output_th" type="checkbox" name="winch_enable" value="5" id="winch_output_checkbox">
-          <label for="winch_output">Winch output</label>
-          <br>
-          Enables control of the
-          <a href="https://github.com/laneboysrc/rc-winch-controller" target="_blank">LANE Boys RC winch controller</a><br>
+          Ensure that master and slave are using the same baudrate. Note that the
+          winch controller and the pre-processor that is based on the Microchip
+          PIC operate only at 34800 baud.
         </div>
       </div>
 
-      <div id="config_basic_baudrate">
-        <h3>Baudrate</h3>
-        <select id="baudrate">
-          <option value="38400">38400</option>
-          <option value="115200">115200</option>
-        </select>
-        <br>
-        The baudrate for serial input/output functions. This applies to the
-        pre-processor input and output, the slave input and output, and the winch controller.
-        <br>
-        Ensure that master and slave are using the same baudrate. Note that the
-        winch controller and the pre-processor that is based on the Microchip
-        PIC operate only at 34800 baud.
-      </div>
-    </div>
 
-
-    <div id="config_leds" class="box configuration">
-      <h2>LED configuration</h2>
-      <div>
-        Click on a field in the table to set the LED brighness value in percent for a particular function.
-      </div>
-      <div>
-        Click on the <span class="spanner"></span> icon to configure advanced parameters for simulating incandescent bulbs and weak ground connections.
-        The background of the icon turns orange when advanced features are in use.
-      </div>
-      <div>
-        <strong>Hover the mouse over individual items</strong> to see an explaination about their function.
-      </div>
-      <div>
-        <button id="leds_clear">Clear...</button> Use the clear button to reset all LED configurations to off. <strong>Warning:</strong> this can not be undone; save your configuration before clearing!
-      </div>
-      <div id="leds_master">
-        <h3>Master</h2>
+      <div id="config_leds" class="box configuration">
+        <h2>LED configuration</h2>
         <div>
-          <table class="led_table">
-            <tbody>
-              <tr class="odd">
-                <th></th>
-                <th name="help_led_always_on" rowspan="2">Always on</th>
-                <th name="help_led_light_switch" colspan="9">Light switch position</th>
-                <th name="help_led_tail"></th>
-                <th name="help_led_brake"></th>
-                <th name="help_led_reverse"></th>
-                <th name="help_led_indicator" colspan="2">Indicator</th>
-              </tr>
-              <tr class="odd">
-                <th>LED</th>
-                <th name="help_led_light_switch">0</th>
-                <th name="help_led_light_switch">1</th>
-                <th name="help_led_light_switch">2</th>
-                <th name="help_led_light_switch">3</th>
-                <th name="help_led_light_switch">4</th>
-                <th name="help_led_light_switch">5</th>
-                <th name="help_led_light_switch">6</th>
-                <th name="help_led_light_switch">7</th>
-                <th name="help_led_light_switch">8</th>
-                <th name="help_led_tail">Tail</th>
-                <th name="help_led_brake">Brake</th>
-                <th name="help_led_reverse">Reverse</th>
-                <th name="help_led_indicator">left</th>
-                <th name="help_led_indicator">right</th>
-              </tr>
+          Click on a field in the table to set the LED brighness value in percent for a particular function.
+        </div>
+        <div>
+          Click on the <span class="spanner"></span> icon to configure advanced parameters for simulating incandescent bulbs and weak ground connections.
+          The background of the icon turns orange when advanced features are in use.
+        </div>
+        <div>
+          <strong>Hover the mouse over individual items</strong> to see an explaination about their function.
+        </div>
+        <div>
+          <button id="leds_clear">Clear...</button> Use the clear button to reset all LED configurations to off. <strong>Warning:</strong> this can not be undone; save your configuration before clearing!
+        </div>
+        <div id="leds_master">
+          <h3>Master</h2>
+          <div>
+            <table class="led_table">
+              <tbody>
+                <tr class="odd">
+                  <th></th>
+                  <th name="help_led_always_on" rowspan="2">Always on</th>
+                  <th name="help_led_light_switch" colspan="9">Light switch position</th>
+                  <th name="help_led_tail"></th>
+                  <th name="help_led_brake"></th>
+                  <th name="help_led_reverse"></th>
+                  <th name="help_led_indicator" colspan="2">Indicator</th>
+                </tr>
+                <tr class="odd">
+                  <th>LED</th>
+                  <th name="help_led_light_switch">0</th>
+                  <th name="help_led_light_switch">1</th>
+                  <th name="help_led_light_switch">2</th>
+                  <th name="help_led_light_switch">3</th>
+                  <th name="help_led_light_switch">4</th>
+                  <th name="help_led_light_switch">5</th>
+                  <th name="help_led_light_switch">6</th>
+                  <th name="help_led_light_switch">7</th>
+                  <th name="help_led_light_switch">8</th>
+                  <th name="help_led_tail">Tail</th>
+                  <th name="help_led_brake">Brake</th>
+                  <th name="help_led_reverse">Reverse</th>
+                  <th name="help_led_indicator">left</th>
+                  <th name="help_led_indicator">right</th>
+                </tr>
 
-              <!-- LED rows will be inserted here -->
+                <!-- LED rows will be inserted here -->
 
+              </table>
+            </div>
+          </div>
+
+          <div id="leds_slave">
+            <h3>Slave</h2>
+            <div>
+              <table class="led_table">
+                <tr class="odd">
+                  <th></th>
+                  <th name="help_led_always_on" rowspan="2">Always on</th>
+                  <th name="help_led_light_switch" colspan="9">Light switch position</th>
+                  <th name="help_led_tail"></th>
+                  <th name="help_led_brake"></th>
+                  <th name="help_led_reverse"></th>
+                  <th name="help_led_indicator" colspan="2">Indicator</th>
+                </tr>
+                <tr class="odd">
+                  <th>LED</th>
+                  <th name="help_led_light_switch">0</th>
+                  <th name="help_led_light_switch">1</th>
+                  <th name="help_led_light_switch">2</th>
+                  <th name="help_led_light_switch">3</th>
+                  <th name="help_led_light_switch">4</th>
+                  <th name="help_led_light_switch">5</th>
+                  <th name="help_led_light_switch">6</th>
+                  <th name="help_led_light_switch">7</th>
+                  <th name="help_led_light_switch">8</th>
+                  <th name="help_led_tail">Tail</th>
+                  <th name="help_led_brake">Brake</th>
+                  <th name="help_led_reverse">Reverse</th>
+                  <th name="help_led_indicator">left</th>
+                  <th name="help_led_indicator">right</th>
+                </tr>
+
+                <!-- LED rows will be inserted here -->
+
+              </tbody>
             </table>
           </div>
         </div>
+      </div>
 
-        <div id="leds_slave">
-          <h3>Slave</h2>
-          <div>
-            <table class="led_table">
-              <tr class="odd">
-                <th></th>
-                <th name="help_led_always_on" rowspan="2">Always on</th>
-                <th name="help_led_light_switch" colspan="9">Light switch position</th>
-                <th name="help_led_tail"></th>
-                <th name="help_led_brake"></th>
-                <th name="help_led_reverse"></th>
-                <th name="help_led_indicator" colspan="2">Indicator</th>
-              </tr>
-              <tr class="odd">
-                <th>LED</th>
-                <th name="help_led_light_switch">0</th>
-                <th name="help_led_light_switch">1</th>
-                <th name="help_led_light_switch">2</th>
-                <th name="help_led_light_switch">3</th>
-                <th name="help_led_light_switch">4</th>
-                <th name="help_led_light_switch">5</th>
-                <th name="help_led_light_switch">6</th>
-                <th name="help_led_light_switch">7</th>
-                <th name="help_led_light_switch">8</th>
-                <th name="help_led_tail">Tail</th>
-                <th name="help_led_brake">Brake</th>
-                <th name="help_led_reverse">Reverse</th>
-                <th name="help_led_indicator">left</th>
-                <th name="help_led_indicator">right</th>
-              </tr>
 
-              <!-- LED rows will be inserted here -->
-
-            </tbody>
-          </table>
+      <div id="config_light_programs" class="box configuration">
+        <h2>Light programs:</h2>
+        <div>
+          Light programs are small scripts that can perform custom light
+          sequences. See <a href="https://github.com/laneboysrc/rc-light-controller/blob/master/mk4-tlc5940-lpc812/doc/light-programs.md">light-programs.md</a> for an details on the
+          programming language.
         </div>
+        <div>
+          Press <strong>F11</strong> to toggle fullscreen mode within your browser
+          window. The <a href="http://codemirror.net/demo/sublime.html">keybindings</a>
+          are similar to the Sublime Text editor.
+        </div>
+        <div>
+          Use the <em>Check...</em> button below the editor to perform a syntax
+          check on the light programs.
+        </div>
+        <div class="editor">
+          <textarea id="light_programs" placeholder="Enter light programs here..."></textarea>
+        </div>
+        <div>
+          <button id="light_programs_assembler">Check...</button>
+          <span id="light_programs_ok">Light programs correct!</span>
+        </div>
+        <pre class="box error" id="light_programs_errors">
+        </pre>
+      </div>
+
+
+      <div id="config_advanced" class="box configuration">
+        <h2>Advanced configuration</h2>
+          Note: all timing values have a resolution of 20 ms.
+
+          <h3>Initial light switch position</h3>
+          <div class="advanced_feature">
+            <div>
+              <input type=number id="initial_light_switch_position" min="0" max="8">
+              <label for="initial_light_switch_position"></label>
+            </div>
+            <div>
+              When the car is turned on, the virtual light switch is set to the
+              given position. This allows to turn the car lights on by default,
+              but still be able to turn them off on demand using CH3.
+            </div>
+          </div>
+
+          <h3>Automatic brake lights</h3>
+          <div class="advanced_feature">
+            <div>
+              <input type="checkbox" id="auto_brake_lights_forward_enabled">
+              <label for="auto_brake_lights_forward_enabled">Enable automatic brake lights after driving forward</label>
+            </div>
+            <div>
+              <input type=number id="auto_brake_counter_value_forward_min">
+              <label for="auto_brake_counter_value_forward_min"> .. </label>
+              <input type=number id="auto_brake_counter_value_forward_max">
+              <label for="auto_brake_counter_value_forward_max">min/max time in ms the brake lights should light up</label>
+            </div>
+
+            <div>
+              If enabled, the light controller turns on the brake lights for a
+              random amount of time every time the throttle input goes from
+              forward driving to neutral.<br>
+              This provides a realistic brake light effect since often the brake
+              function is not engaged in scale driving, but rather we return
+              the throttle to neutral and let the car coast to a stop.
+            </div>
+          </div>
+
+          <div class="advanced_feature">
+            <div>
+              <input type="checkbox" id="auto_brake_lights_reverse_enabled">
+              <label for="auto_brake_lights_reverse_enabled">Enable automatic brake   lights after reversing</label>
+            </div>
+            <div>
+              <input type=number id="auto_brake_counter_value_reverse_min">
+              <label for="auto_brake_counter_value_reverse_min"> .. </label>
+              <input type=number id="auto_brake_counter_value_reverse_max">
+              <label for="auto_brake_counter_value_reverse_max">min/max time in ms the brake lights should light up</label>
+            </div>
+
+            <div>
+              If enabled, the light controller turns on the brake lights for a
+              random amount of time every time the throttle goes to neutral
+              after reversing. This setting only takes effect when the ESC mode
+              is set to Forward/Brake/Reverse or Forward/Reverse.
+            </div>
+          </div>
+
+
+          <h3>ESC brake function</h3>
+          <div class="advanced_feature">
+            <div>
+              <input type=number id="brake_disarm_counter_value">
+              <label for="brake_disarm_counter_value">Timeout in milliseconds</label>
+            </div>
+            <div>
+              This setting deterimes the time how long the throttle has to be
+              in neutral before the ESC allows going into reverse. It only applies
+              if the ESC type is <em>Forward/Brake/Reverse (with timeout)</em>.
+            </div>
+          </div>
+
+
+          <h3>Reversing light extension</h3>
+          <div class="advanced_feature">
+            <div>
+              <input type=number id="auto_reverse_counter_value_min">
+              <label for="auto_reverse_counter_value_min"> .. </label>
+              <input type=number id="auto_reverse_counter_value_max">
+              <label for="auto_reverse_counter_value_max">min/max time in ms the reversing lights should be kept on</label>
+            </div>
+            <div>
+              After driving the car in reverse, the light controller keeps the reversing lights on for a random time between the specified min/max
+              after the throttle has returned to neutral. This adds realism
+              as drivers usually take a short time until they disengage reverse
+              gear.<br>
+              The reversing lights are immediately turned off when the car
+              drives forward.<br>
+              This function applies only to ESC with a forward/reverse/brake or
+              forward/reverse function.
+            </div>
+          </div>
+
+
+          <h3>Indicators</h3>
+          <div class="advanced_feature">
+            <div>
+              <input type=number id="blink_counter_value">
+              <label for="blink_counter_value">Indicator on/off time in ms</label>
+            </div>
+            <div>
+              This value sets the frequency of the indicators and hazard lights.
+              For most countries the indicator blink frequency is 1.5 Hz,
+              which means the half-period time should be 333 ms.
+            </div>
+          </div>
+
+          <div class="advanced_feature">
+            <div>
+              <input type=number id="indicator_idle_time_value">
+              <label for="indicator_idle_time_value">Idle time in ms before indicators engage</label>
+            </div>
+            <div>
+              In order to prevent the indicators coming on unintentionally during
+              driving, the throttle and steering must be in center for a
+              specified time before the indicators can be engaged by turning
+              the steering.
+            </div>
+          </div>
+
+          <div class="advanced_feature">
+            <div>
+              <input type=number id="indicator_off_timeout_value">
+              <label for="indicator_off_timeout_value">Timeout in ms before the indicators turn off</label>
+            </div>
+            <div>
+              When the indicators are engaged and steering is returned to neutral,
+              the indicators continue to blink for the specified amount of time.<br>
+              The indicators can be turned off immediately by turning the
+              steering in the opposite direction.
+            </div>
+          </div>
+
+          <div class="advanced_feature">
+            <div>
+              <input type=number id="blink_threshold">
+              <label for="blink_threshold">% steering input required to turn on the indicators</label>
+            </div>
+            <div>
+              The steering wheel must be turned for at least the specified
+              percentage of steering lock before the indicators turn on.
+            </div>
+          </div>
+
+
+          <h3>Servo input</h3>
+          <div class="advanced_feature">
+            <div>
+              <input type=number id="initial_endpoint_delta">
+              <label for="initial_endpoint_delta">Initial endpoint delta in ms</label>
+            </div>
+
+            <div>
+              The light controller features automatic detection of center and
+              endpoint for both steering and throttle.<br>
+              This value determines how much the initial endpoint left and right
+              is set from the center value after power up.<br>
+              A servo pulse is usually between 1000 and 2000 ms, with 1500 ms
+              being the centre. Dual-rate and end-point adjustments in the
+              transmitter change the minimum and maximum received pulse duration.<br>
+              A good value for the initial endpoint is 250 ms, which corresponds
+              to 50% of nominal servo travel. If the light controller sees
+              a signal larger than that, it automatically adjusts its
+              endpoint.<br>
+              If you set this value too small the lights may flicker after power
+              on until you perform steering and throttle inputs, which adjust
+              the endpoints to your transmitter.<br>
+              If you set this value too large steering and brake signals may
+              not engage properly.
+            </div>
+          </div>
+
+          <div class="advanced_feature">
+            <div>
+              <input type=number id="centre_threshold_low">
+              <label for="centre_threshold_low"> .. </label>
+              <input type=number id="centre_threshold_high">
+              <label for="centre_threshold_high">% centre threshold low/high</label>
+            </div>
+
+            <div>
+              In order to prevent flickering due to mis-detection of steering
+              and throttle inputs, a threshold is applied before steering and
+              throttle are detected as being engaged.<br>
+              When the steering/throttle is in the center, it first has to be
+              engaged past the high percent mark before the light controller
+              accepts the input.<br>
+              When returning to center, the steering/throttle value has to go
+              below the low threshold before it is recognized as being in center.<br>
+              Good values depend mostly on the throttle and ESC of your car. If
+              the values are set to high the car may be driving already long
+              before the light controller recognizes the car as being moving.
+              If the values are set too low then brake and reverse lights may
+              flicker when driving at very slow speeds.
+            </div>
+          </div>
+
+          <div class="advanced_feature">
+            <div>
+              <input type=number id="ch3_multi_click_timeout">
+              <label for="ch3_multi_click_timeout">timeout in ms before a &quot;click&quot; is accepted on CH3/AUX</label>
+            </div>
+
+            <div>
+              In order to be able to perform multiple functions on a single
+              CH3/AUX input, a method of multiple clicks -- similar to the
+              concept used on computers -- is employed.<br>
+              The timeout value determines how quickly the light controller reacts
+              to CH3/AUX. A low value means you must switch CH3/AUX quickly, but
+              also that the reaction of the function engages quickly. a high
+              value means you must wait longer until the light controller accepts
+              the input. 300 ms works well for the LANE Boys.
+            </div>
+          </div>
+
+          <div class="advanced_feature">
+            <div>
+              <input type=number id="servo_pulse_min">
+              <label for="servo_pulse_min"> .. </label>
+              <input type=number id="servo_pulse_max">
+              <label for="servo_pulse_max">min/max pulse duration in ms that are valid servo pulses</label>
+            </div>
+
+            <div>
+              Servo signals have a nominal pulse width of 1.5 ms when in center,
+              and 1.0 / 2.0 ms when at the end points. In reality servo pulses
+              can go below 0.9 ms and above 2.3 ms when features like end-point
+              adjustment and sub-trim are applied.
+            </div>
+            <div>
+              The values above define what minimum and maxium pulse width a servo
+              signal is allowed to have in order to consider it valid. This
+              setting only applies to servo inputs and CPPM input configurations.
+            </div>
+            <div>
+              For the CPPM input the max pulse duration is the minimum idle
+              idle time to identify a start of a CPPM frame.
+            </div>
+          </div>
+
+          <div class="advanced_feature">
+            <div>
+              <input type=number id="startup_time">
+              <label for="startup_time">time in ms to delay operation</label>
+            </div>
+
+            <div>
+              This value applies to servo inputs and CPPM input configurations.
+              After power on, the light controller waits for the first servo
+              pulse to arrive. The time given in this field determines how
+              long the light controller waits after the first servo pulse until
+              it in itializes neutral points of steering and throtte, and starts
+              its normal operation.
+            </div>
+          </div>
+
+          <div class="advanced_feature">
+            <div>
+              <input type=number id="no_signal_timeout">
+              <label for="no_signal_timeout">no signal timeout in ms</label>
+            </div>
+
+            <div>
+             If no servo signal is received within the given time, for example
+             because the transmitter is out of range, then the light controller
+             sets the no-signal flag internally, which can be used in light
+             programs to perform a certain function.<br>
+             Note that most likely this will not work well on modern digital
+             transmitters, because the failsafe function will output valid servo
+             signals even if the transmitter is out of range.
+            </div>
+          </div>
+
+
+          <h3>Winch output</h3>
+          <div class="advanced_feature">
+            <div>
+              <input type=number id="winch_command_repeat_time">
+              <label for="winch_command_repeat_time">winch command repeat time in ms</label>
+            </div>
+
+            <div>
+             This setting only applies to the
+             <a href="https://github.com/laneboysrc/rc-winch-controller" target="_blank">LANE Boys RC winch controller</a><br>
+             The value determines how often the winch commands are sent to the
+             winch controller.
+            </div>
+          </div>
+
+
+          <h3>Gearbox servo output</h3>
+          <div class="advanced_feature">
+            <div>
+              <input type=number id="gearbox_servo_active_time">
+              <label for="gearbox_servo_active_time">servo activation time in ms</label>
+            </div>
+
+            <div>
+             The value determines how long the gearbox servo is activated
+             (= receives servo pulses) after a gear has changed or the idle
+             time (see below) expires.
+            </div>
+          </div>
+          <div class="advanced_feature">
+            <div>
+              <input type=number id="gearbox_servo_idle_time">
+              <label for="gearbox_servo_idle_time">servo idle time in ms</label>
+            </div>
+
+            <div>
+             The value determines for how long the gearbox servo stays idle
+             (= servo pulses are turned off) when there is no gear change.
+             This prevents the servo from being damaged due to the servo constantly
+             pushing against mechanical stops of the gearbox.<br>
+             Setting the value to 0 keeps the gearbox servo active at all times.<br>
+            </div>
+          </div>
+
+
+          <h3>Gamma correction</h3>
+          <div class="advanced_feature">
+            <div>
+              <input type=number id="gamma_value" min="0.0" max="9.9" step="0.1">
+              <label for="gamma_value">gamma value</label>
+            </div>
+
+            <div>
+              The current flowing through an LED determines its light output.
+              However, the human perception is not linear to the amount of light.
+              The light controller therefore offers a gamma correction so that
+              if you set a light value of 50%, it should be roughly perceived
+              has half as bright as the same LED set to 100%.<br>
+              Useful values are between 1.8 and 2.2.
+            </div>
+          </div>
+
       </div>
     </div>
+  </div>
 
-
-    <div id="config_light_programs" class="box configuration">
-      <h2>Light programs:</h2>
-      <div>
-        Light programs are small scripts that can perform custom light
-        sequences. See <a href="https://github.com/laneboysrc/rc-light-controller/blob/master/mk4-tlc5940-lpc812/doc/light-programs.md">light-programs.md</a> for an details on the
-        programming language.
-      </div>
-      <div>
-        Press <strong>F11</strong> to toggle fullscreen mode within your browser
-        window. The <a href="http://codemirror.net/demo/sublime.html">keybindings</a>
-        are similar to the Sublime Text editor.
-      </div>
-      <div>
-        Use the <em>Check...</em> button below the editor to perform a syntax
-        check on the light programs.
-      </div>
-      <div class="editor">
-        <textarea id="light_programs" placeholder="Enter light programs here..."></textarea>
-      </div>
-      <div>
-        <button id="light_programs_assembler">Check...</button>
-        <span id="light_programs_ok">Light programs correct!</span>
-      </div>
-      <pre class="box error" id="light_programs_errors">
-      </pre>
+  <div class="widebox footer">
+    <div>
+      This tool would not have been possible without these awesome software components:
     </div>
-
-
-    <div id="config_advanced" class="box configuration">
-      <h2>Advanced configuration</h2>
-        Note: all timing values have a resolution of 20 ms.
-
-        <h3>Initial light switch position</h3>
-        <div class="advanced_feature">
-          <div>
-            <input type=number id="initial_light_switch_position" min="0" max="8">
-            <label for="initial_light_switch_position"></label>
-          </div>
-          <div>
-            When the car is turned on, the virtual light switch is set to the
-            given position. This allows to turn the car lights on by default,
-            but still be able to turn them off on demand using CH3.
-          </div>
-        </div>
-
-        <h3>Automatic brake lights</h3>
-        <div class="advanced_feature">
-          <div>
-            <input type="checkbox" id="auto_brake_lights_forward_enabled">
-            <label for="auto_brake_lights_forward_enabled">Enable automatic brake lights after driving forward</label>
-          </div>
-          <div>
-            <input type=number id="auto_brake_counter_value_forward_min">
-            <label for="auto_brake_counter_value_forward_min"> .. </label>
-            <input type=number id="auto_brake_counter_value_forward_max">
-            <label for="auto_brake_counter_value_forward_max">min/max time in ms the brake lights should light up</label>
-          </div>
-
-          <div>
-            If enabled, the light controller turns on the brake lights for a
-            random amount of time every time the throttle input goes from
-            forward driving to neutral.<br>
-            This provides a realistic brake light effect since often the brake
-            function is not engaged in scale driving, but rather we return
-            the throttle to neutral and let the car coast to a stop.
-          </div>
-        </div>
-
-        <div class="advanced_feature">
-          <div>
-            <input type="checkbox" id="auto_brake_lights_reverse_enabled">
-            <label for="auto_brake_lights_reverse_enabled">Enable automatic brake   lights after reversing</label>
-          </div>
-          <div>
-            <input type=number id="auto_brake_counter_value_reverse_min">
-            <label for="auto_brake_counter_value_reverse_min"> .. </label>
-            <input type=number id="auto_brake_counter_value_reverse_max">
-            <label for="auto_brake_counter_value_reverse_max">min/max time in ms the brake lights should light up</label>
-          </div>
-
-          <div>
-            If enabled, the light controller turns on the brake lights for a
-            random amount of time every time the throttle goes to neutral
-            after reversing. This setting only takes effect when the ESC mode
-            is set to Forward/Brake/Reverse or Forward/Reverse.
-          </div>
-        </div>
-
-
-        <h3>ESC brake function</h3>
-        <div class="advanced_feature">
-          <div>
-            <input type=number id="brake_disarm_counter_value">
-            <label for="brake_disarm_counter_value">Timeout in milliseconds</label>
-          </div>
-          <div>
-            This setting deterimes the time how long the throttle has to be
-            in neutral before the ESC allows going into reverse. It only applies
-            if the ESC type is <em>Forward/Brake/Reverse (with timeout)</em>.
-          </div>
-        </div>
-
-
-        <h3>Reversing light extension</h3>
-        <div class="advanced_feature">
-          <div>
-            <input type=number id="auto_reverse_counter_value_min">
-            <label for="auto_reverse_counter_value_min"> .. </label>
-            <input type=number id="auto_reverse_counter_value_max">
-            <label for="auto_reverse_counter_value_max">min/max time in ms the reversing lights should be kept on</label>
-          </div>
-          <div>
-            After driving the car in reverse, the light controller keeps the reversing lights on for a random time between the specified min/max
-            after the throttle has returned to neutral. This adds realism
-            as drivers usually take a short time until they disengage reverse
-            gear.<br>
-            The reversing lights are immediately turned off when the car
-            drives forward.<br>
-            This function applies only to ESC with a forward/reverse/brake or
-            forward/reverse function.
-          </div>
-        </div>
-
-
-        <h3>Indicators</h3>
-        <div class="advanced_feature">
-          <div>
-            <input type=number id="blink_counter_value">
-            <label for="blink_counter_value">Indicator on/off time in ms</label>
-          </div>
-          <div>
-            This value sets the frequency of the indicators and hazard lights.
-            For most countries the indicator blink frequency is 1.5 Hz,
-            which means the half-period time should be 333 ms.
-          </div>
-        </div>
-
-        <div class="advanced_feature">
-          <div>
-            <input type=number id="indicator_idle_time_value">
-            <label for="indicator_idle_time_value">Idle time in ms before indicators engage</label>
-          </div>
-          <div>
-            In order to prevent the indicators coming on unintentionally during
-            driving, the throttle and steering must be in center for a
-            specified time before the indicators can be engaged by turning
-            the steering.
-          </div>
-        </div>
-
-        <div class="advanced_feature">
-          <div>
-            <input type=number id="indicator_off_timeout_value">
-            <label for="indicator_off_timeout_value">Timeout in ms before the indicators turn off</label>
-          </div>
-          <div>
-            When the indicators are engaged and steering is returned to neutral,
-            the indicators continue to blink for the specified amount of time.<br>
-            The indicators can be turned off immediately by turning the
-            steering in the opposite direction.
-          </div>
-        </div>
-
-        <div class="advanced_feature">
-          <div>
-            <input type=number id="blink_threshold">
-            <label for="blink_threshold">% steering input required to turn on the indicators</label>
-          </div>
-          <div>
-            The steering wheel must be turned for at least the specified
-            percentage of steering lock before the indicators turn on.
-          </div>
-        </div>
-
-
-        <h3>Servo input</h3>
-        <div class="advanced_feature">
-          <div>
-            <input type=number id="initial_endpoint_delta">
-            <label for="initial_endpoint_delta">Initial endpoint delta in ms</label>
-          </div>
-
-          <div>
-            The light controller features automatic detection of center and
-            endpoint for both steering and throttle.<br>
-            This value determines how much the initial endpoint left and right
-            is set from the center value after power up.<br>
-            A servo pulse is usually between 1000 and 2000 ms, with 1500 ms
-            being the centre. Dual-rate and end-point adjustments in the
-            transmitter change the minimum and maximum received pulse duration.<br>
-            A good value for the initial endpoint is 250 ms, which corresponds
-            to 50% of nominal servo travel. If the light controller sees
-            a signal larger than that, it automatically adjusts its
-            endpoint.<br>
-            If you set this value too small the lights may flicker after power
-            on until you perform steering and throttle inputs, which adjust
-            the endpoints to your transmitter.<br>
-            If you set this value too large steering and brake signals may
-            not engage properly.
-          </div>
-        </div>
-
-        <div class="advanced_feature">
-          <div>
-            <input type=number id="centre_threshold_low">
-            <label for="centre_threshold_low"> .. </label>
-            <input type=number id="centre_threshold_high">
-            <label for="centre_threshold_high">% centre threshold low/high</label>
-          </div>
-
-          <div>
-            In order to prevent flickering due to mis-detection of steering
-            and throttle inputs, a threshold is applied before steering and
-            throttle are detected as being engaged.<br>
-            When the steering/throttle is in the center, it first has to be
-            engaged past the high percent mark before the light controller
-            accepts the input.<br>
-            When returning to center, the steering/throttle value has to go
-            below the low threshold before it is recognized as being in center.<br>
-            Good values depend mostly on the throttle and ESC of your car. If
-            the values are set to high the car may be driving already long
-            before the light controller recognizes the car as being moving.
-            If the values are set too low then brake and reverse lights may
-            flicker when driving at very slow speeds.
-          </div>
-        </div>
-
-        <div class="advanced_feature">
-          <div>
-            <input type=number id="ch3_multi_click_timeout">
-            <label for="ch3_multi_click_timeout">timeout in ms before a &quot;click&quot; is accepted on CH3/AUX</label>
-          </div>
-
-          <div>
-            In order to be able to perform multiple functions on a single
-            CH3/AUX input, a method of multiple clicks -- similar to the
-            concept used on computers -- is employed.<br>
-            The timeout value determines how quickly the light controller reacts
-            to CH3/AUX. A low value means you must switch CH3/AUX quickly, but
-            also that the reaction of the function engages quickly. a high
-            value means you must wait longer until the light controller accepts
-            the input. 300 ms works well for the LANE Boys.
-          </div>
-        </div>
-
-        <div class="advanced_feature">
-          <div>
-            <input type=number id="servo_pulse_min">
-            <label for="servo_pulse_min"> .. </label>
-            <input type=number id="servo_pulse_max">
-            <label for="servo_pulse_max">min/max pulse duration in ms that are valid servo pulses</label>
-          </div>
-
-          <div>
-            Servo signals have a nominal pulse width of 1.5 ms when in center,
-            and 1.0 / 2.0 ms when at the end points. In reality servo pulses
-            can go below 0.9 ms and above 2.3 ms when features like end-point
-            adjustment and sub-trim are applied.
-          </div>
-          <div>
-            The values above define what minimum and maxium pulse width a servo
-            signal is allowed to have in order to consider it valid. This
-            setting only applies to servo inputs and CPPM input configurations.
-          </div>
-          <div>
-            For the CPPM input the max pulse duration is the minimum idle
-            idle time to identify a start of a CPPM frame.
-          </div>
-        </div>
-
-        <div class="advanced_feature">
-          <div>
-            <input type=number id="startup_time">
-            <label for="startup_time">time in ms to delay operation</label>
-          </div>
-
-          <div>
-            This value applies to servo inputs and CPPM input configurations.
-            After power on, the light controller waits for the first servo
-            pulse to arrive. The time given in this field determines how
-            long the light controller waits after the first servo pulse until
-            it in itializes neutral points of steering and throtte, and starts
-            its normal operation.
-          </div>
-        </div>
-
-        <div class="advanced_feature">
-          <div>
-            <input type=number id="no_signal_timeout">
-            <label for="no_signal_timeout">no signal timeout in ms</label>
-          </div>
-
-          <div>
-           If no servo signal is received within the given time, for example
-           because the transmitter is out of range, then the light controller
-           sets the no-signal flag internally, which can be used in light
-           programs to perform a certain function.<br>
-           Note that most likely this will not work well on modern digital
-           transmitters, because the failsafe function will output valid servo
-           signals even if the transmitter is out of range.
-          </div>
-        </div>
-
-
-        <h3>Winch output</h3>
-        <div class="advanced_feature">
-          <div>
-            <input type=number id="winch_command_repeat_time">
-            <label for="winch_command_repeat_time">winch command repeat time in ms</label>
-          </div>
-
-          <div>
-           This setting only applies to the
-           <a href="https://github.com/laneboysrc/rc-winch-controller" target="_blank">LANE Boys RC winch controller</a><br>
-           The value determines how often the winch commands are sent to the
-           winch controller.
-          </div>
-        </div>
-
-
-        <h3>Gearbox servo output</h3>
-        <div class="advanced_feature">
-          <div>
-            <input type=number id="gearbox_servo_active_time">
-            <label for="gearbox_servo_active_time">servo activation time in ms</label>
-          </div>
-
-          <div>
-           The value determines how long the gearbox servo is activated
-           (= receives servo pulses) after a gear has changed or the idle
-           time (see below) expires.
-          </div>
-        </div>
-        <div class="advanced_feature">
-          <div>
-            <input type=number id="gearbox_servo_idle_time">
-            <label for="gearbox_servo_idle_time">servo idle time in ms</label>
-          </div>
-
-          <div>
-           The value determines for how long the gearbox servo stays idle
-           (= servo pulses are turned off) when there is no gear change.
-           This prevents the servo from being damaged due to the servo constantly
-           pushing against mechanical stops of the gearbox.<br>
-           Setting the value to 0 keeps the gearbox servo active at all times.<br>
-          </div>
-        </div>
-
-
-        <h3>Gamma correction</h3>
-        <div class="advanced_feature">
-          <div>
-            <input type=number id="gamma_value" min="0.0" max="9.9" step="0.1">
-            <label for="gamma_value">gamma value</label>
-          </div>
-
-          <div>
-            The current flowing through an LED determines its light output.
-            However, the human perception is not linear to the amount of light.
-            The light controller therefore offers a gamma correction so that
-            if you set a light value of 50%, it should be roughly perceived
-            has half as bright as the same LED set to 100%.<br>
-            Useful values are between 1.8 and 2.2.
-          </div>
-        </div>
-
+    <div>
+      <strong>CodeMirror</strong> <a href="http://codemirror.net/">http://codemirror.net/</a><br>
+      A text editor in JavaScript. Very easy to use, yet extremely powerful.
+      With little effort I could build custom syntax highlighting, and
+      had error messages after the assembly process shown in the gutter.
     </div>
-
-    <div class="widebox footer">
-      <div>
-        This tool would not have been possible without these awesome software components:
-      </div>
-      <div>
-        <strong>CodeMirror</strong> <a href="http://codemirror.net/">http://codemirror.net/</a><br>
-        A text editor in JavaScript. Very easy to use, yet extremely powerful.
-        With little effort I could build custom syntax highlighting, and
-        had error messages after the assembly process shown in the gutter.
-      </div>
-      <div>
-        <strong>JISON</strong> <a href="https://zaach.github.io/jison/docs/">https://zaach.github.io/jison/docs/</a><br>
-        Parser and scanner generator for JavaScript. It was very easy to adapt
-        a prototype written in Bison/Flex to JISON.
-      </div>
-      <div>
-        <strong>FileSaver.js</strong> <a href="https://github.com/eligrey/FileSaver.js/"></a><br>
-        Allowed us to save generated JSON and Intel-hex files from within the
-        browser.
-      </div>
-      <div>
-        <strong>node.js</strong> <a href="http://nodejs.org">http://nodejs.org</a><br>
-        Fantastic to have the same code work in the browser, and with the help
-        of node.js also be able to use from the command-line.
-      </div>
-      <div>
-        <strong>gulp.js</strong> <a href="http://gulpjs.com/">http://gulpjs.com/</a><br>
-        Build system that made it very easy to in-line and compress JavaScript
-        and CSS files, so that this tool is now a single HTML file.
-      </div>
-      <div>
-        <strong>intel-hex</strong> <a href="https://github.com/bminer/intel-hex.js">https://github.com/bminer/intel-hex.js</a><br>
-        Good starting point for parsing Intel-hex files. I made it
-        browser-compatible and added the missing write functions.
-      </div>
-      <div>
-        <strong>Simple JavaScript Templating</strong> <a href="http://ejohn.org/">http://ejohn.org/</a><br>
-        As the name says: a very simple templating engine.
-      </div>
-      <div>
-        <strong>DOM class manipulation</strong> <a href="http://www.openjs.com/scripts/dom/class_manipulation.php">http://www.openjs.com/scripts/dom/class_manipulation.php</a><br>
-        Old, simple, effective methods for adding and removing class names to
-        DOM elements.
-      </div>
+    <div>
+      <strong>JISON</strong> <a href="https://zaach.github.io/jison/docs/">https://zaach.github.io/jison/docs/</a><br>
+      Parser and scanner generator for JavaScript. It was very easy to adapt
+      a prototype written in Bison/Flex to JISON.
+    </div>
+    <div>
+      <strong>FileSaver.js</strong> <a href="https://github.com/eligrey/FileSaver.js/"></a><br>
+      Allowed us to save generated JSON and Intel-hex files from within the
+      browser.
+    </div>
+    <div>
+      <strong>node.js</strong> <a href="http://nodejs.org">http://nodejs.org</a><br>
+      Fantastic to have the same code work in the browser, and with the help
+      of node.js also be able to use from the command-line.
+    </div>
+    <div>
+      <strong>gulp.js</strong> <a href="http://gulpjs.com/">http://gulpjs.com/</a><br>
+      Build system that made it very easy to in-line and compress JavaScript
+      and CSS files, so that this tool is now a single HTML file.
+    </div>
+    <div>
+      <strong>intel-hex</strong> <a href="https://github.com/bminer/intel-hex.js">https://github.com/bminer/intel-hex.js</a><br>
+      Good starting point for parsing Intel-hex files. I made it
+      browser-compatible and added the missing write functions.
+    </div>
+    <div>
+      <strong>Simple JavaScript Templating</strong> <a href="http://ejohn.org/">http://ejohn.org/</a><br>
+      As the name says: a very simple templating engine.
+    </div>
+    <div>
+      <strong>DOM class manipulation</strong> <a href="http://www.openjs.com/scripts/dom/class_manipulation.php">http://www.openjs.com/scripts/dom/class_manipulation.php</a><br>
+      Old, simple, effective methods for adding and removing class names to
+      DOM elements.
+    </div>
   </div>
 
   <div id="table_helper" style="visibility:hidden"></div>

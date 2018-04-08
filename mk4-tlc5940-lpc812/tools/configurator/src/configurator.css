@@ -7,6 +7,9 @@ body {
   color: black;
   font-size: 100%;
   font-family: sans-serif;
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
 }
 
 h1 {
@@ -33,8 +36,59 @@ ul {
   margin-left: 20px;
 }
 
+nav {
+  /*display: none;*/
+  flex: 0 0 0.5em;
+  order: -1;
+  background-color: #ff9900;
+}
+
+nav ul {
+  list-style: none;
+  margin: 0;
+}
+
+nav li {
+  display: block;
+  margin-top: 1em;
+}
+
+nav li a {
+  text-decoration: none;
+  background-color: transparent;
+  color: black;
+  transition: none;
+  white-space: nowrap;
+}
+
+nav i {
+  width: 1.5em;
+  text-align: center;
+}
+
+nav .menu-label {
+  display: none;
+  margin-left: 5px;
+}
+
 .redborder {
    border: 1px solid red;
+}
+
+.body {
+  /*flex-direction: column;*/
+  display: flex;
+  flex: 1;
+}
+
+@media (min-width: 768px) {
+  nav {
+    /*flex: 0 0 12em;*/
+  }
+
+  nav .menu-label {
+    display: inherit;
+  }
 }
 
 .box, .widebox {
@@ -43,18 +97,21 @@ ul {
   margin: 10px;
 }
 
-.box {
-  clear: both;
+nav.box {
+  margin-right: 0;
 }
 
 .widebox {
   margin-bottom: 0;
-  clear: both;
 }
 
 .heading {
   background-color: #ff9900;
   position: relative;
+}
+
+.page {
+  flex: 1;
 }
 
 #logo {

@@ -7,7 +7,7 @@
   "author": "LANE Boys RC",
   "license": "MIT",
   "devDependencies": {
+    "font-awesome-base64": "^1.0.4",
     "inline-source-cli": "^1.2.0"
-  },
-  "dependencies": {}
+  }
 }
