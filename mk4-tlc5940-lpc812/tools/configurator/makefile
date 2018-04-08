@@ -35,7 +35,7 @@ SOURCES += src/ui.js
 
 ###############################################################################
 # Rules
-all: $(TARGET)
+all: debug
 
 $(BUILD_DIR):
 	@echo [MKDIR] $@
@@ -58,4 +58,6 @@ debug:
 	@echo [NW.JS debug]
 	$(ECHO) ./node_modules/.bin/nwbuild -p linux64 -v 0.29.3 --cacheDir ./cache/ -r .
 
-.PHONY : all clean debug
+release: $(TARGET)
+
+.PHONY : all clean debug release

@@ -12,14 +12,14 @@
     "nw-builder": "^3.5.1"
   },
   "window": {
-      "title": "Light Controller Configurator",
-      "icon": "favicon.ico",
-      "width": 1024,
-      "height": 768,
-      "position": "center",
-      "resizable": true,
-      "toolbar": false,
-      "frame": true,
-      "fullscreen": false
+    "title": "Light Controller Configurator",
+    "icon": "favicon.ico",
+    "width": 1024,
+    "height": 768,
+    "position": "center",
+    "resizable": true,
+    "toolbar": false,
+    "frame": true,
+    "fullscreen": false
   }
 }
