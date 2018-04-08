@@ -54,4 +54,8 @@ clean:
 	@echo [RM] $(BUILD_DIR)
 	$(ECHO) $(RM) -r $(BUILD_DIR)
 
-.PHONY : all clean
+debug:
+	@echo [NW.JS debug]
+	$(ECHO) ./node_modules/.bin/nwbuild -p linux64 -v 0.29.3 --cacheDir ./cache/ -r .
+
+.PHONY : all clean debug
