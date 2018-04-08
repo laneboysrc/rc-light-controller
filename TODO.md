@@ -6,6 +6,8 @@
 
 * Investigate outputs sometimes not working on Android board
 
+* Remove WebUSB URL
+
 # MK5 PCB
 
 * TLC5940 footprint based on TI datasheet
