@@ -1486,7 +1486,8 @@ var app = (function () {
 
     // *************************************************************************
     var select_page = function (selected_page) {
-        for (var button of el.menu_buttons) {
+        for (var index = 0; index < el.menu_buttons.length; index++) {
+            var button = el.menu_buttons[index];
             var page_name = button.getAttribute('data');
             var page = document.querySelector('#' + page_name);
             if (page) {
@@ -1699,7 +1700,8 @@ var app = (function () {
 
         el.light_programs_errors.style.display = 'none';
 
-        for (var button of el.menu_buttons) {
+        for (var index = 0; index < el.menu_buttons.length; index++) {
+            var button = el.menu_buttons[index];
             button.addEventListener('click', function (event) {
                 var selected_page = event.currentTarget.getAttribute('data');
                 select_page(selected_page);
