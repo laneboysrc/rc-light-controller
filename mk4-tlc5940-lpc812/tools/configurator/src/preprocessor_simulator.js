@@ -20,7 +20,7 @@ var preprocessor = (function () {
     var elThrottleNeutral;
     var elResponse;
     var elDiagnostics;
-    var elUART;
+    var elDiagnosticsMessages;
 
     var send_function;
 
@@ -260,14 +260,14 @@ var preprocessor = (function () {
 
             const el = document.createElement('div');
             el.textContent += msg;
-            if (elUART.firstChild) {
-                elUART.insertBefore(el, elUART.firstChild);
-                while (elUART.childElementCount > MAX_UART_LOG_LINES) {
-                    elUART.removeChild(elUART.lastChild);
+            if (elDiagnosticsMessages.firstChild) {
+                elDiagnosticsMessages.insertBefore(el, elDiagnosticsMessages.firstChild);
+                while (elDiagnosticsMessages.childElementCount > MAX_UART_LOG_LINES) {
+                    elDiagnosticsMessages.removeChild(elDiagnosticsMessages.lastChild);
                 }
             }
             else {
-                elUART.appendChild(el);
+                elDiagnosticsMessages.appendChild(el);
             }
         }
     }
@@ -400,6 +400,7 @@ var preprocessor = (function () {
             document.getElementById('webusb-not-available').classList.remove('hidden');
         }
         else {
+            send_function = send_webusb;
             elDiagnostics.classList.remove('hidden');
 
             navigator.usb.addEventListener('connect', webusb_device_connected);
@@ -445,11 +446,10 @@ var preprocessor = (function () {
         elSteeringNeutral = document.getElementById('steering-neutral');
         elThrottleNeutral = document.getElementById('throttle-neutral');
         elResponse = document.getElementById('response');
-        elUART = document.getElementById('uart');
         elDiagnostics = document.getElementById('diagnostics');
+        elDiagnosticsMessages = document.getElementById('diagnostics-messages');
 
         if (port == 'usb') {
-            send_function = send_webusb;
             webusb_init();
         }
         else {
