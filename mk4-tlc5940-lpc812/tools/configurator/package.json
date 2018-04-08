@@ -2,7 +2,7 @@
   "name": "light-program-configurator",
   "version": "1.0.0",
   "description": "DIY RC Light Controller configuration tool",
-  "main": "src/index.html",
+  "main": "build/configurator.html",
   "repository": "https://github.com/laneboysrc/rc-light-controller.git",
   "author": "LANE Boys RC",
   "license": "MIT",
