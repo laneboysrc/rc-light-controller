@@ -36,6 +36,14 @@ ul {
   margin-left: 20px;
 }
 
+nav button {
+  background-color: inherit;
+  color: inherit;
+  border: none;
+  display: inline-block;
+  white-space: nowrap;
+}
+
 nav {
   /*display: none;*/
   flex: 0 0 0.5em;
@@ -51,15 +59,9 @@ nav ul {
 nav li {
   display: block;
   margin-top: 1em;
+  margin-bottom: 1em;
 }
 
-nav li a {
-  text-decoration: none;
-  background-color: transparent;
-  color: black;
-  transition: none;
-  white-space: nowrap;
-}
 
 nav i {
   width: 1.5em;
@@ -76,9 +78,8 @@ nav .menu-label {
 }
 
 .body {
-  /*flex-direction: column;*/
   display: flex;
-  flex: 1;
+  /*flex: 1;*/
 }
 
 @media (min-width: 768px) {
@@ -112,6 +113,10 @@ nav.box {
 
 .page {
   flex: 1;
+}
+
+.hidden {
+  display: none;
 }
 
 #logo {
