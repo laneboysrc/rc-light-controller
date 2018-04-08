@@ -88,6 +88,14 @@
       <div id="load_and_save" class="box configuration hidden">
         <h2>Load and Save</h2>
         <div>
+          <select id="hardware">
+            <option value="0">Mk4 (NXP LPC812)</option>
+            <!-- <option value="1">MK5 (Microchip SAMD21, Arduino Zero)</option> -->
+          </select>
+          <span id="hardware-image" class="mk4"></span>
+        </div>
+
+        <div>
           Firmware version: <span id="firmware_version"></span>
         </div>
         <table class="load_save_table">
@@ -102,8 +110,9 @@
         </table>
         <div class="info">
           <div>
-            This tool has the light controller firmware already embedded. Below
-            you can adjust the configuration according to your needs.
+            This tool has the light controller firmware already embedded. Using
+            the menu on the left you can adjust the configuration according to
+            your needs.
           </div>
           <div>
             After you are done, you can save the firmware image. It will appear
@@ -114,11 +123,11 @@
             can be loaded at a later point in time, e.g. to make further tweaks.
           </div>
           <div>
-            It is advisable that you always keep a copy of the saved
-            configuration. While it is possible to retrieve all settings from
-            a firmware image, some data especially in the light programs, like
-            variable names and comments, are lost as they are not placed into
-            the firmware image.
+            <strong>It is advisable that you always keep a copy of the saved
+            configuration.</strong> While it is possible to retrieve all settings
+            from a firmware image, some data like variable names and comments
+            in light programs are lost as they are not placed into the firmware
+            image.
           </div>
         </div>
       </div>

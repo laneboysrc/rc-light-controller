@@ -33,11 +33,8 @@
 
 * WebUSB version needs to redirect to HTTPS on Github!
 
-* Refactor UI using BetaFlight as inspiration (Tabs, left side menu)
-
 * Add MK5
-  * User-select for UI
-  * When loading hex file, autodetect as per stack pointer location
+  * When loading hex file, autodetect as per stack pointer location, and magic word for LPC
 
 * Configurator to have a shortcut for boilerplate for new light programs
     E.g. all LEDs pre-defined
