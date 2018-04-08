@@ -167,7 +167,7 @@ nav.box {
   background-color: #ffcf0d;
 }
 
-.configuration > div {
+.configuration > div, #config_baudrate > div {
   margin-top: 0.5em;
 }
 
