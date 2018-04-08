@@ -9,7 +9,7 @@ TARGET := $(BUILD_DIR)/configurator.html
 ###############################################################################
 # Toolchain setup
 NPM = npm
-INLINE_SOURCE = ../node_modules/.bin/inline-source
+INLINE_SOURCE = ./node_modules/.bin/inline-source
 MKDIR_P = mkdir -p
 
 
@@ -47,7 +47,7 @@ $(INLINE_SOURCE):
 
 $(TARGET): $(BUILD_DIR) $(INLINE_SOURCE) $(SOURCES)
 	$(ECHO) make -C ../light-program-assembler all
-	$(ECHO) cd src ; $(INLINE_SOURCE) $(COMPRESS) index.html ../$@
+	$(ECHO) cd src ; ../$(INLINE_SOURCE) $(COMPRESS) index.html ../$@
 	$(ECHO) sed -i -e 's:#{this.date}:'$(shell date +%Y-%m-%d)':g' $@
 
 clean:
