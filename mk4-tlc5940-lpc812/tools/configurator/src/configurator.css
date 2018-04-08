@@ -44,6 +44,10 @@ nav button {
   white-space: nowrap;
 }
 
+nav button[disabled] {
+  color: rgba(0, 0, 0, 0.3);
+}
+
 nav {
   /*display: none;*/
   flex: 0 0 0.5em;

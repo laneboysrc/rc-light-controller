@@ -456,10 +456,17 @@ var app = (function () {
             }
         }
 
-        function set_visibility(elements, value) {
+        function show(elements) {
             var i;
             for (i = 0; i < elements.length; i += 1) {
-                elements[i].style.display = value;
+                elements[i].classList.remove('hidden');
+            }
+        }
+
+        function hide(elements) {
+            var i;
+            for (i = 0; i < elements.length; i += 1) {
+                elements[i].classList.add('hidden');
             }
         }
 
@@ -474,90 +481,158 @@ var app = (function () {
             elements[0].checked = true;
         }
 
+        function update_menu_visibility(enabled_menu_items) {
+            for (var j = 0; j < el.menu_buttons.length; j += 1) {
+                var button = el.menu_buttons[j];
+                var page_name = button.getAttribute('data');
+
+                button.disabled = true;
+
+                for (var i = 0; i < enabled_menu_items.length; i += 1) {
+                    var menu_item = enabled_menu_items[i];
+
+                    if (menu_item == page_name) {
+                        button.disabled = false;
+                        break;
+                    }
+                }
+            }
+        }
+
         var new_mode = parseInt(el.mode.options[el.mode.selectedIndex].value,
             10
         );
 
         switch (new_mode) {
         case MODE.MASTER_WITH_SERVO_READER:
-            el.mode_master_servo.style.display = '';
-            el.mode_master_uart.style.display = 'none';
-            el.mode_master_cppm.style.display = 'none';
-            el.mode_slave.style.display = 'none';
-            el.mode_test.style.display = 'none';
-            el.config_light_programs.style.display = '';
-            el.config_leds.style.display = '';
-            el.config_esc.style.display = '';
-            el.config_ch3.style.display = '';
-            el.config_output.style.display = '';
-            el.config_advanced.style.display = '';
-            set_visibility(el.single_output, '');
-            set_visibility(el.dual_output, 'none');
+            show([
+                el.mode_master_servo,
+            ]);
+
+            hide([
+                el.mode_master_uart,
+                el.mode_master_cppm,
+                el.mode_slave,
+                el.mode_test
+            ]);
+
+            update_menu_visibility([
+                'load_and_save',
+                'config_mode',
+                'config_esc',
+                'config_ch3',
+                'config_output',
+                'config_leds',
+                'config_light_programs',
+                'config_advanced',
+                'testing',
+            ]);
+
+            show(el.single_output);
+            hide(el.dual_output);
             set_name(el.dual_output_th, 'output_out');
             config.mode = new_mode;
             break;
 
         case MODE.MASTER_WITH_UART_READER:
-            el.mode_master_servo.style.display = 'none';
-            el.mode_master_uart.style.display = '';
-            el.mode_master_cppm.style.display = 'none';
-            el.mode_slave.style.display = 'none';
-            el.mode_test.style.display = 'none';
-            el.config_light_programs.style.display = '';
-            el.config_leds.style.display = '';
-            el.config_esc.style.display = '';
-            el.config_ch3.style.display = '';
-            el.config_output.style.display = '';
-            el.config_advanced.style.display = '';
-            set_visibility(el.single_output, 'none');
-            set_visibility(el.dual_output, '');
+            show([
+                el.mode_master_uart,
+            ]);
+
+            hide([
+                el.mode_master_servo,
+                el.mode_master_cppm,
+                el.mode_slave,
+                el.mode_test
+            ]);
+
+            update_menu_visibility([
+                'load_and_save',
+                'config_mode',
+                'config_esc',
+                'config_ch3',
+                'config_output',
+                'config_leds',
+                'config_light_programs',
+                'config_advanced',
+                'testing',
+            ]);
+
+            hide(el.single_output);
+            show(el.dual_output);
             set_name(el.dual_output_th, 'output_th');
             config.mode = new_mode;
             break;
 
         case MODE.MASTER_WITH_CPPM_READER:
-            el.mode_master_servo.style.display = 'none';
-            el.mode_master_uart.style.display = 'none';
-            el.mode_master_cppm.style.display = '';
-            el.mode_slave.style.display = 'none';
-            el.mode_test.style.display = 'none';
-            el.config_light_programs.style.display = '';
-            el.config_leds.style.display = '';
-            el.config_esc.style.display = '';
-            el.config_ch3.style.display = '';
-            el.config_output.style.display = '';
-            el.config_advanced.style.display = '';
-            set_visibility(el.single_output, 'none');
-            set_visibility(el.dual_output, '');
+            show([
+                el.mode_master_cppm,
+            ]);
+
+            hide([
+                el.mode_master_uart,
+                el.mode_master_servo,
+                el.mode_slave,
+                el.mode_test
+            ]);
+
+            update_menu_visibility([
+                'load_and_save',
+                'config_mode',
+                'config_esc',
+                'config_ch3',
+                'config_output',
+                'config_leds',
+                'config_light_programs',
+                'config_advanced',
+                'testing',
+            ]);
+
+            hide(el.single_output);
+            show(el.dual_output);
             set_name(el.dual_output_th, 'output_th');
             config.mode = new_mode;
             break;
 
         case MODE.SLAVE:
-            el.mode_master_servo.style.display = 'none';
-            el.mode_master_uart.style.display = 'none';
-            el.mode_master_cppm.style.display = 'none';
-            el.mode_slave.style.display = '';
-            el.mode_test.style.display = 'none';
-            el.config_light_programs.style.display = 'none';
-            el.config_leds.style.display = 'none';
-            el.config_esc.style.display = 'none';
-            el.config_ch3.style.display = 'none';
-            el.config_output.style.display = '';
-            el.config_advanced.style.display = 'none';
+            show([
+                el.mode_slave,
+            ]);
+
+            hide([
+                el.mode_master_uart,
+                el.mode_master_servo,
+                el.mode_master_cppm,
+                el.mode_test
+            ]);
+
+            update_menu_visibility([
+                'load_and_save',
+                'config_mode',
+                'config_output',
+                'testing',
+            ]);
+
             config.mode = new_mode;
             break;
 
         case MODE.TEST:
-            el.mode_master_servo.style.display = 'none';
-            el.mode_master_uart.style.display = 'none';
-            el.mode_master_cppm.style.display = 'none';
-            el.mode_slave.style.display = 'none';
-            el.mode_test.style.display = '';
-            el.config_light_programs.style.display = 'none';
-            el.config_leds.style.display = 'none';
-            el.config_output.style.display = 'none';
-            el.config_advanced.style.display = 'none';
+            show([
+                el.mode_test
+            ]);
+
+            hide([
+                el.mode_master_uart,
+                el.mode_master_servo,
+                el.mode_master_cppm,
+                el.mode_slave,
+            ]);
+
+            update_menu_visibility([
+                'load_and_save',
+                'config_mode',
+            ]);
+
             config.mode = new_mode;
             break;
         }
@@ -1486,7 +1561,7 @@ var app = (function () {
 
     // *************************************************************************
     var select_page = function (selected_page) {
-        for (var index = 0; index < el.menu_buttons.length; index++) {
+        for (var index = 0; index < el.menu_buttons.length; index += 1) {
             var button = el.menu_buttons[index];
             var page_name = button.getAttribute('data');
             var page = document.querySelector('#' + page_name);
@@ -1700,7 +1775,7 @@ var app = (function () {
 
         el.light_programs_errors.style.display = 'none';
 
-        for (var index = 0; index < el.menu_buttons.length; index++) {
+        for (var index = 0; index < el.menu_buttons.length; index += 1) {
             var button = el.menu_buttons[index];
             button.addEventListener('click', function (event) {
                 var selected_page = event.currentTarget.getAttribute('data');
