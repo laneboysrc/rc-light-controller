@@ -42,6 +42,7 @@
   <script inline src="gamma.js"></script>
   <script inline src="default_firmware_image.js"></script>
   <script inline src="hardware_test.js"></script>
+  <script inline src="preprocessor_simulator.js"></script>
   <script inline src="templating.js"></script>
   <script inline src="ui.js"></script>
   <script inline src="main.js"></script>
@@ -850,6 +851,21 @@
       </div>
 
       <div id="testing" class="hidden">
+        <div class="box widebox">
+          <button id="webusb-connect">Connect</button>
+        </div>
+
+        <div id="webusb-not-available" class="widebox error hidden">
+          <i class="fa fa-exclamation-triangle"></i>
+
+          This browser does not support <a href="https://caniuse.com/#search=webusb" rel="nofollow" target="_blank">WebUSB</a>
+        </div>
+
+        <div id="not-connected" class="box error widebox">
+          <i class="fa fa-exclamation-triangle"></i>
+          Light Controller not connected
+        </div>
+
         <div class="preprocessor-page" id="preprocessor-simulator">
             <div class="column">
                 <div class="box configuration controls">

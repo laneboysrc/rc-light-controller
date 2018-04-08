@@ -312,6 +312,8 @@ nav.box {
 .error {
   background-color: #e44;
   overflow: auto;
+  color: white;
+  font-weight: 600;
 }
 
 .response {
