@@ -31,6 +31,7 @@ SOURCES += src/gamma.js
 SOURCES += src/hardware_test.js
 SOURCES += src/templating.js
 SOURCES += src/ui.js
+SOURCES += src/preprocessor_simulator.js
 
 
 ###############################################################################

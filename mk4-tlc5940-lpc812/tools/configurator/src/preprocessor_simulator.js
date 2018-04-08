@@ -1,3 +1,4 @@
+/*jslint browser: true, bitwise: true, vars: true */
 'use strict';
 
 var preprocessor = (function () {
@@ -22,7 +23,7 @@ var preprocessor = (function () {
     var elDiagnostics;
     var elDiagnosticsMessages;
 
-    var send_function;
+    var send_function = function () {};
 
     var webusb_device;
     var websocket;
@@ -44,32 +45,32 @@ var preprocessor = (function () {
         event.preventDefault();
         elSteering.value = 0;
         sendSteering(0);
-    }
+    };
 
     var center_throttle = function (event) {
         event.preventDefault();
         elThrottle.value = 0;
         sendThrottle(0);
-    }
+    };
 
     var steering_changed = function (event) {
         event.preventDefault();
         sendSteering(parseInt(elSteering.value));
-    }
+    };
 
     var throttle_changed = function (event) {
         event.preventDefault();
         sendThrottle(parseInt(elThrottle.value));
-    }
+    };
 
     var ch3_changed = function (event) {
         event.preventDefault();
         sendCh3(this);
-    }
+    };
 
     var startup_mode_changed = function () {
         sendStartup(elStartupMode.checked);
-    }
+    };
 
     // Moving the throttle slider causes a lot of update events. Sending
     // all those requests to the rc-sound-module is quite rude to both
@@ -120,7 +121,7 @@ var preprocessor = (function () {
         if (!sendingThrottle) {
             sendThrottleCommand();
         }
-    }
+    };
 
     var sendSteering = function (value) {
         var sentSteering;       // Holds the last steering value we sent
@@ -159,7 +160,7 @@ var preprocessor = (function () {
         if (!sendingSteering) {
             sendSteeringCommand();
         }
-    }
+    };
 
     var sendCh3 = function (action) {
         if (elMomentary.checked) {
@@ -179,7 +180,7 @@ var preprocessor = (function () {
             }
         }
         return false;
-    }
+    };
 
     var sendStartup = function (mode) {
         if (mode) {
@@ -188,7 +189,7 @@ var preprocessor = (function () {
         }
         startupMode = mode ? 1 : 0;
         send_function('STARTUP_MODE', startupMode);
-    }
+    };
 
     var reset_ui = function () {
         startupMode = true;
@@ -204,7 +205,7 @@ var preprocessor = (function () {
         send_function('TH', throttle);
         send_function('CH3', ch3);
         sendStartup(startupMode);
-    }
+    };
 
     var send_ping = function () {
         let pingTimer;
@@ -227,7 +228,7 @@ var preprocessor = (function () {
         }
 
         send_function('PING', 1, ping_callback);
-    }
+    };
 
     let update_ui = send_ping;
 
@@ -249,7 +250,7 @@ var preprocessor = (function () {
             sendCh3('up');
         }
         return true;
-    }
+    };
 
     var diagnostics = function (msg) {
         const lines = msg.trim().split('\n');
@@ -270,7 +271,7 @@ var preprocessor = (function () {
                 elDiagnosticsMessages.appendChild(el);
             }
         }
-    }
+    };
 
 
     var send_webusb = function (cmd, value, callback) {
@@ -278,7 +279,7 @@ var preprocessor = (function () {
             callback(webusb_device ? 'OK' : 'NOT CONNECTED');
             // callback('OK');
         }
-    }
+    };
 
     var webusb_connect = async function (device) {
         try {
@@ -300,7 +301,7 @@ var preprocessor = (function () {
         webusb_send_data();
         webusb_receive_data();
         update_ui();
-    }
+    };
 
     var webusb_disconnect = async function () {
         if (webusb_device) {
@@ -312,8 +313,9 @@ var preprocessor = (function () {
                 elResponse.textContent = ' ';
             }
         }
+
         update_ui();
-    }
+    };
 
     var webusb_send_data = async function () {
         let st = steering;
@@ -353,7 +355,7 @@ var preprocessor = (function () {
             console.error('transferOut() exception:', e);
             return;
         }
-    }
+    };
 
     var webusb_receive_data = async function () {
         while (true) {
@@ -373,7 +375,7 @@ var preprocessor = (function () {
                 return;
             }
         }
-    }
+    };
 
     var webusb_device_connected = function (connection_event) {
         const device = connection_event.device;
@@ -383,7 +385,7 @@ var preprocessor = (function () {
                 webusb_connect(device);
             }
         }
-    }
+    };
 
     var webusb_device_disconnected = function (connection_event) {
         console.log('USB device disconnected:', connection_event);
@@ -391,7 +393,7 @@ var preprocessor = (function () {
         if (webusb_device &&  disconnected_device == webusb_device) {
             webusb_disconnect();
         }
-    }
+    };
 
     var webusb_init = async function () {
         // Check if the browser supports WebUSB. If not, show a message
@@ -400,9 +402,9 @@ var preprocessor = (function () {
             document.getElementById('webusb-not-available').classList.remove('hidden');
         }
         else {
-            send_function = send_webusb;
             elDiagnostics.classList.remove('hidden');
 
+            send_function = send_webusb;
             navigator.usb.addEventListener('connect', webusb_device_connected);
             navigator.usb.addEventListener('disconnect', webusb_device_disconnected);
 
@@ -433,7 +435,11 @@ var preprocessor = (function () {
                 });
             }
         }
-    }
+    };
+
+    var disconnect = function () {
+        webusb_disconnect();
+    };
 
     var init = async function (port, baudrate) {
         elMomentary = document.getElementById('momentary');
@@ -448,6 +454,11 @@ var preprocessor = (function () {
         elResponse = document.getElementById('response');
         elDiagnostics = document.getElementById('diagnostics');
         elDiagnosticsMessages = document.getElementById('diagnostics-messages');
+
+        elResponse.textContent = ' ';
+        while (elDiagnosticsMessages.childElementCount > 0) {
+            elDiagnosticsMessages.removeChild(elDiagnosticsMessages.lastChild);
+        }
 
         if (port == 'usb') {
             webusb_init();
@@ -486,6 +497,7 @@ var preprocessor = (function () {
 
     // *************************************************************************
     return {
-        init: init
+        init: init,
+        disconnect: disconnect,
     };
 }());

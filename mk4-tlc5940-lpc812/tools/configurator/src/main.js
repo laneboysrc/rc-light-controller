@@ -1578,6 +1578,13 @@ var app = (function () {
         }
 
         ui.refresh_editor();
+
+        if (selected_page == 'testing') {
+            preprocessor.init('usb');
+        }
+        else {
+            preprocessor.disconnect();
+        }
     };
 
     // *************************************************************************
@@ -1801,5 +1808,4 @@ var app = (function () {
 document.addEventListener('DOMContentLoaded', function () {
     ui.init();
     app.init();
-    preprocessor.init('usb');
 }, false);
