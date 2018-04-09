@@ -88,6 +88,10 @@
       <div id="load_and_save" class="box configuration hidden">
         <h2>Load and Save</h2>
         <div>
+          Firmware version: <span id="firmware_version"></span>
+        </div>
+
+        <div>
           <select id="hardware">
             <option value="0">Mk4 (NXP LPC812)</option>
             <!-- <option value="1">MK5 (Microchip SAMD21, Arduino Zero)</option> -->
@@ -95,10 +99,19 @@
           <span id="hardware-image" class="mk4"></span>
         </div>
 
-        <div>
-          Firmware version: <span id="firmware_version"></span>
-        </div>
         <table class="load_save_table">
+          <tr id="flash_usb" class="hidden">
+            <td><button id="flash_usb_button">Flash using USB ...</button></td>
+            <td></td>
+          </tr>
+          <tr id="flash_lpc8xx" class="hidden">
+            <td><button id="flash_lpc8xx_button">Flash ...</button></td>
+            <td>
+              <select id="serial_port">
+                <option value="0">(no serial port found)</option>
+              </select>
+            </td>
+          </tr>
           <tr>
             <td><button id="save_firmware">Save firmware image...</button></td>
             <td>Load firmware image: <input type="file" id="load_firmware"></td>
@@ -108,6 +121,7 @@
             <td>Load configuration file: <input type="file" id="load_config"></td>
           </tr>
         </table>
+
         <div class="info">
           <div>
             This tool has the light controller firmware already embedded. Using
