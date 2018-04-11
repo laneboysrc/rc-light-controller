@@ -2,7 +2,7 @@
 /*jslint browser: true, bitwise: true, vars: true */
 /*global emitter, symbols, CodeMirror, ui, gamma, disassembler,
     intel_hex, parser, default_firmware_image, default_light_program,
-    FileReader, Blob, saveAs, preprocessor
+    FileReader, Blob, saveAs, preprocessor, chrome_uart, lpc8xx_isp
     hardware_test_configuration, logger */
 
 var app = (function () {
@@ -1633,6 +1633,9 @@ var app = (function () {
         el.save_firmware = document.getElementById('save_firmware');
         el.load_firmware = document.getElementById('load_firmware');
 
+        el.flash_lpc8xx = document.getElementById('flash_lpc8xx');
+        el.flash_lpc8xx_button = document.getElementById('flash_lpc8xx_button');
+
         el.mode = document.getElementById('mode');
         el.mode_master_servo = document.getElementById('mode_master_servo');
         el.mode_master_uart = document.getElementById('mode_master_uart');
@@ -1789,6 +1792,15 @@ var app = (function () {
                 select_page(selected_page);
             });
         }
+
+        if (typeof(chrome) !== 'undefined'  &&  chrome.serial) {
+            el.flash_lpc8xx.classList.remove('hidden');
+            el.flash_lpc8xx_button.addEventListener('click', function () {
+                var uart = chrome_uart.init('/dev/ttyUSB0');
+                lpc8xx_isp.flash(uart, firmware.data);
+            });
+        }
+
 
         init_assembler();
         load_default_firmware();

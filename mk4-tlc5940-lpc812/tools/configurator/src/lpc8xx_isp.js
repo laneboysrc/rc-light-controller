@@ -1,5 +1,4 @@
 /*jslint browser: true, bitwise: true, vars: true */
-/*global chrome */
 
 'use strict';
 
@@ -199,23 +198,6 @@ var lpc8xx_isp = (function () {
 
         // Also the checksum of the vectors that the ISP uses to detect valid
         // flash is generated and added to the image before flashing.
-
-        // If an IntelHex file is given, only the flash sectors were data is present
-        // in the image file are erased and programmed. This allows partial flashing,
-        // and preservation of persistent data between software upgrades.
-        // The --erase command can be used before programming to erase the whole
-        // flash memory.
-
-
-        // FIXME!!!
-        // FIXME!!!
-        // FIXME!!!
-        // hexfile = read_image_file(image_file)
-        // used_sectors = sorted(Counter(
-        //     address // SECTOR_SIZE for address in hexfile.addresses()).keys())
-        // FIXME!!!
-        // FIXME!!!
-        // FIXME!!!
 
         var used_sectors = (bin.length / SECTOR_SIZE) + 1;
 

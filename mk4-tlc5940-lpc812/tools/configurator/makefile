@@ -26,6 +26,7 @@ endif
 ###############################################################################
 # Source files
 SOURCES := src/index.html
+SOURCES += src/chrome_uart.js
 SOURCES += src/default_firmware_image.js
 SOURCES += src/gamma.js
 SOURCES += src/hardware_test.js
