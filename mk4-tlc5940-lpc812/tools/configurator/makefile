@@ -31,6 +31,7 @@ SOURCES += src/default_firmware_image.js
 SOURCES += src/gamma.js
 SOURCES += src/hardware_test.js
 SOURCES += src/lpc8xx_isp.js
+SOURCES += src/main.js
 SOURCES += src/preprocessor_simulator.js
 SOURCES += src/templating.js
 SOURCES += src/ui.js

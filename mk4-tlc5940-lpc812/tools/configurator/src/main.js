@@ -1793,10 +1793,10 @@ var app = (function () {
             });
         }
 
-        if (typeof(chrome) !== 'undefined'  &&  chrome.serial) {
+        if (typeof chrome !== 'undefined'  &&  chrome.serial) {
             el.flash_lpc8xx.classList.remove('hidden');
-            el.flash_lpc8xx_button.addEventListener('click', function () {
-                var uart = chrome_uart.init('/dev/ttyUSB0');
+            el.flash_lpc8xx_button.addEventListener('click', async function () {
+                var uart = await chrome_uart.init('/dev/ttyUSB0');
                 lpc8xx_isp.flash(uart, firmware.data);
             });
         }
