@@ -6,7 +6,6 @@
     UART API (modeled after Pythons serial module)
 
     .open(baudrate, bits, parity, stopbits)
-    .read()
     .readline()
     .write()
     .flush()

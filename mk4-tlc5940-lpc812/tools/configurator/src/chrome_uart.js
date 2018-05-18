@@ -4,13 +4,11 @@
 
 /*
    .open(baudrate, bits, parity, stopbits)
-    .read()
     .readline()
     .write()
     .flush()
     .close()
     .setTimeout(timeout)
-
 */
 
 var chrome_uart = (function () {
@@ -20,7 +18,7 @@ var chrome_uart = (function () {
     var readTimeoutTimer;
     var timeoutMs = 1 * 1000;
 
-    let last_sent = '';
+    var last_sent = '';
 
     var init = async function (port) {
         if (typeof chrome === 'undefined'  ||  !chrome.serial) {
@@ -43,7 +41,7 @@ var chrome_uart = (function () {
     var receiveCallback = function (info) {
         // console.log('receiveCallback', info);
 
-        const dummy = {
+        let dummy = {
             '?': 'Synchronized\r\n',
             'Synchronized\r\n': 'OK\r\n',
             '12000\r\n': 'OK\r\n',
@@ -82,10 +80,6 @@ var chrome_uart = (function () {
                 resolve();
             });
         });
-    };
-
-    var read = function () {
-        console.log('read');
     };
 
     var readline = async function () {
@@ -146,7 +140,6 @@ var chrome_uart = (function () {
     return {
         init: init,
         open: open,
-        read: read,
         readline: readline,
         write: write,
         flush: flush,
