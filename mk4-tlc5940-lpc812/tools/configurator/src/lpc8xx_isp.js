@@ -53,20 +53,21 @@ var lpc8xx_isp = (function () {
     var allow_code_protection = false;
 
     var message = function (msg) {
+        console.log(msg);
         if (onMessageCallback) {
             onMessageCallback(msg);
         }
     };
 
-    var send_command = function (uart, command){
+    var send_command = async function (uart, command){
         // Send a command to the ISP and check that we receive and COMMAND_SUCCESS (0)
         // response.
         //
         // Note that this function assumes that ECHO is turned off.
 
-        uart.write(command + '\r\n');
-        uart.flush();
-        var response = uart.readline();
+        await uart.write(command + '\r\n');
+        await uart.flush();
+        var response = await uart.readline();
         if (response != '0\r\n') {
             throw 'ERROR: Command "' + command + '" failed. Return code: ' + response;
         }
@@ -95,7 +96,7 @@ var lpc8xx_isp = (function () {
         bin[vector8] = signature & 0xff;
     };
 
-    var open_isp = function (uart) {
+    var open_isp = async function (uart) {
         uart.open(115200, 8, 'n', 1);
 
         if (wait) {
@@ -103,41 +104,41 @@ var lpc8xx_isp = (function () {
         }
 
         for (;;) {
-            uart.flush();
-            uart.write('?');
-            uart.flush();
+            await uart.flush();
+            await uart.write('?');
+            await uart.flush();
 
-            var response = uart.readline();
+            var response = await uart.readline();
             if (response == 'Synchronized\r\n') {
 
-                uart.write('Synchronized\r\n');
-                uart.flush();
-                uart.readline();        // Discard echo
+                await uart.write('Synchronized\r\n');
+                await uart.flush();
+                await uart.readline();        // Discard echo
 
-                response = uart.readline();
+                response = await uart.readline();
                 if (response != 'OK\r\n') {
                     throw 'ERROR: Expected "OK" after sending  "Synchronized", but received "' + response + '"';
                 }
 
                 // Send crystal frequency in kHz (always 12 MHz for the LPC81x)
-                uart.write('12000\r\n');
-                uart.flush();
-                uart.readline();        // Discard echo
+                await uart.write('12000\r\n');
+                await uart.flush();
+                await uart.readline();        // Discard echo
 
-                response = uart.readline();
+                response = await uart.readline();
                 if (response != 'OK\r\n') {
                     throw 'ERROR: Expected "OK" after sending crystal frequency, but received "' + response + '"';
                 }
 
-                uart.write('A 0\r\n');  // Turn ECHO off
-                uart.flush();
-                uart.readline();        // Discard (last) echo
+                await uart.write('A 0\r\n');  // Turn ECHO off
+                await uart.flush();
+                await uart.readline();        // Discard (last) echo
 
-                response = uart.readline();
+                response = await uart.readline();
                 if (response != '0\r\n') {
                     throw 'ERROR: Expected "0" after turning ECHO off, but received "' + response + '"';
                 }
-                uart.setTimeout(5);
+                await uart.setTimeout(5);
                 return;
             }
 
@@ -146,26 +147,26 @@ var lpc8xx_isp = (function () {
                 // We terminate with CR/LF, which should respond with "1\r\n" because
                 // '?' is an invalid command.
                 // We have to skip the ECHOed CR/LF though!
-                uart.write('\r\n');
-                uart.flush();
-                uart.readline();        // Discard echo
+                await uart.write('\r\n');
+                await uart.flush();
+                await uart.readline();        // Discard echo
 
-                response = uart.readline();
+                response = await uart.readline();
                 if (response != '1\r\n') {
                     if (! wait) {
                         throw 'ERROR: LPC81x not in ISP mode.';
                     }
                 }
                 else {
-                    uart.write('A 0\r\n');      // Turn ECHO off
-                    uart.flush();
-                    uart.readline();            // Discard (last) echo
+                    await uart.write('A 0\r\n');      // Turn ECHO off
+                    await uart.flush();
+                    await uart.readline();            // Discard (last) echo
 
-                    response = uart.readline();
+                    response = await uart.readline();
                     if (response != '0\r\n') {
                         throw 'ERROR: Expected "0" after turning ECHO off, but received "' + response + '"';
                     }
-                    uart.setTimeout(5);
+                    await uart.setTimeout(5);
                     return;
                 }
             }
@@ -174,12 +175,12 @@ var lpc8xx_isp = (function () {
                 // We may already be in ISP mode, with ECHO being off.
                 // We send a CR/LF, which should respond with "1\r\n" because
                 // '?' is an invalid command.
-                uart.write('\r\n');
-                uart.flush();
+                await uart.write('\r\n');
+                await uart.flush();
 
-                response = uart.readline();
+                response = await uart.readline();
                 if (response == '1\r\n') {
-                    uart.setTimeout(5);
+                    await uart.setTimeout(5);
                     return;
                 }
                 if (! wait) {
@@ -189,7 +190,7 @@ var lpc8xx_isp = (function () {
         }
     };
 
-    var program = function (uart, bin) {
+    var program = async function (uart, bin) {
         // Write the given binary image file into the flash memory.
 
         // The image is checked whether it contains any of the code protection
@@ -199,7 +200,8 @@ var lpc8xx_isp = (function () {
         // Also the checksum of the vectors that the ISP uses to detect valid
         // flash is generated and added to the image before flashing.
 
-        var used_sectors = (bin.length / SECTOR_SIZE) + 1;
+        var used_sectors = (bin.length / SECTOR_SIZE);
+
 
         // Abort if the Code Read Protection in the image contains one of the
         // special patterns. We don't want to lock us out of the chip...
@@ -227,30 +229,29 @@ var lpc8xx_isp = (function () {
         // Calculate the signature that the ISP uses to detect "valid code"
         append_signature(bin);
 
-
         // Unlock the chip with the magic number
-        send_command(uart, 'U 23130');
+        await send_command(uart, 'U 23130');
 
 
         // Program the image
-        for (var index = 0; index < used_sectors; index += 1) {
+        for (let index = 0; index < used_sectors; index += 1) {
             if (onProgressCallback) {
                 onProgressCallback(index / used_sectors);
             }
 
-            var sector = index * SECTOR_SIZE;
+            let sector = index;
 
             // Erase the sector
-            send_command(uart, 'P ' + sector + ' ' + sector);
-            send_command(uart, 'E ' + sector + ' ' + sector);
+            await send_command(uart, 'P ' + sector + ' ' + sector);
+            await send_command(uart, 'E ' + sector + ' ' + sector);
 
             var address = sector * SECTOR_SIZE;
             var last_address = address + SECTOR_SIZE - 1;
 
-            send_command(uart, 'W ' + RAM_ADDRESS + ' ' + SECTOR_SIZE);
-            uart.write(bin.slice(address, last_address));
-            send_command(uart, 'P ' + sector + ' ' + sector);
-            send_command(uart, 'C ' + address + ' ' + RAM_ADDRESS + ' ' + SECTOR_SIZE);
+            await send_command(uart, 'W ' + RAM_ADDRESS + ' ' + SECTOR_SIZE);
+            await uart.write(bin.slice(address, last_address+1));
+            await send_command(uart, 'P ' + sector + ' ' + sector);
+            await send_command(uart, 'C ' + address + ' ' + RAM_ADDRESS + ' ' + SECTOR_SIZE);
         }
 
         if (onProgressCallback) {
@@ -258,7 +259,7 @@ var lpc8xx_isp = (function () {
         }
     };
 
-    var reset_mcu = function (uart) {
+    var reset_mcu = async function (uart) {
         /*
         Reset the MCU to start the application.
         We do that by downloading a small binary into RAM. This binary corresponds
@@ -273,35 +274,36 @@ var lpc8xx_isp = (function () {
             0x01, 0x4a, 0x02, 0x4b, 0x1a, 0x60, 0x70, 0x47,
             0x04, 0x00, 0xfa, 0x05, 0x0c, 0xed, 0x00, 0xe0];
 
-        send_command(uart, 'W ' + RAM_ADDRESS + ' ' + reset_program.length);
-        uart.write(reset_program);
-        uart.flush();
+        await send_command(uart, 'W ' + RAM_ADDRESS + ' ' + reset_program.length);
+        await uart.write(reset_program);
+        await uart.flush();
 
         // Unlock the Go command
-        send_command(uart, 'U 23130');
+        await send_command(uart, 'U 23130');
 
         // Run the program from RAM. Note that this command does not respond with
         // COMMAND_SUCCESS as it directly executes.
-        uart.write('G ' + RAM_ADDRESS + ' T\r\n');
-        uart.flush();
+        await uart.write('G ' + RAM_ADDRESS + ' T\r\n');
+        await uart.flush();
     };
 
-    var flash = function (uart, bin) {
+    var flash = async function (uart, bin) {
         if (busy) {
             message('Flashing already in progress');
             return;
         }
 
         busy = true;
-        open_isp(uart);
+        await open_isp(uart);
 
         message('Programming ...');
-        program(uart, bin);
+        await program(uart, bin);
         message('Starting the program...');
-        reset_mcu(uart);
+        await reset_mcu(uart);
         message('Done.');
-        uart.close();
+        await uart.close();
 
+        busy = false;
     };
 
     // *************************************************************************

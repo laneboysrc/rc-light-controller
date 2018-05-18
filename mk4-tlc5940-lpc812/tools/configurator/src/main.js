@@ -3,7 +3,7 @@
 /*global emitter, symbols, CodeMirror, ui, gamma, disassembler,
     intel_hex, parser, default_firmware_image, default_light_program,
     FileReader, Blob, saveAs, preprocessor, chrome_uart, lpc8xx_isp
-    hardware_test_configuration, logger */
+    hardware_test_configuration, logger, chrome */
 
 var app = (function () {
     var el = {};  // Cache of document.getElementById
