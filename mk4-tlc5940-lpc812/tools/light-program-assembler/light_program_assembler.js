@@ -36,7 +36,7 @@ function make_c_output(source_name, output_file, programs) {
     var part1 =
         '#include <globals.h>\n' +
         '\n' +
-        '__attribute__ ((section(\'.light_programs\')))\n' +
+        '__attribute__ ((section(".light_programs")))\n' +
         'const LIGHT_PROGRAMS_T light_programs = {\n' +
         '    .magic = {\n' +
         '        .magic_value = ROM_MAGIC,\n' +
