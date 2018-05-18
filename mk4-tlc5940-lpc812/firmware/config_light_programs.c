@@ -3,7 +3,7 @@
 
 #include <globals.h>
 
-__attribute__ ((section('.light_programs')))
+__attribute__ ((section(".light_programs")))
 const LIGHT_PROGRAMS_T light_programs = {
     .magic = {
         .magic_value = ROM_MAGIC,
