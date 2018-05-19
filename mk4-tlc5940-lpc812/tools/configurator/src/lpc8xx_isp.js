@@ -8,7 +8,6 @@
     .open(baudrate, bits, parity, stopbits)
     .readline()
     .write()
-    .flush()
     .close()
     .setTimeout()
 
@@ -52,7 +51,6 @@ var lpc8xx_isp = (function () {
     var allow_code_protection = false;
 
     var message = function (msg) {
-        console.log(msg);
         if (onMessageCallback) {
             onMessageCallback(msg);
         }
@@ -65,7 +63,6 @@ var lpc8xx_isp = (function () {
         // Note that this function assumes that ECHO is turned off.
 
         await uart.write(command + '\r\n');
-        await uart.flush();
         var response = await uart.readline();
         if (response != '0\r\n') {
             throw 'ERROR: Command "' + command + '" failed. Return code: ' + response;
@@ -103,15 +100,12 @@ var lpc8xx_isp = (function () {
         }
 
         for (;;) {
-            await uart.flush();
             await uart.write('?');
-            await uart.flush();
 
             var response = await uart.readline();
             if (response == 'Synchronized\r\n') {
 
                 await uart.write('Synchronized\r\n');
-                await uart.flush();
                 await uart.readline();        // Discard echo
 
                 response = await uart.readline();
@@ -121,7 +115,6 @@ var lpc8xx_isp = (function () {
 
                 // Send crystal frequency in kHz (always 12 MHz for the LPC81x)
                 await uart.write('12000\r\n');
-                await uart.flush();
                 await uart.readline();        // Discard echo
 
                 response = await uart.readline();
@@ -130,7 +123,6 @@ var lpc8xx_isp = (function () {
                 }
 
                 await uart.write('A 0\r\n');  // Turn ECHO off
-                await uart.flush();
                 await uart.readline();        // Discard (last) echo
 
                 response = await uart.readline();
@@ -147,7 +139,6 @@ var lpc8xx_isp = (function () {
                 // '?' is an invalid command.
                 // We have to skip the ECHOed CR/LF though!
                 await uart.write('\r\n');
-                await uart.flush();
                 await uart.readline();        // Discard echo
 
                 response = await uart.readline();
@@ -158,7 +149,6 @@ var lpc8xx_isp = (function () {
                 }
                 else {
                     await uart.write('A 0\r\n');      // Turn ECHO off
-                    await uart.flush();
                     await uart.readline();            // Discard (last) echo
 
                     response = await uart.readline();
@@ -175,7 +165,6 @@ var lpc8xx_isp = (function () {
                 // We send a CR/LF, which should respond with "1\r\n" because
                 // '?' is an invalid command.
                 await uart.write('\r\n');
-                await uart.flush();
 
                 response = await uart.readline();
                 if (response == '1\r\n') {
@@ -247,8 +236,10 @@ var lpc8xx_isp = (function () {
             var address = sector * SECTOR_SIZE;
             var last_address = address + SECTOR_SIZE - 1;
 
-            await send_command(uart, 'W ' + RAM_ADDRESS + ' ' + SECTOR_SIZE);
-            await uart.write(bin.slice(address, last_address+1));
+            let data = bin.slice(address, last_address+1);
+
+            await send_command(uart, 'W ' + RAM_ADDRESS + ' ' + data.length);
+            await uart.write(data);
             await send_command(uart, 'P ' + sector + ' ' + sector);
             await send_command(uart, 'C ' + address + ' ' + RAM_ADDRESS + ' ' + SECTOR_SIZE);
         }
@@ -275,7 +266,6 @@ var lpc8xx_isp = (function () {
 
         await send_command(uart, 'W ' + RAM_ADDRESS + ' ' + reset_program.length);
         await uart.write(reset_program);
-        await uart.flush();
 
         // Unlock the Go command
         await send_command(uart, 'U 23130');
@@ -283,7 +273,6 @@ var lpc8xx_isp = (function () {
         // Run the program from RAM. Note that this command does not respond with
         // COMMAND_SUCCESS as it directly executes.
         await uart.write('G ' + RAM_ADDRESS + ' T\r\n');
-        await uart.flush();
     };
 
     var flash = async function (uart, bin) {
@@ -291,24 +280,37 @@ var lpc8xx_isp = (function () {
             message('Flashing already in progress');
             return;
         }
-
         busy = true;
-        await open_isp(uart);
 
-        message('Programming ...');
-        await program(uart, bin);
-        message('Starting the program...');
-        await reset_mcu(uart);
-        message('Done.');
+        try {
+            await open_isp(uart);
+
+            message('Programming ...');
+            await program(uart, bin);
+            message('Starting the program...');
+            await reset_mcu(uart);
+            message('Done.');
+        }
+        catch (e) {
+            console.log('PROGRAMMING FAILED:', e);
+        }
+
         await uart.close();
-
         busy = false;
     };
+
+    var setOnMessageCallback = function (fn) {
+        onMessageCallback = fn;
+    }
+
+    var setOnProgressCallback = function (fn) {
+        onProgressCallback = fn;
+    }
 
     // *************************************************************************
     return {
         flash: flash,
-        onMessageCallback: onMessageCallback,
-        onProgressCallback: onProgressCallback,
+        onMessageCallback: setOnMessageCallback,
+        onProgressCallback: setOnProgressCallback,
     };
 })();

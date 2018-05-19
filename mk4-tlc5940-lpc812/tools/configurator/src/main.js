@@ -1635,6 +1635,7 @@ var app = (function () {
 
         el.flash_lpc8xx = document.getElementById('flash_lpc8xx');
         el.flash_lpc8xx_button = document.getElementById('flash_lpc8xx_button');
+        el.flash_lpc8xx_progress = document.getElementById('programming_progress');
 
         el.mode = document.getElementById('mode');
         el.mode_master_servo = document.getElementById('mode_master_servo');
@@ -1793,11 +1794,22 @@ var app = (function () {
             });
         }
 
+        lpc8xx_isp.onMessageCallback((message) => {
+            console.log('LPC81x:', message);
+        });
+
+        lpc8xx_isp.onProgressCallback((progress) => {
+            el.flash_lpc8xx_progress.value = progress;
+        });
+
         if (typeof chrome !== 'undefined'  &&  chrome.serial) {
             el.flash_lpc8xx.classList.remove('hidden');
             el.flash_lpc8xx_button.addEventListener('click', async function () {
+                el.flash_lpc8xx_progress.value = 0;
+                el.flash_lpc8xx_progress.classList.remove('hidden');
                 var uart = await chrome_uart.init('/dev/ttyUSB0');
-                lpc8xx_isp.flash(uart, firmware.data);
+                await lpc8xx_isp.flash(uart, firmware.data);
+                el.flash_lpc8xx_progress.classList.add('hidden');
             });
         }
 

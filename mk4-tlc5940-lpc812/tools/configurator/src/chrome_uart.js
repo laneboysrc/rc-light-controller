@@ -6,7 +6,6 @@
    .open(baudrate, bits, parity, stopbits)
     .readline()
     .write()
-    .flush()
     .close()
     .setTimeout(timeout)
 */
@@ -14,95 +13,131 @@
 var chrome_uart = (function () {
     var connectionId;
     var receiveBuffer = '';
+    var receivedLines = [];
     var readLineResolver;
     var readTimeoutTimer;
-    var timeoutMs = 1 * 1000;
-
-    var last_sent = '';
+    var timeoutMs = 0;
 
     var init = async function (port) {
         if (typeof chrome === 'undefined'  ||  !chrome.serial) {
             throw 'chrome.serial not available. Not running Chrome/Chromium?';
         }
 
+        chrome.serial.onReceive.addListener(receiveCallback.bind(this));
+
+        chrome.serial.onReceiveError.addListener((info) => {
+            console.error(info.error);
+        });
+
         return await new Promise(resolve => {
-            chrome.serial.connect(port, ci => {
+            chrome.serial.connect(port, {bitrate: 115200}, ci => {
                 if (!ci) {
                     throw 'Unable to connect to ' + port;
                 }
 
                 connectionId = ci.connectionId;
-                console.log('Opened port', port, ci);
+                // console.log('Opened port', port, ci);
+
                 resolve(chrome_uart);
             });
         });
     };
 
     var receiveCallback = function (info) {
-        // console.log('receiveCallback', info);
+        let received = '';
 
-        let dummy = {
-            '?': 'Synchronized\r\n',
-            'Synchronized\r\n': 'OK\r\n',
-            '12000\r\n': 'OK\r\n',
-            'A 0\r\n': '0\r\n'
-        };
-
-        if (readTimeoutTimer) {
-            clearTimeout(readTimeoutTimer);
-            readTimeoutTimer = undefined;
+        if (typeof(info) !== 'undefined' && info.hasOwnProperty('data')) {
+            let dec = new TextDecoder();
+            received = dec.decode(info.data);
         }
 
-        if (readLineResolver) {
-            for (let q in dummy) {
-                if (q == last_sent) {
-                    readLineResolver(dummy[q]);
-                    readLineResolver = undefined;
-                    return;
-                }
+        // console.log('receiveCallback "' + received + '"');
+
+        for (let c of received) {
+            receiveBuffer += c;
+            if (c == '\n') {
+                receivedLines.push(receiveBuffer);
+                receiveBuffer = '';
+            }
+        }
+
+        if (readLineResolver && receivedLines.length) {
+            if (readTimeoutTimer) {
+                clearTimeout(readTimeoutTimer);
+                readTimeoutTimer = undefined;
             }
 
-            readLineResolver('0\r\n');
+            let line = receivedLines.shift();
+            // console.log('readline => ', line);
+            readLineResolver(line);
             readLineResolver = undefined;
+            return;
         }
+        // console.log('receiveCallback end', receiveBuffer, receivedLines);
     };
 
+    var readTimeoutHandler = function () {
+        clearTimeout(readTimeoutTimer);
+        readTimeoutTimer = undefined;
+        if (readLineResolver) {
+            let line = receiveBuffer;
+
+            if (receivedLines.length) {
+                line = receivedLines.shift();
+            }
+
+            // console.log('readline timeout => ', line);
+            readLineResolver(line);
+            readLineResolver = undefined;
+        }
+    }
+
     var open = async function (baudrate, bits, parity, stopbits) {
-        console.log('open', baudrate, bits, parity, stopbits);
+        // console.log('open', baudrate, bits, parity, stopbits);
 
         return await new Promise(resolve => {
             chrome.serial.update(connectionId, {bitrate: baudrate}, result => {
                 if (!result) {
                     throw 'Unable to update the serial port configuration';
                 }
-
-                chrome.serial.onReceive.addListener(receiveCallback);
                 resolve();
             });
         });
     };
 
     var readline = async function () {
-        console.log('readline');
+        // console.log('readline', receiveBuffer, receivedLines);
+
+        if (receivedLines.length) {
+            return receivedLines.shift();
+        }
 
         return await new Promise(resolve => {
             if (timeoutMs) {
-                readTimeoutTimer = setTimeout(receiveCallback, timeoutMs);
+                readTimeoutTimer = setTimeout(readTimeoutHandler, timeoutMs);
             }
             readLineResolver = resolve;
         });
     };
 
     var write = async function (data) {
-        console.log('write', data);
+        // console.log('write', data);
 
         return await new Promise(resolve => {
-            let enc = new TextEncoder();
-            let binaryData = enc.encode(data);
+            let binaryData = new ArrayBuffer(data.length);
+            let dataView = new Uint8Array(binaryData);
 
-            last_sent = data;
+            for (let i=0; i<data.length; i+=1) {
+                if (data instanceof Array) {
+                    dataView[i] = data[i];
+                }
+                else {
+                    dataView[i] = data.charCodeAt(i);
+                }
+            }
 
             chrome.serial.send(connectionId, binaryData, sendInfo => {
+                // console.log('wrote', sendInfo.bytesSent, 'bytes');
                 if (sendInfo.hasOwnProperty('error')) {
                     throw 'Error while sending serial data:' + sendInfo.error;
                 }
@@ -112,27 +147,30 @@ var chrome_uart = (function () {
         });
     };
 
-    var flush = function () {
-        console.log('flush');
-        receiveBuffer = '';
-    };
-
     var close = async function () {
-        console.log('close');
+        // console.log('close');
 
         return await new Promise(resolve => {
+            for (let l of chrome.serial.onReceive.getListeners()) {
+                chrome.serial.onReceive.removeListener(l.callback);
+            }
+
+            for (let l of chrome.serial.onReceiveError.getListeners()) {
+                chrome.serial.onReceive.removeListener(l.callback);
+            }
+
             chrome.serial.disconnect(connectionId, result => {
                 if (!result) {
                     throw 'Error closing serial port';
                 }
-
+                connectionId = undefined;
                 resolve();
             });
         });
     };
 
     var setUartTimeout = function (timeout) {
-        console.log('setUartTimeout', timeout);
+        // console.log('setUartTimeout', timeout);
         timeoutMs = timeout * 1000;
     };
 
@@ -142,7 +180,6 @@ var chrome_uart = (function () {
         open: open,
         readline: readline,
         write: write,
-        flush: flush,
         close: close,
         setTimeout: setUartTimeout
     };
