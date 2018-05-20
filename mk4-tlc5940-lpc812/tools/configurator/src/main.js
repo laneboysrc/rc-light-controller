@@ -1807,9 +1807,15 @@ var app = (function () {
             el.flash_lpc8xx_button.addEventListener('click', async function () {
                 el.flash_lpc8xx_progress.value = 0;
                 el.flash_lpc8xx_progress.classList.remove('hidden');
-                var uart = await chrome_uart.init('/dev/ttyUSB0');
-                await lpc8xx_isp.flash(uart, firmware.data);
-                el.flash_lpc8xx_progress.classList.add('hidden');
+                try {
+                    await lpc8xx_isp.flash(chrome_uart, '/dev/ttyUSB0', firmware.data);
+                }
+                catch (e) {
+                    console.log(e);
+                }
+                finally {
+                    el.flash_lpc8xx_progress.classList.add('hidden');
+                }
             });
         }
 

@@ -92,8 +92,8 @@ var lpc8xx_isp = (function () {
         bin[vector8] = signature & 0xff;
     };
 
-    var open_isp = async function (uart) {
-        uart.open(115200, 8, 'n', 1);
+    var open_isp = async function (uart, port) {
+        await uart.open(port, 115200, 8, 'n', 1);
 
         if (wait) {
             message('Waiting for LPC81x to enter ISP mode...');
@@ -275,7 +275,7 @@ var lpc8xx_isp = (function () {
         await uart.write('G ' + RAM_ADDRESS + ' T\r\n');
     };
 
-    var flash = async function (uart, bin) {
+    var flash = async function (uart, port, bin) {
         if (busy) {
             message('Flashing already in progress');
             return;
@@ -283,7 +283,7 @@ var lpc8xx_isp = (function () {
         busy = true;
 
         try {
-            await open_isp(uart);
+            await open_isp(uart, port);
 
             message('Programming ...');
             await program(uart, bin);
@@ -294,8 +294,10 @@ var lpc8xx_isp = (function () {
         catch (e) {
             console.log('PROGRAMMING FAILED:', e);
         }
+        finally {
+            await uart.close();
+        }
 
-        await uart.close();
         busy = false;
     };
 
