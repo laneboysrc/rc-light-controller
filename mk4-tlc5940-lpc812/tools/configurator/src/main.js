@@ -66,6 +66,7 @@ var app = (function () {
         TEST: 99
     };
 
+    var hasUART = (typeof chrome !== 'undefined'  &&  chrome.serial);
 
     // var ESC_FORWARD_BRAKE_REVERSE_TIMEOUT = 'Forward/Brake/Reverse with timeout';
     // var ESC_FORWARD_BRAKE_REVERSE = 'Forward/Brake/Reverse no timeout';
@@ -1803,16 +1804,14 @@ var app = (function () {
             el.flash_lpc8xx_progress.value = progress;
         });
 
-        if (typeof chrome !== 'undefined'  &&  chrome.serial) {
-            el.flash_lpc8xx.classList.remove('hidden');
+        if (hasUART) {
+            document.querySelectorAll('.lpc8xx').forEach(e => {
+                e.classList.remove('hidden');
+            });
 
             el.flash_lpc8xx_button.addEventListener('click', async function () {
                 el.flash_lpc8xx_progress.value = 0;
                 el.flash_lpc8xx_message.textContent = '';
-
-                document.querySelectorAll('.lpc8xx.flash').forEach(e => {
-                    e.classList.remove('hidden');
-                });
 
                 try {
                     let config = get_config();
@@ -1822,12 +1821,6 @@ var app = (function () {
                 }
                 catch (e) {
                     console.log(e);
-                }
-                finally {
-                    // el.flash_lpc8xx_progress.classList.add('hidden');
-                    document.querySelectorAll('.lpc8xx.flash').forEach(e => {
-                        e.classList.add('hidden');
-                    });
                 }
             });
         }

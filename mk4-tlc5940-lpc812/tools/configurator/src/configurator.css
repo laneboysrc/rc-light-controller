@@ -78,6 +78,10 @@ nav .menu-label {
   margin-left: 5px;
 }
 
+.lpc8xx progress {
+  width: 100%;
+}
+
 .redborder {
    border: 1px solid red;
 }

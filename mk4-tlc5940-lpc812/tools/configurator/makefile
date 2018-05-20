@@ -35,6 +35,7 @@ SOURCES += src/main.js
 SOURCES += src/preprocessor_simulator.js
 SOURCES += src/templating.js
 SOURCES += src/ui.js
+SOURCES += src/configurator.css
 
 
 ###############################################################################

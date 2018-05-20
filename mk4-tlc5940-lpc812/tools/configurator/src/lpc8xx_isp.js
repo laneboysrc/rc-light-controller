@@ -291,7 +291,7 @@ class _lpc8xx_isp {
             this.message('Done.');
         }
         catch (e) {
-            console.log('PROGRAMMING FAILED:', e);
+            this.message(e);
         }
         finally {
             await uart.close();
