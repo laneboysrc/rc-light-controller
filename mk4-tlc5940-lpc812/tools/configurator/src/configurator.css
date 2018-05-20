@@ -78,6 +78,10 @@ nav .menu-label {
   margin-left: 5px;
 }
 
+tr.section td {
+  padding-top: 1em;
+}
+
 .lpc8xx progress {
   width: 100%;
 }

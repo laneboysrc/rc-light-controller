@@ -92,7 +92,7 @@ class _lpc8xx_isp {
 
     async open_isp(uart, port) {
         await uart.open(port, 115200, 8, 'n', 1);
-        await uart.setTimeout(0.1);
+        await uart.setTimeout(0.3);
 
         if (this.wait) {
             this.message('Waiting for LPC81x to enter ISP mode...');
