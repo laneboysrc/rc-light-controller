@@ -1,7 +1,5 @@
 /*global chrome */
 
-'use strict';
-
 /*
     .open(port, baudrate, bits, parity, stopbits)
     .readline()
@@ -10,66 +8,17 @@
     .setTimeout(timeout)
 */
 
-var chrome_uart = (function () {
-    var connectionId;
-    var receiveBuffer = '';
-    var receivedLines = [];
-    var readLineResolver;
-    var readTimeoutTimer;
-    var timeoutMs = 0;
-
-    var receiveCallback = function (info) {
-        let received = '';
-
-        if (typeof(info) !== 'undefined' && info.hasOwnProperty('data')) {
-            let a = new Uint8Array(info.data);
-            a.forEach(c => {
-                received += String.fromCharCode(c);
-            });
-        }
-
-        // console.log('receiveCallback "' + received + '"');
-
-        for (let c of received) {
-            receiveBuffer += c;
-            if (c == '\n') {
-                receivedLines.push(receiveBuffer);
-                receiveBuffer = '';
-            }
-        }
-
-        if (readLineResolver && receivedLines.length) {
-            if (readTimeoutTimer) {
-                clearTimeout(readTimeoutTimer);
-                readTimeoutTimer = undefined;
-            }
-
-            let line = receivedLines.shift();
-            // console.log('readline => ', line);
-            readLineResolver(line);
-            readLineResolver = undefined;
-            return;
-        }
-        // console.log('receiveCallback end', receiveBuffer, receivedLines);
-    };
-
-    var readTimeoutHandler = function () {
-        clearTimeout(readTimeoutTimer);
-        readTimeoutTimer = undefined;
-        if (readLineResolver) {
-            let line = receiveBuffer;
-
-            if (receivedLines.length) {
-                line = receivedLines.shift();
-            }
-
-            // console.log('readline timeout => ', line);
-            readLineResolver(line);
-            readLineResolver = undefined;
-        }
+class chrome_uart {
+    constructor() {
+        this.connectionId = undefined;
+        this.receiveBuffer = '';
+        this.receivedLines = [];
+        this.readLineResolver = undefined;
+        this.readTimeoutTimer = undefined;
+        this.timeoutMs = 0;
     }
 
-    var open = async function (port, baudrate, bits, parity, stopbits) {
+    open(port, baudrate) {
         // console.log('open', baudrate, bits, parity, stopbits);
 
         if (typeof chrome === 'undefined'  ||  !chrome.serial) {
@@ -88,36 +37,87 @@ var chrome_uart = (function () {
                     return;
                 }
 
-                connectionId = ci.connectionId;
+                this.connectionId = ci.connectionId;
                 // console.log('Opened port', port, ci);
 
-                chrome.serial.onReceive.addListener(receiveCallback.bind(this));
-
-                chrome.serial.onReceiveError.addListener((info) => {
-                    console.error(info.error);
-                });
-
+                chrome.serial.onReceive.addListener(this.receiveCallback.bind(this));
                 resolve();
             });
         });
-    };
+    }
 
-    var readline = async function () {
+    receiveCallback(info) {
+        let received = '';
+
+        if (typeof(info) !== 'undefined' && info.hasOwnProperty('data')) {
+            let a = new Uint8Array(info.data);
+            a.forEach(c => {
+                received += String.fromCharCode(c);
+            });
+        }
+
+        // console.log('receiveCallback "' + received + '"');
+
+        for (let c of received) {
+            this.receiveBuffer += c;
+            if (c == '\n') {
+                this.receivedLines.push(this.receiveBuffer);
+                this.receiveBuffer = '';
+            }
+        }
+
+        if (this.readLineResolver && this.receivedLines.length) {
+            if (this.readTimeoutTimer) {
+                clearTimeout(this.readTimeoutTimer);
+                this.readTimeoutTimer = undefined;
+            }
+
+            let line = this.receivedLines.shift();
+            // console.log('readline => ', line);
+            this.readLineResolver(line);
+            this.readLineResolver = undefined;
+            return;
+        }
+        // console.log('receiveCallback end', receiveBuffer, receivedLines);
+    }
+
+    readTimeoutHandler() {
+        clearTimeout(this.readTimeoutTimer);
+        this.readTimeoutTimer = undefined;
+        if (this.readLineResolver) {
+            let line = this.receiveBuffer;
+
+            if (this.receivedLines.length) {
+                line = this.receivedLines.shift();
+            }
+
+            // console.log('readline timeout => ', line);
+            this.readLineResolver(line);
+            this.readLineResolver = undefined;
+        }
+    }
+
+    setTimeout(timeout) {
+        // console.log('setUartTimeout', timeout);
+        this.timeoutMs = timeout * 1000;
+    }
+
+    readline() {
         // console.log('readline', receiveBuffer, receivedLines);
 
-        if (receivedLines.length) {
-            return receivedLines.shift();
+        if (this.receivedLines.length) {
+            return this.receivedLines.shift();
         }
 
         return new Promise(resolve => {
-            if (timeoutMs) {
-                readTimeoutTimer = setTimeout(readTimeoutHandler, timeoutMs);
+            if (this.timeoutMs) {
+                this.readTimeoutTimer = setTimeout(this.readTimeoutHandler.bind(this), this.timeoutMs);
             }
-            readLineResolver = resolve;
+            this.readLineResolver = resolve;
         });
-    };
+    }
 
-    var write = async function (data) {
+    write(data) {
         // console.log('write', data);
 
         return new Promise((resolve, reject) => {
@@ -133,7 +133,7 @@ var chrome_uart = (function () {
                 }
             }
 
-            chrome.serial.send(connectionId, binaryData, sendInfo => {
+            chrome.serial.send(this.connectionId, binaryData, sendInfo => {
                 // console.log('wrote', sendInfo.bytesSent, 'bytes');
                 if (sendInfo.hasOwnProperty('error')) {
                     reject('Error while sending serial data:' + sendInfo.error);
@@ -143,9 +143,9 @@ var chrome_uart = (function () {
                 resolve();
             });
         });
-    };
+    }
 
-    var close = async function () {
+    close() {
         // console.log('close');
 
         for (let l of chrome.serial.onReceive.getListeners()) {
@@ -156,10 +156,10 @@ var chrome_uart = (function () {
             chrome.serial.onReceive.removeListener(l.callback);
         }
 
-        if (connectionId) {
+        if (this.connectionId) {
             return new Promise((resolve, reject) => {
-                chrome.serial.disconnect(connectionId, result => {
-                    connectionId = undefined;
+                chrome.serial.disconnect(this.connectionId, result => {
+                    this.connectionId = undefined;
                     if (!result) {
                         reject('Error closing serial port');
                         return;
@@ -168,20 +168,6 @@ var chrome_uart = (function () {
                 });
             });
         }
-    };
+    }
+}
 
-    var setUartTimeout = function (timeout) {
-        // console.log('setUartTimeout', timeout);
-        timeoutMs = timeout * 1000;
-    };
-
-    // *************************************************************************
-    return {
-        // init: init,
-        open: open,
-        readline: readline,
-        write: write,
-        close: close,
-        setTimeout: setUartTimeout
-    };
-})();

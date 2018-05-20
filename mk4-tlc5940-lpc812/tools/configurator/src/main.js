@@ -1811,7 +1811,7 @@ var app = (function () {
                     let config = get_config();
                     assemble_firmware(config);
 
-                    await lpc8xx_isp.flash(chrome_uart, '/dev/ttyUSB0', firmware.data);
+                    await lpc8xx_isp.flash(new chrome_uart(), '/dev/ttyUSB0', firmware.data);
                 }
                 catch (e) {
                     console.log(e);
