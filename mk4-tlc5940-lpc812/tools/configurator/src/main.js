@@ -1808,6 +1808,9 @@ var app = (function () {
                 el.flash_lpc8xx_progress.value = 0;
                 el.flash_lpc8xx_progress.classList.remove('hidden');
                 try {
+                    let config = get_config();
+                    assemble_firmware(config);
+
                     await lpc8xx_isp.flash(chrome_uart, '/dev/ttyUSB0', firmware.data);
                 }
                 catch (e) {

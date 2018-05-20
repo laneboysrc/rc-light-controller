@@ -22,11 +22,10 @@ var chrome_uart = (function () {
         let received = '';
 
         if (typeof(info) !== 'undefined' && info.hasOwnProperty('data')) {
-            for (let c of info.data) {
+            let a = new Uint8Array(info.data);
+            a.forEach(c => {
                 received += String.fromCharCode(c);
-            }
-            // let dec = new TextDecoder();
-            // received = dec.decode(info.data);
+            });
         }
 
         // console.log('receiveCallback "' + received + '"');

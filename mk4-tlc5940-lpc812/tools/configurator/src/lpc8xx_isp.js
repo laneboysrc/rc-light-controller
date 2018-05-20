@@ -21,7 +21,7 @@ var lpc8xx_isp = (function () {
     var onProgressCallback = null;
     var onMessageCallback = null;
     var busy = false;
-    var wait = false;
+    var wait = true;
 
     // Code Read Protection (CRP) address and patterns
     const CRP_ADDRESS = 0x000002fc;
@@ -72,11 +72,9 @@ var lpc8xx_isp = (function () {
     var append_signature = function (bin){
         // Calculate the signature that the ISP uses to detect "valid code"
 
-        // FIXME: Does JavaScript support 32 bit integers?
-
-        var signature = 0;
-        for (var i = 0 ; i < 8; i += 1) {
-            var vector = i * 4;
+        let signature = 0;
+        for (let i = 0 ; i < 7; i += 1) {
+            let vector = i * 4;
             signature = signature + (
                 (bin[vector + 3] << 24) +
                 (bin[vector + 2] << 16) +
@@ -85,7 +83,7 @@ var lpc8xx_isp = (function () {
         }
         signature = (signature ^ 0xffffffff) + 1;   // Two's complement
 
-        var vector8 = 28;
+        let vector8 = 28;
         bin[vector8 + 3] = (signature >> 24) & 0xff;
         bin[vector8 + 2] = (signature >> 16) & 0xff;
         bin[vector8 + 1] = (signature >> 8) & 0xff;
@@ -94,6 +92,7 @@ var lpc8xx_isp = (function () {
 
     var open_isp = async function (uart, port) {
         await uart.open(port, 115200, 8, 'n', 1);
+        await uart.setTimeout(0.1);
 
         if (wait) {
             message('Waiting for LPC81x to enter ISP mode...');
@@ -188,13 +187,13 @@ var lpc8xx_isp = (function () {
         // Also the checksum of the vectors that the ISP uses to detect valid
         // flash is generated and added to the image before flashing.
 
-        var used_sectors = (bin.length / SECTOR_SIZE);
+        let used_sectors = (bin.length / SECTOR_SIZE);
 
 
         // Abort if the Code Read Protection in the image contains one of the
         // special patterns. We don't want to lock us out of the chip...
         if (!allow_code_protection) {
-            var pattern = ((bin[CRP_ADDRESS + 3] << 24) + (bin[CRP_ADDRESS + 2] << 16) + (bin[CRP_ADDRESS + 1] << 8) + bin[CRP_ADDRESS]);
+            let pattern = ((bin[CRP_ADDRESS + 3] << 24) + (bin[CRP_ADDRESS + 2] << 16) + (bin[CRP_ADDRESS + 1] << 8) + bin[CRP_ADDRESS]);
 
             if (pattern == NO_ISP) {
                 throw 'ERROR: NO_ISP code read protection detected in image file';
@@ -233,8 +232,8 @@ var lpc8xx_isp = (function () {
             await send_command(uart, 'P ' + sector + ' ' + sector);
             await send_command(uart, 'E ' + sector + ' ' + sector);
 
-            var address = sector * SECTOR_SIZE;
-            var last_address = address + SECTOR_SIZE - 1;
+            let address = sector * SECTOR_SIZE;
+            let last_address = address + SECTOR_SIZE - 1;
 
             let data = bin.slice(address, last_address+1);
 
