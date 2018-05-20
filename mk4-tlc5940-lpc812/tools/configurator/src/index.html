@@ -106,22 +106,26 @@
             <td><button id="flash_usb_button">Flash using USB ...</button></td>
             <td></td>
           </tr>
-          <tr id="flash_lpc8xx" class="hidden">
+          <tr id="flash_lpc8xx" class="lpc8xx hidden">
             <td><button id="flash_lpc8xx_button">Flash ...</button></td>
             <td>
               <select id="serial_port">
                 <option value="0">(no serial port found)</option>
               </select>
-              <br>
-              <progress class="hidden" id="programming_progress" value="0" max="1"></progress>
             </td>
           </tr>
+          <tr class="lpc8xx flash hidden">
+            <td>
+              <progress id="programming_progress" value="0" max="1"></progress>
+            </td>
+            <td id="programming_message"></td>
+          </tr>
           <tr>
-            <td><button id="save_firmware">Save firmware image...</button></td>
+            <td><button id="save_firmware">Save firmware image ...</button></td>
             <td>Load firmware image: <input type="file" id="load_firmware"></td>
           </tr>
           <tr>
-            <td><button id="save_config">Save configuration...</button></td>
+            <td><button id="save_config">Save configuration ...</button></td>
             <td>Load configuration file: <input type="file" id="load_config"></td>
           </tr>
         </table>

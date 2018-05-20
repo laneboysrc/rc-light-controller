@@ -1636,6 +1636,7 @@ var app = (function () {
         el.flash_lpc8xx = document.getElementById('flash_lpc8xx');
         el.flash_lpc8xx_button = document.getElementById('flash_lpc8xx_button');
         el.flash_lpc8xx_progress = document.getElementById('programming_progress');
+        el.flash_lpc8xx_message = document.getElementById('programming_message');
 
         el.mode = document.getElementById('mode');
         el.mode_master_servo = document.getElementById('mode_master_servo');
@@ -1795,7 +1796,7 @@ var app = (function () {
         }
 
         lpc8xx_isp.setOnMessageCallback((message) => {
-            console.log('LPC81x:', message);
+            el.flash_lpc8xx_message.textContent = message;
         });
 
         lpc8xx_isp.setOnProgressCallback((progress) => {
@@ -1804,9 +1805,15 @@ var app = (function () {
 
         if (typeof chrome !== 'undefined'  &&  chrome.serial) {
             el.flash_lpc8xx.classList.remove('hidden');
+
             el.flash_lpc8xx_button.addEventListener('click', async function () {
                 el.flash_lpc8xx_progress.value = 0;
-                el.flash_lpc8xx_progress.classList.remove('hidden');
+                el.flash_lpc8xx_message.textContent = '';
+
+                document.querySelectorAll('.lpc8xx.flash').forEach(e => {
+                    e.classList.remove('hidden');
+                });
+
                 try {
                     let config = get_config();
                     assemble_firmware(config);
@@ -1817,7 +1824,10 @@ var app = (function () {
                     console.log(e);
                 }
                 finally {
-                    el.flash_lpc8xx_progress.classList.add('hidden');
+                    // el.flash_lpc8xx_progress.classList.add('hidden');
+                    document.querySelectorAll('.lpc8xx.flash').forEach(e => {
+                        e.classList.add('hidden');
+                    });
                 }
             });
         }
