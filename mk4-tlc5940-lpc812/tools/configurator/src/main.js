@@ -1794,11 +1794,11 @@ var app = (function () {
             });
         }
 
-        lpc8xx_isp.onMessageCallback((message) => {
+        lpc8xx_isp.setOnMessageCallback((message) => {
             console.log('LPC81x:', message);
         });
 
-        lpc8xx_isp.onProgressCallback((progress) => {
+        lpc8xx_isp.setOnProgressCallback((progress) => {
             el.flash_lpc8xx_progress.value = progress;
         });
 

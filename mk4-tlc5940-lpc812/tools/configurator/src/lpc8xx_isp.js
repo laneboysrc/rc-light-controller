@@ -1,7 +1,5 @@
 /*jslint browser: true, bitwise: true, vars: true */
 
-'use strict';
-
 /*
     UART API (modeled after Pythons serial module)
 
@@ -17,59 +15,61 @@
 
 */
 
-var lpc8xx_isp = (function () {
-    var onProgressCallback = null;
-    var onMessageCallback = null;
-    var busy = false;
-    var wait = true;
+class _lpc8xx_isp {
+    constructor() {
+        this.onProgressCallback = null;
+        this.onMessageCallback = null;
+        this.wait = true;
+        this.busy = false;
 
-    // Code Read Protection (CRP) address and patterns
-    const CRP_ADDRESS = 0x000002fc;
+        // Code Read Protection (CRP) address and patterns
+        this.CRP_ADDRESS = 0x000002fc;
 
-    // Prevents sampling of the ISP entry pin
-    const NO_ISP = 0x4E697370;
+        // Prevents sampling of the ISP entry pin
+        this.NO_ISP = 0x4E697370;
 
-    // Access to chip via the SWD pins is disabled; allow partial flash update
-    const CRP1 = 0x12345678;
+        // Access to chip via the SWD pins is disabled; allow partial flash update
+        this.CRP1 = 0x12345678;
 
-    // Access to chip via the SWD pins is disabled; most flash commands are disabled
-    const CRP2 = 0x87654321;
+        // Access to chip via the SWD pins is disabled; most flash commands are disabled
+        this.CRP2 = 0x87654321;
 
-    // Access to chip via the SWD pins is disabled; prevents sampling of the ISP
-    // entry pin
-    const CRP3 = 0x43218765;
+        // Access to chip via the SWD pins is disabled; prevents sampling of the ISP
+        // entry pin
+        this.CRP3 = 0x43218765;
 
-    // RAM start address we use for programming and the Go command. We use
-    // 0x10000300 because everything below may be locked by CRP.
-    const RAM_BASE_ADDRESS = 0x10000000;
-    const RAM_ADDRESS = RAM_BASE_ADDRESS + 0x300;
+        // RAM start address we use for programming and the Go command. We use
+        // 0x10000300 because everything below may be locked by CRP.
+        this.RAM_BASE_ADDRESS = 0x10000000;
+        this.RAM_ADDRESS = this.RAM_BASE_ADDRESS + 0x300;
 
-    const FLASH_BASE_ADDRESS = 0x00000000;
-    const PAGE_SIZE = 64;
-    const SECTOR_SIZE = 1024;
+        this.FLASH_BASE_ADDRESS = 0x00000000;
+        this.PAGE_SIZE = 64;
+        this.SECTOR_SIZE = 1024;
 
-    var allow_code_protection = false;
+        this.allow_code_protection = false;
+    }
 
-    var message = function (msg) {
-        if (onMessageCallback) {
-            onMessageCallback(msg);
+    message(msg) {
+        if (this.onMessageCallback) {
+            this.onMessageCallback(msg);
         }
-    };
+    }
 
-    var send_command = async function (uart, command){
+    async send_command(uart, command){
         // Send a command to the ISP and check that we receive and COMMAND_SUCCESS (0)
         // response.
         //
         // Note that this function assumes that ECHO is turned off.
 
         await uart.write(command + '\r\n');
-        var response = await uart.readline();
+        let response = await uart.readline();
         if (response != '0\r\n') {
             throw 'ERROR: Command "' + command + '" failed. Return code: ' + response;
         }
     };
 
-    var append_signature = function (bin){
+    append_signature(bin) {
         // Calculate the signature that the ISP uses to detect "valid code"
 
         let signature = 0;
@@ -90,18 +90,18 @@ var lpc8xx_isp = (function () {
         bin[vector8] = signature & 0xff;
     };
 
-    var open_isp = async function (uart, port) {
+    async open_isp(uart, port) {
         await uart.open(port, 115200, 8, 'n', 1);
         await uart.setTimeout(0.1);
 
-        if (wait) {
-            message('Waiting for LPC81x to enter ISP mode...');
+        if (this.wait) {
+            this.message('Waiting for LPC81x to enter ISP mode...');
         }
 
         for (;;) {
             await uart.write('?');
 
-            var response = await uart.readline();
+            let response = await uart.readline();
             if (response == 'Synchronized\r\n') {
 
                 await uart.write('Synchronized\r\n');
@@ -170,14 +170,14 @@ var lpc8xx_isp = (function () {
                     await uart.setTimeout(5);
                     return;
                 }
-                if (! wait) {
+                if (!this.wait) {
                     throw 'ERROR: LPC81x not in ISP mode.';
                 }
             }
         }
     };
 
-    var program = async function (uart, bin) {
+    async program(uart, bin) {
         // Write the given binary image file into the flash memory.
 
         // The image is checked whether it contains any of the code protection
@@ -187,68 +187,68 @@ var lpc8xx_isp = (function () {
         // Also the checksum of the vectors that the ISP uses to detect valid
         // flash is generated and added to the image before flashing.
 
-        let used_sectors = (bin.length / SECTOR_SIZE);
+        let used_sectors = (bin.length / this.SECTOR_SIZE);
 
 
         // Abort if the Code Read Protection in the image contains one of the
         // special patterns. We don't want to lock us out of the chip...
-        if (!allow_code_protection) {
-            let pattern = ((bin[CRP_ADDRESS + 3] << 24) + (bin[CRP_ADDRESS + 2] << 16) + (bin[CRP_ADDRESS + 1] << 8) + bin[CRP_ADDRESS]);
+        if (!this.allow_code_protection) {
+            let pattern = ((bin[this.CRP_ADDRESS + 3] << 24) + (bin[this.CRP_ADDRESS + 2] << 16) + (bin[this.CRP_ADDRESS + 1] << 8) + bin[this.CRP_ADDRESS]);
 
-            if (pattern == NO_ISP) {
+            if (pattern == this.NO_ISP) {
                 throw 'ERROR: NO_ISP code read protection detected in image file';
             }
 
-            if (pattern == CRP1) {
+            if (pattern == this.CRP1) {
                 throw 'ERROR: CRP1 code read protection detected in image file';
             }
 
-            if (pattern == CRP2) {
+            if (pattern == this.CRP2) {
                 throw 'ERROR: CRP2 code read protection detected in image file';
             }
 
-            if (pattern == CRP3) {
+            if (pattern == this.CRP3) {
                 throw 'ERROR: CRP3 code read protection detected in image file';
             }
         }
 
 
         // Calculate the signature that the ISP uses to detect "valid code"
-        append_signature(bin);
+        this.append_signature(bin);
 
         // Unlock the chip with the magic number
-        await send_command(uart, 'U 23130');
+        await this.send_command(uart, 'U 23130');
 
 
         // Program the image
         for (let index = 0; index < used_sectors; index += 1) {
-            if (onProgressCallback) {
-                onProgressCallback(index / used_sectors);
+            if (this.onProgressCallback) {
+                this.onProgressCallback(index / used_sectors);
             }
 
             let sector = index;
 
             // Erase the sector
-            await send_command(uart, 'P ' + sector + ' ' + sector);
-            await send_command(uart, 'E ' + sector + ' ' + sector);
+            await this.send_command(uart, 'P ' + sector + ' ' + sector);
+            await this.send_command(uart, 'E ' + sector + ' ' + sector);
 
-            let address = sector * SECTOR_SIZE;
-            let last_address = address + SECTOR_SIZE - 1;
+            let address = sector * this.SECTOR_SIZE;
+            let last_address = address + this.SECTOR_SIZE - 1;
 
             let data = bin.slice(address, last_address+1);
 
-            await send_command(uart, 'W ' + RAM_ADDRESS + ' ' + data.length);
+            await this.send_command(uart, 'W ' + this.RAM_ADDRESS + ' ' + data.length);
             await uart.write(data);
-            await send_command(uart, 'P ' + sector + ' ' + sector);
-            await send_command(uart, 'C ' + address + ' ' + RAM_ADDRESS + ' ' + SECTOR_SIZE);
+            await this.send_command(uart, 'P ' + sector + ' ' + sector);
+            await this.send_command(uart, 'C ' + address + ' ' + this.RAM_ADDRESS + ' ' + this.SECTOR_SIZE);
         }
 
-        if (onProgressCallback) {
-            onProgressCallback(1.0);
+        if (this.onProgressCallback) {
+            this.onProgressCallback(1.0);
         }
     };
 
-    var reset_mcu = async function (uart) {
+    async reset_mcu(uart) {
         /*
         Reset the MCU to start the application.
         We do that by downloading a small binary into RAM. This binary corresponds
@@ -263,55 +263,50 @@ var lpc8xx_isp = (function () {
             0x01, 0x4a, 0x02, 0x4b, 0x1a, 0x60, 0x70, 0x47,
             0x04, 0x00, 0xfa, 0x05, 0x0c, 0xed, 0x00, 0xe0];
 
-        await send_command(uart, 'W ' + RAM_ADDRESS + ' ' + reset_program.length);
+        await this.send_command(uart, 'W ' + this.RAM_ADDRESS + ' ' + reset_program.length);
         await uart.write(reset_program);
 
         // Unlock the Go command
-        await send_command(uart, 'U 23130');
+        await this.send_command(uart, 'U 23130');
 
         // Run the program from RAM. Note that this command does not respond with
         // COMMAND_SUCCESS as it directly executes.
-        await uart.write('G ' + RAM_ADDRESS + ' T\r\n');
-    };
+        await uart.write('G ' + this.RAM_ADDRESS + ' T\r\n');
+    }
 
-    var flash = async function (uart, port, bin) {
-        if (busy) {
-            message('Flashing already in progress');
+    async flash(uart, port, bin) {
+        if (this.busy) {
+            this.message('Flashing already in progress');
             return;
         }
-        busy = true;
+        this.busy = true;
 
         try {
-            await open_isp(uart, port);
+            await this.open_isp(uart, port);
 
-            message('Programming ...');
-            await program(uart, bin);
-            message('Starting the program...');
-            await reset_mcu(uart);
-            message('Done.');
+            this.message('Programming ...');
+            await this.program(uart, bin);
+            this.message('Starting the program...');
+            await this.reset_mcu(uart);
+            this.message('Done.');
         }
         catch (e) {
             console.log('PROGRAMMING FAILED:', e);
         }
         finally {
             await uart.close();
+            this.busy = false;
         }
-
-        busy = false;
-    };
-
-    var setOnMessageCallback = function (fn) {
-        onMessageCallback = fn;
     }
 
-    var setOnProgressCallback = function (fn) {
-        onProgressCallback = fn;
+    setOnMessageCallback(fn) {
+        this.onMessageCallback = fn;
     }
 
-    // *************************************************************************
-    return {
-        flash: flash,
-        onMessageCallback: setOnMessageCallback,
-        onProgressCallback: setOnProgressCallback,
-    };
-})();
+    setOnProgressCallback(fn) {
+        this.onProgressCallback = fn;
+    }
+
+}
+
+var lpc8xx_isp = new _lpc8xx_isp();
