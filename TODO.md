@@ -62,8 +62,6 @@
 
 * Auto-detect when loading hex (':' + 2 hex digits) or config
 
-* Move credits into its own tab
-
 # General improvements
 
 * DOC: When a priority program runs once, and another state takes precedence,

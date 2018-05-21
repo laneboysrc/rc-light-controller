@@ -85,6 +85,7 @@
         <li><button data="config_light_programs"><i class="fa fa-code"></i><span class="menu-label">Light programs</span></button></li>
         <li><button data="config_advanced"><i class="fa fa-cogs"></i><span class="menu-label">Advanced settings</span></button></li>
         <li><button data="testing"><i class="fa fa-sliders"></i><span class="menu-label">Testing</span></button></li>
+        <li><button data="info"><i class="fa fa-info-circle"></i><span class="menu-label">Info</span></button></li>
       </ul>
     </nav>
 
@@ -946,49 +947,52 @@
         </div>
       </div>
 
+      <div id="info" class="box configuration hidden">
+        <div>
+          This tool would not have been possible without these awesome software components:
+        </div>
+        <div>
+          <strong>CodeMirror</strong> <a href="http://codemirror.net/">http://codemirror.net/</a><br>
+          A text editor in JavaScript. Very easy to use, yet extremely powerful.
+          With little effort I could build custom syntax highlighting, and
+          had error messages after the assembly process shown in the gutter.
+        </div>
+        <div>
+          <strong>JISON</strong> <a href="https://zaach.github.io/jison/docs/">https://zaach.github.io/jison/docs/</a><br>
+          Parser and scanner generator for JavaScript. It was very easy to adapt
+          a prototype written in Bison/Flex to JISON.
+        </div>
+        <div>
+          <strong>FileSaver.js</strong> <a href="https://github.com/eligrey/FileSaver.js/"></a><br>
+          Allowed us to save generated JSON and Intel-hex files from within the
+          browser.
+        </div>
+        <div>
+          <strong>node.js</strong> <a href="http://nodejs.org">http://nodejs.org</a><br>
+          Fantastic to have the same code work in the browser, and with the help
+          of node.js also be able to use from the command-line.
+        </div>
+        <div>
+          <strong>Font Awesome</strong> <a href="https://fontawesome.com/">https://fontawesome.com/</a><br>
+          Beautiful and easy-to-use vector icons.
+        </div>
+        <div>
+          <strong>intel-hex</strong> <a href="https://github.com/bminer/intel-hex.js">https://github.com/bminer/intel-hex.js</a><br>
+          Good starting point for parsing Intel-hex files. I made it
+          browser-compatible and added the missing write functions.
+        </div>
+        <div>
+          <strong>Simple JavaScript Templating</strong> <a href="http://ejohn.org/">http://ejohn.org/</a><br>
+          As the name says: a very simple templating engine.
+        </div>
+      </div>
+
+
     </div>
   </div>
 
 
-  <div class="widebox footer">
-    <div>
-      This tool would not have been possible without these awesome software components:
-    </div>
-    <div>
-      <strong>CodeMirror</strong> <a href="http://codemirror.net/">http://codemirror.net/</a><br>
-      A text editor in JavaScript. Very easy to use, yet extremely powerful.
-      With little effort I could build custom syntax highlighting, and
-      had error messages after the assembly process shown in the gutter.
-    </div>
-    <div>
-      <strong>JISON</strong> <a href="https://zaach.github.io/jison/docs/">https://zaach.github.io/jison/docs/</a><br>
-      Parser and scanner generator for JavaScript. It was very easy to adapt
-      a prototype written in Bison/Flex to JISON.
-    </div>
-    <div>
-      <strong>FileSaver.js</strong> <a href="https://github.com/eligrey/FileSaver.js/"></a><br>
-      Allowed us to save generated JSON and Intel-hex files from within the
-      browser.
-    </div>
-    <div>
-      <strong>node.js</strong> <a href="http://nodejs.org">http://nodejs.org</a><br>
-      Fantastic to have the same code work in the browser, and with the help
-      of node.js also be able to use from the command-line.
-    </div>
-    <div>
-      <strong>Font Awesome</strong> <a href="https://fontawesome.com/">https://fontawesome.com/</a><br>
-      Beautiful and easy-to-use vector icons.
-    </div>
-    <div>
-      <strong>intel-hex</strong> <a href="https://github.com/bminer/intel-hex.js">https://github.com/bminer/intel-hex.js</a><br>
-      Good starting point for parsing Intel-hex files. I made it
-      browser-compatible and added the missing write functions.
-    </div>
-    <div>
-      <strong>Simple JavaScript Templating</strong> <a href="http://ejohn.org/">http://ejohn.org/</a><br>
-      As the name says: a very simple templating engine.
-    </div>
-  </div>
+
 
   <div id="table_helper" style="visibility:hidden"></div>
 

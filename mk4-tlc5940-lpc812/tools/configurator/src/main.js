@@ -527,6 +527,7 @@ var app = (function () {
                 'config_light_programs',
                 'config_advanced',
                 'testing',
+                'info',
             ]);
 
             show(el.single_output);
@@ -557,6 +558,7 @@ var app = (function () {
                 'config_light_programs',
                 'config_advanced',
                 'testing',
+                'info',
             ]);
 
             hide(el.single_output);
@@ -587,6 +589,7 @@ var app = (function () {
                 'config_light_programs',
                 'config_advanced',
                 'testing',
+                'info',
             ]);
 
             hide(el.single_output);
@@ -612,6 +615,7 @@ var app = (function () {
                 'config_mode',
                 'config_output',
                 'testing',
+                'info',
             ]);
 
             config.mode = new_mode;
