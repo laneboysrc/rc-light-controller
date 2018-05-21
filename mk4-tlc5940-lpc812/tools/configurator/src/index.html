@@ -51,9 +51,11 @@
 </head>
 <body>
   <div id="heading" class="widebox heading">
-    <h1><span id="logo"></span> RC Light Controller configuration tool</h1>
-    <span id="version">Version: #{this.date}</span>
-    <br>Please check out <a href="https://github.com/laneboysrc/rc-light-controller">https://github.com/laneboysrc/rc-light-controller</a> for a description of the RC Light Controller this tool belongs to.
+    <button id="load2" class="menu" title="Load a configuration or HEX file"><i class="fa fa-arrow-circle-o-up"></i><br>Load</button>
+    <button id="save_config2" class="menu" title="Save configuration file"><i class="fa fa-arrow-circle-o-down"></i><br>Save config</button>
+    <button id="save_firmware2" class="menu" title="Save the firmware as Intel-Hex file"><i class="fa fa-arrow-circle-o-down"></i><br>Save hex</button>
+    <button id="flash2" class="menu" title="Flash the firmware into the light controller"><i class="fa fa-download"></i><br>Flash</button>
+    <button id="read2" class="menu" title="Read the configuration from the light controller"><i class="fa fa-upload"></i><br>Read</button>
   </div>
 
 
@@ -74,7 +76,7 @@
 
     <nav class="menu box  ">
       <ul>
-        <li><button data="load_and_save"><i class="fa fa-save"></i><span class="menu-label">Load and Save</span></button></li>
+        <li><button data="config_hardware"><i class="fa fa-hdd-o"></i><span class="menu-label">Hardware</span></button></li>
         <li><button data="config_mode"><i class="fa fa-wrench"></i><span class="menu-label">Operating mode</span></button></li>
         <li><button data="config_esc"><i class="fa fa-car"></i><span class="menu-label">ESC type</span></button></li>
         <li><button data="config_ch3"><i class="fa fa-toggle-on"></i><span class="menu-label">CH3/AUX type</span></button></li>
@@ -87,9 +89,13 @@
     </nav>
 
     <div class="page" id="main">
-      <div id="load_and_save" class="box configuration hidden">
-        <h2>Load and Save</h2>
+      <div id="config_hardware" class="box configuration hidden">
+        <h1><span id="logo"></span> RC Light Controller configuration tool</h1>
         <div>
+        Please check out <a href="https://github.com/laneboysrc/rc-light-controller">https://github.com/laneboysrc/rc-light-controller</a> for a description of the RC Light Controller this tool belongs to.
+        </div>
+        <div>
+          Configurator version: #{this.date}<br>
           Firmware version: <span id="firmware_version"></span>
         </div>
 

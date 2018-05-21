@@ -518,7 +518,7 @@ var app = (function () {
             ]);
 
             update_menu_visibility([
-                'load_and_save',
+                'config_hardware',
                 'config_mode',
                 'config_esc',
                 'config_ch3',
@@ -548,7 +548,7 @@ var app = (function () {
             ]);
 
             update_menu_visibility([
-                'load_and_save',
+                'config_hardware',
                 'config_mode',
                 'config_esc',
                 'config_ch3',
@@ -578,7 +578,7 @@ var app = (function () {
             ]);
 
             update_menu_visibility([
-                'load_and_save',
+                'config_hardware',
                 'config_mode',
                 'config_esc',
                 'config_ch3',
@@ -608,7 +608,7 @@ var app = (function () {
             ]);
 
             update_menu_visibility([
-                'load_and_save',
+                'config_hardware',
                 'config_mode',
                 'config_output',
                 'testing',
@@ -630,7 +630,7 @@ var app = (function () {
             ]);
 
             update_menu_visibility([
-                'load_and_save',
+                'config_hardware',
                 'config_mode',
             ]);
 
@@ -1828,7 +1828,7 @@ var app = (function () {
 
         init_assembler();
         load_default_firmware();
-        select_page('load_and_save');
+        select_page('config_hardware');
     };
 
 
