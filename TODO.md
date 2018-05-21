@@ -56,6 +56,13 @@
 
 * Make `pre-processor` a configuration in the drop-down box
 
+* Make toolbar:
+  * Load, Save config, Save hex, Flash, Read from device
+  * Need to remove our header, move to the device selection page
+
+* Auto-detect when loading hex (':' + 2 hex digits) or config
+
+* Move credits into its own tab
 
 # General improvements
 
