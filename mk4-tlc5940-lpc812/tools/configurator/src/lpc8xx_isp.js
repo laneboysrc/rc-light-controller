@@ -248,6 +248,10 @@ class _lpc8xx_isp {
         }
     }
 
+    async read(uart) {
+        // TODO
+    }
+
     async reset_mcu(uart) {
         /*
         Reset the MCU to start the application.
@@ -275,13 +279,14 @@ class _lpc8xx_isp {
     }
 
     async flash(uart, port, bin) {
+        let success = false;
+
         if (this.busy) {
             this.message('Flashing already in progress');
-            return;
+            return success;
         }
         this.busy = true;
 
-        let success = false;
         try {
             await this.open_isp(uart, port);
 
@@ -303,6 +308,32 @@ class _lpc8xx_isp {
         return success;
     }
 
+    async read(uart, port) {
+        let bin = [];
+
+        if (this.busy) {
+            this.message('Reading already in progress');
+            return bin;
+        }
+        this.busy = true;
+
+        try {
+            await this.open_isp(uart, port);
+
+            this.message('Reading ...');
+            bin = await this.read(uart);
+            this.message('Done.');
+        }
+        catch (e) {
+            this.message(e);
+        }
+        finally {
+            await uart.close();
+            this.busy = false;
+        }
+
+        return bin;
+    }
     set onMessageCallback(fn) {
         this.messageCallback = fn;
     }
