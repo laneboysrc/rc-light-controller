@@ -67,7 +67,7 @@ class _lpc8xx_isp {
         if (response != '0\r\n') {
             throw 'ERROR: Command "' + command + '" failed. Return code: ' + response;
         }
-    };
+    }
 
     append_signature(bin) {
         // Calculate the signature that the ISP uses to detect "valid code"
@@ -88,7 +88,7 @@ class _lpc8xx_isp {
         bin[vector8 + 2] = (signature >> 16) & 0xff;
         bin[vector8 + 1] = (signature >> 8) & 0xff;
         bin[vector8] = signature & 0xff;
-    };
+    }
 
     async open_isp(uart, port) {
         await uart.open(port, 115200, 8, 'n', 1);
@@ -142,7 +142,7 @@ class _lpc8xx_isp {
 
                 response = await uart.readline();
                 if (response != '1\r\n') {
-                    if (! wait) {
+                    if (!this.wait) {
                         throw 'ERROR: LPC81x not in ISP mode.';
                     }
                 }
@@ -175,7 +175,7 @@ class _lpc8xx_isp {
                 }
             }
         }
-    };
+    }
 
     async program(uart, bin) {
         // Write the given binary image file into the flash memory.
@@ -246,7 +246,7 @@ class _lpc8xx_isp {
         if (this.progressCallback) {
             this.progressCallback(1.0);
         }
-    };
+    }
 
     async reset_mcu(uart) {
         /*
