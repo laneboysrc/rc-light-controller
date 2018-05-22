@@ -99,10 +99,6 @@ button.menu i {
   font-size: 2em;
 }
 
-.lpc8xx progress {
-  width: 100%;
-}
-
 .redborder {
    border: 1px solid red;
 }
@@ -139,7 +135,7 @@ nav.box {
   margin-bottom: 0;
 }
 
-.heading {
+.menu_bar {
   background-color: #ff9900;
   position: relative;
   padding-bottom: 0;
@@ -150,7 +146,7 @@ nav.box {
 }
 
 .hidden {
-  display: none;
+  display: none !important;
 }
 
 #logo {
@@ -216,6 +212,10 @@ nav.box {
 }
 
 
+button.menu[disabled] {
+  opacity: 0.3;
+}
+
 #load_and_save div {
   margin-top: 1em;
 }
@@ -231,6 +231,8 @@ nav.box {
 .configuration label {
   font-weight: bold;
 }
+
+
 
 
 
@@ -374,3 +376,37 @@ nav.box {
   width: 100%;
 }
 
+
+
+.modal_dialog {
+  position: absolute;
+  z-index: 9999;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal_dialog .frame {
+  width: 50vw;
+  margin: auto;
+  background-color: #ffcf0d;
+}
+
+.modal_dialog .heading {
+  font-weight: 800;
+}
+
+.modal_dialog .frame div {
+  margin-bottom: 10px;
+}
+
+.modal_dialog progress {
+  width: 100%;
+}
+
+.align_right {
+  float: right;
+}

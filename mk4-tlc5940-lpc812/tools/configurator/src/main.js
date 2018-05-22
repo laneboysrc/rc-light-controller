@@ -1615,6 +1615,39 @@ var app = (function () {
         el.light_programs_ok.style.display = 'none';
     };
 
+    // *************************************************************************
+    var update_flashing = function () {
+        if (hasUART) {
+            document.querySelectorAll('.lpc8xx').forEach(e => {
+                e.classList.remove('hidden');
+            });
+            el.flash.disabled = false;
+            el.read.disabled = false;
+        }
+        else {
+            el.flash.disabled = true;
+            el.read.disabled = true;
+        }
+    };
+
+    // *************************************************************************
+    var flash = async function () {
+        el.flash_progress.value = 0;
+        el.flash_heading.textContent = 'Flashing ...';
+        el.flash_button.disabled = true;
+        el.flash_message.textContent = '';
+        el.flash_dialog.classList.remove('hidden');
+
+        let config = get_config();
+        assemble_firmware(config);
+
+        if (await lpc8xx_isp.flash(new chrome_uart(), '/dev/ttyUSB0', firmware.data)) {
+            el.flash_dialog.classList.add('hidden');
+        }
+        else {
+            el.flash_button.disabled = false;
+        }
+    };
 
     // *************************************************************************
     var init = function () {
@@ -1639,15 +1672,16 @@ var app = (function () {
             }
         }
 
+        el.menu_buttons = document.querySelectorAll('nav button');
+
         el.firmware_version = document.getElementById('firmware_version');
-        el.save_config = document.getElementById('save_config');
+        el.load = document.getElementById('load');
         el.load_input = document.getElementById('load_input');
+        el.save_config = document.getElementById('save_config');
         el.save_firmware = document.getElementById('save_firmware');
 
-        el.flash_lpc8xx = document.getElementById('flash_lpc8xx');
-        el.flash_lpc8xx_button = document.getElementById('flash');
-        el.flash_lpc8xx_progress = document.getElementById('programming_progress');
-        el.flash_lpc8xx_message = document.getElementById('programming_message');
+        el.flash = document.getElementById('flash');
+        el.read = document.getElementById('read');
 
         el.mode = document.getElementById('mode');
         el.mode_master_servo = document.getElementById('mode_master_servo');
@@ -1762,21 +1796,29 @@ var app = (function () {
 
         el.gamma_value = document.getElementById('gamma_value');
 
-        el.menu_buttons = document.querySelectorAll('nav button');
+        el.flash_dialog = document.getElementById('flash_dialog');
+        el.flash_heading = el.flash_dialog.querySelector('.heading');
+        el.flash_progress = el.flash_dialog.querySelector('progress');
+        el.flash_message = el.flash_dialog.querySelector('#programming_message');
+        el.flash_button = el.flash_dialog.querySelector('button');
 
-
-        el.mode.addEventListener('change', update_section_visibility, false);
-
-        el.config_output.addEventListener('change',
-            update_section_visibility, false
-        );
 
         set_led_feature_handler('leds_master', 'master');
         set_led_feature_handler('leds_slave', 'slave');
 
+        el.mode.addEventListener('change', update_section_visibility, false);
+
+        el.config_output.addEventListener('change', update_section_visibility, false);
+
+        el.load.addEventListener('click', function () {
+            el.load_input.click();
+        }, false);
+
         el.load_input.addEventListener('change', load_file_from_disk, false);
         el.save_config.addEventListener('click', save_configuration, false);
         el.save_firmware.addEventListener('click', save_firmware, false);
+
+        el.flash.addEventListener('click', flash);
 
         el.leds_clear.addEventListener('click', function () {
             if (window.confirm('Clear all LED configurations? This can not be undone.')) {
@@ -1788,6 +1830,7 @@ var app = (function () {
             parse_light_program_code(ui.get_editor_content());
         }, false);
 
+        // FIXME
         el.light_programs_errors.style.display = 'none';
 
         for (var index = 0; index < el.menu_buttons.length; index += 1) {
@@ -1799,40 +1842,19 @@ var app = (function () {
         }
 
         lpc8xx_isp.onMessageCallback = function (message) {
-            el.flash_lpc8xx_message.textContent = message;
+            el.flash_message.textContent = message;
         };
 
         lpc8xx_isp.onProgressCallback = function (progress) {
-            el.flash_lpc8xx_progress.value = progress;
+            el.flash_progress.value = progress;
         };
 
-        el.load = document.getElementById('load');
-        el.load.addEventListener('click', function () {
-            el.load_input.click();
-        }, false);
-
-        if (hasUART) {
-            document.querySelectorAll('.lpc8xx').forEach(e => {
-                e.classList.remove('hidden');
-            });
-
-            el.flash_lpc8xx_button.addEventListener('click', async function () {
-                el.flash_lpc8xx_progress.value = 0;
-                el.flash_lpc8xx_message.textContent = '';
-
-                try {
-                    let config = get_config();
-                    assemble_firmware(config);
-
-                    await lpc8xx_isp.flash(new chrome_uart(), '/dev/ttyUSB0', firmware.data);
-                }
-                catch (e) {
-                    console.log(e);
-                }
-            });
-        }
+        el.flash_button.addEventListener('click', function () {
+            el.flash_dialog.classList.add('hidden');
+        });
 
 
+        update_flashing();
         init_assembler();
         load_default_firmware();
         select_page('config_hardware');

@@ -281,6 +281,7 @@ class _lpc8xx_isp {
         }
         this.busy = true;
 
+        let success = false;
         try {
             await this.open_isp(uart, port);
 
@@ -289,6 +290,7 @@ class _lpc8xx_isp {
             this.message('Starting the program...');
             await this.reset_mcu(uart);
             this.message('Done.');
+            success = true;
         }
         catch (e) {
             this.message(e);
@@ -297,6 +299,8 @@ class _lpc8xx_isp {
             await uart.close();
             this.busy = false;
         }
+
+        return success;
     }
 
     set onMessageCallback(fn) {
