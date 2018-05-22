@@ -646,16 +646,20 @@ var app = (function () {
         ensure_one_is_checked('output_th');
 
         if (el.preprocessor_output.checked || el.slave_output.checked) {
-            el.winch_output.style.display = 'none';
-            el.winch_enable.style.display = '';
+            el.winch_output.classList.add('hidden');
+            el.winch_enable.classList.remove('hidden');
         }
         else {
-            el.winch_output.style.display = '';
-            el.winch_enable.style.display = 'none';
+            el.winch_output.classList.remove('hidden');
+            el.winch_enable.classList.add('hidden');
         }
 
-        el.leds_slave.style.display =
-            el.slave_output.checked ? '' : 'none';
+        if (el.slave_output.checked) {
+            el.leds_slave.classList.remove('hidden');
+        }
+        else {
+            el.leds_slave.classList.add('hidden');
+        }
     };
 
 
@@ -726,8 +730,7 @@ var app = (function () {
         el.mode.selectedIndex = config.mode;
 
         // Firmware version
-        el.firmware_version.innerHTML = config_version + '.' +
-            config.firmware_version;
+        el.firmware_version.textContent = config_version + '.' + config.firmware_version;
 
         // ESC type
         el.esc[config.esc_mode].checked = true;
@@ -852,7 +855,7 @@ var app = (function () {
         light_programs = '';
 
         el.light_programs.value = '';
-        el.light_programs_errors.style.display = 'none';
+        el.light_programs_errors.classList.add('hidden');
 
         try {
             firmware = parse_firmware_structure(intel_hex_data);
@@ -876,8 +879,8 @@ var app = (function () {
 
     // *************************************************************************
     var parse_light_program_code = function (light_programs) {
-        el.light_programs_errors.style.display = 'none';
-        el.light_programs_ok.style.display = 'none';
+        el.light_programs_errors.classList.add('hidden');
+        el.light_programs_ok.classList.add('hidden');
 
         // If we run multiple times, we need to reset the modules inbetween,
         // especially if there was an error before.
@@ -888,7 +891,7 @@ var app = (function () {
 
         try {
             var machine_code = parser.parse(light_programs);
-            el.light_programs_ok.style.display = '';
+            el.light_programs_ok.classList.remove('hidden');
             return machine_code;
         } catch (e) {
             var msg = 'Errors occured while assembling light programs\n';
@@ -915,8 +918,8 @@ var app = (function () {
                 }
             }
 
-            el.light_programs_errors.innerHTML = msg;
-            el.light_programs_errors.style.display = '';
+            el.light_programs_errors.textContent = msg;
+            el.light_programs_errors.classList.remove('hidden');
 
             ui.update_errors(cm_errors);
 
@@ -1612,7 +1615,7 @@ var app = (function () {
         emitter.set_parser(parser);
         symbols.set_parser(parser);
 
-        el.light_programs_ok.style.display = 'none';
+        el.light_programs_ok.classList.add('hidden');
     };
 
     // *************************************************************************
@@ -1829,9 +1832,6 @@ var app = (function () {
         el.light_programs_assembler.addEventListener('click', function () {
             parse_light_program_code(ui.get_editor_content());
         }, false);
-
-        // FIXME
-        el.light_programs_errors.style.display = 'none';
 
         for (var index = 0; index < el.menu_buttons.length; index += 1) {
             var button = el.menu_buttons[index];

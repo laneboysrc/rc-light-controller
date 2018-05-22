@@ -9,16 +9,16 @@ var ui = (function () {
     // *************************************************************************
     var led_feature_click_handler = function (e) {
         var features_row = document.getElementById(e.target.name);
-        var visible = Boolean(features_row.style.display !== 'none');
+        var visible = !Boolean(features_row.classList.contains('hidden'));
         var i;
 
         var features = document.getElementsByClassName('led_features');
         for (i = 0; i < features.length; i += 1) {
-            features[i].style.display = 'none';
+            features[i].classList.add('hidden');
         }
 
         if (!visible) {
-            features_row.style.display = '';
+            features_row.classList.remove('hidden');
         }
     };
 
@@ -137,7 +137,7 @@ var ui = (function () {
 
             for (led = 0; led < led_rows.length; led += 1) {
                 led_rows[led].id = prefix + led + 'features';
-                led_rows[led].style.display = 'none';
+                led_rows[led].classList.add('hidden');
 
                 elements = led_rows[led].getElementsByClassName('incandescent');
                 elements[0].id = prefix + led + 'incandescent';
