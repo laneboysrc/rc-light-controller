@@ -50,12 +50,13 @@
   <script inline src="main.js"></script>
 </head>
 <body>
+
   <div id="heading" class="widebox heading">
-    <button id="load2" class="menu" title="Load a configuration or HEX file"><i class="fa fa-arrow-circle-o-up"></i><br>Load</button>
-    <button id="save_config2" class="menu" title="Save configuration file"><i class="fa fa-arrow-circle-o-down"></i><br>Save config</button>
-    <button id="save_firmware2" class="menu" title="Save the firmware as Intel-Hex file"><i class="fa fa-arrow-circle-o-down"></i><br>Save hex</button>
-    <button id="flash2" class="menu" title="Flash the firmware into the light controller"><i class="fa fa-download"></i><br>Flash</button>
-    <button id="read2" class="menu" title="Read the configuration from the light controller"><i class="fa fa-upload"></i><br>Read</button>
+    <button id="load" class="menu" title="Load a configuration or HEX file"><i class="fa fa-arrow-circle-o-up"></i><br>Load</button>
+    <button id="save_config" class="menu" title="Save configuration file"><i class="fa fa-arrow-circle-o-down"></i><br>Save config</button>
+    <button id="save_firmware" class="menu" title="Save the firmware as Intel-Hex file"><i class="fa fa-arrow-circle-o-down"></i><br>Save hex</button>
+    <button id="flash" class="menu" title="Flash the firmware into the light controller"><i class="fa fa-download"></i><br>Flash</button>
+    <button id="read" class="menu" title="Read the configuration from the light controller"><i class="fa fa-upload"></i><br>Read</button>
   </div>
 
 
@@ -114,7 +115,7 @@
             <td></td>
           </tr>
           <tr id="flash_lpc8xx" class="lpc8xx hidden">
-            <td><button id="flash_lpc8xx_button">Flash ...</button></td>
+            <td><button id="flash_lpc8xx_button1">Flash ...</button></td>
             <td>
               <select id="serial_port">
                 <option value="0">(no serial port found)</option>
@@ -127,13 +128,13 @@
             </td>
             <td id="programming_message"></td>
           </tr>
-          <tr class="section">
-            <td><button id="save_firmware">Save firmware image ...</button></td>
+          <tr class="section hidden">
+            <td><button id="save_firmware2">Save firmware image ...</button></td>
             <td>Load firmware image: <input type="file" id="load_firmware"></td>
           </tr>
-          <tr class="section">
-            <td><button id="save_config">Save configuration ...</button></td>
-            <td>Load configuration file: <input type="file" id="load_config"></td>
+          <tr class="section hidden">
+            <td><button id="save_config2">Save configuration ...</button></td>
+            <td>Load configuration file: <input type="file" id="load_config__OLD"></td>
           </tr>
         </table>
 
@@ -992,7 +993,7 @@
   </div>
 
 
-
+  <input type="file" id="load_input" style="display:none">
 
   <div id="table_helper" style="visibility:hidden"></div>
 

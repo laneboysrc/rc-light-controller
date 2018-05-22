@@ -84,11 +84,13 @@ tr.section td {
 
 button.menu {
   font-size: 0.8em;
-  padding: 3px;
+  padding: 5px;
   margin-left: 8px;
+  margin-bottom: 10px;
   background-color: transparent;
   color: inherit;
-  border: none;
+  border: 2px solid black;
+  border-radius: 10px;
   display: inline-block;
   white-space: nowrap;
 }
@@ -140,6 +142,7 @@ nav.box {
 .heading {
   background-color: #ff9900;
   position: relative;
+  padding-bottom: 0;
 }
 
 .page {

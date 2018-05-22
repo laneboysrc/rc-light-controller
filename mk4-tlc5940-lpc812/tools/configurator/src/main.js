@@ -1151,28 +1151,72 @@ var app = (function () {
 
 
     // *************************************************************************
-    var load_firmware_from_disk = function () {
+    var load_file_from_disk = function () {
         if (this.files.length < 1) {
             return;
         }
 
+        var intelHex = /^:[0-9a-fA-F][0-9a-fA-F]/;
+
         var reader = new FileReader();
         reader.onload = function (e) {
-            var msg;
-            parse_firmware(e.target.result);
+            var contents = e.target.result;
 
-            if (default_firmware_version > config.firmware_version) {
-                msg = 'A new firmware version is available.\n';
-                msg += 'Click OK to update the firmware, keeping your settings.\n';
-                msg += 'Click Cancel to keep the original firmware.\n';
-                if (window.confirm(msg)) {
-                    firmware = parse_firmware_structure(default_firmware_image);
-                    config.firmware_version = default_firmware_version;
-                    update_ui();
-                }
+            if (contents.match(intelHex)) {
+                load_firmware_from_disk(contents);
+            }
+            else {
+                load_configuration_from_disk(contents);
             }
         };
         reader.readAsText(this.files[0]);
+    };
+
+
+    // *************************************************************************
+    var load_configuration_from_disk = function (contents) {
+        var data;
+        try {
+            data = JSON.parse(contents);
+
+            config = data.config;
+            local_leds = data.local_leds;
+            slave_leds = data.slave_leds;
+            light_programs = data.light_programs;
+            gamma_object = data.gamma;
+
+            // Use the current firmware when loading a configuration file
+            firmware = parse_firmware_structure(default_firmware_image);
+            config.firmware_version = default_firmware_version;
+        } catch (err) {
+            window.alert(
+                'Failed to load configuration.\n' +
+                    'File may not be a light controller configuration file (JSON format)'
+            );
+        }
+
+        update_ui();
+
+        el.light_programs.value = light_programs;
+        ui.update_editor();
+    };
+
+
+    // *************************************************************************
+    var load_firmware_from_disk = function (contents) {
+        var msg;
+        parse_firmware(contents);
+
+        if (default_firmware_version > config.firmware_version) {
+            msg = 'A new firmware version is available.\n';
+            msg += 'Click OK to update the firmware, keeping your settings.\n';
+            msg += 'Click Cancel to keep the original firmware.\n';
+            if (window.confirm(msg)) {
+                firmware = parse_firmware_structure(default_firmware_image);
+                config.firmware_version = default_firmware_version;
+                update_ui();
+            }
+        }
     };
 
 
@@ -1444,43 +1488,6 @@ var app = (function () {
 
 
     // *************************************************************************
-    var load_configuration_from_disk = function () {
-        if (this.files.length < 1) {
-            return;
-        }
-
-        var reader = new FileReader();
-        reader.onload = function (e) {
-            var data;
-            try {
-                data = JSON.parse(e.target.result);
-
-                config = data.config;
-                local_leds = data.local_leds;
-                slave_leds = data.slave_leds;
-                light_programs = data.light_programs;
-                gamma_object = data.gamma;
-
-                // Use the current firmware when loading a configuration file
-                firmware = parse_firmware_structure(default_firmware_image);
-                config.firmware_version = default_firmware_version;
-            } catch (err) {
-                window.alert(
-                    'Failed to load configuration.\n' +
-                        'File may not be a light controller configuration file (JSON format)'
-                );
-            }
-
-            update_ui();
-
-            el.light_programs.value = light_programs;
-            ui.update_editor();
-        };
-        reader.readAsText(this.files[0]);
-    };
-
-
-    // *************************************************************************
     var save_configuration = function () {
         // Retrieve the settings based on the UI
         var data = get_config();
@@ -1634,12 +1641,11 @@ var app = (function () {
 
         el.firmware_version = document.getElementById('firmware_version');
         el.save_config = document.getElementById('save_config');
-        el.load_config = document.getElementById('load_config');
+        el.load_input = document.getElementById('load_input');
         el.save_firmware = document.getElementById('save_firmware');
-        el.load_firmware = document.getElementById('load_firmware');
 
         el.flash_lpc8xx = document.getElementById('flash_lpc8xx');
-        el.flash_lpc8xx_button = document.getElementById('flash_lpc8xx_button');
+        el.flash_lpc8xx_button = document.getElementById('flash');
         el.flash_lpc8xx_progress = document.getElementById('programming_progress');
         el.flash_lpc8xx_message = document.getElementById('programming_message');
 
@@ -1768,17 +1774,9 @@ var app = (function () {
         set_led_feature_handler('leds_master', 'master');
         set_led_feature_handler('leds_slave', 'slave');
 
-        el.load_firmware.addEventListener('change', load_firmware_from_disk,
-            false
-        );
-
-        el.save_firmware.addEventListener('click', save_firmware, false);
-
-        el.load_config.addEventListener('change', load_configuration_from_disk,
-            false
-        );
-
+        el.load_input.addEventListener('change', load_file_from_disk, false);
         el.save_config.addEventListener('click', save_configuration, false);
+        el.save_firmware.addEventListener('click', save_firmware, false);
 
         el.leds_clear.addEventListener('click', function () {
             if (window.confirm('Clear all LED configurations? This can not be undone.')) {
@@ -1807,6 +1805,11 @@ var app = (function () {
         lpc8xx_isp.setOnProgressCallback((progress) => {
             el.flash_lpc8xx_progress.value = progress;
         });
+
+        el.load = document.getElementById('load');
+        el.load.addEventListener('click', function () {
+            el.load_input.click();
+        }, false);
 
         if (hasUART) {
             document.querySelectorAll('.lpc8xx').forEach(e => {
