@@ -106,37 +106,15 @@
             <option value="0">Mk4 (NXP LPC812)</option>
             <!-- <option value="1">MK5 (Microchip SAMD21, Arduino Zero)</option> -->
           </select>
-          <span id="hardware-image" class="mk4"></span>
+          <span id="hardware_image" class="mk4"></span>
         </div>
 
-        <!-- table class="load_save_table">
-          <tr id="flash_usb" class="section hidden">
-            <td><button id="flash_usb_button">Flash using USB ...</button></td>
-            <td></td>
-          </tr>
-          <tr id="flash_lpc8xx" class="lpc8xx hidden">
-            <td><button id="flash_lpc8xx_button1">Flash ...</button></td>
-            <td>
-              <select id="serial_port">
-                <option value="0">(no serial port found)</option>
-              </select>
-            </td>
-          </tr>
-          <tr class="lpc8xx flash hidden">
-            <td>
-              <progress id="programming_progress" value="0" max="1"></progress>
-            </td>
-            <td id="programming_message"></td>
-          </tr>
-          <tr class="section hidden">
-            <td><button id="save_firmware2">Save firmware image ...</button></td>
-            <td>Load firmware image: <input type="file" id="load_firmware"></td>
-          </tr>
-          <tr class="section hidden">
-            <td><button id="save_config2">Save configuration ...</button></td>
-            <td>Load configuration file: <input type="file" id="load_config__OLD"></td>
-          </tr>
-        </table -->
+        <div id="hardware_uart">
+          Programming port:
+          <select id="flash_serial_port">
+            <option value="0">(no serial port found)</option>
+          </select>
+        </div>
 
         <div class="info">
           <div>

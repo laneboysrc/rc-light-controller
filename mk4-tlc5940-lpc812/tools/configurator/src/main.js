@@ -1686,6 +1686,11 @@ var app = (function () {
         el.flash = document.getElementById('flash');
         el.read = document.getElementById('read');
 
+        el.hardware = document.getElementById('hardware');
+        el.hardware_image = document.getElementById('hardwawre_image');
+        el.hardware_uart = document.getElementById('hardware_uart');
+        el.flash_serial_port = document.getElementById('flash_serial_port');
+
         el.mode = document.getElementById('mode');
         el.mode_master_servo = document.getElementById('mode_master_servo');
         el.mode_master_uart = document.getElementById('mode_master_uart');
