@@ -1798,13 +1798,13 @@ var app = (function () {
             });
         }
 
-        lpc8xx_isp.setOnMessageCallback((message) => {
+        lpc8xx_isp.onMessageCallback = function (message) {
             el.flash_lpc8xx_message.textContent = message;
-        });
+        };
 
-        lpc8xx_isp.setOnProgressCallback((progress) => {
+        lpc8xx_isp.onProgressCallback = function (progress) {
             el.flash_lpc8xx_progress.value = progress;
-        });
+        };
 
         el.load = document.getElementById('load');
         el.load.addEventListener('click', function () {

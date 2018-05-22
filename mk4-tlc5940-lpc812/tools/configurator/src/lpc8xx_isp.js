@@ -17,8 +17,8 @@
 
 class _lpc8xx_isp {
     constructor() {
-        this.onProgressCallback = null;
-        this.onMessageCallback = null;
+        this.progressCallback = null;
+        this.messageCallback = null;
         this.wait = true;
         this.busy = false;
 
@@ -51,8 +51,8 @@ class _lpc8xx_isp {
     }
 
     message(msg) {
-        if (this.onMessageCallback) {
-            this.onMessageCallback(msg);
+        if (this.messageCallback) {
+            this.messageCallback(msg);
         }
     }
 
@@ -222,8 +222,8 @@ class _lpc8xx_isp {
 
         // Program the image
         for (let index = 0; index < used_sectors; index += 1) {
-            if (this.onProgressCallback) {
-                this.onProgressCallback(index / used_sectors);
+            if (this.progressCallback) {
+                this.progressCallback(index / used_sectors);
             }
 
             let sector = index;
@@ -243,8 +243,8 @@ class _lpc8xx_isp {
             await this.send_command(uart, 'C ' + address + ' ' + this.RAM_ADDRESS + ' ' + this.SECTOR_SIZE);
         }
 
-        if (this.onProgressCallback) {
-            this.onProgressCallback(1.0);
+        if (this.progressCallback) {
+            this.progressCallback(1.0);
         }
     };
 
@@ -299,12 +299,12 @@ class _lpc8xx_isp {
         }
     }
 
-    setOnMessageCallback(fn) {
-        this.onMessageCallback = fn;
+    set onMessageCallback(fn) {
+        this.messageCallback = fn;
     }
 
-    setOnProgressCallback(fn) {
-        this.onProgressCallback = fn;
+    set onProgressCallback(fn) {
+        this.progressCallback = fn;
     }
 
 }
