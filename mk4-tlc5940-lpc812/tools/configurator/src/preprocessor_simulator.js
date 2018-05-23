@@ -17,8 +17,6 @@ class preprocessor {
     constructor() {
         this.logger = console;
 
-        this.logger.log('constructor');
-
         this.throttle = 0;
         this.steering = 0;
         this.ch3 = 0;
