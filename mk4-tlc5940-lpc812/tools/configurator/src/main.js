@@ -5,6 +5,8 @@
     FileReader, Blob, saveAs, preprocessor, chrome_uart, lpc8xx_isp
     hardware_test_configuration, logger, chrome */
 
+
+
 var app = (function () {
     var el = {};  // Cache of document.getElementById
 
@@ -68,6 +70,7 @@ var app = (function () {
 
     var has_uart = (typeof chrome !== 'undefined'  &&  chrome.serial);
     var serial_ports = {'dummy': 'dummy'};
+    var preprocessor_simulator;
 
     // var ESC_FORWARD_BRAKE_REVERSE_TIMEOUT = 'Forward/Brake/Reverse with timeout';
     // var ESC_FORWARD_BRAKE_REVERSE = 'Forward/Brake/Reverse no timeout';
@@ -1596,10 +1599,10 @@ var app = (function () {
         ui.refresh_editor();
 
         if (selected_page == 'testing') {
-            preprocessor.init('usb');
+            preprocessor_simulator.init('usb');
         }
         else {
-            preprocessor.disconnect();
+            preprocessor_simulator.disconnect();
         }
     };
 
@@ -1964,6 +1967,8 @@ var app = (function () {
             });
         }
 
+        preprocessor_simulator = new preprocessor();
+
         update_serial_ports();
         init_assembler();
         load_default_firmware();
@@ -1984,3 +1989,5 @@ document.addEventListener('DOMContentLoaded', function () {
     ui.init();
     app.init();
 }, false);
+
+
