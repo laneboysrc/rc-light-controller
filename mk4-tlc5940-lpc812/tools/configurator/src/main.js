@@ -1689,7 +1689,8 @@ var app = (function () {
     var flash = async function () {
         el.flash_progress.value = 0;
         el.flash_heading.textContent = 'Flashing ...';
-        el.flash_button.disabled = true;
+        el.flash_button.textContent = 'Cancel';
+        el.flash_button.disabled = false;
         el.flash_message.textContent = '';
         el.flash_message.classList.remove('error');
         el.flash_dialog.classList.remove('hidden');
@@ -1701,9 +1702,16 @@ var app = (function () {
             el.flash_dialog.classList.add('hidden');
         }
         else {
+            el.flash_button.textContent = 'Close';
             el.flash_button.disabled = false;
             el.flash_message.classList.add('error');
         }
+    };
+
+    // *************************************************************************
+    var flash_dialog_button_pressed = function () {
+        lpc8xx_isp.cancel();
+        el.flash_dialog.classList.add('hidden');
     };
 
     // *************************************************************************
@@ -1900,18 +1908,18 @@ var app = (function () {
             });
         }
 
+        el.flash_button.addEventListener('click', flash_dialog_button_pressed);
+
         lpc8xx_isp.onMessageCallback = function (message) {
             el.flash_message.textContent = message;
         };
 
         lpc8xx_isp.onProgressCallback = function (progress) {
             el.flash_progress.value = progress;
+            // Once we receive a progress callback flashing has started,
+            // so we disable the cancel button.
+            el.flash_button.disabled = false;
         };
-
-        el.flash_button.addEventListener('click', function () {
-            el.flash_dialog.classList.add('hidden');
-        });
-
 
         update_serial_ports();
         init_assembler();

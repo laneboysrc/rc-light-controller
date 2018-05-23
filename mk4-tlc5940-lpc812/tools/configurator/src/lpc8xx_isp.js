@@ -21,6 +21,7 @@ class _lpc8xx_isp {
         this.messageCallback = null;
         this.wait = true;
         this.busy = false;
+        this.cancel_ = false;
 
         // Code Read Protection (CRP) address and patterns
         this.CRP_ADDRESS = 0x000002fc;
@@ -98,7 +99,7 @@ class _lpc8xx_isp {
             this.message('Waiting for LPC81x to enter ISP mode...');
         }
 
-        for (;;) {
+        while (!this.cancel_) {
             await uart.write('?');
 
             let response = await uart.readline();
@@ -286,15 +287,18 @@ class _lpc8xx_isp {
             return success;
         }
         this.busy = true;
+        this.cancel_ = false;
 
         try {
             await this.open_isp(uart, port);
 
-            this.message('Programming ...');
-            await this.program(uart, bin);
-            this.message('Starting the program...');
-            await this.reset_mcu(uart);
-            this.message('Done.');
+            if (!this.cancel_) {
+                this.message('Programming ...');
+                await this.program(uart, bin);
+                this.message('Starting the program...');
+                await this.reset_mcu(uart);
+                this.message('Done.');
+            }
             success = true;
         }
         catch (e) {
@@ -334,6 +338,11 @@ class _lpc8xx_isp {
 
         return bin;
     }
+
+    cancel() {
+        this.cancel_ = true;
+    }
+
     set onMessageCallback(fn) {
         this.messageCallback = fn;
     }

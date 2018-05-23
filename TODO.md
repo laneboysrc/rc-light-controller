@@ -33,8 +33,6 @@
 
 * nw.js based stand-alone program, and on-line WebUSB
 
-* Make flashing abort-able until programming starts
-
 * Integrate LPC812 programmer
 
 * Integrate preprocessor-simulator
