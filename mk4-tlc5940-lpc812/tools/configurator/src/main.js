@@ -1694,6 +1694,7 @@ var app = (function () {
         el.flash_message.textContent = '';
         el.flash_message.classList.remove('error');
         el.flash_dialog.classList.remove('hidden');
+        el.flash_progress.classList.remove('hidden');
 
         let config = get_config();
         assemble_firmware(config);
@@ -1729,6 +1730,43 @@ var app = (function () {
             el.flash_button.disabled = false;
             el.flash_message.classList.add('error');
         }
+    };
+
+    var read_firmware_from_flash = async function () {
+        el.flash_progress.value = 0;
+        el.flash_heading.textContent = 'Reading firmware ...';
+        el.flash_button.textContent = 'Cancel';
+        el.flash_button.disabled = false;
+        el.flash_message.textContent = '';
+        el.flash_message.classList.remove('error');
+        el.flash_dialog.classList.remove('hidden');
+        el.flash_progress.classList.add('hidden');
+
+        let mk4_isp = new lpc8xx_isp();
+
+        mk4_isp.onMessageCallback = function (message) {
+            el.flash_message.textContent = message;
+        };
+
+        function button_pressed() {
+            mk4_isp.cancel();
+            el.flash_dialog.classList.add('hidden');
+            el.flash_button.removeEventListener('click', button_pressed);
+        }
+
+        el.flash_button.addEventListener('click', button_pressed);
+
+        let bin = await mk4_isp.read_flash(new chrome_uart(), el.flash_serial_port.value);
+        if (bin.length) {
+            el.flash_dialog.classList.add('hidden');
+            el.flash_button.removeEventListener('click', button_pressed);
+        }
+        else {
+            el.flash_button.textContent = 'Close';
+            el.flash_button.disabled = false;
+            el.flash_message.classList.add('error');
+        }
+
     };
 
     // *************************************************************************
@@ -1906,6 +1944,7 @@ var app = (function () {
         el.save_firmware.addEventListener('click', save_firmware, false);
 
         el.flash.addEventListener('click', flash);
+        el.read.addEventListener('click', read_firmware_from_flash);
 
         el.leds_clear.addEventListener('click', function () {
             if (window.confirm('Clear all LED configurations? This can not be undone.')) {

@@ -233,8 +233,43 @@ class lpc8xx_isp {
         }
     }
 
+    async read_part_id(uart) {
+        this.send_command(uart, 'J');
+        return uart.readline().strip();
+    }
+
+    async get_flash_size(uart) {
+        // Obtain the size of the Flash memory from the LPC81x.
+        // If we are unable to identify the part we assume a default of 4 KBytes.
+
+        const known_parts = {
+            0x00008100: 4 * 1024,       // LPC810M021FN8
+            0x00008110: 8 * 1024,       // LPC811M001JDH16
+            0x00008120: 16 * 1024,      // PC812M101JDH16
+            0x00008121: 16 * 1024,      // LPC812M101JD20
+            0x00008122: 16 * 1024       // LPC812M101JDH20, LPC812M101JTB16
+        };
+
+        let part_id = await this.read_part_id(uart);
+
+        if (known_parts.hasOwnProperty(part_id)) {
+            return known_parts[part_id];
+        }
+
+        this.message('Unknown part identification ' + part_id + '. Using 4 KB as flash size.');
+        return 4 * 1024;
+    }
+
     async read(uart) {
-        // TODO
+        let flash_size = await this.get_flash_size(uart);
+
+        await this.send_command(uart, 'R ' + this.FLASH_BASE_ADDRESS + ' ' + flash_size);
+        let image_data = uart.read(flash_size);
+        if (image_data.length !== flash_size) {
+            throw 'Failed to read the whole Flash memory';
+        }
+
+        return image_data;
     }
 
     async reset_mcu(uart) {
@@ -297,7 +332,7 @@ class lpc8xx_isp {
         return success;
     }
 
-    async read(uart, port) {
+    async read_flash(uart, port) {
         let bin = [];
 
         if (this.busy) {
@@ -309,9 +344,11 @@ class lpc8xx_isp {
         try {
             await this.open_isp(uart, port);
 
-            this.message('Reading ...');
-            bin = await this.read(uart);
-            this.message('Done.');
+            if (!this.cancel_) {
+                this.message('Reading ...');
+                bin = await this.read(uart);
+                this.message('Done.');
+            }
         }
         catch (e) {
             this.message('Error: ' + e);
