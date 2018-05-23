@@ -234,8 +234,9 @@ class lpc8xx_isp {
     }
 
     async read_part_id(uart) {
-        this.send_command(uart, 'J');
-        return uart.readline().strip();
+        await this.send_command(uart, 'J');
+        let id = await uart.readline();
+        return id.trim();
     }
 
     async get_flash_size(uart) {
@@ -262,14 +263,19 @@ class lpc8xx_isp {
 
     async read(uart) {
         let flash_size = await this.get_flash_size(uart);
+        this.message('Reading ' + flash_size + ' bytes ...');
 
         await this.send_command(uart, 'R ' + this.FLASH_BASE_ADDRESS + ' ' + flash_size);
-        let image_data = uart.read(flash_size);
+        let image_data = await uart.read(flash_size);
         if (image_data.length !== flash_size) {
             throw 'Failed to read the whole Flash memory';
         }
 
-        return image_data;
+        let binaryData = [];
+        for (let i=0; i<image_data.length; i+=1) {
+            binaryData.push(image_data.charCodeAt(i));
+        }
+        return binaryData;
     }
 
     async reset_mcu(uart) {

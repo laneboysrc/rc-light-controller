@@ -863,16 +863,7 @@ var app = (function () {
 
         try {
             firmware = parse_firmware_structure(intel_hex_data);
-            config = parse_configuration();
-            local_leds = parse_leds(SECTION_LOCAL_LEDS);
-            slave_leds = parse_leds(SECTION_SLAVE_LEDS);
-            light_programs = disassemble_light_programs();
-            gamma_object = parse_gamma();
-
-            update_ui();
-
-            el.light_programs.value = light_programs;
-            ui.update_editor();
+            parse_firmware_binary();
         } catch (e) {
             window.alert(
                 'Unable to load Intel-hex formatted firmware image:\n' + e
@@ -880,6 +871,19 @@ var app = (function () {
         }
     };
 
+    // *************************************************************************
+    var parse_firmware_binary = function () {
+        config = parse_configuration();
+        local_leds = parse_leds(SECTION_LOCAL_LEDS);
+        slave_leds = parse_leds(SECTION_SLAVE_LEDS);
+        light_programs = disassemble_light_programs();
+        gamma_object = parse_gamma();
+
+        update_ui();
+
+        el.light_programs.value = light_programs;
+        ui.update_editor();
+    }
 
     // *************************************************************************
     var parse_light_program_code = function (light_programs) {
@@ -1735,6 +1739,7 @@ var app = (function () {
         }
     };
 
+    // *************************************************************************
     var read_firmware_from_flash = async function () {
         el.flash_progress.value = 0;
         el.flash_heading.textContent = 'Reading firmware ...';
@@ -1763,13 +1768,15 @@ var app = (function () {
         if (bin.length) {
             el.flash_dialog.classList.add('hidden');
             el.flash_button.removeEventListener('click', button_pressed);
+
+            firmware = {data: bin, offset: find_magic_markers(bin)};
+            parse_firmware_binary();
         }
         else {
             el.flash_button.textContent = 'Close';
             el.flash_button.disabled = false;
             el.flash_message.classList.add('error');
         }
-
     };
 
     // *************************************************************************
