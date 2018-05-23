@@ -56,6 +56,7 @@
 
 * Make `pre-processor` a configuration in the drop-down box
 
+* Fix table for ground fault not lining up
 
 # General improvements
 
