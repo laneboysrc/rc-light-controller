@@ -1,21 +1,5 @@
-/*jslint browser: true, bitwise: true, vars: true */
 
-/*
-    UART API (modeled after Pythons serial module)
-
-    .open(baudrate, bits, parity, stopbits)
-    .readline()
-    .write()
-    .close()
-    .setTimeout()
-
-    Callbacks:
-        progress
-        message
-
-*/
-
-class _lpc8xx_isp {
+class lpc8xx_isp {
     constructor() {
         this.progressCallback = null;
         this.messageCallback = null;
@@ -302,6 +286,7 @@ class _lpc8xx_isp {
             success = true;
         }
         catch (e) {
+            console.dir(e);
             this.message('Error: ' + e);
         }
         finally {
@@ -329,7 +314,7 @@ class _lpc8xx_isp {
             this.message('Done.');
         }
         catch (e) {
-            this.message(e);
+            this.message('Error: ' + e);
         }
         finally {
             await uart.close();
@@ -352,5 +337,3 @@ class _lpc8xx_isp {
     }
 
 }
-
-var lpc8xx_isp = new _lpc8xx_isp();

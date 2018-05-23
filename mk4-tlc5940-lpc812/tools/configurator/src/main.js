@@ -1,5 +1,5 @@
 'use strict';
-/*jslint browser: true, bitwise: true, vars: true */
+
 /*global emitter, symbols, CodeMirror, ui, gamma, disassembler,
     intel_hex, parser, default_firmware_image, default_light_program,
     FileReader, Blob, saveAs, preprocessor, chrome_uart, lpc8xx_isp
@@ -1698,20 +1698,37 @@ var app = (function () {
         let config = get_config();
         assemble_firmware(config);
 
-        if (await lpc8xx_isp.flash(new chrome_uart(), el.flash_serial_port.value, firmware.data)) {
+        let mk4_isp = new lpc8xx_isp();
+
+        mk4_isp.onMessageCallback = function (message) {
+            el.flash_message.textContent = message;
+        };
+
+        mk4_isp.onProgressCallback = function (progress) {
+            el.flash_progress.value = progress;
+            // Once we receive a progress callback flashing has started,
+            // so we disable the cancel button.
+            el.flash_button.disabled = false;
+        };
+
+        function button_pressed() {
+            mk4_isp.cancel();
             el.flash_dialog.classList.add('hidden');
+            el.flash_button.removeEventListener('click', button_pressed);
+        }
+
+        el.flash_button.addEventListener('click', button_pressed);
+
+        if (await mk4_isp.flash(new chrome_uart(), el.flash_serial_port.value, firmware.data)) {
+            el.flash_dialog.classList.add('hidden');
+            el.flash_button.removeEventListener('click', button_pressed);
+
         }
         else {
             el.flash_button.textContent = 'Close';
             el.flash_button.disabled = false;
             el.flash_message.classList.add('error');
         }
-    };
-
-    // *************************************************************************
-    var flash_dialog_button_pressed = function () {
-        lpc8xx_isp.cancel();
-        el.flash_dialog.classList.add('hidden');
     };
 
     // *************************************************************************
@@ -1907,19 +1924,6 @@ var app = (function () {
                 select_page(selected_page);
             });
         }
-
-        el.flash_button.addEventListener('click', flash_dialog_button_pressed);
-
-        lpc8xx_isp.onMessageCallback = function (message) {
-            el.flash_message.textContent = message;
-        };
-
-        lpc8xx_isp.onProgressCallback = function (progress) {
-            el.flash_progress.value = progress;
-            // Once we receive a progress callback flashing has started,
-            // so we disable the cancel button.
-            el.flash_button.disabled = false;
-        };
 
         update_serial_ports();
         init_assembler();

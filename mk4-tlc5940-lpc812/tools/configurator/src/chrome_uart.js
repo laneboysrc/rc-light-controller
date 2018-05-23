@@ -1,9 +1,11 @@
 /*global chrome */
 
-/*
+/*  API:
+
     .open(port, baudrate, bits, parity, stopbits)
+    .read(count)
     .readline()
-    .write()
+    .write(data)
     .close()
     .setTimeout(timeout)
 */
@@ -17,6 +19,7 @@ class chrome_uart {
         this.readlineResolver = undefined;
         this.readTimeoutTimer = undefined;
         this.timeoutMs = 0;
+        this.eol = '\n';
     }
 
     open(port, baudrate) {
@@ -61,7 +64,7 @@ class chrome_uart {
 
         this.receiveBuffer += received;
 
-        let crlf_index = this.receiveBuffer.indexOf('\n');
+        let crlf_index = this.receiveBuffer.indexOf(this.eol);
 
         if (this.readlineResolver && crlf_index >= 0) {
             if (this.readTimeoutTimer) {
@@ -69,10 +72,10 @@ class chrome_uart {
                 this.readTimeoutTimer = undefined;
             }
 
-            let parts = this.receiveBuffer.split('\n', 2);
+            let parts = this.receiveBuffer.split(this.eol, 2);
             this.receiveBuffer = parts[1];
 
-            this.readlineResolver(parts[0] + '\n');
+            this.readlineResolver(parts[0] + this.eol);
             this.readlineResolver = undefined;
         }
         else if (this.readResolver  &&  this.receiveBuffer.length >= this.readCount) {
@@ -135,8 +138,11 @@ class chrome_uart {
     readline() {
         // console.log('readline', receiveBuffer);
 
-        if (this.receivedLines.length) {
-            return this.receivedLines.shift();
+        let crlf_index = this.receiveBuffer.indexOf(this.eol);
+        if (crlf_index >= 0) {
+            let parts = this.receiveBuffer.split(this.eol, 2);
+            this.receiveBuffer = parts[1];
+            return parts[0] + this.eol;
         }
 
         return new Promise(resolve => {
