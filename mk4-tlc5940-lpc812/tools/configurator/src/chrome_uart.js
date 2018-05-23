@@ -12,8 +12,9 @@ class chrome_uart {
     constructor() {
         this.connectionId = undefined;
         this.receiveBuffer = '';
-        this.receivedLines = [];
-        this.readLineResolver = undefined;
+        this.readResolver = undefined;
+        this.readCount = 0;
+        this.readlineResolver = undefined;
         this.readTimeoutTimer = undefined;
         this.timeoutMs = 0;
     }
@@ -58,52 +59,81 @@ class chrome_uart {
 
         // console.log('receiveCallback "' + received + '"');
 
-        for (let c of received) {
-            this.receiveBuffer += c;
-            if (c == '\n') {
-                this.receivedLines.push(this.receiveBuffer);
-                this.receiveBuffer = '';
-            }
-        }
+        this.receiveBuffer += received;
 
-        if (this.readLineResolver && this.receivedLines.length) {
+        let crlf_index = this.receiveBuffer.indexOf('\n');
+
+        if (this.readlineResolver && crlf_index >= 0) {
             if (this.readTimeoutTimer) {
                 clearTimeout(this.readTimeoutTimer);
                 this.readTimeoutTimer = undefined;
             }
 
-            let line = this.receivedLines.shift();
-            // console.log('readline => ', line);
-            this.readLineResolver(line);
-            this.readLineResolver = undefined;
-            return;
+            let parts = this.receiveBuffer.split('\n', 2);
+            this.receiveBuffer = parts[1];
+
+            this.readlineResolver(parts[0] + '\n');
+            this.readlineResolver = undefined;
         }
+        else if (this.readResolver  &&  this.receiveBuffer.length >= this.readCount) {
+            if (this.readTimeoutTimer) {
+                clearTimeout(this.readTimeoutTimer);
+                this.readTimeoutTimer = undefined;
+            }
+
+            let result = this.receiveBuffer.substr(0, this.readCount);
+            this.receiveBuffer = this.receiveBuffer.substr(this.readCount);
+            this.readResolver(result);
+            this.readResolver = undefined;
+        }
+
         // console.log('receiveCallback end', receiveBuffer, receivedLines);
     }
 
     readTimeoutHandler() {
+        // console.log('readTimeoutHandler');
+
         clearTimeout(this.readTimeoutTimer);
         this.readTimeoutTimer = undefined;
-        if (this.readLineResolver) {
-            let line = this.receiveBuffer;
 
-            if (this.receivedLines.length) {
-                line = this.receivedLines.shift();
-            }
+        if (this.readlineResolver) {
+            this.readlineResolver(this.receiveBuffer);
+            this.readlineResolver = undefined;
+            return;
+        }
 
-            // console.log('readline timeout => ', line);
-            this.readLineResolver(line);
-            this.readLineResolver = undefined;
+        if (this.readResolver) {
+            this.readResolver(this.receiveBuffer);
+            this.readResolver = undefined;
         }
     }
 
     setTimeout(timeout) {
-        // console.log('setUartTimeout', timeout);
+        // console.log('setTimeout', timeout);
+
         this.timeoutMs = timeout * 1000;
     }
 
+    read(count) {
+        // console.log('read', receiveBuffer);
+
+        if (this.receiveBuffer.length >= count) {
+            let result = this.receiveBuffer.substr(0, count);
+            this.receiveBuffer = this.receiveBuffer.substr(count);
+            return result;
+        }
+
+        return new Promise(resolve => {
+            if (this.timeoutMs) {
+                this.readTimeoutTimer = setTimeout(this.readTimeoutHandler.bind(this), this.timeoutMs);
+            }
+            this.readCount = count;
+            this.readResolver = resolve;
+        });
+    }
+
     readline() {
-        // console.log('readline', receiveBuffer, receivedLines);
+        // console.log('readline', receiveBuffer);
 
         if (this.receivedLines.length) {
             return this.receivedLines.shift();
@@ -113,7 +143,7 @@ class chrome_uart {
             if (this.timeoutMs) {
                 this.readTimeoutTimer = setTimeout(this.readTimeoutHandler.bind(this), this.timeoutMs);
             }
-            this.readLineResolver = resolve;
+            this.readlineResolver = resolve;
         });
     }
 
