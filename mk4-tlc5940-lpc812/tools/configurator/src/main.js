@@ -66,7 +66,8 @@ var app = (function () {
         TEST: 99
     };
 
-    var hasUART = (typeof chrome !== 'undefined'  &&  chrome.serial);
+    var has_uart = (typeof chrome !== 'undefined'  &&  chrome.serial);
+    var serial_ports = {'dummy': 'dummy'};
 
     // var ESC_FORWARD_BRAKE_REVERSE_TIMEOUT = 'Forward/Brake/Reverse with timeout';
     // var ESC_FORWARD_BRAKE_REVERSE = 'Forward/Brake/Reverse no timeout';
@@ -1619,18 +1620,69 @@ var app = (function () {
     };
 
     // *************************************************************************
-    var update_flashing = function () {
-        if (hasUART) {
-            document.querySelectorAll('.lpc8xx').forEach(e => {
-                e.classList.remove('hidden');
-            });
-            el.flash.disabled = false;
-            el.read.disabled = false;
-        }
-        else {
+    var update_serial_ports = function () {
+        if (!has_uart) {
             el.flash.disabled = true;
             el.read.disabled = true;
+            return;
         }
+
+        chrome.serial.getDevices((ports) => {
+            let current_ports = {};
+            ports.forEach(port => {
+                current_ports[port.path] = port.displayName;
+            });
+
+            let changed = false;
+            // Check whether ports were added
+            for (let dev in current_ports) {
+                if (!serial_ports.hasOwnProperty(dev)) {
+                    changed = true;
+                }
+            }
+
+            // Check whether ports were removed
+            for (let dev in serial_ports) {
+                if (!current_ports.hasOwnProperty(dev)) {
+                    changed = true;
+                }
+            }
+
+            if (changed) {
+                serial_ports = current_ports;
+                let current_value = el.flash_serial_port.value;
+
+                // Clear the current options
+                while (el.flash_serial_port.options.length) {
+                    el.flash_serial_port.remove(0);
+                }
+
+                Object.keys(serial_ports).sort().forEach(path => {
+                    let name = serial_ports[path];
+                    let label = path + ' (' + name + ')';
+                    el.flash_serial_port.add(new Option(label, path));
+                });
+
+                if (!el.flash_serial_port.options.length) {
+                    el.flash_serial_port.add(new Option('(no serial port found)', '0'));
+                    el.flash.disabled = true;
+                    el.read.disabled = true;
+                }
+                else {
+                    el.flash.disabled = false;
+                    el.read.disabled = false;
+                }
+
+                if (serial_ports.hasOwnProperty(current_value)) {
+                    el.flash_serial_port.value = current_value;
+                }
+                else {
+                    el.flash_serial_port.selectedIndex = 0;
+                }
+            }
+
+            setTimeout(update_serial_ports, 3000);
+        });
     };
 
     // *************************************************************************
@@ -1639,16 +1691,18 @@ var app = (function () {
         el.flash_heading.textContent = 'Flashing ...';
         el.flash_button.disabled = true;
         el.flash_message.textContent = '';
+        el.flash_message.classList.remove('error');
         el.flash_dialog.classList.remove('hidden');
 
         let config = get_config();
         assemble_firmware(config);
 
-        if (await lpc8xx_isp.flash(new chrome_uart(), '/dev/ttyUSB0', firmware.data)) {
+        if (await lpc8xx_isp.flash(new chrome_uart(), el.flash_serial_port.value, firmware.data)) {
             el.flash_dialog.classList.add('hidden');
         }
         else {
             el.flash_button.disabled = false;
+            el.flash_message.classList.add('error');
         }
     };
 
@@ -1859,7 +1913,7 @@ var app = (function () {
         });
 
 
-        update_flashing();
+        update_serial_ports();
         init_assembler();
         load_default_firmware();
         select_page('config_hardware');

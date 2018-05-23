@@ -298,7 +298,7 @@ class _lpc8xx_isp {
             success = true;
         }
         catch (e) {
-            this.message(e);
+            this.message('Error: ' + e);
         }
         finally {
             await uart.close();
