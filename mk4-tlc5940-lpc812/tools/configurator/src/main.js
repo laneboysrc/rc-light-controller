@@ -1608,8 +1608,8 @@ var app = (function () {
 
         if (selected_page == 'testing') {
             // FIXME: choose appropriate port and baudrate
-            // preprocessor_simulator.init('usb');
-            preprocessor_simulator.init('/dev/ttyUSB0', parseInt(el.baudrate.value, 10));
+            preprocessor_simulator.init('usb');
+            // preprocessor_simulator.init('/dev/ttyUSB0', parseInt(el.baudrate.value, 10));
         }
         else {
             preprocessor_simulator.disconnect();
