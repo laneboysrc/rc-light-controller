@@ -54,6 +54,141 @@ class _preprocessor_uart {
 }
 
 
+class _preprocessor_webusb {
+    constructor(parent) {
+        this.parent = parent;
+        this.elWebusbConnect = document.getElementById('webusb-connect');
+        this.elResponse = document.getElementById('response');
+        this.webusb_device;
+    }
+
+    async init() {
+        // FIXME: we need to remove those event listeners?!
+        navigator.usb.addEventListener('connect', this.webusb_device_connected.bind(this));
+        navigator.usb.addEventListener('disconnect', this.webusb_device_disconnected.bind(this));
+
+        let devices = await navigator.usb.getDevices();
+        if (devices.length) {
+            this.connect(devices[0]);
+        }
+        else {
+            // Show the connect button
+            // FIXME: button is in parent!
+            this.elWebusbConnect.style.visibility = 'visible';
+            this.elWebusbConnect.addEventListener('click', async (event) => {
+                event.preventDefault();
+                const options = {filters:[{vendorId: VENDOR_ID}]};
+                let device;
+                try {
+                    device = await navigator.usb.requestDevice(options);
+                    if (device) {
+                        await this.connect(device);
+                        if (this.webusb_device) {
+                            this.elWebusbConnect.style.visibility = 'hidden';
+                        }
+                    }
+                }
+                catch (e) {
+                    this.parent.logger.log('requestDevice failed:' + e);
+                }
+            });
+        }
+    }
+
+    async connect(device) {
+        try {
+            await device.open();
+            if (device.configuration === null) {
+                await device.selectConfiguration(1);
+            }
+
+            await device.claimInterface(TEST_INTERFACE);
+        }
+        catch (e) {
+            this.parent.logger.error('Failed to open the device', e);
+            return;
+        }
+
+        this.elResponse.textContent =
+            'Connected to Light Controller with serial number ' + device.serialNumber;
+        this.webusb_device = device;
+        this.send_data();
+        this.receive_data();
+    }
+
+    async disconnect() {
+        if (this.webusb_device) {
+            try {
+                await this.webusb_device.close();
+            }
+            finally {
+                this.webusb_device = undefined;
+                this.elResponse.textContent = ' ';
+            }
+        }
+
+        navigator.usb.removeEventListener('connect', this.webusb_device_connected.bind(this));
+        navigator.usb.removeEventListener('disconnect', this.webusb_device_disconnected.bind(this));
+    }
+
+    async send_data() {
+        let data = this.parent.build_preprocessor_packet();
+
+        try {
+            let result = await this.webusb_device.transferOut(TEST_EP_OUT, data);
+            if (result.status == 'ok') {
+                setTimeout(this.send_data.bind(this), 20);
+            }
+            else {
+                this.parent.logger.error('transferOut() failed:', result.status);
+            }
+        }
+        catch (e) {
+            this.parent.logger.error('transferOut() exception:', e);
+            return;
+        }
+    }
+
+    async receive_data() {
+        for (;;) {
+            try {
+                let result = await this.webusb_device.transferIn(TEST_EP_IN, EP_SIZE);
+                if (result.status == 'ok') {
+                    const decoder = new TextDecoder('utf-8');
+                    const value = decoder.decode(result.data);
+                    this.parent.diagnostics(value);
+                }
+                else {
+                    this.parent.logger.error('transferIn() failed:', result.status);
+                }
+            }
+            catch (e) {
+                this.parent.logger.error('transferIn() exception:', e);
+                return;
+            }
+        }
+    }
+
+    webusb_device_connected(connection_event) {
+        const device = connection_event.device;
+        this.parent.logger.log('USB device connected:', device);
+        if (!this.webusb_device) {
+            if (device && device.vendorId == VENDOR_ID) {
+                this.connect(device);
+            }
+        }
+    }
+
+    webusb_device_disconnected(connection_event) {
+        this.parent.logger.log('USB device disconnected:', connection_event);
+        const disconnected_device = connection_event.device;
+        if (this.webusb_device &&  disconnected_device == this.webusb_device) {
+            this.webusb_device = undefined;
+            this.elResponse.textContent = ' ';
+        }
+    }
+}
+
 class preprocessor {
     constructor() {
         this.logger = console;
@@ -62,17 +197,16 @@ class preprocessor {
         this.startupMode = false;
 
         this.elCH3 = document.getElementById('ch3');
+        this.elResponse = document.getElementById('response');
         this.elDiagnostics = document.getElementById('diagnostics');
         this.elDiagnosticsMessages = document.getElementById('diagnostics-messages');
         this.elMomentary = document.getElementById('momentary');
         this.elNotConnected = document.getElementById('not-connected');
-        this.elResponse = document.getElementById('response');
         this.elStartupMode = document.getElementById('startup-mode');
         this.elSteering = document.getElementById('steering');
         this.elSteeringNeutral = document.getElementById('steering-neutral');
         this.elThrottle = document.getElementById('throttle');
         this.elThrottleNeutral = document.getElementById('throttle-neutral');
-        this.elWebusbConnect = document.getElementById('webusb-connect');
 
         this.webusb_device = undefined;
         this.uart = undefined;
@@ -225,149 +359,7 @@ class preprocessor {
     }
 
     // *************************************************************************
-    async webusb_connect(device) {
-        try {
-            await device.open();
-            if (device.configuration === null) {
-                await device.selectConfiguration(1);
-            }
-
-            await device.claimInterface(TEST_INTERFACE);
-        }
-        catch (e) {
-            this.logger.error('Failed to open the device', e);
-            return;
-        }
-
-        this.elResponse.textContent =
-            'Connected to Light Controller with serial number ' + device.serialNumber;
-        this.webusb_device = device;
-        this.webusb_send_data();
-        this.webusb_receive_data();
-    }
-
-    // *************************************************************************
-    async webusb_disconnect() {
-        if (this.webusb_device) {
-            try {
-                await this.webusb_device.close();
-            }
-            finally {
-                this.webusb_device = undefined;
-                this.elResponse.textContent = ' ';
-            }
-        }
-    }
-
-    // *************************************************************************
-    async webusb_send_data() {
-        let data = this.build_preprocessor_packet();
-
-        try {
-            let result = await this.webusb_device.transferOut(TEST_EP_OUT, data);
-            if (result.status == 'ok') {
-                setTimeout(this.webusb_send_data.bind(this), 20);
-            }
-            else {
-                this.logger.error('transferOut() failed:', result.status);
-            }
-        }
-        catch (e) {
-            this.logger.error('transferOut() exception:', e);
-            return;
-        }
-    }
-
-    // *************************************************************************
-    async webusb_receive_data() {
-        for (;;) {
-            try {
-                let result = await this.webusb_device.transferIn(TEST_EP_IN, EP_SIZE);
-                if (result.status == 'ok') {
-                    const decoder = new TextDecoder('utf-8');
-                    const value = decoder.decode(result.data);
-                    this.diagnostics(value);
-                }
-                else {
-                    this.logger.error('transferIn() failed:', result.status);
-                }
-            }
-            catch (e) {
-                this.logger.error('transferIn() exception:', e);
-                return;
-            }
-        }
-    }
-
-    // *************************************************************************
-    webusb_device_connected(connection_event) {
-        const device = connection_event.device;
-        this.logger.log('USB device connected:', device);
-        if (!this.webusb_device) {
-            if (device && device.vendorId == VENDOR_ID) {
-                this.webusb_connect(device);
-            }
-        }
-    }
-
-    // *************************************************************************
-    webusb_device_disconnected(connection_event) {
-        this.logger.log('USB device disconnected:', connection_event);
-        const disconnected_device = connection_event.device;
-        if (this.webusb_device &&  disconnected_device == this.webusb_device) {
-            this.webusb_disconnect();
-        }
-    }
-
-    // *************************************************************************
-    async webusb_init() {
-        // Check if the browser supports WebUSB. If not, show a message
-        // to the user.
-        if (typeof navigator.usb === 'undefined') {
-            document.getElementById('webusb-not-available').classList.remove('hidden');
-        }
-        else {
-            this.elDiagnostics.classList.remove('hidden');
-
-            navigator.usb.addEventListener('connect', this.webusb_device_connected.bind(this));
-            navigator.usb.addEventListener('disconnect', this.webusb_device_disconnected.bind(this));
-
-            let devices = await navigator.usb.getDevices();
-            if (devices.length) {
-                this.webusb_connect(devices[0]);
-            }
-            else {
-                // Show the connect button
-                this.elWebusbConnect.style.visibility = 'visible';
-                this.elWebusbConnect.addEventListener('click', async (event) => {
-                    event.preventDefault();
-                    const options = {filters:[{vendorId: VENDOR_ID}]};
-                    let device;
-                    try {
-                        device = await navigator.usb.requestDevice(options);
-                        this.logger.log(device);
-                        if (device) {
-                            await this.webusb_connect(device);
-                            if (this.webusb_device) {
-                                this.elWebusbConnect.style.visibility = 'hidden';
-                            }
-                        }
-                    }
-                    catch (e) {
-                        this.logger.log('requestDevice failed:' + e);
-                    }
-                });
-            }
-        }
-    }
-
-
-
-
-    // *************************************************************************
     disconnect() {
-        this.webusb_disconnect();
-
         if (this.device) {
             this.device.disconnect();
             this.device = undefined;
@@ -376,20 +368,19 @@ class preprocessor {
 
     // *************************************************************************
     async init(port, baudrate) {
-        this.logger.log('init');
-
         this.elResponse.textContent = ' ';
+
         while (this.elDiagnosticsMessages.childElementCount > 0) {
             this.elDiagnosticsMessages.removeChild(this.elDiagnosticsMessages.lastChild);
         }
 
         if (port == 'usb') {
-            this.webusb_init();
+            this.device = new _preprocessor_webusb(this);
         }
         else {
             this.device = new _preprocessor_uart(this);
-            this.device.init(port, baudrate);
         }
+        this.device.init(port, baudrate);
 
         this.reset_ui();
     }
