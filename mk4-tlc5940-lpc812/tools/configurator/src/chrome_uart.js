@@ -112,12 +112,14 @@ class chrome_uart {
 
         if (this.readlineResolver) {
             this.readlineResolver(this.receiveBuffer);
+            this.receiveBuffer = '';
             this.readlineResolver = undefined;
             return;
         }
 
         if (this.readResolver) {
             this.readResolver(this.receiveBuffer);
+            this.receiveBuffer = '';
             this.readResolver = undefined;
         }
     }
@@ -174,11 +176,11 @@ class chrome_uart {
             let dataView = new Uint8Array(binaryData);
 
             for (let i=0; i<data.length; i+=1) {
-                if (data instanceof Array) {
-                    dataView[i] = data[i];
+                if (data.hasOwnProperty('charCodeAt')) {
+                    dataView[i] = data.charCodeAt(i);
                 }
                 else {
-                    dataView[i] = data.charCodeAt(i);
+                    dataView[i] = data[i];
                 }
             }
 

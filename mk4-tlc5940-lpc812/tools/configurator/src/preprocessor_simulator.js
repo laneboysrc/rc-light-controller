@@ -1,4 +1,4 @@
-/*global this.logger */
+/*global chrome_uart */
 
 const SLAVE_MAGIC_BYTE = 0x87;
 
@@ -13,12 +13,51 @@ const EP_SIZE = 64;
 
 const MAX_UART_LOG_LINES = 20;
 
+class _preprocessor_uart {
+    constructor(parent) {
+        this.parent = parent;
+        this.uart;
+    }
+
+    async init(port, baudrate) {
+        this.uart = new chrome_uart();
+        await this.uart.open(port, baudrate, 8, 'n', 1);
+        this.uart.setTimeout(0.1);
+
+        this.send_data();
+        this.receive_data();
+    }
+
+    async disconnect() {
+        if (this.uart) {
+            this.uart.close();
+            this.uart = undefined;
+        }
+    }
+
+    async send_data() {
+        if (this.uart) {
+            let data = this.parent.build_preprocessor_packet();
+            await this.uart.write(data);
+            setTimeout(this.send_data.bind(this), 20);
+        }
+    }
+
+    async receive_data() {
+        while (this.uart) {
+            let result = await this.uart.readline();
+            if (result.length > 0) {
+                this.parent.diagnostics(result);
+            }
+        }
+    }
+}
+
+
 class preprocessor {
     constructor() {
         this.logger = console;
 
-        this.throttle = 0;
-        this.steering = 0;
         this.ch3 = 0;
         this.startupMode = false;
 
@@ -36,6 +75,16 @@ class preprocessor {
         this.elWebusbConnect = document.getElementById('webusb-connect');
 
         this.webusb_device = undefined;
+        this.uart = undefined;
+
+        document.addEventListener('keydown', this.keydown_event_handler.bind(this));
+        document.addEventListener('keyup', this.keyup_event_handler.bind(this));
+        this.elSteeringNeutral.addEventListener('click', this.center_steering.bind(this));
+        this.elThrottleNeutral.addEventListener('click', this.center_throttle.bind(this));
+        this.elCH3.addEventListener('click', this.ch3_clicked.bind(this));
+        this.elCH3.addEventListener('mousedown', this.ch3_down.bind(this));
+        this.elCH3.addEventListener('mouseup', this.ch3_up.bind(this));
+        this.elStartupMode.addEventListener('change', this.startup_mode_changed.bind(this));
     }
 
     center_steering(event) {
@@ -48,9 +97,19 @@ class preprocessor {
         this.elThrottle.value = 0;
     }
 
-    ch3_changed(event) {
+    ch3_clicked(event) {
         event.preventDefault();
-        this.sendCh3(this);
+        this.sendCh3('click');
+    }
+
+    ch3_down(event) {
+        event.preventDefault();
+        this.sendCh3('down');
+    }
+
+    ch3_up(event) {
+        event.preventDefault();
+        this.sendCh3('up');
     }
 
     startup_mode_changed() {
@@ -82,19 +141,18 @@ class preprocessor {
         this.startupMode = mode ? 1 : 0;
     }
 
+    // *************************************************************************
     reset_ui() {
         this.startupMode = true;
-        this.steering = 0;
-        this.throttle = 0;
         this.ch3 = 0;
-
-        this.elSteering.value = this.steering;
-        this.elThrottle.value = this.throttle;
+        this.elSteering.value = 0;
+        this.elThrottle.value = 0;
         this.elStartupMode.checked = this.startupMode;
 
         this.sendStartup(this.startupMode);
     }
 
+    // *************************************************************************
     keydown_event_handler(event) {
         const key = event.key.toLowerCase();
         if (CH3_KEYS.indexOf(key) >= 0) {
@@ -107,6 +165,7 @@ class preprocessor {
         return true;
     }
 
+    // *************************************************************************
     keyup_event_handler(event) {
         const key = event.key.toLowerCase();
         if (CH3_KEYS.indexOf(key) >= 0) {
@@ -115,6 +174,7 @@ class preprocessor {
         return true;
     }
 
+    // *************************************************************************
     diagnostics(msg) {
         const lines = msg.trim().split('\n');
         for (msg of lines) {
@@ -136,13 +196,35 @@ class preprocessor {
         }
     }
 
-    send_webusb(cmd, value, callback) {
-        if (callback) {
-            callback(this.webusb_device ? 'OK' : 'NOT CONNECTED');
-            // callback('OK');
+    // *************************************************************************
+    build_preprocessor_packet() {
+        let st = parseInt(this.elSteering.value, 10);
+        if (st < 0) {
+            st = 256 + st;
         }
+
+        let th = parseInt(this.elThrottle.value, 10);
+        if (th < 0) {
+            th = 256 + th;
+        }
+
+        let last_byte = 0;
+        if (this.ch3) {
+            last_byte += 0x01;
+        }
+        if (this.startupMode) {
+            last_byte += 0x10;
+        }
+
+        let data = new Uint8ClampedArray(4);
+        data[0] = SLAVE_MAGIC_BYTE;
+        data[1] = st;
+        data[2] = th;
+        data[3] = last_byte;
+        return data;
     }
 
+    // *************************************************************************
     async webusb_connect(device) {
         try {
             await device.open();
@@ -164,6 +246,7 @@ class preprocessor {
         this.webusb_receive_data();
     }
 
+    // *************************************************************************
     async webusb_disconnect() {
         if (this.webusb_device) {
             try {
@@ -176,35 +259,14 @@ class preprocessor {
         }
     }
 
+    // *************************************************************************
     async webusb_send_data() {
-        let st = this.steering;
-        if (st < 0) {
-            st = 256 + st;
-        }
-
-        let th = this.throttle;
-        if (th < 0) {
-            th = 256 + th;
-        }
-
-        let last_byte = 0;
-        if (this.ch3) {
-            last_byte += 0x01;
-        }
-        if (this.startupMode) {
-            last_byte += 0x10;
-        }
-
-        let data = new Uint8ClampedArray(4);
-        data[0] = SLAVE_MAGIC_BYTE;
-        data[1] = st;
-        data[2] = th;
-        data[3] = last_byte;
+        let data = this.build_preprocessor_packet();
 
         try {
             let result = await this.webusb_device.transferOut(TEST_EP_OUT, data);
             if (result.status == 'ok') {
-                setTimeout(this.webusb_send_data, 20);
+                setTimeout(this.webusb_send_data.bind(this), 20);
             }
             else {
                 this.logger.error('transferOut() failed:', result.status);
@@ -216,6 +278,7 @@ class preprocessor {
         }
     }
 
+    // *************************************************************************
     async webusb_receive_data() {
         for (;;) {
             try {
@@ -236,6 +299,7 @@ class preprocessor {
         }
     }
 
+    // *************************************************************************
     webusb_device_connected(connection_event) {
         const device = connection_event.device;
         this.logger.log('USB device connected:', device);
@@ -246,6 +310,7 @@ class preprocessor {
         }
     }
 
+    // *************************************************************************
     webusb_device_disconnected(connection_event) {
         this.logger.log('USB device disconnected:', connection_event);
         const disconnected_device = connection_event.device;
@@ -254,6 +319,7 @@ class preprocessor {
         }
     }
 
+    // *************************************************************************
     async webusb_init() {
         // Check if the browser supports WebUSB. If not, show a message
         // to the user.
@@ -295,10 +361,20 @@ class preprocessor {
         }
     }
 
+
+
+
+    // *************************************************************************
     disconnect() {
         this.webusb_disconnect();
+
+        if (this.device) {
+            this.device.disconnect();
+            this.device = undefined;
+        }
     }
 
+    // *************************************************************************
     async init(port, baudrate) {
         this.logger.log('init');
 
@@ -311,17 +387,9 @@ class preprocessor {
             this.webusb_init();
         }
         else {
-            // FIXME: add UART
+            this.device = new _preprocessor_uart(this);
+            this.device.init(port, baudrate);
         }
-
-        document.addEventListener('keydown', this.keydown_event_handler.bind(this));
-        document.addEventListener('keyup', this.keyup_event_handler.bind(this));
-        this.elSteeringNeutral.addEventListener('click', this.center_steering.bind(this));
-        this.elThrottleNeutral.addEventListener('click', this.center_throttle.bind(this));
-        this.elCH3.addEventListener('click', this.ch3_changed.bind(this).bind('click'));
-        this.elCH3.addEventListener('mousedown', this.ch3_changed.bind(this).bind('down'));
-        this.elCH3.addEventListener('mouseup', this.ch3_changed.bind(this).bind('up'));
-        this.elStartupMode.addEventListener('change', this.startup_mode_changed.bind(this));
 
         this.reset_ui();
     }

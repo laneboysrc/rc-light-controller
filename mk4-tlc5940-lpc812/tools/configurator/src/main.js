@@ -521,6 +521,10 @@ var app = (function () {
                 el.mode_test
             ]);
 
+            // FIXME: testing is only shown when
+            //  mk4: uart port available AND preprocessor-input
+            //  mk5: webusb OR (uart port available AND preprocessor-input)
+            //
             update_menu_visibility([
                 'config_hardware',
                 'config_mode',
@@ -1603,7 +1607,9 @@ var app = (function () {
         ui.refresh_editor();
 
         if (selected_page == 'testing') {
-            preprocessor_simulator.init('usb');
+            // FIXME: choose appropriate port and baudrate
+            // preprocessor_simulator.init('usb');
+            preprocessor_simulator.init('/dev/ttyUSB0', parseInt(el.baudrate.value, 10));
         }
         else {
             preprocessor_simulator.disconnect();
