@@ -33,7 +33,7 @@ TERMINAL_PROGRAM := miniterm.py /dev/ttyUSB0 -b 115200
 PREPROCESSOR_SIMULATOR := $(GENERIC_TOOL_PATH)preprocessor-simulator.py -b 115200
 CONFIGURATION_VALIDATION_TOOL := $(TOOL_PATH)validate_image_file.py
 LIGHT_PROGRAM_ASSEMBLER_PATH := $(TOOL_PATH)light-program-assembler
-DEFAULT_FIRMWARE_IMAGE_JS := $(TOOL_PATH)configurator/src/default_firmware_image.js
+DEFAULT_FIRMWARE_IMAGE_JS := $(TOOL_PATH)configurator/src/default_firmware_image_mk4.js
 TEXT2JS := $(TOOL_PATH)text2js.py
 
 
@@ -182,7 +182,7 @@ config_light_programs.c: $(DEFAULT_LIGHT_PROGRAM)
 
 default_firmware_image: $(TARGET_HEX)
 	@echo [TEXT2JS] $<
-	$(ECHO) $(TEXT2JS) $< default_firmware_image >$(DEFAULT_FIRMWARE_IMAGE_JS)
+	$(ECHO) $(TEXT2JS) $< default_firmware_image_mk4 >$(DEFAULT_FIRMWARE_IMAGE_JS)
 	@echo [TEXT2JS] $(DEFAULT_LIGHT_PROGRAM)
 	$(ECHO) $(TEXT2JS) $(DEFAULT_LIGHT_PROGRAM) default_light_program >>$(DEFAULT_FIRMWARE_IMAGE_JS)
 

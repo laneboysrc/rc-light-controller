@@ -38,7 +38,6 @@
 
 * Add MK5
   * When loading hex file, autodetect as per stack pointer location, and magic word for LPC
-  * `default_firmware_image` needs to depend on firmware
 
 * Fix table for ground fault not lining up
 

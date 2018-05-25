@@ -1,7 +1,7 @@
 'use strict';
 
 /*global emitter, symbols, CodeMirror, ui, gamma, disassembler,
-    intel_hex, parser, default_firmware_image, default_light_program,
+    intel_hex, parser, default_firmware_image_mk4, default_light_program,
     FileReader, Blob, saveAs, preprocessor, chrome_uart, lpc8xx_isp
     hardware_test_configuration, logger, chrome */
 
@@ -1151,7 +1151,7 @@ var app = (function () {
 
     // *************************************************************************
     var load_default_firmware = function () {
-        parse_firmware(default_firmware_image);
+        parse_firmware(default_firmware_image_mk4);
         default_firmware_version = config.firmware_version;
 
         // Instead of using the disassebled source code, we use the original
