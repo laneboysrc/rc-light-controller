@@ -857,19 +857,8 @@
       </div>
 
       <div id="testing" class="hidden">
-        <div class="box widebox">
-          <button id="webusb-connect">Connect</button>
-        </div>
-
-        <div id="webusb-not-available" class="widebox error hidden">
-          <i class="fa fa-exclamation-triangle"></i>
-
-          This browser does not support <a href="https://caniuse.com/#search=webusb" rel="nofollow" target="_blank">WebUSB</a>
-        </div>
-
-        <div id="not-connected" class="box error widebox">
-          <i class="fa fa-exclamation-triangle"></i>
-          Light Controller not connected
+        <div id="webusb-connect" class="box configuration widebox hidden">
+          <button id="webusb-connect-button">Connect</button>
         </div>
 
         <div class="preprocessor-page" id="preprocessor-simulator">
@@ -908,11 +897,6 @@
                     </div>
                 </div>
             </div>
-        </div>
-
-        <div class="widebox response">
-            <h2>Response</h2>
-            <div class="message" id="response"></div>
         </div>
 
         <div class="widebox response" id="diagnostics">

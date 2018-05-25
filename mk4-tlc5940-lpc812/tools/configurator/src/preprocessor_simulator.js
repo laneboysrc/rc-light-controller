@@ -58,12 +58,11 @@ class _preprocessor_webusb {
     constructor(parent) {
         this.parent = parent;
         this.elWebusbConnect = document.getElementById('webusb-connect');
-        this.elResponse = document.getElementById('response');
+        this.elWebusbConnectButton = document.getElementById('webusb-connect-button');
         this.webusb_device;
     }
 
     async init() {
-        // FIXME: we need to remove those event listeners?!
         navigator.usb.addEventListener('connect', this.webusb_device_connected.bind(this));
         navigator.usb.addEventListener('disconnect', this.webusb_device_disconnected.bind(this));
 
@@ -73,47 +72,9 @@ class _preprocessor_webusb {
         }
         else {
             // Show the connect button
-            // FIXME: button is in parent!
-            this.elWebusbConnect.style.visibility = 'visible';
-            this.elWebusbConnect.addEventListener('click', async (event) => {
-                event.preventDefault();
-                const options = {filters:[{vendorId: VENDOR_ID}]};
-                let device;
-                try {
-                    device = await navigator.usb.requestDevice(options);
-                    if (device) {
-                        await this.connect(device);
-                        if (this.webusb_device) {
-                            this.elWebusbConnect.style.visibility = 'hidden';
-                        }
-                    }
-                }
-                catch (e) {
-                    this.parent.logger.log('requestDevice failed:' + e);
-                }
-            });
+            this.elWebusbConnect.classList.remove('hidden');
+            this.elWebusbConnectButton.addEventListener('click', this.pair_device.bind('this'));
         }
-    }
-
-    async connect(device) {
-        try {
-            await device.open();
-            if (device.configuration === null) {
-                await device.selectConfiguration(1);
-            }
-
-            await device.claimInterface(TEST_INTERFACE);
-        }
-        catch (e) {
-            this.parent.logger.error('Failed to open the device', e);
-            return;
-        }
-
-        this.elResponse.textContent =
-            'Connected to Light Controller with serial number ' + device.serialNumber;
-        this.webusb_device = device;
-        this.send_data();
-        this.receive_data();
     }
 
     async disconnect() {
@@ -129,6 +90,9 @@ class _preprocessor_webusb {
 
         navigator.usb.removeEventListener('connect', this.webusb_device_connected.bind(this));
         navigator.usb.removeEventListener('disconnect', this.webusb_device_disconnected.bind(this));
+
+        this.elWebusbConnect.classList.add('hidden');
+        this.elWebusbConnectButton.removeEventListener('click', this.pair_device.bind('this'));
     }
 
     async send_data() {
@@ -169,6 +133,44 @@ class _preprocessor_webusb {
         }
     }
 
+    async pair_device(event) {
+        event.preventDefault();
+        const options = {filters:[{vendorId: VENDOR_ID}]};
+        let device;
+        try {
+            device = await navigator.usb.requestDevice(options);
+            if (device) {
+                await this.connect(device);
+                if (this.webusb_device) {
+                    this.elWebusbConnect.classList.add('hidden');
+                }
+            }
+        }
+        catch (e) {
+            this.parent.logger.log('requestDevice failed:' + e);
+        }
+    }
+
+    async connect(device) {
+        try {
+            await device.open();
+            if (device.configuration === null) {
+                await device.selectConfiguration(1);
+            }
+
+            await device.claimInterface(TEST_INTERFACE);
+        }
+        catch (e) {
+            this.parent.logger.error('Failed to open the device', e);
+            return;
+        }
+
+        this.parent.logger.log('Connected to Light Controller with serial number ' + device.serialNumber);
+        this.webusb_device = device;
+        this.send_data();
+        this.receive_data();
+    }
+
     webusb_device_connected(connection_event) {
         const device = connection_event.device;
         this.parent.logger.log('USB device connected:', device);
@@ -197,7 +199,6 @@ class preprocessor {
         this.startupMode = false;
 
         this.elCH3 = document.getElementById('ch3');
-        this.elResponse = document.getElementById('response');
         this.elDiagnostics = document.getElementById('diagnostics');
         this.elDiagnosticsMessages = document.getElementById('diagnostics-messages');
         this.elMomentary = document.getElementById('momentary');
@@ -248,6 +249,15 @@ class preprocessor {
 
     startup_mode_changed() {
         this.sendStartup(this.elStartupMode.checked);
+        if (this.startupTimer) {
+            clearTimeout(this.startupTimer);
+        }
+    }
+
+    clear_startup_mode() {
+        this.startupMode = false;
+        this.elStartupMode.checked = this.startupMode;
+        this.sendStartup(this.startupMode);
     }
 
     sendCh3(action) {
@@ -271,6 +281,14 @@ class preprocessor {
         if (mode) {
             this.elSteeringNeutral.click();
             this.elThrottleNeutral.click();
+            this.elSteering.disabled = true;
+            this.elThrottle.disabled = true;
+            this.elCH3.disabled = true;
+        }
+        else {
+            this.elSteering.disabled = false;
+            this.elThrottle.disabled = false;
+            this.elCH3.disabled = false;
         }
         this.startupMode = mode ? 1 : 0;
     }
@@ -281,9 +299,10 @@ class preprocessor {
         this.ch3 = 0;
         this.elSteering.value = 0;
         this.elThrottle.value = 0;
-        this.elStartupMode.checked = this.startupMode;
 
+        this.elStartupMode.checked = this.startupMode;
         this.sendStartup(this.startupMode);
+        this.startupTimer = setTimeout(this.clear_startup_mode.bind(this), 2000);
     }
 
     // *************************************************************************
@@ -368,8 +387,6 @@ class preprocessor {
 
     // *************************************************************************
     async init(port, baudrate) {
-        this.elResponse.textContent = ' ';
-
         while (this.elDiagnosticsMessages.childElementCount > 0) {
             this.elDiagnosticsMessages.removeChild(this.elDiagnosticsMessages.lastChild);
         }
