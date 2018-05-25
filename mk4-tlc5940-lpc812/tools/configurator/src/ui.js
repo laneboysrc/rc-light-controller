@@ -1,5 +1,4 @@
 'use strict';
-/*jslint browser: true, vars: true */
 /*global CodeMirror, tmpl */
 
 var ui = (function () {
@@ -9,7 +8,7 @@ var ui = (function () {
     // *************************************************************************
     var led_feature_click_handler = function (e) {
         var features_row = document.getElementById(e.target.name);
-        var visible = !Boolean(features_row.classList.contains('hidden'));
+        var visible = !features_row.classList.contains('hidden');
         var i;
 
         var features = document.getElementsByClassName('led_features');

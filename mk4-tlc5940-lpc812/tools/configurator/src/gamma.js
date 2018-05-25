@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 /*jslint browser: true, vars: true */
 
 var gamma = (function () {

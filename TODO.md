@@ -32,15 +32,21 @@
 # Configurator
 
 * nw.js based stand-alone program, and on-line WebUSB
+  * Use Babel? Babel-minification?
 
-* Integrate LPC812 programmer
-
-* Integrate preprocessor-simulator
-
-* WebUSB version needs to redirect to HTTPS on Github!
+* How to load latest version on Github?
 
 * Add MK5
   * When loading hex file, autodetect as per stack pointer location, and magic word for LPC
+  * `default_firmware_image` needs to depend on firmware
+
+* Fix table for ground fault not lining up
+
+* Add `local_switch_is_momentary` for MK5
+
+* Add `stand-alone` mode
+
+* Make `pre-processor` a configuration in the drop-down box
 
 * Configurator to have a shortcut for boilerplate for new light programs
     E.g. all LEDs pre-defined
@@ -50,13 +56,6 @@
     LED sequence is important. This could be as easy as translating names like
     'indicator' to the appropriate led[0..31] values.
 
-* Add `local_switch_is_momentary` for MK5
-
-* Add `stand-alone` mode
-
-* Make `pre-processor` a configuration in the drop-down box
-
-* Fix table for ground fault not lining up
 
 # General improvements
 

@@ -887,7 +887,7 @@ var app = (function () {
 
         el.light_programs.value = light_programs;
         ui.update_editor();
-    }
+    };
 
     // *************************************************************************
     var parse_light_program_code = function (light_programs) {
