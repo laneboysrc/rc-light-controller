@@ -69,8 +69,11 @@ var app = (function () {
     };
 
     var has_uart = (typeof chrome !== 'undefined'  &&  chrome.serial);
+    var has_webusb = (typeof navigator.usb !== 'undefined');
     var serial_ports = {'dummy': 'dummy'};
+    var number_of_serial_ports = 0;
     var preprocessor_simulator;
+    var preprocessor_simulator_disabled = true;
 
     // var ESC_FORWARD_BRAKE_REVERSE_TIMEOUT = 'Forward/Brake/Reverse with timeout';
     // var ESC_FORWARD_BRAKE_REVERSE = 'Forward/Brake/Reverse no timeout';
@@ -497,7 +500,9 @@ var app = (function () {
                     var menu_item = enabled_menu_items[i];
 
                     if (menu_item == page_name) {
-                        button.disabled = false;
+                        if (page_name != 'testing' || !preprocessor_simulator_disabled) {
+                            button.disabled = false;
+                        }
                         break;
                     }
                 }
@@ -1236,6 +1241,12 @@ var app = (function () {
 
 
     // *************************************************************************
+    var hardware_changed = function () {
+        update_visibility_from_ports();
+    };
+
+
+    // *************************************************************************
     var update_led_config = function () {
         function get_led_field(prefix, led_number, field_number) {
             var cell = document.getElementById(prefix + led_number + 'field' +
@@ -1633,12 +1644,50 @@ var app = (function () {
     };
 
     // *************************************************************************
-    var update_serial_ports = function () {
-        if (!has_uart) {
-            el.flash.disabled = true;
-            el.read.disabled = true;
+    var update_visibility_from_ports = function () {
+        if (el.hardware.value == 'mk4') {
+            if (number_of_serial_ports > 0) {
+                el.flash.disabled = false;
+                el.read.disabled = false;
+                preprocessor_simulator_disabled = false;
+            }
+            else {
+                el.flash.disabled = true;
+                el.read.disabled = true;
+                preprocessor_simulator_disabled = true;
+            }
+            update_section_visibility();
             return;
         }
+
+        if (el.hardware.value == 'mk5') {
+            if (has_webusb) {
+                el.flash.disabled = false;
+                el.read.disabled = false;
+            }
+            else {
+                el.flash.disabled = true;
+                el.read.disabled = true;
+            }
+
+            if ((number_of_serial_ports > 0)  ||  has_webusb) {
+                preprocessor_simulator_disabled = false;
+            }
+            else {
+                preprocessor_simulator_disabled = true;
+            }
+            update_section_visibility();
+            return;
+        }
+    };
+
+    // *************************************************************************
+    var update_serial_ports = function () {
+        if (!has_uart) {
+            return;
+        }
+
+        el.hardware_uart.classList.remove('hidden');
 
         chrome.serial.getDevices((ports) => {
             let current_ports = {};
@@ -1676,14 +1725,10 @@ var app = (function () {
                     el.flash_serial_port.add(new Option(label, path));
                 });
 
-                if (!el.flash_serial_port.options.length) {
+                number_of_serial_ports = el.flash_serial_port.options.length;
+
+                if (!number_of_serial_ports) {
                     el.flash_serial_port.add(new Option('(no serial port found)', '0'));
-                    el.flash.disabled = true;
-                    el.read.disabled = true;
-                }
-                else {
-                    el.flash.disabled = false;
-                    el.read.disabled = false;
                 }
 
                 if (serial_ports.hasOwnProperty(current_value)) {
@@ -1692,6 +1737,8 @@ var app = (function () {
                 else {
                     el.flash_serial_port.selectedIndex = 0;
                 }
+
+                update_visibility_from_ports();
             }
 
             setTimeout(update_serial_ports, 3000);
@@ -1962,6 +2009,8 @@ var app = (function () {
         el.flash.addEventListener('click', flash);
         el.read.addEventListener('click', read_firmware_from_flash);
 
+        el.hardware.addEventListener('change', hardware_changed, false);
+
         el.leds_clear.addEventListener('click', function () {
             if (window.confirm('Clear all LED configurations? This can not be undone.')) {
                 clear_leds();
@@ -1985,6 +2034,7 @@ var app = (function () {
         update_serial_ports();
         init_assembler();
         load_default_firmware();
+        update_visibility_from_ports();
         select_page('config_hardware');
     };
 

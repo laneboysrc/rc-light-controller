@@ -392,12 +392,17 @@ class preprocessor {
         }
 
         if (port == 'usb') {
-            this.device = new _preprocessor_webusb(this);
+            if (typeof navigator.usb !== 'undefined') {
+                this.device = new _preprocessor_webusb(this);
+            }
         }
         else {
             this.device = new _preprocessor_uart(this);
         }
-        this.device.init(port, baudrate);
+
+        if (this.device) {
+            this.device.init(port, baudrate);
+        }
 
         this.reset_ui();
     }

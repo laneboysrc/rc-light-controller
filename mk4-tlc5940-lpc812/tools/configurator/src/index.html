@@ -77,7 +77,7 @@
 
   <div class="body">
 
-    <nav class="menu box  ">
+    <nav class="menu box">
       <ul>
         <li><button data="config_hardware"><i class="fa fa-hdd-o"></i><span class="menu-label">Hardware</span></button></li>
         <li><button data="config_mode"><i class="fa fa-wrench"></i><span class="menu-label">Operating mode</span></button></li>
@@ -105,13 +105,13 @@
 
         <div>
           <select id="hardware">
-            <option value="0">Mk4 (NXP LPC812)</option>
-            <!-- <option value="1">MK5 (Microchip SAMD21, Arduino Zero)</option> -->
+            <option value="mk4">Mk4 (NXP LPC812)</option>
+            <!-- <option value="mk5">Mk5 (Microchip SAMD21, Arduino Zero)</option> -->
           </select>
           <span id="hardware_image" class="mk4"></span>
         </div>
 
-        <div id="hardware_uart">
+        <div id="hardware_uart" class="hidden">
           Programming port:
           <select id="flash_serial_port"></select>
         </div>
