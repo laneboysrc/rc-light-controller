@@ -1,7 +1,7 @@
 // Auto-generated file. Do not modify.
 //
 // Generated from file build/firmware.hex by text2js.py
-var default_firmware_image =
+var default_firmware_image_mk5 =
 ":1020000000100020654900005549000059490000B2\n" +
 ":1020100000000000000000000000000000000000C0\n" +
 ":102020000000000000000000000000005D4900000A\n" +

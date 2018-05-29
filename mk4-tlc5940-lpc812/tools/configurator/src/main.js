@@ -1,9 +1,9 @@
 'use strict';
 
 /*global emitter, symbols, CodeMirror, ui, gamma, disassembler,
-    intel_hex, parser, default_firmware_image_mk4, default_light_program,
-    FileReader, Blob, saveAs, preprocessor, chrome_uart, lpc8xx_isp
-    hardware_test_configuration, logger, chrome */
+    intel_hex, parser, default_firmware_image_mk4, default_firmware_image_mk5,
+    default_light_program, FileReader, Blob, saveAs, preprocessor, chrome_uart,
+    lpc8xx_isp hardware_test_configuration, logger, chrome */
 
 
 

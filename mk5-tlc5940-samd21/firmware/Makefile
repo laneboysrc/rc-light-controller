@@ -199,7 +199,7 @@ $(BUILD_DIR)/config_light_programs.c: $(DEFAULT_LIGHT_PROGRAM)
 
 default_firmware_image: $(TARGET_HEX)
 	@echo [TEXT2JS] $<
-	$(ECHO) $(TEXT2JS) $< default_firmware_image >$(DEFAULT_FIRMWARE_IMAGE_JS)
+	$(ECHO) $(TEXT2JS) $< default_firmware_image_mk5 >$(DEFAULT_FIRMWARE_IMAGE_JS)
 	@echo [TEXT2JS] $(DEFAULT_LIGHT_PROGRAM)
 	$(ECHO) $(TEXT2JS) $(DEFAULT_LIGHT_PROGRAM) default_light_program >>$(DEFAULT_FIRMWARE_IMAGE_JS)
 
