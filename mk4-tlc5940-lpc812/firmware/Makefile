@@ -43,7 +43,6 @@ SOURCES += main.c
 SOURCES += ch3_handler.c
 SOURCES += channel_reversing.c
 SOURCES += config.c
-SOURCES += config_light_programs.c
 SOURCES += config_lights.c
 SOURCES += drive_mode.c
 SOURCES += indicators.c
@@ -57,13 +56,9 @@ SOURCES += servo_reader.c
 SOURCES += uart_reader.c
 SOURCES += winch.c
 SOURCES += libs/printf/printf.c
-# SOURCES += hal/persistent_storage_lpc81x.c
-# SOURCES += hal/servo_output_lpc81x.c
-# SOURCES += hal/spi_lpc81x.c
 SOURCES += hal/startup_lpc81x.c
 SOURCES += hal/hal_lpc81x.c
-# SOURCES += hal/uart_lpc81x.c
-# SOURCES += hal/servo_reader_lpc81x.c
+SOURCES += $(BUILD_DIR)/config_light_programs.c
 
 INCLUDES := -I.
 INCLUDES += -I./hal
@@ -150,7 +145,7 @@ $(BUILD_DIR):
 	@echo [MKDIR] $@
 	@mkdir -p $@
 
-$(TARGET_ELF): $(BUILD_DIR) config_light_programs.c $(OBJECTS) $(LINKER_SCRIPT)
+$(TARGET_ELF): $(BUILD_DIR) $(OBJECTS) $(LINKER_SCRIPT)
 	@echo [LD] $@
 	$(ECHO) $(CC) $(LDFLAGS) $(OBJECTS) $(LIBS) -o $@
 
@@ -176,9 +171,11 @@ echosize: $(TARGET_ELF)
 	$(ECHO) $(SIZE) $(TARGET_ELF)
 	-@echo ''
 
-config_light_programs.c: $(DEFAULT_LIGHT_PROGRAM)
+$(BUILD_DIR)/config_light_programs.o: $(BUILD_DIR)/config_light_programs.c
+
+$(BUILD_DIR)/config_light_programs.c: $(DEFAULT_LIGHT_PROGRAM)
 	@echo [ASM] $@
-	$(ECHO) cd $(LIGHT_PROGRAM_ASSEMBLER_PATH) && $(MAKE) run RUN_OPTIONS="--include-name -o $(abspath config_light_programs.c) $(abspath $(DEFAULT_LIGHT_PROGRAM))"
+	$(ECHO) cd $(LIGHT_PROGRAM_ASSEMBLER_PATH) && $(MAKE) run RUN_OPTIONS="--include-name -o $(abspath $(BUILD_DIR)/config_light_programs.c) $(abspath $(DEFAULT_LIGHT_PROGRAM))"
 
 default_firmware_image: $(TARGET_HEX)
 	@echo [TEXT2JS] $<

@@ -36,7 +36,7 @@ TERMINAL_PROGRAM := miniterm.py -b 115200 /dev/ttyACM0
 PREPROCESSOR_SIMULATOR := $(GENERIC_TOOL_PATH)preprocessor-simulator.py -b 115200 /dev/ttyACM0
 CONFIGURATION_VALIDATION_TOOL := $(TOOL_PATH)validate_image_file.py
 LIGHT_PROGRAM_ASSEMBLER_PATH := $(TOOL_PATH)light-program-assembler
-DEFAULT_FIRMWARE_IMAGE_JS := $(TOOL_PATH)configurator/src/default_firmware_image.js
+DEFAULT_FIRMWARE_IMAGE_JS := $(TOOL_PATH)configurator/src/default_firmware_image_mk5.js
 TEXT2JS := $(TOOL_PATH)text2js.py
 BOSSAC := ~/.arduino15/packages/arduino/tools/bossac/1.7.0/bossac
 
@@ -61,12 +61,12 @@ SOURCES += $(SOURCE_PATH)/servo_output.c
 SOURCES += $(SOURCE_PATH)/servo_reader.c
 SOURCES += $(SOURCE_PATH)/uart_reader.c
 SOURCES += $(SOURCE_PATH)/winch.c
-SOURCES += ./config_light_programs.c
 SOURCES += hal/hal_samd21.c
 SOURCES += hal/startup_samd21.c
 SOURCES += hal/usb.c
 SOURCES += libs/usb/usb_requests.c
 SOURCES += libs/usb/samd/usb_samd.c
+SOURCES += $(BUILD_DIR)/config_light_programs.c
 
 INCLUDES += -I.
 INCLUDES += -I$(SOURCE_PATH)
@@ -191,11 +191,11 @@ echosize: $(TARGET_ELF)
 	-@echo ''
 
 
-$(BUILD_DIR)/config_light_programs.o: config_light_programs.c
+$(BUILD_DIR)/config_light_programs.o: $(BUILD_DIR)/config_light_programs.c
 
-config_light_programs.c: $(DEFAULT_LIGHT_PROGRAM)
+$(BUILD_DIR)/config_light_programs.c: $(DEFAULT_LIGHT_PROGRAM)
 	@echo [ASM] $@
-	$(ECHO) cd $(LIGHT_PROGRAM_ASSEMBLER_PATH) && $(MAKE) run RUN_OPTIONS="--include-name -o $(abspath config_light_programs.c) $(abspath $(DEFAULT_LIGHT_PROGRAM))"
+	$(ECHO) cd $(LIGHT_PROGRAM_ASSEMBLER_PATH) && $(MAKE) run RUN_OPTIONS="--include-name -o $(abspath $(BUILD_DIR)/config_light_programs.c) $(abspath $(DEFAULT_LIGHT_PROGRAM))"
 
 default_firmware_image: $(TARGET_HEX)
 	@echo [TEXT2JS] $<
@@ -247,7 +247,8 @@ clean:
 	$(ECHO) $(RM) -rf $(BUILD_DIR)
 
 # debug: $(TARGET_ELF_WITH_BOOTLOADER) unlock-bootloader
-	# $(ECHO) $(GDB) -q -ex "target extended-remote | $(FLASH_TOOL) -c \"gdb_port pipe\"" -ex "load" --tui $<
+# $(ECHO) $(GDB) -q -ex "target extended-remote | $(FLASH_TOOL) -c \"gdb_port pipe\"" -ex "load" --tui $<
+
 debug: $(TARGET_ELF_WITH_BOOTLOADER)
 	$(ECHO) $(GDB) -nx -quiet -command gdb.debug.script
 
