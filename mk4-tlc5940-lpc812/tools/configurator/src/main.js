@@ -3,7 +3,7 @@
 /*global emitter, symbols, CodeMirror, ui, gamma, disassembler,
     intel_hex, parser, default_firmware_image_mk4, default_firmware_image_mk5,
     default_light_program, FileReader, Blob, saveAs, preprocessor, chrome_uart,
-    lpc8xx_isp hardware_test_configuration, logger, chrome */
+    lpc8xx_isp hardware_test_configuration, logger, chrome, dfu */
 
 
 
@@ -92,6 +92,7 @@ var app = (function () {
     //     ESC_FORWARD_BRAKE: 3
     // };
 
+    var flash_function;
 
     var BAUDRATES = {
         0: 38400,
@@ -1243,6 +1244,16 @@ var app = (function () {
     // *************************************************************************
     var hardware_changed = function () {
         update_visibility_from_ports();
+
+        switch(el.hardware.value) {
+        case 'mk4':
+            flash_function = flash_mk4;
+            break;
+
+        case 'mk5':
+            flash_function = flash_mk5;
+            break;
+        }
     };
 
 
@@ -1682,7 +1693,7 @@ var app = (function () {
     };
 
     // *************************************************************************
-    var update_serial_ports = function () {
+    var discover_serial_ports = function () {
         if (!has_uart) {
             return;
         }
@@ -1741,12 +1752,122 @@ var app = (function () {
                 update_visibility_from_ports();
             }
 
-            setTimeout(update_serial_ports, 3000);
+            setTimeout(discover_serial_ports, 3000);
         });
     };
 
+    function getDFUDescriptorProperties(device) {
+        // Attempt to read the DFU functional descriptor
+        // TODO: read the selected configuration's descriptor
+        return device.readConfigurationDescriptor(0).then(
+            data => {
+                let configDesc = dfu.parseConfigurationDescriptor(data);
+                let funcDesc = null;
+                let configValue = device.settings.configuration.configurationValue;
+                if (configDesc.bConfigurationValue == configValue) {
+                    for (let desc of configDesc.descriptors) {
+                        if (desc.bDescriptorType == 0x21 && desc.hasOwnProperty("bcdDFUVersion")) {
+                            funcDesc = desc;
+                            break;
+                        }
+                    }
+                }
+
+                if (funcDesc) {
+                    return {
+                        WillDetach:            ((funcDesc.bmAttributes & 0x08) != 0),
+                        ManifestationTolerant: ((funcDesc.bmAttributes & 0x04) != 0),
+                        CanUpload:             ((funcDesc.bmAttributes & 0x02) != 0),
+                        CanDnload:             ((funcDesc.bmAttributes & 0x01) != 0),
+                        TransferSize:          funcDesc.wTransferSize,
+                        DetachTimeOut:         funcDesc.wDetachTimeOut,
+                        DFUVersion:            funcDesc.bcdDFUVersion
+                    };
+                } else {
+                    return {};
+                }
+            },
+            error => {}
+        );
+    }
+
     // *************************************************************************
-    var flash = async function () {
+    var flash = function () {
+        flash_function();
+    };
+
+    // *************************************************************************
+    var flash_mk5 = async function () {
+        let filters = [];
+        filters.push({ 'vendorId': 0x6666 });
+
+        let selectedDevice;
+        try {
+            selectedDevice = await navigator.usb.requestDevice({ 'filters': filters });
+        }
+        catch (error) {
+            console.log(error);
+            return;
+        }
+
+
+        let interfaces = dfu.findDeviceDfuInterfaces(selectedDevice);
+        if (interfaces.length == 0) {
+            console.log(selectedDevice);
+            // statusDisplay.textContent = "The selected device does not have any USB DFU interfaces.";
+            return;
+        }
+        let device = new dfu.Device(selectedDevice, interfaces[0]);
+        let manifestationTolerant = false;
+
+        try {
+            await device.open();
+        }
+        catch (error) {
+            // cleanup here
+            throw error;
+        }
+
+        let desc = {};
+        try {
+            desc = await getDFUDescriptorProperties(device);
+        }
+        catch (error) {
+            // cleanup here
+            throw error;
+        }
+
+        let transferSize = desc.TransferSize;
+        if (desc.CanDnload) {
+            manifestationTolerant = desc.ManifestationTolerant;
+        }
+
+        try {
+            let status = await device.getStatus();
+            if (status.state == dfu.dfuERROR) {
+                await device.clearStatus();
+            }
+        }
+        catch (error) {
+            device.logWarning('Failed to clear status');
+        }
+
+        await device.do_download(transferSize, firmware.data, manifestationTolerant);
+        if (!manifestationTolerant) {
+            try {
+                await device.waitDisconnected(5000);
+            }
+            catch (error) {
+                console.log('Device unexpectedly tolerated manifestation.');
+            }
+        }
+
+        device = null;
+    };
+
+
+    // *************************************************************************
+    var flash_mk4 = async function () {
         el.flash_progress.value = 0;
         el.flash_heading.textContent = 'Flashing ...';
         el.flash_button.textContent = 'Cancel';
@@ -1783,7 +1904,6 @@ var app = (function () {
         if (await mk4_isp.flash(new chrome_uart(), el.flash_serial_port.value, firmware.data)) {
             el.flash_dialog.classList.add('hidden');
             el.flash_button.removeEventListener('click', button_pressed);
-
         }
         else {
             el.flash_button.textContent = 'Close';
@@ -2031,10 +2151,10 @@ var app = (function () {
 
         preprocessor_simulator = new preprocessor();
 
-        update_serial_ports();
+        discover_serial_ports();
         init_assembler();
         load_default_firmware();
-        update_visibility_from_ports();
+        hardware_changed();
         select_page('config_hardware');
     };
 
