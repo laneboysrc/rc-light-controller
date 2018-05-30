@@ -1801,6 +1801,7 @@ var app = (function () {
         let filters = [];
         filters.push({ 'vendorId': 0x6666 });
 
+        // FIXME: do this only when we don't have a connected device
         let selectedDevice;
         try {
             selectedDevice = await navigator.usb.requestDevice({ 'filters': filters });
@@ -1810,11 +1811,9 @@ var app = (function () {
             return;
         }
 
-
         let interfaces = dfu.findDeviceDfuInterfaces(selectedDevice);
         if (interfaces.length == 0) {
-            console.log(selectedDevice);
-            // statusDisplay.textContent = "The selected device does not have any USB DFU interfaces.";
+            console.log('The selected device does not have any USB DFU interfaces.');
             return;
         }
         let device = new dfu.Device(selectedDevice, interfaces[0]);
@@ -1827,6 +1826,24 @@ var app = (function () {
             // cleanup here
             throw error;
         }
+
+        // FIXME: do this only when we are in alt mode 0x01
+        await device.detach();
+        try {
+            await device.close();
+            await device.waitDisconnected(5000);
+        }
+        catch (error) {
+            console.log("Detach failed: " + error);
+        }
+
+        await new Promise(resolve => { setTimeout(resolve, 5000); });
+
+
+        let dfu_devices = await dfu.findAllDfuInterfaces();
+        device = dfu_devices[0];
+        await device.open();
+
 
         let desc = {};
         try {
@@ -1842,6 +1859,8 @@ var app = (function () {
             manifestationTolerant = desc.ManifestationTolerant;
         }
 
+
+
         try {
             let status = await device.getStatus();
             if (status.state == dfu.dfuERROR) {
@@ -1852,7 +1871,7 @@ var app = (function () {
             device.logWarning('Failed to clear status');
         }
 
-        await device.do_download(transferSize, firmware.data, manifestationTolerant);
+        await device.do_download(transferSize, new Uint8Array(firmware.data), manifestationTolerant);
         if (!manifestationTolerant) {
             try {
                 await device.waitDisconnected(5000);
