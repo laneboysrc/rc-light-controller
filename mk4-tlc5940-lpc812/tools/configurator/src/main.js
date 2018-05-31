@@ -1157,7 +1157,7 @@ var app = (function () {
 
     // *************************************************************************
     var load_default_firmware = function () {
-        parse_firmware(default_firmware_image_mk4);
+        parse_firmware(default_firmware_image_mk5);
         default_firmware_version = config.firmware_version;
 
         // Instead of using the disassebled source code, we use the original
@@ -1176,7 +1176,7 @@ var app = (function () {
         if (this.files.length < 1) {
             return;
         }
-
+default_firmware_image_mk4
         var intelHex = /^:[0-9a-fA-F][0-9a-fA-F]/;
 
         var reader = new FileReader();
@@ -1207,7 +1207,7 @@ var app = (function () {
             gamma_object = data.gamma;
 
             // Use the current firmware when loading a configuration file
-            firmware = parse_firmware_structure(default_firmware_image);
+            firmware = parse_firmware_structure(default_firmware_image_mk4);
             config.firmware_version = default_firmware_version;
         } catch (err) {
             window.alert(
@@ -1233,7 +1233,7 @@ var app = (function () {
             msg += 'Click OK to update the firmware, keeping your settings.\n';
             msg += 'Click Cancel to keep the original firmware.\n';
             if (window.confirm(msg)) {
-                firmware = parse_firmware_structure(default_firmware_image);
+                firmware = parse_firmware_structure(default_firmware_image_mk4);
                 config.firmware_version = default_firmware_version;
                 update_ui();
             }
@@ -1885,7 +1885,7 @@ var app = (function () {
             device.logWarning('Failed to clear status');
         }
 
-        await device.do_download(transferSize, new Uint8Array(firmware.data), manifestationTolerant);
+        await device.do_download(transferSize, new Uint8Array(firmware.data.slice(8192)), manifestationTolerant);
         if (!manifestationTolerant) {
             try {
                 await device.waitDisconnected(5000);
