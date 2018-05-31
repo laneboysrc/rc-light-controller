@@ -1798,6 +1798,19 @@ var app = (function () {
 
     // *************************************************************************
     var flash_mk5 = async function () {
+
+        // let dfu_devices = await dfu.findAllDfuInterfaces();
+        // for (let dfu_device of dfu_devices) {
+        //     if (dfu_device.vendorId == 0x6666) {
+        //         if (dfu_device.productId == 0xcab0) {
+        //         }
+        //         else if (dfu_device.productId == 0xcab1) {
+
+        //         }
+        //     }
+        // }
+
+
         let filters = [];
         filters.push({ 'vendorId': 0x6666 });
 
@@ -1816,6 +1829,7 @@ var app = (function () {
             console.log('The selected device does not have any USB DFU interfaces.');
             return;
         }
+        console.dir(interfaces);
         let device = new dfu.Device(selectedDevice, interfaces[0]);
         let manifestationTolerant = false;
 
