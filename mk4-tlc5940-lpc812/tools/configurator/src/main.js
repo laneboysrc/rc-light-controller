@@ -1756,6 +1756,7 @@ default_firmware_image_mk4
         });
     };
 
+    // *************************************************************************
     function getDFUDescriptorProperties(device) {
         // Attempt to read the DFU functional descriptor
         // TODO: read the selected configuration's descriptor
@@ -1799,40 +1800,44 @@ default_firmware_image_mk4
     // *************************************************************************
     var flash_mk5 = async function () {
 
-        // let dfu_devices = await dfu.findAllDfuInterfaces();
-        // for (let dfu_device of dfu_devices) {
-        //     if (dfu_device.vendorId == 0x6666) {
-        //         if (dfu_device.productId == 0xcab0) {
-        //         }
-        //         else if (dfu_device.productId == 0xcab1) {
-
-        //         }
-        //     }
-        // }
-
-
-        let filters = [];
-        filters.push({ 'vendorId': 0x6666 });
-
-        // FIXME: do this only when we don't have a connected device
-        let selectedDevice;
-        try {
-            selectedDevice = await navigator.usb.requestDevice({ 'filters': filters });
-        }
-        catch (error) {
-            console.log(error);
-            return;
-        }
-
-        let interfaces = dfu.findDeviceDfuInterfaces(selectedDevice);
-        if (interfaces.length == 0) {
-            console.log('The selected device does not have any USB DFU interfaces.');
-            return;
-        }
-        console.dir(interfaces);
-        let device = new dfu.Device(selectedDevice, interfaces[0]);
+        let device;
         let manifestationTolerant = false;
 
+        let dfu_devices = await dfu.findAllDfuInterfaces();
+        if (dfu_devices.length) {
+            for (let dfu_device of dfu_devices) {
+                if (dfu_device.device_.vendorId == 0x6666) {
+                    if (dfu_device.device_.productId == 0xcab1) {
+                        device = dfu_device;
+                        break;
+                    }
+                }
+            }
+        }
+        else {
+            let filters = [];
+            filters.push({ 'vendorId': 0x6666 });
+
+            // FIXME: do this only when we don't have a connected device
+            let selectedDevice;
+            try {
+                selectedDevice = await navigator.usb.requestDevice({ 'filters': filters });
+            }
+            catch (error) {
+                console.log(error);
+                return;
+            }
+
+            let interfaces = dfu.findDeviceDfuInterfaces(selectedDevice);
+            if (interfaces.length == 0) {
+                console.log('The selected device does not have any USB DFU interfaces.');
+                return;
+            }
+            console.dir(interfaces);
+            device = new dfu.Device(selectedDevice, interfaces[0]);
+        }
+
+        console.log('Serial number: ' + device.device_.serialNumber);
         try {
             await device.open();
         }
@@ -1851,10 +1856,10 @@ default_firmware_image_mk4
             console.log("Detach failed: " + error);
         }
 
-        await new Promise(resolve => { setTimeout(resolve, 5000); });
+        await new Promise(resolve => { setTimeout(resolve, 2000); });
 
 
-        let dfu_devices = await dfu.findAllDfuInterfaces();
+        dfu_devices = await dfu.findAllDfuInterfaces();
         device = dfu_devices[0];
         await device.open();
 
