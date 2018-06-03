@@ -29,24 +29,25 @@ FLASH_TOOL := openocd -l build/openocd.log -f board/atmel_samr21_xplained_pro.cf
 
 ###############################################################################
 # Source files    Note: all source files must be relative paths!
-COMMON_SOURCE_PATH := ../firmware/
-PRINTF_SOURCE_PATH := ../../mk4-tlc5940-lpc812/firmware/libs/printf/
+COMMON_SOURCE_PATH := ../firmware
+PRINTF_SOURCE_PATH := ../../mk4-tlc5940-lpc812/firmware/libs/printf
 
 SOURCES += ./main.c
 SOURCES += ./usb.c
-SOURCES += $(COMMON_SOURCE_PATH)hal/startup_samd21.c
-SOURCES += $(COMMON_SOURCE_PATH)libs/usb/usb_requests.c
-SOURCES += $(COMMON_SOURCE_PATH)libs/usb/class/dfu/dfu.c
-SOURCES += $(COMMON_SOURCE_PATH)libs/usb/samd/usb_samd.c
-SOURCES += $(PRINTF_SOURCE_PATH)printf.c
+SOURCES += $(COMMON_SOURCE_PATH)/hal/startup_samd21.c
+SOURCES += $(COMMON_SOURCE_PATH)/libs/usb/usb_requests.c
+SOURCES += $(COMMON_SOURCE_PATH)/libs/usb/class/dfu/dfu.c
+SOURCES += $(COMMON_SOURCE_PATH)/libs/usb/samd/usb_samd.c
+SOURCES += $(PRINTF_SOURCE_PATH)/printf.c
 
 INCLUDES += -I.
-INCLUDES += -I$(COMMON_SOURCE_PATH)hal
-INCLUDES += -isystem$(COMMON_SOURCE_PATH)hal/samd21
-INCLUDES += -isystem$(COMMON_SOURCE_PATH)libs/usb
-INCLUDES += -isystem$(COMMON_SOURCE_PATH)libs/usb/samd
+INCLUDES += -I$(COMMON_SOURCE_PATH)/hal
+INCLUDES += -isystem$(COMMON_SOURCE_PATH)/hal/samd21
+INCLUDES += -isystem$(COMMON_SOURCE_PATH)/libs/usb
+INCLUDES += -isystem$(COMMON_SOURCE_PATH)/libs/usb/samd
 INCLUDES += -isystem$(PRINTF_SOURCE_PATH)
 
+DEFINES += -DBOOTLOADER
 DEFINES += -D__SAMD21E15A__
 DEFINES += -DDONT_USE_CMSIS_INIT
 DEFINES += -DPRINTF_SUPPORT_LONG
