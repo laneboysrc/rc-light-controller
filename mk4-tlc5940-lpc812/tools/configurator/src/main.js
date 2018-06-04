@@ -72,6 +72,7 @@ var app = (function () {
     var has_webusb = (typeof navigator.usb !== 'undefined');
     var serial_ports = {'dummy': 'dummy'};
     var number_of_serial_ports = 0;
+    var usb_devices = [];
     var preprocessor_simulator;
     var preprocessor_simulator_disabled = true;
 
@@ -1756,86 +1757,95 @@ default_firmware_image_mk4
         });
     };
 
-    // *************************************************************************
-    function getDFUDescriptorProperties(device) {
-        // Attempt to read the DFU functional descriptor
-        // TODO: read the selected configuration's descriptor
-        return device.readConfigurationDescriptor(0).then(
-            data => {
-                let configDesc = dfu.parseConfigurationDescriptor(data);
-                let funcDesc = null;
-                let configValue = device.settings.configuration.configurationValue;
-                if (configDesc.bConfigurationValue == configValue) {
-                    for (let desc of configDesc.descriptors) {
-                        if (desc.bDescriptorType == 0x21 && desc.hasOwnProperty("bcdDFUVersion")) {
-                            funcDesc = desc;
-                            break;
-                        }
-                    }
-                }
 
-                if (funcDesc) {
-                    return {
-                        WillDetach:            ((funcDesc.bmAttributes & 0x08) != 0),
-                        ManifestationTolerant: ((funcDesc.bmAttributes & 0x04) != 0),
-                        CanUpload:             ((funcDesc.bmAttributes & 0x02) != 0),
-                        CanDnload:             ((funcDesc.bmAttributes & 0x01) != 0),
-                        TransferSize:          funcDesc.wTransferSize,
-                        DetachTimeOut:         funcDesc.wDetachTimeOut,
-                        DFUVersion:            funcDesc.bcdDFUVersion
-                    };
-                } else {
-                    return {};
-                }
-            },
-            error => {}
-        );
+    // *************************************************************************
+    var usb_device_connected = function (device) {
+        console.log('usb_device_connected', device);
+
+        let interfaces = findDeviceDfuInterfaces(device);
+        if (interfaces.length == 0) {
+            return;
+        }
+
+        let dfu_device = new dfu.Device(device, interfaces[0]);
+        usb_devices.push(dfu_device);
     }
 
-    // *************************************************************************
-    var flash = function () {
-        flash_function();
-    };
 
     // *************************************************************************
-    var flash_mk5 = async function () {
+    var usb_device_disconnected = function (device) {
+        console.log('usb_device_disconnected', device);
+    }
 
-        let device;
-        let manifestationTolerant = false;
+
+    // *************************************************************************
+    var discover_usb_devices = async function () {
+        if (typeof navigator.usb === 'undefined') {
+            return;
+        }
+
+        usb_devices = {};
 
         let dfu_devices = await dfu.findAllDfuInterfaces();
         if (dfu_devices.length) {
             for (let dfu_device of dfu_devices) {
                 if (dfu_device.device_.vendorId == 0x6666) {
                     if (dfu_device.device_.productId == 0xcab1) {
-                        device = dfu_device;
-                        break;
+                        usb_devices.push(dfu_device);
                     }
                 }
             }
         }
-        else {
-            let filters = [];
-            filters.push({ 'vendorId': 0x6666 });
 
-            // FIXME: do this only when we don't have a connected device
-            let selectedDevice;
-            try {
-                selectedDevice = await navigator.usb.requestDevice({ 'filters': filters });
-            }
-            catch (error) {
-                console.log(error);
-                return;
-            }
+        navigator.usb.addEventListener('connect', usb_device_connected);
+        navigator.usb.addEventListener('disconnect', usb_device_disconnected);
+    }
 
-            let interfaces = dfu.findDeviceDfuInterfaces(selectedDevice);
-            if (interfaces.length == 0) {
-                console.log('The selected device does not have any USB DFU interfaces.');
-                return;
-            }
-            console.dir(interfaces);
-            device = new dfu.Device(selectedDevice, interfaces[0]);
-        }
+
+    // *************************************************************************
+    var flash = function () {
+        flash_function();
+    };
+
+
+    // *************************************************************************
+    var flash_mk5 = async function () {
+
+        let device = usb_devices[0];
+
+        // let dfu_devices = await dfu.findAllDfuInterfaces();
+        // if (dfu_devices.length) {
+        //     for (let dfu_device of dfu_devices) {
+        //         if (dfu_device.device_.vendorId == 0x6666) {
+        //             if (dfu_device.device_.productId == 0xcab1) {
+        //                 device = dfu_device;
+        //                 break;
+        //             }
+        //         }
+        //     }
+        // }
+        // else {
+            // let filters = [];
+            // filters.push({ 'vendorId': 0x6666 });
+
+            // // FIXME: do this only when we don't have a connected device
+            // let selectedDevice;
+            // try {
+            //     selectedDevice = await navigator.usb.requestDevice({ 'filters': filters });
+            // }
+            // catch (error) {
+            //     console.log(error);
+            //     return;
+            // }
+
+            // let interfaces = dfu.findDeviceDfuInterfaces(selectedDevice);
+            // if (interfaces.length == 0) {
+            //     console.log('The selected device does not have any USB DFU interfaces.');
+            //     return;
+            // }
+            // console.dir(interfaces);
+            // device = new dfu.Device(selectedDevice, interfaces[0]);
+        // }
 
         console.log('Serial number: ' + device.device_.serialNumber);
         try {
@@ -1846,39 +1856,26 @@ default_firmware_image_mk4
             throw error;
         }
 
-        // FIXME: do this only when we are in alt mode 0x01
-        await device.detach();
-        try {
-            await device.close();
-            await device.waitDisconnected(5000);
+        // FIXME: Read altmode from device descriptor
+        altMode = 0x01;
+
+        if (altMode == 0x01) {
+            await device.detach();
+            try {
+                await device.close();
+                await device.waitDisconnected(5000);
+            }
+            catch (error) {
+                console.log("Detach failed: " + error);
+            }
+
+            await new Promise(resolve => { setTimeout(resolve, 2000); });
+
+            // FIXME: get device by serial number; trigger from onConnect?!
+            dfu_devices = await dfu.findAllDfuInterfaces();
+            device = dfu_devices[0];
+            await device.open();
         }
-        catch (error) {
-            console.log("Detach failed: " + error);
-        }
-
-        await new Promise(resolve => { setTimeout(resolve, 2000); });
-
-
-        dfu_devices = await dfu.findAllDfuInterfaces();
-        device = dfu_devices[0];
-        await device.open();
-
-
-        let desc = {};
-        try {
-            desc = await getDFUDescriptorProperties(device);
-        }
-        catch (error) {
-            // cleanup here
-            throw error;
-        }
-
-        let transferSize = desc.TransferSize;
-        if (desc.CanDnload) {
-            manifestationTolerant = desc.ManifestationTolerant;
-        }
-
-
 
         try {
             let status = await device.getStatus();
@@ -1887,17 +1884,27 @@ default_firmware_image_mk4
             }
         }
         catch (error) {
-            device.logWarning('Failed to clear status');
+            console.log('Failed to clear DFU status');
         }
 
-        await device.do_download(transferSize, new Uint8Array(firmware.data.slice(8192)), manifestationTolerant);
-        if (!manifestationTolerant) {
-            try {
-                await device.waitDisconnected(5000);
-            }
-            catch (error) {
-                console.log('Device unexpectedly tolerated manifestation.');
-            }
+        // FIXME: better get those from the descriptor and not hard-code?!
+        const transferSize = 64 * 4;
+        const manifestationTolerant = false;
+
+        try {
+            await device.do_download(transferSize, new Uint8Array(firmware.data.slice(8192)), manifestationTolerant);
+        }
+        catch (error) {
+            console.log('Programming failed', error);
+            device = null;
+            return;
+        }
+
+        try {
+            await device.waitDisconnected(5000);
+        }
+        catch (error) {
+            console.log('Device unexpectedly tolerated manifestation.');
         }
 
         device = null;
@@ -2190,6 +2197,7 @@ default_firmware_image_mk4
         preprocessor_simulator = new preprocessor();
 
         discover_serial_ports();
+        discover_usb_devices();
         init_assembler();
         load_default_firmware();
         hardware_changed();
