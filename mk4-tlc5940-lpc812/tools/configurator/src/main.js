@@ -3,7 +3,8 @@
 /*global emitter, symbols, CodeMirror, ui, gamma, disassembler,
     intel_hex, parser, default_firmware_image_mk4, default_firmware_image_mk5,
     default_light_program, FileReader, Blob, saveAs, preprocessor, chrome_uart,
-    lpc8xx_isp hardware_test_configuration, logger, chrome, dfu */
+    lpc8xx_isp hardware_test_configuration, logger, chrome, dfu,
+    findDeviceDfuInterfaces */
 
 
 
@@ -1769,18 +1770,18 @@ default_firmware_image_mk4
 
         let dfu_device = new dfu.Device(device, interfaces[0]);
         usb_devices.push(dfu_device);
-    }
+    };
 
 
     // *************************************************************************
     var usb_device_disconnected = function (device) {
         console.log('usb_device_disconnected', device);
-    }
+    };
 
 
     // *************************************************************************
     var discover_usb_devices = async function () {
-        if (typeof navigator.usb === 'undefined') {
+        if (!has_webusb) {
             return;
         }
 
@@ -1799,7 +1800,7 @@ default_firmware_image_mk4
 
         navigator.usb.addEventListener('connect', usb_device_connected);
         navigator.usb.addEventListener('disconnect', usb_device_disconnected);
-    }
+    };
 
 
     // *************************************************************************
