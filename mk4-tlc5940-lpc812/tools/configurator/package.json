@@ -7,6 +7,8 @@
   "author": "LANE Boys RC",
   "license": "MIT",
   "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-env": "^1.7.0",
     "font-awesome-base64": "^1.0.4",
     "inline-source-cli": "^1.2.0",
     "nw-builder": "^3.5.2"
