@@ -21,8 +21,8 @@ class chrome_uart {
         this.timeoutMs = 0;
         this.eol = '\r\n';
 
-        // this.logger = console;
-        this.logger = {
+        // this.log = console;
+        this.log = {
             log: () => {},
             info: () => {},
             warn: () => {},
@@ -32,7 +32,7 @@ class chrome_uart {
     }
 
     open(port, baudrate) {
-        this.logger.log('open', baudrate);
+        this.log.log('open', baudrate);
 
         if (typeof chrome === 'undefined'  ||  !chrome.serial) {
             throw 'chrome.serial not available. Not running Chrome/Chromium?';
@@ -51,7 +51,7 @@ class chrome_uart {
                 }
 
                 this.connectionId = ci.connectionId;
-                this.logger.log('Opened port', port, ci);
+                this.log.log('Opened port', port, ci);
 
                 chrome.serial.onReceive.addListener(this.receiveCallback.bind(this));
                 resolve();
@@ -69,7 +69,7 @@ class chrome_uart {
             });
         }
 
-        this.logger.log('receiveCallback "' + received + '"');
+        this.log.log('receiveCallback "' + received + '"');
 
         this.receiveBuffer += received;
 
@@ -85,7 +85,7 @@ class chrome_uart {
             let result = this.receiveBuffer.substr(0, crlf_index);
             this.receiveBuffer = this.receiveBuffer.substr(crlf_index);
 
-            this.logger.log('readlineResolver returning "' + result + '"');
+            this.log.log('readlineResolver returning "' + result + '"');
             this.readlineResolver(result);
             this.readlineResolver = undefined;
         }
@@ -101,11 +101,11 @@ class chrome_uart {
             this.readResolver = undefined;
         }
 
-        this.logger.log('receiveCallback end', this.receiveBuffer);
+        this.log.log('receiveCallback end', this.receiveBuffer);
     }
 
     readTimeoutHandler() {
-        this.logger.log('readTimeoutHandler');
+        this.log.log('readTimeoutHandler');
 
         clearTimeout(this.readTimeoutTimer);
         this.readTimeoutTimer = undefined;
@@ -125,13 +125,13 @@ class chrome_uart {
     }
 
     setTimeout(timeout) {
-        this.logger.log('setTimeout', timeout);
+        this.log.log('setTimeout', timeout);
 
         this.timeoutMs = timeout * 1000;
     }
 
     read(count) {
-        this.logger.log('read', this.receiveBuffer);
+        this.log.log('read', this.receiveBuffer);
 
         if (this.receiveBuffer.length >= count) {
             let result = this.receiveBuffer.substr(0, count);
@@ -149,14 +149,14 @@ class chrome_uart {
     }
 
     readline() {
-        this.logger.log('readline', this.receiveBuffer);
+        this.log.log('readline', this.receiveBuffer);
 
         let crlf_index = this.receiveBuffer.indexOf(this.eol);
         if (crlf_index >= 0) {
             crlf_index += this.eol.length;
             let result = this.receiveBuffer.substr(0, crlf_index);
             this.receiveBuffer = this.receiveBuffer.substr(crlf_index);
-            this.logger.log('readline returning "' + result + '"');
+            this.log.log('readline returning "' + result + '"');
             return result;
         }
 
@@ -169,7 +169,7 @@ class chrome_uart {
     }
 
     write(data) {
-        this.logger.log('write', data);
+        this.log.log('write', data);
 
         return new Promise((resolve, reject) => {
             let binaryData = new ArrayBuffer(data.length);
@@ -185,7 +185,7 @@ class chrome_uart {
             }
 
             chrome.serial.send(this.connectionId, binaryData, sendInfo => {
-                this.logger.log('wrote', sendInfo.bytesSent, 'bytes');
+                this.log.log('wrote', sendInfo.bytesSent, 'bytes');
                 if (sendInfo.hasOwnProperty('error')) {
                     reject('Error while sending serial data:' + sendInfo.error);
                     return;
@@ -197,7 +197,7 @@ class chrome_uart {
     }
 
     close() {
-        this.logger.log('close');
+        this.log.log('close');
 
         for (let l of chrome.serial.onReceive.getListeners()) {
             chrome.serial.onReceive.removeListener(l.callback);

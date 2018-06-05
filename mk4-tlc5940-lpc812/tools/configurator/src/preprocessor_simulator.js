@@ -104,11 +104,11 @@ class _preprocessor_webusb {
                 setTimeout(this.send_data.bind(this), 20);
             }
             else {
-                this.parent.logger.error('transferOut() failed:', result.status);
+                this.parent.log.error('transferOut() failed:', result.status);
             }
         }
         catch (e) {
-            this.parent.logger.error('transferOut() exception:', e);
+            this.parent.log.error('transferOut() exception:', e);
             return;
         }
     }
@@ -123,11 +123,11 @@ class _preprocessor_webusb {
                     this.parent.diagnostics(value);
                 }
                 else {
-                    this.parent.logger.error('transferIn() failed:', result.status);
+                    this.parent.log.error('transferIn() failed:', result.status);
                 }
             }
             catch (e) {
-                this.parent.logger.error('transferIn() exception:', e);
+                this.parent.log.error('transferIn() exception:', e);
                 return;
             }
         }
@@ -147,7 +147,7 @@ class _preprocessor_webusb {
             }
         }
         catch (e) {
-            this.parent.logger.log('requestDevice failed:' + e);
+            this.parent.log.log('requestDevice failed:' + e);
         }
     }
 
@@ -161,11 +161,11 @@ class _preprocessor_webusb {
             await device.claimInterface(TEST_INTERFACE);
         }
         catch (e) {
-            this.parent.logger.error('Failed to open the device', e);
+            this.parent.log.error('Failed to open the device', e);
             return;
         }
 
-        this.parent.logger.log('Connected to Light Controller with serial number ' + device.serialNumber);
+        this.parent.log.log('Connected to Light Controller with serial number ' + device.serialNumber);
         this.webusb_device = device;
         this.send_data();
         this.receive_data();
@@ -173,7 +173,7 @@ class _preprocessor_webusb {
 
     webusb_device_connected(connection_event) {
         const device = connection_event.device;
-        this.parent.logger.log('USB device connected:', device);
+        this.parent.log.log('USB device connected:', device);
         if (!this.webusb_device) {
             if (device && device.vendorId == VENDOR_ID) {
                 this.connect(device);
@@ -182,7 +182,7 @@ class _preprocessor_webusb {
     }
 
     webusb_device_disconnected(connection_event) {
-        this.parent.logger.log('USB device disconnected:', connection_event);
+        this.parent.log.log('USB device disconnected:', connection_event);
         const disconnected_device = connection_event.device;
         if (this.webusb_device &&  disconnected_device == this.webusb_device) {
             this.webusb_device = undefined;
@@ -193,7 +193,14 @@ class _preprocessor_webusb {
 
 class preprocessor {
     constructor() {
-        this.logger = console;
+        this.log = console;
+        // this.log = {
+        //     log: () => {},
+        //     info: () => {},
+        //     warn: () => {},
+        //     error: () => {},
+        //     dir: () => {}
+        // };
 
         this.ch3 = 0;
         this.startupMode = false;
@@ -333,7 +340,7 @@ class preprocessor {
         for (msg of lines) {
             msg = new Date(Date.now()).toISOString() + ' ' + msg;
 
-            this.logger.log(msg);
+            this.log.log(msg);
 
             const el = document.createElement('div');
             el.textContent += msg;

@@ -3,8 +3,7 @@
 /*global emitter, symbols, CodeMirror, ui, gamma, disassembler,
     intel_hex, parser, default_firmware_image_mk4, default_firmware_image_mk5,
     default_light_program, FileReader, Blob, saveAs, preprocessor, chrome_uart,
-    lpc8xx_isp hardware_test_configuration, logger, chrome, dfu,
-    findDeviceDfuInterfaces */
+    lpc8xx_isp hardware_test_configuration, chrome, dfu, logger */
 
 
 
@@ -104,6 +103,16 @@ var app = (function () {
         115200: 1
     };
 
+    var log = console;
+    // let log = {
+    //     log: () => {},
+    //     info: () => {},
+    //     warn: () => {},
+    //     error: () => {},
+    //     dir: () => {}
+    // };
+
+
 
     // *************************************************************************
     var get_uint16 = function (data, offset) {
@@ -123,7 +132,7 @@ var app = (function () {
     var set_uint8 = function (data, offset, value) {
         value = parseInt(value, 10);
         if (isNaN(value)) {
-            console.log('ERROR in set_uint8 when setting offset ' + offset +
+            log.log('ERROR in set_uint8 when setting offset ' + offset +
                 ': value="' + value + '"');
             value = 0;
         }
@@ -136,7 +145,7 @@ var app = (function () {
     var set_uint16 = function (data, offset, value) {
         value = parseInt(value, 10);
         if (isNaN(value)) {
-            console.log('ERROR in set_uint16 when setting offset ' + offset +
+            log.log('ERROR in set_uint16 when setting offset ' + offset +
                 ': value="' + value + '"');
             value = 0;
         }
@@ -153,7 +162,7 @@ var app = (function () {
     var set_uint32 = function (data, offset, value) {
         value = parseInt(value, 10);
         if (isNaN(value)) {
-            console.log('ERROR in set_uint32 when setting offset ' + offset +
+            log.log('ERROR in set_uint32 when setting offset ' + offset +
                 ': value="' + value + '"');
             value = 0;
         }
@@ -362,7 +371,7 @@ var app = (function () {
                 config_version = (image_data[i + 7] * 256) + image_data[i + 6];
 
                 if (SECTIONS[section_id] === undefined) {
-                    console.log('Warning: unknown section ' + i);
+                    log.log('Warning: unknown section ' + i);
                 } else {
                     if (config_version !== 1) {
                         throw new Error('Unknown configuration version ' +
@@ -1645,7 +1654,7 @@ default_firmware_image_mk4
         parser.yy = {
             symbols: symbols,
             emitter: emitter,
-            logger: logger
+            log: log
         };
 
         logger.set_log_level('ERROR');
@@ -1798,7 +1807,7 @@ default_firmware_image_mk4
     var usb_device_connected = function (event) {
         let device = event.device;
 
-        console.log('usb_device_connected', device);
+        log.log('usb_device_connected', device);
 
         if (device.vendorId == 0x6666) {
             if (device.productId == 0xcab1) {
@@ -1819,7 +1828,7 @@ default_firmware_image_mk4
     var usb_device_disconnected = function (event) {
         let device = event.device;
 
-        console.log('usb_device_disconnected', device);
+        log.log('usb_device_disconnected', device);
 
         if (device.vendorId == 0x6666) {
             if (device.productId == 0xcab1) {
@@ -1886,13 +1895,13 @@ default_firmware_image_mk4
             usb_device = await navigator.usb.requestDevice({ 'filters': filters });
         }
         catch (error) {
-            console.log(error);
+            log.log(error);
             return;
         }
 
         let interfaces = dfu.findDeviceDfuInterfaces(usb_device);
         if (interfaces.length == 0) {
-            console.log('The selected device does not have any USB DFU interfaces.');
+            log.log('The selected device does not have any USB DFU interfaces.');
             return;
         }
 
@@ -1916,11 +1925,11 @@ default_firmware_image_mk4
     var flash_mk5 = async function () {
         let device = get_usb_device_by_serial_number(el.flash_usb_device.value);
         if (!device) {
-            console.log('No USB device found');
+            log.log('No USB device found');
             return;
         }
 
-        console.log('Serial number: ' + device.device_.serialNumber);
+        log.log('Serial number: ' + device.device_.serialNumber);
         try {
             await device.open();
         }
@@ -1939,7 +1948,7 @@ default_firmware_image_mk4
                 await device.waitDisconnected(5000);
             }
             catch (error) {
-                console.log("Detach failed: " + error);
+                log.log('Detach failed: ' + error);
             }
 
             await new Promise(resolve => { setTimeout(resolve, 2000); });
@@ -1957,7 +1966,7 @@ default_firmware_image_mk4
             }
         }
         catch (error) {
-            console.log('Failed to clear DFU status');
+            log.log('Failed to clear DFU status');
         }
 
 
@@ -1976,7 +1985,7 @@ default_firmware_image_mk4
         }
 
         if (funcDesc == null) {
-            console.log('Failed to read configuration descriptor to parse DFU attributes');
+            log.log('Failed to read configuration descriptor to parse DFU attributes');
             return;
         }
 
@@ -1987,7 +1996,7 @@ default_firmware_image_mk4
             await device.do_download(transferSize, new Uint8Array(firmware.data.slice(8192)), manifestationTolerant);
         }
         catch (error) {
-            console.log('Programming failed', error);
+            log.log('Programming failed', error);
             device = null;
             return;
         }
@@ -1996,7 +2005,7 @@ default_firmware_image_mk4
             await device.waitDisconnected(5000);
         }
         catch (error) {
-            console.log('Device unexpectedly tolerated manifestation.');
+            log.log('Device unexpectedly tolerated manifestation.');
         }
 
         device = null;
