@@ -1760,6 +1760,41 @@ default_firmware_image_mk4
 
 
     // *************************************************************************
+    var update_usb_device_list = function () {
+        let current_value = el.flash_usb_device.value;
+        let previous_device_still_exists = false;
+
+        // Clear the current options
+        while (el.flash_usb_device.options.length) {
+            el.flash_usb_device.remove(0);
+        }
+
+        usb_devices.forEach(usb_device => {
+            let name = usb_device.device_.serialNumber;
+            let label = usb_device.device_.serialNumber;
+            el.flash_usb_device.add(new Option(label, name));
+
+            if (label == current_value) {
+                previous_device_still_exists = true;
+            }
+        });
+
+        let number_of_usb_devices = el.flash_usb_device.options.length;
+
+        if (!number_of_usb_devices) {
+            el.flash_usb_device.add(new Option('(press pair button to add a light controller)', '0'));
+        }
+
+        if (previous_device_still_exists) {
+            el.flash_usb_device.value = current_value;
+        }
+        else {
+            el.flash_usb_device.selectedIndex = 0;
+        }
+    };
+
+
+    // *************************************************************************
     var usb_device_connected = function (event) {
         let device = event.device;
 
@@ -1776,7 +1811,7 @@ default_firmware_image_mk4
             }
         }
 
-        console.log(usb_devices);
+        update_usb_device_list();
     };
 
 
@@ -1793,13 +1828,12 @@ default_firmware_image_mk4
 
                     if (known_device.device_.serialNumber == device.serialNumber) {
                         usb_devices.splice(i, 1);
-                        break;
                     }
                 }
             }
         }
 
-        console.log(usb_devices);
+        update_usb_device_list();
     };
 
 
@@ -1824,10 +1858,22 @@ default_firmware_image_mk4
             }
         }
 
-        console.log(usb_devices);
+        update_usb_device_list();
 
         navigator.usb.addEventListener('connect', usb_device_connected);
         navigator.usb.addEventListener('disconnect', usb_device_disconnected);
+    };
+
+
+    // *************************************************************************
+    var get_usb_device_by_serial_number = function (serial_number) {
+        for (let i = 0; i < usb_devices.length; i++) {
+            if (usb_devices[i].device_.serialNumber == serial_number) {
+                return usb_devices[i];
+            }
+        }
+
+        return null;
     };
 
 
@@ -1851,8 +1897,12 @@ default_firmware_image_mk4
         }
 
         let dfu_device = new dfu.Device(usb_device, interfaces[0]);
-        usb_devices.push(dfu_device);
-        console.log(usb_devices);
+
+        // Only add device if we don't have it already
+        if (!get_usb_device_by_serial_number(dfu_device.device_.serialNumber)) {
+            usb_devices.push(dfu_device);
+            update_usb_device_list();
+        }
     };
 
 
@@ -1864,9 +1914,11 @@ default_firmware_image_mk4
 
     // *************************************************************************
     var flash_mk5 = async function () {
-
-        let device = usb_devices[0];
-
+        let device = get_usb_device_by_serial_number(el.flash_usb_device.value);
+        if (!device) {
+            console.log('No USB device found');
+            return;
+        }
 
         console.log('Serial number: ' + device.device_.serialNumber);
         try {
@@ -2076,6 +2128,7 @@ default_firmware_image_mk4
         el.hardware_uart = document.getElementById('hardware_uart');
         el.flash_serial_port = document.getElementById('flash_serial_port');
         el.hardware_webusb = document.getElementById('hardware_webusb');
+        el.flash_usb_device = document.getElementById('flash_usb_device');
         el.webusb_pair = document.getElementById('webusb_pair');
 
         el.mode = document.getElementById('mode');
