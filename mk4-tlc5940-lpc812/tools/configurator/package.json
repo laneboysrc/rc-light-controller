@@ -9,7 +9,7 @@
   "devDependencies": {
     "font-awesome-base64": "^1.0.4",
     "inline-source-cli": "^1.2.0",
-    "nw-builder": "^3.5.1"
+    "nw-builder": "^3.5.2"
   },
   "window": {
     "title": "Light Controller Configurator",

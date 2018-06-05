@@ -1809,6 +1809,8 @@ default_firmware_image_mk4
             return;
         }
 
+        el.hardware_webusb.classList.remove('hidden');
+
         usb_devices = [];
 
         let dfu_devices = await dfu.findAllDfuInterfaces();
@@ -1822,8 +1824,35 @@ default_firmware_image_mk4
             }
         }
 
+        console.log(usb_devices);
+
         navigator.usb.addEventListener('connect', usb_device_connected);
         navigator.usb.addEventListener('disconnect', usb_device_disconnected);
+    };
+
+
+    // *************************************************************************
+    var pair_usb_device = async function () {
+        const filters = [{ 'vendorId': 0x6666, 'productId': 0xcab1 }];
+
+        let usb_device;
+        try {
+            usb_device = await navigator.usb.requestDevice({ 'filters': filters });
+        }
+        catch (error) {
+            console.log(error);
+            return;
+        }
+
+        let interfaces = dfu.findDeviceDfuInterfaces(usb_device);
+        if (interfaces.length == 0) {
+            console.log('The selected device does not have any USB DFU interfaces.');
+            return;
+        }
+
+        let dfu_device = new dfu.Device(usb_device, interfaces[0]);
+        usb_devices.push(dfu_device);
+        console.log(usb_devices);
     };
 
 
@@ -1838,26 +1867,6 @@ default_firmware_image_mk4
 
         let device = usb_devices[0];
 
-        // let filters = [];
-        // filters.push({ 'vendorId': 0x6666 });
-
-        // // FIXME: do this only when we don't have a connected device
-        // let selectedDevice;
-        // try {
-        //     selectedDevice = await navigator.usb.requestDevice({ 'filters': filters });
-        // }
-        // catch (error) {
-        //     console.log(error);
-        //     return;
-        // }
-
-        // let interfaces = dfu.findDeviceDfuInterfaces(selectedDevice);
-        // if (interfaces.length == 0) {
-        //     console.log('The selected device does not have any USB DFU interfaces.');
-        //     return;
-        // }
-        // console.dir(interfaces);
-        // device = new dfu.Device(selectedDevice, interfaces[0]);
 
         console.log('Serial number: ' + device.device_.serialNumber);
         try {
@@ -2066,6 +2075,8 @@ default_firmware_image_mk4
         el.hardware_image = document.getElementById('hardwawre_image');
         el.hardware_uart = document.getElementById('hardware_uart');
         el.flash_serial_port = document.getElementById('flash_serial_port');
+        el.hardware_webusb = document.getElementById('hardware_webusb');
+        el.webusb_pair = document.getElementById('webusb_pair');
 
         el.mode = document.getElementById('mode');
         el.mode_master_servo = document.getElementById('mode_master_servo');
@@ -2224,6 +2235,8 @@ default_firmware_image_mk4
                 select_page(selected_page);
             });
         }
+
+        el.webusb_pair.addEventListener('click', pair_usb_device);
 
         preprocessor_simulator = new preprocessor();
 
