@@ -1667,37 +1667,86 @@ default_firmware_image_mk4
 
     // *************************************************************************
     var update_visibility_from_ports = function () {
+        /*
+
+        Mk4:
+            UART support:
+                Show UART select
+                Serial port available:
+                    Enable Testing, Flash-read, Flash-write
+                No serial port available
+                    Disable Testing, Flash-read, Flash-write
+
+            No UART support:
+                Show flashing info (Configurator, mk4-download.zip, lpc8xx_isp)
+                Disable Testing, Flash-read, Flash-write
+
+        Mk5:
+            WebUSB support:
+                Show USB device select and Pair button
+                USB device available:
+                    Enable Testing, Flash-read, Flash-write
+                No USB device available:
+                    Disable Testing, Flash-read, Flash-write
+
+            No WebUSB support
+                Show flashing info (Configurator, Chromium, dfu-util)
+                Disable Testing, Flash-read, Flash-write
+
+        */
+
         if (el.hardware.value == 'mk4') {
-            if (number_of_serial_ports > 0) {
+            el.hardware_webusb.classList.add('hidden');
+
+            if (has_uart) {
+                el.hardware_uart.classList.remove('hidden');
+
+                if (number_of_serial_ports > 0) {
+                    el.flash.disabled = false;
+                    el.read.disabled = false;
+                    preprocessor_simulator_disabled = false;
+                }
+                else {
+                    el.flash.disabled = true;
+                    el.read.disabled = true;
+                    preprocessor_simulator_disabled = true;
+                }
+            }
+            else {
+                el.hardware_uart.classList.add('hidden');
                 el.flash.disabled = false;
                 el.read.disabled = false;
                 preprocessor_simulator_disabled = false;
             }
-            else {
-                el.flash.disabled = true;
-                el.read.disabled = true;
-                preprocessor_simulator_disabled = true;
-            }
+
             update_section_visibility();
             return;
         }
 
         if (el.hardware.value == 'mk5') {
+            el.hardware_uart.classList.add('hidden');
+
             if (has_webusb) {
-                el.flash.disabled = false;
-                el.read.disabled = false;
+                el.hardware_webusb.classList.remove('hidden');
+
+                if (usb_devices.length) {
+                    el.flash.disabled = false;
+                    el.read.disabled = false;
+                    preprocessor_simulator_disabled = false;
+                }
+                else {
+                    el.flash.disabled = true;
+                    el.read.disabled = true;
+                    preprocessor_simulator_disabled = true;
+                }
             }
             else {
+                el.hardware_webusb.classList.add('hidden');
                 el.flash.disabled = true;
                 el.read.disabled = true;
-            }
-
-            if ((number_of_serial_ports > 0)  ||  has_webusb) {
-                preprocessor_simulator_disabled = false;
-            }
-            else {
                 preprocessor_simulator_disabled = true;
             }
+
             update_section_visibility();
             return;
         }
@@ -1708,8 +1757,6 @@ default_firmware_image_mk4
         if (!has_uart) {
             return;
         }
-
-        el.hardware_uart.classList.remove('hidden');
 
         chrome.serial.getDevices((ports) => {
             let current_ports = {};
@@ -1800,6 +1847,8 @@ default_firmware_image_mk4
         else {
             el.flash_usb_device.selectedIndex = 0;
         }
+
+        update_visibility_from_ports();
     };
 
 
