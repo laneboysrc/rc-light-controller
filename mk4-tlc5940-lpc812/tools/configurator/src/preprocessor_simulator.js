@@ -84,7 +84,6 @@ class _preprocessor_webusb {
             }
             finally {
                 this.webusb_device = undefined;
-                this.elResponse.textContent = ' ';
             }
         }
 
@@ -186,7 +185,6 @@ class _preprocessor_webusb {
         const disconnected_device = connection_event.device;
         if (this.webusb_device &&  disconnected_device == this.webusb_device) {
             this.webusb_device = undefined;
-            this.elResponse.textContent = ' ';
         }
     }
 }
