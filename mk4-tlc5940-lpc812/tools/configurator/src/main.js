@@ -1168,7 +1168,7 @@ var app = (function () {
 
     // *************************************************************************
     var load_default_firmware = function () {
-        parse_firmware(default_firmware_image_mk5);
+        parse_firmware(default_firmware_image_mk4);
         default_firmware_version = config.firmware_version;
 
         // Instead of using the disassebled source code, we use the original
@@ -1187,7 +1187,7 @@ var app = (function () {
         if (this.files.length < 1) {
             return;
         }
-default_firmware_image_mk4
+
         var intelHex = /^:[0-9a-fA-F][0-9a-fA-F]/;
 
         var reader = new FileReader();
@@ -1514,6 +1514,12 @@ default_firmware_image_mk4
         var data = get_config();
 
         try {
+            let firmware_hex = default_firmware_image_mk4;
+            if (el.hardware.value == 'mk5') {
+                firmware_hex = default_firmware_image_mk5;
+            }
+
+            firmware = parse_firmware_structure(firmware_hex);
             assemble_firmware(data);
         } catch (e) {
             window.alert(
@@ -1522,7 +1528,12 @@ default_firmware_image_mk4
             return;
         }
 
-        var intelhex = intel_hex.fromArray(firmware.data);
+        var start_address = 0;
+        if (el.hardware.value == 'mk5') {
+            start_address = 0x2000;
+        }
+
+        var intelhex = intel_hex.fromArray(firmware.data, start_address);
 
         var blob = new Blob([intelhex], {type: 'text/plain;charset=utf-8'});
 
@@ -1654,7 +1665,7 @@ default_firmware_image_mk4
         parser.yy = {
             symbols: symbols,
             emitter: emitter,
-            log: log
+            logger: logger
         };
 
         logger.set_log_level('ERROR');

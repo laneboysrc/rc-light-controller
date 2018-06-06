@@ -240,9 +240,9 @@ var intel_hex = (function () {
             start_address = 0;
         }
 
-        if (start_address !== 0) {
-            throw new Error("Start address other than 0 not implemented yet");
-        }
+        // if (start_address !== 0) {
+        //     throw new Error("Start address other than 0 not implemented yet");
+        // }
 
         if (data.length > 0x10000) {
             throw new Error(
@@ -250,7 +250,7 @@ var intel_hex = (function () {
             );
         }
 
-        for (offset = 0; offset < data.length; offset += RECORD_LENGTH) {
+        for (offset = start_address; offset < data.length; offset += RECORD_LENGTH) {
             record = [];
             record_data = data.slice(offset, offset + RECORD_LENGTH);
 
