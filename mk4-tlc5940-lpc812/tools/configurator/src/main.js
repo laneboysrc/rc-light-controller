@@ -3,7 +3,7 @@
 /*global emitter, symbols, CodeMirror, ui, gamma, disassembler,
     intel_hex, parser, default_firmware_image_mk4, default_firmware_image_mk5,
     default_light_program, FileReader, Blob, saveAs, preprocessor, chrome_uart,
-    lpc8xx_isp hardware_test_configuration, chrome, dfu, logger */
+    flash_lpc8xx flash_dfu hardware_test_configuration, chrome, dfu, logger */
 
 
 
@@ -92,8 +92,6 @@ var app = (function () {
     //     ESC_FORWARD_REVERSE: 2,
     //     ESC_FORWARD_BRAKE: 3
     // };
-
-    var flash_function;
 
     var BAUDRATES = {
         0: 38400,
@@ -1256,15 +1254,19 @@ var app = (function () {
     var hardware_changed = function () {
         update_visibility_from_ports();
 
+        let firmware_hex;
+
         switch(el.hardware.value) {
         case 'mk4':
-            flash_function = flash_mk4;
+            firmware_hex = default_firmware_image_mk4;
             break;
 
         case 'mk5':
-            flash_function = flash_mk5;
+            firmware_hex = default_firmware_image_mk5;
             break;
         }
+
+        firmware = parse_firmware_structure(firmware_hex);
     };
 
 
@@ -1514,12 +1516,6 @@ var app = (function () {
         var data = get_config();
 
         try {
-            let firmware_hex = default_firmware_image_mk4;
-            if (el.hardware.value == 'mk5') {
-                firmware_hex = default_firmware_image_mk5;
-            }
-
-            firmware = parse_firmware_structure(firmware_hex);
             assemble_firmware(data);
         } catch (e) {
             window.alert(
@@ -1835,7 +1831,7 @@ var app = (function () {
     var usb_device_connected = function (event) {
         let device = event.device;
 
-        log.log('usb_device_connected', device);
+        // log.log('usb_device_connected', device);
 
         if (device.vendorId == 0x6666) {
             if (device.productId == 0xcab1) {
@@ -1856,7 +1852,7 @@ var app = (function () {
     var usb_device_disconnected = function (event) {
         let device = event.device;
 
-        log.log('usb_device_disconnected', device);
+        // log.log('usb_device_disconnected', device);
 
         if (device.vendorId == 0x6666) {
             if (device.productId == 0xcab1) {
@@ -1944,20 +1940,23 @@ var app = (function () {
 
 
     // *************************************************************************
-    var flash = function () {
+    var flash = async function () {
+        let programmer;
+        let device;
+
         let config = get_config();
         assemble_firmware(config);
 
-        flash_function();
-    };
+        switch (el.hardware.value) {
+        case 'mk4':
+            programmer = new flash_lpc8xx(new chrome_uart());
+            device = el.flash_serial_port.value;
+            break;
 
-
-    // *************************************************************************
-    var flash_mk5 = async function () {
-        let device = get_usb_device_by_serial_number(el.flash_usb_device.value);
-        if (!device) {
-            log.log('No USB device found');
-            return;
+        case 'mk5':
+            programmer = new flash_dfu();
+            device = get_usb_device_by_serial_number(el.flash_usb_device.value);
+            break;
         }
 
 
@@ -1970,150 +1969,28 @@ var app = (function () {
         el.flash_dialog.classList.remove('hidden');
         el.flash_progress.classList.remove('hidden');
 
-        function button_pressed() {
-            el.flash_dialog.classList.add('hidden');
-            el.flash_button.removeEventListener('click', button_pressed);
-        }
 
-        try {
-            await device.open();
-        }
-        catch (error) {
-            // cleanup here
-            throw error;
-        }
-
-        let altMode = device.settings.alternate.interfaceProtocol;
-
-        if (altMode == 0x01) {
-            el.flash_message.textContent = 'Restarting into the bootloader ...';
-            await device.detach();
-            try {
-                await device.close();
-                await device.waitDisconnected(5000);
-            }
-            catch (error) {
-                log.log('Detach failed: ' + error);
-            }
-
-            await new Promise(resolve => { setTimeout(resolve, 2000); });
-
-            // FIXME: get device by serial number; trigger from onConnect?!
-            let dfu_devices = await dfu.findAllDfuInterfaces();
-            device = dfu_devices[0];
-            await device.open();
-        }
-
-        try {
-            let status = await device.getStatus();
-            if (status.state == dfu.dfuERROR) {
-                el.flash_message.textContent = 'Clearing DFU status ...';
-                await device.clearStatus();
-            }
-        }
-        catch (error) {
-            log.log('Failed to clear DFU status');
-        }
-
-
-        // Obtain the transfer size and whether the device is manifestation tolerant
-        el.flash_message.textContent = 'Reading DFU information ...';
-
-        let data = await device.readConfigurationDescriptor(0);
-        let configDesc = dfu.parseConfigurationDescriptor(data);
-        let funcDesc = null;
-        let configValue = device.settings.configuration.configurationValue;
-        if (configDesc.bConfigurationValue == configValue) {
-            for (let desc of configDesc.descriptors) {
-                if (desc.bDescriptorType == 0x21 && desc.hasOwnProperty('bcdDFUVersion')) {
-                    funcDesc = desc;
-                    break;
-                }
-            }
-        }
-
-        if (funcDesc == null) {
-            log.log('Failed to read configuration descriptor to parse DFU attributes');
-            el.flash_button.textContent = 'Close';
-            el.flash_button.disabled = false;
-            el.flash_message.classList.add('error');
-            return;
-        }
-
-        const transferSize = funcDesc.wTransferSize;
-        const manifestationTolerant = ((funcDesc.bmAttributes & 0x04) != 0);
-
-        device.logProgress = function(done, total) {
-            log.log('Progress: ' + done / total);
-            el.flash_progress.value = done / total;
-        };
-
-        el.flash_message.textContent = 'Flashing firmware ...';
-
-        try {
-            await device.do_download(transferSize, new Uint8Array(firmware.data.slice(8192)), manifestationTolerant);
-        }
-        catch (error) {
-            el.flash_message.textContent = 'Programming failed: ' + error;
-            el.flash_button.textContent = 'Close';
-            el.flash_button.disabled = false;
-            el.flash_message.classList.add('error');
-            device = null;
-            return;
-        }
-
-        try {
-            el.flash_message.textContent = 'Waiting for device to restart ...';
-
-            await device.waitDisconnected(5000);
-            el.flash_dialog.classList.add('hidden');
-            el.flash_button.removeEventListener('click', button_pressed);
-        }
-        catch (error) {
-            el.flash_message.textContent = 'Device unexpectedly tolerated manifestation.';
-
-            el.flash_button.textContent = 'Close';
-            el.flash_button.disabled = false;
-            el.flash_message.classList.add('error');
-        }
-
-        device = null;
-    };
-
-
-    // *************************************************************************
-    var flash_mk4 = async function () {
-        el.flash_progress.value = 0;
-        el.flash_heading.textContent = 'Flashing ...';
-        el.flash_button.textContent = 'Cancel';
-        el.flash_button.disabled = false;
-        el.flash_message.textContent = '';
-        el.flash_message.classList.remove('error');
-        el.flash_dialog.classList.remove('hidden');
-        el.flash_progress.classList.remove('hidden');
-
-        let mk4_isp = new lpc8xx_isp();
-
-        mk4_isp.onMessageCallback = function (message) {
+        programmer.onMessageCallback = function (message) {
             el.flash_message.textContent = message;
         };
 
-        mk4_isp.onProgressCallback = function (progress) {
+        programmer.onProgressCallback = function (progress) {
             el.flash_progress.value = progress;
-            // Once we receive a progress callback flashing has started,
-            // so we disable the cancel button.
-            el.flash_button.disabled = false;
+        };
+
+        programmer.setCancelButtonEnabled = function (enabled) {
+            el.flash_button.disabled = enabled;
         };
 
         function button_pressed() {
-            mk4_isp.cancel();
+            programmer.cancel();
             el.flash_dialog.classList.add('hidden');
             el.flash_button.removeEventListener('click', button_pressed);
         }
 
         el.flash_button.addEventListener('click', button_pressed);
 
-        if (await mk4_isp.flash(new chrome_uart(), el.flash_serial_port.value, firmware.data)) {
+        if (await programmer.flash(device, firmware.data)) {
             el.flash_dialog.classList.add('hidden');
             el.flash_button.removeEventListener('click', button_pressed);
         }
@@ -2123,6 +2000,7 @@ var app = (function () {
             el.flash_message.classList.add('error');
         }
     };
+
 
     // *************************************************************************
     var read_firmware_from_flash = async function () {
@@ -2135,7 +2013,7 @@ var app = (function () {
         el.flash_dialog.classList.remove('hidden');
         el.flash_progress.classList.add('hidden');
 
-        let mk4_isp = new lpc8xx_isp();
+        let mk4_isp = new flash_lpc8xx(new chrome_uart());
 
         mk4_isp.onMessageCallback = function (message) {
             el.flash_message.textContent = message;
@@ -2149,7 +2027,7 @@ var app = (function () {
 
         el.flash_button.addEventListener('click', button_pressed);
 
-        let bin = await mk4_isp.read_flash(new chrome_uart(), el.flash_serial_port.value);
+        let bin = await mk4_isp.read_flash(el.flash_serial_port.value);
         if (bin.length) {
             el.flash_dialog.classList.add('hidden');
             el.flash_button.removeEventListener('click', button_pressed);
@@ -2163,6 +2041,7 @@ var app = (function () {
             el.flash_message.classList.add('error');
         }
     };
+
 
     // *************************************************************************
     var init = function () {

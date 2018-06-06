@@ -39,12 +39,7 @@
   * Babel-minification?
   * Use latest version on Github by default in nw.js, local if no internet
 
-* MK5 flashing to use dialog
-
-* MK5 flashing to use correct device after detaching
-
-* Figure out if MK5 HEX should be moved to 0x0000 or stay at address 0x2000
-  - We should actually store a .bin file for use with dfu-util
+* For Mk5 we should save a .bin file for use with dfu-util
     - Need to rename save button from "Save hex" to "Save firmware", also tooltip needs to change
   - This means we also need to detect a .bin file, which we do already
 
