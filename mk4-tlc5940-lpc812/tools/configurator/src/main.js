@@ -1945,6 +1945,9 @@ var app = (function () {
 
     // *************************************************************************
     var flash = function () {
+        let config = get_config();
+        assemble_firmware(config);
+
         flash_function();
     };
 
@@ -1957,7 +1960,21 @@ var app = (function () {
             return;
         }
 
-        log.log('Serial number: ' + device.device_.serialNumber);
+
+        el.flash_progress.value = 0;
+        el.flash_heading.textContent = 'Flashing ...';
+        el.flash_button.textContent = 'Cancel';
+        el.flash_button.disabled = false;
+        el.flash_message.textContent = '';
+        el.flash_message.classList.remove('error');
+        el.flash_dialog.classList.remove('hidden');
+        el.flash_progress.classList.remove('hidden');
+
+        function button_pressed() {
+            el.flash_dialog.classList.add('hidden');
+            el.flash_button.removeEventListener('click', button_pressed);
+        }
+
         try {
             await device.open();
         }
@@ -1966,10 +1983,10 @@ var app = (function () {
             throw error;
         }
 
-        // FIXME: Read altmode from device descriptor
         let altMode = device.settings.alternate.interfaceProtocol;
 
         if (altMode == 0x01) {
+            el.flash_message.textContent = 'Restarting into the bootloader ...';
             await device.detach();
             try {
                 await device.close();
@@ -1990,6 +2007,7 @@ var app = (function () {
         try {
             let status = await device.getStatus();
             if (status.state == dfu.dfuERROR) {
+                el.flash_message.textContent = 'Clearing DFU status ...';
                 await device.clearStatus();
             }
         }
@@ -1999,6 +2017,8 @@ var app = (function () {
 
 
         // Obtain the transfer size and whether the device is manifestation tolerant
+        el.flash_message.textContent = 'Reading DFU information ...';
+
         let data = await device.readConfigurationDescriptor(0);
         let configDesc = dfu.parseConfigurationDescriptor(data);
         let funcDesc = null;
@@ -2014,26 +2034,47 @@ var app = (function () {
 
         if (funcDesc == null) {
             log.log('Failed to read configuration descriptor to parse DFU attributes');
+            el.flash_button.textContent = 'Close';
+            el.flash_button.disabled = false;
+            el.flash_message.classList.add('error');
             return;
         }
 
         const transferSize = funcDesc.wTransferSize;
         const manifestationTolerant = ((funcDesc.bmAttributes & 0x04) != 0);
 
+        device.logProgress = function(done, total) {
+            log.log('Progress: ' + done / total);
+            el.flash_progress.value = done / total;
+        };
+
+        el.flash_message.textContent = 'Flashing firmware ...';
+
         try {
             await device.do_download(transferSize, new Uint8Array(firmware.data.slice(8192)), manifestationTolerant);
         }
         catch (error) {
-            log.log('Programming failed', error);
+            el.flash_message.textContent = 'Programming failed: ' + error;
+            el.flash_button.textContent = 'Close';
+            el.flash_button.disabled = false;
+            el.flash_message.classList.add('error');
             device = null;
             return;
         }
 
         try {
+            el.flash_message.textContent = 'Waiting for device to restart ...';
+
             await device.waitDisconnected(5000);
+            el.flash_dialog.classList.add('hidden');
+            el.flash_button.removeEventListener('click', button_pressed);
         }
         catch (error) {
-            log.log('Device unexpectedly tolerated manifestation.');
+            el.flash_message.textContent = 'Device unexpectedly tolerated manifestation.';
+
+            el.flash_button.textContent = 'Close';
+            el.flash_button.disabled = false;
+            el.flash_message.classList.add('error');
         }
 
         device = null;
@@ -2050,9 +2091,6 @@ var app = (function () {
         el.flash_message.classList.remove('error');
         el.flash_dialog.classList.remove('hidden');
         el.flash_progress.classList.remove('hidden');
-
-        let config = get_config();
-        assemble_firmware(config);
 
         let mk4_isp = new lpc8xx_isp();
 
