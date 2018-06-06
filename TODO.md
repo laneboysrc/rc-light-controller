@@ -41,7 +41,13 @@
 
 * MK5 flashing to use dialog
 
-* MK5 save HEX file should remove first 8KB
+* Figure out if MK5 HEX should be moved to 0x0000 or stay at address 0x2000
+  - We should actually store a .bin file for use with dfu-util
+    - Need to rename save button from "Save hex" to "Save firmware", also tooltip needs to change
+  - This means we also need to detect a .bin file, which we do already
+
+* Figure out how to deal with firmware when old version has been kept by user
+  * Best way: when loading set hardware type correctly. Save/flash as requested. When changing hardware type swap to default firmware
 
 * Disable preprocessor-simulator while flashing
 
