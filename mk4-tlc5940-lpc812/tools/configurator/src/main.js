@@ -1667,34 +1667,6 @@ default_firmware_image_mk4
 
     // *************************************************************************
     var update_visibility_from_ports = function () {
-        /*
-
-        Mk4:
-            UART support:
-                Show UART select
-                Serial port available:
-                    Enable Testing, Flash-read, Flash-write
-                No serial port available
-                    Disable Testing, Flash-read, Flash-write
-
-            No UART support:
-                Show flashing info (Configurator, mk4-download.zip, lpc8xx_isp)
-                Disable Testing, Flash-read, Flash-write
-
-        Mk5:
-            WebUSB support:
-                Show USB device select and Pair button
-                USB device available:
-                    Enable Testing, Flash-read, Flash-write
-                No USB device available:
-                    Disable Testing, Flash-read, Flash-write
-
-            No WebUSB support
-                Show flashing info (Configurator, Chromium, dfu-util)
-                Disable Testing, Flash-read, Flash-write
-
-        */
-
         if (el.hardware.value == 'mk4') {
             el.hardware_webusb.classList.add('hidden');
 
@@ -1718,12 +1690,9 @@ default_firmware_image_mk4
                 el.read.disabled = false;
                 preprocessor_simulator_disabled = false;
             }
-
-            update_section_visibility();
-            return;
         }
 
-        if (el.hardware.value == 'mk5') {
+        else if (el.hardware.value == 'mk5') {
             el.hardware_uart.classList.add('hidden');
 
             if (has_webusb) {
@@ -1746,10 +1715,9 @@ default_firmware_image_mk4
                 el.read.disabled = true;
                 preprocessor_simulator_disabled = true;
             }
-
-            update_section_visibility();
-            return;
         }
+
+        update_section_visibility();
     };
 
     // *************************************************************************
