@@ -8,6 +8,9 @@
 
 * Remove WebUSB URL
 
+* DFU read firmware
+
+
 # MK5 PCB
 
 * TLC5940 footprint based on TI datasheet
@@ -32,12 +35,20 @@
 # Configurator
 
 * nw.js based stand-alone program, and on-line WebUSB
-  * Use Babel? Babel-minification?
+  * Use Babel ot make work on IE11
+  * Babel-minification?
+  * Use latest version on Github by default in nw.js, local if no internet
 
-* How to load latest version on Github?
+* MK5 flashing to use dialog
 
-* Add MK5
-  * When loading hex file, autodetect as per stack pointer location, and magic word for LPC
+* MK5 save HEX file should remove first 8KB
+
+* Disable preprocessor-simulator while flashing
+
+* Implemment firmware reading for MK5
+
+* Add Arduino/BOSSAC support
+
 
 * Fix table for ground fault not lining up
 
