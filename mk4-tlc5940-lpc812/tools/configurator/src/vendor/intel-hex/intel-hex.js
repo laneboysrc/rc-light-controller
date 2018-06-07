@@ -216,7 +216,7 @@ var intel_hex = (function () {
     };
 
 
-    // intel_hex.fromArray(, start_address)
+    // intel_hex.fromArray(data, start_address)
     //
     // data: the array to generate an Intel-hex file from
     //

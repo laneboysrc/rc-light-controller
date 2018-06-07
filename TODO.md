@@ -39,7 +39,10 @@
   * Babel-minification?
   * Use latest version on Github by default in nw.js, local if no internet
 
-* Be able to load .bin file for Mk5
+* Refactor firmware loading
+  - Load from JS(hex)/Disk(hex, bin)/ISP(bin)
+    - Hex: convert to bin, then use bin loading function
+  - Auto-detect Mk4/Mk5 when loading firmware
 
 * Disable preprocessor-simulator while flashing
 

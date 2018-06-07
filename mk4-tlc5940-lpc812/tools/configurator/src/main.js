@@ -869,7 +869,7 @@ var app = (function () {
 
 
     // *************************************************************************
-    var parse_firmware = function (intel_hex_data) {
+    var parse_firmware = function (firmware_image) {
         firmware = undefined;
         config = undefined;
         local_leds = undefined;
@@ -881,7 +881,7 @@ var app = (function () {
         el.light_programs_errors.classList.add('hidden');
 
         try {
-            firmware = parse_firmware_structure(intel_hex_data);
+            firmware = parse_firmware_structure(firmware_image);
             parse_firmware_binary();
         } catch (e) {
             window.alert(
@@ -1187,19 +1187,29 @@ var app = (function () {
         }
 
         var intelHex = /^:[0-9a-fA-F][0-9a-fA-F]/;
+        var json = /^\s*{/;
 
         var reader = new FileReader();
         reader.onload = function (e) {
             var contents = e.target.result;
 
-            if (contents.match(intelHex)) {
-                load_firmware_from_disk(contents);
+            let contentsString = String.fromCharCode.apply(null, new Uint8Array(contents));
+
+            if (contentsString.match(json)) {
+                load_configuration_from_disk(contentsString);
+            }
+            else if (contentsString.match(intelHex)) {
+                load_firmware_from_disk(contentsString);
             }
             else {
-                load_configuration_from_disk(contents);
+                let data = new Uint8Array(8192 + contents.byteLength);
+                data.fill(0xff);
+                data.set(new Uint8Array(contents), 8192);
+                contents = intel_hex.fromArray(data);
+                load_firmware_from_disk(contents);
             }
         };
-        reader.readAsText(this.files[0]);
+        reader.readAsArrayBuffer(this.files[0]);
     };
 
 
