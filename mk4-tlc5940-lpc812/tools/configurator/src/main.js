@@ -1512,6 +1512,9 @@ var app = (function () {
 
     // *************************************************************************
     var save_firmware = function () {
+        var default_filename;
+        var blob;
+
         // Update data based on UI
         var data = get_config();
 
@@ -1524,17 +1527,18 @@ var app = (function () {
             return;
         }
 
-        var start_address = 0;
-        if (el.hardware.value == 'mk5') {
-            start_address = 0x2000;
+        if (el.hardware.value == 'mk4') {
+            let hex = intel_hex.fromArray(firmware.data);
+            blob = new Blob([hex], {type: 'text/plain;charset=utf-8'});
+            default_filename = 'light_controller.hex';
+        }
+        else if (el.hardware.value == 'mk5') {
+            blob = new Blob([new Uint8Array(firmware.data.slice(8192))], {type: 'application/octet-stream'});
+            default_filename = 'light_controller.bin';
         }
 
-        var intelhex = intel_hex.fromArray(firmware.data, start_address);
-
-        var blob = new Blob([intelhex], {type: 'text/plain;charset=utf-8'});
-
-        var filename = window.prompt('Filename for the firmware image:',
-            'light_controller.hex');
+        // FIXME: don't show prompt on nw.js where we have a proper file-save dialog
+        var filename = window.prompt('Filename for the firmware image:', default_filename);
 
         if (filename !== null  &&  filename !== '') {
             saveAs(blob, filename);

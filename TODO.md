@@ -39,12 +39,7 @@
   * Babel-minification?
   * Use latest version on Github by default in nw.js, local if no internet
 
-* For Mk5 we should save a .bin file for use with dfu-util
-    - Need to rename save button from "Save hex" to "Save firmware", also tooltip needs to change
-  - This means we also need to detect a .bin file, which we do already
-
-* Figure out how to deal with firmware when old version has been kept by user
-  * Best way: when loading set hardware type correctly. Save/flash as requested. When changing hardware type swap to default firmware
+* Be able to load .bin file for Mk5
 
 * Disable preprocessor-simulator while flashing
 
