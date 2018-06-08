@@ -62,14 +62,18 @@ class _preprocessor_webusb {
         this.webusb_device;
     }
 
-    async init() {
+    async init(dummy, serialNumber) {
         navigator.usb.addEventListener('connect', this.webusb_device_connected.bind(this));
         navigator.usb.addEventListener('disconnect', this.webusb_device_disconnected.bind(this));
 
         let devices = await navigator.usb.getDevices();
         if (devices.length) {
-            // FIXME: connect to the device with the selected serial number, not the first one!
-            this.connect(devices[0]);
+            for (let i = 0; i < devices.length; i += 1) {
+                if (devices[i].serialNumber == serialNumber) {
+                    this.connect(devices[i]);
+                    break;
+                }
+            }
         }
         else {
             // Show the connect button

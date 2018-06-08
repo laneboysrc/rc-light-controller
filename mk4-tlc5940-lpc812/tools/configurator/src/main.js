@@ -1693,7 +1693,7 @@ var app = (function () {
                 preprocessor_simulator.init(el.flash_serial_port.value, parseInt(el.baudrate.value, 10));
             }
             if (el.hardware.value == 'mk5') {
-                preprocessor_simulator.init('usb');
+                preprocessor_simulator.init('usb', el.flash_usb_device.value);
             }
         }
         else {
