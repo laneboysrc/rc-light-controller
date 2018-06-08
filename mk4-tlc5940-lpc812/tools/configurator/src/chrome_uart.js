@@ -21,14 +21,14 @@ class chrome_uart {
         this.timeoutMs = 0;
         this.eol = '\r\n';
 
-        // this.log = console;
-        this.log = {
-            log: () => {},
-            info: () => {},
-            warn: () => {},
-            error: () => {},
-            dir: () => {}
-        };
+        this.log = console;
+        // this.log = {
+        //     log: () => {},
+        //     info: () => {},
+        //     warn: () => {},
+        //     error: () => {},
+        //     dir: () => {}
+        // };
     }
 
     open(port, baudrate) {

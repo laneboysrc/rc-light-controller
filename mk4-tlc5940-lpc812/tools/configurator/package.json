@@ -11,7 +11,7 @@
     "babel-preset-env": "^1.7.0",
     "font-awesome-base64": "^1.0.4",
     "inline-source-cli": "^1.2.0",
-    "nw-builder": "^3.5.2"
+    "nw-builder": "^3.5.3"
   },
   "window": {
     "title": "Light Controller Configurator",
