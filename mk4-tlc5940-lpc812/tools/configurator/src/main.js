@@ -854,15 +854,17 @@ var app = (function () {
 
 
     // *************************************************************************
-    var parse_firmware_structure = function (intel_hex_data) {
-        var image_data;
-        var offset_list;
+    var hex_to_bin = function (intel_hex_data) {
+        return intel_hex.parse(intel_hex_data).data;
+    };
 
-        image_data = intel_hex.parse(intel_hex_data);
-        offset_list = find_magic_markers(image_data.data);
+
+    // *************************************************************************
+    var parse_firmware_structure = function (firmware_image) {
+        var offset_list = find_magic_markers(firmware_image);
 
         return {
-            data: image_data.data,
+            data: firmware_image,
             offset: offset_list,
         };
     };
@@ -1165,8 +1167,7 @@ var app = (function () {
 
 
     // *************************************************************************
-    var load_default_firmware = function () {
-        parse_firmware(default_firmware_image_mk4);
+    var load_default_configuration = function () {
         default_firmware_version = config.firmware_version;
 
         // Instead of using the disassebled source code, we use the original
@@ -1199,14 +1200,14 @@ var app = (function () {
                 load_configuration_from_disk(contentsString);
             }
             else if (contentsString.match(intelHex)) {
-                load_firmware_from_disk(contentsString);
+                contents = hex_to_bin(contentsString);
+                load_firmware(contents);
             }
             else {
                 let data = new Uint8Array(8192 + contents.byteLength);
                 data.fill(0xff);
                 data.set(new Uint8Array(contents), 8192);
-                contents = intel_hex.fromArray(data);
-                load_firmware_from_disk(contents);
+                load_firmware(data);
             }
         };
         reader.readAsArrayBuffer(this.files[0]);
@@ -1243,16 +1244,35 @@ var app = (function () {
 
 
     // *************************************************************************
-    var load_firmware_from_disk = function (contents) {
-        var msg;
-        parse_firmware(contents);
+    var load_firmware = function (firmware_image) {
+        parse_firmware(firmware_image);
+
+        // Change hardware to Mk4/Mk5 according to firmware
+        // We do that by looking at the top most byte of the stackpointer (first
+        // word in the firmware) which points to the RAM.
+        // The LPC RAM starts at 0x10000000, the SAMD21 at 0x20000000
+        if (firmware.data[3] == 0x10) {
+            el.hardware.value = 'mk4';
+        }
+        else if (firmware.data[8192+3] == 0x20) {
+            el.hardware.value = 'mk5';
+        }
+        update_visibility_from_ports();
 
         if (default_firmware_version > config.firmware_version) {
-            msg = 'A new firmware version is available.\n';
+            let msg = 'A new firmware version is available.\n';
             msg += 'Click OK to update the firmware, keeping your settings.\n';
             msg += 'Click Cancel to keep the original firmware.\n';
             if (window.confirm(msg)) {
-                firmware = parse_firmware_structure(default_firmware_image_mk4);
+                let bin;
+                if (el.hardware.value == 'mk4') {
+                    bin = hex_to_bin(default_firmware_image_mk4);
+                }
+                else if (el.hardware.value == 'mk5') {
+                    bin = hex_to_bin(default_firmware_image_mk5);
+                }
+
+                firmware = parse_firmware_structure(bin);
                 config.firmware_version = default_firmware_version;
                 update_ui();
             }
@@ -1262,8 +1282,6 @@ var app = (function () {
 
     // *************************************************************************
     var hardware_changed = function () {
-        update_visibility_from_ports();
-
         let firmware_hex;
 
         switch(el.hardware.value) {
@@ -1276,7 +1294,14 @@ var app = (function () {
             break;
         }
 
-        firmware = parse_firmware_structure(firmware_hex);
+        let bin = hex_to_bin(firmware_hex);
+        firmware = parse_firmware_structure(bin);
+
+        // Change the firmware version to the default we've just loaded
+        config.firmware_version = default_firmware_version;
+        update_ui();
+
+        update_visibility_from_ports();
     };
 
 
@@ -2046,8 +2071,7 @@ var app = (function () {
             el.flash_dialog.classList.add('hidden');
             el.flash_button.removeEventListener('click', button_pressed);
 
-            firmware = {data: bin, offset: find_magic_markers(bin)};
-            parse_firmware_binary();
+            load_firmware(bin);
         }
         else {
             el.flash_button.textContent = 'Close';
@@ -2264,15 +2288,19 @@ var app = (function () {
         discover_serial_ports();
         discover_usb_devices();
         init_assembler();
-        load_default_firmware();
+
+        let contents = hex_to_bin(default_firmware_image_mk4);
+        load_firmware(contents);
+        load_default_configuration();
         hardware_changed();
+
         select_page('config_hardware');
     };
 
 
     // *************************************************************************
     return {
-        load: load_firmware_from_disk,
+        load: load_firmware,
         init: init
     };
 }());
