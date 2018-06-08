@@ -43,7 +43,7 @@
 
 * Implemment firmware reading for MK5
 
-* Add Arduino/BOSSAC support
+* Add Arduino/BOSSAC support?
 
 
 * Fix table for ground fault not lining up

@@ -536,10 +536,6 @@ var app = (function () {
                 el.mode_test
             ]);
 
-            // FIXME: testing is only shown when
-            //  mk4: uart port available AND preprocessor-input
-            //  mk5: webusb OR (uart port available AND preprocessor-input)
-            //
             update_menu_visibility([
                 'config_hardware',
                 'config_mode',
@@ -1572,8 +1568,11 @@ var app = (function () {
             default_filename = 'light_controller.bin';
         }
 
-        // FIXME: don't show prompt on nw.js where we have a proper file-save dialog
-        var filename = window.prompt('Filename for the firmware image:', default_filename);
+        // Don't show prompt on nw.js where we have a proper file-save dialog
+        let filename = default_filename;
+        if (typeof nw === 'undefined') {
+            filename = window.prompt('Filename for the firmware image:', default_filename);
+        }
 
         if (filename !== null  &&  filename !== '') {
             saveAs(blob, filename);
@@ -1592,8 +1591,12 @@ var app = (function () {
             type: 'text/plain;charset=utf-8'
         });
 
-        var filename = window.prompt('Filename for the configuration file:',
-            'light_controller.config.txt');
+        // Don't show prompt on nw.js where we have a proper file-save dialog
+        let default_filename = 'light_controller.config.txt';
+        let filename = default_filename;
+        if (typeof nw === 'undefined') {
+            filename = window.prompt('Filename for the firmware image:', default_filename);
+        }
 
         if (filename !== null  &&  filename !== '') {
             saveAs(blob, filename);
