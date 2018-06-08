@@ -1689,9 +1689,12 @@ var app = (function () {
         ui.refresh_editor();
 
         if (selected_page == 'testing') {
-            // FIXME: choose appropriate port and baudrate
-            preprocessor_simulator.init('usb');
-            // preprocessor_simulator.init('/dev/ttyUSB0', parseInt(el.baudrate.value, 10));
+            if (el.hardware.value == 'mk4') {
+                preprocessor_simulator.init(el.flash_serial_port.value, parseInt(el.baudrate.value, 10));
+            }
+            if (el.hardware.value == 'mk5') {
+                preprocessor_simulator.init('usb');
+            }
         }
         else {
             preprocessor_simulator.disconnect();
