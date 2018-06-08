@@ -68,6 +68,7 @@ class _preprocessor_webusb {
 
         let devices = await navigator.usb.getDevices();
         if (devices.length) {
+            // FIXME: connect to the device with the selected serial number, not the first one!
             this.connect(devices[0]);
         }
         else {
