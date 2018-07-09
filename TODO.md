@@ -23,6 +23,8 @@
 
 * FW: Add Xenon lamp simulation
 
+* FW: Add Exhaust flame function
+
 * Deprecate CPPM reader (to simplify things, no-one ever used it)
 
 * Shelf Queen mode
