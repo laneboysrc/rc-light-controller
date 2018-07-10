@@ -37,13 +37,15 @@
 # Configurator
 
 * nw.js based stand-alone program, and on-line WebUSB
-  * Use Babel ot make work on IE11
+  * Use Babel ot make work on IE11 (separate version from nw.js?)
   * Babel-minification?
   * Use latest version on Github by default in nw.js, local if no internet
 
 * Disable preprocessor-simulator while flashing
 
 * Implemment firmware reading for MK5
+
+* Flashing instructions that hint for nw.js download / Chromium
 
 * Add Arduino/BOSSAC support?
 
