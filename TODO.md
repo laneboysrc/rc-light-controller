@@ -49,6 +49,7 @@
 
 * Add Arduino/BOSSAC support?
 
+* Save/Restore window position, maximized, etc
 
 * Fix table for ground fault not lining up
 
