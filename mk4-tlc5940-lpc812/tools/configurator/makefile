@@ -63,7 +63,7 @@ clean:
 
 debug: $(TARGET)
 	@echo [NW.JS debug]
-	$(ECHO) ./node_modules/.bin/nwbuild --flavor sdk --cacheDir ./cache/ -r .
+	$(ECHO) ./node_modules/.bin/nwbuild -p linux64 -v 0.31.5 --flavor sdk --cacheDir ./cache/ -r .
 
 # release: COMPRESS=--compress
 release: $(TARGET)
