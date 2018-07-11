@@ -1,19 +1,9 @@
-// nw.Window.open('build/configurator.html', {}, function (new_win) {
-//     new_win.showDevTools();
-//     new_win.on('focus', function() {
-//         console.log('New window is focused');
-//         new_win.eval(null, 'console.log("New window is focused EVAL");');
-//     });
-
-//     new_win.eval(null, 'console.log("Hello world");');
-// });
-
-// console.log('Hi there from boot.js');
-
 'use strict';
 
-function start_configurator() {
-    const window_options = {
+var gui = require('nw.gui');
+
+function startConfigurator() {
+    const windowOptions = {
         id: 'configurator',
         frame: 'chrome',
         innerBounds: {
@@ -22,20 +12,26 @@ function start_configurator() {
         }
     };
 
-    console.log('start_configurator');
+    chrome.app.window.create('build/configurator.html', windowOptions, function (appWindow) {
 
-    chrome.app.window.create('build/configurator.html', window_options, function (app_window) {
+        // Example of how to access console.log
+        // appWindow.contentWindow.console.log(appWindow);
 
-        console.log(app_window);
-        app_window.contentWindow.console.log(app_window);
+        const nwWindow = appWindow.contentWindow.nw.Window.get();
 
-        const nw_window = app_window.contentWindow.nw.Window.get();
-        app_window.contentWindow.console.log(nw_window);
-        nw_window.showDevTools();
-        nw_window.window.console.log('console.log from nw_window.window');
+        // Show the Chrome DevTools
+        // FIXME: only do this in debug mode!
+        nwWindow.showDevTools();
+
+        // Listen to the new window event and open them in the default browser
+        // configured for the operating system
+        nwWindow.on('new-win-policy', function (frame, url, policy) {
+            gui.Shell.openExternal(url);
+            policy.ignore();
+        });
     });
 
 
 }
 
-chrome.app.runtime.onLaunched.addListener(start_configurator);
+chrome.app.runtime.onLaunched.addListener(startConfigurator);
