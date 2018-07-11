@@ -2,27 +2,23 @@
   "name": "light-program-configurator",
   "version": "1.0.0",
   "description": "DIY RC Light Controller configuration tool",
-  "Xmain": "build/configurator.html",
-  "main": "src/boot.js",
   "repository": "https://github.com/laneboysrc/rc-light-controller.git",
   "author": "LANE Boys RC",
   "license": "MIT",
+
+  "main": "src/main-nwjs.html",
+  "bg-script": "src/main-nwjs.js",
+  "window": {
+    "show": false,
+    "icon": "favicon.ico"
+  },
+  "chromium-args" : "--enable-logging",
+
   "devDependencies": {
     "babel-cli": "^6.26.0",
     "babel-preset-env": "^1.7.0",
     "font-awesome-base64": "^1.0.4",
     "inline-source-cli": "^1.2.0",
     "nw-builder": "^3.5.4"
-  },
-  "window": {
-    "title": "Light Controller Configurator",
-    "icon": "favicon.ico",
-    "width": 1024,
-    "height": 700,
-    "position": "center",
-    "resizable": true,
-    "toolbar": false,
-    "frame": true,
-    "fullscreen": false
   }
 }
