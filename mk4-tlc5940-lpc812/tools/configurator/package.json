@@ -5,15 +5,13 @@
   "repository": "https://github.com/laneboysrc/rc-light-controller.git",
   "author": "LANE Boys RC",
   "license": "MIT",
-
   "main": "src/main-nwjs.html",
   "bg-script": "src/main-nwjs.js",
   "window": {
     "show": false,
     "icon": "favicon.ico"
   },
-  "chromium-args" : "--enable-logging",
-
+  "chromium-args": "--enable-logging",
   "devDependencies": {
     "babel-cli": "^6.26.0",
     "babel-preset-env": "^1.7.0",
