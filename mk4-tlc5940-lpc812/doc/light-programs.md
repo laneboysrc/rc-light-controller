@@ -106,7 +106,7 @@ Here is a valid light program showing various forms of comments:
 
 While light programs are line-based, if the last character on a line is ``\`` the statement is assumed to be continued on the following line. This can be useful to prevent excessively long lines.
 
-The following light program shows possible usage. It is not advisable to write light programs like this though:
+The following shows a valid light program, but it is certainly not advisable to write like this:
 
     run \
        when\
@@ -172,7 +172,7 @@ A light program can define multiple run conditions of the same type. For example
 
 However, a light program can not mix events, priority run conditions and run conditions.
 
-Run conditions must be the first no-comment or empty lines in the light program.
+Run conditions must be the first no-comment or empty line in the light program.
 The syntax is as follows:
 
     run always
@@ -235,7 +235,7 @@ The syntax is as follows:
 
 - blink-left, blink-right
 
-    The light program runs during the bright period of the respective left or right indicator light. Note that the indicator light may also be blinking due to the hazard light function, in which case both blink-left and blink-right will be active during the same time.
+    The light program runs during the bright period of the respective left or right indicator light.
 
 - winch-disabled, winch-idle, winch-in, winch-out
 
@@ -312,7 +312,7 @@ Light program 3:
     global var VARIABLE3
 
 Light programs 1 and 2 share the global variable ``i_am_global``.
-Light program 1 and 3 also declares a global variable ``VARIABLE3``. Light program 2 also declares ``VARIABLE3``, but as local variable, so in this example ``VARIABLE3`` of light program 2 is a separate, private storage location from the global ``VARIABLE3`` shared by light programs 1 and 3.
+Light program 1 and 3 declare another global variable ``VARIABLE3``. Light program 2 also declares ``VARIABLE3``, but as local variable, so in this example ``VARIABLE3`` of light program 2 is a separate, private storage location from the global ``VARIABLE3`` shared by light programs 1 and 3.
 
 
 There two global variables predefined for all light programs:
