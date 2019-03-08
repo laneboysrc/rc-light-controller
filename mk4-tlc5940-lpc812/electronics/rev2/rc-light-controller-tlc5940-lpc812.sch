@@ -1,0 +1,976 @@
+EESchema Schematic File Version 4
+LIBS:rc-light-controller-tlc5940-lpc812-cache
+EELAYER 26 0
+EELAYER END
+$Descr A3 16535 11693
+encoding utf-8
+Sheet 1 1
+Title ""
+Date ""
+Rev ""
+Comp ""
+Comment1 ""
+Comment2 ""
+Comment3 ""
+Comment4 ""
+$EndDescr
+Wire Wire Line
+	11300 1400 11000 1400
+Wire Wire Line
+	11000 1400 11000 1200
+Wire Wire Line
+	11300 1900 11000 1900
+Wire Wire Line
+	11000 1900 11000 1400
+Wire Wire Line
+	11300 2000 11000 2000
+Wire Wire Line
+	11000 2000 11000 1900
+Connection ~ 11000 1400
+Connection ~ 11000 1900
+Wire Wire Line
+	5400 4500 5400 4800
+Wire Wire Line
+	5400 4800 6700 4800
+Wire Wire Line
+	5400 4800 5400 5000
+Connection ~ 5400 4800
+Wire Wire Line
+	5800 8300 5800 8100
+Wire Wire Line
+	5800 8300 5600 8300
+Wire Wire Line
+	11300 1600 10700 1600
+Wire Wire Line
+	10700 1600 10700 3500
+Wire Wire Line
+	5800 4900 5800 5500
+Wire Wire Line
+	5800 4900 6700 4900
+Wire Wire Line
+	10400 3500 10400 3300
+Wire Wire Line
+	3800 9100 3800 8900
+Wire Wire Line
+	5400 5300 5400 5500
+Wire Wire Line
+	4200 8500 4200 9100
+Text Label 4200 8500 0    10   ~ 0
+GND
+Wire Wire Line
+	2800 3700 2800 1900
+Wire Wire Line
+	2800 1900 2200 1900
+Wire Wire Line
+	12400 3200 12400 3500
+Wire Wire Line
+	12100 8200 12100 8300
+Wire Wire Line
+	8900 2500 10200 2500
+Text Label 8900 2500 0    70   ~ 0
+SIN
+Wire Wire Line
+	6700 5700 6100 5700
+Text Label 6100 5700 0    70   ~ 0
+SIN
+Wire Wire Line
+	8900 2400 11300 2400
+Text Label 8900 2400 0    70   ~ 0
+SCLK
+Wire Wire Line
+	6500 5200 6100 5200
+Wire Wire Line
+	6700 5200 6500 5200
+Wire Wire Line
+	6500 5200 6500 4700
+Wire Wire Line
+	6500 4700 6200 4700
+Wire Wire Line
+	6200 4700 6200 4600
+Text Label 6100 5200 0    70   ~ 0
+SCLK
+Connection ~ 6500 5200
+Wire Wire Line
+	8900 2700 11300 2700
+Text Label 8900 2700 0    70   ~ 0
+XLAT
+Wire Wire Line
+	6600 5300 6100 5300
+Wire Wire Line
+	6700 5300 6600 5300
+Wire Wire Line
+	6600 5300 6600 4600
+Text Label 6100 5300 0    70   ~ 0
+XLAT
+Connection ~ 6600 5300
+Wire Wire Line
+	11300 2100 9900 2100
+Text Label 8900 2100 0    70   ~ 0
+BLANK
+Wire Wire Line
+	6700 5600 6100 5600
+Text Label 6100 5600 0    70   ~ 0
+BLANK
+Wire Wire Line
+	11300 1800 9600 1800
+Text Label 8900 1800 0    70   ~ 0
+GSCLK
+Wire Wire Line
+	6100 5100 6700 5100
+Text Label 6100 5100 0    70   ~ 0
+GSCLK
+Wire Wire Line
+	10400 2900 10400 1500
+Wire Wire Line
+	10400 1500 11300 1500
+Wire Wire Line
+	6700 5400 6100 5400
+Text Label 6100 5400 0    70   ~ 0
+TH/TX
+Wire Wire Line
+	3900 2700 3400 2700
+Text Label 3900 2700 2    70   ~ 0
+TH/TX
+Wire Wire Line
+	4200 8300 3800 8300
+Wire Wire Line
+	3800 8300 3400 8300
+Wire Wire Line
+	3800 8600 3800 8300
+Connection ~ 3800 8300
+Text Label 3400 8300 0    70   ~ 0
+VIN
+Wire Wire Line
+	15000 6100 14300 6100
+Text Label 14500 6100 2    70   ~ 0
+VIN
+Wire Wire Line
+	15000 5800 14300 5800
+Text Label 14500 5800 2    70   ~ 0
+VIN
+Wire Wire Line
+	2200 1500 3900 1500
+Text Label 3900 1500 2    70   ~ 0
+VIN
+Wire Wire Line
+	6700 5000 6100 5000
+Text Label 6100 5000 0    70   ~ 0
+ST/RX
+Wire Wire Line
+	3900 2300 3400 2300
+Text Label 3900 2300 2    70   ~ 0
+ST/RX
+Wire Wire Line
+	13100 1400 14300 1400
+Wire Wire Line
+	14300 1400 14300 1000
+Wire Wire Line
+	14300 1000 15000 1000
+Wire Wire Line
+	13100 1500 14400 1500
+Wire Wire Line
+	14400 1500 14400 1300
+Wire Wire Line
+	14400 1300 15000 1300
+Wire Wire Line
+	13100 1600 15000 1600
+Wire Wire Line
+	13100 1700 14400 1700
+Wire Wire Line
+	14400 1700 14400 1900
+Wire Wire Line
+	14400 1900 15000 1900
+Wire Wire Line
+	13100 2900 13200 2900
+Wire Wire Line
+	13200 2900 13200 5500
+Wire Wire Line
+	13200 5500 15000 5500
+Wire Wire Line
+	13100 2800 13300 2800
+Wire Wire Line
+	13300 2800 13300 5200
+Wire Wire Line
+	13300 5200 15000 5200
+Wire Wire Line
+	13100 2700 13400 2700
+Wire Wire Line
+	13400 2700 13400 4900
+Wire Wire Line
+	13400 4900 15000 4900
+Wire Wire Line
+	13100 2600 13500 2600
+Wire Wire Line
+	13500 2600 13500 4600
+Wire Wire Line
+	13500 4600 15000 4600
+Wire Wire Line
+	13100 2500 13600 2500
+Wire Wire Line
+	13600 2500 13600 4300
+Wire Wire Line
+	13600 4300 15000 4300
+Wire Wire Line
+	13100 2400 13700 2400
+Wire Wire Line
+	13700 2400 13700 4000
+Wire Wire Line
+	13700 4000 15000 4000
+Wire Wire Line
+	13100 2300 13800 2300
+Wire Wire Line
+	13800 2300 13800 3700
+Wire Wire Line
+	13800 3700 15000 3700
+Wire Wire Line
+	13100 2200 13900 2200
+Wire Wire Line
+	13900 2200 13900 3400
+Wire Wire Line
+	13900 3400 15000 3400
+Wire Wire Line
+	13100 2100 14000 2100
+Wire Wire Line
+	14000 2100 14000 3100
+Wire Wire Line
+	14000 3100 15000 3100
+Wire Wire Line
+	13100 2000 14100 2000
+Wire Wire Line
+	14100 2000 14100 2800
+Wire Wire Line
+	14100 2800 15000 2800
+Wire Wire Line
+	13100 1900 14200 1900
+Wire Wire Line
+	14200 1900 14200 2500
+Wire Wire Line
+	14200 2500 15000 2500
+Wire Wire Line
+	13100 1800 14300 1800
+Wire Wire Line
+	14300 1800 14300 2200
+Wire Wire Line
+	14300 2200 15000 2200
+Wire Wire Line
+	3000 2300 2200 2300
+Wire Wire Line
+	3000 2700 2200 2700
+Wire Wire Line
+	9900 5200 8900 5200
+Text Label 9900 5200 2    70   ~ 0
+OUT/ISP
+Wire Wire Line
+	3900 3500 3400 3500
+Text Label 3900 3500 2    70   ~ 0
+OUT/ISP
+Wire Wire Line
+	2200 3100 3000 3100
+Wire Wire Line
+	3400 3100 3900 3100
+Text Label 3900 3100 2    70   ~ 0
+CH3
+Wire Wire Line
+	9900 5300 8900 5300
+Text Label 9900 5300 2    70   ~ 0
+CH3
+Wire Wire Line
+	12900 7500 12100 7500
+Wire Wire Line
+	12100 7800 12100 7500
+Wire Wire Line
+	2200 3500 3000 3500
+Wire Wire Line
+	8900 4900 9900 4900
+Text Label 9900 4900 2    70   ~ 0
+OUT-SWITCHED
+Wire Wire Line
+	11900 8100 10800 8100
+Text Label 10800 8100 0    70   ~ 0
+OUT-SWITCHED
+$Comp
+L rc-light-controller-tlc5940-lpc812-eagle-import:TLC5940PWP U2
+U 1 0 840783A6
+P 13000 2900
+F 0 "U2" H 11400 4520 59  0000 L BNN
+F 1 "TLC5940PWP" H 11780 2780 59  0000 R TNN
+F 2 "rc-light-controller-tlc5940-lpc812:SOP65P640X120-29N" H 13000 2900 50  0001 C CNN
+F 3 "" H 13000 2900 50  0001 C CNN
+	1    13000 2900
+	1    0    0    -1  
+$EndComp
+$Comp
+L rc-light-controller-tlc5940-lpc812-eagle-import:GND #GND01
+U 1 0 C94580D2
+P 10700 3600
+F 0 "#GND01" H 10700 3600 50  0001 C CNN
+F 1 "GND" H 10600 3500 59  0000 L BNN
+F 2 "" H 10700 3600 50  0001 C CNN
+F 3 "" H 10700 3600 50  0001 C CNN
+	1    10700 3600
+	1    0    0    -1  
+$EndComp
+$Comp
+L rc-light-controller-tlc5940-lpc812-eagle-import:GND #GND02
+U 1 0 2822B6F7
+P 5800 5600
+F 0 "#GND02" H 5800 5600 50  0001 C CNN
+F 1 "GND" H 5700 5500 59  0000 L BNN
+F 2 "" H 5800 5600 50  0001 C CNN
+F 3 "" H 5800 5600 50  0001 C CNN
+	1    5800 5600
+	1    0    0    -1  
+$EndComp
+$Comp
+L rc-light-controller-tlc5940-lpc812-eagle-import:+3V3 #+3V01
+U 1 0 910CF6D9
+P 5400 4400
+F 0 "#+3V01" H 5400 4400 50  0001 C CNN
+F 1 "+3V3" V 5300 4200 59  0000 L BNN
+F 2 "" H 5400 4400 50  0001 C CNN
+F 3 "" H 5400 4400 50  0001 C CNN
+	1    5400 4400
+	1    0    0    -1  
+$EndComp
+$Comp
+L rc-light-controller-tlc5940-lpc812-eagle-import:+3V3 #+3V02
+U 1 0 BB2FC3B7
+P 11000 1100
+F 0 "#+3V02" H 11000 1100 50  0001 C CNN
+F 1 "+3V3" V 10900 900 59  0000 L BNN
+F 2 "" H 11000 1100 50  0001 C CNN
+F 3 "" H 11000 1100 50  0001 C CNN
+	1    11000 1100
+	1    0    0    -1  
+$EndComp
+$Comp
+L rc-light-controller-tlc5940-lpc812-eagle-import:R-EU_R0805 R1
+U 1 0 80E41320
+P 10400 3100
+F 0 "R1" H 10250 3159 59  0000 L BNN
+F 1 "2k0=20mA" H 10250 2970 59  0000 L BNN
+F 2 "Resistor_SMD:R_0603_1608Metric" H 10400 3100 50  0001 C CNN
+F 3 "" H 10400 3100 50  0001 C CNN
+	1    10400 3100
+	0    -1   -1   0   
+$EndComp
+$Comp
+L rc-light-controller-tlc5940-lpc812-eagle-import:GND #GND03
+U 1 0 2B62811B
+P 10400 3600
+F 0 "#GND03" H 10400 3600 50  0001 C CNN
+F 1 "GND" H 10300 3500 59  0000 L BNN
+F 2 "" H 10400 3600 50  0001 C CNN
+F 3 "" H 10400 3600 50  0001 C CNN
+	1    10400 3600
+	1    0    0    -1  
+$EndComp
+$Comp
+L rc-light-controller-tlc5940-lpc812-eagle-import:GND #GND0101
+U 1 0 339C7FAA
+P 5800 9200
+F 0 "#GND0101" H 5800 9200 50  0001 C CNN
+F 1 "GND" H 5700 9100 59  0000 L BNN
+F 2 "" H 5800 9200 50  0001 C CNN
+F 3 "" H 5800 9200 50  0001 C CNN
+	1    5800 9200
+	1    0    0    -1  
+$EndComp
+$Comp
+L rc-light-controller-tlc5940-lpc812-eagle-import:GND #GND05
+U 1 0 8A31D18F
+P 3800 9200
+F 0 "#GND05" H 3800 9200 50  0001 C CNN
+F 1 "GND" H 3700 9100 59  0000 L BNN
+F 2 "" H 3800 9200 50  0001 C CNN
+F 3 "" H 3800 9200 50  0001 C CNN
+	1    3800 9200
+	1    0    0    -1  
+$EndComp
+$Comp
+L rc-light-controller-tlc5940-lpc812-eagle-import:GND #GND06
+U 1 0 53F79456
+P 4200 9200
+F 0 "#GND06" H 4200 9200 50  0001 C CNN
+F 1 "GND" H 4100 9100 59  0000 L BNN
+F 2 "" H 4200 9200 50  0001 C CNN
+F 3 "" H 4200 9200 50  0001 C CNN
+	1    4200 9200
+	1    0    0    -1  
+$EndComp
+$Comp
+L rc-light-controller-tlc5940-lpc812-eagle-import:+3V3 #+3V03
+U 1 0 8A0CCF2D
+P 5800 8000
+F 0 "#+3V03" H 5800 8000 50  0001 C CNN
+F 1 "+3V3" V 5700 7800 59  0000 L BNN
+F 2 "" H 5800 8000 50  0001 C CNN
+F 3 "" H 5800 8000 50  0001 C CNN
+	1    5800 8000
+	1    0    0    -1  
+$EndComp
+$Comp
+L rc-light-controller-tlc5940-lpc812-eagle-import:GND #GND07
+U 1 0 749ABC63
+P 2800 3800
+F 0 "#GND07" H 2800 3800 50  0001 C CNN
+F 1 "GND" H 2700 3700 59  0000 L BNN
+F 2 "" H 2800 3800 50  0001 C CNN
+F 3 "" H 2800 3800 50  0001 C CNN
+	1    2800 3800
+	-1   0    0    -1  
+$EndComp
+$Comp
+L rc-light-controller-tlc5940-lpc812-eagle-import:C-EUC0805 C3
+U 1 0 4A30DC6E
+P 5400 5100
+F 0 "C3" H 5460 5115 59  0000 L BNN
+F 1 "100n" H 5460 4915 59  0000 L BNN
+F 2 "Capacitor_SMD:C_0603_1608Metric" H 5400 5100 50  0001 C CNN
+F 3 "" H 5400 5100 50  0001 C CNN
+	1    5400 5100
+	1    0    0    -1  
+$EndComp
+$Comp
+L rc-light-controller-tlc5940-lpc812-eagle-import:GND #GND08
+U 1 0 1D2F8185
+P 5400 5600
+F 0 "#GND08" H 5400 5600 50  0001 C CNN
+F 1 "GND" H 5300 5500 59  0000 L BNN
+F 2 "" H 5400 5600 50  0001 C CNN
+F 3 "" H 5400 5600 50  0001 C CNN
+	1    5400 5600
+	1    0    0    -1  
+$EndComp
+$Comp
+L rc-light-controller-tlc5940-lpc812-eagle-import:MCP1703T-3302E_CB U$1
+U 1 0 09B5DC2D
+P 4900 8300
+F 0 "U$1" H 4746 8599 69  0000 L BNN
+F 1 "3V3" H 4794 7712 69  0000 L BNN
+F 2 "rc-light-controller-tlc5940-lpc812:SOT95P300X145-3N" H 4900 8300 50  0001 C CNN
+F 3 "" H 4900 8300 50  0001 C CNN
+	1    4900 8300
+	1    0    0    -1  
+$EndComp
+$Comp
+L rc-light-controller-tlc5940-lpc812-eagle-import:SDM80X120 PAD1
+U 1 0 1C475C6D
+P 2100 1500
+F 0 "PAD1" H 2055 1573 59  0000 L BNN
+F 1 "+" H 2055 1370 59  0000 L BNN
+F 2 "rc-light-controller-tlc5940-lpc812:SMD80X120" H 2100 1500 50  0001 C CNN
+F 3 "" H 2100 1500 50  0001 C CNN
+	1    2100 1500
+	1    0    0    1   
+$EndComp
+$Comp
+L rc-light-controller-tlc5940-lpc812-eagle-import:SDM80X120 PAD2
+U 1 0 A0CD53A2
+P 2100 1900
+F 0 "PAD2" H 2055 1973 59  0000 L BNN
+F 1 "-" H 2055 1770 59  0000 L BNN
+F 2 "rc-light-controller-tlc5940-lpc812:SMD80X120" H 2100 1900 50  0001 C CNN
+F 3 "" H 2100 1900 50  0001 C CNN
+	1    2100 1900
+	1    0    0    1   
+$EndComp
+$Comp
+L rc-light-controller-tlc5940-lpc812-eagle-import:SDM80X120 PAD3
+U 1 0 1CFA7EBC
+P 2100 2300
+F 0 "PAD3" H 2055 2373 59  0000 L BNN
+F 1 "ST/Rx" H 2055 2170 59  0000 L BNN
+F 2 "rc-light-controller-tlc5940-lpc812:SMD80X120" H 2100 2300 50  0001 C CNN
+F 3 "" H 2100 2300 50  0001 C CNN
+	1    2100 2300
+	1    0    0    1   
+$EndComp
+$Comp
+L rc-light-controller-tlc5940-lpc812-eagle-import:SDM80X120 PAD5
+U 1 0 9066C7CA
+P 2100 2700
+F 0 "PAD5" H 2055 2773 59  0000 L BNN
+F 1 "TH/Tx" H 2055 2570 59  0000 L BNN
+F 2 "rc-light-controller-tlc5940-lpc812:SMD80X120" H 2100 2700 50  0001 C CNN
+F 3 "" H 2100 2700 50  0001 C CNN
+	1    2100 2700
+	1    0    0    1   
+$EndComp
+$Comp
+L rc-light-controller-tlc5940-lpc812-eagle-import:SDM80X120 PAD7
+U 1 0 6D080C98
+P 2100 3500
+F 0 "PAD7" H 2055 3573 59  0000 L BNN
+F 1 "OUT/ISP" H 2055 3370 59  0000 L BNN
+F 2 "rc-light-controller-tlc5940-lpc812:SMD80X120" H 2100 3500 50  0001 C CNN
+F 3 "" H 2100 3500 50  0001 C CNN
+	1    2100 3500
+	1    0    0    1   
+$EndComp
+$Comp
+L rc-light-controller-tlc5940-lpc812-eagle-import:SMD50X100 PAD50
+U 1 0 3C53439C
+P 15100 1000
+F 0 "PAD50" H 15055 1073 59  0000 L BNN
+F 1 "SMD50X100" H 15055 870 59  0000 L BNN
+F 2 "rc-light-controller-tlc5940-lpc812:SMD50X100" H 15100 1000 50  0001 C CNN
+F 3 "" H 15100 1000 50  0001 C CNN
+	1    15100 1000
+	-1   0    0    1   
+$EndComp
+$Comp
+L rc-light-controller-tlc5940-lpc812-eagle-import:SMD50X100 PAD51
+U 1 0 6BADA7B7
+P 15100 1300
+F 0 "PAD51" H 15055 1373 59  0000 L BNN
+F 1 "SMD50X100" H 15055 1170 59  0000 L BNN
+F 2 "rc-light-controller-tlc5940-lpc812:SMD50X100" H 15100 1300 50  0001 C CNN
+F 3 "" H 15100 1300 50  0001 C CNN
+	1    15100 1300
+	-1   0    0    1   
+$EndComp
+$Comp
+L rc-light-controller-tlc5940-lpc812-eagle-import:SMD50X100 PAD52
+U 1 0 861A1973
+P 15100 1600
+F 0 "PAD52" H 15055 1673 59  0000 L BNN
+F 1 "SMD50X100" H 15055 1470 59  0000 L BNN
+F 2 "rc-light-controller-tlc5940-lpc812:SMD50X100" H 15100 1600 50  0001 C CNN
+F 3 "" H 15100 1600 50  0001 C CNN
+	1    15100 1600
+	-1   0    0    1   
+$EndComp
+$Comp
+L rc-light-controller-tlc5940-lpc812-eagle-import:SMD50X100 PAD53
+U 1 0 FBBF8CFD
+P 15100 1900
+F 0 "PAD53" H 15055 1973 59  0000 L BNN
+F 1 "SMD50X100" H 15055 1770 59  0000 L BNN
+F 2 "rc-light-controller-tlc5940-lpc812:SMD50X100" H 15100 1900 50  0001 C CNN
+F 3 "" H 15100 1900 50  0001 C CNN
+	1    15100 1900
+	-1   0    0    1   
+$EndComp
+$Comp
+L rc-light-controller-tlc5940-lpc812-eagle-import:SMD50X100 PAD54
+U 1 0 F2672D97
+P 15100 2200
+F 0 "PAD54" H 15055 2273 59  0000 L BNN
+F 1 "SMD50X100" H 15055 2070 59  0000 L BNN
+F 2 "rc-light-controller-tlc5940-lpc812:SMD50X100" H 15100 2200 50  0001 C CNN
+F 3 "" H 15100 2200 50  0001 C CNN
+	1    15100 2200
+	-1   0    0    1   
+$EndComp
+$Comp
+L rc-light-controller-tlc5940-lpc812-eagle-import:SMD50X100 PAD55
+U 1 0 A0BFA14C
+P 15100 2500
+F 0 "PAD55" H 15055 2573 59  0000 L BNN
+F 1 "SMD50X100" H 15055 2370 59  0000 L BNN
+F 2 "rc-light-controller-tlc5940-lpc812:SMD50X100" H 15100 2500 50  0001 C CNN
+F 3 "" H 15100 2500 50  0001 C CNN
+	1    15100 2500
+	-1   0    0    1   
+$EndComp
+$Comp
+L rc-light-controller-tlc5940-lpc812-eagle-import:SMD50X100 PAD56
+U 1 0 F2728259
+P 15100 2800
+F 0 "PAD56" H 15055 2873 59  0000 L BNN
+F 1 "SMD50X100" H 15055 2670 59  0000 L BNN
+F 2 "rc-light-controller-tlc5940-lpc812:SMD50X100" H 15100 2800 50  0001 C CNN
+F 3 "" H 15100 2800 50  0001 C CNN
+	1    15100 2800
+	-1   0    0    1   
+$EndComp
+$Comp
+L rc-light-controller-tlc5940-lpc812-eagle-import:SMD50X100 PAD57
+U 1 0 F2054039
+P 15100 3100
+F 0 "PAD57" H 15055 3173 59  0000 L BNN
+F 1 "SMD50X100" H 15055 2970 59  0000 L BNN
+F 2 "rc-light-controller-tlc5940-lpc812:SMD50X100" H 15100 3100 50  0001 C CNN
+F 3 "" H 15100 3100 50  0001 C CNN
+	1    15100 3100
+	-1   0    0    1   
+$EndComp
+$Comp
+L rc-light-controller-tlc5940-lpc812-eagle-import:SMD50X100 PAD58
+U 1 0 D45D03D4
+P 15100 3400
+F 0 "PAD58" H 15055 3473 59  0000 L BNN
+F 1 "SMD50X100" H 15055 3270 59  0000 L BNN
+F 2 "rc-light-controller-tlc5940-lpc812:SMD50X100" H 15100 3400 50  0001 C CNN
+F 3 "" H 15100 3400 50  0001 C CNN
+	1    15100 3400
+	-1   0    0    1   
+$EndComp
+$Comp
+L rc-light-controller-tlc5940-lpc812-eagle-import:SMD50X100 PAD59
+U 1 0 8C60748A
+P 15100 3700
+F 0 "PAD59" H 15055 3773 59  0000 L BNN
+F 1 "SMD50X100" H 15055 3570 59  0000 L BNN
+F 2 "rc-light-controller-tlc5940-lpc812:SMD50X100" H 15100 3700 50  0001 C CNN
+F 3 "" H 15100 3700 50  0001 C CNN
+	1    15100 3700
+	-1   0    0    1   
+$EndComp
+$Comp
+L rc-light-controller-tlc5940-lpc812-eagle-import:SMD50X100 PAD60
+U 1 0 C996D4E7
+P 15100 4000
+F 0 "PAD60" H 15055 4073 59  0000 L BNN
+F 1 "SMD50X100" H 15055 3870 59  0000 L BNN
+F 2 "rc-light-controller-tlc5940-lpc812:SMD50X100" H 15100 4000 50  0001 C CNN
+F 3 "" H 15100 4000 50  0001 C CNN
+	1    15100 4000
+	-1   0    0    1   
+$EndComp
+$Comp
+L rc-light-controller-tlc5940-lpc812-eagle-import:SMD50X100 PAD61
+U 1 0 7CE6024B
+P 15100 4300
+F 0 "PAD61" H 15055 4373 59  0000 L BNN
+F 1 "SMD50X100" H 15055 4170 59  0000 L BNN
+F 2 "rc-light-controller-tlc5940-lpc812:SMD50X100" H 15100 4300 50  0001 C CNN
+F 3 "" H 15100 4300 50  0001 C CNN
+	1    15100 4300
+	-1   0    0    1   
+$EndComp
+$Comp
+L rc-light-controller-tlc5940-lpc812-eagle-import:SMD50X100 PAD62
+U 1 0 DB29FCCE
+P 15100 4600
+F 0 "PAD62" H 15055 4673 59  0000 L BNN
+F 1 "SMD50X100" H 15055 4470 59  0000 L BNN
+F 2 "rc-light-controller-tlc5940-lpc812:SMD50X100" H 15100 4600 50  0001 C CNN
+F 3 "" H 15100 4600 50  0001 C CNN
+	1    15100 4600
+	-1   0    0    1   
+$EndComp
+$Comp
+L rc-light-controller-tlc5940-lpc812-eagle-import:SMD50X100 PAD63
+U 1 0 BB8CF4E9
+P 15100 4900
+F 0 "PAD63" H 15055 4973 59  0000 L BNN
+F 1 "SMD50X100" H 15055 4770 59  0000 L BNN
+F 2 "rc-light-controller-tlc5940-lpc812:SMD50X100" H 15100 4900 50  0001 C CNN
+F 3 "" H 15100 4900 50  0001 C CNN
+	1    15100 4900
+	-1   0    0    1   
+$EndComp
+$Comp
+L rc-light-controller-tlc5940-lpc812-eagle-import:SMD50X100 PAD64
+U 1 0 DB03A36D
+P 15100 5200
+F 0 "PAD64" H 15055 5273 59  0000 L BNN
+F 1 "SMD50X100" H 15055 5070 59  0000 L BNN
+F 2 "rc-light-controller-tlc5940-lpc812:SMD50X100" H 15100 5200 50  0001 C CNN
+F 3 "" H 15100 5200 50  0001 C CNN
+	1    15100 5200
+	-1   0    0    1   
+$EndComp
+$Comp
+L rc-light-controller-tlc5940-lpc812-eagle-import:SMD50X100 PAD65
+U 1 0 C8234427
+P 15100 5500
+F 0 "PAD65" H 15055 5573 59  0000 L BNN
+F 1 "SMD50X100" H 15055 5370 59  0000 L BNN
+F 2 "rc-light-controller-tlc5940-lpc812:SMD50X100" H 15100 5500 50  0001 C CNN
+F 3 "" H 15100 5500 50  0001 C CNN
+	1    15100 5500
+	-1   0    0    1   
+$EndComp
+$Comp
+L rc-light-controller-tlc5940-lpc812-eagle-import:SMD50X100 PAD67
+U 1 0 2268DE62
+P 15100 6100
+F 0 "PAD67" H 15055 6173 59  0000 L BNN
+F 1 "SMD50X100" H 15055 5970 59  0000 L BNN
+F 2 "rc-light-controller-tlc5940-lpc812:SMD50X100" H 15100 6100 50  0001 C CNN
+F 3 "" H 15100 6100 50  0001 C CNN
+	1    15100 6100
+	-1   0    0    1   
+$EndComp
+$Comp
+L rc-light-controller-tlc5940-lpc812-eagle-import:SMD50X100 PAD66
+U 1 0 CFCDD87C
+P 15100 5800
+F 0 "PAD66" H 15055 5873 59  0000 L BNN
+F 1 "SMD50X100" H 15055 5670 59  0000 L BNN
+F 2 "rc-light-controller-tlc5940-lpc812:SMD50X100" H 15100 5800 50  0001 C CNN
+F 3 "" H 15100 5800 50  0001 C CNN
+	1    15100 5800
+	-1   0    0    1   
+$EndComp
+$Comp
+L rc-light-controller-tlc5940-lpc812-eagle-import:GND #GND04
+U 1 0 812A97BA
+P 12400 3600
+F 0 "#GND04" H 12400 3600 50  0001 C CNN
+F 1 "GND" H 12300 3500 59  0000 L BNN
+F 2 "" H 12400 3600 50  0001 C CNN
+F 3 "" H 12400 3600 50  0001 C CNN
+	1    12400 3600
+	1    0    0    -1  
+$EndComp
+$Comp
+L rc-light-controller-tlc5940-lpc812-eagle-import:C-EUC0805 C1
+U 1 0 30D010B6
+P 3800 8700
+F 0 "C1" H 3860 8715 59  0000 L BNN
+F 1 "1u/16V" H 3860 8515 59  0000 L BNN
+F 2 "Capacitor_SMD:C_0805_2012Metric" H 3800 8700 50  0001 C CNN
+F 3 "" H 3800 8700 50  0001 C CNN
+	1    3800 8700
+	1    0    0    -1  
+$EndComp
+$Comp
+L rc-light-controller-tlc5940-lpc812-eagle-import:R-EU_R0603 R3
+U 1 0 3A5EE2B3
+P 3200 2300
+F 0 "R3" H 3050 2359 59  0000 L BNN
+F 1 "1k" H 3050 2170 59  0000 L BNN
+F 2 "Resistor_SMD:R_0603_1608Metric" H 3200 2300 50  0001 C CNN
+F 3 "" H 3200 2300 50  0001 C CNN
+	1    3200 2300
+	1    0    0    1   
+$EndComp
+$Comp
+L rc-light-controller-tlc5940-lpc812-eagle-import:R-EU_R0603 R4
+U 1 0 EB3F1CA8
+P 3200 2700
+F 0 "R4" H 3050 2759 59  0000 L BNN
+F 1 "1k" H 3050 2570 59  0000 L BNN
+F 2 "Resistor_SMD:R_0603_1608Metric" H 3200 2700 50  0001 C CNN
+F 3 "" H 3200 2700 50  0001 C CNN
+	1    3200 2700
+	1    0    0    1   
+$EndComp
+$Comp
+L rc-light-controller-tlc5940-lpc812-eagle-import:LPC812M101JDH16 U$2
+U 1 0 563110E3
+P 7800 5200
+F 0 "U$2" H 6900 4500 42  0000 L BNN
+F 1 "LPC812" H 7800 5200 50  0001 C CNN
+F 2 "rc-light-controller-tlc5940-lpc812:TSSOP16" H 7800 5200 50  0001 C CNN
+F 3 "" H 7800 5200 50  0001 C CNN
+	1    7800 5200
+	1    0    0    -1  
+$EndComp
+$Comp
+L rc-light-controller-tlc5940-lpc812-eagle-import:SDM80X120 PAD6
+U 1 0 411DFD1A
+P 2100 3100
+F 0 "PAD6" H 2055 3173 59  0000 L BNN
+F 1 "CH3" H 2055 2970 59  0000 L BNN
+F 2 "rc-light-controller-tlc5940-lpc812:SMD80X120" H 2100 3100 50  0001 C CNN
+F 3 "" H 2100 3100 50  0001 C CNN
+	1    2100 3100
+	1    0    0    1   
+$EndComp
+$Comp
+L rc-light-controller-tlc5940-lpc812-eagle-import:R-EU_R0603 R6
+U 1 0 5049E5A2
+P 3200 3100
+F 0 "R6" H 3050 3159 59  0000 L BNN
+F 1 "1k" H 3050 2970 59  0000 L BNN
+F 2 "Resistor_SMD:R_0603_1608Metric" H 3200 3100 50  0001 C CNN
+F 3 "" H 3200 3100 50  0001 C CNN
+	1    3200 3100
+	1    0    0    1   
+$EndComp
+$Comp
+L rc-light-controller-tlc5940-lpc812-eagle-import:R-EU_R0603 R2
+U 1 0 29741822
+P 3200 3500
+F 0 "R2" H 3050 3559 59  0000 L BNN
+F 1 "1k" H 3050 3370 59  0000 L BNN
+F 2 "Resistor_SMD:R_0603_1608Metric" H 3200 3500 50  0001 C CNN
+F 3 "" H 3200 3500 50  0001 C CNN
+	1    3200 3500
+	1    0    0    1   
+$EndComp
+$Comp
+L rc-light-controller-tlc5940-lpc812-eagle-import:TPTP10R TP1
+U 1 0 9469FDAA
+P 6200 4500
+F 0 "TP1" H 6150 4550 59  0000 L BNN
+F 1 "SWDIO" H 6200 4500 50  0001 C CNN
+F 2 "rc-light-controller-tlc5940-lpc812:TP10R" H 6200 4500 50  0001 C CNN
+F 3 "" H 6200 4500 50  0001 C CNN
+	1    6200 4500
+	1    0    0    -1  
+$EndComp
+$Comp
+L rc-light-controller-tlc5940-lpc812-eagle-import:TPTP10R TP2
+U 1 0 900ADAA4
+P 6600 4500
+F 0 "TP2" H 6550 4550 59  0000 L BNN
+F 1 "SWCLK" H 6600 4500 50  0001 C CNN
+F 2 "rc-light-controller-tlc5940-lpc812:TP10R" H 6600 4500 50  0001 C CNN
+F 3 "" H 6600 4500 50  0001 C CNN
+	1    6600 4500
+	1    0    0    -1  
+$EndComp
+$Comp
+L rc-light-controller-tlc5940-lpc812-eagle-import:SMD50X100 PAD70
+U 1 0 1D8B1813
+P 13000 7500
+F 0 "PAD70" H 12955 7573 59  0000 L BNN
+F 1 "SMD50X100" H 12955 7370 59  0000 L BNN
+F 2 "rc-light-controller-tlc5940-lpc812:SMD50X100" H 13000 7500 50  0001 C CNN
+F 3 "" H 13000 7500 50  0001 C CNN
+	1    13000 7500
+	-1   0    0    1   
+$EndComp
+$Comp
+L rc-light-controller-tlc5940-lpc812-eagle-import:GND #GND09
+U 1 0 C0CC0B74
+P 12100 8400
+F 0 "#GND09" H 12100 8400 50  0001 C CNN
+F 1 "GND" H 12000 8300 59  0000 L BNN
+F 2 "" H 12100 8400 50  0001 C CNN
+F 3 "" H 12100 8400 50  0001 C CNN
+	1    12100 8400
+	1    0    0    -1  
+$EndComp
+$Comp
+L rc-light-controller-tlc5940-lpc812-eagle-import:NMOSSOT23 T1
+U 1 0 8692C711
+P 12100 8000
+F 0 "T1" H 12200 8100 59  0000 L BNN
+F 1 "NMOSSOT23" H 12200 8000 59  0000 L BNN
+F 2 "rc-light-controller-tlc5940-lpc812:SOT-23" H 12100 8000 50  0001 C CNN
+F 3 "" H 12100 8000 50  0001 C CNN
+	1    12100 8000
+	1    0    0    -1  
+$EndComp
+Text Notes 9900 3150 0    59   ~ 0
+0603
+Text Notes 6850 6950 0    56   ~ 0
+Special pins:\nPIO0_0  (16)   ISP UART RX\nPIO0_4  ( 4)   ISP UART TX\nPIO0_5  ( 3)   RESET\nPIO0_10 ( 8)   Open drain\nPIO0_11 ( 7)   Open drain\nPIO0_2  ( 6)   SWDIO\nPIO0_3  ( 5)   SWCLK
+Text Notes 2550 1100 0    85   ~ 0
+Servo in/out
+Text Notes 11300 800  0    85   ~ 0
+LED driver and outputs
+Text Notes 4400 7650 0    85   ~ 0
+Voltage regulator
+Text Notes 7350 4300 0    85   ~ 0
+Microcontroller
+Text Notes 3450 8900 0    59   ~ 0
+X7R
+Text Notes 3100 2000 0    59   ~ 0
+All resistors 0603
+Text Notes 2200 8700 0    59   ~ 0
+Input voltage range:\n4 ... 10V
+Text Notes 6100 8500 0    59   ~ 0
+LDO: Microchip \nMCP1702 or MCP1703
+Text Notes 4750 5350 0    59   ~ 0
+X5R or X7R
+Text Notes 8900 6200 0    59   ~ 0
+NXP LPC812\nARM Cortex-M0\n16K Flash, 4K RAM\nTSSOP-16
+Text Notes 11250 7100 0    85   ~ 0
+Switched output\nfor light bar or similar
+Text Notes 12500 8400 0    56   ~ 0
+N-Channel MOSFET\nSOT23 package\ne.g. NXP PMV16UN
+NoConn ~ 6700 5500
+NoConn ~ 8900 4800
+NoConn ~ 8900 5000
+NoConn ~ 8900 5100
+NoConn ~ 11300 2600
+NoConn ~ 11300 2800
+$Comp
+L rc-light-controller-tlc5940-lpc812-eagle-import:GND #GND0102
+U 1 0 5C85CD53
+P 6800 9200
+F 0 "#GND0102" H 6800 9200 50  0001 C CNN
+F 1 "GND" H 6700 9100 59  0000 L BNN
+F 2 "" H 6800 9200 50  0001 C CNN
+F 3 "" H 6800 9200 50  0001 C CNN
+	1    6800 9200
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:PWR_FLAG #FLG0101
+U 1 1 5C85CE29
+P 6800 9000
+F 0 "#FLG0101" H 6800 9075 50  0001 C CNN
+F 1 "PWR_FLAG" H 6800 9174 50  0000 C CNN
+F 2 "" H 6800 9000 50  0001 C CNN
+F 3 "~" H 6800 9000 50  0001 C CNN
+	1    6800 9000
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	6800 9000 6800 9100
+Wire Wire Line
+	5800 8300 5800 8700
+Connection ~ 5800 8300
+Wire Wire Line
+	5800 9000 5800 9100
+$Comp
+L Device:CP C2
+U 1 1 5C870864
+P 5800 8850
+F 0 "C2" H 5918 8896 50  0000 L CNN
+F 1 "47u/6V3" H 5918 8805 50  0000 L CNN
+F 2 "Capacitor_SMD:C_0805_2012Metric" H 5838 8700 50  0001 C CNN
+F 3 "~" H 5800 8850 50  0001 C CNN
+	1    5800 8850
+	1    0    0    -1  
+$EndComp
+Text Notes 5900 9100 0    50   ~ 0
+Polymer
+$Comp
+L rc-light-controller-tlc5940-lpc812-eagle-import:TPTP10R TP5
+U 1 0 5C874533
+P 10200 1050
+F 0 "TP5" H 10150 1100 59  0000 L BNN
+F 1 "SWCLK" H 10200 1050 50  0001 C CNN
+F 2 "rc-light-controller-tlc5940-lpc812:TP10R" H 10200 1050 50  0001 C CNN
+F 3 "" H 10200 1050 50  0001 C CNN
+	1    10200 1050
+	1    0    0    -1  
+$EndComp
+$Comp
+L rc-light-controller-tlc5940-lpc812-eagle-import:TPTP10R TP4
+U 1 0 5C875719
+P 9900 1050
+F 0 "TP4" H 9850 1100 59  0000 L BNN
+F 1 "SWCLK" H 9900 1050 50  0001 C CNN
+F 2 "rc-light-controller-tlc5940-lpc812:TP10R" H 9900 1050 50  0001 C CNN
+F 3 "" H 9900 1050 50  0001 C CNN
+	1    9900 1050
+	1    0    0    -1  
+$EndComp
+$Comp
+L rc-light-controller-tlc5940-lpc812-eagle-import:TPTP10R TP3
+U 1 0 5C875787
+P 9600 1050
+F 0 "TP3" H 9550 1100 59  0000 L BNN
+F 1 "SWCLK" H 9600 1050 50  0001 C CNN
+F 2 "rc-light-controller-tlc5940-lpc812:TP10R" H 9600 1050 50  0001 C CNN
+F 3 "" H 9600 1050 50  0001 C CNN
+	1    9600 1050
+	1    0    0    -1  
+$EndComp
+Connection ~ 9600 1800
+Wire Wire Line
+	9600 1800 8900 1800
+Connection ~ 9900 2100
+Wire Wire Line
+	9900 2100 8900 2100
+Wire Wire Line
+	10200 1150 10200 2500
+Connection ~ 10200 2500
+Wire Wire Line
+	10200 2500 11300 2500
+Wire Wire Line
+	9600 1150 9600 1800
+Wire Wire Line
+	9900 1150 9900 2100
+$EndSCHEMATC
