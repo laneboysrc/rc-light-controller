@@ -1,0 +1,513 @@
+// *******************************************
+// Cycle flash split
+run always
+
+led r1 = led[0]
+led r2 = led[1]
+led b1 = led[2]
+led b2 = led[3]
+
+const t1 = 20
+const t2 = 80
+const t3 = 100
+const t4 = 120
+const t6 = 200
+
+const bright_r = 100
+const bright_b = 100
+
+loop:
+    fade all leds stepsize 0   // (no fading)
+    all leds = 0
+
+    // Period 1
+    r1 = bright_r
+    b2 = bright_b
+    sleep t6
+
+    // Period 2
+    all leds = 0
+    sleep t6
+
+    // Period 3 and 4
+    r2 = bright_r
+    b1 = bright_b
+    sleep t3
+    r2, b1 = 0
+    sleep t2
+    r2 = bright_r
+    b1 = bright_b
+    sleep t3
+    r2, b1 = 0
+    sleep t4
+
+    // Period 5 and 6
+    r1 = bright_r
+    b2 = bright_b
+    sleep t3
+    r1, b2 = 0
+    sleep t2
+    r1 = bright_r
+    b2 = bright_b
+    sleep t3
+    r1, b2 = 0
+    sleep t4
+
+    // Period 7
+    r2 = bright_r
+    b1 = bright_b
+    sleep t2
+    r2, b1 = 0
+    sleep t1
+    r2 = bright_r
+    b1 = bright_b
+    sleep t2
+    r2, b1 = 0
+    sleep t1
+
+    // Period 8
+    sleep t6
+
+    // Period 9
+    r1 = bright_r
+    b2 = bright_b
+    sleep t2
+    r1, b2 = 0
+    sleep t1
+    r1 = bright_r
+    b2 = bright_b
+    sleep t2
+    r1, b2 = 0
+    sleep t1
+
+    // Period 10
+    sleep t6
+
+    // Period 11 and 12
+    r2 = bright_r
+    b1 = bright_b
+    sleep t1
+    r2, b1 = 0
+    sleep t2
+    r2 = bright_r
+    b1 = bright_b
+    sleep t1
+    r2, b1 = 0
+    sleep t2
+    r2 = bright_r
+    b1 = bright_b
+    sleep t6
+    r2, b1 = 0
+
+    // Period 13 and 14
+    r1 = bright_r
+    b2 = bright_b
+    sleep t1
+    r1, b2 = 0
+    sleep t2
+    r1 = bright_r
+    b2 = bright_b
+    sleep t1
+    r1, b2 = 0
+    sleep t2
+    r1 = bright_r
+    b2 = bright_b
+    sleep t6
+
+    // Period 15
+    all leds = 0
+    sleep t6
+
+    // Period 16
+    r2 = bright_r
+    b1 = bright_b
+    sleep t6
+
+    // Period 17
+    all leds = 0
+    sleep t6
+
+    goto loop
+end
+
+
+// *******************************************
+// Quint flash P1-P2
+run always
+
+led r1 = led[0]
+led r2 = led[1]
+led b1 = led[2]
+led b2 = led[3]
+
+const t1 = 20
+const t2 = 80
+const t6 = 200
+const t12 = 400
+
+const bright_r = 100
+const bright_b = 100
+
+loop:
+    fade all leds stepsize 0   // (no fading)
+    all leds = 0
+
+    // Period 1
+    r1, r2 = bright_r
+    sleep t1
+    r1, r2 = 0
+    sleep t2
+    r1, r2 = bright_r
+    sleep t1
+    r1, r2 = 0
+    sleep t2
+    r1, r2 = bright_r
+    sleep t6
+    r1, r2 = 0
+
+    // Period 2
+    b1, b2 = bright_b
+    sleep t1
+    b1, b2 = 0
+    sleep t2
+    b1, b2 = bright_b
+    sleep t1
+    b1, b2 = 0
+    sleep t2
+    b1, b2 = bright_b
+    sleep t6
+
+    goto loop
+end
+
+
+// *******************************************
+// Quint flash single light
+run always
+
+led r1 = led[15]
+
+const t1 = 20
+const t2 = 80
+const t6 = 200
+const t12 = 400
+
+const bright_r = 100
+
+loop:
+    fade all leds stepsize 0   // (no fading)
+    all leds = 0
+
+    // Period 1
+    r1 = bright_r
+    sleep t1
+
+    r1 = 0
+    sleep t2
+
+    r1 = bright_r
+    sleep t1
+
+    r1 = 0
+    sleep t2
+
+    r1 = bright_r
+    sleep t6
+
+    // Period 2
+    r1 = 0
+    sleep t12
+
+    goto loop
+end
+
+
+// *******************************************
+// Double flash P1-P2
+run always
+
+led r1 = led[0]
+led r2 = led[1]
+led b1 = led[2]
+led b2 = led[3]
+
+const t2 = 40
+const t3 = 80
+const t4 = 160
+
+const bright_r = 100
+const bright_b = 100
+
+loop:
+    fade all leds stepsize 0   // (no fading)
+    all leds = 0
+
+    // Period 1
+    r1, r2 = bright_r
+    sleep t3
+
+    r1, r2 = 0
+    sleep t2
+
+    r1, r2 = bright_r
+    sleep t3
+
+    r1, r2 = 0
+    sleep t4
+
+    // Period 2
+    b1, b2 = bright_b
+    sleep t3
+
+    b1, b2 = 0
+    sleep t2
+
+    b1, b2 = bright_b
+    sleep t3
+
+    b1, b2 = 0
+    sleep t4
+
+    goto loop
+end
+
+
+// *******************************************
+// Single flash P1-P1
+run always
+
+led r1 = led[6]
+led r2 = led[7]
+led b1 = led[8]
+led b2 = led[9]
+
+const t6 = 200
+const t18 = 600
+
+const bright_r = 100
+const bright_b = 100
+
+loop:
+    fade all leds stepsize 0   // (no fading)
+
+    // Period 1
+    r1, r2 = bright_r
+    b1, b2 = bright_b
+    sleep t6
+
+    // Period 2
+    all leds = 0
+    sleep t18
+
+    goto loop
+end
+
+
+// *******************************************
+// Single flash P1-P2
+run always
+
+led r1 = led[0]
+led r2 = led[1]
+led b1 = led[2]
+led b2 = led[3]
+
+const t6 = 200
+
+const bright_r = 100
+const bright_b = 100
+
+loop:
+    fade all leds stepsize 0   // (no fading)
+    all leds = 0
+
+    // Period 1
+    r1, r2 = bright_r
+    sleep t6
+
+    r1, r2 = 0
+    sleep t6
+
+    // Period 2
+    b1, b2 = bright_b
+    sleep t6
+
+    b1, b2 = 0
+    sleep t6
+
+    goto loop
+end
+
+
+// *******************************************
+// Single flash RL-LR
+run always
+
+led r1 = led[6]
+led r2 = led[7]
+led b1 = led[8]
+led b2 = led[9]
+
+const t1 = 20
+const t2 = 80
+const t6 = 200
+const t9 = 300
+const t12 = 400
+
+const bright_r = 100
+const bright_b = 100
+
+loop:
+    fade all leds stepsize 0   // (no fading)
+    all leds = 0
+
+    // Period 1
+    r1 = bright_r
+    b2 = bright_b
+    sleep t1
+
+    r1, b2 = 0
+    sleep t2
+
+    r1 = bright_r
+    b2 = bright_b
+    sleep t9
+
+    // Period 2
+    r1, b2 = 0
+    r2 = bright_r
+    b1 = bright_b
+    sleep t1
+
+    r2, b1 = 0
+    sleep t2
+
+    r2 = bright_r
+    b1 = bright_b
+    sleep t9
+
+    goto loop
+end
+
+
+
+
+
+
+// *******************************************
+// Quad/Singla flash RL-LR
+run always
+
+led r1 = led[11]
+led r2 = led[12]
+led b1 = led[13]
+led b2 = led[14]
+
+const t1 = 20
+const t2 = 80
+const t6 = 200
+const t8 = 280
+const t9 = 300
+const t12 = 400
+
+const bright_r = 100
+const bright_b = 100
+
+loop:
+    fade all leds stepsize 0   // (no fading)
+    all leds = 0
+
+    // Period 1
+    r1 = bright_r
+    b1 = bright_b
+    sleep t1
+
+    r1 = 0
+    sleep t2
+
+    r1 = bright_r
+    sleep t1
+
+    r1, b1 = 0
+    sleep t8
+
+    // Period 2
+    r2 = bright_r
+    b2 = bright_b
+    sleep t1
+
+    b2 = 0
+    sleep t2
+
+    b2 = bright_b
+    sleep t1
+
+    r2, b2 = 0
+    sleep t8
+
+    goto loop
+end
+
+
+// *******************************************
+// Quint flash RL-LR
+run always
+
+led r1 = led[0]
+led r2 = led[1]
+led b1 = led[2]
+led b2 = led[3]
+
+const t1 = 20
+const t2 = 80
+const t6 = 200
+const t12 = 400
+
+const bright_r = 100
+const bright_b = 100
+
+loop:
+    fade all leds stepsize 0   // (no fading)
+    all leds = 0
+
+    // Period 1
+    r1 = bright_r
+    b2 = bright_b
+    sleep t1
+
+    r1, b2 = 0
+    sleep t2
+
+    r1 = bright_r
+    b2 = bright_b
+    sleep t1
+
+    r1, b2 = 0
+    sleep t2
+
+    r1 = bright_r
+    b2 = bright_b
+    sleep t6
+
+    // Period 2
+    r1, b2 = 0
+    r2 = bright_r
+    b1 = bright_b
+    sleep t1
+
+    r2, b1 = 0
+    sleep t2
+
+    r2 = bright_r
+    b1 = bright_b
+    sleep t1
+
+    r2, b1 = 0
+    sleep t2
+
+    r2 = bright_r
+    b1 = bright_b
+    sleep t6
+
+    goto loop
+end
