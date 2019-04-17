@@ -1,0 +1,69 @@
+run when hazard
+led indicator-l = led[4]
+led indicator-r = led[5]
+
+loop:
+    skip if is blink-flag
+    goto indicator-off
+
+    indicator-l, indicator-r = 100%
+    goto loop
+
+indicator-off:
+    skip if light-switch-position == 0
+    goto light-on
+
+    indicator-l, indicator-r = 0%
+    goto loop
+
+light-on:
+    indicator-l, indicator-r = 25%
+    goto loop
+
+end
+
+run when indicator-left
+led indicator-l = led[4]
+
+loop:
+    skip if is blink-flag
+    goto indicator-off
+
+    indicator-l = 100%
+    goto loop
+
+indicator-off:
+    skip if light-switch-position == 0
+    goto light-on
+
+    indicator-l = 0%
+    goto loop
+
+light-on:
+    indicator-l = 25%
+    goto loop
+
+end
+
+run when indicator-right
+led indicator-r = led[5]
+
+loop:
+    skip if is blink-flag
+    goto indicator-off
+
+    indicator-r = 100%
+    goto loop
+
+indicator-off:
+    skip if light-switch-position == 0
+    goto light-on
+
+    indicator-r = 0%
+    goto loop
+
+light-on:
+    indicator-r = 25%
+    goto loop
+
+end
