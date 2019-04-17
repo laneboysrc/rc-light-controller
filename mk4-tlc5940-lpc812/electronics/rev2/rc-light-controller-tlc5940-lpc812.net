@@ -1,7 +1,7 @@
 (export (version D)
   (design
     (source /home/laneboysrc/projects/rc-light-controller/mk4-tlc5940-lpc812/electronics/rev2/rc-light-controller-tlc5940-lpc812.sch)
-    (date "Fri 08 Mar 2019 11:43:36 AM +08")
+    (date "Wed 17 Apr 2019 08:17:53 PM")
     (tool "Eeschema 5.0.2-bee76a0~70~ubuntu18.04.1")
     (sheet (number 1) (name /) (tstamps /)
       (title_block
@@ -197,7 +197,7 @@
       (tstamp EB3F1CA8))
     (comp (ref U$2)
       (value LPC812)
-      (footprint rc-light-controller-tlc5940-lpc812:TSSOP16)
+      (footprint Package_SO:SSOP-16_4.4x5.2mm_P0.65mm)
       (libsource (lib rc-light-controller-tlc5940-lpc812-eagle-import) (part LPC812M101JDH16) (description ""))
       (sheetpath (names /) (tstamps /))
       (tstamp 563110E3))
