@@ -1365,7 +1365,7 @@
   (gr_text OUT/ISP (at 157.494595 98.8441) (layer B.SilkS) (tstamp 5C81E0F1)
     (effects (font (size 1.2 1.2) (thickness 0.3)) (justify mirror))
   )
-  (gr_circle (center 150.1013 105.1179) (end 150.221112 105.1179) (layer F.SilkS) (width 0.3048) (tstamp 5C820210))
+  (gr_circle (center 149.9108 105.1179) (end 150.030612 105.1179) (layer F.SilkS) (width 0.3048) (tstamp 5C820210))
   (gr_circle (center 155.2956 99.9363) (end 155.415412 99.9363) (layer F.SilkS) (width 0.3048) (tstamp 5C82020C))
   (gr_circle (center 147.3454 100.9396) (end 147.465212 100.9396) (layer F.SilkS) (width 0.381))
   (gr_line (start 150 100) (end 152.5 100) (layer Margin) (width 0.2))
