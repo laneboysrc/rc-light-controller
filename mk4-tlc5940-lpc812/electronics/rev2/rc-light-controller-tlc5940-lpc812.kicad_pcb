@@ -34,7 +34,7 @@
   )
 
   (setup
-    (last_trace_width 0.381)
+    (last_trace_width 0.254)
     (user_trace_width 0.2032)
     (user_trace_width 0.381)
     (user_trace_width 0.508)
@@ -1511,7 +1511,7 @@
   (via (at 146.2024 106.172) (size 0.8) (drill 0.5) (layers Top Bottom) (net 2) (tstamp 5C8317AE))
   (via (at 151.7523 104.7036) (size 0.8) (drill 0.5) (layers Top Bottom) (net 2) (tstamp 5CCAAD2C))
   (via (at 152.9832 104.7036) (size 0.8) (drill 0.5) (layers Top Bottom) (net 2) (tstamp 4EB8800))
-  (via (at 148.462 102.1128) (size 0.8) (drill 0.5) (layers Top Bottom) (net 2))
+  (via (at 148.6144 102.0366) (size 0.8) (drill 0.5) (layers Top Bottom) (net 2))
   (segment (start 148.2006 102.1926) (end 148.209 102.1842) (width 0.254) (layer Top) (net 2))
   (segment (start 149.1488 102.9969) (end 149.0217 102.9969) (width 0.381) (layer Top) (net 2) (status 30))
   (segment (start 149.1996 107.7699) (end 148.9941 107.7699) (width 0.254) (layer Top) (net 2))
@@ -1693,7 +1693,7 @@
   (segment (start 159.8931 103.8436) (end 159.7271 103.6776) (width 0.6096) (layer Top) (net 41) (tstamp 3D888D0) (status 30))
   (segment (start 159.7271 103.6776) (end 156.8451 103.6776) (width 0.6096) (layer Top) (net 41) (tstamp 3D88C20) (status 30))
 
-  (zone (net 2) (net_name GND) (layer Top) (tstamp 5CCAB5EB) (hatch edge 0.508)
+  (zone (net 2) (net_name GND) (layer Top) (tstamp 5CCAD819) (hatch edge 0.508)
     (priority 6)
     (connect_pads (clearance 0.3048))
     (min_thickness 0.3048)
@@ -1923,7 +1923,7 @@
       )
     )
   )
-  (zone (net 2) (net_name GND) (layer Bottom) (tstamp 5CCAB5E8) (hatch edge 0.508)
+  (zone (net 2) (net_name GND) (layer Bottom) (tstamp 5CCAD816) (hatch edge 0.508)
     (priority 6)
     (connect_pads (clearance 0.4064))
     (min_thickness 0.4064)
