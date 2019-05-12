@@ -2,7 +2,7 @@ Partlist for the TLC5940/LPC812 Light Controller
 
 Part  Value      Device            Package           Description
 C1    1u         C-EUC0805         C0805             CAPACITOR, MLCC, X7R
-C2    1u         C-EUC0805         C0805             CAPACITOR, MLCC, X7R
+C2    47u/6V3    C-EUC0805         C0805             CAPACITOR, Polymer, Vishay T58W9476M6R3C0150
 C3    100n       C-EUC0805         C0805             CAPACITOR, MLCC, X5R
 R1    2k0        R-EU_R0805        R0805             RESISTOR 1%, Determines max. LED current (2kOhm = 20mA)
 R2    1k         R-EU_R0603        R0603             RESISTOR
