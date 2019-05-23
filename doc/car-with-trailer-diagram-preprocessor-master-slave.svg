@@ -16,7 +16,7 @@
    id="svg2"
    version="1.1"
    inkscape:version="0.92.3 (2405546, 2018-03-11)"
-   sodipodi:docname="anhaenger-mit-2-lightcontroller.svg"
+   sodipodi:docname="car-with-trailer-diagram-preprocessor-master-slave.svg"
    inkscape:export-filename="/home/laneboysrc/scratchpad/anhaenger-mit-2-lightcontroller.png"
    inkscape:export-xdpi="79.68"
    inkscape:export-ydpi="79.68">
@@ -27,9 +27,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="1"
      inkscape:pageshadow="2"
-     inkscape:zoom="1.1431423"
-     inkscape:cx="493.88075"
-     inkscape:cy="411.86516"
+     inkscape:zoom="0.79500992"
+     inkscape:cx="561.25984"
+     inkscape:cy="396.85039"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -49,7 +49,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -429,7 +429,7 @@
        sodipodi:nodetypes="czzzzzc" />
     <path
        style="fill:none;fill-rule:evenodd;stroke:#ffcc00;stroke-width:3.54330707;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="m 556.44826,603.98113 1.10132,45.51599 c 0.47866,19.7824 18.38977,81.1231 126.59274,84.08508 108.20297,2.96197 169.14193,-7.06145 169.96874,-82.01794 l -1.11714,-47.35664"
+       d="m 585.7334,603.40123 -0.0585,44.06623 c -0.0263,19.78817 -9.73557,83.15276 98.4674,86.11474 108.20297,2.96197 169.14193,-7.06145 169.96874,-82.01794 l -1.11714,-47.35664"
        id="path4222-9"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="cszcc" />
