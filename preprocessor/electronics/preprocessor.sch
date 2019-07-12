@@ -1,45 +1,13 @@
-EESchema Schematic File Version 2
-LIBS:preprocessor-rescue
-LIBS:power
-LIBS:device
-LIBS:transistors
-LIBS:conn
-LIBS:linear
-LIBS:regul
-LIBS:74xx
-LIBS:cmos4000
-LIBS:adc-dac
-LIBS:memory
-LIBS:xilinx
-LIBS:microcontrollers
-LIBS:dsp
-LIBS:microchip
-LIBS:analog_switches
-LIBS:motorola
-LIBS:texas
-LIBS:intel
-LIBS:audio
-LIBS:interface
-LIBS:digital-audio
-LIBS:philips
-LIBS:display
-LIBS:cypress
-LIBS:siliconi
-LIBS:opto
-LIBS:atmel
-LIBS:contrib
-LIBS:valves
-LIBS:WLA-NXP-LPC
-LIBS:WLA-LDO
+EESchema Schematic File Version 4
 LIBS:preprocessor-cache
-EELAYER 25 0
+EELAYER 26 0
 EELAYER END
 $Descr A4 11693 8268
 encoding utf-8
 Sheet 1 1
 Title "Pre-processor for RC Light Controller"
-Date "2017-03-14"
-Rev "1.0"
+Date "2019-07-12"
+Rev "3.0"
 Comp "LANE Boys RC"
 Comment1 ""
 Comment2 ""
@@ -47,29 +15,29 @@ Comment3 ""
 Comment4 ""
 $EndDescr
 $Comp
-L LPC811M001JDH16_TSSOP16 U2
+L WLA-NXP-LPC:LPC811M001JDH16_TSSOP16 U2
 U 1 1 58AF9BA8
 P 5900 2750
 F 0 "U2" H 5800 2850 10  0001 C CNN
 F 1 "LPC811M001JDH16_TSSOP16" H 6150 3450 60  0000 C CNN
-F 2 "Housings_SSOP:TSSOP-16_4.4x5mm_Pitch0.65mm" H 5800 2850 60  0001 C CNN
+F 2 "Package_SO:TSSOP-16_4.4x5mm_P0.65mm" H 5800 2850 60  0001 C CNN
 F 3 "" H 5800 2850 60  0000 C CNN
 	1    5900 2750
 	1    0    0    -1  
 $EndComp
 $Comp
-L MCP1703T-3302E/CB U1
+L preprocessor-rescue:MCP1703T-3302E_CB U1
 U 1 1 58AF9BBC
 P 3250 6250
 F 0 "U1" H 2750 5750 50  0000 L BNN
 F 1 "MCP1703T-3302E/CB" H 2850 6500 50  0000 L BNN
-F 2 "TO_SOT_Packages_SMD:SOT-23" H 3400 5800 30  0001 C CNN
+F 2 "Package_TO_SOT_SMD:SOT-23W_Handsoldering" H 3400 5800 30  0001 C CNN
 F 3 "" H 3250 6250 60  0000 C CNN
 	1    3250 6250
 	1    0    0    -1  
 $EndComp
 $Comp
-L CONN_01X03 P1
+L preprocessor-rescue:CONN_01X03 P1
 U 1 1 58AF9C1E
 P 2700 2100
 F 0 "P1" H 2700 2300 50  0000 C CNN
@@ -80,7 +48,7 @@ F 3 "" H 2700 2100 50  0000 C CNN
 	-1   0    0    1   
 $EndComp
 $Comp
-L CONN_01X03 P2
+L preprocessor-rescue:CONN_01X03 P2
 U 1 1 58AF9CB3
 P 2700 2600
 F 0 "P2" H 2700 2800 50  0000 C CNN
@@ -91,7 +59,7 @@ F 3 "" H 2700 2600 50  0000 C CNN
 	-1   0    0    1   
 $EndComp
 $Comp
-L CONN_01X03 P3
+L preprocessor-rescue:CONN_01X03 P3
 U 1 1 58AF9CE6
 P 2700 3100
 F 0 "P3" H 2700 3300 50  0000 C CNN
@@ -102,7 +70,7 @@ F 3 "" H 2700 3100 50  0000 C CNN
 	-1   0    0    1   
 $EndComp
 $Comp
-L CONN_01X03 P4
+L preprocessor-rescue:CONN_01X03 P4
 U 1 1 58AF9D12
 P 2700 3550
 F 0 "P4" H 2700 3750 50  0000 C CNN
@@ -113,7 +81,7 @@ F 3 "" H 2700 3550 50  0000 C CNN
 	-1   0    0    1   
 $EndComp
 $Comp
-L CONN_01X03 P5
+L preprocessor-rescue:CONN_01X03 P5
 U 1 1 58AF9D7F
 P 2700 4050
 F 0 "P5" H 2700 4250 50  0000 C CNN
@@ -124,7 +92,7 @@ F 3 "" H 2700 4050 50  0000 C CNN
 	-1   0    0    1   
 $EndComp
 $Comp
-L CONN_01X03 P6
+L preprocessor-rescue:CONN_01X03 P6
 U 1 1 58AF9DBB
 P 8700 2750
 F 0 "P6" H 8700 2950 50  0000 C CNN
@@ -135,7 +103,7 @@ F 3 "" H 8700 2750 50  0000 C CNN
 	1    0    0    1   
 $EndComp
 $Comp
-L GND #PWR01
+L power:GND #PWR01
 U 1 1 58AFA097
 P 3000 4550
 F 0 "#PWR01" H 3000 4300 50  0001 C CNN
@@ -146,7 +114,7 @@ F 3 "" H 3000 4550 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR02
+L power:GND #PWR02
 U 1 1 58AFA0BE
 P 2250 6750
 F 0 "#PWR02" H 2250 6500 50  0001 C CNN
@@ -157,7 +125,7 @@ F 3 "" H 2250 6750 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR03
+L power:GND #PWR03
 U 1 1 58AFA0EC
 P 4600 3450
 F 0 "#PWR03" H 4600 3200 50  0001 C CNN
@@ -168,7 +136,7 @@ F 3 "" H 4600 3450 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L +3V3 #PWR04
+L power:+3V3 #PWR04
 U 1 1 58AFA135
 P 4600 2150
 F 0 "#PWR04" H 4600 2000 50  0001 C CNN
@@ -179,7 +147,7 @@ F 3 "" H 4600 2150 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L VCC #PWR05
+L power:VCC #PWR05
 U 1 1 58AFA16C
 P 3150 1400
 F 0 "#PWR05" H 3150 1250 50  0001 C CNN
@@ -190,7 +158,7 @@ F 3 "" H 3150 1400 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L VCC #PWR06
+L power:VCC #PWR06
 U 1 1 58AFA193
 P 2250 5900
 F 0 "#PWR06" H 2250 5750 50  0001 C CNN
@@ -201,18 +169,18 @@ F 3 "" H 2250 5900 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L C C1
+L preprocessor-rescue:C C1
 U 1 1 58AFA243
 P 2250 6450
 F 0 "C1" H 2275 6550 50  0000 L CNN
 F 1 "1u" H 2275 6350 50  0000 L CNN
-F 2 "Capacitors_SMD:C_0805_HandSoldering" H 2288 6300 50  0001 C CNN
+F 2 "Capacitor_SMD:C_0805_2012Metric_Pad1.15x1.40mm_HandSolder" H 2288 6300 50  0001 C CNN
 F 3 "" H 2250 6450 50  0000 C CNN
 	1    2250 6450
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR07
+L power:GND #PWR07
 U 1 1 58AFA4AA
 P 2450 6750
 F 0 "#PWR07" H 2450 6500 50  0001 C CNN
@@ -223,7 +191,7 @@ F 3 "" H 2450 6750 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	2250 5900 2250 6300
+	2250 5900 2250 6250
 Wire Wire Line
 	2250 6600 2250 6750
 Wire Wire Line
@@ -234,18 +202,18 @@ Wire Wire Line
 Wire Wire Line
 	2450 6450 2450 6750
 $Comp
-L C C2
+L preprocessor-rescue:C C2
 U 1 1 58AFA5B0
 P 4150 6500
 F 0 "C2" H 4175 6600 50  0000 L CNN
-F 1 "1u" H 4175 6400 50  0000 L CNN
-F 2 "Capacitors_SMD:C_0805_HandSoldering" H 4188 6350 50  0001 C CNN
+F 1 "47u/6V3 Polymer 0805" H 4175 6400 50  0000 L CNN
+F 2 "Capacitor_SMD:C_0805_2012Metric_Pad1.15x1.40mm_HandSolder" H 4188 6350 50  0001 C CNN
 F 3 "" H 4150 6500 50  0000 C CNN
 	1    4150 6500
 	1    0    0    -1  
 $EndComp
 $Comp
-L +3V3 #PWR08
+L power:+3V3 #PWR08
 U 1 1 58AFA5F4
 P 4150 6150
 F 0 "#PWR08" H 4150 6000 50  0001 C CNN
@@ -256,7 +224,7 @@ F 3 "" H 4150 6150 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR09
+L power:GND #PWR09
 U 1 1 58AFA6CA
 P 4150 6750
 F 0 "#PWR09" H 4150 6500 50  0001 C CNN
@@ -269,7 +237,7 @@ $EndComp
 Wire Wire Line
 	4150 6650 4150 6750
 Wire Wire Line
-	4150 6150 4150 6350
+	4150 6150 4150 6250
 Wire Wire Line
 	3950 6250 4150 6250
 Connection ~ 4150 6250
@@ -282,7 +250,7 @@ Wire Wire Line
 Wire Wire Line
 	3150 2100 2900 2100
 Wire Wire Line
-	3150 1400 3150 4050
+	3150 1400 3150 1550
 Wire Wire Line
 	3150 2600 2900 2600
 Connection ~ 3150 2100
@@ -298,7 +266,7 @@ Connection ~ 3150 3550
 Wire Wire Line
 	3000 4150 2900 4150
 Wire Wire Line
-	3000 2200 3000 4550
+	3000 2200 3000 2700
 Wire Wire Line
 	2900 3650 3000 3650
 Connection ~ 3000 4150
@@ -312,7 +280,7 @@ Wire Wire Line
 	2900 2200 3000 2200
 Connection ~ 3000 2700
 $Comp
-L VCC #PWR010
+L power:VCC #PWR010
 U 1 1 58AFAD17
 P 8400 2450
 F 0 "#PWR010" H 8400 2300 50  0001 C CNN
@@ -323,7 +291,7 @@ F 3 "" H 8400 2450 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR011
+L power:GND #PWR011
 U 1 1 58AFADBD
 P 8400 2950
 F 0 "#PWR011" H 8400 2700 50  0001 C CNN
@@ -342,11 +310,11 @@ Wire Wire Line
 Wire Wire Line
 	8400 2850 8400 2950
 Wire Wire Line
-	2900 2000 4100 2000
+	2900 2000 3500 2000
 Wire Wire Line
 	4100 2000 4100 2450
 Wire Wire Line
-	2900 3000 4100 3000
+	2900 3000 3500 3000
 Wire Wire Line
 	4100 3000 4100 2850
 Wire Wire Line
@@ -376,7 +344,7 @@ Wire Wire Line
 	3500 3450 3500 3000
 Connection ~ 3500 3000
 $Comp
-L PWR_FLAG #FLG012
+L power:PWR_FLAG #FLG012
 U 1 1 58AFB479
 P 3450 1450
 F 0 "#FLG012" H 3450 1545 50  0001 C CNN
@@ -404,47 +372,47 @@ LIGHT
 Text Label 4150 6250 0    60   ~ 0
 3V3
 Text Label 2250 6000 0    60   ~ 0
-Vcc
+VCC
 $Comp
-L R R1
+L preprocessor-rescue:R R1
 U 1 1 58C77CC2
 P 4350 2450
 F 0 "R1" V 4430 2450 50  0000 C CNN
 F 1 "1K" V 4350 2450 50  0000 C CNN
-F 2 "Resistors_SMD:R_0603_HandSoldering" V 4280 2450 50  0001 C CNN
+F 2 "Resistor_SMD:R_0603_1608Metric_Pad1.05x0.95mm_HandSolder" V 4280 2450 50  0001 C CNN
 F 3 "" H 4350 2450 50  0001 C CNN
 	1    4350 2450
 	0    1    1    0   
 $EndComp
 $Comp
-L R R2
+L preprocessor-rescue:R R2
 U 1 1 58C77D77
 P 4350 2850
 F 0 "R2" V 4430 2850 50  0000 C CNN
 F 1 "1K" V 4350 2850 50  0000 C CNN
-F 2 "Resistors_SMD:R_0603_HandSoldering" V 4280 2850 50  0001 C CNN
+F 2 "Resistor_SMD:R_0603_1608Metric_Pad1.05x0.95mm_HandSolder" V 4280 2850 50  0001 C CNN
 F 3 "" H 4350 2850 50  0001 C CNN
 	1    4350 2850
 	0    1    1    0   
 $EndComp
 $Comp
-L R R3
+L preprocessor-rescue:R R3
 U 1 1 58C77DC4
 P 4350 3950
 F 0 "R3" V 4430 3950 50  0000 C CNN
 F 1 "1K" V 4350 3950 50  0000 C CNN
-F 2 "Resistors_SMD:R_0603_HandSoldering" V 4280 3950 50  0001 C CNN
+F 2 "Resistor_SMD:R_0603_1608Metric_Pad1.05x0.95mm_HandSolder" V 4280 3950 50  0001 C CNN
 F 3 "" H 4350 3950 50  0001 C CNN
 	1    4350 3950
 	0    1    1    0   
 $EndComp
 $Comp
-L R R4
+L preprocessor-rescue:R R4
 U 1 1 58C77E14
 P 7550 2650
 F 0 "R4" V 7630 2650 50  0000 C CNN
 F 1 "1K" V 7550 2650 50  0000 C CNN
-F 2 "Resistors_SMD:R_0603_HandSoldering" V 7480 2650 50  0001 C CNN
+F 2 "Resistor_SMD:R_0603_1608Metric_Pad1.05x0.95mm_HandSolder" V 7480 2650 50  0001 C CNN
 F 3 "" H 7550 2650 50  0001 C CNN
 	1    7550 2650
 	0    1    1    0   
@@ -464,7 +432,7 @@ Wire Wire Line
 Wire Wire Line
 	7400 2650 7050 2650
 $Comp
-L PWR_FLAG #FLG013
+L power:PWR_FLAG #FLG013
 U 1 1 58C7863F
 P 3300 4400
 F 0 "#FLG013" H 3300 4475 50  0001 C CNN
@@ -479,4 +447,32 @@ Wire Wire Line
 Wire Wire Line
 	3300 4500 3000 4500
 Connection ~ 3000 4500
+Wire Wire Line
+	2250 6250 2250 6300
+Wire Wire Line
+	4150 6250 4150 6350
+Wire Wire Line
+	3150 2100 3150 2600
+Wire Wire Line
+	3150 2600 3150 3100
+Wire Wire Line
+	3150 3100 3150 3550
+Wire Wire Line
+	3150 3550 3150 4050
+Wire Wire Line
+	3000 4150 3000 4500
+Wire Wire Line
+	3000 3650 3000 4150
+Wire Wire Line
+	3000 3200 3000 3650
+Wire Wire Line
+	3000 2700 3000 3200
+Wire Wire Line
+	3500 2000 4100 2000
+Wire Wire Line
+	3500 3000 4100 3000
+Wire Wire Line
+	3150 1550 3150 2100
+Wire Wire Line
+	3000 4500 3000 4550
 $EndSCHEMATC
