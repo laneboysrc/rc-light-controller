@@ -50,9 +50,9 @@ Therefore it may be best to go for option 2: 2 additional AUX channels on a stan
     * Momentary push button
     * Three-position switch
     * Analog or multi-position switch
-    * Hardware push-button on the light controller / preprocessor
 
-Two-position switch, Two-position switch with up/down buttons, Momentary push button and Hardware push-button are technically all of type two-position actuator.
+
+Two-position switch, Two-position switch with up/down buttons and Momentary push button are technically all of type two-position actuator.
 
 ```
        | Toggle   Gear   Winch   Ind   Hazard   Light
@@ -73,6 +73,8 @@ Note that the combination of 2-pos and Light is not used (N/A) because we rather
 All switch actions are only executed upon switch change. This allows e.g. controlling the hazard lights from both the usuall 2-pos toggle function, but also from a manual switch at the same time. Or there can be multiple switches assigned to 'toggle'.
 After initialization the manual functions are applied immediately.
 
+When the preprocessor input is active, the light controller always supports a hardware push-button the CH3/AUX input. It always serves as 'toggle' button for all functions.
+
 
 ## Configurator user interface
 
@@ -83,9 +85,15 @@ We need to add preprocessor and multi-aux preprocessor to the configuration list
 
 ## TODO
 
-* Can we extend the preprocessor protocol easily with 2 more channels?
+* Can we extend the preprocessor protocol easily with 2 (3) more channels?
+    * Yes, but we need clever logic in the uart_reader to handle the optionally appended AUX channels
+    * The easiest way is to set the "new data" flag always when CH3 is received. This means that the AUX, AUX2 and AUX3 data that follows is always processed in the next packet, but this should not matter.
+    * We send 3 additional bytes for AUX, AUX2 and AUX3. Data is always -100..100  corresponding to 1000..2000 us pulse width (= no auto EPA)
+    * Need to update the preprocessor-reader and preprocessor-simulator tools
+* Can 34800 BAUD support the additional data?
+    * Otherwise we force the baudrate to 115200, and use another UART running at 34800 if winch output is enabled?
 * One additional AUX channel could be handled with the 4th capture input. For further inputs we need to multiplex the respective input
 * How to setup the light controller if there is no CH3/AUX toggle function assigned?
     - We always do local button on CH3 if master with uart-reader
 * Arbitration of functions
-* Preprocessor handing of AUX channels, as they are no longer a simple on/off switch
+
