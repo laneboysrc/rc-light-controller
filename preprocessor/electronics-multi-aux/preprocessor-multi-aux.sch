@@ -588,4 +588,6 @@ Wire Wire Line
 	6550 4750 3450 4750
 Wire Wire Line
 	6550 2800 6550 4750
+Text Notes 3200 7000 0    50   ~ 0
+Light Controller pin usage:\nPIO0_0   (16, TDO, ISP-Rx)   Steering input / Rx\nPIO0_1   (9,  TDI)           TLC5940 GSCLK\nPIO0_2   (6,  TMS, SWDIO)    TLC5940 SCLK\nPIO0_3   (5,  TCK, SWCLK)    TLC5940 XLAT\nPIO0_4   (4,  TRST, ISP-Tx)  Throttle input / Tx\nPIO0_5   (3,  RESET)         NC (test point)\nPIO0_6   (15)                TLC5940 BLANK\nPIO0_7   (14)                TLC5940 SIN\nPIO0_8   (11, XTALIN)        ===> AUX2\nPIO0_9   (10, XTALOUT)       Switched light output (for driving a load via a MOSFET)\nPIO0_10  (8,  Open drain)    NC\nPIO0_11  (7,  Open drain)    ===> AUX3 (100K pull-down)\nPIO0_12  (2,  ISP-entry)     OUT / ISP\nPIO0_13  (1)                 CH3 input\n
 $EndSCHEMATC

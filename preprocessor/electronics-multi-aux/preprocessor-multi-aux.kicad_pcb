@@ -24,7 +24,7 @@
     (33 F.Adhes user hide)
     (34 B.Paste user hide)
     (35 F.Paste user)
-    (36 B.SilkS user)
+    (36 B.SilkS user hide)
     (37 F.SilkS user)
     (38 B.Mask user hide)
     (39 F.Mask user hide)
@@ -41,7 +41,7 @@
   )
 
   (setup
-    (last_trace_width 1.016)
+    (last_trace_width 0.254)
     (user_trace_width 0.381)
     (user_trace_width 0.508)
     (user_trace_width 0.762)
@@ -854,7 +854,7 @@
     )
   )
 
-  (gr_text . (at 125.2728 60.2996) (layer F.SilkS) (tstamp 5D296E39)
+  (gr_text . (at 125.476 60.0964) (layer F.SilkS) (tstamp 5D296E39)
     (effects (font (size 2 2) (thickness 0.4)))
   )
   (gr_text AUX3 (at 123.9 61.44) (layer B.SilkS) (tstamp 5D28EFBF)

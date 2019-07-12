@@ -86,5 +86,6 @@ We need to add preprocessor and multi-aux preprocessor to the configuration list
 * Can we extend the preprocessor protocol easily with 2 more channels?
 * One additional AUX channel could be handled with the 4th capture input. For further inputs we need to multiplex the respective input
 * How to setup the light controller if there is no CH3/AUX toggle function assigned?
+    - We always do local button on CH3 if master with uart-reader
 * Arbitration of functions
 * Preprocessor handing of AUX channels, as they are no longer a simple on/off switch
