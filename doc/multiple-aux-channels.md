@@ -17,7 +17,7 @@ PIO0_11 (7, open drain)
 For safety reasons we will not use the reset pin.
 
 PIO0_8 can be used as normal IO and is therefore ideal.
-PIO0_10 and PIO0__11 can be used as inputs, but a pull-up or pull-down resistor is required as the are true open drain pins.
+PIO0_10 and PIO0__11 can be used as inputs, but a pull-up or pull-down resistor is required as they are true open drain pins.
 
 In theory we can therefore support a maximum of 4 AUX channels.
 
@@ -33,20 +33,58 @@ Option 1 makes the preprocessor very large, and may get into mechanical issues w
 
 Therefore it may be best to go for option 2: 2 additional AUX channels on a standard 3-pin servo header => 5-channel preprocessor
 
+
 ## Features
 
 * Fully backwards compatible with the light controller software
 * Configurable functions, using UI method from Betaflight
     * Toggle function as per today's CH3/AUX
-    * Gearbox function on 2/3 pos switch
-    * Winch on 3 pos switch (less interesting; better to use winch separate!)
-    * Manual indicators on 3 pos switch
-    * Hazard lights on 2 pos switch
-    * Light switch (n positions?)
+    * Gearbox function 1/2/3 (depends on gear configuration)
+    * Winch off/in/out
+    * Manual indicators left/off/right
+    * Hazard lights on/off
+    * Light switch (servo range mapped to n positions)
+* Supported actuators:
+    * Two-position switch
+    * Two-position switch with up/down buttons
+    * Momentary push button
+    * Three-position switch
+    * Analog or multi-position switch
+    * Hardware push-button on the light controller / preprocessor
 
-## System impact
+Two-position switch, Two-position switch with up/down buttons, Momentary push button and Hardware push-button are technically all of type two-position actuator.
+
+```
+       | Toggle   Gear   Winch   Ind   Hazard   Light
+       | --------------------------------------------
+2-pos  | toggle   gear1  winch1  N/A   on/off   N/A
+3-pos  | N/A      gear2  winch2  ind   on/off   light2
+n-pos  | N/A      gear2  winch2  ind   on/off   light2
+```
+
+gear1: if 2 gears, direct selection; if 3 gears: 1-click=up, 2-click=down
+gear2: direct selection with hysteresis
+winch1: as per current operation
+winch2: direct off/in/out operation
+light2: the servo range 1000..2000us is mapped to n light switch sections. Not that for 3-pos switch this could mean that not all are adjustable.
+
+Note that the combination of 2-pos and Light is not used (N/A) because we rather apply the full toggle operation in that case.
+
+All switch actions are only executed upon switch change. This allows e.g. controlling the hazard lights from both the usuall 2-pos toggle function, but also from a manual switch at the same time. Or there can be multiple switches assigned to 'toggle'.
+After initialization the manual functions are applied immediately.
+
+
+## Configurator user interface
+
+For each AUX channel, the user can specify the actuator type and which of the available functions it should control.
+
+We need to add preprocessor and multi-aux preprocessor to the configuration list, so we can show the appropriate number of AUX channels.
+
+
+## TODO
 
 * Can we extend the preprocessor protocol easily with 2 more channels?
 * One additional AUX channel could be handled with the 4th capture input. For further inputs we need to multiplex the respective input
-
-
+* How to setup the light controller if there is no CH3/AUX toggle function assigned?
+* Arbitration of functions
+* Preprocessor handing of AUX channels, as they are no longer a simple on/off switch
