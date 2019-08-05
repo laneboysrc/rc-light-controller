@@ -92,7 +92,7 @@ We need to add preprocessor and multi-aux preprocessor to the configuration list
     * We send 3 additional bytes for AUX, AUX2 and AUX3. Data is always -100..100  corresponding to 1000..2000 us pulse width (= no auto EPA)
     * Need to update the preprocessor-reader and preprocessor-simulator tools
 * Can 34800 BAUD support the additional data?
-    * Otherwise we force the baudrate to 115200, and use another UART running at 34800 if winch output is enabled?
+    * Yes, 7 Bytes take only 200 us
 * One additional AUX channel could be handled with the 4th capture input. For further inputs we need to multiplex the respective input
 * How to setup the light controller if there is no CH3/AUX toggle function assigned?
     - We always do local button on CH3 if master with uart-reader

@@ -2,36 +2,21 @@
 
 * Enable entering ISP mode via UART while firmware is running?
 
-# MK5
-
-* Investigate outputs sometimes not working on Android board
-
-* Remove WebUSB URL
-
-* DFU read firmware
-
-
-# MK5 PCB
-
-* TLC5940 footprint based on TI datasheet
-* Output stencil 5mil/0.12mm thick
-* Verify Micro-USB footprint fits
-* QR code to configurator for phone/webusb
-
-
-# MK4 + MK5
-
 * FW: Add Xenon lamp simulation
 
 * FW: Add Exhaust flame function
 
 * Deprecate CPPM reader (to simplify things, no-one ever used it)
 
+* Asymetric indicator blinking for US cars
+
 * Shelf Queen mode
 
 * More sophisticated servo reader initialization:
   * Require constant stream of data, not just one pulse
   * Plausibility check?
+
+* `Stand-alone` mode
 
 
 # Configurator
@@ -43,17 +28,7 @@
 
 * Disable preprocessor-simulator while flashing
 
-* Implemment firmware reading for MK5
-
-* Flashing instructions that hint for nw.js download / Chromium
-
-* Add Arduino/BOSSAC support?
-
-* Save/Restore window position, maximized, etc
-
 * Fix table for ground fault not lining up
-
-* Add `local_switch_is_momentary` for MK5
 
 * Add `stand-alone` mode
 
