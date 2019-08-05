@@ -1,38 +1,7 @@
 /******************************************************************************
 
     This function returns after having successfully received a complete
-    protocol frame via the UART.
-
-    The frame size is either 4 or 5 bytes. The traditional preprocessor sent
-    4 byte frames, the new one with the HK310 expansion protocol sends 5 byte
-    frames.
-
-    This software automatically determines the frame size upon startup. It
-    checks the number of bytes in the first few frames and only then
-    outputs values.
-
-
-    The preprocessor protocol is as follows:
-
-    The first byte is always 0x87, which indicates that it is a start byte. No
-    other byte can have this value.
-    Note: values 0x80..0x87 do not appear in the other bytes by design,
-    so those can be used as first byte to indicate start of a packet.
-
-    The second byte is a signed char of the steering channel, from -100 to 0
-    (Neutral) to +100, corresponding to the percentage of steering left/right.
-
-    The third byte is a signed char of the throttle channel, from -100 to 0
-    (Neutral) to +100.
-
-    The fourth byte holds CH3 in the lowest bit (0 or 1), and bit 4 indicates
-    whether the preprocessor is initializing. Note that the other bits must
-    be zero as this is required by the light controller (waste of bits, poor
-    implementation...)
-
-    The (optional) 5th byte is the normalized 6-bit value of CH3 as used in the
-    HK310 expansion protocol. This module ignores that value.
-    TODO: describe this better, and define the range including both SYNC values
+    preprocessor protocol frame via the UART.
 
  *****************************************************************************/
 #include <stdint.h>

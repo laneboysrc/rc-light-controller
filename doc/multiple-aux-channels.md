@@ -33,6 +33,8 @@ Option 1 makes the preprocessor very large, and may get into mechanical issues w
 
 Therefore it may be best to go for option 2: 2 additional AUX channels on a standard 3-pin servo header => 5-channel preprocessor
 
+AUX2: PIO0_8 (11, XTAL-IN)
+AUX3: PIO0_11 (7, open drain)
 
 ## Features
 
@@ -86,8 +88,7 @@ We need to add preprocessor and multi-aux preprocessor to the configuration list
 ## TODO
 
 * Can we extend the preprocessor protocol easily with 2 (3) more channels?
-    * Yes, but we need clever logic in the uart_reader to handle the optionally appended AUX channels
-    * The easiest way is to set the "new data" flag always when CH3 is received. This means that the AUX, AUX2 and AUX3 data that follows is always processed in the next packet, but this should not matter.
+    * Yes, by setting the unused bit 3 in the 4th byte we can signal that more data follows. Old light controllers ignore that bit (incl. ancient MK2) and the trailing data.
     * We send 3 additional bytes for AUX, AUX2 and AUX3. Data is always -100..100  corresponding to 1000..2000 us pulse width (= no auto EPA)
     * Need to update the preprocessor-reader and preprocessor-simulator tools
 * Can 34800 BAUD support the additional data?
