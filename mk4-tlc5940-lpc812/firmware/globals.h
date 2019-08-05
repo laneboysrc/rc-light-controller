@@ -462,7 +462,11 @@ typedef struct {
         // Enables handling of two additional AUX channels
         unsigned int multi_aux : 1;
 
-        unsigned int reserved0 : 15;
+        // Enable shelf queen mode where driving action is simulated if there
+        // is no receiver signal for more than 5 seconds
+        unsigned int shelf_queen_mode : 1;
+
+        unsigned int reserved0 : 14;
     } flags2;
 
     // Dark phase of the indicator. The blink_counter_value from config version

@@ -6,9 +6,9 @@
 
 * FW: Add Exhaust flame function
 
-* Deprecate CPPM reader (to simplify things, no-one ever used it)
+X Deprecate CPPM reader (to simplify things, no-one ever used it)
 
-* Asymetric indicator blinking for US cars
+X Asymetric indicator blinking for US cars
 
 * Shelf Queen mode
 

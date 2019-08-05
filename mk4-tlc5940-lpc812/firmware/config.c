@@ -12,9 +12,10 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
         .version = CONFIG_VERSION
     },
 
-    .firmware_version = 15,
+    .firmware_version = 16,
 
-    .mode = MASTER_WITH_UART_READER,
+    .mode = MASTER_WITH_SERVO_READER,
+    // .mode = MASTER_WITH_UART_READER,
     .esc_mode = ESC_FORWARD_BRAKE_REVERSE_TIMEOUT,
 
     .flags = {
@@ -26,7 +27,8 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
         .slave_output = false,
         .preprocessor_output = false,
         .winch_output = false,
-        .steering_wheel_servo_output = false,
+        .steering_wheel_servo_output = true,
+        // .steering_wheel_servo_output = false,
         .gearbox_servo_output = false,
 
         .ch3_is_local_switch = false,
