@@ -22,14 +22,6 @@ extern unsigned int _stacktop;
 #define RECEIVE_BUFFER_SIZE (16)        // Must be modulo 2 for speed
 #define RECEIVE_BUFFER_INDEX_MASK (RECEIVE_BUFFER_SIZE - 1)
 
-typedef enum {
-    WAIT_FOR_ANY_PULSE = 0,
-    WAIT_FOR_IDLE_PULSE,
-    WAIT_FOR_CH1,
-    WAIT_FOR_CH2,
-    WAIT_FOR_CH3
-} CPPM_STATE_T;
-
 
 __attribute__ ((section(".persistent_data")))
 static volatile const uint32_t persistent_data[HAL_NUMBER_OF_PERSISTENT_ELEMENTS];
@@ -42,11 +34,9 @@ static uint8_t receive_buffer[RECEIVE_BUFFER_SIZE];
 static volatile uint16_t read_index = 0;
 static volatile uint16_t write_index = 0;
 
-static bool read_cppm = false;
 static volatile bool new_raw_channel_data = false;
 
 static uint32_t raw_data[3];
-static uint32_t servo_pulse_max;
 
 
 // ****************************************************************************
@@ -593,11 +583,9 @@ bool HAL_servo_reader_get_new_channels(uint32_t *out)
 
 
 // ****************************************************************************
-void HAL_servo_reader_init(uint32_t cppm_servo_pulse_max)
+void HAL_servo_reader_init(void)
 {
     int i;
-
-    servo_pulse_max = cppm_servo_pulse_max << 1;
 
     // SCTimer setup
     // At this point we assume that SCTimer has been setup in the following way:
@@ -642,94 +630,35 @@ void SCT_irq_handler(void)
     static uint8_t channel_flags = 0;
     uint16_t capture_value;
 
-    if (!read_cppm) { // Servo reader
-        int i;
+    int i;
 
-        for (i = 1; i <= 3; i++) {
-            // Event i: Capture CTIN_i
-            if (LPC_SCT->EVFLAG & (1 << i)) {
-                capture_value = LPC_SCT->CAP[i].L;
+    for (i = 1; i <= 3; i++) {
+        // Event i: Capture CTIN_i
+        if (LPC_SCT->EVFLAG & (1 << i)) {
+            capture_value = LPC_SCT->CAP[i].L;
 
-                if (LPC_SCT->EVENT[i].CTRL & (0x1 << 10)) {
-                    // Rising edge triggered
-                    start[i - 1] = capture_value;
+            if (LPC_SCT->EVENT[i].CTRL & (0x1 << 10)) {
+                // Rising edge triggered
+                start[i - 1] = capture_value;
 
-                    if (channel_flags & (1 << i)) {
-                        output_raw_channels(result);
-                        channel_flags = (1 << i);
-                    }
-                    channel_flags |= (1 << i);
-                }
-                else {
-                    // Falling edge triggered
-                    if (start[i - 1] > capture_value) {
-                        // Compensate for wrap-around
-                        capture_value += LPC_SCT->MATCHREL[0].L + 1;
-                    }
-                    result[i - 1] = capture_value - start[i - 1];
-                }
-
-                LPC_SCT->EVENT[i].CTRL ^= (0x3 << 10);   // IOCOND: toggle edge
-                LPC_SCT->EVFLAG = (1 << i);
-            }
-        }
-    }
-
-    else { // CPPM reader
-        static CPPM_STATE_T cppm_mode = WAIT_FOR_ANY_PULSE;
-
-        start[1] = capture_value = LPC_SCT->CAP[1].L;
-        if (start[0] > capture_value) {
-            // Compensate for wrap-around
-            capture_value += LPC_SCT->MATCHREL[0].L + 1;
-        }
-        capture_value -= start[0];
-        start[0] = start[1];
-
-
-        if (cppm_mode != WAIT_FOR_ANY_PULSE  &&
-            capture_value > servo_pulse_max) {
-
-            // If we are dealing with a radio that has less than 2 CPPM
-            // channels then output the channels when we received the
-            // idle marker.
-            if (channel_flags) {
-                output_raw_channels(result);
-                channel_flags = 0;
-            }
-
-            cppm_mode = WAIT_FOR_CH1;
-        }
-        else {
-            switch (cppm_mode) {
-                case WAIT_FOR_CH1:
-                    result[0] = capture_value;
-                    channel_flags |= (1 << 0);
-                    cppm_mode = WAIT_FOR_CH2;
-                    break;
-
-                case WAIT_FOR_CH2:
-                    result[1] = capture_value;
-                    channel_flags |= (1 << 1);
-                    cppm_mode = WAIT_FOR_CH3;
-                    break;
-
-                case WAIT_FOR_CH3:
-                    result[2] = capture_value;
+                if (channel_flags & (1 << i)) {
                     output_raw_channels(result);
-                    channel_flags = 0;
-                    cppm_mode = WAIT_FOR_IDLE_PULSE;
-                    break;
-
-                case WAIT_FOR_ANY_PULSE:
-                case WAIT_FOR_IDLE_PULSE:
-                default:
-                    cppm_mode = WAIT_FOR_IDLE_PULSE;
-                    break;
+                    channel_flags = (1 << i);
+                }
+                channel_flags |= (1 << i);
             }
-        }
+            else {
+                // Falling edge triggered
+                if (start[i - 1] > capture_value) {
+                    // Compensate for wrap-around
+                    capture_value += LPC_SCT->MATCHREL[0].L + 1;
+                }
+                result[i - 1] = capture_value - start[i - 1];
+            }
 
-        LPC_SCT->EVFLAG = (1 << 1);
+            LPC_SCT->EVENT[i].CTRL ^= (0x3 << 10);   // IOCOND: toggle edge
+            LPC_SCT->EVFLAG = (1 << i);
+        }
     }
 }
 

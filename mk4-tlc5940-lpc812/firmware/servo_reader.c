@@ -27,7 +27,7 @@ void init_servo_reader(void)
         return;
     }
 
-    HAL_servo_reader_init(config.servo_pulse_max);
+    HAL_servo_reader_init();
 }
 
 
