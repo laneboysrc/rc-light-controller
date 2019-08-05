@@ -18,7 +18,10 @@ typedef enum {
     STATE_WAIT_FOR_MAGIC_BYTE = 0,
     STATE_STEERING,
     STATE_THROTTLE,
-    STATE_AUX
+    STATE_AUX,
+    STATE_AUX_VALUE,
+    STATE_AUX2,
+    STATE_AUX3
 } STATE_T;
 
 
@@ -59,11 +62,11 @@ static void publish_channels(uint8_t channel_data[])
     normalize_channel(&channel[TH], channel_data[1]);
 
     global_flags.initializing =
-        (channel_data[2] & 0x10) ? true : false;
+        (channel_data[2] & (1 << 4)) ? true : false;
 
     if (!config.flags.ch3_is_local_switch) {
         normalize_channel(&channel[AUX],
-            (channel_data[2] & 0x01) ? 100 : -100);
+            (channel_data[2] & (1 << 0)) ? 100 : -100);
     }
 
     global_flags.new_channel_data = true;
@@ -74,7 +77,7 @@ static void publish_channels(uint8_t channel_data[])
 void read_preprocessor(void)
 {
     static STATE_T state = STATE_WAIT_FOR_MAGIC_BYTE;
-    static uint8_t channel_data[3];
+    static uint8_t channel_data[6];
 
     uint8_t uart_byte;
 
@@ -118,6 +121,29 @@ void read_preprocessor(void)
 
             case STATE_AUX:
                 channel_data[2] = uart_byte;
+                if (channel_data[2] & (1 << 3)) {
+                    // Multi-AUX protocol extension: read additional AUX values
+                    //if bit 3 is set
+                    state = STATE_AUX_VALUE;
+                }
+                else {
+                    publish_channels(channel_data);
+                    state = STATE_WAIT_FOR_MAGIC_BYTE;
+                }
+                break;
+
+            case STATE_AUX_VALUE:
+                channel_data[3] = uart_byte;
+                state = STATE_AUX2;
+                break;
+
+            case STATE_AUX2:
+                channel_data[4] = uart_byte;
+                state = STATE_AUX3;
+                break;
+
+            case STATE_AUX3:
+                channel_data[5] = uart_byte;
                 publish_channels(channel_data);
                 state = STATE_WAIT_FOR_MAGIC_BYTE;
                 break;
