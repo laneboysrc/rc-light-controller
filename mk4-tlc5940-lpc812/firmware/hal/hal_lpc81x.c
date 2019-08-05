@@ -134,7 +134,7 @@ void HAL_hardware_init(bool is_servo_reader, bool servo_output_enabled, bool uar
 
     HAL_gpio_glitch_filter(HAL_GPIO_ST);
     HAL_gpio_glitch_filter(HAL_GPIO_TH);
-    HAL_gpio_glitch_filter(HAL_GPIO_CH3);
+    HAL_gpio_glitch_filter(HAL_GPIO_AUX);
 
 
     // ------------------------
@@ -627,7 +627,7 @@ void HAL_servo_reader_init(bool CPPM, uint32_t cppm_servo_pulse_max)
         }
 
         LPC_SWM->PINASSIGN6 = (0xff << 24) |
-                              (HAL_GPIO_CH3.pin << 16) |    // CTIN_3
+                              (HAL_GPIO_AUX.pin << 16) |    // CTIN_3
                               (HAL_GPIO_TH.pin << 8) |      // CTIN_2
                               (HAL_GPIO_ST.pin << 0);       // CTIN_1
     }

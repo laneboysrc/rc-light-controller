@@ -16,7 +16,7 @@
 #include <printf.h>
 
 #define SLAVE_MAGIC_BYTE 0x87
-#define CH3_HYSTERESIS 5
+#define AUX_HYSTERESIS 5
 
 static bool ch3_2pos = false;
 static uint8_t tx_data[4];
@@ -32,12 +32,12 @@ void output_preprocessor(void)
 
     if (global_flags.new_channel_data) {
         if (ch3_2pos) {
-            if (channel[2].normalized < -CH3_HYSTERESIS) {
+            if (channel[2].normalized < -AUX_HYSTERESIS) {
                 ch3_2pos = false;
             }
         }
         else {
-            if (channel[2].normalized > CH3_HYSTERESIS) {
+            if (channel[2].normalized > AUX_HYSTERESIS) {
                 ch3_2pos = true;
             }
         }

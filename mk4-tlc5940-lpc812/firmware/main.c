@@ -15,7 +15,7 @@
 
 GLOBAL_FLAGS_T global_flags;
 
-CHANNEL_T channel[3] = {
+CHANNEL_T channel[5] = {
     {   // STEERING
         .normalized = 0,
         .absolute = 0,
@@ -36,7 +36,27 @@ CHANNEL_T channel[3] = {
             .right = 1750,
         }
     },
-    {   // CH3 (AUX)
+    {   // AUX
+        .normalized = 0,
+        .absolute = 0,
+        .reversed = false,
+        .endpoint = {
+            .left = 1250,
+            .centre = 1500,
+            .right = 1750,
+        }
+    },
+    {   // AUX2
+        .normalized = 0,
+        .absolute = 0,
+        .reversed = false,
+        .endpoint = {
+            .left = 1250,
+            .centre = 1500,
+            .right = 1750,
+        }
+    },
+    {   // AUX3
         .normalized = 0,
         .absolute = 0,
         .reversed = false,

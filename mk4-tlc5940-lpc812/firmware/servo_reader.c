@@ -120,7 +120,7 @@ void read_all_servo_channels(void)
     channel[ST].raw_data = raw_data[0];
     channel[TH].raw_data = raw_data[1];
     if (!config.flags.ch3_is_local_switch) {
-        channel[CH3].raw_data = raw_data[2];
+        channel[AUX].raw_data = raw_data[2];
     }
 
     switch (servo_reader_state) {
@@ -133,7 +133,7 @@ void read_all_servo_channels(void)
             if (servo_reader_timer == 0) {
                 initialize_channel(&channel[ST]);
                 initialize_channel(&channel[TH]);
-                normalize_channel(&channel[CH3]);
+                normalize_channel(&channel[AUX]);
 
                 servo_reader_state = NORMAL_OPERATION;
                 global_flags.initializing = 0;
@@ -145,7 +145,7 @@ void read_all_servo_channels(void)
             normalize_channel(&channel[ST]);
             normalize_channel(&channel[TH]);
             if (!config.flags.ch3_is_local_switch) {
-                normalize_channel(&channel[CH3]);
+                normalize_channel(&channel[AUX]);
             }
             global_flags.new_channel_data = true;
             break;

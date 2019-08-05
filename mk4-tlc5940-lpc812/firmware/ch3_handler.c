@@ -182,7 +182,7 @@ void process_ch3_clicks(void)
     // independently of the other signals, i.e. set it if no other
     // new_channel_data was seen in a certain amount of systicks
     if (config.flags.ch3_is_local_switch) {
-        channel[CH3].normalized = HAL_gpio_read(HAL_GPIO_CH3) ? -100 : 100;
+        channel[AUX].normalized = HAL_gpio_read(HAL_GPIO_AUX) ? -100 : 100;
     }
 
     if (global_flags.initializing) {
@@ -199,7 +199,7 @@ void process_ch3_clicks(void)
 
     if (!ch3_flags.initialized) {
         ch3_flags.initialized = true;
-        ch3_flags.last_state = (channel[CH3].normalized > 0) ? true : false;
+        ch3_flags.last_state = (channel[AUX].normalized > 0) ? true : false;
 
         // Flush the pending switch state, if any
         HAL_switch_triggered();
@@ -219,7 +219,7 @@ void process_ch3_clicks(void)
         // We only care about the switch transition from ch3_flags.last_state
         // (set upon initialization) to the opposite position, which is when
         // we add a click.
-        if ((channel[CH3].normalized > 0)  !=  (ch3_flags.last_state)) {
+        if ((channel[AUX].normalized > 0)  !=  (ch3_flags.last_state)) {
 
             // Did we register this transition already?
             if (!ch3_flags.transitioned) {
@@ -237,8 +237,8 @@ void process_ch3_clicks(void)
         // up/down buttons (X3S, Tactic TTC300; config.flags.ch3_is_two_button)
 
         // Check whether ch3 has changed with respect to LAST_STATE
-        if ((channel[CH3].normalized > 0)  !=  (ch3_flags.last_state)) {
-            ch3_flags.last_state = (channel[CH3].normalized > 0);
+        if ((channel[AUX].normalized > 0)  !=  (ch3_flags.last_state)) {
+            ch3_flags.last_state = (channel[AUX].normalized > 0);
             add_click();
         }
     }

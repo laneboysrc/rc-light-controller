@@ -25,12 +25,12 @@ typedef struct {
 // PIO0_5   (3,  RESET)         NC (test point)
 // PIO0_6   (15)                TLC5940 BLANK
 // PIO0_7   (14)                TLC5940 SIN
-// PIO0_8   (11, XTALIN)        NC
+// PIO0_8   (11, XTALIN)        AUX2 input
 // PIO0_9   (10, XTALOUT)       Switched light output (for driving a load via a MOSFET)
 // PIO0_10  (8,  Open drain)    NC
-// PIO0_11  (7,  Open drain)    NC
+// PIO0_11  (7,  Open drain)    AUX3 input
 // PIO0_12  (2,  ISP-entry)     OUT / ISP
-// PIO0_13  (1)                 CH3 input
+// PIO0_13  (1)                 AUX input
 //
 // GND      (13)
 // 3.3V     (12)
@@ -39,7 +39,7 @@ typedef struct {
 
 static const HAL_GPIO_T HAL_GPIO_ST = { .pin = 0, .iocon = &LPC_IOCON->PIO0_0 };
 static const HAL_GPIO_T HAL_GPIO_TH = { .pin = 4, .iocon = &LPC_IOCON->PIO0_4 };
-static const HAL_GPIO_T HAL_GPIO_CH3 = { .pin = 13, .iocon = &LPC_IOCON->PIO0_13 };
+static const HAL_GPIO_T HAL_GPIO_AUX = { .pin = 13, .iocon = &LPC_IOCON->PIO0_13 };
 static const HAL_GPIO_T HAL_GPIO_OUT = { .pin = 12 };
 static const HAL_GPIO_T HAL_GPIO_SWITCHED_LIGHT_OUTPUT = { .pin = 9 };
 static const HAL_GPIO_T HAL_GPIO_SCK = { .pin = 2 };

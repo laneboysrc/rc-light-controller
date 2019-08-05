@@ -25,7 +25,9 @@
 
 #define ST 0
 #define TH 1
-#define CH3 2
+#define AUX 2
+#define AUX2 3
+#define AUX3 4
 
 // Number of positions of our virtual light switch. Includes the "off"
 // position 0.
@@ -537,7 +539,7 @@ extern const GAMMA_TABLE_T gamma_table;
 extern const LIGHT_PROGRAMS_T light_programs;
 
 extern GLOBAL_FLAGS_T global_flags;
-extern CHANNEL_T channel[3];
+extern CHANNEL_T channel[5];
 extern SERVO_ENDPOINTS_T servo_output_endpoint;
 
 

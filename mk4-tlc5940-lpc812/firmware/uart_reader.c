@@ -18,7 +18,7 @@ typedef enum {
     STATE_WAIT_FOR_MAGIC_BYTE = 0,
     STATE_STEERING,
     STATE_THROTTLE,
-    STATE_CH3
+    STATE_AUX
 } STATE_T;
 
 
@@ -62,7 +62,7 @@ static void publish_channels(uint8_t channel_data[])
         (channel_data[2] & 0x10) ? true : false;
 
     if (!config.flags.ch3_is_local_switch) {
-        normalize_channel(&channel[CH3],
+        normalize_channel(&channel[AUX],
             (channel_data[2] & 0x01) ? 100 : -100);
     }
 
@@ -113,10 +113,10 @@ void read_preprocessor(void)
 
             case STATE_THROTTLE:
                 channel_data[1] = uart_byte;
-                state = STATE_CH3;
+                state = STATE_AUX;
                 break;
 
-            case STATE_CH3:
+            case STATE_AUX:
                 channel_data[2] = uart_byte;
                 publish_channels(channel_data);
                 state = STATE_WAIT_FOR_MAGIC_BYTE;
