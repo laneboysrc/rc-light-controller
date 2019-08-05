@@ -155,7 +155,7 @@
           <select id="mode">
             <option value="0">Master, servo inputs</option>
             <option value="1">Master, pre-processor input</option>
-            <option value="2">Master, CPPM input</option>
+            <option class="v2_hide" value="2">Master, CPPM input</option>
             <option value="3">Slave</option>
             <option value="99">Hardware test</option>
           </select>
@@ -625,13 +625,13 @@
           <h3>Indicators</h3>
           <div class="advanced_feature">
             <div>
-              <input type=number id="blink_counter_value">
+              <input type=number id="blink_counter_value"><span class="v2_show"><label for="blink_counter_value"> .. </label><input type=number id="blink_counter_value_dark"></span>
               <label for="blink_counter_value">Indicator on/off time in ms</label>
             </div>
             <div>
               This value sets the frequency of the indicators and hazard lights.
               For most countries the indicator blink frequency is 1.5 Hz,
-              which means the half-period time should be 333 ms.
+              which means the half-period time should be 333 ms. <span class="v2_show">Enter different numbers for the bright and dark blink period when needed, e.g. for old US cars.</span>
             </div>
           </div>
 

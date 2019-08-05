@@ -371,7 +371,7 @@ var app = (function () {
                 if (SECTIONS[section_id] === undefined) {
                     log.log('Warning: unknown section ' + i);
                 } else {
-                    if (config_version !== 1) {
+                    if (config_version > 2) {
                         throw new Error('Unknown configuration version ' +
                             config_version);
                     }
@@ -380,6 +380,19 @@ var app = (function () {
                     result[section] = i + 8;
                 }
             }
+        }
+
+        if (config_version === 2) {
+            var items = document.getElementsByClassName('v2_show');
+            debugger;
+            for (var i = 0; i < items.length; i++) {
+                items[i].classList.remove('hidden');
+            };
+
+            items = document.getElementsByClassName('v2_hide');
+            for (var i = 0; i < items.length; i++) {
+                items[i].classList.add('hidden');
+            };
         }
 
         return result;
