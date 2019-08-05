@@ -99,8 +99,13 @@ void process_indicators(void)
         }
 
         if (blink_counter == 0) {
-            blink_counter = config.blink_counter_value;
             global_flags.blink_flag = ~global_flags.blink_flag;
+            if (global_flags.blink_flag) {
+                blink_counter = config.blink_counter_value;
+            }
+            else {
+                blink_counter = config.blink_counter_value_dark;
+            }
         }
         else {
             --blink_counter;

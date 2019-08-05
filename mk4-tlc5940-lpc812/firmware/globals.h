@@ -9,7 +9,7 @@
 #define STDOUT_DEBUG ((void *) 1)
 
 
-#define CONFIG_VERSION 1
+#define CONFIG_VERSION 2
 #define __SYSTICK_IN_MS 20
 
 
@@ -451,6 +451,22 @@ typedef struct {
     uint16_t servo_pulse_max;
 
     uint16_t startup_time;
+
+    // -------------------------------------------------------------------
+    // From here-on down are settings have been added in config version 2!
+    // -------------------------------------------------------------------
+
+    struct {
+        // Enables handling of two additional AUX channels
+        unsigned int multi_aux : 1;
+
+        unsigned int reserved0 : 15;
+    } flags2;
+
+    // Dark phase of the indicator. The blink_counter_value from config version
+    // 1 determines the bright phase length.
+    uint16_t blink_counter_value_dark;
+
 } LIGHT_CONTROLLER_CONFIG_T;
 
 

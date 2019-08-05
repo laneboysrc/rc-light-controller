@@ -39,6 +39,10 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
         .auto_brake_lights_reverse_enabled = true,
     },
 
+    .flags2 = {
+        .multi_aux = false
+    },
+
     .auto_brake_counter_value_forward_min = (500 / __SYSTICK_IN_MS),
     .auto_brake_counter_value_forward_max = (2500 / __SYSTICK_IN_MS),
     .auto_brake_counter_value_reverse_min = (500 / __SYSTICK_IN_MS),
@@ -48,6 +52,8 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
     .brake_disarm_counter_value = (1000 / __SYSTICK_IN_MS),
 
     .blink_counter_value = (340 / __SYSTICK_IN_MS),
+    .blink_counter_value_dark = (100 / __SYSTICK_IN_MS),
+
     .indicator_idle_time_value = (500 / __SYSTICK_IN_MS),
     .indicator_off_timeout_value = (2000 / __SYSTICK_IN_MS),
 
@@ -75,6 +81,10 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
     .servo_pulse_max = 2500,
 
     .startup_time = (2000 / __SYSTICK_IN_MS),
+
+
+
+
 };
 
 
