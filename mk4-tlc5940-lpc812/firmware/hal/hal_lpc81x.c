@@ -36,7 +36,7 @@ static volatile uint16_t write_index = 0;
 
 static volatile bool new_raw_channel_data = false;
 
-static uint32_t raw_data[3];
+static uint32_t raw_data[5];
 
 
 // ****************************************************************************
@@ -447,8 +447,10 @@ void HAL_servo_output_init(void)
     LPC_SCT->OUT[1].SET = (1 << 0);        // Event 0 will set CTOUT_1
     LPC_SCT->OUT[1].CLR = (1 << 4);        // Event 4 will clear CTOUT_1
 
-    // CTOUT_1 = PIO0_12
-    LPC_SWM->PINASSIGN7 = 0xffffff0c;
+    LPC_SWM->PINASSIGN7 = (0xff << 24) |            // I2C_SDA
+                          (0xff << 16) |            // CTOUT_3
+                          (0xff << 8) |             // CTOUT_2
+                          (HAL_GPIO_OUT.pin << 0);  // CTOUT_1
 
     LPC_SCT->CTRL_H &= ~(1 << 2);          // Start the SCTimer H
 }
@@ -550,11 +552,13 @@ void HAL_servo_output_disable(void)
     function outputs the channels that have been received so far.
 
 ******************************************************************************/
-static void output_raw_channels(uint16_t result[3])
+static void output_raw_channels(uint16_t result[5])
 {
     raw_data[0] = result[0] ;
     raw_data[1] = result[1] ;
     raw_data[2] = result[2] ;
+    raw_data[3] = result[3] ;
+    raw_data[4] = result[4] ;
 
 
     // Do not clear the results, rather keep them at their current value. This
@@ -625,8 +629,8 @@ void HAL_servo_reader_init(void)
 // ****************************************************************************
 void SCT_irq_handler(void)
 {
-    static uint16_t start[3] = {0, 0, 0};
-    static uint16_t result[3] = {0, 0, 0};
+    static uint16_t start[5] = {0, 0, 0, 0, 0};
+    static uint16_t result[5] = {0, 0, 0, 0, 0};
     static uint8_t channel_flags = 0;
     uint16_t capture_value;
 
