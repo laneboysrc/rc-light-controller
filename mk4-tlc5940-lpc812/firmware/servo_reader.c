@@ -27,7 +27,7 @@ void init_servo_reader(void)
         return;
     }
 
-    HAL_servo_reader_init(config.mode == MASTER_WITH_CPPM_READER, config.servo_pulse_max);
+    HAL_servo_reader_init(config.servo_pulse_max);
 }
 
 

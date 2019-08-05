@@ -593,9 +593,10 @@ bool HAL_servo_reader_get_new_channels(uint32_t *out)
 
 
 // ****************************************************************************
-void HAL_servo_reader_init(bool CPPM, uint32_t cppm_servo_pulse_max)
+void HAL_servo_reader_init(uint32_t cppm_servo_pulse_max)
 {
-    read_cppm = CPPM;
+    int i;
+
     servo_pulse_max = cppm_servo_pulse_max << 1;
 
     // SCTimer setup
@@ -610,44 +611,23 @@ void HAL_servo_reader_init(bool CPPM, uint32_t cppm_servo_pulse_max)
                        (5 << 5);    // PRE_L[12:5] = 6-1 (SCTimer L clock 2 MHz)
 
 
-    if (!read_cppm) {                    // Servo pulse reader
-        int i;
+    // Configure registers 1..3 to capture servo pulses on SCTimer L
+    for (i = 1; i <= 3; i++) {
+        LPC_SCT->REGMODE_L |= (1 << i);         // Register i is capture register
 
-        // Configure registers 1..3 to capture servo pulses on SCTimer L
-        for (i = 1; i <= 3; i++) {
-            LPC_SCT->REGMODE_L |= (1 << i);         // Register i is capture register
-
-            LPC_SCT->EVENT[i].STATE = 0xFFFF;       // Event i happens in all states
-            LPC_SCT->EVENT[i].CTRL = (0 << 5) |     // OUTSEL: select input elected by IOSEL
-                                     (i << 6) |     // IOSEL: CTIN_i
-                                     (0x1 << 10) |  // IOCOND: rising edge
-                                     (0x2 << 12);   // COMBMODE: Uses the specified I/O condition only
-            LPC_SCT->CAPCTRL[i].L = (1 << i);       // Event i loads capture register i
-            LPC_SCT->EVEN |= (1 << i);              // Event i generates an interrupt
-        }
-
-        LPC_SWM->PINASSIGN6 = (0xff << 24) |
-                              (HAL_GPIO_AUX.pin << 16) |    // CTIN_3
-                              (HAL_GPIO_TH.pin << 8) |      // CTIN_2
-                              (HAL_GPIO_ST.pin << 0);       // CTIN_1
-    }
-
-    else { // CPPM reader
-        LPC_SCT->REGMODE_L |= (1 << 1);         // Register i is capture register
-
-        LPC_SCT->EVENT[1].STATE = 0xFFFF;       // Event i happens in all states
-        LPC_SCT->EVENT[1].CTRL = (0 << 5) |     // OUTSEL: select input elected by IOSEL
-                                 (1 << 6) |     // IOSEL: CTIN_1
-                                 (0x2 << 10) |  // IOCOND: falling edge
+        LPC_SCT->EVENT[i].STATE = 0xFFFF;       // Event i happens in all states
+        LPC_SCT->EVENT[i].CTRL = (0 << 5) |     // OUTSEL: select input elected by IOSEL
+                                 (i << 6) |     // IOSEL: CTIN_i
+                                 (0x1 << 10) |  // IOCOND: rising edge
                                  (0x2 << 12);   // COMBMODE: Uses the specified I/O condition only
-        LPC_SCT->CAPCTRL[1].L = (1 << 1);       // Event 1 loads capture register 1
-        LPC_SCT->EVEN |= (1 << 1);              // Event 1 generates an interrupt
-
-        LPC_SWM->PINASSIGN6 = (0xff << 24) |
-                              (0xff << 16) |
-                              (0xff << 8) |
-                              (HAL_GPIO_ST.pin << 0);   // CTIN_1
+        LPC_SCT->CAPCTRL[i].L = (1 << i);       // Event i loads capture register i
+        LPC_SCT->EVEN |= (1 << i);              // Event i generates an interrupt
     }
+
+    LPC_SWM->PINASSIGN6 = (0xff << 24) |
+                          (HAL_GPIO_AUX.pin << 16) |    // CTIN_3
+                          (HAL_GPIO_TH.pin << 8) |      // CTIN_2
+                          (HAL_GPIO_ST.pin << 0);       // CTIN_1
 
     LPC_SCT->CTRL_L &= ~(1 << 2);               // Start the SCTimer L
     NVIC_EnableIRQ(SCT_IRQn);

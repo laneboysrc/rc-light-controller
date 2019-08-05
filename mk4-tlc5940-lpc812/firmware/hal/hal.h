@@ -40,6 +40,8 @@ typedef struct {
 static const HAL_GPIO_T HAL_GPIO_ST = { .pin = 0, .iocon = &LPC_IOCON->PIO0_0 };
 static const HAL_GPIO_T HAL_GPIO_TH = { .pin = 4, .iocon = &LPC_IOCON->PIO0_4 };
 static const HAL_GPIO_T HAL_GPIO_AUX = { .pin = 13, .iocon = &LPC_IOCON->PIO0_13 };
+static const HAL_GPIO_T HAL_GPIO_AUX2 = { .pin = 8, .iocon = &LPC_IOCON->PIO0_8 };
+static const HAL_GPIO_T HAL_GPIO_AUX3 = { .pin = 11, .iocon = &LPC_IOCON->PIO0_11 };
 static const HAL_GPIO_T HAL_GPIO_OUT = { .pin = 12 };
 static const HAL_GPIO_T HAL_GPIO_SWITCHED_LIGHT_OUTPUT = { .pin = 9 };
 static const HAL_GPIO_T HAL_GPIO_SCK = { .pin = 2 };
