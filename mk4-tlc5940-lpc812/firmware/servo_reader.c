@@ -22,8 +22,7 @@ static uint32_t servo_reader_timer;
 // ****************************************************************************
 void init_servo_reader(void)
 {
-    if (config.mode != MASTER_WITH_SERVO_READER  &&
-        config.mode != MASTER_WITH_CPPM_READER) {
+    if (config.mode != MASTER_WITH_SERVO_READER) {
         return;
     }
 
@@ -102,8 +101,7 @@ void read_all_servo_channels(void)
 {
     uint32_t raw_data[3];
 
-    if (config.mode != MASTER_WITH_SERVO_READER  &&
-        config.mode != MASTER_WITH_CPPM_READER) {
+    if (config.mode != MASTER_WITH_SERVO_READER) {
         return;
     }
 
