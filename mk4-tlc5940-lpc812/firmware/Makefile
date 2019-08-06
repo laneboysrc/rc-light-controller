@@ -40,7 +40,7 @@ TEXT2JS := $(TOOL_PATH)text2js.py
 ###############################################################################
 # Source files    Note: all source files must be relative paths!
 SOURCES += main.c
-SOURCES += ch3_handler.c
+SOURCES += aux_handler.c
 SOURCES += channel_reversing.c
 SOURCES += config.c
 SOURCES += config_lights.c
