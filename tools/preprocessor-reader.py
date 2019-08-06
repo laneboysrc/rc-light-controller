@@ -1,59 +1,78 @@
 #!/usr/bin/env python
-#******************************************************************************
-#
-#   preprocessor-reader.py
-#
-#   This utility reads the output of an RC light controller pre-proessor
-#   and displays it in human readable form.
-#
-#   The serial port where the pre-processor is connected can be specified
-#   on the command line.
-#
-#******************************************************************************
-#
-#   Author:         Werner Lane
-#   E-mail:         laneboysrc@gmail.com
-#
-#******************************************************************************
+'''
 
-import serial
+preprocessor-reader.py
+
+This utility reads the output of an RC light controller pre-proessor
+and displays it in human readable form.
+
+The serial port where the pre-processor is connected can be specified
+on the command line.
+
+Author:         Werner Lane
+E-mail:         laneboysrc@gmail.com
+
+'''
+
+from __future__ import print_function
+
 import sys
+import serial
 
+
+CH3_BIT = 0
 STARTUP_MODE_NEUTRAL = 4
+MULTI_AUX = 3
 
 
-def preprocessor_reader(port, baud):
-    try:
-        s = serial.Serial(port, baud)
-    except serial.SerialException, e:
-        print("Unable to open port %s.\nError message: %s" % (port, e))
-        sys.exit(0)
+def make_signed(value):
+    '''
+    Convert the unsigned value into a signed value
+    '''
+    value = ord(value)
+    if value > 127:
+        return -(256 - value)
+    return value
 
+
+def preprocessor_reader(uart):
+    '''
+    Read from the UART, parse the preprocessor protocol (3 and 5-channel
+    variants), and print the result.
+    '''
     while True:
         sync = 0x00
         while sync != 0x87:
-            sync = ord(s.read(1))
+            sync = ord(uart.read(1))
             if sync != 0x87:
                 print("Out of sync: %x" % sync)
 
-        st = ord(s.read(1))
-        th = ord(s.read(1))
-        ch3 = ord(s.read(1))
+        steering = make_signed(uart.read(1))
+        throttle = make_signed(uart.read(1))
+        mode = ord(uart.read(1))
+        if mode & (1 << MULTI_AUX):
+            aux = make_signed(uart.read(1))
+            aux2 = make_signed(uart.read(1))
+            aux3 = make_signed(uart.read(1))
 
-        if st > 127:
-            st = -(256 - st)
-        if th > 127:
-            th = -(256 - th)
+        ch3 = mode & (1 << CH3_BIT)
 
         message = ""
-        if ch3 & (1 << STARTUP_MODE_NEUTRAL):
+        if mode & (1 << STARTUP_MODE_NEUTRAL):
             message += 'STARTUP_MODE_NEUTRAL'
-        ch3 = ch3 & 0x0f
 
-        print("%+04d %+04d %d %s" % (st, th, ch3, message))
+        if mode & (1 << MULTI_AUX):
+            print("%+04d %+04d %d %+04d %+04d %+04d %s" %
+                  (steering, throttle, ch3, aux, aux2, aux3, message))
+        else:
+            print("%+04d %+04d %d %s" % (steering, throttle, ch3, message))
 
 
-if __name__ == '__main__':
+def main():
+    '''
+    Parse command line parameters, open the serial port and start the reading
+    and parsing process
+    '''
     try:
         port = sys.argv[1]
     except IndexError:
@@ -65,7 +84,17 @@ if __name__ == '__main__':
         baud = 38400
 
     try:
-        preprocessor_reader(port, baud)
+        uart = serial.Serial(port, baud)
+    except serial.SerialException, error:
+        print("Unable to open port %s.\nError message: %s" % (port, error))
+        sys.exit(0)
+
+    try:
+        preprocessor_reader(uart)
     except KeyboardInterrupt:
         print("")
         sys.exit(0)
+
+
+if __name__ == '__main__':
+    main()
