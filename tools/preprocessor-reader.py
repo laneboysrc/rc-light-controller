@@ -17,6 +17,7 @@ E-mail:         laneboysrc@gmail.com
 from __future__ import print_function
 
 import sys
+import time
 import serial
 
 
@@ -40,6 +41,10 @@ def preprocessor_reader(uart):
     Read from the UART, parse the preprocessor protocol (3 and 5-channel
     variants), and print the result.
     '''
+
+    time_of_last_line = start_time = time.time()
+    header_printed = False
+
     while True:
         sync = 0x00
         while sync != 0x87:
@@ -61,11 +66,28 @@ def preprocessor_reader(uart):
         if mode & (1 << STARTUP_MODE_NEUTRAL):
             message += 'STARTUP_MODE_NEUTRAL'
 
+        current_time = time.time()
+        time_difference = current_time - time_of_last_line
+        elapsed_time = current_time - start_time
+
+        time_of_last_line = current_time
+
         if mode & (1 << MULTI_AUX):
-            print("%+04d %+04d %d %+04d %+04d %+04d %s" %
-                  (steering, throttle, ch3, aux, aux2, aux3, message))
+            if not header_printed:
+                print("     TOTAL  DIFFERENCE   ST   TH  3  AUX AUX2 AUX3")
+                print("----------  ----------  ---- ---- - ---- ---- ----")
+
+            print("%10.3f  %10.3f  %+04d %+04d %d %+04d %+04d %+04d %s" %
+                  (elapsed_time, time_difference, steering, throttle, ch3, aux,
+                   aux2, aux3, message))
         else:
-            print("%+04d %+04d %d %s" % (steering, throttle, ch3, message))
+            if not header_printed:
+                print("     TOTAL  DIFFERENCE   ST   TH  3")
+                print("----------  ----------  ---- ---- -")
+            print("%10.3f  %10.3f  %+04d %+04d %d %s" %
+                  (elapsed_time, time_difference, steering, throttle, ch3, message))
+
+        header_printed = True
 
 
 def main():
