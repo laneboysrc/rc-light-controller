@@ -69,7 +69,7 @@ gear1: if 2 gears, direct selection; if 3 gears: 1-click=up, 2-click=down
 gear2: direct selection with hysteresis
 winch1: as per current operation
 winch2: direct off/in/out operation
-light2: the servo range 1000..2000us is mapped to n light switch sections. Not that for 3-pos switch this could mean that not all are adjustable.
+light2: the servo range 1000..2000us is mapped to n light switch sections. Note that for 3-pos switch this could mean that not all are adjustable.
 
 Note that the combination of 2-pos and Light is not used (N/A) because we rather apply the full toggle operation in that case.
 

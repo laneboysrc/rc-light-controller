@@ -16,6 +16,10 @@ X Asymetric indicator blinking for US cars
   * Require constant stream of data, not just one pulse
   * Plausibility check?
 
+* Local CH3 button always active when UART input active
+
+* US-style combined tail/brake/indicator as per the gentleman from Manila
+
 * `Stand-alone` mode
 
 
