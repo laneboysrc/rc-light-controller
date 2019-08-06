@@ -52,6 +52,7 @@ AUX3: PIO0_11 (7, open drain)
     * Momentary push button
     * Three-position switch
     * Analog or multi-position switch
+* Light programs can read AUX position
 
 
 Two-position switch, Two-position switch with up/down buttons and Momentary push button are technically all of type two-position actuator.
@@ -72,10 +73,12 @@ light2: the servo range 1000..2000us is mapped to n light switch sections. Not t
 
 Note that the combination of 2-pos and Light is not used (N/A) because we rather apply the full toggle operation in that case.
 
-All switch actions are only executed upon switch change. This allows e.g. controlling the hazard lights from both the usuall 2-pos toggle function, but also from a manual switch at the same time. Or there can be multiple switches assigned to 'toggle'.
+All switch actions are only executed upon switch change. This allows e.g. controlling the hazard lights from both the usual 2-pos toggle function, but also from a manual switch at the same time. Or there can be multiple switches assigned to 'toggle'.
 After initialization the manual functions are applied immediately.
 
 When the preprocessor input is active, the light controller always supports a hardware push-button the CH3/AUX input. It always serves as 'toggle' button for all functions.
+
+When indicator control is assigned to an AUX channel then automatic indicators are disabled.
 
 
 ## Configurator user interface
@@ -92,7 +95,7 @@ We need to add preprocessor and multi-aux preprocessor to the configuration list
     * We send 3 additional bytes for AUX, AUX2 and AUX3. Data is always -100..100  corresponding to 1000..2000 us pulse width (= no auto EPA)
     * Need to update the preprocessor-reader and preprocessor-simulator tools
 * Can 34800 BAUD support the additional data?
-    * Yes, 7 Bytes take only 200 us
+    * Yes, 7 Bytes take only 200 us @38400 BAUD
 * One additional AUX channel could be handled with the 4th capture input. For further inputs we need to multiplex the respective input
 * How to setup the light controller if there is no CH3/AUX toggle function assigned?
     - We always do local button on CH3 if master with uart-reader
