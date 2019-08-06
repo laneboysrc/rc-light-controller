@@ -37,6 +37,7 @@ static volatile uint16_t write_index = 0;
 static volatile bool new_raw_channel_data = false;
 
 static volatile bool aux3_active = false;
+static volatile uint32_t aux2_aux3_timeout;
 static uint32_t raw_data[5];
 
 
@@ -600,47 +601,52 @@ void HAL_servo_reader_init(void)
 
 
 // ****************************************************************************
+static void swap_aux2_aux3(void)
+{
+    if (milliseconds < aux2_aux3_timeout) {
+        return;
+    }
+    aux2_aux3_timeout = milliseconds + 30;
+
+
+    // Disable Event 0 (AUX2/AUX3) generating an interrupt
+    LPC_SCT->EVEN &= ~(1 << 0);
+
+    if (!aux3_active) {
+        aux3_active = true;
+        LPC_SWM->PINASSIGN5 = (HAL_GPIO_AUX3.pin << 24) |   // CTIN_0
+                              (0xff << 16) |                // SPI1_SSEL
+                              (0xff << 8) |                 // SPI1_MISO
+                              (0xff << 0);                  // SPI1_MOSI
+
+    }
+    else {
+        aux3_active  = false;
+        LPC_SWM->PINASSIGN5 = (HAL_GPIO_AUX2.pin << 24) |   // CTIN_0
+                              (0xff << 16) |                // SPI1_SSEL
+                              (0xff << 8) |                 // SPI1_MISO
+                              (0xff << 0);                  // SPI1_MOSI
+    }
+
+    // Generate intererupt on rising edge
+    LPC_SCT->EVENT[0].CTRL = (0 << 5) |     // OUTSEL: select input selected by IOSEL
+                             (0 << 6) |     // IOSEL: CTIN_0
+                             (0x1 << 10) |  // IOCOND: rising edge
+                             (0x2 << 12);   // COMBMODE: Uses the specified I/O condition only
+
+    // Clear any potentially pending interrupts
+    LPC_SCT->EVFLAG = (1 << 0);
+
+    // Re-enable Event 0 generating an interrupt
+    LPC_SCT->EVEN |= (1 << 0);
+}
+
+
+// ****************************************************************************
 bool HAL_servo_reader_get_new_channels(uint32_t *out)
 {
-    // Set the swap_aux2_aux3 flag every ~40ms (2 systicks)
-    if (config.flags2.multi_aux && global_flags.systick) {
-        static uint8_t prescaler = 0;
-
-        ++prescaler;
-        if (prescaler == 2) {
-            prescaler = 0;
-
-            // Disable Event 0 (AUX2/AUX3) generating an interrupt
-            LPC_SCT->EVEN &= ~(1 << 0);
-
-            if (!aux3_active) {
-                aux3_active = true;
-                LPC_SWM->PINASSIGN5 = (HAL_GPIO_AUX3.pin << 24) |   // CTIN_0
-                                      (0xff << 16) |                // SPI1_SSEL
-                                      (0xff << 8) |                 // SPI1_MISO
-                                      (0xff << 0);                  // SPI1_MOSI
-
-            }
-            else {
-                aux3_active  = false;
-                LPC_SWM->PINASSIGN5 = (HAL_GPIO_AUX2.pin << 24) |   // CTIN_0
-                                      (0xff << 16) |                // SPI1_SSEL
-                                      (0xff << 8) |                 // SPI1_MISO
-                                      (0xff << 0);                  // SPI1_MOSI
-            }
-
-            // Generate intererupt on rising edge
-            LPC_SCT->EVENT[0].CTRL = (0 << 5) |     // OUTSEL: select input selected by IOSEL
-                                     (0 << 6) |     // IOSEL: CTIN_0
-                                     (0x1 << 10) |  // IOCOND: rising edge
-                                     (0x2 << 12);   // COMBMODE: Uses the specified I/O condition only
-
-            // Clear any potentially pending interrupts
-            LPC_SCT->EVFLAG = (1 << 0);
-
-            // Re-enable Event 0 generating an interrupt
-            LPC_SCT->EVEN |= (1 << 0);
-        }
+    if (config.flags2.multi_aux) {
+        swap_aux2_aux3();
     }
 
     if (!new_raw_channel_data) {
@@ -721,6 +727,11 @@ void SCT_irq_handler(void)
                     capture_value += LPC_SCT->MATCHREL[0].L + 1;
                 }
                 result[storage_index] = capture_value - start[storage_index];
+
+                // AUX2/3 captured? Trigger a swap between AUX2 and AUX3 immediately
+                if (event_index == 0) {
+                    aux2_aux3_timeout = 0;
+                }
             }
 
             // IOCOND: toggle edge
