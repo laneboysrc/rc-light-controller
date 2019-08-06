@@ -39,6 +39,22 @@ static volatile bool new_raw_channel_data = false;
 static uint32_t raw_data[5];
 
 
+/* ****************************************************************************
+SCT Timer usage
+
+The SCT is configured into two independent 16 bit timer/counters.
+
+Counter H is used for the servo output.
+It makes use of EVENT4 (20 ms pulse repetition) and EVENT5 (servo pulse width).
+CTOUT_1 is used to drive the output pin.
+
+Counter L is used for reading up to 4 servo inputs.
+EVENT0 .. EVENT3 are used
+CTIN_0 .. CTIN_3 are used and connected to the servo input pins.
+
+**************************************************************************** */
+
+
 // ****************************************************************************
 void SysTick_handler(void)
 {
@@ -428,15 +444,15 @@ void HAL_servo_output_init(void)
     LPC_SCT->CTRL_H |= (1 << 3) |           // Clear the counter H
                        (11 << 5);           // PRE_H[12:5] = 12-1 (SCTimer H clock 1 MHz)
     LPC_SCT->MATCHREL[0].H = 20000 - 1;     // 20 ms per overflow (50 Hz)
-    LPC_SCT->MATCHREL[4].H = 1500;          // Servo pulse 1.5 ms intially
+    LPC_SCT->MATCHREL[1].H = 1500;          // Servo pulse 1.5 ms intially
 
-    LPC_SCT->EVENT[0].STATE = 0xFFFF;       // Event 0 happens in all states
-    LPC_SCT->EVENT[0].CTRL = (0 << 0) |     // Match register 0
+    LPC_SCT->EVENT[4].STATE = 0xFFFF;       // Event 4 happens in all states
+    LPC_SCT->EVENT[4].CTRL = (0 << 0) |     // Match register 0
                              (1 << 4) |     // Select H counter
                              (0x1 << 12);   // Match condition only
 
-    LPC_SCT->EVENT[4].STATE = 0xFFFF;       // Event 4 happens in all states
-    LPC_SCT->EVENT[4].CTRL = (4 << 0) |     // Match register 4
+    LPC_SCT->EVENT[5].STATE = 0xFFFF;       // Event 5 happens in all states
+    LPC_SCT->EVENT[5].CTRL = (1 << 0) |     // Match register 1
                              (1 << 4) |     // Select H counter
                              (0x1 << 12);   // Match condition only
 
@@ -444,8 +460,8 @@ void HAL_servo_output_init(void)
     // changing may affect CTIN_1..3 that we need.
     // CTOUT_1 is in PINASSIGN7, where no other function is needed for our
     // application.
-    LPC_SCT->OUT[1].SET = (1 << 0);        // Event 0 will set CTOUT_1
-    LPC_SCT->OUT[1].CLR = (1 << 4);        // Event 4 will clear CTOUT_1
+    LPC_SCT->OUT[1].SET = (1 << 4);        // Event 4 will set CTOUT_1
+    LPC_SCT->OUT[1].CLR = (1 << 5);        // Event 5 will clear CTOUT_1
 
     LPC_SWM->PINASSIGN7 = (0xff << 24) |            // I2C_SDA
                           (0xff << 16) |            // CTOUT_3
@@ -461,7 +477,7 @@ void HAL_servo_output_init(void)
 // to output the pulse of the given duration.
 void HAL_servo_output_set_pulse(uint16_t servo_pulse)
 {
-    LPC_SCT->MATCHREL[4].H = servo_pulse;
+    LPC_SCT->MATCHREL[1].H = servo_pulse;
 }
 
 
@@ -552,6 +568,38 @@ void HAL_servo_output_disable(void)
     function outputs the channels that have been received so far.
 
 ******************************************************************************/
+void HAL_servo_reader_init(void)
+{
+    int i;
+
+    LPC_SCT->CTRL_L |= (1 << 3) |   // Clear the counter L
+                       (5 << 5);    // PRE_L[12:5] = 6-1 (SCTimer L clock 2 MHz)
+
+
+    // Configure registers 1..3 to capture servo pulses on SCTimer L
+    for (i = 1; i <= 3; i++) {
+        LPC_SCT->REGMODE_L |= (1 << i);         // Register i is capture register
+
+        LPC_SCT->EVENT[i].STATE = 0xFFFF;       // Event i happens in all states
+        LPC_SCT->EVENT[i].CTRL = (0 << 5) |     // OUTSEL: select input elected by IOSEL
+                                 (i << 6) |     // IOSEL: CTIN_i
+                                 (0x1 << 10) |  // IOCOND: rising edge
+                                 (0x2 << 12);   // COMBMODE: Uses the specified I/O condition only
+        LPC_SCT->CAPCTRL[i].L = (1 << i);       // Event i loads capture register i
+        LPC_SCT->EVEN |= (1 << i);              // Event i generates an interrupt
+    }
+
+    LPC_SWM->PINASSIGN6 = (0xff << 24) |
+                          (HAL_GPIO_AUX.pin << 16) |    // CTIN_3
+                          (HAL_GPIO_TH.pin << 8) |      // CTIN_2
+                          (HAL_GPIO_ST.pin << 0);       // CTIN_1
+
+    LPC_SCT->CTRL_L &= ~(1 << 2);               // Start the SCTimer L
+    NVIC_EnableIRQ(SCT_IRQn);
+}
+
+
+// ****************************************************************************
 static void output_raw_channels(uint16_t result[5])
 {
     raw_data[0] = result[0] ;
@@ -583,46 +631,6 @@ bool HAL_servo_reader_get_new_channels(uint32_t *out)
     out[1] = raw_data[1] >> 1;
     out[2] = raw_data[2] >> 1;
     return true;
-}
-
-
-// ****************************************************************************
-void HAL_servo_reader_init(void)
-{
-    int i;
-
-    // SCTimer setup
-    // At this point we assume that SCTimer has been setup in the following way:
-    //
-    //  * Split 16-bit timers
-    //  * Events 1, 2 and 3 available for our use
-    //  * Registers 1, 2 and 3 available for our use
-    //  * CTIN_1, CTIN_2 and CTIN3 available for our use
-
-    LPC_SCT->CTRL_L |= (1 << 3) |   // Clear the counter L
-                       (5 << 5);    // PRE_L[12:5] = 6-1 (SCTimer L clock 2 MHz)
-
-
-    // Configure registers 1..3 to capture servo pulses on SCTimer L
-    for (i = 1; i <= 3; i++) {
-        LPC_SCT->REGMODE_L |= (1 << i);         // Register i is capture register
-
-        LPC_SCT->EVENT[i].STATE = 0xFFFF;       // Event i happens in all states
-        LPC_SCT->EVENT[i].CTRL = (0 << 5) |     // OUTSEL: select input elected by IOSEL
-                                 (i << 6) |     // IOSEL: CTIN_i
-                                 (0x1 << 10) |  // IOCOND: rising edge
-                                 (0x2 << 12);   // COMBMODE: Uses the specified I/O condition only
-        LPC_SCT->CAPCTRL[i].L = (1 << i);       // Event i loads capture register i
-        LPC_SCT->EVEN |= (1 << i);              // Event i generates an interrupt
-    }
-
-    LPC_SWM->PINASSIGN6 = (0xff << 24) |
-                          (HAL_GPIO_AUX.pin << 16) |    // CTIN_3
-                          (HAL_GPIO_TH.pin << 8) |      // CTIN_2
-                          (HAL_GPIO_ST.pin << 0);       // CTIN_1
-
-    LPC_SCT->CTRL_L &= ~(1 << 2);               // Start the SCTimer L
-    NVIC_EnableIRQ(SCT_IRQn);
 }
 
 
