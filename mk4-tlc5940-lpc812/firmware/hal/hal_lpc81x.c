@@ -568,7 +568,12 @@ void HAL_servo_reader_init(void)
                                  (0x1 << 10) |  // IOCOND: rising edge
                                  (0x2 << 12);   // COMBMODE: Uses the specified I/O condition only
         LPC_SCT->CAPCTRL[i].L = (1 << i);       // Event i loads capture register i
-        LPC_SCT->EVEN |= (1 << i);              // Event i generates an interrupt
+
+        // Only enable EVENT0, which we use for AUX2 and AUX3, if the multi-aux
+        // configuration is set.
+        if (i != 0  ||  config.flags2.multi_aux) {
+            LPC_SCT->EVEN |= (1 << i);              // Event i generates an interrupt
+        }
     }
 
     // We keep AUX2 in CTIN_0 as it is a lone value in PINASSIGN5. We can
@@ -598,7 +603,7 @@ void HAL_servo_reader_init(void)
 bool HAL_servo_reader_get_new_channels(uint32_t *out)
 {
     // Set the swap_aux2_aux3 flag every ~40ms (2 systicks)
-    if (global_flags.systick) {
+    if (config.flags2.multi_aux && global_flags.systick) {
         static uint8_t prescaler = 0;
 
         ++prescaler;
