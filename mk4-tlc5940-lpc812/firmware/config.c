@@ -14,20 +14,19 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
 
     .firmware_version = 16,
 
-    .mode = MASTER_WITH_UART_READER,
+    .mode = MASTER_WITH_SERVO_READER,
     .esc_mode = ESC_FORWARD_BRAKE_REVERSE_TIMEOUT,
 
     .flags = {
         // If mode is MASTER_WITH_SERVO_READER then all *_output flags are
         // mutually exculsive.
-        // If mode is MASTER_WITH_UART_READER or MASTER_WITH_CPPM_READER then
+        // If mode is MASTER_WITH_UART_READER then
         // there can be one UART output (slave, preprocessor or winch) and
         // one servo output (steering wheel or gearbox servo)
         .slave_output = false,
-        .preprocessor_output = false,
+        .preprocessor_output = true,
         .winch_output = false,
-        .steering_wheel_servo_output = true,
-        // .steering_wheel_servo_output = false,
+        .steering_wheel_servo_output = false,
         .gearbox_servo_output = false,
 
         .ch3_is_local_switch = false,
@@ -41,7 +40,7 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
     },
 
     .flags2 = {
-        .multi_aux = false
+        .multi_aux = true
     },
 
     .auto_brake_counter_value_forward_min = (500 / __SYSTICK_IN_MS),

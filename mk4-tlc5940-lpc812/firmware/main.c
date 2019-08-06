@@ -41,9 +41,9 @@ CHANNEL_T channel[5] = {
         .absolute = 0,
         .reversed = false,
         .endpoint = {
-            .left = 1250,
+            .left = 1000,
             .centre = 1500,
-            .right = 1750,
+            .right = 2000,
         }
     },
     {   // AUX2
@@ -51,9 +51,9 @@ CHANNEL_T channel[5] = {
         .absolute = 0,
         .reversed = false,
         .endpoint = {
-            .left = 1250,
+            .left = 1000,
             .centre = 1500,
-            .right = 1750,
+            .right = 2000,
         }
     },
     {   // AUX3
@@ -61,9 +61,9 @@ CHANNEL_T channel[5] = {
         .absolute = 0,
         .reversed = false,
         .endpoint = {
-            .left = 1250,
+            .left = 1000,
             .centre = 1500,
-            .right = 1750,
+            .right = 2000,
         }
     }
 };

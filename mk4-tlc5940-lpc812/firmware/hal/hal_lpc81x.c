@@ -36,6 +36,7 @@ static volatile uint16_t write_index = 0;
 
 static volatile bool new_raw_channel_data = false;
 
+static volatile bool aux3_active = false;
 static uint32_t raw_data[5];
 
 
@@ -118,11 +119,15 @@ void HAL_hardware_init(bool is_servo_reader, bool servo_output_enabled, bool uar
 
     // Make the open drain ports PIO0_10, PIO0_11 outputs and pull to ground
     // to prevent them from floating.
+    // Note that if multi-aux-channel is enabled PIO0_11 is used as input with
+    // an external pull-down, so we keep it as the default input!
     HAL_gpio_clear(HAL_GPIO_PIN10);
     HAL_gpio_out(HAL_GPIO_PIN10);
 
-    HAL_gpio_clear(HAL_GPIO_PIN11);
-    HAL_gpio_out(HAL_GPIO_PIN11);
+    if (!config.flags2.multi_aux) {
+        HAL_gpio_clear(HAL_GPIO_PIN11);
+        HAL_gpio_out(HAL_GPIO_PIN11);
+    }
 
     // Make the switched light output PIO0_9 an output and shut it off.
     HAL_gpio_clear(HAL_GPIO_SWITCHED_LIGHT_OUTPUT);
@@ -141,6 +146,7 @@ void HAL_hardware_init(bool is_servo_reader, bool servo_output_enabled, bool uar
     HAL_gpio_glitch_filter(HAL_GPIO_ST);
     HAL_gpio_glitch_filter(HAL_GPIO_TH);
     HAL_gpio_glitch_filter(HAL_GPIO_AUX);
+    HAL_gpio_glitch_filter(HAL_GPIO_AUX2);
 
 
     // ------------------------
@@ -175,8 +181,11 @@ void HAL_hardware_init(bool is_servo_reader, bool servo_output_enabled, bool uar
 // ****************************************************************************
 void HAL_hardware_init_final(void)
 {
-    // Turn off peripheral clock for IOCON and SWM to preserve power
-    LPC_SYSCON->SYSAHBCLKCTRL &= ~((1 << 18) | (1 << 7));
+    // Turn off peripheral clock for IOCON to preserve power
+    LPC_SYSCON->SYSAHBCLKCTRL &= ~(1 << 18);
+
+    // IMPORTANT: SWM needs to stay enabled so that we can dynamically change
+    // CTIN_0 to capture multiple AUX channels!
 }
 
 
@@ -502,21 +511,18 @@ void HAL_servo_output_disable(void)
 
 /******************************************************************************
 
-    This module reads the servo pulses for steering, throttle and CH3/AUX
-    from a receiver.
-
-    It can also read the pulses from a CPPM output, provided your receiver
-    has such an output.
+    This module reads the servo pulses for steering, throttle and up to 3 AUX
+    channels from a receiver.
 
 
     Internal operation for reading servo pulses:
     --------------------------------------------
     The SCTimer in 16-bit mode is utilized.
-    We use 3 events, 3 capture registers, and 3 CTIN signals connected to the
+    We use 4 events, 4 capture registers, and 4 CTIN signals connected to the
     servo input pins. The 16 bit timer L is running at 2 MHz, giving us a
     resolution of 0.5 us.
 
-    At rest, the 3 capture registers wait for a rising edge.
+    At rest, the capture registers wait for a rising edge.
     When an edge is detected the value is retrieved from the capture register
     and stored in a holding place. The edge of the capture block is toggled.
 
@@ -541,31 +547,7 @@ void HAL_servo_output_disable(void)
     measured pulse duration in microseconds.
 
     The downside of the algorithm is that there is a one frame delay
-    of the output, but it is very robust for use in the pre-processor.
-
-
-    Internal operation for reading CPPM:
-    ------------------------------------
-    The SCTimer in 16-bit mode is utilized.
-    We use 1 event, 1 capture register, and the CTIN_1 signals connected to the
-    ST servo input pin. The 16 bit timer L is running at 2 MHz, giving us a
-    resolution of 0.5 us.
-
-    The capture register is setup to trigger of falling edges of the CPPM
-    signal. Every time an interrupt occurs the time duration from the
-    previous pulse is calculated.
-
-    If that time difference is larger than the largest servo pulse we expect
-    (which is 2.5 ms) then we know that a new CPPM "frame" has started and
-    we set our state-machine so that the next edge is stored as CH1, then
-    the next as CH2, and one more edge as CH3. After we received all
-    3 channels we update the rest of the light controller with the new
-    data and setup the CPPM reader to wait for a frame sync signal (= >2/5ms
-    between interrupts). Smaller pulses (i.e. because the receiver outputs
-    more than 3 channles) are ignored.
-
-    In case the receiver outputs less than 3 channels, the frame detection
-    function outputs the channels that have been received so far.
+    of the output, but it is very robust for all kind of receivers.
 
 ******************************************************************************/
 void HAL_servo_reader_init(void)
@@ -577,11 +559,11 @@ void HAL_servo_reader_init(void)
 
 
     // Configure registers 1..3 to capture servo pulses on SCTimer L
-    for (i = 1; i <= 3; i++) {
+    for (i = 0; i <= 3; i++) {
         LPC_SCT->REGMODE_L |= (1 << i);         // Register i is capture register
 
         LPC_SCT->EVENT[i].STATE = 0xFFFF;       // Event i happens in all states
-        LPC_SCT->EVENT[i].CTRL = (0 << 5) |     // OUTSEL: select input elected by IOSEL
+        LPC_SCT->EVENT[i].CTRL = (0 << 5) |     // OUTSEL: select input selected by IOSEL
                                  (i << 6) |     // IOSEL: CTIN_i
                                  (0x1 << 10) |  // IOCOND: rising edge
                                  (0x2 << 12);   // COMBMODE: Uses the specified I/O condition only
@@ -589,24 +571,95 @@ void HAL_servo_reader_init(void)
         LPC_SCT->EVEN |= (1 << i);              // Event i generates an interrupt
     }
 
-    LPC_SWM->PINASSIGN6 = (0xff << 24) |
+    // We keep AUX2 in CTIN_0 as it is a lone value in PINASSIGN5. We can
+    // therefore easily swap AUX2 and AUX3 without having to worry of other
+    // fields in the register.
+
+    LPC_SWM->PINASSIGN5 = (HAL_GPIO_AUX2.pin << 24) |   // CTIN_0
+                          (0xff << 16) |                // SPI1_SSEL
+                          (0xff << 8) |                 // SPI1_MISO
+                          (0xff << 0);                  // SPI1_MOSI
+
+
+
+    LPC_SWM->PINASSIGN6 = (0xff << 24) |                // CTOUT_0
                           (HAL_GPIO_AUX.pin << 16) |    // CTIN_3
                           (HAL_GPIO_TH.pin << 8) |      // CTIN_2
                           (HAL_GPIO_ST.pin << 0);       // CTIN_1
 
+
     LPC_SCT->CTRL_L &= ~(1 << 2);               // Start the SCTimer L
+
     NVIC_EnableIRQ(SCT_IRQn);
+}
+
+
+// ****************************************************************************
+bool HAL_servo_reader_get_new_channels(uint32_t *out)
+{
+    // Set the swap_aux2_aux3 flag every ~40ms (2 systicks)
+    if (global_flags.systick) {
+        static uint8_t prescaler = 0;
+
+        ++prescaler;
+        if (prescaler == 2) {
+            prescaler = 0;
+
+            // Disable Event 0 (AUX2/AUX3) generating an interrupt
+            LPC_SCT->EVEN &= ~(1 << 0);
+
+            if (!aux3_active) {
+                aux3_active = true;
+                LPC_SWM->PINASSIGN5 = (HAL_GPIO_AUX3.pin << 24) |   // CTIN_0
+                                      (0xff << 16) |                // SPI1_SSEL
+                                      (0xff << 8) |                 // SPI1_MISO
+                                      (0xff << 0);                  // SPI1_MOSI
+
+            }
+            else {
+                aux3_active  = false;
+                LPC_SWM->PINASSIGN5 = (HAL_GPIO_AUX2.pin << 24) |   // CTIN_0
+                                      (0xff << 16) |                // SPI1_SSEL
+                                      (0xff << 8) |                 // SPI1_MISO
+                                      (0xff << 0);                  // SPI1_MOSI
+            }
+
+            // Generate intererupt on rising edge
+            LPC_SCT->EVENT[0].CTRL = (0 << 5) |     // OUTSEL: select input selected by IOSEL
+                                     (0 << 6) |     // IOSEL: CTIN_0
+                                     (0x1 << 10) |  // IOCOND: rising edge
+                                     (0x2 << 12);   // COMBMODE: Uses the specified I/O condition only
+
+            // Clear any potentially pending interrupts
+            LPC_SCT->EVFLAG = (1 << 0);
+
+            // Re-enable Event 0 generating an interrupt
+            LPC_SCT->EVEN |= (1 << 0);
+        }
+    }
+
+    if (!new_raw_channel_data) {
+        return false;
+    }
+
+    new_raw_channel_data = false;
+    out[0] = raw_data[0] >> 1;
+    out[1] = raw_data[1] >> 1;
+    out[2] = raw_data[2] >> 1;
+    out[3] = raw_data[3] >> 1;
+    out[4] = raw_data[4] >> 1;
+    return true;
 }
 
 
 // ****************************************************************************
 static void output_raw_channels(uint16_t result[5])
 {
-    raw_data[0] = result[0] ;
-    raw_data[1] = result[1] ;
-    raw_data[2] = result[2] ;
-    raw_data[3] = result[3] ;
-    raw_data[4] = result[4] ;
+    raw_data[AUX2] = result[0];
+    raw_data[ST] = result[1];
+    raw_data[TH] = result[2];
+    raw_data[AUX] = result[3];
+    raw_data[AUX3] = result[4];
 
 
     // Do not clear the results, rather keep them at their current value. This
@@ -620,21 +673,6 @@ static void output_raw_channels(uint16_t result[5])
 
 
 // ****************************************************************************
-bool HAL_servo_reader_get_new_channels(uint32_t *out)
-{
-    if (!new_raw_channel_data) {
-        return false;
-    }
-
-    new_raw_channel_data = false;
-    out[0] = raw_data[0] >> 1;
-    out[1] = raw_data[1] >> 1;
-    out[2] = raw_data[2] >> 1;
-    return true;
-}
-
-
-// ****************************************************************************
 void SCT_irq_handler(void)
 {
     static uint16_t start[5] = {0, 0, 0, 0, 0};
@@ -642,34 +680,49 @@ void SCT_irq_handler(void)
     static uint8_t channel_flags = 0;
     uint16_t capture_value;
 
-    int i;
+    int event_index;
+    int storage_index;
 
-    for (i = 1; i <= 3; i++) {
-        // Event i: Capture CTIN_i
-        if (LPC_SCT->EVFLAG & (1 << i)) {
-            capture_value = LPC_SCT->CAP[i].L;
+    for (event_index = 0; event_index <= 3; event_index++) {
 
-            if (LPC_SCT->EVENT[i].CTRL & (0x1 << 10)) {
+        // EVENT0 / CTIN_0 is multiplexed between AUX2 and AUX3. So depending
+        // on which one we are currently processing we set the corresponding
+        // storage index into start[]/result[]/channel_flags[] to 0 (AUX2) or
+        // 4 (AUX3).
+        storage_index = event_index;
+        if (event_index == 0 && aux3_active) {
+            storage_index = 4;
+        }
+
+        // Event event_index: Capture CTIN_event_index
+        if (LPC_SCT->EVFLAG & (1 << event_index)) {
+            capture_value = LPC_SCT->CAP[event_index].L;
+
+            if (LPC_SCT->EVENT[event_index].CTRL & (0x1 << 10)) {
                 // Rising edge triggered
-                start[i - 1] = capture_value;
 
-                if (channel_flags & (1 << i)) {
+                start[storage_index] = capture_value;
+
+                if (channel_flags & (1 << storage_index)) {
                     output_raw_channels(result);
-                    channel_flags = (1 << i);
+                    channel_flags = (1 << storage_index);
                 }
-                channel_flags |= (1 << i);
+                channel_flags |= (1 << storage_index);
             }
             else {
                 // Falling edge triggered
-                if (start[i - 1] > capture_value) {
+                if (start[storage_index] > capture_value) {
                     // Compensate for wrap-around
                     capture_value += LPC_SCT->MATCHREL[0].L + 1;
                 }
-                result[i - 1] = capture_value - start[i - 1];
+                result[storage_index] = capture_value - start[storage_index];
             }
 
-            LPC_SCT->EVENT[i].CTRL ^= (0x3 << 10);   // IOCOND: toggle edge
-            LPC_SCT->EVFLAG = (1 << i);
+            // IOCOND: toggle edge
+            LPC_SCT->EVENT[event_index].CTRL ^= (0x3 << 10);
+
+            // Clear the event flag
+            LPC_SCT->EVFLAG = (1 << event_index);
         }
     }
 }

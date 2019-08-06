@@ -16,7 +16,7 @@
 #include <printf.h>
 
 #define SLAVE_MAGIC_BYTE 0x87
-#define AUX_HYSTERESIS 5
+#define AUX_HYSTERESIS 10
 
 #define PACKET_LENGTH 4
 #define PACKET_LENGTH_MULTI 7
@@ -49,6 +49,7 @@ void output_preprocessor(void)
         tx_data[1] = channel[ST].normalized;
         tx_data[2] = channel[TH].normalized;
         tx_data[3] = (ch3_2pos ? (1 << 0) : 0) |
+                     (config.flags2.multi_aux ? (1 << 3) : 0) |
                      (global_flags.initializing ? (1 << 4) : 0);
         tx_data[4] = channel[AUX].normalized;
         tx_data[5] = channel[AUX2].normalized;
