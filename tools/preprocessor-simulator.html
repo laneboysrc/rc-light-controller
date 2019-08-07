@@ -183,7 +183,7 @@
                     <button id="ch3">CH3</button>
                 </div>
             </form>
-            <form class="box features">
+            <form class="box features multi-aux">
                 <span style="float: right;">
                     <input id="momentary" type="checkbox"> <label for="momentary">Momemtary</label>
                 </span>
@@ -198,7 +198,7 @@
                     </div>
                 </div>
             </form>
-            <form class="box features">
+            <form class="box features multi-aux">
                 <span style="float: right;">
                     <select id="aux3-select">
                         <option>Two-position switch</option>
@@ -769,6 +769,7 @@ window.addEventListener('load', async function () {
     // webserver (Github!)
     let use_webusb = true;
     let use_ws = false;
+    let multi_aux = false;
 
     if (document.cookie.split(';').indexOf('mode=xhr') >= 0) {
         console.log('XHR mode requested');
@@ -781,6 +782,11 @@ window.addEventListener('load', async function () {
         document.cookie = 'mode=; expires=Thu, 01 Jan 1970 00:00:00 GMT';
         use_webusb = false;
         use_ws = true;
+    }
+    if (document.cookie.split(';').indexOf('multi-aux=5') >= 0) {
+        console.log('Multi-aux support requested');
+        document.cookie = 'multi-aux=; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+        multi_aux = true;
     }
 
     if (use_webusb) {
@@ -807,6 +813,13 @@ window.addEventListener('load', async function () {
     elCH3.addEventListener('mousedown', ch3_changed.bind('down'));
     elCH3.addEventListener('mouseup', ch3_changed.bind('up'));
     elStartupMode.addEventListener('change', startup_mode_changed);
+
+    if (!multi_aux) {
+        const elements = document.querySelectorAll('.multi-aux');
+        elements.forEach(e => {
+            e.classList.add('hidden');
+        });
+    }
 
     reset_ui();
     update_ui();

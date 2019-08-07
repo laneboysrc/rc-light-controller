@@ -73,6 +73,8 @@ class CustomHTTPRequestHandler(QuietBaseHTTPRequestHandler):
         self.send_header('Content-type', 'text/html')
         if not self.server.preprocessor.args.usb:
             self.send_header('Set-Cookie', 'mode=xhr;max-age=1')
+        if self.server.preprocessor.args.multi_aux:
+            self.send_header('Set-Cookie', 'multi-aux=5;max-age=1')
         self.end_headers()
 
         html_path = os.path.join(
