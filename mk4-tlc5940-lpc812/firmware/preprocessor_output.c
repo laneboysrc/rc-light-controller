@@ -16,7 +16,6 @@
 #include <printf.h>
 
 #define SLAVE_MAGIC_BYTE 0x87
-#define AUX_HYSTERESIS 10
 
 #define PACKET_LENGTH 4
 #define PACKET_LENGTH_MULTI 7

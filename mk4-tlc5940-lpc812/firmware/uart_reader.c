@@ -61,13 +61,16 @@ static void publish_channels(uint8_t channel_data[])
     normalize_channel(&channel[ST], channel_data[0]);
     normalize_channel(&channel[TH], channel_data[1]);
 
-    global_flags.initializing =
-        (channel_data[2] & (1 << 4)) ? true : false;
-
-    if (!config.flags.ch3_is_local_switch) {
-        normalize_channel(&channel[AUX],
-            (channel_data[2] & (1 << 0)) ? 100 : -100);
+    if (config.flags2.multi_aux && channel_data[2] & (1 << 3)) {
+        normalize_channel(&channel[AUX], channel_data[3]);
+        normalize_channel(&channel[AUX2], channel_data[4]);
+        normalize_channel(&channel[AUX3], channel_data[5]);
     }
+    else {
+        normalize_channel(&channel[AUX], (channel_data[2] & (1 << 0)) ? 100 : -100);
+    }
+
+    global_flags.initializing = (channel_data[2] & (1 << 4)) ? true : false;
 
     global_flags.new_channel_data = true;
 }

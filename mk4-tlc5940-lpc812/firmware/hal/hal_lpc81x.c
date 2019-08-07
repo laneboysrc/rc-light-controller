@@ -483,7 +483,7 @@ void HAL_servo_output_init(void)
 
 
 // ****************************************************************************
-// Put the servo pulse duration in milliseconds into the match register
+// Put the servo pulse duration in microseconds into the match register
 // to output the pulse of the given duration.
 void HAL_servo_output_set_pulse(uint16_t servo_pulse)
 {
@@ -809,5 +809,22 @@ void HAL_spi_transaction(uint8_t *data, uint8_t count)
 // ****************************************************************************
 bool HAL_switch_triggered(void)
 {
+    static bool transitioned = false;
+
+    if (!config.flags.ch3_is_local_switch) {
+        return false;
+    }
+
+    if (transitioned) {
+        if (HAL_gpio_read(HAL_GPIO_AUX)) {
+            transitioned = false;
+        }
+    }
+    else {
+        if (!HAL_gpio_read(HAL_GPIO_AUX)) {
+            transitioned = true;
+            return true;
+        }
+    }
     return false;
 }

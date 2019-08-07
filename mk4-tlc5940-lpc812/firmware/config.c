@@ -24,7 +24,7 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
         // there can be one UART output (slave, preprocessor or winch) and
         // one servo output (steering wheel or gearbox servo)
         .slave_output = false,
-        .preprocessor_output = true,
+        .preprocessor_output = false,
         .winch_output = false,
         .steering_wheel_servo_output = false,
         .gearbox_servo_output = false,
@@ -82,8 +82,8 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
 
     .startup_time = (2000 / __SYSTICK_IN_MS),
 
-
-
+    .aux2_type = ANALOG,
+    .aux2_function = SERVO,
 
 };
 

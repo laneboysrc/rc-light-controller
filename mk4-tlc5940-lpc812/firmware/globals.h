@@ -29,6 +29,9 @@
 #define AUX2 3
 #define AUX3 4
 
+// Percentage that an AUX value has to change before causing a trigger
+#define AUX_HYSTERESIS 10
+
 // Number of positions of our virtual light switch. Includes the "off"
 // position 0.
 // NOTE: if you change this value you need to adjust CAR_LIGHT_FUNCTION_T
@@ -276,6 +279,7 @@ typedef struct {
     uint32_t programs[80];
 } LIGHT_PROGRAMS_T;
 
+
 // ****************************************************************************
 typedef struct {
     uint16_t left;
@@ -326,6 +330,28 @@ typedef enum {
     WINCH_IN = 0x02,
     WINCH_OUT = 0x04
 } WINCH_T;
+
+
+// ****************************************************************************
+typedef enum {
+    TWO_POSITION = 0,
+    TWO_POSITION_UP_DOWN = 1,
+    MOMENTARY = 2,
+    THREE_POSITION = 3,
+    ANALOG = 4
+} AUX_TYPE_T;
+
+
+// ****************************************************************************
+typedef enum {
+    MULTI_FUNCTION = 0,
+    GEARBOX = 1,
+    WINCH = 2,
+    SERVO = 3,
+    INDICATORS = 4,
+    HAZARD = 5,
+    LIGHT_SWITCH = 6
+} AUX_FUNCTION_T;
 
 
 // ****************************************************************************
@@ -473,6 +499,16 @@ typedef struct {
     // 1 determines the bright phase length.
     uint16_t blink_counter_value_dark;
 
+    AUX_TYPE_T aux_type;
+    AUX_FUNCTION_T aux_function;
+
+    AUX_TYPE_T aux2_type;
+    AUX_FUNCTION_T aux2_function;
+
+    AUX_TYPE_T aux3_type;
+    AUX_FUNCTION_T aux3_function;
+
+
 } LIGHT_CONTROLLER_CONFIG_T;
 
 
@@ -559,7 +595,7 @@ void read_all_servo_channels(void);
 void init_uart_reader(void);
 void read_preprocessor(void);
 
-void process_ch3_clicks(void);
+void process_aux(void);
 
 void process_drive_mode(void);
 
@@ -570,6 +606,7 @@ void init_servo_output(void);
 void process_servo_output(void);
 void servo_output_setup_action(uint8_t ch3_clicks);
 void gearbox_action(uint8_t ch3_clicks);
+void set_servo_pulse(uint16_t value);
 
 void process_winch(void);
 void winch_action(uint8_t ch3_clicks);

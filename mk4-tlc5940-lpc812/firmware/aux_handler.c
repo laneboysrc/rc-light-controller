@@ -1,13 +1,21 @@
 /******************************************************************************
 
-    This function handles CH3 to determine which actions to invoke.
+This function handles the AUX channels to determine which actions to invoke.
 
-    It is designed for a two-position switch on CH3. The switch can either be
-    momentary (e.g Futaba 4PL) or static (HK-310, GT3B ...).
-    It also supports direct push-button reading instead of getting the
-    CH3 information from a servo or a preprocessor.
+Originally it was designed for a single AUX channel, driven by a
+two-position switch. The switch can either be momentary (e.g Futaba 4PL) or
+static (HK-310, GT3B ...).
 
-;******************************************************************************/
+It also supports push-buttons directly connected between to the AUX input
+and Ground.
+
+Later throughout the project the functionality was extended to support up to
+three AUX channels (AUX, AUX2, AUX3). Each AUX channel can be configured for
+different actuators (analog input, two-position switch, three-position switch ...)
+and can be assigned to different functions (manual light switch, indicators,
+gearbox, winch ...)
+
+******************************************************************************/
 #include <stdint.h>
 #include <stdbool.h>
 
@@ -20,24 +28,25 @@
 #define IGNORE_CLICK_COUNT 99
 
 
-static struct {
+static bool initialized;
+
+static struct AUX_FLAGS {
     unsigned int last_state : 1;
     unsigned int transitioned : 1;
-    unsigned int initialized : 1;
-} ch3_flags;
+} aux_flags[3];
 
-static uint8_t ch3_clicks;
-static uint16_t ch3_click_counter;
+static uint8_t clicks;
+static uint16_t click_counter;
 
 
 // ****************************************************************************
-static void process_ch3_click_timeout(void)
+static void process_click_timeout(void)
 {
-    if (ch3_clicks == 0) {          // Any clicks pending?
+    if (clicks == 0) {              // Any clicks pending?
         return;                     // No: nothing to do
     }
 
-    if (ch3_click_counter != 0) {   // Double-click timer expired?
+    if (click_counter != 0) {       // Double-click timer expired?
         return;                     // No: wait for more buttons
     }
 
@@ -49,24 +58,24 @@ static void process_ch3_click_timeout(void)
     // perform the appropriate action.
 
     if (global_flags.servo_output_setup != SERVO_OUTPUT_SETUP_OFF) {
-        servo_output_setup_action(ch3_clicks);
+        servo_output_setup_action(clicks);
     }
     else if (global_flags.winch_mode != WINCH_DISABLED) {
-        winch_action(ch3_clicks);
+        winch_action(clicks);
     }
     else if (global_flags.reversing_setup != REVERSING_SETUP_OFF) {
-        reversing_setup_action(ch3_clicks);
+        reversing_setup_action(clicks);
     }
     else {
         // ====================================
         // Normal operation:
         // Neither winch nor setup nor reversing setup is active
-        switch (ch3_clicks) {
+        switch (clicks) {
             case 1:
                 // --------------------------
                 // Single click
                 if (config.flags.gearbox_servo_output) {
-                    gearbox_action(ch3_clicks);
+                    gearbox_action(clicks);
                 }
                 else {
                     light_switch_up();
@@ -77,7 +86,7 @@ static void process_ch3_click_timeout(void)
                 // --------------------------
                 // Double click
                 if (config.flags.gearbox_servo_output) {
-                    gearbox_action(ch3_clicks);
+                    gearbox_action(clicks);
                 }
                 else {
                     light_switch_down();
@@ -88,7 +97,6 @@ static void process_ch3_click_timeout(void)
                 // --------------------------
                 // 3 clicks: all lights on/off
                 toggle_light_switch();
-
                 break;
 
             case 4:
@@ -100,7 +108,7 @@ static void process_ch3_click_timeout(void)
             case 5:
                 // --------------------------
                 // 5 clicks: Arm/disarm the winch
-                winch_action(ch3_clicks);
+                winch_action(clicks);
                 break;
 
             case 6:
@@ -112,13 +120,13 @@ static void process_ch3_click_timeout(void)
             case 7:
                 // --------------------------
                 // 7 clicks: Enter channel reversing setup mode
-                reversing_setup_action(ch3_clicks);
+                reversing_setup_action(clicks);
                 break;
 
             case 8:
                 // --------------------------
                 // 8 clicks: Enter steering wheel servo setup mode
-                servo_output_setup_action(ch3_clicks);
+                servo_output_setup_action(clicks);
                 break;
 
             default:
@@ -126,7 +134,7 @@ static void process_ch3_click_timeout(void)
         }
     }
 
-    ch3_clicks = 0;
+    clicks = 0;
 }
 
 
@@ -140,110 +148,186 @@ static void add_click(void)
     if (abort_winching()) {
         // If winching was aborted disable this series of clicks by setting
         // the click count to an unused high value
-        ch3_clicks = IGNORE_CLICK_COUNT;
+        clicks = IGNORE_CLICK_COUNT;
     }
 
-    // If we have a transmitter with a two position CH3 that uses two buttons
-    // to switch between the positions (like the HobbyKing X3S or the Tactic
-    // TTC300) then we ignore the first click if the 'down' button is pressed.
-    // This way the user can deterministically enter a number of clicks without
-    // having to remember if the last command ended with the up or down button.
-    //
-    // The disadvantage is that always an additional down button press has to
-    // be carried out.
-    if (config.flags.ch3_is_two_button) {
-        if (ch3_click_counter || ch3_flags.last_state) {
-            ++ch3_clicks;
-        }
-    }
-    else {
-        ++ch3_clicks;
-    }
-    ch3_click_counter = config.ch3_multi_click_timeout;
+    ++clicks;
+    click_counter = config.ch3_multi_click_timeout;
 }
 
 
+
 // ****************************************************************************
-void process_ch3_clicks(void)
+static void multi_function(CHANNEL_T *c, struct AUX_FLAGS *f, AUX_TYPE_T type)
 {
-    global_flags.gear_changed = 0;
+    if (type == MOMENTARY) {
+        // Code for AUX having a momentory signal when pressed
 
-    if (global_flags.systick) {
-        if (ch3_click_counter) {
-            --ch3_click_counter;
-        }
-    }
-
-    // Support for CH3 being a button or switch directly connected to the
-    // light controller. Steering and Throttle are still being read from either
-    // the servo reader or the uart reader.
-
-    // FIXME: it would be great if this would trigger new_channel_data
-    // independently of the other signals, i.e. set it if no other
-    // new_channel_data was seen in a certain amount of systicks
-    if (config.flags.ch3_is_local_switch) {
-        channel[AUX].normalized = HAL_gpio_read(HAL_GPIO_AUX) ? -100 : 100;
-    }
-
-    if (global_flags.initializing) {
-        ch3_flags.initialized = false;
-    }
-
-    // Ignore the new channel data flag in STAND ALONE mode, but bail out
-    // if it is set in any other mode.
-    if (config.mode != STAND_ALONE) {
-        if (!global_flags.new_channel_data) {
-            return;
-        }
-    }
-
-    if (!ch3_flags.initialized) {
-        ch3_flags.initialized = true;
-        ch3_flags.last_state = (channel[AUX].normalized > 0) ? true : false;
-
-        // Flush the pending switch state, if any
-        HAL_switch_triggered();
-        return;
-    }
-
-    // If the local switch has triggered then add a click.
-    // Note that the local switch is only processed when there is a valid
-    // signal from the receiver.
-    if (HAL_switch_triggered()) {
-        add_click();
-    }
-
-    if (config.flags.ch3_is_momentary || config.flags.ch3_is_local_switch) {
-        // Code for CH3 having a momentory signal when pressed (Futaba 4PL)
-
-        // We only care about the switch transition from ch3_flags.last_state
+        // We only care about the switch transition from aux_flags.last_state
         // (set upon initialization) to the opposite position, which is when
         // we add a click.
-        if ((channel[AUX].normalized > 0)  !=  (ch3_flags.last_state)) {
+        if ((c->normalized > 0)  !=  (f->last_state)) {
 
             // Did we register this transition already?
-            if (!ch3_flags.transitioned) {
+            if (!f->transitioned) {
                 // No: Register transition and add click
-                ch3_flags.transitioned = true;
+                f->transitioned = true;
                 add_click();
             }
         }
         else {
-            ch3_flags.transitioned = false;
+            f->transitioned = false;
         }
     }
     else {
-        // Code for CH3 being a two position switch (HK-310, GT3B) or
+        // Code for AUX being a two position switch (HK-310, GT3B) or
         // up/down buttons (X3S, Tactic TTC300; config.flags.ch3_is_two_button)
 
         // Check whether ch3 has changed with respect to LAST_STATE
-        if ((channel[AUX].normalized > 0)  !=  (ch3_flags.last_state)) {
-            ch3_flags.last_state = (channel[AUX].normalized > 0);
+        if ((c->normalized > 0)  !=  (f->last_state)) {
+            f->last_state = (c->normalized > 0);
+
+            // If we have a transmitter with a two position CH3 that uses two buttons
+            // to switch between the positions (like the HobbyKing X3S or the Tactic
+            // TTC300) then we ignore the first click if the 'down' button is pressed.
+            // This way the user can deterministically enter a number of clicks without
+            // having to remember if the last command ended with the up or down button.
+            //
+            // The disadvantage is that always an additional down button press has to
+            // be carried out.
+            if (type == TWO_POSITION_UP_DOWN) {
+                if (click_counter || f->last_state) {
+                    add_click();
+                }
+                else {
+                    // If the winch is running any movement of AUX immediately
+                    // turns off the winch (without waiting for click timeout!)
+                    if (abort_winching()) {
+                        // If winching was aborted disable this series of clicks
+                        // by setting the click count to an unused high value
+                        clicks = IGNORE_CLICK_COUNT;
+                    }
+                }
+            }
+            else {
+                add_click();
+            }
+        }
+    }
+}
+
+
+// ****************************************************************************
+static void hazard(CHANNEL_T *c, struct AUX_FLAGS *f, AUX_TYPE_T type)
+{
+    if (f->last_state) {
+        if (c->normalized < -AUX_HYSTERESIS) {
+            f->last_state = false;
+            if (global_flags.blink_hazard && type != MOMENTARY) {
+                toggle_hazard_lights();
+            }
+        }
+    }
+    else {
+        if (c->normalized > AUX_HYSTERESIS) {
+            f->last_state = true;
+            if (!global_flags.blink_hazard || type == MOMENTARY) {
+                toggle_hazard_lights();
+            }
+        }
+    }
+}
+
+
+// ****************************************************************************
+static void servo(CHANNEL_T *c)
+{
+    uint16_t servo_pulse;
+
+    servo_pulse = 1000 + 5 * (c->normalized + 100);
+    set_servo_pulse(servo_pulse);
+}
+
+
+// ****************************************************************************
+static void handle_aux_channel(CHANNEL_T *c, struct AUX_FLAGS *f, AUX_TYPE_T type, AUX_FUNCTION_T function)
+{
+    if (!config.flags2.multi_aux) {
+        if (config.flags.ch3_is_momentary) {
+            type = MOMENTARY;
+        }
+        else if (config.flags.ch3_is_two_button) {
+            type = TWO_POSITION_UP_DOWN;
+        }
+        else {
+            type = TWO_POSITION;
+        }
+    }
+
+    switch (function) {
+        case MULTI_FUNCTION:
+            multi_function(c, f, type);
+            break;
+
+        case HAZARD:
+            hazard(c, f, type);
+            break;
+
+        case SERVO:
+            servo(c);
+            break;
+
+        case WINCH:
+        case INDICATORS:
+        case GEARBOX:
+        case LIGHT_SWITCH:
+            break;
+
+        default:
+            break;
+    }
+}
+
+
+// ****************************************************************************
+void process_aux(void)
+{
+    global_flags.gear_changed = 0;
+
+    if (global_flags.initializing) {
+        initialized = false;
+    }
+
+    if (global_flags.systick) {
+        if (click_counter) {
+            --click_counter;
+        }
+
+        // Support for CH3 being a button or switch directly connected to the
+        // light controller. Steering and Throttle are still being read from either
+        // the servo reader or the uart reader.
+        if (HAL_switch_triggered()) {
             add_click();
         }
     }
 
-    process_ch3_click_timeout();
+    if (global_flags.new_channel_data) {
+        if (!initialized) {
+            initialized = true;
+            aux_flags[0].last_state = (channel[AUX].normalized > 0) ? true : false;
+            aux_flags[1].last_state = (channel[AUX2].normalized > 0) ? true : false;
+            aux_flags[2].last_state = (channel[AUX3].normalized > 0) ? true : false;
+            return;
+        }
+
+        handle_aux_channel(&channel[AUX], &aux_flags[0], config.aux_type, config.aux_function);
+        if (config.flags2.multi_aux) {
+            handle_aux_channel(&channel[AUX2], &aux_flags[1], config.aux2_type, config.aux2_function);
+            handle_aux_channel(&channel[AUX3], &aux_flags[2], config.aux3_type, config.aux3_function);
+        }
+    }
+
+    process_click_timeout();
 }
 
 

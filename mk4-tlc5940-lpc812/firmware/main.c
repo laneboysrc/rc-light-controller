@@ -138,7 +138,10 @@ int main(void)
 
     global_flags.servo_output_enabled =
         config.flags.steering_wheel_servo_output ||
-        config.flags.gearbox_servo_output;
+        config.flags.gearbox_servo_output ||
+        (config.aux_function == SERVO) ||
+        (config.aux2_function == SERVO) ||
+        (config.aux3_function == SERVO);
 
     global_flags.uart_output_enabled =
         config.flags.slave_output ||
@@ -181,7 +184,7 @@ int main(void)
         global_flags.new_channel_data = false;
         read_all_servo_channels();
         read_preprocessor();
-        process_ch3_clicks();
+        process_aux();
         process_drive_mode();
         process_indicators();
         process_channel_reversing_setup();
