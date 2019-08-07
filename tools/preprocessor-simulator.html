@@ -110,7 +110,7 @@
             display: none;
         }
 
-        #throttle, #steering {
+        #throttle, #steering, #aux2-slider, #aux3-slider {
             width: 100%;
         }
 
@@ -182,6 +182,42 @@
                 <div>
                     <button id="ch3">CH3</button>
                 </div>
+            </form>
+            <form class="box features">
+                <span style="float: right;">
+                    <input id="momentary" type="checkbox"> <label for="momentary">Momemtary</label>
+                </span>
+                <h2>AUX2</h2>
+                <div>
+                    <button id="aux2">AUX2</button>
+                </div>
+                <div>
+                    <input id="aux2-slider" type="range" min ="-100" max="100" step ="1" value ="0">
+                    <div class="centered">
+                        <button id="aux2-neutral">neutral</button>
+                    </div>
+                </div>
+            </form>
+            <form class="box features">
+                <span style="float: right;">
+                    <select id="aux3-select">
+                        <option>Two-position switch</option>
+                        <option>Momentary</option>
+                        <option>Three-position switch</option>
+                        <option>Analog</option>
+                    </select>
+                </span>
+                <h2>AUX3</h2>
+                <div>
+                    <button id="aux3">AUX3</button>
+                </div>
+                <div>
+                    <input id="aux3-slider" type="range" min ="-100" max="100" step ="1" value ="0">
+                    <div class="centered">
+                        <button id="aux3-neutral">neutral</button>
+                    </div>
+                </div>
+            </form>
         </div>
     </div>
 
