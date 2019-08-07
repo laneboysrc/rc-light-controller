@@ -83,7 +83,7 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
     .startup_time = (2000 / __SYSTICK_IN_MS),
 
     .aux2_type = ANALOG,
-    .aux2_function = SERVO,
+    .aux2_function = INDICATORS,
 
 };
 

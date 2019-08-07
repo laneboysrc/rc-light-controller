@@ -601,6 +601,10 @@ void process_drive_mode(void);
 
 void process_indicators(void);
 void toggle_hazard_lights(void);
+void set_blink_off(void);
+void set_blink_left(void);
+void set_blink_right(void);
+
 
 void init_servo_output(void);
 void process_servo_output(void);

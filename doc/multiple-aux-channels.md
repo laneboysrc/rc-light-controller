@@ -36,13 +36,15 @@ Therefore it may be best to go for option 2: 2 additional AUX channels on a stan
 AUX2: PIO0_8 (11, XTAL-IN)
 AUX3: PIO0_11 (7, open drain)
 
+
 ## Features
 
 * Fully backwards compatible with the light controller software
 * Configurable functions, using UI method from Betaflight
-    * Toggle function as per today's CH3/AUX
+    * Multi-function switch as per today's CH3/AUX
     * Gearbox function 1/2/3 (depends on gear configuration)
     * Winch off/in/out
+    * Servo control on OUT/ISP
     * Manual indicators left/off/right
     * Hazard lights on/off
     * Light switch (servo range mapped to n positions)
@@ -58,11 +60,11 @@ AUX3: PIO0_11 (7, open drain)
 Two-position switch, Two-position switch with up/down buttons and Momentary push button are technically all of type two-position actuator.
 
 ```
-       | Toggle   Gear   Winch   Ind   Hazard   Light
-       | --------------------------------------------
-2-pos  | toggle   gear1  winch1  N/A   on/off   N/A
-3-pos  | N/A      gear2  winch2  ind   on/off   light2
-n-pos  | N/A      gear2  winch2  ind   on/off   light2
+       | Toggle   Gear   Winch   Ind   Hazard   Light   Servo
+       | ----------------------------------------------------
+2-pos  | toggle   gear1  winch1  N/A   on/off   N/A     servo
+3-pos  | N/A      gear2  winch2  ind   on/off   light2  servo
+n-pos  | N/A      gear2  winch2  ind   on/off   light2  servo
 ```
 
 gear1: if 2 gears, direct selection; if 3 gears: 1-click=up, 2-click=down
@@ -70,6 +72,7 @@ gear2: direct selection with hysteresis
 winch1: as per current operation
 winch2: direct off/in/out operation
 light2: the servo range 1000..2000us is mapped to n light switch sections. Note that for 3-pos switch this could mean that not all are adjustable.
+servo: direct output mapping -100..0..+100 to 1000..1500..2000 us servo output (adjust endpoints on TX)
 
 Note that the combination of 2-pos and Light is not used (N/A) because we rather apply the full toggle operation in that case.
 
@@ -81,6 +84,20 @@ When the preprocessor input is active, the light controller always supports a ha
 When indicator control is assigned to an AUX channel then automatic indicators are disabled.
 
 
+## Local buttons vs servo inputs
+
+In theory we could make each servo input also be configurable as local momentary button -- except for AUX3 which has a pull-down.
+
+When configured as SERVO_READER, the AUX inputs can be chosen as servo inputs or local buttons. But this would only be working for CH3/AUX anyway as the Mk4 hardware does not expose the pins.
+On the preprocessor this would require additional configuration, and we create diversity in preprocessor firmware. Plus the light controller would have to match, otherwise conflicts could occur.
+
+When configured as UART_READER, we could in theory have local buttons as well as servo inputs via the UART. (Obviously only for custom HW where the light controller exposes the AUX servo pins). However, we would have to configure the local buttons and the 'remote' buttons separately.
+
+All this adds a lot of complexity, and is difficult to understand and implement.
+
+We will therefore only support the old `ch3_is_local_switch`. It will only be active for the light controller, not for the preprocessor. Note that the local switch is always momentary!
+
+
 ## Configurator user interface
 
 For each AUX channel, the user can specify the actuator type and which of the available functions it should control.
@@ -88,7 +105,7 @@ For each AUX channel, the user can specify the actuator type and which of the av
 We need to add preprocessor and multi-aux preprocessor to the configuration list, so we can show the appropriate number of AUX channels.
 
 
-## TODO
+## Architecture questions
 
 * Can we extend the preprocessor protocol easily with 2 (3) more channels?
     * Yes, by setting the unused bit 3 in the 4th byte we can signal that more data follows. Old light controllers ignore that bit (incl. ancient MK2) and the trailing data.

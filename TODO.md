@@ -22,6 +22,7 @@ X Asymetric indicator blinking for US cars
 
 * `Stand-alone` mode
 
+* Remove `local_switch_is_momentary`
 
 # Configurator
 

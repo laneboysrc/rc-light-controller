@@ -48,7 +48,7 @@ static void synchronize_blinking(void)
 
 
 // ****************************************************************************
-static void set_not_neutral(void)
+void set_blink_off(void)
 {
     indicator_state = NOT_NEUTRAL;
     if (global_flags.blink_indicator_left || global_flags.blink_indicator_right) {
@@ -61,7 +61,7 @@ static void set_not_neutral(void)
 
 
 // ****************************************************************************
-static void set_blink_left(void)
+void set_blink_left(void)
 {
     synchronize_blinking();
     indicator_state = BLINK_LEFT;
@@ -72,7 +72,7 @@ static void set_blink_left(void)
 
 
 // ****************************************************************************
-static void set_blink_right(void)
+void set_blink_right(void)
 {
     synchronize_blinking();
     indicator_state = BLINK_RIGHT;
@@ -116,6 +116,12 @@ void process_indicators(void)
         return;
     }
 
+    if (config.aux_function == INDICATORS ||
+        config.aux2_function == INDICATORS ||
+        config.aux3_function == INDICATORS ) {
+        return;
+    }
+
     switch (indicator_state) {
         // ---------------------------------
         case NOT_NEUTRAL:
@@ -132,7 +138,7 @@ void process_indicators(void)
         case NEUTRAL_WAIT:
             if (channel[TH].absolute > config.centre_threshold_high ||
                 channel[ST].absolute > config.centre_threshold_high) {
-                set_not_neutral();
+                set_blink_off();
                 return;
             }
 
@@ -144,7 +150,7 @@ void process_indicators(void)
         // ---------------------------------
         case BLINK_ARMED:
             if (channel[TH].absolute > config.centre_threshold_high) {
-                set_not_neutral();
+                set_blink_off();
                 return;
             }
 
@@ -160,7 +166,7 @@ void process_indicators(void)
         // ---------------------------------
         case BLINK_ARMED_LEFT:
             if (channel[TH].absolute > config.centre_threshold_high) {
-                set_not_neutral();
+                set_blink_off();
                 return;
             }
 
@@ -179,7 +185,7 @@ void process_indicators(void)
         // ---------------------------------
         case BLINK_ARMED_RIGHT:
             if (channel[TH].absolute > config.centre_threshold_high) {
-                set_not_neutral();
+                set_blink_off();
                 return;
             }
 
@@ -198,7 +204,7 @@ void process_indicators(void)
         // ---------------------------------
         case BLINK_LEFT:
             if (channel[ST].normalized > config.blink_threshold) {
-                set_not_neutral();
+                set_blink_off();
                 return;
             }
 
@@ -211,7 +217,7 @@ void process_indicators(void)
         // ---------------------------------
         case BLINK_LEFT_WAIT:
             if (channel[ST].normalized > config.blink_threshold) {
-                set_not_neutral();
+                set_blink_off();
                 return;
             }
 
@@ -221,14 +227,14 @@ void process_indicators(void)
             }
 
             if (indicator_timer == 0) {
-                set_not_neutral();
+                set_blink_off();
             }
             return;
 
         // ---------------------------------
         case BLINK_RIGHT:
             if (channel[ST].normalized < -config.blink_threshold) {
-                set_not_neutral();
+                set_blink_off();
                 return;
             }
 
@@ -241,7 +247,7 @@ void process_indicators(void)
         // ---------------------------------
         case BLINK_RIGHT_WAIT:
             if (channel[ST].normalized < -config.blink_threshold) {
-                set_not_neutral();
+                set_blink_off();
                 return;
             }
 
@@ -251,7 +257,7 @@ void process_indicators(void)
             }
 
             if (indicator_timer == 0) {
-                set_not_neutral();
+                set_blink_off();
             }
             return;
 

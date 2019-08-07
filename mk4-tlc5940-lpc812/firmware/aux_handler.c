@@ -31,8 +31,9 @@ gearbox, winch ...)
 static bool initialized;
 
 static struct AUX_FLAGS {
-    unsigned int last_state : 1;
+    unsigned int last_state : 4;
     unsigned int transitioned : 1;
+    int16_t last_value;
 } aux_flags[3];
 
 static uint8_t clicks;
@@ -220,6 +221,9 @@ static void multi_function(CHANNEL_T *c, struct AUX_FLAGS *f, AUX_TYPE_T type)
 // ****************************************************************************
 static void hazard(CHANNEL_T *c, struct AUX_FLAGS *f, AUX_TYPE_T type)
 {
+    // On/off control for the hazard lights, works with all AUX types but
+    // needs special handling for momentary functions
+
     if (f->last_state) {
         if (c->normalized < -AUX_HYSTERESIS) {
             f->last_state = false;
@@ -242,6 +246,9 @@ static void hazard(CHANNEL_T *c, struct AUX_FLAGS *f, AUX_TYPE_T type)
 // ****************************************************************************
 static void servo(CHANNEL_T *c)
 {
+    // Direct servo control: put the incoming servo signal value directly
+    // on the servo output.
+
     uint16_t servo_pulse;
 
     servo_pulse = 1000 + 5 * (c->normalized + 100);
@@ -250,8 +257,55 @@ static void servo(CHANNEL_T *c)
 
 
 // ****************************************************************************
+static void manual_indicators(CHANNEL_T *c, struct AUX_FLAGS *f)
+{
+    int16_t new_value = f->last_value;
+
+    if (f->last_value == -100) {
+        if (c->normalized > 33 + AUX_HYSTERESIS) {
+            new_value = 100;
+        }
+        else if (c->normalized > -33 + AUX_HYSTERESIS) {
+            new_value = 0;
+        }
+    }
+    else if (f->last_value == 0) {
+        if (c->normalized > 33 + AUX_HYSTERESIS) {
+            new_value = 100;
+        }
+        else if (c->normalized < -33 + AUX_HYSTERESIS) {
+            new_value = -100;
+        }
+    }
+    else if (f->last_value == 100) {
+        if (c->normalized < -33 + AUX_HYSTERESIS) {
+            new_value = -100;
+        }
+        else if (c->normalized < 33 + AUX_HYSTERESIS) {
+            new_value = 0;
+        }
+    }
+
+    if (new_value != f->last_value) {
+        f->last_value = new_value;
+
+        if (new_value == 0) {
+            set_blink_off();
+        }
+        else if (new_value > 0) {
+            set_blink_right();
+        }
+        else {
+            set_blink_left();
+        }
+    }
+}
+
+
+// ****************************************************************************
 static void handle_aux_channel(CHANNEL_T *c, struct AUX_FLAGS *f, AUX_TYPE_T type, AUX_FUNCTION_T function)
 {
+    // Map legacy 3-channel settings to new AUX settings
     if (!config.flags2.multi_aux) {
         if (config.flags.ch3_is_momentary) {
             type = MOMENTARY;
@@ -277,8 +331,11 @@ static void handle_aux_channel(CHANNEL_T *c, struct AUX_FLAGS *f, AUX_TYPE_T typ
             servo(c);
             break;
 
-        case WINCH:
         case INDICATORS:
+            manual_indicators(c, f);
+            break;
+
+        case WINCH:
         case GEARBOX:
         case LIGHT_SWITCH:
             break;
