@@ -49,6 +49,9 @@ def parse_commandline():
     parser.add_argument("-b", "--baudrate", type=int, default=38400,
         help='Baudrate to use. Default is 38400.')
 
+    parser.add_argument("-5", "--multi-aux", action='store_true',
+        help='Enable 5-channel support')
+
     parser.add_argument("-p", "--port", type=int, default=1234,
         help='HTTP port for the web UI. Default is localhost:1234.')
 
@@ -112,6 +115,9 @@ class PreprocessorApp(object):
         self.read_thread = None
         self.write_thread = None
         self.done = False
+
+        if self.args.multi_aux:
+            print("5-channel receiver support enabled")
 
         if self.args.usb:
             return
