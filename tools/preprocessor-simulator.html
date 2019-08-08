@@ -41,6 +41,13 @@
             margin-top: 0px;
         }
 
+        input[type=range] {
+            display: block;
+            width: 100%;
+            margin-top: 0.5em;
+            margin-bottom: 0.5em;
+        }
+
         label {
             font-size: 0.9em;
         }
@@ -89,6 +96,7 @@
 
         .centered {
             text-align: center;
+            clear: both;
         }
 
         .controls, .features {
@@ -108,10 +116,6 @@
 
         .hidden {
             display: none;
-        }
-
-        #throttle, #steering, #aux2-slider, #aux3-slider {
-            width: 100%;
         }
 
         #logo {
@@ -176,47 +180,47 @@
             </form>
             <form class="box features">
                 <span style="float: right;">
-                    <input id="momentary" type="checkbox"> <label for="momentary">Momemtary</label>
+                    <select id="aux-type">
+                        <option value="0">Two-position switch</option>
+                        <option value="1">Two-position switch up/down</option>
+                        <option value="2">Momentary</option>
+                        <option value="3" class="multi-aux">Three-position switch</option>
+                        <option value="4" class="multi-aux">Analog</option>
+                    </select>
                 </span>
-                <h2>CH3 / AUX</h2>
-                <div>
-                    <button id="ch3">CH3</button>
+                <h2>AUX</h2>
+                <div class="centered">
+                    <button id="aux-toggle">toggle</button>
                 </div>
+                <input id="aux-slider" type="range" min ="-100" max="100" step ="1" value ="0">
             </form>
             <form class="box features multi-aux">
                 <span style="float: right;">
-                    <input id="momentary" type="checkbox"> <label for="momentary">Momemtary</label>
+                   <select id="aux2-type">
+                        <option>Two-position switch</option>
+                        <option>Two-position switch up/down</option>
+                        <option>Momentary</option>
+                        <option>Three-position switch</option>
+                        <option>Analog</option>
+                    </select>
                 </span>
                 <h2>AUX2</h2>
-                <div>
-                    <button id="aux2">AUX2</button>
-                </div>
-                <div>
-                    <input id="aux2-slider" type="range" min ="-100" max="100" step ="1" value ="0">
-                    <div class="centered">
-                        <button id="aux2-neutral">neutral</button>
-                    </div>
-                </div>
+                <button id="aux2-toggle">AUX2</button>
+                <input id="aux2-slider" type="range" min ="-100" max="100" step ="1" value ="0">
             </form>
             <form class="box features multi-aux">
                 <span style="float: right;">
-                    <select id="aux3-select">
+                    <select id="aux3-type">
                         <option>Two-position switch</option>
+                        <option>Two-position switch up/down</option>
                         <option>Momentary</option>
                         <option>Three-position switch</option>
                         <option>Analog</option>
                     </select>
                 </span>
                 <h2>AUX3</h2>
-                <div>
-                    <button id="aux3">AUX3</button>
-                </div>
-                <div>
-                    <input id="aux3-slider" type="range" min ="-100" max="100" step ="1" value ="0">
-                    <div class="centered">
-                        <button id="aux3-neutral">neutral</button>
-                    </div>
-                </div>
+                <button id="aux3-toggle">AUX3</button>
+                <input id="aux3-slider" type="range" min ="-100" max="100" step ="1" value ="0">
             </form>
         </div>
     </div>
@@ -248,8 +252,13 @@ var elNotConnected;
 var elStartupMode;
 var elSteering;
 var elThrottle;
-var elCH3;
-var elMomentary;
+var elAuxType;
+var elAuxToggle;
+var elAux2Toggle;
+var elAux3Toggle;
+var elAuxSlider;
+var elAux2Slider;
+var elAux3Slider;
 var elSteeringNeutral;
 var elThrottleNeutral;
 var elResponse;
@@ -263,8 +272,10 @@ var websocket;
 
 const SLAVE_MAGIC_BYTE = 0x87;
 
-// Pressing any of those keys triggers CH3
-const CH3_KEYS = '3acux';
+// Pressing any of those keys triggers AUX (CH3)
+const AUX_KEYS = '1c';
+const AUX2_KEYS = '2';
+const AUX3_KEYS = '3';
 
 const VENDOR_ID = 0x6666;
 const TEST_INTERFACE = 1;
@@ -273,6 +284,12 @@ const TEST_EP_OUT = 2;
 const EP_SIZE = 64;
 
 const MAX_UART_LOG_LINES = 20;
+
+const AUX_TYPE_TWO_POSITION = 0;
+const AUX_TYPE_TWO_POSITION_UP_DOWN = 1;
+const AUX_TYPE_MOMENTARY = 2;
+const AUX_TYPE_THREE_POSITION = 3;
+const AUX_TYPE_ANALOG = 4;
 
 function createXMLHttpRequest() {
     try { return new XMLHttpRequest(); } catch(e) {}
@@ -327,7 +344,7 @@ function throttle_changed(event) {
     sendThrottle(parseInt(elThrottle.value));
 }
 
-function ch3_changed(event) {
+function aux_changed(event) {
     event.preventDefault();
     sendCh3(this);
 }
@@ -427,7 +444,7 @@ function sendSteering(value) {
 }
 
 function sendCh3(action) {
-    if (elMomentary.checked) {
+    if (elAuxType.value == AUX_TYPE_MOMENTARY) {
         if (action == 'down') {
             ch3 = 1;
             send_function('CH3', ch3);
@@ -498,7 +515,7 @@ let update_ui = send_ping;
 
 function keydown_event_handler(event) {
     const key = event.key.toLowerCase();
-    if (CH3_KEYS.indexOf(key) >= 0) {
+    if (AUX_KEYS.indexOf(key) >= 0) {
         sendCh3('click');
         sendCh3('down');
     }
@@ -510,7 +527,7 @@ function keydown_event_handler(event) {
 
 function keyup_event_handler(event) {
     const key = event.key.toLowerCase();
-    if (CH3_KEYS.indexOf(key) >= 0) {
+    if (AUX_KEYS.indexOf(key) >= 0) {
         sendCh3('up');
     }
     return true;
@@ -748,13 +765,18 @@ async function webusb_init() {
 }
 
 window.addEventListener('load', async function () {
-    elMomentary = document.getElementById('momentary');
     elWebusbConnect = document.getElementById('webusb-connect');
     elNotConnected = document.getElementById('not-connected');
     elStartupMode = document.getElementById('startup-mode');
     elSteering = document.getElementById('steering');
     elThrottle = document.getElementById('throttle');
-    elCH3 = document.getElementById('ch3');
+    elAuxType = document.getElementById('aux-type');
+    elAuxToggle = document.getElementById('aux-toggle');
+    elAux2Toggle = document.getElementById('aux2-toggle');
+    elAux3Toggle = document.getElementById('aux2-toggle');
+    elAuxSlider = document.getElementById('aux-slider');
+    elAux2Slider = document.getElementById('aux2-slider');
+    elAux3Slider = document.getElementById('aux2-slider');
     elSteeringNeutral = document.getElementById('steering-neutral');
     elThrottleNeutral = document.getElementById('throttle-neutral');
     elResponse = document.getElementById('response');
@@ -809,9 +831,9 @@ window.addEventListener('load', async function () {
     elSteering.addEventListener('change', steering_changed);
     elThrottle.addEventListener('input', throttle_changed);
     elThrottle.addEventListener('change', throttle_changed);
-    elCH3.addEventListener('click', ch3_changed.bind('click'));
-    elCH3.addEventListener('mousedown', ch3_changed.bind('down'));
-    elCH3.addEventListener('mouseup', ch3_changed.bind('up'));
+    elAuxToggle.addEventListener('click', aux_changed.bind('click'));
+    elAuxToggle.addEventListener('mousedown', aux_changed.bind('down'));
+    elAuxToggle.addEventListener('mouseup', aux_changed.bind('up'));
     elStartupMode.addEventListener('change', startup_mode_changed);
 
     if (!multi_aux) {
