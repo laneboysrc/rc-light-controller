@@ -138,10 +138,14 @@ int main(void)
 
     global_flags.servo_output_enabled =
         config.flags.steering_wheel_servo_output ||
-        config.flags.gearbox_servo_output ||
-        (config.aux_function == SERVO) ||
-        (config.aux2_function == SERVO) ||
-        (config.aux3_function == SERVO);
+        config.flags.gearbox_servo_output;
+
+    if (config.flags2.multi_aux) {
+        global_flags.servo_output_enabled |=
+            (config.aux_function == SERVO) ||
+            (config.aux2_function == SERVO) ||
+            (config.aux3_function == SERVO);
+    }
 
     global_flags.uart_output_enabled =
         config.flags.slave_output ||
@@ -176,7 +180,12 @@ int main(void)
     HAL_hardware_init_final();
 
     next_tick = milliseconds + __SYSTICK_IN_MS;
-    fprintf(STDOUT_DEBUG, "\n\n**********\nLight controller v%d\n", config.firmware_version);
+    fprintf(STDOUT_DEBUG, "\n\n**********\nLight controller v%d\nCONFIG %d %d %d %d %d %d %d %d %d\n",
+        config.firmware_version, config.flags2.multi_aux,
+        config.flags.ch3_is_momentary, config.flags.ch3_is_two_button,
+        config.aux_type, config.aux_function,
+        config.aux2_type, config.aux2_function,
+        config.aux3_type, config.aux3_function);
 
     while (1) {
         service_systick();

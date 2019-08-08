@@ -31,7 +31,7 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
 
         .ch3_is_local_switch = false,
         .ch3_is_momentary = false,
-        .ch3_is_two_button = false,
+        .ch3_is_two_button = true,
 
         .local_switch_is_momentary = true,
 
@@ -82,8 +82,8 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
 
     .startup_time = (2000 / __SYSTICK_IN_MS),
 
-    // .aux2_type = ANALOG,
-    // .aux2_function = INDICATORS,
+    .aux2_type = ANALOG,
+    .aux2_function = INDICATORS,
 
 };
 
