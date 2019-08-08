@@ -14,7 +14,7 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
 
     .firmware_version = 16,
 
-    .mode = MASTER_WITH_SERVO_READER,
+    .mode = MASTER_WITH_UART_READER,
     .esc_mode = ESC_FORWARD_BRAKE_REVERSE_TIMEOUT,
 
     .flags = {
@@ -40,7 +40,7 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
     },
 
     .flags2 = {
-        .multi_aux = true
+        .multi_aux = false
     },
 
     .auto_brake_counter_value_forward_min = (500 / __SYSTICK_IN_MS),
@@ -82,8 +82,8 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
 
     .startup_time = (2000 / __SYSTICK_IN_MS),
 
-    .aux2_type = ANALOG,
-    .aux2_function = INDICATORS,
+    // .aux2_type = ANALOG,
+    // .aux2_function = INDICATORS,
 
 };
 
