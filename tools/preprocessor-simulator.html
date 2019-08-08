@@ -154,7 +154,7 @@
 
     <div class="page" id="main">
         <div class="column">
-            <form class="box controls">
+            <div class="box controls">
                 <h2>Steering</h2>
                 <div>
                     <input id="steering" type="range" min ="-100" max="100" step ="1" value ="0">
@@ -169,16 +169,16 @@
                         <button id="throttle-neutral">neutral</button>
                     </div>
                 </div>
-            </form>
+            </div>
         </div>
 
         <div class="column">
-            <form class="box features">
+            <div class="box features">
                 <div>
                     <input id="startup-mode" type="checkbox"> <label for="startup-mode">Startup</label>
                 </div>
-            </form>
-            <form class="box features">
+            </div>
+            <div class="box features">
                 <span style="float: right;">
                     <select id="aux-type">
                         <option value="0">Two-position switch</option>
@@ -193,8 +193,8 @@
                     <button id="aux-toggle">toggle</button>
                 </div>
                 <input id="aux-slider" type="range" min ="-100" max="100" step ="1" value ="0">
-            </form>
-            <form class="box features multi-aux">
+            </div>
+            <div class="box features multi-aux">
                 <span style="float: right;">
                    <select id="aux2-type">
                         <option>Two-position switch</option>
@@ -207,8 +207,8 @@
                 <h2>AUX2</h2>
                 <button id="aux2-toggle">AUX2</button>
                 <input id="aux2-slider" type="range" min ="-100" max="100" step ="1" value ="0">
-            </form>
-            <form class="box features multi-aux">
+            </div>
+            <div class="box features multi-aux">
                 <span style="float: right;">
                     <select id="aux3-type">
                         <option>Two-position switch</option>
@@ -221,7 +221,7 @@
                 <h2>AUX3</h2>
                 <button id="aux3-toggle">AUX3</button>
                 <input id="aux3-slider" type="range" min ="-100" max="100" step ="1" value ="0">
-            </form>
+            </div>
         </div>
     </div>
 
@@ -270,6 +270,10 @@ var send_function;
 var webusb_device;
 var websocket;
 
+var auxButtonDown = false;
+var aux2ButtonDown = false;
+var aux3ButtonDown = false;
+
 const SLAVE_MAGIC_BYTE = 0x87;
 
 // Pressing any of those keys triggers AUX (CH3)
@@ -285,11 +289,11 @@ const EP_SIZE = 64;
 
 const MAX_UART_LOG_LINES = 20;
 
-const AUX_TYPE_TWO_POSITION = 0;
-const AUX_TYPE_TWO_POSITION_UP_DOWN = 1;
-const AUX_TYPE_MOMENTARY = 2;
-const AUX_TYPE_THREE_POSITION = 3;
-const AUX_TYPE_ANALOG = 4;
+const AUX_TYPE_TWO_POSITION = "0";
+const AUX_TYPE_TWO_POSITION_UP_DOWN = "1";
+const AUX_TYPE_MOMENTARY = "2";
+const AUX_TYPE_THREE_POSITION = "3";
+const AUX_TYPE_ANALOG = "4";
 
 function createXMLHttpRequest() {
     try { return new XMLHttpRequest(); } catch(e) {}
@@ -344,10 +348,7 @@ function throttle_changed(event) {
     sendThrottle(parseInt(elThrottle.value));
 }
 
-function aux_changed(event) {
-    event.preventDefault();
-    sendCh3(this);
-}
+
 
 function startup_mode_changed() {
     sendStartup(elStartupMode.checked);
@@ -516,8 +517,7 @@ let update_ui = send_ping;
 function keydown_event_handler(event) {
     const key = event.key.toLowerCase();
     if (AUX_KEYS.indexOf(key) >= 0) {
-        sendCh3('click');
-        sendCh3('down');
+        aux_button_handler(event);
     }
     else if (key == 's') {
         elStartupMode.click();
@@ -528,7 +528,7 @@ function keydown_event_handler(event) {
 function keyup_event_handler(event) {
     const key = event.key.toLowerCase();
     if (AUX_KEYS.indexOf(key) >= 0) {
-        sendCh3('up');
+        aux_button_handler(event);
     }
     return true;
 }
@@ -764,6 +764,67 @@ async function webusb_init() {
     }
 }
 
+
+
+function aux_button_handler(event) {
+    event.preventDefault();
+
+    if (event.type == "keydown") {
+        if (auxButtonDown) {
+            return;
+        }
+        auxButtonDown = true;
+    }
+    else if (event.type == "keyup") {
+        auxButtonDown = false;
+    }
+
+
+    if (elAuxType.value == AUX_TYPE_MOMENTARY) {
+        if (event.type == "keydown" || event.type == "mousedown") {
+            elAuxSlider.value = +100;
+        }
+        else {
+            elAuxSlider.value = -100;
+        }
+    }
+    else {
+        if (event.type == "keydown" || event.type == "mousedown") {
+            if (parseInt(elAuxSlider.value, 10) > 0) {
+                elAuxSlider.value = -100;
+            }
+            else  {
+                elAuxSlider.value = +100;
+            }
+        }
+    }
+}
+
+function aux_type_changed(slider, button, event) {
+    event.preventDefault();
+
+    switch (this.value) {
+        case AUX_TYPE_TWO_POSITION:
+        case AUX_TYPE_TWO_POSITION_UP_DOWN:
+            slider.step = 200;
+            break;
+
+        case AUX_TYPE_MOMENTARY:
+            slider.step = 200;
+            slider.value = -100
+            break;
+
+        case AUX_TYPE_THREE_POSITION:
+            slider.step = 100;
+            break;
+
+        case AUX_TYPE_ANALOG:
+            slider.step = 1;
+            break;
+    }
+}
+
+
 window.addEventListener('load', async function () {
     elWebusbConnect = document.getElementById('webusb-connect');
     elNotConnected = document.getElementById('not-connected');
@@ -831,9 +892,9 @@ window.addEventListener('load', async function () {
     elSteering.addEventListener('change', steering_changed);
     elThrottle.addEventListener('input', throttle_changed);
     elThrottle.addEventListener('change', throttle_changed);
-    elAuxToggle.addEventListener('click', aux_changed.bind('click'));
-    elAuxToggle.addEventListener('mousedown', aux_changed.bind('down'));
-    elAuxToggle.addEventListener('mouseup', aux_changed.bind('up'));
+    elAuxToggle.addEventListener('mousedown', aux_button_handler);
+    elAuxToggle.addEventListener('mouseup', aux_button_handler);
+    elAuxType.addEventListener('change', aux_type_changed.bind(elAuxType, elAuxSlider, elAuxToggle));
     elStartupMode.addEventListener('change', startup_mode_changed);
 
     if (!multi_aux) {
