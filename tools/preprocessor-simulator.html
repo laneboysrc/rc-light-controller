@@ -252,13 +252,6 @@ var elNotConnected;
 var elStartupMode;
 var elSteering;
 var elThrottle;
-var elAuxType;
-var elAuxToggle;
-var elAux2Toggle;
-var elAux3Toggle;
-var elAuxSlider;
-var elAux2Slider;
-var elAux3Slider;
 var elSteeringNeutral;
 var elThrottleNeutral;
 var elResponse;
@@ -270,9 +263,12 @@ var send_function;
 var webusb_device;
 var websocket;
 
-var auxButtonDown = false;
-var aux2ButtonDown = false;
-var aux3ButtonDown = false;
+
+
+var aux = {buttonDown: false};
+var aux2 = {buttonDown: false};
+var aux3 = {buttonDown: false};
+
 
 const SLAVE_MAGIC_BYTE = 0x87;
 
@@ -517,7 +513,7 @@ let update_ui = send_ping;
 function keydown_event_handler(event) {
     const key = event.key.toLowerCase();
     if (AUX_KEYS.indexOf(key) >= 0) {
-        aux_button_handler(event);
+        aux_button_handler.bind(aux)(event);
     }
     else if (key == 's') {
         elStartupMode.click();
@@ -528,7 +524,7 @@ function keydown_event_handler(event) {
 function keyup_event_handler(event) {
     const key = event.key.toLowerCase();
     if (AUX_KEYS.indexOf(key) >= 0) {
-        aux_button_handler(event);
+        aux_button_handler.bind(aux)(event);
     }
     return true;
 }
@@ -770,64 +766,64 @@ function aux_button_handler(event) {
     event.preventDefault();
 
     if (event.type == "keydown") {
-        if (auxButtonDown) {
+        if (this.buttonDown) {
             return;
         }
-        auxButtonDown = true;
+        this.buttonDown = true;
     }
     else if (event.type == "keyup") {
-        auxButtonDown = false;
+        this.buttonDown = false;
     }
 
 
-    if (elAuxType.value == AUX_TYPE_MOMENTARY) {
+    if (this.elType.value == AUX_TYPE_MOMENTARY) {
         if (event.type == "keydown" || event.type == "mousedown") {
-            elAuxSlider.value = +100;
+            this.elSlider.value = +100;
         }
         else {
-            elAuxSlider.value = -100;
+            this.elSlider.value = -100;
         }
     }
     else {
         if (event.type == "keydown" || event.type == "mousedown") {
-            if (parseInt(elAuxSlider.value, 10) > 0) {
-                elAuxSlider.value = -100;
+            if (parseInt(this.elSlider.value, 10) > 0) {
+                this.elSlider.value = -100;
             }
             else  {
-                elAuxSlider.value = +100;
+                this.elSlider.value = +100;
             }
         }
     }
 }
 
-function aux_type_changed(slider, button, event) {
+function aux_type_changed(event) {
     event.preventDefault();
 
-    switch (this.value) {
+    switch (this.elType.value) {
         case AUX_TYPE_TWO_POSITION:
         case AUX_TYPE_TWO_POSITION_UP_DOWN:
-            slider.step = 200;
+            this.elSlider.step = 200;
             break;
 
         case AUX_TYPE_MOMENTARY:
-            slider.step = 200;
-            slider.value = -100
+            this.elSlider.step = 200;
+            this.elSlider.value = -100
             break;
 
         case AUX_TYPE_THREE_POSITION:
-            slider.step = 100;
+            this.elSlider.step = 100;
             break;
 
         case AUX_TYPE_ANALOG:
-            slider.step = 1;
+            this.elSlider.step = 1;
             break;
     }
 }
 
-function aux_slider_changed(type, event) {
+function aux_slider_changed(event) {
     console.log(this)
-    if (event.type == 'change' && type.value == AUX_TYPE_MOMENTARY) {
-        this.value = -100
+    if (event.type == 'change' && this.elType.value == AUX_TYPE_MOMENTARY) {
+        this.elSlider.value = -100
     }
 }
 
@@ -837,13 +833,15 @@ window.addEventListener('load', async function () {
     elStartupMode = document.getElementById('startup-mode');
     elSteering = document.getElementById('steering');
     elThrottle = document.getElementById('throttle');
-    elAuxType = document.getElementById('aux-type');
-    elAuxToggle = document.getElementById('aux-toggle');
-    elAux2Toggle = document.getElementById('aux2-toggle');
-    elAux3Toggle = document.getElementById('aux2-toggle');
-    elAuxSlider = document.getElementById('aux-slider');
-    elAux2Slider = document.getElementById('aux2-slider');
-    elAux3Slider = document.getElementById('aux2-slider');
+    aux.elType = document.getElementById('aux-type');
+    aux.elToggle = document.getElementById('aux-toggle');
+    aux.elSlider = document.getElementById('aux-slider');
+    aux2.elType = document.getElementById('aux2-type');
+    aux2.elToggle = document.getElementById('aux2-toggle');
+    aux2.elSlider = document.getElementById('aux2-slider');
+    aux3.elType = document.getElementById('aux3-type');
+    aux3.elToggle = document.getElementById('aux3-toggle');
+    aux3.elSlider = document.getElementById('aux3-slider');
     elSteeringNeutral = document.getElementById('steering-neutral');
     elThrottleNeutral = document.getElementById('throttle-neutral');
     elResponse = document.getElementById('response');
@@ -898,11 +896,11 @@ window.addEventListener('load', async function () {
     elSteering.addEventListener('change', steering_changed);
     elThrottle.addEventListener('input', throttle_changed);
     elThrottle.addEventListener('change', throttle_changed);
-    elAuxToggle.addEventListener('mousedown', aux_button_handler);
-    elAuxToggle.addEventListener('mouseup', aux_button_handler);
-    elAuxType.addEventListener('change', aux_type_changed.bind(elAuxType, elAuxSlider, elAuxToggle));
-    elAuxSlider.addEventListener('input', aux_slider_changed.bind(elAuxSlider, elAuxType));
-    elAuxSlider.addEventListener('change', aux_slider_changed.bind(elAuxSlider, elAuxType));
+    aux.elToggle.addEventListener('mousedown', aux_button_handler.bind(aux));
+    aux.elToggle.addEventListener('mouseup', aux_button_handler.bind(aux));
+    aux.elType.addEventListener('change', aux_type_changed.bind(aux));
+    aux.elSlider.addEventListener('input', aux_slider_changed.bind(aux));
+    aux.elSlider.addEventListener('change', aux_slider_changed.bind(aux));
     elStartupMode.addEventListener('change', startup_mode_changed);
 
     if (!multi_aux) {
