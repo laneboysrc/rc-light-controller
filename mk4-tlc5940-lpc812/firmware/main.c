@@ -180,6 +180,11 @@ int main(void)
     HAL_hardware_init_final();
 
     next_tick = milliseconds + __SYSTICK_IN_MS;
+
+    // Append AUX configuration values to the startup debug message. This
+    // allows the preprocessor-simulator to adjust its functionality
+    // automatically -- which is pretty important as otherwise it is easy to
+    // mess up with all the different AUX switch types
     fprintf(STDOUT_DEBUG, "\n\n**********\nLight controller v%d\nCONFIG %d %d %d %d %d %d %d %d %d\n",
         config.firmware_version, config.flags2.multi_aux,
         config.flags.ch3_is_momentary, config.flags.ch3_is_two_button,
