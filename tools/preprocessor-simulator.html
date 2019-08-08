@@ -242,7 +242,9 @@
 
 var throttle = 0;
 var steering = 0;
-var ch3 = 0;
+var aux = {buttonDown: false, lastSentValue: 999, upDownTimeout: 0, isCH3: true};
+var aux2 = {buttonDown: false, lastSentValue: 999, upDownTimeout: 0};
+var aux3 = {buttonDown: false, lastSentValue: 999, upDownTimeout: 0};
 var sendingThrottle = false;
 var sendingSteering = false;
 var startupMode = false;
@@ -265,9 +267,6 @@ var websocket;
 
 
 
-var aux = {buttonDown: false, lastSentValue: 999, upDownTimeout: 0, isCH3: true};
-var aux2 = {buttonDown: false, lastSentValue: 999, upDownTimeout: 0};
-var aux3 = {buttonDown: false, lastSentValue: 999, upDownTimeout: 0};
 
 
 const SLAVE_MAGIC_BYTE = 0x87;
@@ -346,8 +345,6 @@ function throttle_changed(event) {
     event.preventDefault();
     sendThrottle(parseInt(elThrottle.value));
 }
-
-
 
 function startup_mode_changed() {
     sendStartup(elStartupMode.checked);
@@ -443,26 +440,6 @@ function sendSteering(value) {
     }
 }
 
-function sendCh3(action) {
-    if (elAuxType.value == AUX_TYPE_MOMENTARY) {
-        if (action == 'down') {
-            ch3 = 1;
-            send_function('CH3', ch3);
-        }
-        if (action == 'up') {
-            ch3 = 0;
-            send_function('CH3', ch3);
-        }
-    }
-    else {
-        if (action == 'click') {
-            ch3 = ch3 ? 0 : 1;
-            send_function('CH3', ch3);
-        }
-    }
-    return false;
-}
-
 function sendStartup(mode) {
     if (mode) {
         elSteeringNeutral.click();
@@ -476,15 +453,19 @@ function reset_ui() {
     startupMode = true;
     steering = 0;
     throttle = 0;
-    ch3 = 0;
 
     elSteering.value = steering;
     elThrottle.value = throttle;
+    aux.elSlider.value = -100;
+    aux2.elSlider.value = -100;
+    aux3.elSlider.value = -100;
     elStartupMode.checked = startupMode;
+
+    (aux_type_changed.bind(aux))(new Event('change'));
 
     send_function('ST', steering);
     send_function('TH', throttle);
-    send_function('CH3', ch3);
+    send_function('CH3', aux.elSlider.value > 0 ? 1 : 0);
     sendStartup(startupMode);
 }
 
@@ -492,7 +473,7 @@ function send_ping() {
     let pingTimer;
 
     function ping_callback(msg) {
-        if (msg != 'OK') {
+        if (!msg.startsWith('OK')) {
             elNotConnected.style.visibility = 'visible';
         }
         else {
@@ -619,7 +600,7 @@ async function webusb_send_data() {
     }
 
     let last_byte = 0;
-    if (ch3) {
+    if (aux.elSlider.value > 0) {
         last_byte += 0x01;
     }
     if (startupMode) {

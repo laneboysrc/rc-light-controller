@@ -117,6 +117,7 @@ class PreprocessorApp(object):
         self.read_thread = None
         self.write_thread = None
         self.done = False
+        self.config = ''
 
         if self.args.multi_aux:
             print("5-channel receiver support enabled")
@@ -140,7 +141,7 @@ class PreprocessorApp(object):
                 self.receiver[key] = int(value[0])
             else:
                 return 400, "Bad request"
-        return 200, "OK"
+        return 200, "OK " + self.config
 
     def run(self):
         ''' Send the test patterns to the TLC5940 based slave '''
@@ -160,15 +161,20 @@ class PreprocessorApp(object):
                     app.errorShutdown()
                     return
 
-                if len(data):
+                if data:
+                    message = data.decode('ascii', errors='replace')
+
+                    if message.startswith('CONFIG'):
+                        app.config = message
+
                     current_time = time.time()
                     time_difference = current_time - time_of_last_line
                     elapsed_time = current_time - start_time
 
                     print("%10.3f  %10.3f  %s" % (elapsed_time,
-                        time_difference,
-                        data.decode('ascii', errors='replace')),
-                        end='')
+                                                  time_difference,
+                                                  message),
+                          end='')
 
                     time_of_last_line = current_time
 
