@@ -824,6 +824,12 @@ function aux_type_changed(slider, button, event) {
     }
 }
 
+function aux_slider_changed(type, event) {
+    console.log(this)
+    if (event.type == 'change' && type.value == AUX_TYPE_MOMENTARY) {
+        this.value = -100
+    }
+}
 
 window.addEventListener('load', async function () {
     elWebusbConnect = document.getElementById('webusb-connect');
@@ -895,6 +901,8 @@ window.addEventListener('load', async function () {
     elAuxToggle.addEventListener('mousedown', aux_button_handler);
     elAuxToggle.addEventListener('mouseup', aux_button_handler);
     elAuxType.addEventListener('change', aux_type_changed.bind(elAuxType, elAuxSlider, elAuxToggle));
+    elAuxSlider.addEventListener('input', aux_slider_changed.bind(elAuxSlider, elAuxType));
+    elAuxSlider.addEventListener('change', aux_slider_changed.bind(elAuxSlider, elAuxType));
     elStartupMode.addEventListener('change', startup_mode_changed);
 
     if (!multi_aux) {
