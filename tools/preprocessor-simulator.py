@@ -134,7 +134,7 @@ class PreprocessorApp(object):
         if self.args.force_3ch:
             print("Manually setting 3-channel support")
 
-        self.args.multi_aux = self.args.force_5ch;
+        self.args.multi_aux = self.args.force_5ch
 
         if self.args.usb:
             return
