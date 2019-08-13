@@ -340,6 +340,7 @@ static void handle_aux_channel(CHANNEL_T *c, struct AUX_FLAGS *f, AUX_TYPE_T typ
         case LIGHT_SWITCH:
             break;
 
+        case NOT_USED:
         default:
             break;
     }

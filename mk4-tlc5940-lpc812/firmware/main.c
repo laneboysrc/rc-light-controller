@@ -113,6 +113,12 @@ static void check_no_signal(void)
 // ****************************************************************************
 static void output_channel_diagnostics(void)
 {
+    static bool send_config = true;
+
+    if (global_flags.no_signal) {
+        send_config = true;
+    }
+
     if (global_flags.new_channel_data) {
         static int16_t st = 999;
         static int16_t th = 999;
@@ -124,6 +130,28 @@ static void output_channel_diagnostics(void)
            th = channel[TH].normalized;
 
            fprintf(STDOUT_DEBUG, "ST: %4d  TH: %4d\n", channel[ST].normalized, channel[TH].normalized);
+        }
+
+        if (send_config) {
+            send_config = false;
+
+            /*
+            Send AUX configuration values to allow the preprocessor-simulator
+            to adjust its functionality automatically -- which is pretty
+            important as otherwise it is easy to mess up with all the
+            different AUX switch types
+
+            We send the configuration once after a no_signal event, and after
+            power on. In practice this means that the preprocessor-simulator
+            always sees the configuration information immediately after it
+            is talking to the light controller.
+             */
+            fprintf(STDOUT_DEBUG, "CONFIG %d %d %d %d %d %d %d %d %d\n",
+                config.flags2.multi_aux,
+                config.flags.ch3_is_momentary, config.flags.ch3_is_two_button,
+                config.aux_type, config.aux_function,
+                config.aux2_type, config.aux2_function,
+                config.aux3_type, config.aux3_function);
         }
     }
 }
@@ -181,16 +209,7 @@ int main(void)
 
     next_tick = milliseconds + __SYSTICK_IN_MS;
 
-    // Append AUX configuration values to the startup debug message. This
-    // allows the preprocessor-simulator to adjust its functionality
-    // automatically -- which is pretty important as otherwise it is easy to
-    // mess up with all the different AUX switch types
-    fprintf(STDOUT_DEBUG, "\n\n**********\nLight controller v%d\nCONFIG %d %d %d %d %d %d %d %d %d\n",
-        config.firmware_version, config.flags2.multi_aux,
-        config.flags.ch3_is_momentary, config.flags.ch3_is_two_button,
-        config.aux_type, config.aux_function,
-        config.aux2_type, config.aux2_function,
-        config.aux3_type, config.aux3_function);
+    fprintf(STDOUT_DEBUG, "\n\n**********\nLight controller v%d\n", config.firmware_version);
 
     while (1) {
         service_systick();

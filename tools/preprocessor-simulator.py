@@ -113,7 +113,8 @@ class PreprocessorApp(object):
     def __init__(self):
         self.args = parse_commandline()
         self.receiver = {
-            'ST': 0, 'TH': 0, 'CH3': 0, 'STARTUP_MODE': 1, 'PING' : 0}
+            'ST': 0, 'TH': 0, 'CH3': 0, 'AUX': 0, 'AUX2': 0, "AUX3": 0,
+            'STARTUP_MODE': 1, 'PING' : 0}
         self.read_thread = None
         self.write_thread = None
         self.done = False
@@ -189,14 +190,28 @@ class PreprocessorApp(object):
                 if throttle < 0:
                     throttle = 256 + throttle
 
-                last_byte = 0
+                mode_byte = 0
                 if app.receiver['CH3']:
-                    last_byte += 0x01
+                    mode_byte += 0x01
                 if app.receiver['STARTUP_MODE']:
-                    last_byte += 0x10
+                    mode_byte += 0x10
+
+                aux = app.receiver['AUX']
+                if aux < 0:
+                    aux = 256 + aux
+
+                aux2 = app.receiver['AUX2']
+                if aux2 < 0:
+                    aux2 = 256 + aux2
+
+                aux3 = app.receiver['AUX3']
+                if aux3 < 0:
+                    aux3 = 256 + aux3
 
                 data = bytearray(
-                    [SLAVE_MAGIC_BYTE, steering, throttle, last_byte])
+                    [SLAVE_MAGIC_BYTE, steering, throttle, mode_byte])
+
+                data.extend([aux, aux2, aux3])
 
                 try:
                     app.uart.write(data)

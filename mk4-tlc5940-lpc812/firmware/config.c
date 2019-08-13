@@ -40,7 +40,7 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
     },
 
     .flags2 = {
-        .multi_aux = false
+        .multi_aux = true
     },
 
     .auto_brake_counter_value_forward_min = (500 / __SYSTICK_IN_MS),
@@ -82,8 +82,14 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
 
     .startup_time = (2000 / __SYSTICK_IN_MS),
 
+    .aux_type = TWO_POSITION,
+    .aux_function = MULTI_FUNCTION,
+
     .aux2_type = ANALOG,
     .aux2_function = INDICATORS,
+
+    .aux3_type = THREE_POSITION,
+    .aux3_function = NOT_USED,
 
 };
 

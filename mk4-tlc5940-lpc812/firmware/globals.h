@@ -344,13 +344,14 @@ typedef enum {
 
 // ****************************************************************************
 typedef enum {
-    MULTI_FUNCTION = 0,
-    GEARBOX = 1,
-    WINCH = 2,
-    SERVO = 3,
-    INDICATORS = 4,
-    HAZARD = 5,
-    LIGHT_SWITCH = 6
+    NOT_USED = 0,
+    MULTI_FUNCTION = 1,
+    GEARBOX = 2,
+    WINCH = 3,
+    SERVO = 4,
+    INDICATORS = 5,
+    HAZARD = 6,
+    LIGHT_SWITCH = 7
 } AUX_FUNCTION_T;
 
 

@@ -197,29 +197,33 @@
             <div class="box features multi-aux">
                 <span style="float: right;">
                    <select id="aux2-type">
-                        <option>Two-position switch</option>
-                        <option>Two-position switch up/down</option>
-                        <option>Momentary</option>
-                        <option>Three-position switch</option>
-                        <option>Analog</option>
+                        <option value="0">Two-position switch</option>
+                        <option value="1">Two-position switch up/down</option>
+                        <option value="2">Momentary</option>
+                        <option value="3">Three-position switch</option>
+                        <option value="4">Analog</option>
                     </select>
                 </span>
                 <h2>AUX2</h2>
-                <button id="aux2-toggle">AUX2</button>
+                <div class="centered">
+                    <button id="aux2-toggle">AUX2</button>
+                </div>
                 <input id="aux2-slider" type="range" min ="-100" max="100" step ="1" value ="0">
             </div>
             <div class="box features multi-aux">
                 <span style="float: right;">
                     <select id="aux3-type">
-                        <option>Two-position switch</option>
-                        <option>Two-position switch up/down</option>
-                        <option>Momentary</option>
-                        <option>Three-position switch</option>
-                        <option>Analog</option>
+                        <option value="0">Two-position switch</option>
+                        <option value="1">Two-position switch up/down</option>
+                        <option value="2">Momentary</option>
+                        <option value="3">Three-position switch</option>
+                        <option value="4">Analog</option>
                     </select>
                 </span>
                 <h2>AUX3</h2>
-                <button id="aux3-toggle">AUX3</button>
+                <div class="centered">
+                    <button id="aux3-toggle">AUX3</button>
+                </div>
                 <input id="aux3-slider" type="range" min ="-100" max="100" step ="1" value ="0">
             </div>
         </div>
@@ -242,9 +246,10 @@
 
 var throttle = 0;
 var steering = 0;
-var aux = {buttonDown: false, lastSentValue: 999, upDownTimeout: 0, isCH3: true};
-var aux2 = {buttonDown: false, lastSentValue: 999, upDownTimeout: 0};
-var aux3 = {buttonDown: false, lastSentValue: 999, upDownTimeout: 0};
+var aux = {buttonDown: false, lastSentValue: 999, upDownTimeout: 0, label: 'AUX', isCH3: true};
+var aux2 = {buttonDown: false, lastSentValue: 999, upDownTimeout: 0, label: 'AUX2'};
+var aux3 = {buttonDown: false, lastSentValue: 999, upDownTimeout: 0, label: 'AUX3'};
+var config = "";
 var sendingThrottle = false;
 var sendingSteering = false;
 var startupMode = false;
@@ -290,7 +295,7 @@ const AUX_TYPE_MOMENTARY = "2";
 const AUX_TYPE_THREE_POSITION = "3";
 const AUX_TYPE_ANALOG = "4";
 
-const UP_DOWN_TIMEOUT = 1000;
+const UP_DOWN_TIMEOUT = 500;
 
 
 function createXMLHttpRequest() {
@@ -481,6 +486,7 @@ function send_ping() {
                 reset_ui();
             }
             elNotConnected.style.visibility = 'hidden';
+            parse_config(msg);
         }
 
         if (pingTimer) {
@@ -754,6 +760,10 @@ function update_aux_value(instance, value) {
         if (instance.isCH3) {
             send_function('CH3', value > 0 ? 1 : 0);
         }
+
+        if (multi_aux) {
+            send_function(instance.label, value);
+        }
     }
 }
 
@@ -834,6 +844,73 @@ function aux_slider_changed(event) {
     }
 }
 
+function parse_config(msg) {
+    if (msg !== config) {
+        config = msg;
+        console.log("New config: " + msg);
+
+        let values = msg.split(' ');
+        console.log(values);
+
+        /*
+        0: OK
+        1: CONFIG
+        2: config.flags2.multi_aux
+        3: config.flags.ch3_is_momentary
+        4: config.flags.ch3_is_two_button,
+        5: config.aux_type
+        6: config.aux_function
+        7: config.aux2_type
+        8: config.aux2_function
+        9: config.aux3_type
+        10: config.aux3_function)
+        */
+
+        if (values.length >= 11) {
+            // 2:  config.flags2.multi_aux
+            multi_aux = (values[2] != '0');
+
+            if (multi_aux) {
+                aux.elType.value = values[5];
+                aux2.elType.value = values[7];
+                aux3.elType.value = values[9];
+
+                (aux_type_changed.bind(aux))(new Event('change'));
+                (aux_type_changed.bind(aux2))(new Event('change'));
+                (aux_type_changed.bind(aux3))(new Event('change'));
+
+                const elements = document.querySelectorAll('.multi-aux');
+                elements.forEach(e => {
+                    e.classList.remove('hidden');
+                });
+            }
+            else {
+                const elements = document.querySelectorAll('.multi-aux');
+                elements.forEach(e => {
+                    e.classList.add('hidden');
+                });
+
+                // 3: config.flags.ch3_is_momentary
+                if (values[3] != '0') {
+                    aux.elType.value = AUX_TYPE_MOMENTARY;
+                }
+                // 4: config.flags.ch3_is_two_button
+                else if (values[4] != '0') {
+                    aux.elType.value = AUX_TYPE_TWO_POSITION_UP_DOWN;
+                }
+                else {
+                    aux.elType.value = AUX_TYPE_TWO_POSITION;
+                }
+                (aux_type_changed.bind(aux))(new Event('change'));
+            }
+
+            [aux, aux2, aux3].forEach(a => {
+                a.elType.disabled = true;
+            });
+        }
+    }
+}
+
 window.addEventListener('load', async function () {
     elWebusbConnect = document.getElementById('webusb-connect');
     elNotConnected = document.getElementById('not-connected');
@@ -903,11 +980,15 @@ window.addEventListener('load', async function () {
     elSteering.addEventListener('change', steering_changed);
     elThrottle.addEventListener('input', throttle_changed);
     elThrottle.addEventListener('change', throttle_changed);
-    aux.elToggle.addEventListener('mousedown', aux_button_handler.bind(aux));
-    aux.elToggle.addEventListener('mouseup', aux_button_handler.bind(aux));
-    aux.elType.addEventListener('change', aux_type_changed.bind(aux));
-    aux.elSlider.addEventListener('input', aux_slider_changed.bind(aux));
-    aux.elSlider.addEventListener('change', aux_slider_changed.bind(aux));
+
+    [aux, aux2, aux3].forEach(a => {
+        a.elToggle.addEventListener('mousedown', aux_button_handler.bind(a));
+        a.elToggle.addEventListener('mouseup', aux_button_handler.bind(a));
+        a.elType.addEventListener('change', aux_type_changed.bind(a));
+        a.elSlider.addEventListener('input', aux_slider_changed.bind(a));
+        a.elSlider.addEventListener('change', aux_slider_changed.bind(a));
+    });
+
     elStartupMode.addEventListener('change', startup_mode_changed);
 
     if (!multi_aux) {
