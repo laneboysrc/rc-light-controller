@@ -270,7 +270,8 @@ var send_function;
 var webusb_device;
 var websocket;
 
-
+var force_protocol;
+var multi_aux = false;
 
 
 
@@ -327,6 +328,7 @@ function send_xmlhttp(cmd, value, callback = null) {
     xhr.open('POST', '/', true);
     xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
     xhr.send(params);
+    console.log('SEND: ' + params)
 }
 
 function center_steering(event) {
@@ -848,6 +850,10 @@ function aux_slider_changed(event) {
 }
 
 function parse_config(msg) {
+    if (force_protocol) {
+        return;
+    }
+
     if (msg !== config) {
         config = msg;
         console.log("New config: " + msg);
@@ -958,9 +964,15 @@ window.addEventListener('load', async function () {
         use_ws = true;
     }
     if (document.cookie.split(';').indexOf('multi-aux=5') >= 0) {
-        console.log('Multi-aux support requested');
+        console.log('Forcing multi-aux 5-channel protocol requested');
         document.cookie = 'multi-aux=; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+        force_protocol = 5;
         multi_aux = true;
+    }
+    if (document.cookie.split(';').indexOf('multi-aux=3') >= 0) {
+        console.log('Forcing 3-channel protocol requested');
+        document.cookie = 'multi-aux=; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+        force_protocol = 3;
     }
 
     if (use_webusb) {

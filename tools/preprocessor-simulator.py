@@ -49,8 +49,11 @@ def parse_commandline():
     parser.add_argument("-b", "--baudrate", type=int, default=38400,
         help='Baudrate to use. Default is 38400.')
 
-    parser.add_argument("-5", "--multi-aux", action='store_true',
-        help='Enable 5-channel support')
+    parser.add_argument("-3", "--force-3ch", action='store_true',
+        help='Force 3-channel preprocessor support')
+
+    parser.add_argument("-5", "--force-5ch", action='store_true',
+        help='Force 5-channel preprocessor support')
 
     parser.add_argument("-p", "--port", type=int, default=1234,
         help='HTTP port for the web UI. Default is localhost:1234.')
@@ -73,7 +76,9 @@ class CustomHTTPRequestHandler(QuietBaseHTTPRequestHandler):
         self.send_header('Content-type', 'text/html')
         if not self.server.preprocessor.args.usb:
             self.send_header('Set-Cookie', 'mode=xhr;max-age=1')
-        if self.server.preprocessor.args.multi_aux:
+        if self.server.preprocessor.args.force_3ch:
+            self.send_header('Set-Cookie', 'multi-aux=3;max-age=1')
+        if self.server.preprocessor.args.force_5ch:
             self.send_header('Set-Cookie', 'multi-aux=5;max-age=1')
         self.end_headers()
 
@@ -120,8 +125,16 @@ class PreprocessorApp(object):
         self.done = False
         self.config = ''
 
-        if self.args.multi_aux:
-            print("5-channel receiver support enabled")
+        if self.args.force_5ch and self.args.force_3ch:
+            print("Error: 3 and 5 channel support can not be activated simultanously")
+            sys.exit(1)
+
+        if self.args.force_5ch:
+            print("Manually setting 5-channel support")
+        if self.args.force_3ch:
+            print("Manually setting 3-channel support")
+
+        self.args.multi_aux = self.args.force_5ch;
 
         if self.args.usb:
             return
@@ -167,6 +180,7 @@ class PreprocessorApp(object):
 
                     if message.startswith('CONFIG'):
                         app.config = message
+                        app.args.multi_aux = app.args.force_5ch or (app.config.split(' ')[1] != '0')
 
                     current_time = time.time()
                     time_difference = current_time - time_of_last_line
@@ -195,25 +209,26 @@ class PreprocessorApp(object):
                     mode_byte += 0x01
                 if app.receiver['STARTUP_MODE']:
                     mode_byte += 0x10
-
-                mode_byte += 0x08;
-
-                aux = app.receiver['AUX']
-                if aux < 0:
-                    aux = 256 + aux
-
-                aux2 = app.receiver['AUX2']
-                if aux2 < 0:
-                    aux2 = 256 + aux2
-
-                aux3 = app.receiver['AUX3']
-                if aux3 < 0:
-                    aux3 = 256 + aux3
+                if app.args.multi_aux:
+                    mode_byte += 0x08
 
                 data = bytearray(
                     [SLAVE_MAGIC_BYTE, steering, throttle, mode_byte])
 
-                data.extend([aux, aux2, aux3])
+                if app.args.multi_aux:
+                    aux = app.receiver['AUX']
+                    if aux < 0:
+                        aux = 256 + aux
+
+                    aux2 = app.receiver['AUX2']
+                    if aux2 < 0:
+                        aux2 = 256 + aux2
+
+                    aux3 = app.receiver['AUX3']
+                    if aux3 < 0:
+                        aux3 = 256 + aux3
+
+                    data.extend([aux, aux2, aux3])
 
                 try:
                     app.uart.write(data)
