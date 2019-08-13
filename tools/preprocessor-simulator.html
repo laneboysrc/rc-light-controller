@@ -762,6 +762,9 @@ function update_aux_value(instance, value) {
         }
 
         if (multi_aux) {
+            if (instance.label == 'AUX2') {
+                console.log('Sending AUX2=' + value);
+            }
             send_function(instance.label, value);
         }
     }

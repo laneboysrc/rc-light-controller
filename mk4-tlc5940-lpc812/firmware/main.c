@@ -126,10 +126,11 @@ static void output_channel_diagnostics(void)
         if (st != channel[ST].normalized  ||
             th != channel[TH].normalized) {
 
-           st = channel[ST].normalized;
-           th = channel[TH].normalized;
+            st = channel[ST].normalized;
+            th = channel[TH].normalized;
 
-           fprintf(STDOUT_DEBUG, "ST: %4d  TH: %4d\n", channel[ST].normalized, channel[TH].normalized);
+            fprintf(STDOUT_DEBUG, "ST: %4d  TH: %4d\n",
+                channel[ST].normalized, channel[TH].normalized);
         }
 
         if (send_config) {

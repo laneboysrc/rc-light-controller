@@ -196,6 +196,8 @@ class PreprocessorApp(object):
                 if app.receiver['STARTUP_MODE']:
                     mode_byte += 0x10
 
+                mode_byte += 0x08;
+
                 aux = app.receiver['AUX']
                 if aux < 0:
                     aux = 256 + aux
