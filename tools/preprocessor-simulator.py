@@ -76,10 +76,6 @@ class CustomHTTPRequestHandler(QuietBaseHTTPRequestHandler):
         self.send_header('Content-type', 'text/html')
         if not self.server.preprocessor.args.usb:
             self.send_header('Set-Cookie', 'mode=xhr;max-age=1')
-        if self.server.preprocessor.args.force_3ch:
-            self.send_header('Set-Cookie', 'multi-aux=3;max-age=1')
-        elif self.server.preprocessor.args.force_5ch:
-            self.send_header('Set-Cookie', 'multi-aux=5;max-age=1')
         self.end_headers()
 
         html_path = os.path.join(
@@ -130,11 +126,16 @@ class PreprocessorApp(object):
             sys.exit(1)
 
         if self.args.force_5ch:
+            self.protocol = '5'
+            self.args.multi_aux = True
             print("Manually setting 5-channel support")
-        if self.args.force_3ch:
+        elif self.args.force_3ch:
+            self.protocol = '3'
+            self.args.multi_aux = False
             print("Manually setting 3-channel support")
-
-        self.args.multi_aux = self.args.force_5ch
+        else:
+            self.protocol = 'A'
+            self.args.multi_aux = False
 
         if self.args.usb:
             return
@@ -155,7 +156,7 @@ class PreprocessorApp(object):
                 self.receiver[key] = int(value[0])
             else:
                 return 400, "Bad request"
-        return 200, "OK " + self.config
+        return 200, 'OK {} {}'.format(self.protocol, self.config)
 
     def reader(self):
         ''' Background thread performing the UART read '''
@@ -177,7 +178,8 @@ class PreprocessorApp(object):
 
                 if message.startswith('CONFIG'):
                     self.config = message
-                    self.args.multi_aux = self.args.force_5ch or (self.config.split(' ')[1] != '0')
+                    if self.protocol == 'A':
+                        self.args.multi_aux = (self.config.split(' ')[1] != '0')
 
                 current_time = time.time()
                 time_difference = current_time - time_of_last_line

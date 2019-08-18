@@ -863,26 +863,51 @@ function parse_config(msg) {
 
         /*
         0: OK
-        1: CONFIG
-        2: config.flags2.multi_aux
-        3: config.flags.ch3_is_momentary
-        4: config.flags.ch3_is_two_button,
-        5: config.aux_type
-        6: config.aux_function
-        7: config.aux2_type
-        8: config.aux2_function
-        9: config.aux3_type
-        10: config.aux3_function)
+        1: A=automatic 3=force_3ch 5=force_5ch
+        2: CONFIG
+        3: config.flags2.multi_aux
+        4: config.flags.ch3_is_momentary
+        5: config.flags.ch3_is_two_button,
+        6: config.aux_type
+        7: config.aux_function
+        8: config.aux2_type
+        9: config.aux2_function
+        10: config.aux3_type
+        11: config.aux3_function)
         */
 
-        if (values.length >= 11) {
-            // 2:  config.flags2.multi_aux
-            multi_aux = (values[2] != '0');
+        // FIXME: handle case when there is no config (legacy light controller)
 
-            if (multi_aux) {
-                aux.elType.value = values[5];
-                aux2.elType.value = values[7];
-                aux3.elType.value = values[9];
+        if (values.length >= 12) {
+            if (values[1] == '3') {
+                const elements = document.querySelectorAll('.multi-aux');
+                elements.forEach(e => {
+                    e.classList.add('hidden');
+                });
+
+                [aux, aux2, aux3].forEach(a => {
+                    a.elType.disabled = false;
+                });
+            }
+
+            else if (values[1] == '5') {
+                const elements = document.querySelectorAll('.multi-aux');
+                elements.forEach(e => {
+                    e.classList.remove('hidden');
+                });
+
+                [aux, aux2, aux3].forEach(a => {
+                    a.elType.disabled = false;
+                });
+            }
+
+            // 3:  config.flags2.multi_aux
+            else if ((values[3] != '0')) {
+                multi_aux = true;
+
+                aux.elType.value = values[6];
+                aux2.elType.value = values[8];
+                aux3.elType.value = values[10];
 
                 (aux_type_changed.bind(aux))(new Event('change'));
                 (aux_type_changed.bind(aux2))(new Event('change'));
@@ -892,30 +917,36 @@ function parse_config(msg) {
                 elements.forEach(e => {
                     e.classList.remove('hidden');
                 });
+
+                [aux, aux2, aux3].forEach(a => {
+                    a.elType.disabled = true;
+                });
             }
             else {
+                multi_aux = false;
+
                 const elements = document.querySelectorAll('.multi-aux');
                 elements.forEach(e => {
                     e.classList.add('hidden');
                 });
 
-                // 3: config.flags.ch3_is_momentary
-                if (values[3] != '0') {
+                // 4: config.flags.ch3_is_momentary
+                if (values[4] != '0') {
                     aux.elType.value = AUX_TYPE_MOMENTARY;
                 }
-                // 4: config.flags.ch3_is_two_button
-                else if (values[4] != '0') {
+                // 5: config.flags.ch3_is_two_button
+                else if (values[5] != '0') {
                     aux.elType.value = AUX_TYPE_TWO_POSITION_UP_DOWN;
                 }
                 else {
                     aux.elType.value = AUX_TYPE_TWO_POSITION;
                 }
                 (aux_type_changed.bind(aux))(new Event('change'));
-            }
 
-            [aux, aux2, aux3].forEach(a => {
-                a.elType.disabled = true;
-            });
+                [aux, aux2, aux3].forEach(a => {
+                    a.elType.disabled = true;
+                });
+            }
         }
     }
 }
