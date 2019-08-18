@@ -78,7 +78,7 @@ class CustomHTTPRequestHandler(QuietBaseHTTPRequestHandler):
             self.send_header('Set-Cookie', 'mode=xhr;max-age=1')
         if self.server.preprocessor.args.force_3ch:
             self.send_header('Set-Cookie', 'multi-aux=3;max-age=1')
-        if self.server.preprocessor.args.force_5ch:
+        elif self.server.preprocessor.args.force_5ch:
             self.send_header('Set-Cookie', 'multi-aux=5;max-age=1')
         self.end_headers()
 
@@ -157,89 +157,88 @@ class PreprocessorApp(object):
                 return 400, "Bad request"
         return 200, "OK " + self.config
 
+    def reader(self):
+        ''' Background thread performing the UART read '''
+        time_of_last_line = start_time = time.time()
+        print("     TOTAL  DIFFERENCE  RESPONSE")
+        print("----------  ----------  --------")
+
+        while not self.done:
+            self.uart.timeout = 0.1
+            try:
+                data = self.uart.readline()
+            except serial.SerialException as error:
+                print("Reading from serial port failed: %s" % error)
+                self.errorShutdown()
+                return
+
+            if data:
+                message = data.decode('ascii', errors='replace')
+
+                if message.startswith('CONFIG'):
+                    self.config = message
+                    self.args.multi_aux = self.args.force_5ch or (self.config.split(' ')[1] != '0')
+
+                current_time = time.time()
+                time_difference = current_time - time_of_last_line
+                elapsed_time = current_time - start_time
+
+                print("%10.3f  %10.3f  %s" % (elapsed_time,
+                                              time_difference,
+                                              message),
+                      end='')
+
+                time_of_last_line = current_time
+
+    def writer(self):
+        ''' Background thread performing the UART transmission '''
+        while not self.done:
+            steering = self.receiver['ST']
+            if steering < 0:
+                steering = 256 + steering
+
+            throttle = self.receiver['TH']
+            if throttle < 0:
+                throttle = 256 + throttle
+
+            mode_byte = 0
+            if self.receiver['CH3']:
+                mode_byte += 0x01
+            if self.receiver['STARTUP_MODE']:
+                mode_byte += 0x10
+            if self.args.multi_aux:
+                mode_byte += 0x08
+
+            data = bytearray(
+                [SLAVE_MAGIC_BYTE, steering, throttle, mode_byte])
+
+            if self.args.multi_aux:
+                aux = self.receiver['AUX']
+                if aux < 0:
+                    aux = 256 + aux
+
+                aux2 = self.receiver['AUX2']
+                if aux2 < 0:
+                    aux2 = 256 + aux2
+
+                aux3 = self.receiver['AUX3']
+                if aux3 < 0:
+                    aux3 = 256 + aux3
+
+                data.extend([aux, aux2, aux3])
+
+            try:
+                self.uart.write(data)
+                self.uart.flush()
+            except serial.SerialException as error:
+                print("Writing to serial port failed: %s" % error)
+                self.errorShutdown()
+                return
+
+            time.sleep(0.02)
+
     def run(self):
         ''' Send the test patterns to the TLC5940 based slave '''
-
-        def reader(app):
-            ''' Background thread performing the UART read '''
-            time_of_last_line = start_time = time.time()
-            print("     TOTAL  DIFFERENCE  RESPONSE")
-            print("----------  ----------  --------")
-
-            while not app.done:
-                app.uart.timeout = 0.1
-                try:
-                    data = app.uart.readline()
-                except serial.SerialException as error:
-                    print("Reading from serial port failed: %s" % error)
-                    app.errorShutdown()
-                    return
-
-                if data:
-                    message = data.decode('ascii', errors='replace')
-
-                    if message.startswith('CONFIG'):
-                        app.config = message
-                        app.args.multi_aux = app.args.force_5ch or (app.config.split(' ')[1] != '0')
-
-                    current_time = time.time()
-                    time_difference = current_time - time_of_last_line
-                    elapsed_time = current_time - start_time
-
-                    print("%10.3f  %10.3f  %s" % (elapsed_time,
-                                                  time_difference,
-                                                  message),
-                          end='')
-
-                    time_of_last_line = current_time
-
-        def writer(app):
-            ''' Background thread performing the UART transmission '''
-            while not app.done:
-                steering = app.receiver['ST']
-                if steering < 0:
-                    steering = 256 + steering
-
-                throttle = app.receiver['TH']
-                if throttle < 0:
-                    throttle = 256 + throttle
-
-                mode_byte = 0
-                if app.receiver['CH3']:
-                    mode_byte += 0x01
-                if app.receiver['STARTUP_MODE']:
-                    mode_byte += 0x10
-                if app.args.multi_aux:
-                    mode_byte += 0x08
-
-                data = bytearray(
-                    [SLAVE_MAGIC_BYTE, steering, throttle, mode_byte])
-
-                if app.args.multi_aux:
-                    aux = app.receiver['AUX']
-                    if aux < 0:
-                        aux = 256 + aux
-
-                    aux2 = app.receiver['AUX2']
-                    if aux2 < 0:
-                        aux2 = 256 + aux2
-
-                    aux3 = app.receiver['AUX3']
-                    if aux3 < 0:
-                        aux3 = 256 + aux3
-
-                    data.extend([aux, aux2, aux3])
-
-                try:
-                    app.uart.write(data)
-                    app.uart.flush()
-                except serial.SerialException as error:
-                    print("Writing to serial port failed: %s" % error)
-                    app.errorShutdown()
-                    return
-
-                time.sleep(0.02)
-
         self.server = HTTPServer(('', self.args.port), CustomHTTPRequestHandler)
         self.server.preprocessor = self
 
@@ -247,9 +246,11 @@ class PreprocessorApp(object):
             port=self.args.port))
 
         if not self.args.usb:
-            self.read_thread = threading.Thread(target=reader, args=([self]))
-            self.write_thread = threading.Thread(target=writer, args=([self]))
+            self.read_thread = threading.Thread(target=self.reader, name='rx')
+            self.read_thread.daemon = True
             self.read_thread.start()
+            self.write_thread = threading.Thread(target=self.writer, name='tx')
+            self.write_thread.daemon = True
             self.write_thread.start()
         self.server.serve_forever()
 
