@@ -11,6 +11,7 @@ Author:         Werner Lane
 E-mail:         laneboysrc@gmail.com
 '''
 
+
 from __future__ import print_function
 
 import sys
@@ -100,9 +101,10 @@ class CustomHTTPRequestHandler(QuietBaseHTTPRequestHandler):
             self.wfile.write("Bad querystring")
 
         else:
-            response, content = self.server.preprocessor.api(query)
+            response, content, config = self.server.preprocessor.api(query)
             self.send_response(response)
             self.send_header('Content-type', 'text/html')
+            self.send_header('laneboysrc-config', config)
             self.end_headers()
             self.wfile.write(content.encode('UTF-8'))
         return
@@ -151,12 +153,14 @@ class PreprocessorApp(object):
 
     def api(self, query):
         ''' Web api handler '''
+        config = '{} {}'.format(self.protocol, self.config)
+
         for key, value in query.items():
             if key in self.receiver:
                 self.receiver[key] = int(value[0])
             else:
-                return 400, "Bad request"
-        return 200, 'OK {} {}'.format(self.protocol, self.config)
+                return 400, "Bad request", config
+        return 200, 'OK', config
 
     def reader(self):
         ''' Background thread performing the UART read '''
@@ -177,7 +181,7 @@ class PreprocessorApp(object):
                 message = data.decode('ascii', errors='replace')
 
                 if message.startswith('CONFIG'):
-                    self.config = message
+                    self.config = message.rstrip()
                     if self.protocol == 'A':
                         self.args.multi_aux = (self.config.split(' ')[1] != '0')
 
@@ -284,3 +288,81 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+
+'''
+
+Architecture discussion: 3ch vs 5ch mode
+========================================
+
+Since August 2019 the preprocessor-simulator supports both the old 3-channel
+preprocessor protocol and the extended 5-channel version.
+With the introduction of the additional channels we also have to deal now
+with the added complexity of configurable AUX controls (2-position switch,
+3-position switch, etc.)
+
+From a user perspective we want to support the following modes:
+
+- If a new light controller firmware is connected that sends the CONFIG
+  information via UART debug then the preprocessor-simulator should switch
+  the protocol, as well as the various AUX control types, automatically
+  according to the values of CONFIG.
+
+  This means for 3-channel operation only one AUX channel is shown, and the
+  selection of the switch type (2-position switch, 2-position with up/down
+  button, and momentary) is automatic (drop-down disabled)
+
+  For 5-channel operation all three AUX channels are shown, and the selection
+  of the switch type (including 3-position and analog) are automatic (drop-down
+  disabled)
+
+- If a light controller firmware is connected that does not send CONFIG
+  information then the preprocessor-simulator assumes the 3-channel protocol,
+  and allows the user to select the switch type (but only 2-position switch,
+  2-position with up/down button, and momentary)
+
+- If the -3 command line parameter is given the preprocessor-simulator forces
+  the 3-channel protocol and UI regardless of CONFIG information. The drop-down
+  is enabled and allows the user to select the switch type (but only 2-position switch,
+  2-position with up/down button, and momentary)
+
+- If the -5 command line parameter is given the preprocessor-simulator forces
+  the 5-channel protocol and allows the user to select all possible switch types
+  manually.
+
+It is important to note that the application is split between two code-bases
+(Python and JavaScript), which need to be kept in sync. Ideally we only have
+one source of thruth.
+
+Since the Python part processes both UART and command line parameters, it is the
+logical choice for storing the actual configuration to use.
+
+The Python code is not able to send informaiton to the JavaScript whenever it
+wants; the JavaScript has to call the Python API via HTTP POST and then Python
+can return information in the HTTP response. Since the JavaScript part pings
+the Python part at least every 3 seconds, the maximum latency of configuration
+changes is 3 seconds.
+
+The Python API passes configuration information via a custom HTTP header named
+'laneboysrc-config' containing a text string as follows:
+
+    A [CONFIG 1 2 3 4 5 6 7 8 9]
+
+Each element is separated by a single space. The optional CONFIG ... part is
+only present when the light controller sends the information via its debug port.
+It is a verbatim copy of the debug string starting with CONFIG.
+
+A: A=automatic (depends on CONFIG presence/values); 3=force 3ch; 5=force 5ch
+CONFIG: The string literal CONFIG
+1: config.flags2.multi_aux (0 or 1)
+2: config.flags.ch3_is_momentary (0 or 1)
+3: config.flags.ch3_is_two_button (0 or 1)
+4: config.aux_type
+5: config.aux_function
+6: config.aux2_type
+7: config.aux2_function
+8: config.aux3_type
+9: config.aux3_function
+
+
+'''
