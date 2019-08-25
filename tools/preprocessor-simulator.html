@@ -825,24 +825,24 @@ function aux_type_changed(event) {
     event.preventDefault();
 
     switch (this.elType.value) {
-        case AUX_TYPE_TWO_POSITION:
-        case AUX_TYPE_TWO_POSITION_UP_DOWN:
-            this.elSlider.step = 200;
-            break;
+    case AUX_TYPE_TWO_POSITION:
+    case AUX_TYPE_TWO_POSITION_UP_DOWN:
+        this.elSlider.step = 200;
+        break;
 
-        case AUX_TYPE_MOMENTARY:
-            this.elSlider.step = 200;
-            update_aux_value(this, -100);
+    case AUX_TYPE_MOMENTARY:
+        this.elSlider.step = 200;
+        update_aux_value(this, -100);
 
-            break;
+        break;
 
-        case AUX_TYPE_THREE_POSITION:
-            this.elSlider.step = 100;
-            break;
+    case AUX_TYPE_THREE_POSITION:
+        this.elSlider.step = 100;
+        break;
 
-        case AUX_TYPE_ANALOG:
-            this.elSlider.step = 1;
-            break;
+    case AUX_TYPE_ANALOG:
+        this.elSlider.step = 1;
+        break;
     }
 }
 
@@ -865,7 +865,6 @@ function parse_config(msg) {
         console.log("New config: " + msg);
 
         let values = msg.split(' ');
-        console.log(values);
 
         /*
         0: A=automatic 3=force_3ch 5=force_5ch
@@ -1011,17 +1010,6 @@ window.addEventListener('load', async function () {
         document.cookie = 'mode=; expires=Thu, 01 Jan 1970 00:00:00 GMT';
         use_webusb = false;
         use_ws = true;
-    }
-    if (document.cookie.split(';').indexOf('multi-aux=5') >= 0) {
-        console.log('Forcing multi-aux 5-channel protocol requested');
-        document.cookie = 'multi-aux=; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-        force_protocol = 5;
-        multi_aux = true;
-    }
-    if (document.cookie.split(';').indexOf('multi-aux=3') >= 0) {
-        console.log('Forcing 3-channel protocol requested');
-        document.cookie = 'multi-aux=; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-        force_protocol = 3;
     }
 
     if (use_webusb) {
