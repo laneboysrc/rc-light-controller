@@ -1,13 +1,13 @@
 <!DOCTYPE HTML>
 <html>
 <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
 
     <title>Preprocessor simulator - DIY RC Light Controller</title>
 
-    <style type = "text/css">
+    <style type = 'text/css'>
         * {
             padding: 0;
             margin: 0;
@@ -118,6 +118,10 @@
             display: none;
         }
 
+        .function {
+            font-size: 0.75em;
+        }
+
         #logo {
             vertical-align: middle;
             border: 1px solid #FFCF0D;
@@ -143,103 +147,106 @@
     </style>
 </head>
 <body>
-    <div id="webusb-not-available" class="widebox error">
-        <p>This browser does not support <a href="https://caniuse.com/#search=webusb" rel="nofollow" target="_blank">WebUSB</a>.</p>
-        <p>Please use use the Python script <a href="https://github.com/laneboysrc/rc-light-controller/tree/master/tools" rel="nofollow" target="_blank">preprocessor-simulator.py</a> and a serial port connection to the light controller.</p>
+    <div id='webusb-not-available' class='widebox error'>
+        <p>This browser does not support <a href='https://caniuse.com/#search=webusb' rel='nofollow' target='_blank'>WebUSB</a>.</p>
+        <p>Please use use the Python script <a href='https://github.com/laneboysrc/rc-light-controller/tree/master/tools' rel='nofollow' target='_blank'>preprocessor-simulator.py</a> and a serial port connection to the light controller.</p>
     </div>
-    <div id="heading" class="widebox heading">
-        <img id="not-connected" title="" alt="" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAEEElEQVR42s2Va2wUVRTH/3dmOn1tt8u23b63BW0MQmIgQVJEVOSRSHdJSkRitFb5QqLxizF8UuojxugXY2JQE8MXXx+A2lbUNhIxKG0CJK3YYEu3S9dut/vqe7vdeV3PTMmSZcVW1MRJbu7dc885v7nnP/csw3/8sP8VYKip+agOXnvv1+0v/OuAod1eXrRxLTgTEPvVh/t6OlcVuyqna3u8vMLzAGRRAY9FkVIYfBcD2NzdvmL8ig7XvQePiY6iNte2dVBHRihChCSLCIzMIrGotG3qOv3aPwL4HmniNUe8SP3YA1ZSSRYOHpmEZHfiyi8RbO3+it0xILDvQKRwy/qyPGEKOQ/tR86OPZZdOdcD7dQJTCVyEAovhO//pr3izgB7m3lF6y6kzn0H24cdGXtzLR7kllfhylAcW7pOsb8NCO7Zz+3e7ZASIWh+P2zHT2cCnn4MUrkbc7MJ+IPz2PZtB1s1YNJ78HVWUvSK89ENUHx+GKHxbECrF5KrFjJpMuifRlLV3mjsOPnqqgChnU3c/tRuWoxaX40RmoDt/S8yfGYe3gihqh6CqkKXCnAppmLX92fYioCw9/FOuaHGk7/JDT4ehB6PQbvci+Kzv2X4xdcWQKy9G1B1yDpH//UYwkne1bwQ8/4lIHKghTsONSLZ3QFjegqCKMMYHYHjYigT0GBPA5gGyAZD1+A4nkjE2W0Bkzv2TuQ2lFfKYhjaYmp52+AwfMNw9AVvC+Aqh6QDv8cXMBCdDTy5MFWXBQi76jzaktrpfKcF6s994JJkBVsA/ygcF8YyAeudECvr0wCmGigivU4OB82s3kNz8a4MQCivlNvbnoXu66cguq2mUbsBmJlGzs4mFL70puW78PZRpL48AdFZS76aBQABRCpTMqHgzHgEh5MzLA2IuuqOweVsK3imEfrVYbII4IaxDNBpVlTqQ1dhTE4vH9teSKMYor0iA8A1jiLOcHYihmhy6aOWxdkjFmBScHD7Jy9DO/8DIEpW0jTAPEEkBNt7n0PasNkCaAOXMPdcM4Ti0nSJTAAIINBsiv5pIIjnU/OMRddU98meB7cKbomaWJx6Gc8G+K6RyOOZGtzjgFi9LgtgzrkUNjgzj/75uSiL5pVx2/EXoVw4T3dKpuRaNmCMRP7pVpFLSWT3nwLMkU+l+mxiAixaVs9t77ZC6e0lQczy6FkAJBIAtefCtz6AUFJBjW4ftNEhiI6qtAb8FoCTcn0cDBDAUT2W59nuZncJwHzyJkAzLxANWjMq29LAIAUq5t8BWH4+aSUi11EOpJZPICg3ATIV4XJ8xizR8lcUXlMzRjnccNlg0LU36O11xojDodMGpbB+m4fRuW7NKtkNgms39jVaW/4wEF1SyG4EDi/O1v0BdaNJ3oB8YjwAAAAASUVORK5CYII=">
-        <h1><a href="/"><img id="logo" title="" alt="" src="data:image/jpeg;base64,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"><button id="webusb-connect">Connect</button> Preprocessor simulator</a></h1>
+    <div id='heading' class='widebox heading'>
+        <img id='not-connected' title='' alt='' src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAEEElEQVR42s2Va2wUVRTH/3dmOn1tt8u23b63BW0MQmIgQVJEVOSRSHdJSkRitFb5QqLxizF8UuojxugXY2JQE8MXXx+A2lbUNhIxKG0CJK3YYEu3S9dut/vqe7vdeV3PTMmSZcVW1MRJbu7dc885v7nnP/csw3/8sP8VYKip+agOXnvv1+0v/OuAod1eXrRxLTgTEPvVh/t6OlcVuyqna3u8vMLzAGRRAY9FkVIYfBcD2NzdvmL8ig7XvQePiY6iNte2dVBHRihChCSLCIzMIrGotG3qOv3aPwL4HmniNUe8SP3YA1ZSSRYOHpmEZHfiyi8RbO3+it0xILDvQKRwy/qyPGEKOQ/tR86OPZZdOdcD7dQJTCVyEAovhO//pr3izgB7m3lF6y6kzn0H24cdGXtzLR7kllfhylAcW7pOsb8NCO7Zz+3e7ZASIWh+P2zHT2cCnn4MUrkbc7MJ+IPz2PZtB1s1YNJ78HVWUvSK89ENUHx+GKHxbECrF5KrFjJpMuifRlLV3mjsOPnqqgChnU3c/tRuWoxaX40RmoDt/S8yfGYe3gihqh6CqkKXCnAppmLX92fYioCw9/FOuaHGk7/JDT4ehB6PQbvci+Kzv2X4xdcWQKy9G1B1yDpH//UYwkne1bwQ8/4lIHKghTsONSLZ3QFjegqCKMMYHYHjYigT0GBPA5gGyAZD1+A4nkjE2W0Bkzv2TuQ2lFfKYhjaYmp52+AwfMNw9AVvC+Aqh6QDv8cXMBCdDTy5MFWXBQi76jzaktrpfKcF6s994JJkBVsA/ygcF8YyAeudECvr0wCmGigivU4OB82s3kNz8a4MQCivlNvbnoXu66cguq2mUbsBmJlGzs4mFL70puW78PZRpL48AdFZS76aBQABRCpTMqHgzHgEh5MzLA2IuuqOweVsK3imEfrVYbII4IaxDNBpVlTqQ1dhTE4vH9teSKMYor0iA8A1jiLOcHYihmhy6aOWxdkjFmBScHD7Jy9DO/8DIEpW0jTAPEEkBNt7n0PasNkCaAOXMPdcM4Ti0nSJTAAIINBsiv5pIIjnU/OMRddU98meB7cKbomaWJx6Gc8G+K6RyOOZGtzjgFi9LgtgzrkUNjgzj/75uSiL5pVx2/EXoVw4T3dKpuRaNmCMRP7pVpFLSWT3nwLMkU+l+mxiAixaVs9t77ZC6e0lQczy6FkAJBIAtefCtz6AUFJBjW4ftNEhiI6qtAb8FoCTcn0cDBDAUT2W59nuZncJwHzyJkAzLxANWjMq29LAIAUq5t8BWH4+aSUi11EOpJZPICg3ATIV4XJ8xizR8lcUXlMzRjnccNlg0LU36O11xojDodMGpbB+m4fRuW7NKtkNgms39jVaW/4wEF1SyG4EDi/O1v0BdaNJ3oB8YjwAAAAASUVORK5CYII='>
+        <h1><a href='/'><img id='logo' title='' alt='' src='data:image/jpeg;base64,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'><button id='webusb-connect'>Connect</button> Preprocessor simulator</a></h1>
     </div>
 
-    <div class="page" id="main">
-        <div class="column">
-            <div class="box controls">
+    <div class='page' id='main'>
+        <div class='column'>
+            <div class='box controls'>
                 <h2>Steering</h2>
                 <div>
-                    <input id="steering" type="range" min ="-100" max="100" step ="1" value ="0">
-                    <div class="centered">
-                        <button id="steering-neutral">neutral</button>
+                    <input id='steering' type='range' min ='-100' max='100' step ='1' value ='0'>
+                    <div class='centered'>
+                        <button id='steering-neutral'>neutral</button>
                     </div>
                 </div>
                 <h2>Throttle</h2>
                 <div>
-                    <input id="throttle" type="range" min ="-100" max="100" step ="1" value ="0">
-                    <div class="centered">
-                        <button id="throttle-neutral">neutral</button>
+                    <input id='throttle' type='range' min ='-100' max='100' step ='1' value ='0'>
+                    <div class='centered'>
+                        <button id='throttle-neutral'>neutral</button>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="column">
-            <div class="box features">
+        <div class='column'>
+            <div class='box features'>
                 <div>
-                    <input id="startup-mode" type="checkbox"> <label for="startup-mode">Startup</label>
+                    <input id='startup-mode' type='checkbox'> <label for='startup-mode'>Startup</label>
                 </div>
             </div>
-            <div class="box features">
-                <span style="float: right;">
-                    <select id="aux-type">
-                        <option value="0">Two-position switch</option>
-                        <option value="1">Two-position switch up/down</option>
-                        <option value="2">Momentary</option>
-                        <option value="3" class="multi-aux">Three-position switch</option>
-                        <option value="4" class="multi-aux">Analog</option>
+            <div class='box features'>
+                <span style='float: right;'>
+                    <select id='aux-type'>
+                        <option value='0'>Two-position switch</option>
+                        <option value='1'>Two-position switch up/down</option>
+                        <option value='2'>Momentary</option>
+                        <option value='3' class='multi-aux'>Three-position switch</option>
+                        <option value='4' class='multi-aux'>Analog</option>
                     </select>
                 </span>
                 <h2>AUX</h2>
-                <div class="centered">
-                    <button id="aux-toggle">toggle</button>
+                <div id='aux-function' class='function'></div>
+                <div class='centered'>
+                    <button id='aux-toggle'>toggle</button>
                 </div>
-                <input id="aux-slider" type="range" min ="-100" max="100" step ="1" value ="0">
+                <input id='aux-slider' type='range' min ='-100' max='100' step ='1' value ='0'>
             </div>
-            <div class="box features multi-aux">
-                <span style="float: right;">
-                   <select id="aux2-type">
-                        <option value="0">Two-position switch</option>
-                        <option value="1">Two-position switch up/down</option>
-                        <option value="2">Momentary</option>
-                        <option value="3">Three-position switch</option>
-                        <option value="4">Analog</option>
+            <div class='box features multi-aux'>
+                <span style='float: right;'>
+                   <select id='aux2-type'>
+                        <option value='0'>Two-position switch</option>
+                        <option value='1'>Two-position switch up/down</option>
+                        <option value='2'>Momentary</option>
+                        <option value='3'>Three-position switch</option>
+                        <option value='4'>Analog</option>
                     </select>
                 </span>
                 <h2>AUX2</h2>
-                <div class="centered">
-                    <button id="aux2-toggle">AUX2</button>
+                <div id='aux2-function' class='function'></div>
+                <div class='centered'>
+                    <button id='aux2-toggle'>AUX2</button>
                 </div>
-                <input id="aux2-slider" type="range" min ="-100" max="100" step ="1" value ="0">
+                <input id='aux2-slider' type='range' min ='-100' max='100' step ='1' value ='0'>
             </div>
-            <div class="box features multi-aux">
-                <span style="float: right;">
-                    <select id="aux3-type">
-                        <option value="0">Two-position switch</option>
-                        <option value="1">Two-position switch up/down</option>
-                        <option value="2">Momentary</option>
-                        <option value="3">Three-position switch</option>
-                        <option value="4">Analog</option>
+            <div class='box features multi-aux'>
+                <span style='float: right;'>
+                    <select id='aux3-type'>
+                        <option value='0'>Two-position switch</option>
+                        <option value='1'>Two-position switch up/down</option>
+                        <option value='2'>Momentary</option>
+                        <option value='3'>Three-position switch</option>
+                        <option value='4'>Analog</option>
                     </select>
                 </span>
                 <h2>AUX3</h2>
-                <div class="centered">
-                    <button id="aux3-toggle">AUX3</button>
+                <div id='aux3-function' class='function'></div>
+                <div class='centered'>
+                    <button id='aux3-toggle'>AUX3</button>
                 </div>
-                <input id="aux3-slider" type="range" min ="-100" max="100" step ="1" value ="0">
+                <input id='aux3-slider' type='range' min ='-100' max='100' step ='1' value ='0'>
             </div>
         </div>
     </div>
 
-    <div class="widebox response">
+    <div class='widebox response'>
         <h2>Response</h2>
-        <div class="message" id="response"></div>
+        <div class='message' id='response'></div>
     </div>
 
-    <div class="widebox response hidden" id="diagnostics">
-        <span style="float: right; font-size: 0.75em">
+    <div class='widebox response hidden' id='diagnostics'>
+        <span style='float: right; font-size: 0.75em'>
             (newest on top)
         </span>
         <h2>Diagnostics sent by the light controller</h2>
-        <div class="message" id="uart"></div>
+        <div class='message' id='uart'></div>
     </div>
 
     <script>
@@ -249,7 +256,7 @@ var steering = 0;
 var aux = {buttonDown: false, lastSentValue: 999, upDownTimeout: 0, label: 'AUX', isCH3: true};
 var aux2 = {buttonDown: false, lastSentValue: 999, upDownTimeout: 0, label: 'AUX2'};
 var aux3 = {buttonDown: false, lastSentValue: 999, upDownTimeout: 0, label: 'AUX3'};
-var config = "";
+var config = '';
 var sendingThrottle = false;
 var sendingSteering = false;
 var startupMode = false;
@@ -290,11 +297,11 @@ const EP_SIZE = 64;
 
 const MAX_UART_LOG_LINES = 20;
 
-const AUX_TYPE_TWO_POSITION = "0";
-const AUX_TYPE_TWO_POSITION_UP_DOWN = "1";
-const AUX_TYPE_MOMENTARY = "2";
-const AUX_TYPE_THREE_POSITION = "3";
-const AUX_TYPE_ANALOG = "4";
+const AUX_TYPE_TWO_POSITION = '0';
+const AUX_TYPE_TWO_POSITION_UP_DOWN = '1';
+const AUX_TYPE_MOMENTARY = '2';
+const AUX_TYPE_THREE_POSITION = '3';
+const AUX_TYPE_ANALOG = '4';
 
 const UP_DOWN_TIMEOUT = 500;
 
@@ -392,7 +399,7 @@ function sendThrottle(value) {
     }
 
     // This local function sends the actual throttle command. It sets
-    // the "transmission in progress flag sendingThrottle, and stores
+    // the 'transmission in progress flag sendingThrottle, and stores
     // the sent value for later comparison in the callback function.
     function sendThrottleCommand() {
         sendingThrottle = true;
@@ -430,7 +437,7 @@ function sendSteering(value) {
     }
 
     // This local function sends the actual throttle command. It sets
-    // the "transmission in progress flag sendingThrottle, and stores
+    // the 'transmission in progress flag sendingThrottle, and stores
     // the sent value for later comparison in the callback function.
     function sendSteeringCommand() {
         sendingSteering = true;
@@ -781,19 +788,19 @@ function update_aux_value(instance, value) {
 function aux_button_handler(event) {
     event.preventDefault();
 
-    if (event.type == "keydown") {
+    if (event.type == 'keydown') {
         if (this.buttonDown) {
             return;
         }
         this.buttonDown = true;
     }
-    else if (event.type == "keyup") {
+    else if (event.type == 'keyup') {
         this.buttonDown = false;
     }
 
 
     if (this.elType.value == AUX_TYPE_MOMENTARY) {
-        if (event.type == "keydown" || event.type == "mousedown") {
+        if (event.type == 'keydown' || event.type == 'mousedown') {
             update_aux_value(this, +100);
         }
         else {
@@ -801,7 +808,7 @@ function aux_button_handler(event) {
         }
     }
     else {
-        if (event.type == "keydown" || event.type == "mousedown") {
+        if (event.type == 'keydown' || event.type == 'mousedown') {
             if (this.elType.value == AUX_TYPE_TWO_POSITION_UP_DOWN) {
                 if (Date.now() > this.upDownTimeout) {
                     update_aux_value(this, -100);
@@ -855,116 +862,199 @@ function aux_slider_changed(event) {
     }
 }
 
+function setAuxFunctionLabel(aux_object, aux_function) {
+
+    const el = aux_object.elFunction;
+
+    switch (aux_function) {
+    case '0':
+        el.textContent = 'Not used';
+        break;
+
+    case '1':
+        el.textContent = 'Multi-function switch';
+        break;
+
+    case '2':
+        el.textContent = 'Gearbox';
+        break;
+
+    case '3':
+        el.textContent = 'Winch';
+        break;
+
+    case '4':
+        el.textContent = 'Servo';
+        break;
+
+    case '5':
+        el.textContent = 'Indicators';
+        break;
+
+    case '6':
+        el.textContent = 'Hazard';
+        break;
+
+    case '7':
+        el.textContent = 'Light switch';
+        break;
+
+    default:
+        el.textContent = '';
+        break;
+    }
+}
+
 function parse_config(msg) {
     if (force_protocol) {
         return;
     }
 
-    if (msg !== config) {
-        config = msg;
-        console.log("New config: " + msg);
+    if (msg == config) {
+        return;
+    }
 
-        let values = msg.split(' ');
+    config = msg;
+    console.log('New config: ' + msg);
 
-        /*
-        0: A=automatic 3=force_3ch 5=force_5ch
-        1: CONFIG
-        2: config.flags2.multi_aux
-        3: config.flags.ch3_is_momentary
-        4: config.flags.ch3_is_two_button,
-        5: config.aux_type
-        6: config.aux_function
-        7: config.aux2_type
-        8: config.aux2_function
-        9: config.aux3_type
-        10: config.aux3_function
-        */
+    let values = msg.split(' ');
+    if (values.length < 1) {
+        return;
+    }
 
-        if (values.length < 1) {
-            return;
-        }
+    /*
 
-        if (values[0] == '3') {
-            const elements = document.querySelectorAll('.multi-aux');
-            elements.forEach(e => {
-                e.classList.add('hidden');
-            });
+    CONFIG array elements:
+    ======================
+    0: A=automatic 3=force_3ch 5=force_5ch
+    1: CONFIG
+    2: config.flags2.multi_aux
+    3: config.flags.ch3_is_momentary
+    4: config.flags.ch3_is_two_button,
+    5: config.aux_type
+    6: config.aux_function
+    7: config.aux2_type
+    8: config.aux2_function
+    9: config.aux3_type
+    10: config.aux3_function
 
-            [aux, aux2, aux3].forEach(a => {
-                a.elType.disabled = false;
-            });
-        }
+    AUX_TYPE_T:
+    -----------
+    TWO_POSITION = 0,
+    TWO_POSITION_UP_DOWN = 1,
+    MOMENTARY = 2,
+    THREE_POSITION = 3,
+    ANALOG = 4
 
-        else if (values[0] == '5') {
+    AUX_FUNCTION_T:
+    ---------------
+    NOT_USED = 0,
+    MULTI_FUNCTION = 1,
+    GEARBOX = 2,
+    WINCH = 3,
+    SERVO = 4,
+    INDICATORS = 5,
+    HAZARD = 6,
+    LIGHT_SWITCH = 7
+
+    */
+
+    if (values[0] == '3') {
+        const elements = document.querySelectorAll('.multi-aux');
+        elements.forEach(e => {
+            e.classList.add('hidden');
+        });
+
+        [aux, aux2, aux3].forEach(a => {
+            a.elType.disabled = false;
+        });
+    }
+
+    else if (values[0] == '5') {
+        const elements = document.querySelectorAll('.multi-aux');
+        elements.forEach(e => {
+            e.classList.remove('hidden');
+        });
+
+        [aux, aux2, aux3].forEach(a => {
+            a.elType.disabled = false;
+        });
+
+    }
+
+    else if (values.length >= 11) {
+        // 2:  config.flags2.multi_aux
+        if ((values[2] != '0')) {
+            multi_aux = true;
+
+            aux.elType.value = values[5];
+            aux2.elType.value = values[7];
+            aux3.elType.value = values[9];
+
+            setAuxFunctionLabel(aux, values[6]);
+            setAuxFunctionLabel(aux2, values[8]);
+            setAuxFunctionLabel(aux3, values[10]);
+
+            (aux_type_changed.bind(aux))(new Event('change'));
+            (aux_type_changed.bind(aux2))(new Event('change'));
+            (aux_type_changed.bind(aux3))(new Event('change'));
+
             const elements = document.querySelectorAll('.multi-aux');
             elements.forEach(e => {
                 e.classList.remove('hidden');
             });
 
             [aux, aux2, aux3].forEach(a => {
-                a.elType.disabled = false;
+                a.elType.disabled = true;
             });
         }
-
-        else if (values.length >= 11) {
-            // 2:  config.flags2.multi_aux
-            if ((values[2] != '0')) {
-                multi_aux = true;
-
-                aux.elType.value = values[5];
-                aux2.elType.value = values[7];
-                aux3.elType.value = values[9];
-
-                (aux_type_changed.bind(aux))(new Event('change'));
-                (aux_type_changed.bind(aux2))(new Event('change'));
-                (aux_type_changed.bind(aux3))(new Event('change'));
-
-                const elements = document.querySelectorAll('.multi-aux');
-                elements.forEach(e => {
-                    e.classList.remove('hidden');
-                });
-
-                [aux, aux2, aux3].forEach(a => {
-                    a.elType.disabled = true;
-                });
-            }
-            else {
-                multi_aux = false;
-
-                const elements = document.querySelectorAll('.multi-aux');
-                elements.forEach(e => {
-                    e.classList.add('hidden');
-                });
-
-                // 3: config.flags.ch3_is_momentary
-                if (values[3] != '0') {
-                    aux.elType.value = AUX_TYPE_MOMENTARY;
-                }
-                // 4: config.flags.ch3_is_two_button
-                else if (values[4] != '0') {
-                    aux.elType.value = AUX_TYPE_TWO_POSITION_UP_DOWN;
-                }
-                else {
-                    aux.elType.value = AUX_TYPE_TWO_POSITION;
-                }
-                (aux_type_changed.bind(aux))(new Event('change'));
-
-                [aux, aux2, aux3].forEach(a => {
-                    a.elType.disabled = true;
-                });
-            }
-        }
-
         else {
+            multi_aux = false;
+
             const elements = document.querySelectorAll('.multi-aux');
             elements.forEach(e => {
                 e.classList.add('hidden');
             });
 
+            // 3: config.flags.ch3_is_momentary
+            if (values[3] != '0') {
+                aux.elType.value = AUX_TYPE_MOMENTARY;
+            }
+            // 4: config.flags.ch3_is_two_button
+            else if (values[4] != '0') {
+                aux.elType.value = AUX_TYPE_TWO_POSITION_UP_DOWN;
+            }
+            else {
+                aux.elType.value = AUX_TYPE_TWO_POSITION;
+            }
+            (aux_type_changed.bind(aux))(new Event('change'));
+
             [aux, aux2, aux3].forEach(a => {
-                a.elType.disabled = false;
+                a.elType.disabled = true;
             });
         }
+    }
+
+    else {
+        const elements = document.querySelectorAll('.multi-aux');
+        elements.forEach(e => {
+            e.classList.add('hidden');
+        });
+
+        [aux, aux2, aux3].forEach(a => {
+            a.elType.disabled = false;
+        });
+    }
+
+    if (values.length >= 11) {
+        setAuxFunctionLabel(aux, values[6]);
+        setAuxFunctionLabel(aux2, values[8]);
+        setAuxFunctionLabel(aux3, values[10]);
+    }
+    else {
+        setAuxFunctionLabel(aux, null);
+        setAuxFunctionLabel(aux2, null);
+        setAuxFunctionLabel(aux3, null);
     }
 }
 
@@ -975,12 +1065,15 @@ window.addEventListener('load', async function () {
     elSteering = document.getElementById('steering');
     elThrottle = document.getElementById('throttle');
     aux.elType = document.getElementById('aux-type');
+    aux.elFunction = document.getElementById('aux-function');
     aux.elToggle = document.getElementById('aux-toggle');
     aux.elSlider = document.getElementById('aux-slider');
     aux2.elType = document.getElementById('aux2-type');
+    aux2.elFunction = document.getElementById('aux2-function');
     aux2.elToggle = document.getElementById('aux2-toggle');
     aux2.elSlider = document.getElementById('aux2-slider');
     aux3.elType = document.getElementById('aux3-type');
+    aux3.elFunction = document.getElementById('aux3-function');
     aux3.elToggle = document.getElementById('aux3-toggle');
     aux3.elSlider = document.getElementById('aux3-slider');
     elSteeringNeutral = document.getElementById('steering-neutral');
