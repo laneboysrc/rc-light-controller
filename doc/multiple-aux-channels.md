@@ -74,6 +74,8 @@ winch2: direct off/in/out operation
 light2: the servo range 1000..2000us is mapped to n light switch sections. Note that for 3-pos switch this could mean that not all are adjustable.
 servo: direct output mapping -100..0..+100 to 1000..1500..2000 us servo output (adjust endpoints on TX)
 
+TO REDUCE EFFORT, WE WON"T BE IMPLEMENTING GEARBOX AND WINCH CONTROL FOR NOW.
+
 Note that the combination of 2-pos and Light is not used (N/A) because we rather apply the full toggle operation in that case.
 
 All switch actions are only executed upon switch change. This allows e.g. controlling the hazard lights from both the usual 2-pos toggle function, but also from a manual switch at the same time. Or there can be multiple switches assigned to 'toggle'.

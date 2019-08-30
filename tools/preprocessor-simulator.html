@@ -277,7 +277,6 @@ var send_function;
 var webusb_device;
 var websocket;
 
-var force_protocol;
 var multi_aux = false;
 
 
@@ -914,10 +913,6 @@ function setAuxFunctionLabel(aux_object, aux_function) {
 }
 
 function parse_config(msg) {
-    if (force_protocol) {
-        return;
-    }
-
     if (msg == config) {
         return;
     }
@@ -1064,6 +1059,11 @@ function parse_config(msg) {
         setAuxFunctionLabel(aux2, null);
         setAuxFunctionLabel(aux3, null);
     }
+
+    // Update the light controller with all AUX values
+    [aux, aux2, aux3].forEach(a => {
+        update_aux_value(a, a.elSlider.value);
+    });
 }
 
 window.addEventListener('load', async function () {
