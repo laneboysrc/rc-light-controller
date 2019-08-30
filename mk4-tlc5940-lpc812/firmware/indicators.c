@@ -66,8 +66,8 @@ void set_blink_left(void)
     synchronize_blinking();
     indicator_state = BLINK_LEFT;
     global_flags.blink_indicator_left = true;
+    global_flags.blink_indicator_right = false;
     fprintf(STDOUT_DEBUG, "indicator left\n");
-
 }
 
 
@@ -76,6 +76,7 @@ void set_blink_right(void)
 {
     synchronize_blinking();
     indicator_state = BLINK_RIGHT;
+    global_flags.blink_indicator_left = false;
     global_flags.blink_indicator_right = true;
     fprintf(STDOUT_DEBUG, "indicator right\n");
 }
