@@ -195,7 +195,7 @@
                 <h2>AUX</h2>
                 <div id='aux-function' class='function'></div>
                 <div class='centered'>
-                    <button id='aux-toggle'>toggle</button>
+                    <button id='aux-toggle'>AUX</button>
                 </div>
                 <input id='aux-slider' type='range' min ='-100' max='100' step ='1' value ='0'>
             </div>
@@ -799,7 +799,12 @@ function aux_button_handler(event) {
     }
 
 
-    if (this.elType.value == AUX_TYPE_MOMENTARY) {
+    if (this.elType.value == AUX_TYPE_ANALOG) {
+        if (event.type == 'keydown' || event.type == 'mousedown') {
+            update_aux_value(this, 0);
+        }
+    }
+    else if (this.elType.value == AUX_TYPE_MOMENTARY) {
         if (event.type == 'keydown' || event.type == 'mousedown') {
             update_aux_value(this, +100);
         }
@@ -835,20 +840,23 @@ function aux_type_changed(event) {
     case AUX_TYPE_TWO_POSITION:
     case AUX_TYPE_TWO_POSITION_UP_DOWN:
         this.elSlider.step = 200;
+        this.elToggle.textContent = 'toggle';
         break;
 
     case AUX_TYPE_MOMENTARY:
         this.elSlider.step = 200;
         update_aux_value(this, -100);
-
+        this.elToggle.textContent = 'toggle';
         break;
 
     case AUX_TYPE_THREE_POSITION:
         this.elSlider.step = 100;
+        this.elToggle.textContent = 'toggle';
         break;
 
     case AUX_TYPE_ANALOG:
         this.elSlider.step = 1;
+        this.elToggle.textContent = 'neutral';
         break;
     }
 }
