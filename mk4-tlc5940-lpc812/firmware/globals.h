@@ -509,6 +509,9 @@ typedef struct {
     AUX_TYPE_T aux3_type;
     AUX_FUNCTION_T aux3_function;
 
+    int8_t light_switch_centers[9];
+    int8_t light_switch_hysteresis;
+
 
 } LIGHT_CONTROLLER_CONFIG_T;
 

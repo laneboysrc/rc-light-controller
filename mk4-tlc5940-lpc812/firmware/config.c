@@ -88,9 +88,11 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
     .aux2_type = ANALOG,
     .aux2_function = INDICATORS,
 
-    .aux3_type = THREE_POSITION,
-    .aux3_function = NOT_USED,
+    .aux3_type = ANALOG,
+    .aux3_function = LIGHT_SWITCH,
 
+    .light_switch_centers = {-80, -40, 0, 40, 80, 0, 0, 0, 0},
+    .light_switch_hysteresis = 40 / 4,
 };
 
 

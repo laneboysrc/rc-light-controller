@@ -27,6 +27,7 @@ gearbox, winch ...)
 // process.
 #define IGNORE_CLICK_COUNT 99
 
+extern uint8_t light_switch_position;
 
 static bool initialized;
 
@@ -303,6 +304,61 @@ static void manual_indicators(CHANNEL_T *c, struct AUX_FLAGS *f)
 
 
 // ****************************************************************************
+static void light_switch(CHANNEL_T *c, struct AUX_FLAGS *f)
+{
+/*
+    If normalized > current_light_switch_equivalent
+      subtract hysteresis to normalized (clamp to -100)
+    else
+      add hysteresis to normalized (clamp to 100)
+
+    Hysteresis must be smaller than half of one light switch position width
+
+    |     |     |     |     |     |     |
+       x     x     x     x     x     x
+
+    total range: 200
+    one_light_switch_position = 200 / #light_switch_positions
+    max #light_switch_positions = 9
+    => min one_light_switch_position = 22
+    => we choose hysteresis = one_light_position / 4
+    current_light_switch_equivalent =
+        current_light_switch_position * one_light_switch_position + one_light_switch_position / 2
+
+    Shall we let the configurator pre-calculate some values?
+    We could have an array of 9 values, each for one light switch position center
+    Then the code would have nothing to calculate, just compare
+
+    current_light_switch_equivalent = table[current_light_switch_position]
+
+*/
+
+
+    int8_t value;
+    uint8_t i;
+
+    if (c->normalized == f->last_value) {
+        return;
+    }
+    f->last_value = c->normalized;
+
+    if (c->normalized > config.light_switch_centers[light_switch_position]) {
+        value = c->normalized - config.light_switch_hysteresis;
+    }
+    else {
+        value = c->normalized + config.light_switch_hysteresis;
+    }
+
+    for (i = 0; i < config.light_switch_positions; i++) {
+        if (value < config.light_switch_centers[i] + config.light_switch_centers[0] + 100) {
+            light_switch_position = i;
+            return;
+        }
+    }
+}
+
+
+// ****************************************************************************
 static void handle_aux_channel(CHANNEL_T *c, struct AUX_FLAGS *f, AUX_TYPE_T type, AUX_FUNCTION_T function)
 {
     // Map legacy 3-channel settings to new AUX settings
@@ -335,11 +391,12 @@ static void handle_aux_channel(CHANNEL_T *c, struct AUX_FLAGS *f, AUX_TYPE_T typ
             manual_indicators(c, f);
             break;
 
-        case WINCH:
-        case GEARBOX:
         case LIGHT_SWITCH:
+            light_switch(c, f);
             break;
 
+        case WINCH:
+        case GEARBOX:
         case NOT_USED:
         default:
             break;
