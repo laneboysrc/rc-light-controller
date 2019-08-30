@@ -47,8 +47,8 @@ def parse_commandline():
     parser = argparse.ArgumentParser(
         description="Simulate a receiver with built-in preprocessor.")
 
-    parser.add_argument("-b", "--baudrate", type=int, default=38400,
-        help='Baudrate to use. Default is 38400.')
+    parser.add_argument("-b", "--baudrate", type=int, default=115200,
+        help='Baudrate to use. Default is 115200.')
 
     parser.add_argument("-3", "--force-3ch", action='store_true',
         help='Force 3-channel preprocessor support')
