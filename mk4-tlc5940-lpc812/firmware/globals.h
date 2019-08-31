@@ -499,7 +499,11 @@ typedef struct {
         // is no receiver signal for more than 5 seconds
         unsigned int shelf_queen_mode : 1;
 
-        unsigned int reserved0 : 14;
+        // Set to 1 to use proper US style combined indicator/tail/brake,
+        // set to 0 for the old mode we used in our XR311
+        unsigned int us_style_combined_lights :1;
+
+        unsigned int reserved0 : 13;
     } flags2;
 
     // Dark phase of the indicator. The blink_counter_value from config version

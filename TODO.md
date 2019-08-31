@@ -1,6 +1,6 @@
 # MK4
 
-* US-style combined tail/brake/indicator as per the gentleman from Manila
+X US-style combined tail/brake/indicator as per the gentleman from Manila
 
 X Deprecate CPPM reader (to simplify things, no-one ever used it)
 
