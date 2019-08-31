@@ -1,38 +1,7 @@
 /******************************************************************************
 
     This function returns after having successfully received a complete
-    protocol frame via the UART.
-
-    The frame size is either 4 or 5 bytes. The traditional preprocessor sent
-    4 byte frames, the new one with the HK310 expansion protocol sends 5 byte
-    frames.
-
-    This software automatically determines the frame size upon startup. It
-    checks the number of bytes in the first few frames and only then
-    outputs values.
-
-
-    The preprocessor protocol is as follows:
-
-    The first byte is always 0x87, which indicates that it is a start byte. No
-    other byte can have this value.
-    Note: values 0x80..0x87 do not appear in the other bytes by design,
-    so those can be used as first byte to indicate start of a packet.
-
-    The second byte is a signed char of the steering channel, from -100 to 0
-    (Neutral) to +100, corresponding to the percentage of steering left/right.
-
-    The third byte is a signed char of the throttle channel, from -100 to 0
-    (Neutral) to +100.
-
-    The fourth byte holds CH3 in the lowest bit (0 or 1), and bit 4 indicates
-    whether the preprocessor is initializing. Note that the other bits must
-    be zero as this is required by the light controller (waste of bits, poor
-    implementation...)
-
-    The (optional) 5th byte is the normalized 6-bit value of CH3 as used in the
-    HK310 expansion protocol. This module ignores that value.
-    TODO: describe this better, and define the range including both SYNC values
+    preprocessor protocol frame via the UART.
 
  *****************************************************************************/
 #include <stdint.h>
@@ -49,7 +18,10 @@ typedef enum {
     STATE_WAIT_FOR_MAGIC_BYTE = 0,
     STATE_STEERING,
     STATE_THROTTLE,
-    STATE_CH3
+    STATE_AUX,
+    STATE_AUX_VALUE,
+    STATE_AUX2,
+    STATE_AUX3
 } STATE_T;
 
 
@@ -89,13 +61,16 @@ static void publish_channels(uint8_t channel_data[])
     normalize_channel(&channel[ST], channel_data[0]);
     normalize_channel(&channel[TH], channel_data[1]);
 
-    global_flags.initializing =
-        (channel_data[2] & 0x10) ? true : false;
-
-    if (!config.flags.ch3_is_local_switch) {
-        normalize_channel(&channel[CH3],
-            (channel_data[2] & 0x01) ? 100 : -100);
+    if (config.flags2.multi_aux && (channel_data[2] & (1 << 3))) {
+        normalize_channel(&channel[AUX], channel_data[3]);
+        normalize_channel(&channel[AUX2], channel_data[4]);
+        normalize_channel(&channel[AUX3], channel_data[5]);
     }
+    else {
+        normalize_channel(&channel[AUX], (channel_data[2] & (1 << 0)) ? 100 : -100);
+    }
+
+    global_flags.initializing = (channel_data[2] & (1 << 4)) ? true : false;
 
     global_flags.new_channel_data = true;
 }
@@ -105,7 +80,7 @@ static void publish_channels(uint8_t channel_data[])
 void read_preprocessor(void)
 {
     static STATE_T state = STATE_WAIT_FOR_MAGIC_BYTE;
-    static uint8_t channel_data[3];
+    static uint8_t channel_data[6];
 
     uint8_t uart_byte;
 
@@ -144,11 +119,34 @@ void read_preprocessor(void)
 
             case STATE_THROTTLE:
                 channel_data[1] = uart_byte;
-                state = STATE_CH3;
+                state = STATE_AUX;
                 break;
 
-            case STATE_CH3:
+            case STATE_AUX:
                 channel_data[2] = uart_byte;
+                if (channel_data[2] & (1 << 3)) {
+                    // Multi-AUX protocol extension: read additional AUX values
+                    //if bit 3 is set
+                    state = STATE_AUX_VALUE;
+                }
+                else {
+                    publish_channels(channel_data);
+                    state = STATE_WAIT_FOR_MAGIC_BYTE;
+                }
+                break;
+
+            case STATE_AUX_VALUE:
+                channel_data[3] = uart_byte;
+                state = STATE_AUX2;
+                break;
+
+            case STATE_AUX2:
+                channel_data[4] = uart_byte;
+                state = STATE_AUX3;
+                break;
+
+            case STATE_AUX3:
+                channel_data[5] = uart_byte;
                 publish_channels(channel_data);
                 state = STATE_WAIT_FOR_MAGIC_BYTE;
                 break;

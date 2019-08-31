@@ -9,7 +9,7 @@
 #define STDOUT_DEBUG ((void *) 1)
 
 
-#define CONFIG_VERSION 1
+#define CONFIG_VERSION 2
 #define __SYSTICK_IN_MS 20
 
 
@@ -25,7 +25,12 @@
 
 #define ST 0
 #define TH 1
-#define CH3 2
+#define AUX 2
+#define AUX2 3
+#define AUX3 4
+
+// Percentage that an AUX value has to change before causing a trigger
+#define AUX_HYSTERESIS 10
 
 // Number of positions of our virtual light switch. Includes the "off"
 // position 0.
@@ -128,6 +133,9 @@
 #define PARAMETER_TYPE_STEERING 3
 #define PARAMETER_TYPE_THROTTLE 4
 #define PARAMETER_TYPE_GEAR 5
+#define PARAMETER_TYPE_AUX 6
+#define PARAMETER_TYPE_AUX2 7
+#define PARAMETER_TYPE_AUX3 8
 
 
 // Offset of special position within every light program
@@ -194,6 +202,7 @@ typedef enum {
     RUN_WHEN_REVERSING_SETUP_STEERING   = (1 << 5),
     RUN_WHEN_REVERSING_SETUP_THROTTLE   = (1 << 6),
     RUN_WHEN_GEAR_CHANGED               = (1 << 7),
+    RUN_WHEN_SHELF_QUEEN_MODE           = (1 << 8),
 } LIGHT_PROGRAM_PRIORITY_STATE_T;
 
 
@@ -274,6 +283,7 @@ typedef struct {
     uint32_t programs[80];
 } LIGHT_PROGRAMS_T;
 
+
 // ****************************************************************************
 typedef struct {
     uint16_t left;
@@ -327,6 +337,29 @@ typedef enum {
 
 
 // ****************************************************************************
+typedef enum {
+    TWO_POSITION = 0,
+    TWO_POSITION_UP_DOWN = 1,
+    MOMENTARY = 2,
+    THREE_POSITION = 3,
+    ANALOG = 4
+} AUX_TYPE_T;
+
+
+// ****************************************************************************
+typedef enum {
+    NOT_USED = 0,
+    MULTI_FUNCTION = 1,
+    GEARBOX = 2,
+    WINCH = 3,
+    SERVO = 4,
+    INDICATORS = 5,
+    HAZARD = 6,
+    LIGHT_SWITCH = 7
+} AUX_FUNCTION_T;
+
+
+// ****************************************************************************
 typedef struct {
     unsigned int systick : 1;               // Set for one mainloop every 20 ms
     unsigned int new_channel_data : 1;      // Set for one mainloop every time servo pulses were received
@@ -349,6 +382,8 @@ typedef struct {
 
     unsigned int winch_mode : 3;
 
+    unsigned int shelf_queen_mode : 1;      // Set when car driving is simulated
+
     unsigned int servo_output_enabled : 1;  // Set when there OUT is configured as servo output
     unsigned int uart_output_enabled : 1;   // Set when the UART Tx is used for slave, preprocessor or winch output
 } GLOBAL_FLAGS_T;
@@ -358,7 +393,7 @@ typedef struct {
 typedef enum {
     MASTER_WITH_SERVO_READER,
     MASTER_WITH_UART_READER,
-    MASTER_WITH_CPPM_READER,
+    DISABLED,                   // MASTER_WITH_CPPM_READER => NOT SUPPORTED ANYMORE!
     SLAVE,
     STAND_ALONE,
 } MASTER_MODE_T;
@@ -451,6 +486,43 @@ typedef struct {
     uint16_t servo_pulse_max;
 
     uint16_t startup_time;
+
+    // -------------------------------------------------------------------
+    // From here-on down are settings have been added in config version 2!
+    // -------------------------------------------------------------------
+
+    struct {
+        // Enables handling of two additional AUX channels
+        unsigned int multi_aux : 1;
+
+        // Enable shelf queen mode where driving action is simulated if there
+        // is no receiver signal for more than 5 seconds
+        unsigned int shelf_queen_mode : 1;
+
+        // Set to 1 to use proper US style combined indicator/tail/brake,
+        // set to 0 for the old mode we used in our XR311
+        unsigned int us_style_combined_lights :1;
+
+        unsigned int reserved0 : 13;
+    } flags2;
+
+    // Dark phase of the indicator. The blink_counter_value from config version
+    // 1 determines the bright phase length.
+    uint16_t blink_counter_value_dark;
+
+    AUX_TYPE_T aux_type;
+    AUX_FUNCTION_T aux_function;
+
+    AUX_TYPE_T aux2_type;
+    AUX_FUNCTION_T aux2_function;
+
+    AUX_TYPE_T aux3_type;
+    AUX_FUNCTION_T aux3_function;
+
+    int8_t light_switch_centers[9];
+    int8_t light_switch_hysteresis;
+
+
 } LIGHT_CONTROLLER_CONFIG_T;
 
 
@@ -521,7 +593,7 @@ extern const GAMMA_TABLE_T gamma_table;
 extern const LIGHT_PROGRAMS_T light_programs;
 
 extern GLOBAL_FLAGS_T global_flags;
-extern CHANNEL_T channel[3];
+extern CHANNEL_T channel[5];
 extern SERVO_ENDPOINTS_T servo_output_endpoint;
 
 
@@ -537,17 +609,23 @@ void read_all_servo_channels(void);
 void init_uart_reader(void);
 void read_preprocessor(void);
 
-void process_ch3_clicks(void);
+void process_aux(void);
 
 void process_drive_mode(void);
+void throttle_neutral(void);
 
 void process_indicators(void);
 void toggle_hazard_lights(void);
+void set_blink_off(void);
+void set_blink_left(void);
+void set_blink_right(void);
+
 
 void init_servo_output(void);
 void process_servo_output(void);
 void servo_output_setup_action(uint8_t ch3_clicks);
 void gearbox_action(uint8_t ch3_clicks);
+void set_servo_pulse(uint16_t value);
 
 void process_winch(void);
 void winch_action(uint8_t ch3_clicks);
@@ -564,6 +642,9 @@ void next_light_sequence(void);
 void light_switch_up(void);
 void light_switch_down(void);
 void toggle_light_switch(void);
+
+void process_shelf_queen_mode(void);
+
 
 uint16_t random_min_max(uint16_t min, uint16_t max);
 

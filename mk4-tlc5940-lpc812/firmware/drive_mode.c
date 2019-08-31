@@ -34,7 +34,7 @@ static struct {
 
 
 // ****************************************************************************
-static void throttle_neutral(void)
+void throttle_neutral(void)
 {
     throttle_threshold = config.centre_threshold_high;
     if (global_flags.forward) {

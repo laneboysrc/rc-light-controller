@@ -15,7 +15,7 @@
 
 GLOBAL_FLAGS_T global_flags;
 
-CHANNEL_T channel[3] = {
+CHANNEL_T channel[5] = {
     {   // STEERING
         .normalized = 0,
         .absolute = 0,
@@ -36,14 +36,34 @@ CHANNEL_T channel[3] = {
             .right = 1750,
         }
     },
-    {   // CH3 (AUX)
+    {   // AUX
         .normalized = 0,
         .absolute = 0,
         .reversed = false,
         .endpoint = {
-            .left = 1250,
+            .left = 1000,
             .centre = 1500,
-            .right = 1750,
+            .right = 2000,
+        }
+    },
+    {   // AUX2
+        .normalized = 0,
+        .absolute = 0,
+        .reversed = false,
+        .endpoint = {
+            .left = 1000,
+            .centre = 1500,
+            .right = 2000,
+        }
+    },
+    {   // AUX3
+        .normalized = 0,
+        .absolute = 0,
+        .reversed = false,
+        .endpoint = {
+            .left = 1000,
+            .centre = 1500,
+            .right = 2000,
         }
     }
 };
@@ -93,6 +113,12 @@ static void check_no_signal(void)
 // ****************************************************************************
 static void output_channel_diagnostics(void)
 {
+    static bool send_config = true;
+
+    if (global_flags.no_signal) {
+        send_config = true;
+    }
+
     if (global_flags.new_channel_data) {
         static int16_t st = 999;
         static int16_t th = 999;
@@ -100,10 +126,33 @@ static void output_channel_diagnostics(void)
         if (st != channel[ST].normalized  ||
             th != channel[TH].normalized) {
 
-           st = channel[ST].normalized;
-           th = channel[TH].normalized;
+            st = channel[ST].normalized;
+            th = channel[TH].normalized;
 
-           fprintf(STDOUT_DEBUG, "ST: %4d  TH: %4d\n", channel[ST].normalized, channel[TH].normalized);
+            fprintf(STDOUT_DEBUG, "ST: %4d  TH: %4d\n",
+                channel[ST].normalized, channel[TH].normalized);
+        }
+
+        if (send_config) {
+            send_config = false;
+
+            /*
+            Send AUX configuration values to allow the preprocessor-simulator
+            to adjust its functionality automatically -- which is pretty
+            important as otherwise it is easy to mess up with all the
+            different AUX switch types
+
+            We send the configuration once after a no_signal event, and after
+            power on. In practice this means that the preprocessor-simulator
+            always sees the configuration information immediately after it
+            is talking to the light controller.
+             */
+            fprintf(STDOUT_DEBUG, "CONFIG %d %d %d %d %d %d %d %d %d\n",
+                config.flags2.multi_aux,
+                config.flags.ch3_is_momentary, config.flags.ch3_is_two_button,
+                config.aux_type, config.aux_function,
+                config.aux2_type, config.aux2_function,
+                config.aux3_type, config.aux3_function);
         }
     }
 }
@@ -119,6 +168,13 @@ int main(void)
     global_flags.servo_output_enabled =
         config.flags.steering_wheel_servo_output ||
         config.flags.gearbox_servo_output;
+
+    if (config.flags2.multi_aux) {
+        global_flags.servo_output_enabled |=
+            (config.aux_function == SERVO) ||
+            (config.aux2_function == SERVO) ||
+            (config.aux3_function == SERVO);
+    }
 
     global_flags.uart_output_enabled =
         config.flags.slave_output ||
@@ -153,6 +209,7 @@ int main(void)
     HAL_hardware_init_final();
 
     next_tick = milliseconds + __SYSTICK_IN_MS;
+
     fprintf(STDOUT_DEBUG, "\n\n**********\nLight controller v%d\n", config.firmware_version);
 
     while (1) {
@@ -161,11 +218,12 @@ int main(void)
         global_flags.new_channel_data = false;
         read_all_servo_channels();
         read_preprocessor();
-        process_ch3_clicks();
+        process_aux();
         process_drive_mode();
         process_indicators();
         process_channel_reversing_setup();
         check_no_signal();
+        process_shelf_queen_mode();
 
         process_servo_output();
         process_winch();

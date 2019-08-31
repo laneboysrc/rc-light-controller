@@ -12,7 +12,7 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
         .version = CONFIG_VERSION
     },
 
-    .firmware_version = 15,
+    .firmware_version = 16,
 
     .mode = MASTER_WITH_UART_READER,
     .esc_mode = ESC_FORWARD_BRAKE_REVERSE_TIMEOUT,
@@ -20,7 +20,7 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
     .flags = {
         // If mode is MASTER_WITH_SERVO_READER then all *_output flags are
         // mutually exculsive.
-        // If mode is MASTER_WITH_UART_READER or MASTER_WITH_CPPM_READER then
+        // If mode is MASTER_WITH_UART_READER then
         // there can be one UART output (slave, preprocessor or winch) and
         // one servo output (steering wheel or gearbox servo)
         .slave_output = false,
@@ -29,14 +29,20 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
         .steering_wheel_servo_output = false,
         .gearbox_servo_output = false,
 
-        .ch3_is_local_switch = false,
+        .ch3_is_local_switch = true,
         .ch3_is_momentary = false,
-        .ch3_is_two_button = false,
+        .ch3_is_two_button = true,
 
         .local_switch_is_momentary = true,
 
         .auto_brake_lights_forward_enabled = true,
         .auto_brake_lights_reverse_enabled = true,
+    },
+
+    .flags2 = {
+        .multi_aux = true,
+        .shelf_queen_mode = true,
+        .us_style_combined_lights = true,
     },
 
     .auto_brake_counter_value_forward_min = (500 / __SYSTICK_IN_MS),
@@ -48,6 +54,8 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
     .brake_disarm_counter_value = (1000 / __SYSTICK_IN_MS),
 
     .blink_counter_value = (340 / __SYSTICK_IN_MS),
+    .blink_counter_value_dark = (340 / __SYSTICK_IN_MS),
+
     .indicator_idle_time_value = (500 / __SYSTICK_IN_MS),
     .indicator_off_timeout_value = (2000 / __SYSTICK_IN_MS),
 
@@ -75,6 +83,18 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
     .servo_pulse_max = 2500,
 
     .startup_time = (2000 / __SYSTICK_IN_MS),
+
+    .aux_type = TWO_POSITION,
+    .aux_function = MULTI_FUNCTION,
+
+    .aux2_type = ANALOG,
+    .aux2_function = INDICATORS,
+
+    .aux3_type = ANALOG,
+    .aux3_function = LIGHT_SWITCH,
+
+    .light_switch_centers = {-80, -40, 0, 40, 80, 0, 0, 0, 0},
+    .light_switch_hysteresis = 40 / 4,
 };
 
 

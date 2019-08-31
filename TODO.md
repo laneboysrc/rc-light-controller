@@ -1,24 +1,23 @@
-
 # MK4
 
-* FW: Add Xenon lamp simulation
+X US-style combined tail/brake/indicator as per the gentleman from Manila
 
-* FW: Add Exhaust flame function
+X Deprecate CPPM reader (to simplify things, no-one ever used it)
 
-* FW: Add asymetric blinking for US blinkers
+X Asymetric indicator blinking for US cars
 
-* Deprecate CPPM reader (to simplify things, no-one ever used it)
+X Shelf Queen mode
 
-* Internal Shelf Queen mode
-
-* More sophisticated servo reader initialization:
-  * Require constant stream of data, not just one pulse
-  * Plausibility check?
-
-* Add `stand-alone` mode
-
+X Add AUX value reading to light programs
 
 # Configurator
+
+* nw.js based stand-alone program, and on-line WebUSB
+  * Use Babel ot make work on IE11 (separate version from nw.js?)
+  * Babel-minification?
+  * Use latest version on Github by default in nw.js, local if no internet
+
+* Disable preprocessor-simulator while flashing
 
 * Fix table for ground fault not lining up
 
@@ -34,6 +33,10 @@
     LED sequence is important. This could be as easy as translating names like
     'indicator' to the appropriate led[0..31] values.
 
+* Add RUN_WHEN_SHELF_QUEEN_MODE
+* Add AUX, AUX2. AUX3
+* Remove `local_switch_is_momentary`
+* Set Local ch3_is_local_switch always when UART input active
 
 # General improvements
 

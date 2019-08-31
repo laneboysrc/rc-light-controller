@@ -26,7 +26,7 @@ void HAL_servo_output_set_pulse(uint16_t servo_pulse);
 void HAL_servo_output_enable(void);
 void HAL_servo_output_disable(void);
 
-void HAL_servo_reader_init(bool CPPM, uint32_t max_pulse);
+void HAL_servo_reader_init(void);
 bool HAL_servo_reader_get_new_channels(uint32_t *raw_data);
 
 #if 0

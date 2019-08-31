@@ -34,12 +34,20 @@ void init_servo_output(void) {
         return;
     }
 
+    servo_pulse = servo_output_endpoint.centre;
     HAL_servo_output_init();
 
     if (config.flags.gearbox_servo_output) {
         global_flags.gear = GEAR_1;
         activate_gearbox_servo();
     }
+}
+
+
+// ****************************************************************************
+void set_servo_pulse(uint16_t value)
+{
+    servo_pulse = value;
 }
 
 

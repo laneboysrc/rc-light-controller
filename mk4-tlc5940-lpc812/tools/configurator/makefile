@@ -41,7 +41,7 @@ SOURCES += src/configurator.css
 
 ###############################################################################
 # Rules
-all: debug
+all: $(TARGET)
 
 $(BUILD_DIR):
 	@echo [MKDIR] $@
@@ -61,9 +61,9 @@ clean:
 	@echo [RM] $(BUILD_DIR)
 	$(ECHO) $(RM) -r $(BUILD_DIR)
 
-debug: $(TARGET)
-	@echo [NW.JS debug]
-	$(ECHO) ./node_modules/.bin/nwbuild -p linux64 -v 0.31.5 --flavor sdk --cacheDir ./cache/ -r .
+# debug: $(TARGET)
+# 	@echo [NW.JS debug]
+# 	$(ECHO) ./node_modules/.bin/nwbuild -p linux64 -v 0.31.5 --flavor sdk --cacheDir ./cache/ -r .
 
 # release: COMPRESS=--compress
 release: $(TARGET)

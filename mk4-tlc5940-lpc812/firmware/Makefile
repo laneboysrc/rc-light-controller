@@ -29,7 +29,7 @@ GENERIC_TOOL_PATH := ../../tools/
 
 MKDIR_P := mkdir -p
 FLASH_TOOL := lpc81x_isp.py --wait --run --flash
-TERMINAL_PROGRAM := miniterm.py /dev/ttyUSB0 -b 115200
+TERMINAL_PROGRAM := miniterm.py /dev/ttyUSB0 115200
 PREPROCESSOR_SIMULATOR := $(GENERIC_TOOL_PATH)preprocessor-simulator.py -b 115200
 CONFIGURATION_VALIDATION_TOOL := $(TOOL_PATH)validate_image_file.py
 LIGHT_PROGRAM_ASSEMBLER_PATH := $(TOOL_PATH)light-program-assembler
@@ -40,7 +40,7 @@ TEXT2JS := $(TOOL_PATH)text2js.py
 ###############################################################################
 # Source files    Note: all source files must be relative paths!
 SOURCES += main.c
-SOURCES += ch3_handler.c
+SOURCES += aux_handler.c
 SOURCES += channel_reversing.c
 SOURCES += config.c
 SOURCES += config_lights.c
@@ -53,6 +53,7 @@ SOURCES += preprocessor_output.c
 SOURCES += random.c
 SOURCES += servo_output.c
 SOURCES += servo_reader.c
+SOURCES += shelf_queen_mode.c
 SOURCES += uart_reader.c
 SOURCES += winch.c
 SOURCES += libs/printf/printf.c

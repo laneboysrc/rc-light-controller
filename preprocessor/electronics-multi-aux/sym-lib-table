@@ -1,0 +1,5 @@
+(sym_lib_table
+  (lib (name preprocessor-multi-aux-rescue)(type Legacy)(uri ${KIPRJMOD}/preprocessor-multi-aux-rescue.lib)(options "")(descr ""))
+  (lib (name WLA-NXP-LPC)(type Legacy)(uri /home/laneboysrc/projects/kicad-libraries/WLA-NXP-LPC.lib)(options "")(descr ""))
+  (lib (name WLA-LDO)(type Legacy)(uri /home/laneboysrc/projects/kicad-libraries/WLA-LDO.lib)(options "")(descr ""))
+)
