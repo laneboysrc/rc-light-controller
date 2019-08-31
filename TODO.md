@@ -18,7 +18,7 @@ X Shelf Queen mode
 
 * Local CH3 button always active when UART input active
 
-* Add AUX value reading to light programs
+X Add AUX value reading to light programs
 
 * US-style combined tail/brake/indicator as per the gentleman from Manila
 
@@ -50,6 +50,7 @@ X Shelf Queen mode
     'indicator' to the appropriate led[0..31] values.
 
 * Add RUN_WHEN_SHELF_QUEEN_MODE
+* Add AUX, AUX2. AUX3
 
 # General improvements
 

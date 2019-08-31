@@ -304,6 +304,15 @@ static int16_t get_parameter_value(uint32_t instruction)
         case PARAMETER_TYPE_THROTTLE:
             return channel[TH].normalized;
 
+        case PARAMETER_TYPE_AUX:
+            return channel[AUX].normalized;
+
+        case PARAMETER_TYPE_AUX2:
+            return channel[AUX2].normalized;
+
+        case PARAMETER_TYPE_AUX3:
+            return channel[AUX3].normalized;
+
         case PARAMETER_TYPE_GEAR:
             return global_flags.gear;
 

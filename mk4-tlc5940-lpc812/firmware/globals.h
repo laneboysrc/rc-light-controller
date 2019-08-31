@@ -133,6 +133,9 @@
 #define PARAMETER_TYPE_STEERING 3
 #define PARAMETER_TYPE_THROTTLE 4
 #define PARAMETER_TYPE_GEAR 5
+#define PARAMETER_TYPE_AUX 6
+#define PARAMETER_TYPE_AUX2 7
+#define PARAMETER_TYPE_AUX3 8
 
 
 // Offset of special position within every light program
