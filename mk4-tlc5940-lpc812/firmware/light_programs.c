@@ -161,28 +161,29 @@ void next_light_sequence(void)
 static void load_light_program_environment(void)
 {
     priority_run_state = 0;
-    if (global_flags.no_signal) {
-        priority_run_state |= RUN_WHEN_NO_SIGNAL;
+    if (!global_flags.shelf_queen_mode) {
+        if (global_flags.no_signal) {
+            priority_run_state |= RUN_WHEN_NO_SIGNAL;
+        }
+        if (global_flags.initializing) {
+            priority_run_state |= RUN_WHEN_INITIALIZING;
+        }
+        if (global_flags.servo_output_setup == SERVO_OUTPUT_SETUP_CENTRE) {
+            priority_run_state |= RUN_WHEN_SERVO_OUTPUT_SETUP_CENTRE;
+        }
+        if (global_flags.servo_output_setup == SERVO_OUTPUT_SETUP_LEFT) {
+            priority_run_state |= RUN_WHEN_SERVO_OUTPUT_SETUP_LEFT;
+        }
+        if (global_flags.servo_output_setup == SERVO_OUTPUT_SETUP_RIGHT) {
+            priority_run_state |= RUN_WHEN_SERVO_OUTPUT_SETUP_RIGHT;
+        }
+        if (global_flags.reversing_setup & REVERSING_SETUP_STEERING) {
+            priority_run_state |= RUN_WHEN_REVERSING_SETUP_STEERING;
+        }
+        if (global_flags.reversing_setup & REVERSING_SETUP_THROTTLE) {
+            priority_run_state |= RUN_WHEN_REVERSING_SETUP_THROTTLE;
+        }
     }
-    if (global_flags.initializing) {
-        priority_run_state |= RUN_WHEN_INITIALIZING;
-    }
-    if (global_flags.servo_output_setup == SERVO_OUTPUT_SETUP_CENTRE) {
-        priority_run_state |= RUN_WHEN_SERVO_OUTPUT_SETUP_CENTRE;
-    }
-    if (global_flags.servo_output_setup == SERVO_OUTPUT_SETUP_LEFT) {
-        priority_run_state |= RUN_WHEN_SERVO_OUTPUT_SETUP_LEFT;
-    }
-    if (global_flags.servo_output_setup == SERVO_OUTPUT_SETUP_RIGHT) {
-        priority_run_state |= RUN_WHEN_SERVO_OUTPUT_SETUP_RIGHT;
-    }
-    if (global_flags.reversing_setup & REVERSING_SETUP_STEERING) {
-        priority_run_state |= RUN_WHEN_REVERSING_SETUP_STEERING;
-    }
-    if (global_flags.reversing_setup & REVERSING_SETUP_THROTTLE) {
-        priority_run_state |= RUN_WHEN_REVERSING_SETUP_THROTTLE;
-    }
-
 
     run_state = RUN_ALWAYS;
     run_state |= (RUN_WHEN_LIGHT_SWITCH_POSITION << light_switch_position);

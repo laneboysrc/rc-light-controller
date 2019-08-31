@@ -223,6 +223,7 @@ int main(void)
         process_indicators();
         process_channel_reversing_setup();
         check_no_signal();
+        process_shelf_queen_mode();
 
         process_servo_output();
         process_winch();

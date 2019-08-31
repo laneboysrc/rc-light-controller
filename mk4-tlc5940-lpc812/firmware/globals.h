@@ -378,6 +378,8 @@ typedef struct {
 
     unsigned int winch_mode : 3;
 
+    unsigned int shelf_queen_mode : 1;      // Set when car driving is simulated
+
     unsigned int servo_output_enabled : 1;  // Set when there OUT is configured as servo output
     unsigned int uart_output_enabled : 1;   // Set when the UART Tx is used for slave, preprocessor or winch output
 } GLOBAL_FLAGS_T;
@@ -602,6 +604,7 @@ void read_preprocessor(void);
 void process_aux(void);
 
 void process_drive_mode(void);
+void throttle_neutral(void);
 
 void process_indicators(void);
 void toggle_hazard_lights(void);
@@ -631,6 +634,9 @@ void next_light_sequence(void);
 void light_switch_up(void);
 void light_switch_down(void);
 void toggle_light_switch(void);
+
+void process_shelf_queen_mode(void);
+
 
 uint16_t random_min_max(uint16_t min, uint16_t max);
 

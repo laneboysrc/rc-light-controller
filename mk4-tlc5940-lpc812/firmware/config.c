@@ -40,7 +40,8 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
     },
 
     .flags2 = {
-        .multi_aux = true
+        .multi_aux = true,
+        .shelf_queen_mode = true,
     },
 
     .auto_brake_counter_value_forward_min = (500 / __SYSTICK_IN_MS),
