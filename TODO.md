@@ -24,7 +24,6 @@ X Add AUX value reading to light programs
 
 * `Stand-alone` mode
 
-* Remove `local_switch_is_momentary`
 
 # Configurator
 
@@ -51,6 +50,7 @@ X Add AUX value reading to light programs
 
 * Add RUN_WHEN_SHELF_QUEEN_MODE
 * Add AUX, AUX2. AUX3
+* Remove `local_switch_is_momentary`
 
 # General improvements
 
