@@ -161,7 +161,10 @@ void next_light_sequence(void)
 static void load_light_program_environment(void)
 {
     priority_run_state = 0;
-    if (!global_flags.shelf_queen_mode) {
+    if (global_flags.shelf_queen_mode) {
+        priority_run_state |= RUN_WHEN_SHELF_QUEEN_MODE;
+    }
+    else {
         if (global_flags.no_signal) {
             priority_run_state |= RUN_WHEN_NO_SIGNAL;
         }

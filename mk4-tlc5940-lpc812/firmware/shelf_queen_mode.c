@@ -57,6 +57,7 @@ static void indicator(void)
         case 2:
             set_blink_right();
             break;
+
         case 3:
         default:
             toggle_hazard_lights();
@@ -94,7 +95,6 @@ static void reverse(void)
 // ****************************************************************************
 static void next_action(void)
 {
-
     // Stop the indicators/hazard if active
     set_blink_off();
     if (global_flags.blink_hazard) {
@@ -131,16 +131,13 @@ static void next_action(void)
 // ****************************************************************************
 void process_shelf_queen_mode(void)
 {
-    // FIXME: don't do if config.shelf is not active
     if (!config.flags2.shelf_queen_mode) {
         return;
     }
 
     if (!global_flags.no_signal) {
-        if (global_flags.shelf_queen_mode) {
-            global_flags.shelf_queen_mode = false;
-            shelf_queen_mode_timeout = SHELF_QUEEN_MODE_TIMEOUT;
-        }
+        global_flags.shelf_queen_mode = false;
+        shelf_queen_mode_timeout = SHELF_QUEEN_MODE_TIMEOUT;
         return;
     }
 
@@ -163,5 +160,4 @@ void process_shelf_queen_mode(void)
             next_action();
         }
     }
-
 }

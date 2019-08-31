@@ -199,6 +199,7 @@ typedef enum {
     RUN_WHEN_REVERSING_SETUP_STEERING   = (1 << 5),
     RUN_WHEN_REVERSING_SETUP_THROTTLE   = (1 << 6),
     RUN_WHEN_GEAR_CHANGED               = (1 << 7),
+    RUN_WHEN_SHELF_QUEEN_MODE           = (1 << 8),
 } LIGHT_PROGRAM_PRIORITY_STATE_T;
 
 
