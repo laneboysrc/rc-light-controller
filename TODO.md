@@ -10,13 +10,15 @@ X Deprecate CPPM reader (to simplify things, no-one ever used it)
 
 X Asymetric indicator blinking for US cars
 
-* Shelf Queen mode
+X Shelf Queen mode
 
 * More sophisticated servo reader initialization:
   * Require constant stream of data, not just one pulse
   * Plausibility check?
 
 * Local CH3 button always active when UART input active
+
+* Add AUX value reading to light programs
 
 * US-style combined tail/brake/indicator as per the gentleman from Manila
 
@@ -47,6 +49,7 @@ X Asymetric indicator blinking for US cars
     LED sequence is important. This could be as easy as translating names like
     'indicator' to the appropriate led[0..31] values.
 
+* Add RUN_WHEN_SHELF_QUEEN_MODE
 
 # General improvements
 
