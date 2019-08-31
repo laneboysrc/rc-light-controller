@@ -29,7 +29,7 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
         .steering_wheel_servo_output = false,
         .gearbox_servo_output = false,
 
-        .ch3_is_local_switch = false,
+        .ch3_is_local_switch = true,
         .ch3_is_momentary = false,
         .ch3_is_two_button = true,
 

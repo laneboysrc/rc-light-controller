@@ -1,10 +1,6 @@
 # MK4
 
-* Enable entering ISP mode via UART while firmware is running?
-
-* FW: Add Xenon lamp simulation
-
-* FW: Add Exhaust flame function
+* US-style combined tail/brake/indicator as per the gentleman from Manila
 
 X Deprecate CPPM reader (to simplify things, no-one ever used it)
 
@@ -12,17 +8,7 @@ X Asymetric indicator blinking for US cars
 
 X Shelf Queen mode
 
-* More sophisticated servo reader initialization:
-  * Require constant stream of data, not just one pulse
-  * Plausibility check?
-
-* Local CH3 button always active when UART input active
-
 X Add AUX value reading to light programs
-
-* US-style combined tail/brake/indicator as per the gentleman from Manila
-
-* `Stand-alone` mode
 
 
 # Configurator
@@ -51,6 +37,7 @@ X Add AUX value reading to light programs
 * Add RUN_WHEN_SHELF_QUEEN_MODE
 * Add AUX, AUX2. AUX3
 * Remove `local_switch_is_momentary`
+* Set Local ch3_is_local_switch always when UART input active
 
 # General improvements
 
