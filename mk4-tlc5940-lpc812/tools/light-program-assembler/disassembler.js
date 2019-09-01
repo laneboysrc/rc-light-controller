@@ -101,6 +101,9 @@ var disassembler = (function () {
     var PARAMETER_TYPE_STEERING = 3;
     var PARAMETER_TYPE_THROTTLE = 4;
     var PARAMETER_TYPE_GEAR = 5;
+    var PARAMETER_TYPE_AUX = 6;
+    var PARAMETER_TYPE_AUX2 = 7;
+    var PARAMETER_TYPE_AUX3 = 8;
 
     var RUN_WHEN_NORMAL_OPERATION           = 0;
     var RUN_WHEN_NO_SIGNAL                  = (1 << 0);
@@ -111,6 +114,7 @@ var disassembler = (function () {
     var RUN_WHEN_REVERSING_SETUP_STEERING   = (1 << 5);
     var RUN_WHEN_REVERSING_SETUP_THROTTLE   = (1 << 6);
     var RUN_WHEN_GEAR_CHANGED               = (1 << 7);
+    var RUN_WHEN_SHELF_QUEEN_MODE           = (1 << 8);
 
     var RUN_WHEN_LIGHT_SWITCH_POSITION_0    = (1 << 0);
     var RUN_WHEN_LIGHT_SWITCH_POSITION_1    = (1 << 1);
@@ -207,6 +211,9 @@ var disassembler = (function () {
         }
         if (instruction & RUN_WHEN_GEAR_CHANGED) {
             asm[offset++].decleration = 'run when gear-changed';
+        }
+        if (instruction & RUN_WHEN_SHELF_QUEEN_MODE) {
+            asm[offset++].decleration = 'run when shelf-queen-mode';
         }
     };
 
@@ -390,6 +397,15 @@ var disassembler = (function () {
         case PARAMETER_TYPE_GEAR:
             return 'gear';
 
+        case PARAMETER_TYPE_AUX:
+            return 'aux';
+
+        case PARAMETER_TYPE_AUX2:
+            return 'aux2';
+
+        case PARAMETER_TYPE_AUX3:
+            return 'aux3';
+
         default:
             return 'ERROR: unknown parameter type ' + parameter_type;
         }
@@ -464,6 +480,15 @@ var disassembler = (function () {
 
         case PARAMETER_TYPE_GEAR:
             return 'gear';
+
+        case PARAMETER_TYPE_AUX:
+            return 'aux';
+
+        case PARAMETER_TYPE_AUX2:
+            return 'aux2';
+
+        case PARAMETER_TYPE_AUX3:
+            return 'aux3';
 
         default:
             return 'ERROR: unknown parameter type ' + parameter_type;

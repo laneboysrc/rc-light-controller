@@ -5,5 +5,8 @@ run always
     sleep steering
     sleep gear
     sleep random
+    sleep aux3
+    sleep aux
+    sleep aux2
 
     end

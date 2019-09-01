@@ -209,6 +209,11 @@ The syntax is as follows:
 
     This event fires whenever the gear is changed. It only applies when the light controller is configured to drive a 2-speed or 3-speed gearbox using a servo connected to the OUT/ISP ouptut. The run condition can be used to perform a short light animation, indicating to the user that the gear change occured.
 
+- shelf-queen-mode (firmware version 20 and later)
+
+    The light program runs when shelf queen mode has activated. Shelf queen
+    mode is engaged when there is no receiver signal for more than 5 seconds. It simulates driving behaviour: turning lights on an off, braking, reversing, indicator and hazard usage.
+
 
 ### Run conditions
 
@@ -390,8 +395,13 @@ Most statements support a variety of different arguments:
     x = light-switch-position  // Pre-defined global variable
     x = steering    // Steering channel (range: -100..100), read-only
     x = throttle    // Throttle channel (range: -100..100), read-only
+    x = aux         // AUX/CH3 channel (range: -100..100), read-only
+    x = aux2        // AUX2 channel (range: -100..100), read-only
+    x = aux3        // AUX3 channel (range: -100..100), read-only
     x = gear        // Current gear, read only,
                     //   only useful if gearbox servo support is enabled
+
+Note: aux, aux2 and aux3 are only available in firmware versions greater than 20, and only when a multi-aux-channel preprocessor hardware is used.s
 
 
 ### Assignments

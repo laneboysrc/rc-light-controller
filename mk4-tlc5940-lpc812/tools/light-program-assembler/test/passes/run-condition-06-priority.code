@@ -2,3 +2,9 @@ run when initializing
 
 sleep 1
 end
+
+
+run when shelf-queen-mode
+
+sleep 2
+end
