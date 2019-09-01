@@ -12,7 +12,7 @@ X Add AUX value reading to light programs
 
 # Configurator
 
-* Fix table for ground fault not lining up
+X Fix table for ground fault not lining up
 
 * Add `stand-alone` mode
 

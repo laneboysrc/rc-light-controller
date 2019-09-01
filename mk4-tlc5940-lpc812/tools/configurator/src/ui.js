@@ -8,7 +8,7 @@ var ui = (function () {
     // *************************************************************************
     var led_feature_click_handler = function (e) {
         var features_rows = document.getElementsByClassName(e.target.name);
-        var visible = !features_row[0].classList.contains('hidden');
+        var visible = !features_rows[0].classList.contains('hidden');
         var i;
 
         var features = document.getElementsByClassName('led_features');
@@ -130,27 +130,27 @@ var ui = (function () {
     var init_led_features = function () {
 
         function init_led_feature(section, prefix) {
-            var elements;
-            var led_section = document.getElementById(section);
-            var led_rows = led_section.getElementsByClassName('led_features');
-            var led;
-            var i;
+            // var elements;
+            // var led_section = document.getElementById(section);
+            // var led_rows = led_section.getElementsByClassName('led_features');
+            // var led;
+            // var i;
 
-            for (led = 0; led < led_rows.length; led += 1) {
-                led_rows[led].id = prefix + led + 'features';
-                led_rows[led].classList.add('hidden');
+            // for (led = 0; led < led_rows.length; led += 1) {
+            //     led_rows[led].id = prefix + led + 'features';
+            //     led_rows[led].classList.add('hidden');
 
-                elements = led_rows[led].getElementsByClassName('incandescent');
-                elements[0].id = prefix + led + 'incandescent';
+            //     elements = led_rows[led].getElementsByClassName('incandescent');
+            //     elements[0].id = prefix + led + 'incandescent';
 
-                elements = led_rows[led].getElementsByClassName('weak_ground');
-                elements[0].id = prefix + led + 'weak_ground';
+            //     elements = led_rows[led].getElementsByClassName('weak_ground');
+            //     elements[0].id = prefix + led + 'weak_ground';
 
-                elements = led_rows[led].getElementsByClassName('checkbox');
-                for (i = 0; i < elements.length; i += 1) {
-                    elements[i].id = prefix + led + 'checkbox' + i;
-                }
-            }
+            //     elements = led_rows[led].getElementsByClassName('checkbox');
+            //     for (i = 0; i < elements.length; i += 1) {
+            //         elements[i].id = prefix + led + 'checkbox' + i;
+            //     }
+            // }
         }
 
         init_led_feature('leds_master', 'master');
@@ -171,8 +171,8 @@ var ui = (function () {
             var html = '<table>';
             for (i = 0; i < 16; i += 1) {
                 html += template_function({
-                    'even_odd': (i % 2) ? 'odd' : 'even',
-                    'led_number': i + led_offset, 'prefix': prefix
+                    'even_odd': (i % 2) ? 'odd' : 'even', 'led_index': i,
+                    'led_number': i + led_offset, 'prefix': prefix,
                 });
             }
             html += '</table>';
@@ -380,7 +380,6 @@ var ui = (function () {
     var init = function () {
         init_led_tables();
         init_led_editing();
-        init_led_features();
         init_tooltips();
         init_editor();
         init_keyhandler();

@@ -501,8 +501,8 @@ var app = (function () {
         }
 
         function show_mode_info(element) {
-            var all_info_paragraphs = [el.mode_master_uart, el.mode_master_uart_5ch, 
-                el.mode_master_cppm, el.mode_slave, el.mode_stand_alone, el.mode_test, 
+            var all_info_paragraphs = [el.mode_master_uart, el.mode_master_uart_5ch,
+                el.mode_master_cppm, el.mode_slave, el.mode_stand_alone, el.mode_test,
                 el.mode_preprocessor_5ch, el.mode_preprocessor, el.mode_master_servo];
             var i;
             for (i = 0; i < all_info_paragraphs.length; i += 1) {
@@ -759,22 +759,16 @@ var app = (function () {
             var spanner;
             var led_div = document.getElementById(led_div_id);
             var led_config_rows = led_div.getElementsByClassName('led_config');
-            var led_feature_rows =
-                led_div.getElementsByClassName('led_features');
 
-            for (i = 0; i < led_feature_rows.length; i += 1) {
+            for (i = 0; i < 16; i += 1) {
                 advanced_feature_used = false;
 
-                incandescent = parseInt(document.getElementById(prefix + i +
-                    'incandescent').value, 10);
+                incandescent = parseInt(document.getElementById(prefix + i + 'incandescent').value, 10);
 
-                weak_ground = parseInt(document.getElementById(prefix + i +
-                    'weak_ground').value, 10);
+                weak_ground = parseInt(document.getElementById(prefix + i + 'weak_ground').value, 10);
 
                 any_checkbox_ticked = false;
-                checkboxes = led_feature_rows[i].getElementsByClassName(
-                    'checkbox'
-                );
+                checkboxes = document.getElementsByClassName(prefix + i + 'checkbox');
 
                 for (c = 0; c < checkboxes.length; c += 1) {
                     if (checkboxes[c].checked) {
@@ -942,14 +936,14 @@ var app = (function () {
         el.light_programs.value = '';
         el.light_programs_errors.classList.add('hidden');
 
-        // try {
+        try {
             firmware = parse_firmware_structure(firmware_image);
             parse_firmware_binary();
-        // } catch (e) {
-        //     window.alert(
-        //         'Unable to load Intel-hex formatted firmware image:\n' + e
-        //     );
-        // }
+        } catch (e) {
+            window.alert(
+                'Unable to load Intel-hex formatted firmware image:\n' + e
+            );
+        }
     };
 
     // *************************************************************************
@@ -1289,7 +1283,7 @@ var app = (function () {
             gamma_object = data.gamma;
 
             // Use the current firmware when loading a configuration file
-            firmware = parse_firmware_structure(default_firmware_image_mk4);
+            firmware = parse_firmware_structure(hex_to_bin(default_firmware_image_mk4));
             config.firmware_version = default_firmware_version;
 
             // FIXME: handle configuration version 1 and 2
