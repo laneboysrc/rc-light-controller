@@ -50,8 +50,10 @@ var app = (function () {
 
     var MASTER_WITH_SERVO_READER = 'Master, servo inputs';
     var MASTER_WITH_UART_READER = 'Master, pre-processor input';
+    var MASTER_WITH_UART_READER_5CH = 'Master, 5ch pre-processor input';
     var MASTER_WITH_CPPM_READER = 'Master, CPPM input';
     var SLAVE = 'Slave';
+    var STAND_ALONE = 'Stand alone';
     var TEST = 'Hardware test';
 
     var MODE = {
@@ -59,12 +61,16 @@ var app = (function () {
         1: MASTER_WITH_UART_READER,
         2: MASTER_WITH_CPPM_READER,
         3: SLAVE,
+        4: STAND_ALONE,
+        98: MASTER_WITH_UART_READER_5CH,
         99: TEST,
 
+        MASTER_WITH_CPPM_READER: 2,
         MASTER_WITH_SERVO_READER: 0,
         MASTER_WITH_UART_READER: 1,
-        MASTER_WITH_CPPM_READER: 2,
+        MASTER_WITH_UART_READER_5CH: 98,
         SLAVE: 3,
+        STAND_ALONE: 4,
         TEST: 99
     };
 
@@ -332,6 +338,8 @@ var app = (function () {
         new_config.servo_pulse_max = get_uint16(data, offset + 58);
         new_config.startup_time = get_uint16(data, offset + 60);
 
+        // FIXME: handle config_version 1 and 2
+
         return new_config;
     };
 
@@ -544,8 +552,10 @@ var app = (function () {
 
             hide([
                 el.mode_master_uart,
+                el.mode_master_uart_5ch,
                 el.mode_master_cppm,
                 el.mode_slave,
+                el.mode_stand_alone,
                 el.mode_test
             ]);
 
@@ -575,8 +585,44 @@ var app = (function () {
 
             hide([
                 el.mode_master_servo,
+                el.mode_master_uart_5ch,
                 el.mode_master_cppm,
                 el.mode_slave,
+                el.mode_stand_alone,
+                el.mode_test
+            ]);
+
+            update_menu_visibility([
+                'config_hardware',
+                'config_mode',
+                'config_esc',
+                'config_ch3',
+                'config_output',
+                'config_leds',
+                'config_light_programs',
+                'config_advanced',
+                'testing',
+                'info',
+            ]);
+
+            hide(el.single_output);
+            show(el.dual_output);
+            set_name(el.dual_output_th, 'output_th');
+            config.mode = new_mode;
+            break;
+
+        case MODE.MASTER_WITH_UART_READER_5CH:
+            // FIXME: adjust as necessary
+            show([
+                el.mode_master_uart_5ch,
+            ]);
+
+            hide([
+                el.mode_master_servo,
+                el.mode_master_uart,
+                el.mode_master_cppm,
+                el.mode_slave,
+                el.mode_stand_alone,
                 el.mode_test
             ]);
 
@@ -653,6 +699,40 @@ var app = (function () {
             config.mode = new_mode;
             break;
 
+        case MODE.STAND_ALONE:
+            // FIXME: adjust as necessary
+            show([
+                el.mode_stand_alone
+            ]);
+
+            hide([
+                el.mode_master_servo,
+                el.mode_master_uart,
+                el.mode_master_uart_5ch,
+                el.mode_master_cppm,
+                el.mode_slave,
+                el.mode_test
+            ]);
+
+            update_menu_visibility([
+                'config_hardware',
+                'config_mode',
+                'config_esc',
+                'config_ch3',
+                'config_output',
+                'config_leds',
+                'config_light_programs',
+                'config_advanced',
+                'testing',
+                'info',
+            ]);
+
+            hide(el.single_output);
+            show(el.dual_output);
+            set_name(el.dual_output_th, 'output_th');
+            config.mode = new_mode;
+            break;
+
         case MODE.TEST:
             show([
                 el.mode_test
@@ -660,6 +740,7 @@ var app = (function () {
 
             hide([
                 el.mode_master_uart,
+                el.mode_master_uart_5ch,
                 el.mode_master_servo,
                 el.mode_master_cppm,
                 el.mode_slave,
@@ -1110,6 +1191,8 @@ var app = (function () {
         set_uint16(data, offset + 58, config.servo_pulse_max);
 
         set_uint16(data, offset + 60, config.startup_time);
+
+        // FIXME: handle config_version 2
     };
 
 
@@ -1238,6 +1321,8 @@ var app = (function () {
             // Use the current firmware when loading a configuration file
             firmware = parse_firmware_structure(default_firmware_image_mk4);
             config.firmware_version = default_firmware_version;
+
+            // FIXME: handle configuration version 1 and 2
         } catch (err) {
             window.alert(
                 'Failed to load configuration.\n' +
@@ -2098,8 +2183,10 @@ var app = (function () {
         el.mode = document.getElementById('mode');
         el.mode_master_servo = document.getElementById('mode_master_servo');
         el.mode_master_uart = document.getElementById('mode_master_uart');
+        el.mode_master_uart_5ch = document.getElementById('mode_master_uart_5ch');
         el.mode_master_cppm = document.getElementById('mode_master_cppm');
         el.mode_slave = document.getElementById('mode_slave');
+        el.mode_stand_alone = document.getElementById('mode_stand_alone');
         el.mode_test = document.getElementById('mode_test');
 
         el.config_baudrate = document.getElementById('config_baudrate');

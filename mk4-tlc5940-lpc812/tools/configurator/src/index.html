@@ -153,8 +153,10 @@
           <select id="mode">
             <option value="0">Master, servo inputs</option>
             <option value="1">Master, pre-processor input</option>
+            <option value="98">Master, 5ch pre-processor input</option>
             <option class="v2_hide" value="2">Master, CPPM input</option>
             <option value="3">Slave</option>
+            <option value="4">Stand-alone mode</option>
             <option value="99">Hardware test</option>
           </select>
         </div>
@@ -188,6 +190,11 @@
             <strong>ST/Rx</strong> input of the light controller.
           </div>
         </div>
+        <div id="mode_master_uart_5ch" class="info">
+          <div>
+            FIXME: add some useful text here...
+          </div>
+        </div>
         <div id="mode_master_cppm" class="info">
           <div>
             Some receiver have a CPPM output, which encodes information of all
@@ -215,6 +222,11 @@
             The <em>master</em> controls the light functions of both light
             controllers. Ensure that the baudrate of both <em>master</em> and
             <em>slave</em> match.
+          </div>
+        </div>
+        <div id="mode_stand_alone" class="info">
+          <div>
+            FIXME: add some useful text here...
           </div>
         </div>
         <div id="mode_test" class="info">

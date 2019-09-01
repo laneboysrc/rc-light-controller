@@ -12,13 +12,6 @@ X Add AUX value reading to light programs
 
 # Configurator
 
-* nw.js based stand-alone program, and on-line WebUSB
-  * Use Babel ot make work on IE11 (separate version from nw.js?)
-  * Babel-minification?
-  * Use latest version on Github by default in nw.js, local if no internet
-
-* Disable preprocessor-simulator while flashing
-
 * Fix table for ground fault not lining up
 
 * Add `stand-alone` mode
