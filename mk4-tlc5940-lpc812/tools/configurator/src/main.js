@@ -1,9 +1,9 @@
 'use strict';
 
 /*global emitter, symbols, CodeMirror, ui, gamma, disassembler,
-    intel_hex, parser, default_firmware_image_mk4, default_firmware_image_mk5,
+    intel_hex, parser, default_firmware_image_mk4,
     default_light_program, FileReader, Blob, saveAs, preprocessor, chrome_uart,
-    flash_lpc8xx flash_dfu hardware_test_configuration, chrome, dfu, logger */
+    flash_lpc8xx hardware_test_configuration, chrome, dfu, logger */
 
 
 
@@ -1263,9 +1263,6 @@ var app = (function () {
         if (firmware.data[3] == 0x10) {
             el.hardware.value = 'mk4';
         }
-        else if (firmware.data[8192+3] == 0x20) {
-            el.hardware.value = 'mk5';
-        }
         update_visibility_from_ports();
 
         if (default_firmware_version > config.firmware_version) {
@@ -1276,9 +1273,6 @@ var app = (function () {
                 let bin;
                 if (el.hardware.value == 'mk4') {
                     bin = hex_to_bin(default_firmware_image_mk4);
-                }
-                else if (el.hardware.value == 'mk5') {
-                    bin = hex_to_bin(default_firmware_image_mk5);
                 }
 
                 firmware = parse_firmware_structure(bin);
@@ -1296,10 +1290,6 @@ var app = (function () {
         switch(el.hardware.value) {
         case 'mk4':
             firmware_hex = default_firmware_image_mk4;
-            break;
-
-        case 'mk5':
-            firmware_hex = default_firmware_image_mk5;
             break;
         }
 
@@ -1576,10 +1566,6 @@ var app = (function () {
             blob = new Blob([hex], {type: 'text/plain;charset=utf-8'});
             default_filename = 'light_controller.hex';
         }
-        else if (el.hardware.value == 'mk5') {
-            blob = new Blob([new Uint8Array(firmware.data.slice(8192))], {type: 'application/octet-stream'});
-            default_filename = 'light_controller.bin';
-        }
 
         // Don't show prompt on nw.js where we have a proper file-save dialog
         let filename = default_filename;
@@ -1705,9 +1691,6 @@ var app = (function () {
             if (el.hardware.value == 'mk4') {
                 preprocessor_simulator.init(el.flash_serial_port.value, parseInt(el.baudrate.value, 10));
             }
-            if (el.hardware.value == 'mk5') {
-                preprocessor_simulator.init('usb', el.flash_usb_device.value);
-            }
         }
         else {
             preprocessor_simulator.disconnect();
@@ -1754,31 +1737,6 @@ var app = (function () {
                 el.flash.disabled = false;
                 el.read.disabled = false;
                 preprocessor_simulator_disabled = false;
-            }
-        }
-
-        else if (el.hardware.value == 'mk5') {
-            el.hardware_uart.classList.add('hidden');
-
-            if (has_webusb) {
-                el.hardware_webusb.classList.remove('hidden');
-
-                if (usb_devices.length) {
-                    el.flash.disabled = false;
-                    el.read.disabled = false;
-                    preprocessor_simulator_disabled = false;
-                }
-                else {
-                    el.flash.disabled = true;
-                    el.read.disabled = true;
-                    preprocessor_simulator_disabled = true;
-                }
-            }
-            else {
-                el.hardware_webusb.classList.add('hidden');
-                el.flash.disabled = true;
-                el.read.disabled = true;
-                preprocessor_simulator_disabled = true;
             }
         }
 
@@ -2009,11 +1967,6 @@ var app = (function () {
         case 'mk4':
             programmer = new flash_lpc8xx(new chrome_uart());
             device = el.flash_serial_port.value;
-            break;
-
-        case 'mk5':
-            programmer = new flash_dfu();
-            device = get_usb_device_by_serial_number(el.flash_usb_device.value);
             break;
         }
 

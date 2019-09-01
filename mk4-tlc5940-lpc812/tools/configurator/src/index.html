@@ -42,7 +42,6 @@
   <script inline src="../../light-program-assembler/disassembler.js"></script>
 
   <script inline src="default_firmware_image_mk4.js"></script>
-  <script inline src="default_firmware_image_mk5.js"></script>
 
   <script inline src="gamma.js"></script>
   <script inline src="hardware_test.js"></script>
@@ -60,8 +59,8 @@
     <button id="load" class="menu" title="Load a configuration or firmware image file"><i class="fa fa-arrow-circle-o-up"></i><br>Load</button>
     <button id="save_config" class="menu" title="Save configuration file"><i class="fa fa-arrow-circle-o-down"></i><br>Save config</button>
     <button id="save_firmware" class="menu" title="Save the firmware image"><i class="fa fa-arrow-circle-o-down"></i><br>Save firmware</button>
-    <button id="flash" class="menu" title="Flash the firmware into the light controller"><i class="fa fa-download"></i><br>Flash</button>
-    <button id="read" class="menu" title="Read the configuration from the light controller"><i class="fa fa-upload"></i><br>Read</button>
+    <button id="flash" class="menu hidden" title="Flash the firmware into the light controller"><i class="fa fa-download"></i><br>Flash</button>
+    <button id="read" class="menu hidden" title="Read the configuration from the light controller"><i class="fa fa-upload"></i><br>Read</button>
   </div>
 
 
@@ -85,12 +84,12 @@
         <li><button data="config_hardware"><i class="fa fa-hdd-o"></i><span class="menu-label">Hardware</span></button></li>
         <li><button data="config_mode"><i class="fa fa-wrench"></i><span class="menu-label">Operating mode</span></button></li>
         <li><button data="config_esc"><i class="fa fa-car"></i><span class="menu-label">ESC type</span></button></li>
-        <li><button data="config_ch3"><i class="fa fa-toggle-on"></i><span class="menu-label">CH3/AUX type</span></button></li>
+        <li><button data="config_ch3"><i class="fa fa-toggle-on"></i><span class="menu-label">CH3/AUX configuration</span></button></li>
         <li><button data="config_output"><i class="fa fa-external-link"></i><span class="menu-label">Output functions</span></button></li>
         <li><button data="config_leds"><i class="fa fa-lightbulb-o"></i><span class="menu-label">LED configuration</span></button></li>
         <li><button data="config_light_programs"><i class="fa fa-code"></i><span class="menu-label">Light programs</span></button></li>
         <li><button data="config_advanced"><i class="fa fa-cogs"></i><span class="menu-label">Advanced settings</span></button></li>
-        <li><button data="testing"><i class="fa fa-sliders"></i><span class="menu-label">Testing</span></button></li>
+        <li class="hidden"><button data="testing"><i class="fa fa-sliders"></i><span class="menu-label">Testing</span></button></li>
         <li><button data="info"><i class="fa fa-info-circle"></i><span class="menu-label">Info</span></button></li>
       </ul>
     </nav>
@@ -109,7 +108,6 @@
         <div>
           <select id="hardware">
             <option value="mk4">Mk4 (NXP LPC812)</option>
-            <option value="mk5">Mk5 (Microchip SAMD21, Arduino Zero)</option>
           </select>
           <span id="hardware_image" class="mk4"></span>
         </div>
