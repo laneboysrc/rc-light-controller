@@ -55,6 +55,8 @@ var app = (function () {
     var SLAVE = 'Slave';
     var STAND_ALONE = 'Stand alone';
     var TEST = 'Hardware test';
+    var PREPROCESSOR = 'Pre-processor';
+    var PREPROCESSOR_5CH = 'Pre-processor 5ch';
 
     var MODE = {
         0: MASTER_WITH_SERVO_READER,
@@ -62,6 +64,8 @@ var app = (function () {
         2: MASTER_WITH_CPPM_READER,
         3: SLAVE,
         4: STAND_ALONE,
+        96: PREPROCESSOR_5CH,
+        97: PREPROCESSOR,
         98: MASTER_WITH_UART_READER_5CH,
         99: TEST,
 
@@ -69,6 +73,8 @@ var app = (function () {
         MASTER_WITH_SERVO_READER: 0,
         MASTER_WITH_UART_READER: 1,
         MASTER_WITH_UART_READER_5CH: 98,
+        PREPROCESSOR: 97,
+        PREPROCESSOR_5CH: 96,
         SLAVE: 3,
         STAND_ALONE: 4,
         TEST: 99
@@ -2187,6 +2193,8 @@ var app = (function () {
         el.mode_master_cppm = document.getElementById('mode_master_cppm');
         el.mode_slave = document.getElementById('mode_slave');
         el.mode_stand_alone = document.getElementById('mode_stand_alone');
+        el.mode_preprocessor = document.getElementById('mode_preprocessor');
+        el.mode_preprocessor_5ch = document.getElementById('mode_preprocessor_5ch');
         el.mode_test = document.getElementById('mode_test');
 
         el.config_baudrate = document.getElementById('config_baudrate');

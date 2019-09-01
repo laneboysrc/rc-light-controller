@@ -18,9 +18,6 @@ X Add AUX value reading to light programs
 
 * Make `pre-processor` a configuration in the drop-down box
 
-* Configurator to have a shortcut for boilerplate for new light programs
-    E.g. all LEDs pre-defined
-
 * Add support for addressing LEDs without having to use an
     led x = led[y] statement. This is useful for light patterns where the
     LED sequence is important. This could be as easy as translating names like
@@ -28,7 +25,6 @@ X Add AUX value reading to light programs
 
 * Add RUN_WHEN_SHELF_QUEEN_MODE
 * Add AUX, AUX2. AUX3
-* Remove `local_switch_is_momentary`
 * Set Local ch3_is_local_switch always when UART input active
 
 # General improvements

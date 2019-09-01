@@ -445,7 +445,9 @@ typedef struct {
         unsigned int auto_brake_lights_reverse_enabled : 1;
 
         unsigned int ch3_is_two_button : 1;
-        unsigned int local_switch_is_momentary : 1;
+
+        // Not used; was prepared for MK5 but not implemented!
+        unsigned int local_switch_is_momentary : 1; 
     } flags;
 
     uint16_t auto_brake_counter_value_forward_min;
