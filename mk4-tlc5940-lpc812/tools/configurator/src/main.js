@@ -398,7 +398,6 @@ var app = (function () {
 
         if (config_version === 2) {
             var items = document.getElementsByClassName('v2_show');
-            debugger;
             for (var i = 0; i < items.length; i++) {
                 items[i].classList.remove('hidden');
             };
@@ -501,6 +500,21 @@ var app = (function () {
             }
         }
 
+        function show_mode_info(element) {
+            var all_info_paragraphs = [el.mode_master_uart, el.mode_master_uart_5ch, 
+                el.mode_master_cppm, el.mode_slave, el.mode_stand_alone, el.mode_test, 
+                el.mode_preprocessor_5ch, el.mode_preprocessor, el.mode_master_servo];
+            var i;
+            for (i = 0; i < all_info_paragraphs.length; i += 1) {
+                if (all_info_paragraphs[i] === element) {
+                    all_info_paragraphs[i].classList.remove('hidden');
+                }
+                else {
+                    all_info_paragraphs[i].classList.add('hidden');
+                }
+            }
+        }
+
         function show(elements) {
             var i;
             for (i = 0; i < elements.length; i += 1) {
@@ -552,18 +566,7 @@ var app = (function () {
 
         switch (new_mode) {
         case MODE.MASTER_WITH_SERVO_READER:
-            show([
-                el.mode_master_servo,
-            ]);
-
-            hide([
-                el.mode_master_uart,
-                el.mode_master_uart_5ch,
-                el.mode_master_cppm,
-                el.mode_slave,
-                el.mode_stand_alone,
-                el.mode_test
-            ]);
+            show_mode_info(el.mode_master_servo);
 
             update_menu_visibility([
                 'config_hardware',
@@ -585,18 +588,7 @@ var app = (function () {
             break;
 
         case MODE.MASTER_WITH_UART_READER:
-            show([
-                el.mode_master_uart,
-            ]);
-
-            hide([
-                el.mode_master_servo,
-                el.mode_master_uart_5ch,
-                el.mode_master_cppm,
-                el.mode_slave,
-                el.mode_stand_alone,
-                el.mode_test
-            ]);
+            show_mode_info(el.mode_master_uart);
 
             update_menu_visibility([
                 'config_hardware',
@@ -618,20 +610,9 @@ var app = (function () {
             break;
 
         case MODE.MASTER_WITH_UART_READER_5CH:
+            show_mode_info(el.mode_master_uart_5ch);
+
             // FIXME: adjust as necessary
-            show([
-                el.mode_master_uart_5ch,
-            ]);
-
-            hide([
-                el.mode_master_servo,
-                el.mode_master_uart,
-                el.mode_master_cppm,
-                el.mode_slave,
-                el.mode_stand_alone,
-                el.mode_test
-            ]);
-
             update_menu_visibility([
                 'config_hardware',
                 'config_mode',
@@ -652,16 +633,7 @@ var app = (function () {
             break;
 
         case MODE.MASTER_WITH_CPPM_READER:
-            show([
-                el.mode_master_cppm,
-            ]);
-
-            hide([
-                el.mode_master_uart,
-                el.mode_master_servo,
-                el.mode_slave,
-                el.mode_test
-            ]);
+            show_mode_info(el.mode_master_cppm);
 
             update_menu_visibility([
                 'config_hardware',
@@ -683,16 +655,7 @@ var app = (function () {
             break;
 
         case MODE.SLAVE:
-            show([
-                el.mode_slave,
-            ]);
-
-            hide([
-                el.mode_master_uart,
-                el.mode_master_servo,
-                el.mode_master_cppm,
-                el.mode_test
-            ]);
+            show_mode_info(el.mode_slave);
 
             update_menu_visibility([
                 'config_hardware',
@@ -706,20 +669,9 @@ var app = (function () {
             break;
 
         case MODE.STAND_ALONE:
+            show_mode_info(el.mode_stand_alone);
+
             // FIXME: adjust as necessary
-            show([
-                el.mode_stand_alone
-            ]);
-
-            hide([
-                el.mode_master_servo,
-                el.mode_master_uart,
-                el.mode_master_uart_5ch,
-                el.mode_master_cppm,
-                el.mode_slave,
-                el.mode_test
-            ]);
-
             update_menu_visibility([
                 'config_hardware',
                 'config_mode',
@@ -739,18 +691,30 @@ var app = (function () {
             config.mode = new_mode;
             break;
 
-        case MODE.TEST:
-            show([
-                el.mode_test
+        case MODE.PREPROCESSOR:
+            show_mode_info(el.mode_preprocessor);
+
+            update_menu_visibility([
+                'config_hardware',
+                'config_mode',
             ]);
 
-            hide([
-                el.mode_master_uart,
-                el.mode_master_uart_5ch,
-                el.mode_master_servo,
-                el.mode_master_cppm,
-                el.mode_slave,
+            config.mode = new_mode;
+            break;
+
+        case MODE.PREPROCESSOR_5CH:
+            show_mode_info(el.mode_preprocessor_5ch);
+
+            update_menu_visibility([
+                'config_hardware',
+                'config_mode',
             ]);
+
+            config.mode = new_mode;
+            break;
+
+        case MODE.TEST:
+            show_mode_info(el.mode_test);
 
             update_menu_visibility([
                 'config_hardware',
@@ -978,14 +942,14 @@ var app = (function () {
         el.light_programs.value = '';
         el.light_programs_errors.classList.add('hidden');
 
-        try {
+        // try {
             firmware = parse_firmware_structure(firmware_image);
             parse_firmware_binary();
-        } catch (e) {
-            window.alert(
-                'Unable to load Intel-hex formatted firmware image:\n' + e
-            );
-        }
+        // } catch (e) {
+        //     window.alert(
+        //         'Unable to load Intel-hex formatted firmware image:\n' + e
+        //     );
+        // }
     };
 
     // *************************************************************************

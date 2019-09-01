@@ -153,12 +153,12 @@
           <select id="mode">
             <option value="0">Master, servo inputs</option>
             <option value="1">Master, pre-processor input</option>
-            <option value="98">Master, 5ch pre-processor input</option>
-            <option class="v2_hide" value="2">Master, CPPM input</option>
+            <option value="98" class="v2_show" >Master, 5ch pre-processor input</option>
+            <option value="2" class="v2_hide">Master, CPPM input</option>
             <option value="3">Slave</option>
             <option value="96">Pre-processor</option>
-            <option value="97">Pre-processor 5ch</option>
-            <option value="4">Stand-alone mode</option>
+            <option value="97"class="v2_show"  >Pre-processor 5ch</option>
+            <option value="4"class="v2_show" >Stand-alone mode</option>
             <option value="99">Hardware test</option>
           </select>
         </div>
@@ -1010,42 +1010,34 @@
       <td></td> <td></td> <td></td> <td></td> <td></td> <td></td>
       <td></td> <td></td> <td></td>
     </tr>
-    <tr class="led_features <%=even_odd%>">
+    <tr name="help_incandescent" class="<%=even_odd%> <%=prefix%><%=led_number%>features">
       <td colspan="16">
-        <table>
-          <tbody>
-            <tr name="help_incandescent">
-              <td colspan="16">
-                <div>
-                  Incandescent light bulb simulation: <input type="number" min="0" max="100" class="incandescent"> % change per 20 ms
-                </div>
-              </td>
-            </tr>
-            <tr name="help_weak_ground">
-              <td colspan="16">
-                Weak ground simulation: <input type="number" min="0" max="100" class="weak_ground"> % reduction
-              </td>
-            </tr>
-            <tr name="help_weak_ground">
-              <td colspan="2"></td>
-              <td><input type="checkbox" class="checkbox"></td>
-              <td><input type="checkbox" class="checkbox"></td>
-              <td><input type="checkbox" class="checkbox"></td>
-              <td><input type="checkbox" class="checkbox"></td>
-              <td><input type="checkbox" class="checkbox"></td>
-              <td><input type="checkbox" class="checkbox"></td>
-              <td><input type="checkbox" class="checkbox"></td>
-              <td><input type="checkbox" class="checkbox"></td>
-              <td><input type="checkbox" class="checkbox"></td>
-              <td><input type="checkbox" class="checkbox"></td>
-              <td><input type="checkbox" class="checkbox"></td>
-              <td><input type="checkbox" class="checkbox"></td>
-              <td><input type="checkbox" class="checkbox"></td>
-              <td><input type="checkbox" class="checkbox"></td>
-            </tr>
-          </tbody>
-        </table>
+        <div>
+          Incandescent light bulb simulation: <input type="number" min="0" max="100" class="incandescent" id="<%=prefix%><%=led_number%>incandescent"> % change per 20 ms
+        </div>
       </td>
+    </tr>
+    <tr name="help_weak_ground" class="<%=even_odd%> <%=prefix%><%=led_number%>features">
+      <td colspan="16">
+        Weak ground simulation: <input type="number" min="0" max="100" class="weak_ground" id="<%=prefix%><%=led_number%>weak_ground"> % reduction
+      </td>
+    </tr>
+    <tr name="help_weak_ground" class="<%=even_odd%> <%=prefix%><%=led_number%>features">
+      <td colspan="2"></td>
+      <td><input type="checkbox" class="checkbox" id="<%=prefix%><%=led_number%>checkbox0"></td>
+      <td><input type="checkbox" class="checkbox" id="<%=prefix%><%=led_number%>checkbox1></td>
+      <td><input type="checkbox" class="checkbox" id="<%=prefix%><%=led_number%>checkbox2></td>
+      <td><input type="checkbox" class="checkbox" id="<%=prefix%><%=led_number%>checkbox3></td>
+      <td><input type="checkbox" class="checkbox" id="<%=prefix%><%=led_number%>checkbox4></td>
+      <td><input type="checkbox" class="checkbox" id="<%=prefix%><%=led_number%>checkbox5></td>
+      <td><input type="checkbox" class="checkbox" id="<%=prefix%><%=led_number%>checkbox6></td>
+      <td><input type="checkbox" class="checkbox" id="<%=prefix%><%=led_number%>checkbox7></td>
+      <td><input type="checkbox" class="checkbox" id="<%=prefix%><%=led_number%>checkbox8></td>
+      <td><input type="checkbox" class="checkbox" id="<%=prefix%><%=led_number%>checkbox9></td>
+      <td><input type="checkbox" class="checkbox" id="<%=prefix%><%=led_number%>checkbox10></td>
+      <td><input type="checkbox" class="checkbox" id="<%=prefix%><%=led_number%>checkbox11></td>
+      <td><input type="checkbox" class="checkbox" id="<%=prefix%><%=led_number%>checkbox12></td>
+      <td><input type="checkbox" class="checkbox" id="<%=prefix%><%=led_number%>checkbox13></td>
     </tr>
   </script>
 
