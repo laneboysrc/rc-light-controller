@@ -14,7 +14,7 @@ X Add AUX value reading to light programs
 
 X Fix table for ground fault not lining up
 
-* Add `stand-alone` mode
+X Add `stand-alone` mode
 
 * Make `pre-processor` a configuration in the drop-down box
 
@@ -23,9 +23,21 @@ X Fix table for ground fault not lining up
     LED sequence is important. This could be as easy as translating names like
     'indicator' to the appropriate led[0..31] values.
 
-* Add RUN_WHEN_SHELF_QUEEN_MODE
-* Add AUX, AUX2. AUX3
+X Add RUN_WHEN_SHELF_QUEEN_MODE
+X Add AUX, AUX2. AUX3
+
 * Set Local ch3_is_local_switch always when UART input active
+
+* Add blink_counter_value_dark
+
+* Pre-calculate light_switch_centers and light_switch_hysteresis
+
+* AUX type and function selection for multi-aux
+
+* Set multi_aux when 5ch chosen
+
+* Add setting for us_style_combined_lights, default = on
+
 
 # General improvements
 
