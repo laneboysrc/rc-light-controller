@@ -28,7 +28,7 @@ X Add AUX, AUX2. AUX3
 
 * Set Local ch3_is_local_switch always when UART input active
 
-* Add blink_counter_value_dark
+X Add blink_counter_value_dark
 
 * Pre-calculate light_switch_centers and light_switch_hysteresis
 

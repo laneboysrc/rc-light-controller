@@ -291,9 +291,14 @@ var app = (function () {
         new_config.esc_mode = data[offset + 2];
 
         var flags = get_uint32(data, offset + 4);
+        var flags2 = get_uint16(data, offset + 64);
 
         function get_flag(bit_mask) {
             return Boolean(flags & bit_mask);
+        }
+
+        function get_flag2(bit_mask) {
+            return Boolean(flags2 & bit_mask);
         }
 
         new_config.slave_output = get_flag(0x0001);
@@ -345,6 +350,10 @@ var app = (function () {
         new_config.startup_time = get_uint16(data, offset + 60);
 
         // FIXME: handle config_version 1 and 2
+        new_config.blink_counter_value_dark = get_uint16(data, offset + 68);
+        new_config.multi_aux = get_flag2(0x0001);
+        new_config.shelf_queen_mode = get_flag2(0x0002);
+        new_config.us_style_combined_lights = get_flag2(0x0004);
 
         return new_config;
     };
@@ -374,6 +383,7 @@ var app = (function () {
         var result = {};
         var section_id;
         var section;
+        var items;
 
         for (i = 0; i < image_data.length; i += 1) {
             if (image_data.slice(i, i + ROM_MAGIC_LENGTH).join() ===
@@ -397,15 +407,26 @@ var app = (function () {
         }
 
         if (config_version === 2) {
-            var items = document.getElementsByClassName('v2_show');
-            for (var i = 0; i < items.length; i++) {
+            items = document.getElementsByClassName('v2_show');
+            for (i = 0; i < items.length; i++) {
                 items[i].classList.remove('hidden');
-            };
+            }
 
             items = document.getElementsByClassName('v2_hide');
-            for (var i = 0; i < items.length; i++) {
+            for (i = 0; i < items.length; i++) {
                 items[i].classList.add('hidden');
-            };
+            }
+        }
+        else {
+            items = document.getElementsByClassName('v2_show');
+            for (i = 0; i < items.length; i++) {
+                items[i].classList.add('hidden');
+            }
+
+            items = document.getElementsByClassName('v2_hide');
+            for (i = 0; i < items.length; i++) {
+                items[i].classList.remove('hidden');
+            }
         }
 
         return result;
@@ -897,6 +918,9 @@ var app = (function () {
 
         el.gamma_value.value = gamma_object.gamma_value;
 
+        // FIXME: update for config_verion 2
+        el.blink_counter_value_dark.value = config.blink_counter_value_dark * SYSTICK_IN_MS;
+
 
         // Show/hide various sections depending on the current settings
         update_section_visibility();
@@ -1157,6 +1181,13 @@ var app = (function () {
         set_uint16(data, offset + 60, config.startup_time);
 
         // FIXME: handle config_version 2
+        set_uint16(data, offset + 68, config.blink_counter_value_dark);
+
+        var flags2 = 0;
+        flags2 |= (config.multi_aux << 0);
+        flags2 |= (config.shelf_queen_mode << 1);
+        flags2 |= (config.us_style_combined_lights << 2);
+        set_uint16(data, offset + 64, flags2);
     };
 
 
@@ -1569,6 +1600,10 @@ var app = (function () {
         update_int('servo_pulse_min');
         update_int('servo_pulse_max');
         update_time('startup_time');
+
+        // FIXME: update for config_version 2
+        update_time('blink_counter_value_dark');
+
 
 
         if (config.mode === MODE.SLAVE) {
@@ -2226,6 +2261,8 @@ var app = (function () {
 
         el.blink_counter_value =
             document.getElementById('blink_counter_value');
+        el.blink_counter_value_dark =
+            document.getElementById('blink_counter_value_dark');
         el.indicator_idle_time_value =
             document.getElementById('indicator_idle_time_value');
         el.indicator_off_timeout_value =
