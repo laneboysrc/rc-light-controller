@@ -920,6 +920,7 @@ var app = (function () {
 
         // FIXME: update for config_verion 2
         el.blink_counter_value_dark.value = config.blink_counter_value_dark * SYSTICK_IN_MS;
+        el.us_style_combined_lights.checked = Boolean(config.us_style_combined_lights);
 
 
         // Show/hide various sections depending on the current settings
@@ -1603,6 +1604,7 @@ var app = (function () {
 
         // FIXME: update for config_version 2
         update_time('blink_counter_value_dark');
+        update_boolean('us_style_combined_lights');
 
 
 
@@ -2295,6 +2297,9 @@ var app = (function () {
         el.servo_pulse_max = document.getElementById('servo_pulse_max');
 
         el.startup_time = document.getElementById('startup_time');
+
+        el.us_style_combined_lights = document.getElementById('us_style_combined_lights');
+
 
         el.gamma_value = document.getElementById('gamma_value');
 

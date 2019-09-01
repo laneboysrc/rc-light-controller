@@ -36,7 +36,7 @@ X Add blink_counter_value_dark
 
 * Set multi_aux when 5ch chosen
 
-* Add setting for us_style_combined_lights, default = on
+X Add setting for us_style_combined_lights, default = on
 
 
 # General improvements
