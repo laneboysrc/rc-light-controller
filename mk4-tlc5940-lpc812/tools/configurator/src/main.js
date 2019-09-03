@@ -407,6 +407,14 @@ var app = (function () {
         new_config.shelf_queen_mode = get_flag2(0x0002);
         new_config.us_style_combined_lights = get_flag2(0x0004);
 
+        new_config.aux_type = data[offset + 70];
+        new_config.aux_function = data[offset + 71];
+        new_config.aux2_type = data[offset + 72];
+        new_config.aux2_function = data[offset + 73];
+        new_config.aux3_type = data[offset + 74];
+        new_config.aux3_function = data[offset + 75];
+
+
         return new_config;
     };
 
@@ -970,9 +978,17 @@ var app = (function () {
 
         el.gamma_value.value = gamma_object.gamma_value;
 
+
         // FIXME: update for config_verion 2
         el.blink_counter_value_dark.value = config.blink_counter_value_dark * SYSTICK_IN_MS;
         el.us_style_combined_lights.checked = Boolean(config.us_style_combined_lights);
+
+        el.aux_type.value = config.aux_type;
+        el.aux_function.value = config.aux_function;
+        el.aux2_type.value = config.aux2_type;
+        el.aux2_function.value = config.aux2_function;
+        el.aux3_type.value = config.aux3_type;
+        el.aux3_function.value = config.aux3_function;
 
 
         // Show/hide various sections depending on the current settings
@@ -1658,6 +1674,12 @@ var app = (function () {
         update_time('blink_counter_value_dark');
         update_boolean('us_style_combined_lights');
 
+        update_int('aux_type');
+        update_int('aux_function');
+        update_int('aux2_type');
+        update_int('aux2_function');
+        update_int('aux3_type');
+        update_int('aux3_function');
 
 
         if (config.mode === MODE.SLAVE) {
