@@ -2162,148 +2162,89 @@ var app = (function () {
             }
         }
 
+
+        [
+            'firmware_version',
+
+            'load', 'load_input', 'save_config', 'save_firmware', 'flash', 'read',
+
+            'hardware', 'hardwawre_image',
+            'hardware_uart', 'flash_serial_port',
+            'hardware_webusb', 'flash_usb_device', 'webusb_pair',
+
+            'mode',
+            'mode_master_servo',
+            'mode_master_uart',
+            'mode_master_uart_5ch',
+            'mode_master_cppm',
+            'mode_slave',
+            'mode_stand_alone',
+            'mode_preprocessor',
+            'mode_preprocessor_5ch',
+            'mode_test',
+
+            'config_baudrate', 'baudrate',
+            'config_leds', 'leds_master', 'leds_slave',
+            'config_esc',
+            'config_ch3',
+            'config_output',
+
+            'slave_output', 'preprocessor_output', 'steering_wheel_servo_output',
+            'gearbox_servo_output', 'winch_output', 'winch_enable',
+
+            'leds_clear',
+
+            'config_light_programs', 'light_programs', 'light_programs_errors',
+            'light_programs_assembler', 'light_programs_ok',
+
+            'config_advanced',
+
+            'auto_brake_lights_forward_enabled',
+            'auto_brake_counter_value_forward_min',
+            'auto_brake_counter_value_forward_max',
+
+            'auto_brake_lights_reverse_enabled',
+            'auto_brake_counter_value_reverse_min',
+            'auto_brake_counter_value_reverse_max',
+
+            'brake_disarm_timeout_enabled', 'brake_disarm_counter_value',
+            'auto_reverse_counter_value_min', 'auto_reverse_counter_value_max',
+
+            'blink_counter_value', 'blink_counter_value_dark',
+            'indicator_idle_time_value', 'indicator_off_timeout_value',
+            'blink_threshold',
+
+            'centre_threshold_low', 'centre_threshold_high',
+            'initial_endpoint_delta', 'ch3_multi_click_timeout',
+            'winch_command_repeat_time','no_signal_timeout',
+
+            'number_of_gears','gearbox_servo_active_time','gearbox_servo_idle_time',
+
+            'initial_light_switch_position',
+
+            'servo_pulse_min', 'servo_pulse_max',
+
+            'startup_time', 'us_style_combined_lights', 'gamma_value',
+
+            'aux_type', 'aux_function',
+            'aux2_type', 'aux2_function',
+            'aux3_type', 'aux3_function',
+
+        ].forEach(function (name) {
+            el[name] = document.getElementById(name);
+        });
+
         el.menu_buttons = document.querySelectorAll('nav button');
 
-        el.firmware_version = document.getElementById('firmware_version');
-        el.load = document.getElementById('load');
-        el.load_input = document.getElementById('load_input');
-        el.save_config = document.getElementById('save_config');
-        el.save_firmware = document.getElementById('save_firmware');
-
-        el.flash = document.getElementById('flash');
-        el.read = document.getElementById('read');
-
-        el.hardware = document.getElementById('hardware');
-        el.hardware_image = document.getElementById('hardwawre_image');
-        el.hardware_uart = document.getElementById('hardware_uart');
-        el.flash_serial_port = document.getElementById('flash_serial_port');
-        el.hardware_webusb = document.getElementById('hardware_webusb');
-        el.flash_usb_device = document.getElementById('flash_usb_device');
-        el.webusb_pair = document.getElementById('webusb_pair');
-
-        el.mode = document.getElementById('mode');
-        el.mode_master_servo = document.getElementById('mode_master_servo');
-        el.mode_master_uart = document.getElementById('mode_master_uart');
-        el.mode_master_uart_5ch = document.getElementById('mode_master_uart_5ch');
-        el.mode_master_cppm = document.getElementById('mode_master_cppm');
-        el.mode_slave = document.getElementById('mode_slave');
-        el.mode_stand_alone = document.getElementById('mode_stand_alone');
-        el.mode_preprocessor = document.getElementById('mode_preprocessor');
-        el.mode_preprocessor_5ch = document.getElementById('mode_preprocessor_5ch');
-        el.mode_test = document.getElementById('mode_test');
-
-        el.config_baudrate = document.getElementById('config_baudrate');
-
-        el.config_leds = document.getElementById('config_leds');
-        el.leds_master = document.getElementById('leds_master');
-        el.leds_slave = document.getElementById('leds_slave');
-
-        el.config_esc = document.getElementById('config_esc');
-
-        el.config_ch3 = document.getElementById('config_ch3');
-
-        el.config_output = document.getElementById('config_output');
-
-        el.baudrate = document.getElementById('baudrate');
         el.esc = document.getElementsByName('esc');
         el.ch3 = document.getElementsByName('ch3');
 
         el.output_out = document.getElementsByName('output_out');
         el.single_output = document.getElementsByClassName('single_output');
         el.dual_output = document.getElementsByClassName('dual_output');
-        el.dual_output_th =
-            document.getElementsByClassName('dual_output_th');
-        el.winch_enable = document.getElementById('winch_output_checkbox');
+        el.dual_output_th = document.getElementsByClassName('dual_output_th');
 
-        el.slave_output = document.getElementById('slave_output');
-        el.preprocessor_output =
-            document.getElementById('preprocessor_output');
-        el.steering_wheel_servo_output =
-            document.getElementById('steering_wheel_servo_output');
-        el.gearbox_servo_output =
-            document.getElementById('gearbox_servo_output');
-        el.winch_output = document.getElementById('winch_output');
-
-        el.leds_clear = document.getElementById('leds_clear');
-
-        el.config_light_programs =
-            document.getElementById('config_light_programs');
-        el.light_programs = document.getElementById('light_programs');
-        el.light_programs_errors =
-            document.getElementById('light_programs_errors');
-        el.light_programs_assembler =
-            document.getElementById('light_programs_assembler');
-        el.light_programs_ok = document.getElementById('light_programs_ok');
-
-        el.config_advanced = document.getElementById('config_advanced');
-
-        el.auto_brake_lights_forward_enabled =
-            document.getElementById('auto_brake_lights_forward_enabled');
-        el.auto_brake_counter_value_forward_min =
-            document.getElementById('auto_brake_counter_value_forward_min');
-        el.auto_brake_counter_value_forward_max =
-            document.getElementById('auto_brake_counter_value_forward_max');
-
-        el.auto_brake_lights_reverse_enabled =
-            document.getElementById('auto_brake_lights_reverse_enabled');
-        el.auto_brake_counter_value_reverse_min =
-            document.getElementById('auto_brake_counter_value_reverse_min');
-        el.auto_brake_counter_value_reverse_max =
-            document.getElementById('auto_brake_counter_value_reverse_max');
-
-        el.brake_disarm_timeout_enabled =
-            document.getElementById('brake_disarm_timeout_enabled');
-        el.brake_disarm_counter_value =
-            document.getElementById('brake_disarm_counter_value');
-
-        el.auto_reverse_counter_value_min =
-            document.getElementById('auto_reverse_counter_value_min');
-        el.auto_reverse_counter_value_max =
-            document.getElementById('auto_reverse_counter_value_max');
-
-        el.blink_counter_value =
-            document.getElementById('blink_counter_value');
-        el.blink_counter_value_dark =
-            document.getElementById('blink_counter_value_dark');
-        el.indicator_idle_time_value =
-            document.getElementById('indicator_idle_time_value');
-        el.indicator_off_timeout_value =
-            document.getElementById('indicator_off_timeout_value');
-        el.blink_threshold = document.getElementById('blink_threshold');
-
-        el.centre_threshold_low =
-            document.getElementById('centre_threshold_low');
-        el.centre_threshold_high =
-            document.getElementById('centre_threshold_high');
-
-        el.initial_endpoint_delta =
-            document.getElementById('initial_endpoint_delta');
-        el.ch3_multi_click_timeout =
-            document.getElementById('ch3_multi_click_timeout');
-        el.winch_command_repeat_time =
-            document.getElementById('winch_command_repeat_time');
-        el.no_signal_timeout = document.getElementById('no_signal_timeout');
-
-        el.number_of_gears = document.getElementById('number_of_gears');
-        el.gearbox_servo_active_time =
-            document.getElementById('gearbox_servo_active_time');
-        el.gearbox_servo_idle_time =
-            document.getElementById('gearbox_servo_idle_time');
-
-        el.initial_light_switch_position =
-            document.getElementById('initial_light_switch_position');
-
-        el.servo_pulse_min = document.getElementById('servo_pulse_min');
-        el.servo_pulse_max = document.getElementById('servo_pulse_max');
-
-        el.startup_time = document.getElementById('startup_time');
-
-        el.us_style_combined_lights = document.getElementById('us_style_combined_lights');
-
-
-        el.gamma_value = document.getElementById('gamma_value');
-
-        el.flash_dialog = document.getElementById('flash_dialog');
+        el.flash_dialog = document.querySelector('#flash_dialog');
         el.flash_heading = el.flash_dialog.querySelector('.heading');
         el.flash_progress = el.flash_dialog.querySelector('progress');
         el.flash_message = el.flash_dialog.querySelector('#programming_message');
