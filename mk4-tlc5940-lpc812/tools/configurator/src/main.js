@@ -202,6 +202,23 @@ var app = (function () {
         data[offset] = value % 256;
     };
 
+    // *************************************************************************
+    var set_int8 = function (data, offset, value) {
+        value = parseInt(value, 10);
+        if (isNaN(value)) {
+            log.log('ERROR in set_uint8 when setting offset ' + offset +
+                ': value="' + value + '"');
+            value = 0;
+        }
+
+        if (value < 0) {
+            data[offset] = (256 - value) % 256;
+        }
+        else {
+            data[offset] = value % 128;
+        }
+    };
+
 
     // *************************************************************************
     var set_uint16 = function (data, offset, value) {
@@ -1196,8 +1213,12 @@ var app = (function () {
     var assemble_configuration = function (config) {
         var data = firmware.data;
         var offset = firmware.offset[SECTION_CONFIG];
+        var i;
+        var spacing;
 
         config.light_switch_positions = light_switch_positions;
+
+
 
         set_uint8(data, offset, config.firmware_version);
         set_uint8(data, offset + 1, config.mode);
@@ -1257,6 +1278,25 @@ var app = (function () {
         flags2 |= (config.shelf_queen_mode << 1);
         flags2 |= (config.us_style_combined_lights << 2);
         set_uint16(data, offset + 64, flags2);
+
+        // Pre-calculate AUX function for light switch handling hysteresis
+        // and center values
+        spacing = (200 / light_switch_positions);
+
+        config.light_switch_hysteresis = Math.round(spacing / 4);
+        set_uint8(data, offset + 85, config.light_switch_hysteresis);
+
+        config.light_switch_centers = [];
+        for (i = 0; i < 9; i++) {
+            if (i > light_switch_positions) {
+                config.light_switch_centers.push(0);
+            }
+            else {
+                config.light_switch_centers.push(
+                    Math.round(-100 + (spacing / 2) + (i * spacing)));
+            }
+            set_int8(data, offset + 76 + i, config.light_switch_centers[i]);
+        }
     };
 
 
