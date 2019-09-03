@@ -80,13 +80,62 @@ var app = (function () {
         TEST: 99
     };
 
-    var has_uart = (typeof chrome !== 'undefined'  &&  chrome.serial);
-    var has_webusb = (typeof navigator.usb !== 'undefined');
-    var serial_ports = {'dummy': 'dummy'};
-    var number_of_serial_ports = 0;
-    var usb_devices = [];
-    var preprocessor_simulator;
-    var preprocessor_simulator_disabled = true;
+    var BAUDRATES = {
+        0: 38400,
+        1: 115200,
+
+        38400: 0,
+        115200: 1
+    };
+
+    var AUX_TYPE_TWO_POSITION = 'Two-position switch';
+    var AUX_TYPE_TWO_POSITION_UP_DOWN = 'Two-position switch with up/down button';
+    var AUX_TYPE_MOMENTARY = 'Momentary push button';
+    var AUX_TYPE_THREE_POSITION = 'Three-position switch';
+    var AUX_TYPE_ANALOG = 'Analog control';
+
+    var AUX_TYPE = {
+        0: AUX_TYPE_TWO_POSITION,
+        1: AUX_TYPE_TWO_POSITION_UP_DOWN,
+        2: AUX_TYPE_MOMENTARY,
+        3: AUX_TYPE_THREE_POSITION,
+        4: AUX_TYPE_ANALOG,
+
+        AUX_TYPE_TWO_POSITION: 0,
+        AUX_TYPE_TWO_POSITION_UP_DOWN: 1,
+        AUX_TYPE_MOMENTARY: 2,
+        AUX_TYPE_THREE_POSITION: 3,
+        AUX_TYPE_ANALOG: 4
+    };
+
+    var AUX_FUNCTION_NOT_USED = 'Not used';
+    var AUX_FUNCTION_MULTI_FUNCTION = 'Multi-function';
+    var AUX_FUNCTION_GEARBOX = 'Gearbox';
+    var AUX_FUNCTION_WINCH = 'Winch';
+    var AUX_FUNCTION_SERVO = 'Servo control';
+    var AUX_FUNCTION_INDICATORS = 'Indicators';
+    var AUX_FUNCTION_HAZARD = 'Hazard';
+    var AUX_FUNCTION_LIGHT_SWITCH = 'Light switch';
+
+    var AUX_FUNCTION = {
+        0: AUX_FUNCTION_NOT_USED,
+        1: AUX_FUNCTION_MULTI_FUNCTION,
+        2: AUX_FUNCTION_GEARBOX,
+        3: AUX_FUNCTION_WINCH,
+        4: AUX_FUNCTION_SERVO,
+        5: AUX_FUNCTION_INDICATORS,
+        6: AUX_FUNCTION_HAZARD,
+        7: AUX_FUNCTION_LIGHT_SWITCH,
+
+        AUX_FUNCTION_NOT_USED: 0,
+        AUX_FUNCTION_MULTI_FUNCTION: 1,
+        AUX_FUNCTION_GEARBOX: 2,
+        AUX_FUNCTION_WINCH: 3,
+        AUX_FUNCTION_SERVO: 4,
+        AUX_FUNCTION_INDICATORS: 5,
+        AUX_FUNCTION_HAZARD: 6,
+        AUX_FUNCTION_LIGHT_SWITCH: 7
+    };
 
     // var ESC_FORWARD_BRAKE_REVERSE_TIMEOUT = 'Forward/Brake/Reverse with timeout';
     // var ESC_FORWARD_BRAKE_REVERSE = 'Forward/Brake/Reverse no timeout';
@@ -105,13 +154,16 @@ var app = (function () {
     //     ESC_FORWARD_BRAKE: 3
     // };
 
-    var BAUDRATES = {
-        0: 38400,
-        1: 115200,
 
-        38400: 0,
-        115200: 1
-    };
+
+
+    var has_uart = (typeof chrome !== 'undefined'  &&  chrome.serial);
+    var has_webusb = (typeof navigator.usb !== 'undefined');
+    var serial_ports = {'dummy': 'dummy'};
+    var number_of_serial_ports = 0;
+    var usb_devices = [];
+    var preprocessor_simulator;
+    var preprocessor_simulator_disabled = true;
 
     var log = console;
     // let log = {
