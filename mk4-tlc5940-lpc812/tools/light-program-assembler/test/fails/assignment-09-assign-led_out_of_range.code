@@ -1,0 +1,8 @@
+run always
+
+label1:
+sleep 1
+led[32] = 100%
+sleep 2
+
+end

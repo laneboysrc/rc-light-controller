@@ -25,5 +25,7 @@ led1, l2, l3, l4, lx = x
 led1, l2, lx, l3          = 99
 l2, lx, l4, l3, led1      = x
 
+led[2] = 20%
+led[3], led[4] = 42%
 
 end

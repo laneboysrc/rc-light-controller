@@ -312,7 +312,7 @@ var symbols = (function () {
 
         if (token === 'LED_ID') {
             if (opcode < 0  ||  opcode > 31) {
-                parser.yy.emitter.yyerror('LED index out of range (must be 0..15)', {
+                parser.yy.emitter.yyerror('LED index out of range (must be 0..31)', {
                     loc: location
                 });
             } else {

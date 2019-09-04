@@ -18,7 +18,7 @@ X Add `stand-alone` mode
 
 * Make `pre-processor` a configuration in the drop-down box
 
-* Add support for addressing LEDs without having to use an
+X Add support for addressing LEDs without having to use an
     led x = led[y] statement. This is useful for light patterns where the
     LED sequence is important. This could be as easy as translating names like
     'indicator' to the appropriate led[0..31] values.

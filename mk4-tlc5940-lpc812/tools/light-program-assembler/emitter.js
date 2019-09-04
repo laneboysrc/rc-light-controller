@@ -100,8 +100,15 @@ var emitter = (function () {
 
 
     // *************************************************************************
-    var add_led_to_list = function (led_index) {
+    var add_led_to_list = function (led_index, location) {
         var i;
+
+        if (led_index >= NUMBER_OF_LEDS) {
+            yyerror('LED index out of range (must be 0..31)', {
+                loc: location
+            });
+            return;
+        }
 
         if (led_index < 0) {
             // 'All used LEDs' requested

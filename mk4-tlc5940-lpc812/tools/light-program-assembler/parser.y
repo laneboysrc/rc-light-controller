@@ -276,16 +276,21 @@ leds
        * subsequent symbol lookups don't require a car state to be passed in.
        */
       yy.parse_state="UNKNOWN_PARSE_STATE" ;
-      yy.emitter.add_led_to_list(-1);
+      yy.emitter.add_led_to_list(-1, @2);
       }
   | led_list
   ;
 
 led_list
+  : single_led
+  | led_list ',' single_led
+  ;
+
+single_led
   : LED_ID
-      { yy.emitter.add_led_to_list(yy.symbols.get_symbol($1).opcode); }
-  | led_list ',' LED_ID
-      { yy.emitter.add_led_to_list(yy.symbols.get_symbol($3).opcode); }
+      { yy.emitter.add_led_to_list(yy.symbols.get_symbol($1).opcode, @1); }
+  | LED '[' NUMBER ']'
+      { yy.emitter.add_led_to_list($3, @3); }
   ;
 
 led_assignment_parameter
