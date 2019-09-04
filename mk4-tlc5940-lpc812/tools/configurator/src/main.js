@@ -1626,8 +1626,18 @@ var app = (function () {
             return hardware_test_configuration;
         }
 
+        // FIXME: handle preprocessor and other virtual modes
 
-        // Master/Slave
+        // mode: Master/Slave/...
+        config.multi_aux = false;
+        if (config.mode === MODE.MASTER_WITH_UART_READER_5CH) {
+            config.mode = MODE.MASTER_WITH_UART_READER;
+            config.multi_aux = true;
+        }
+        if (config.mode === MODE.PREPROCESSOR_5CH) {
+            config.multi_aux = true;
+        }
+
         update_int('mode');
 
 
