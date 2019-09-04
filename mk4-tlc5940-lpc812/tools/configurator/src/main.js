@@ -1623,10 +1623,14 @@ var app = (function () {
         // If the test firmware is requested return the special configuration
         // that is stored as part of this tool.
         if (parseInt(el.mode.value, 10) === MODE.TEST) {
+            // Patch firmware version
+            hardware_test_configuration.config.firmware_version = config.firmware_version;
             return hardware_test_configuration;
         }
 
-        // FIXME: handle preprocessor and other virtual modes
+        // FIXME: handle preprocessor
+        // FIXME: patch firmware version
+        // FIXME: patch baudrate
 
         // mode: Master/Slave/...
         config.multi_aux = false;
