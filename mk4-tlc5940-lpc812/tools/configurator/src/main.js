@@ -681,6 +681,8 @@ var app = (function () {
 
             show(el.single_output);
             hide(el.dual_output);
+            show([el.aux_3ch]);
+            hide([el.multi_aux]);
             set_name(el.dual_output_th, 'output_out');
             config.mode = new_mode;
             break;
@@ -703,6 +705,8 @@ var app = (function () {
 
             hide(el.single_output);
             show(el.dual_output);
+            show([el.aux_3ch]);
+            hide([el.multi_aux]);
             set_name(el.dual_output_th, 'output_th');
             config.mode = new_mode;
             break;
@@ -726,6 +730,8 @@ var app = (function () {
 
             hide(el.single_output);
             show(el.dual_output);
+            hide([el.aux_3ch]);
+            show([el.multi_aux]);
             set_name(el.dual_output_th, 'output_th');
             config.mode = new_mode;
             break;
@@ -748,6 +754,8 @@ var app = (function () {
 
             hide(el.single_output);
             show(el.dual_output);
+            show([el.aux_3ch]);
+            hide([el.multi_aux]);
             set_name(el.dual_output_th, 'output_th');
             config.mode = new_mode;
             break;
@@ -774,7 +782,6 @@ var app = (function () {
                 'config_hardware',
                 'config_mode',
                 'config_esc',
-                'config_ch3',
                 'config_output',
                 'config_leds',
                 'config_light_programs',
@@ -785,6 +792,8 @@ var app = (function () {
 
             hide(el.single_output);
             show(el.dual_output);
+            show([el.aux_3ch]);
+            hide([el.multi_aux]);
             set_name(el.dual_output_th, 'output_th');
             config.mode = new_mode;
             break;
@@ -2302,6 +2311,8 @@ var app = (function () {
             'config_esc',
             'config_ch3',
             'config_output',
+
+            'aux_3ch', 'multi_aux',
 
             'slave_output', 'preprocessor_output', 'steering_wheel_servo_output',
             'gearbox_servo_output', 'winch_output', 'winch_enable',
