@@ -23,18 +23,18 @@ X Add `stand-alone` mode
     LED sequence is important. This could be as easy as translating names like
     'indicator' to the appropriate led[0..31] values.
 
+* Set Local ch3_is_local_switch always when UART input active
+
+* Set multi_aux when 5ch chosen
+
 X Add RUN_WHEN_SHELF_QUEEN_MODE
 X Add AUX, AUX2. AUX3
 
-* Set Local ch3_is_local_switch always when UART input active
-
 X Add blink_counter_value_dark
 
-* Pre-calculate light_switch_centers and light_switch_hysteresis
+X Pre-calculate light_switch_centers and light_switch_hysteresis
 
-* AUX type and function selection for multi-aux
-
-* Set multi_aux when 5ch chosen
+X AUX type and function selection for multi-aux
 
 X Add setting for us_style_combined_lights, default = on
 
