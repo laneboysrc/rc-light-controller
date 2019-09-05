@@ -38,6 +38,7 @@ X AUX type and function selection for multi-aux
 
 X Add setting for us_style_combined_lights, default = on
 
+* Fix IE7 (remove 'flex' on nav, page but keep on body? menu disabling)
 
 # General improvements
 

@@ -162,8 +162,8 @@ var app = (function () {
     var serial_ports = {'dummy': 'dummy'};
     var number_of_serial_ports = 0;
     var usb_devices = [];
-    var preprocessor_simulator;
-    var preprocessor_simulator_disabled = true;
+    // var preprocessor_simulator;
+    // var preprocessor_simulator_disabled = true;
 
     var log = console;
     // let log = {
@@ -649,9 +649,9 @@ var app = (function () {
                     var menu_item = enabled_menu_items[i];
 
                     if (menu_item == page_name) {
-                        if (page_name != 'testing' || !preprocessor_simulator_disabled) {
+                        // if (page_name != 'testing' || !preprocessor_simulator_disabled) {
                             button.disabled = false;
-                        }
+                        // }
                         break;
                     }
                 }
@@ -1461,7 +1461,8 @@ var app = (function () {
         if (firmware.data[3] == 0x10) {
             el.hardware.value = 'mk4';
         }
-        update_visibility_from_ports();
+
+        // update_visibility_from_ports();
 
         if (default_firmware_version > config.firmware_version) {
             let msg = 'A new firmware version is available.\n';
@@ -1498,7 +1499,7 @@ var app = (function () {
         config.firmware_version = default_firmware_version;
         update_ui();
 
-        update_visibility_from_ports();
+        // update_visibility_from_ports();
     };
 
 
@@ -1910,14 +1911,14 @@ var app = (function () {
 
         ui.refresh_editor();
 
-        if (selected_page == 'testing') {
-            if (el.hardware.value == 'mk4') {
-                preprocessor_simulator.init(el.flash_serial_port.value, parseInt(el.baudrate.value, 10));
-            }
-        }
-        else {
-            preprocessor_simulator.disconnect();
-        }
+        // if (selected_page == 'testing') {
+        //     if (el.hardware.value == 'mk4') {
+        //         preprocessor_simulator.init(el.flash_serial_port.value, parseInt(el.baudrate.value, 10));
+        //     }
+        // }
+        // else {
+        //     preprocessor_simulator.disconnect();
+        // }
     };
 
     // *************************************************************************
@@ -1936,344 +1937,344 @@ var app = (function () {
         el.light_programs_ok.classList.add('hidden');
     };
 
-    // *************************************************************************
-    var update_visibility_from_ports = function () {
-        if (el.hardware.value == 'mk4') {
-            el.hardware_webusb.classList.add('hidden');
-
-            if (has_uart) {
-                el.hardware_uart.classList.remove('hidden');
-
-                if (number_of_serial_ports > 0) {
-                    el.flash.disabled = false;
-                    el.read.disabled = false;
-                    preprocessor_simulator_disabled = false;
-                }
-                else {
-                    el.flash.disabled = true;
-                    el.read.disabled = true;
-                    preprocessor_simulator_disabled = true;
-                }
-            }
-            else {
-                el.hardware_uart.classList.add('hidden');
-                el.flash.disabled = false;
-                el.read.disabled = false;
-                preprocessor_simulator_disabled = false;
-            }
-        }
-
-        update_section_visibility();
-    };
-
-    // *************************************************************************
-    var discover_serial_ports = function () {
-        if (!has_uart) {
-            return;
-        }
-
-        chrome.serial.getDevices((ports) => {
-            let current_ports = {};
-            ports.forEach(port => {
-                current_ports[port.path] = port.displayName;
-            });
-
-            let changed = false;
-            // Check whether ports were added
-            for (let dev in current_ports) {
-                if (!serial_ports.hasOwnProperty(dev)) {
-                    changed = true;
-                }
-            }
-
-            // Check whether ports were removed
-            for (let dev in serial_ports) {
-                if (!current_ports.hasOwnProperty(dev)) {
-                    changed = true;
-                }
-            }
-
-            if (changed) {
-                serial_ports = current_ports;
-                let current_value = el.flash_serial_port.value;
-
-                // Clear the current options
-                while (el.flash_serial_port.options.length) {
-                    el.flash_serial_port.remove(0);
-                }
-
-                Object.keys(serial_ports).sort().forEach(path => {
-                    let name = serial_ports[path];
-                    let label = path + ' (' + name + ')';
-                    el.flash_serial_port.add(new Option(label, path));
-                });
-
-                number_of_serial_ports = el.flash_serial_port.options.length;
-
-                if (!number_of_serial_ports) {
-                    el.flash_serial_port.add(new Option('(no serial port found)', '0'));
-                }
-
-                if (serial_ports.hasOwnProperty(current_value)) {
-                    el.flash_serial_port.value = current_value;
-                }
-                else {
-                    el.flash_serial_port.selectedIndex = 0;
-                }
-
-                update_visibility_from_ports();
-            }
-
-            setTimeout(discover_serial_ports, 3000);
-        });
-    };
-
-
-    // *************************************************************************
-    var update_usb_device_list = function () {
-        let current_value = el.flash_usb_device.value;
-        let previous_device_still_exists = false;
-
-        // Clear the current options
-        while (el.flash_usb_device.options.length) {
-            el.flash_usb_device.remove(0);
-        }
+    // // *************************************************************************
+    // var update_visibility_from_ports = function () {
+    //     if (el.hardware.value == 'mk4') {
+    //         el.hardware_webusb.classList.add('hidden');
+
+    //         if (has_uart) {
+    //             el.hardware_uart.classList.remove('hidden');
+
+    //             if (number_of_serial_ports > 0) {
+    //                 el.flash.disabled = false;
+    //                 el.read.disabled = false;
+    //                 preprocessor_simulator_disabled = false;
+    //             }
+    //             else {
+    //                 el.flash.disabled = true;
+    //                 el.read.disabled = true;
+    //                 preprocessor_simulator_disabled = true;
+    //             }
+    //         }
+    //         else {
+    //             el.hardware_uart.classList.add('hidden');
+    //             el.flash.disabled = false;
+    //             el.read.disabled = false;
+    //             preprocessor_simulator_disabled = false;
+    //         }
+    //     }
+
+    //     update_section_visibility();
+    // };
+
+    // // *************************************************************************
+    // var discover_serial_ports = function () {
+    //     if (!has_uart) {
+    //         return;
+    //     }
+
+    //     chrome.serial.getDevices((ports) => {
+    //         let current_ports = {};
+    //         ports.forEach(port => {
+    //             current_ports[port.path] = port.displayName;
+    //         });
+
+    //         let changed = false;
+    //         // Check whether ports were added
+    //         for (let dev in current_ports) {
+    //             if (!serial_ports.hasOwnProperty(dev)) {
+    //                 changed = true;
+    //             }
+    //         }
+
+    //         // Check whether ports were removed
+    //         for (let dev in serial_ports) {
+    //             if (!current_ports.hasOwnProperty(dev)) {
+    //                 changed = true;
+    //             }
+    //         }
+
+    //         if (changed) {
+    //             serial_ports = current_ports;
+    //             let current_value = el.flash_serial_port.value;
+
+    //             // Clear the current options
+    //             while (el.flash_serial_port.options.length) {
+    //                 el.flash_serial_port.remove(0);
+    //             }
+
+    //             Object.keys(serial_ports).sort().forEach(path => {
+    //                 let name = serial_ports[path];
+    //                 let label = path + ' (' + name + ')';
+    //                 el.flash_serial_port.add(new Option(label, path));
+    //             });
+
+    //             number_of_serial_ports = el.flash_serial_port.options.length;
+
+    //             if (!number_of_serial_ports) {
+    //                 el.flash_serial_port.add(new Option('(no serial port found)', '0'));
+    //             }
+
+    //             if (serial_ports.hasOwnProperty(current_value)) {
+    //                 el.flash_serial_port.value = current_value;
+    //             }
+    //             else {
+    //                 el.flash_serial_port.selectedIndex = 0;
+    //             }
+
+    //             update_visibility_from_ports();
+    //         }
+
+    //         setTimeout(discover_serial_ports, 3000);
+    //     });
+    // };
+
+
+    // // *************************************************************************
+    // var update_usb_device_list = function () {
+    //     let current_value = el.flash_usb_device.value;
+    //     let previous_device_still_exists = false;
+
+    //     // Clear the current options
+    //     while (el.flash_usb_device.options.length) {
+    //         el.flash_usb_device.remove(0);
+    //     }
 
-        usb_devices.forEach(usb_device => {
-            let name = usb_device.device_.serialNumber;
-            let label = usb_device.device_.serialNumber;
-            el.flash_usb_device.add(new Option(label, name));
-
-            if (label == current_value) {
-                previous_device_still_exists = true;
-            }
-        });
+    //     usb_devices.forEach(usb_device => {
+    //         let name = usb_device.device_.serialNumber;
+    //         let label = usb_device.device_.serialNumber;
+    //         el.flash_usb_device.add(new Option(label, name));
+
+    //         if (label == current_value) {
+    //             previous_device_still_exists = true;
+    //         }
+    //     });
 
-        let number_of_usb_devices = el.flash_usb_device.options.length;
+    //     let number_of_usb_devices = el.flash_usb_device.options.length;
 
-        if (!number_of_usb_devices) {
-            el.flash_usb_device.add(new Option('(press pair button to add a light controller)', '0'));
-        }
+    //     if (!number_of_usb_devices) {
+    //         el.flash_usb_device.add(new Option('(press pair button to add a light controller)', '0'));
+    //     }
 
-        if (previous_device_still_exists) {
-            el.flash_usb_device.value = current_value;
-        }
-        else {
-            el.flash_usb_device.selectedIndex = 0;
-        }
-
-        update_visibility_from_ports();
-    };
-
-
-    // *************************************************************************
-    var usb_device_connected = function (event) {
-        let device = event.device;
-
-        // log.log('usb_device_connected', device);
-
-        if (device.vendorId == 0x6666) {
-            if (device.productId == 0xcab1) {
-                let interfaces = dfu.findDeviceDfuInterfaces(device);
-                if (interfaces.length == 0) {
-                    return;
-                }
-                let dfu_device = new dfu.Device(device, interfaces[0]);
-                usb_devices.push(dfu_device);
-            }
-        }
-
-        update_usb_device_list();
-    };
-
-
-    // *************************************************************************
-    var usb_device_disconnected = function (event) {
-        let device = event.device;
-
-        // log.log('usb_device_disconnected', device);
-
-        if (device.vendorId == 0x6666) {
-            if (device.productId == 0xcab1) {
-                for (let i = 0; i < usb_devices.length; i++) {
-                    let known_device = usb_devices[i];
-
-                    if (known_device.device_.serialNumber == device.serialNumber) {
-                        usb_devices.splice(i, 1);
-                    }
-                }
-            }
-        }
-
-        update_usb_device_list();
-    };
-
-
-    // *************************************************************************
-    var discover_usb_devices = async function () {
-        if (!has_webusb) {
-            return;
-        }
-
-        el.hardware_webusb.classList.remove('hidden');
-
-        usb_devices = [];
-
-        let dfu_devices = await dfu.findAllDfuInterfaces();
-        if (dfu_devices.length) {
-            for (let dfu_device of dfu_devices) {
-                if (dfu_device.device_.vendorId == 0x6666) {
-                    if (dfu_device.device_.productId == 0xcab1) {
-                        usb_devices.push(dfu_device);
-                    }
-                }
-            }
-        }
-
-        update_usb_device_list();
-
-        navigator.usb.addEventListener('connect', usb_device_connected);
-        navigator.usb.addEventListener('disconnect', usb_device_disconnected);
-    };
-
-
-    // *************************************************************************
-    var get_usb_device_by_serial_number = function (serial_number) {
-        for (let i = 0; i < usb_devices.length; i++) {
-            if (usb_devices[i].device_.serialNumber == serial_number) {
-                return usb_devices[i];
-            }
-        }
-
-        return null;
-    };
-
-
-    // *************************************************************************
-    var pair_usb_device = async function () {
-        const filters = [{ 'vendorId': 0x6666, 'productId': 0xcab1 }];
-
-        let usb_device;
-        try {
-            usb_device = await navigator.usb.requestDevice({ 'filters': filters });
-        }
-        catch (error) {
-            log.log(error);
-            return;
-        }
-
-        let interfaces = dfu.findDeviceDfuInterfaces(usb_device);
-        if (interfaces.length == 0) {
-            log.log('The selected device does not have any USB DFU interfaces.');
-            return;
-        }
-
-        let dfu_device = new dfu.Device(usb_device, interfaces[0]);
-
-        // Only add device if we don't have it already
-        if (!get_usb_device_by_serial_number(dfu_device.device_.serialNumber)) {
-            usb_devices.push(dfu_device);
-            update_usb_device_list();
-        }
-    };
-
-
-    // *************************************************************************
-    var flash = async function () {
-        let programmer;
-        let device;
-
-        let config = get_config();
-        assemble_firmware(config);
-
-        switch (el.hardware.value) {
-        case 'mk4':
-            programmer = new flash_lpc8xx(new chrome_uart());
-            device = el.flash_serial_port.value;
-            break;
-        }
-
-
-        el.flash_progress.value = 0;
-        el.flash_heading.textContent = 'Flashing ...';
-        el.flash_button.textContent = 'Cancel';
-        el.flash_button.disabled = false;
-        el.flash_message.textContent = '';
-        el.flash_message.classList.remove('error');
-        el.flash_dialog.classList.remove('hidden');
-        el.flash_progress.classList.remove('hidden');
-
-
-        programmer.onMessageCallback = function (message) {
-            el.flash_message.textContent = message;
-        };
-
-        programmer.onProgressCallback = function (progress) {
-            el.flash_progress.value = progress;
-        };
-
-        programmer.setCancelButtonEnabled = function (enabled) {
-            el.flash_button.disabled = enabled;
-        };
-
-        function button_pressed() {
-            programmer.cancel();
-            el.flash_dialog.classList.add('hidden');
-            el.flash_button.removeEventListener('click', button_pressed);
-        }
-
-        el.flash_button.addEventListener('click', button_pressed);
-
-        if (await programmer.flash(device, firmware.data)) {
-            el.flash_dialog.classList.add('hidden');
-            el.flash_button.removeEventListener('click', button_pressed);
-        }
-        else {
-            el.flash_button.textContent = 'Close';
-            el.flash_button.disabled = false;
-            el.flash_message.classList.add('error');
-        }
-    };
-
-
-    // *************************************************************************
-    var read_firmware_from_flash = async function () {
-        el.flash_progress.value = 0;
-        el.flash_heading.textContent = 'Reading firmware ...';
-        el.flash_button.textContent = 'Cancel';
-        el.flash_button.disabled = false;
-        el.flash_message.textContent = '';
-        el.flash_message.classList.remove('error');
-        el.flash_dialog.classList.remove('hidden');
-        el.flash_progress.classList.add('hidden');
-
-        let mk4_isp = new flash_lpc8xx(new chrome_uart());
-
-        mk4_isp.onMessageCallback = function (message) {
-            el.flash_message.textContent = message;
-        };
-
-        function button_pressed() {
-            mk4_isp.cancel();
-            el.flash_dialog.classList.add('hidden');
-            el.flash_button.removeEventListener('click', button_pressed);
-        }
-
-        el.flash_button.addEventListener('click', button_pressed);
-
-        let bin = await mk4_isp.read_flash(el.flash_serial_port.value);
-        if (bin.length) {
-            el.flash_dialog.classList.add('hidden');
-            el.flash_button.removeEventListener('click', button_pressed);
-
-            load_firmware(bin);
-        }
-        else {
-            el.flash_button.textContent = 'Close';
-            el.flash_button.disabled = false;
-            el.flash_message.classList.add('error');
-        }
-    };
+    //     if (previous_device_still_exists) {
+    //         el.flash_usb_device.value = current_value;
+    //     }
+    //     else {
+    //         el.flash_usb_device.selectedIndex = 0;
+    //     }
+
+    //     update_visibility_from_ports();
+    // };
+
+
+    // // *************************************************************************
+    // var usb_device_connected = function (event) {
+    //     let device = event.device;
+
+    //     // log.log('usb_device_connected', device);
+
+    //     if (device.vendorId == 0x6666) {
+    //         if (device.productId == 0xcab1) {
+    //             let interfaces = dfu.findDeviceDfuInterfaces(device);
+    //             if (interfaces.length == 0) {
+    //                 return;
+    //             }
+    //             let dfu_device = new dfu.Device(device, interfaces[0]);
+    //             usb_devices.push(dfu_device);
+    //         }
+    //     }
+
+    //     update_usb_device_list();
+    // };
+
+
+    // // *************************************************************************
+    // var usb_device_disconnected = function (event) {
+    //     let device = event.device;
+
+    //     // log.log('usb_device_disconnected', device);
+
+    //     if (device.vendorId == 0x6666) {
+    //         if (device.productId == 0xcab1) {
+    //             for (let i = 0; i < usb_devices.length; i++) {
+    //                 let known_device = usb_devices[i];
+
+    //                 if (known_device.device_.serialNumber == device.serialNumber) {
+    //                     usb_devices.splice(i, 1);
+    //                 }
+    //             }
+    //         }
+    //     }
+
+    //     update_usb_device_list();
+    // };
+
+
+    // // *************************************************************************
+    // var discover_usb_devices = async function () {
+    //     if (!has_webusb) {
+    //         return;
+    //     }
+
+    //     el.hardware_webusb.classList.remove('hidden');
+
+    //     usb_devices = [];
+
+    //     let dfu_devices = await dfu.findAllDfuInterfaces();
+    //     if (dfu_devices.length) {
+    //         for (let dfu_device of dfu_devices) {
+    //             if (dfu_device.device_.vendorId == 0x6666) {
+    //                 if (dfu_device.device_.productId == 0xcab1) {
+    //                     usb_devices.push(dfu_device);
+    //                 }
+    //             }
+    //         }
+    //     }
+
+    //     update_usb_device_list();
+
+    //     navigator.usb.addEventListener('connect', usb_device_connected);
+    //     navigator.usb.addEventListener('disconnect', usb_device_disconnected);
+    // };
+
+
+    // // *************************************************************************
+    // var get_usb_device_by_serial_number = function (serial_number) {
+    //     for (let i = 0; i < usb_devices.length; i++) {
+    //         if (usb_devices[i].device_.serialNumber == serial_number) {
+    //             return usb_devices[i];
+    //         }
+    //     }
+
+    //     return null;
+    // };
+
+
+    // // *************************************************************************
+    // var pair_usb_device = async function () {
+    //     const filters = [{ 'vendorId': 0x6666, 'productId': 0xcab1 }];
+
+    //     let usb_device;
+    //     try {
+    //         usb_device = await navigator.usb.requestDevice({ 'filters': filters });
+    //     }
+    //     catch (error) {
+    //         log.log(error);
+    //         return;
+    //     }
+
+    //     let interfaces = dfu.findDeviceDfuInterfaces(usb_device);
+    //     if (interfaces.length == 0) {
+    //         log.log('The selected device does not have any USB DFU interfaces.');
+    //         return;
+    //     }
+
+    //     let dfu_device = new dfu.Device(usb_device, interfaces[0]);
+
+    //     // Only add device if we don't have it already
+    //     if (!get_usb_device_by_serial_number(dfu_device.device_.serialNumber)) {
+    //         usb_devices.push(dfu_device);
+    //         update_usb_device_list();
+    //     }
+    // };
+
+
+    // // *************************************************************************
+    // var flash = async function () {
+    //     let programmer;
+    //     let device;
+
+    //     let config = get_config();
+    //     assemble_firmware(config);
+
+    //     switch (el.hardware.value) {
+    //     case 'mk4':
+    //         programmer = new flash_lpc8xx(new chrome_uart());
+    //         device = el.flash_serial_port.value;
+    //         break;
+    //     }
+
+
+    //     el.flash_progress.value = 0;
+    //     el.flash_heading.textContent = 'Flashing ...';
+    //     el.flash_button.textContent = 'Cancel';
+    //     el.flash_button.disabled = false;
+    //     el.flash_message.textContent = '';
+    //     el.flash_message.classList.remove('error');
+    //     el.flash_dialog.classList.remove('hidden');
+    //     el.flash_progress.classList.remove('hidden');
+
+
+    //     programmer.onMessageCallback = function (message) {
+    //         el.flash_message.textContent = message;
+    //     };
+
+    //     programmer.onProgressCallback = function (progress) {
+    //         el.flash_progress.value = progress;
+    //     };
+
+    //     programmer.setCancelButtonEnabled = function (enabled) {
+    //         el.flash_button.disabled = enabled;
+    //     };
+
+    //     function button_pressed() {
+    //         programmer.cancel();
+    //         el.flash_dialog.classList.add('hidden');
+    //         el.flash_button.removeEventListener('click', button_pressed);
+    //     }
+
+    //     el.flash_button.addEventListener('click', button_pressed);
+
+    //     if (await programmer.flash(device, firmware.data)) {
+    //         el.flash_dialog.classList.add('hidden');
+    //         el.flash_button.removeEventListener('click', button_pressed);
+    //     }
+    //     else {
+    //         el.flash_button.textContent = 'Close';
+    //         el.flash_button.disabled = false;
+    //         el.flash_message.classList.add('error');
+    //     }
+    // };
+
+
+    // // *************************************************************************
+    // var read_firmware_from_flash = async function () {
+    //     el.flash_progress.value = 0;
+    //     el.flash_heading.textContent = 'Reading firmware ...';
+    //     el.flash_button.textContent = 'Cancel';
+    //     el.flash_button.disabled = false;
+    //     el.flash_message.textContent = '';
+    //     el.flash_message.classList.remove('error');
+    //     el.flash_dialog.classList.remove('hidden');
+    //     el.flash_progress.classList.add('hidden');
+
+    //     let mk4_isp = new flash_lpc8xx(new chrome_uart());
+
+    //     mk4_isp.onMessageCallback = function (message) {
+    //         el.flash_message.textContent = message;
+    //     };
+
+    //     function button_pressed() {
+    //         mk4_isp.cancel();
+    //         el.flash_dialog.classList.add('hidden');
+    //         el.flash_button.removeEventListener('click', button_pressed);
+    //     }
+
+    //     el.flash_button.addEventListener('click', button_pressed);
+
+    //     let bin = await mk4_isp.read_flash(el.flash_serial_port.value);
+    //     if (bin.length) {
+    //         el.flash_dialog.classList.add('hidden');
+    //         el.flash_button.removeEventListener('click', button_pressed);
+
+    //         load_firmware(bin);
+    //     }
+    //     else {
+    //         el.flash_button.textContent = 'Close';
+    //         el.flash_button.disabled = false;
+    //         el.flash_message.classList.add('error');
+    //     }
+    // };
 
 
     // *************************************************************************
@@ -2405,8 +2406,8 @@ var app = (function () {
         el.save_config.addEventListener('click', save_configuration, false);
         el.save_firmware.addEventListener('click', save_firmware, false);
 
-        el.flash.addEventListener('click', flash);
-        el.read.addEventListener('click', read_firmware_from_flash);
+        // el.flash.addEventListener('click', flash);
+        // el.read.addEventListener('click', read_firmware_from_flash);
 
         el.hardware.addEventListener('change', hardware_changed, false);
 
@@ -2428,12 +2429,13 @@ var app = (function () {
             });
         }
 
-        el.webusb_pair.addEventListener('click', pair_usb_device);
+        // el.webusb_pair.addEventListener('click', pair_usb_device);
 
-        preprocessor_simulator = new preprocessor();
+        // preprocessor_simulator = new preprocessor();
 
-        discover_serial_ports();
-        discover_usb_devices();
+        // discover_serial_ports();
+        // discover_usb_devices();
+
         init_assembler();
 
         let contents = hex_to_bin(default_firmware_image_mk4);
