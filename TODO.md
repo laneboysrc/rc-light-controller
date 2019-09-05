@@ -27,6 +27,8 @@ X Add support for addressing LEDs without having to use an
 
 * Set multi_aux when 5ch chosen
 
+* Add shelf-queen-mode checkbox
+
 X Add RUN_WHEN_SHELF_QUEEN_MODE
 X Add AUX, AUX2. AUX3
 

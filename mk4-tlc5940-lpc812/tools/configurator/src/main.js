@@ -418,6 +418,10 @@ var app = (function () {
         new_config.servo_pulse_max = get_uint16(data, offset + 58);
         new_config.startup_time = get_uint16(data, offset + 60);
 
+        log.log('config.mode: ' + new_config.mode);
+        log.log('config_version: ' + config_version);
+        log.log('config.firmware_version: ' + new_config.firmware_version);
+
         // FIXME: handle config_version 1 and 2
         new_config.blink_counter_value_dark = get_uint16(data, offset + 68);
         new_config.multi_aux = get_flag2(0x0001);
@@ -460,7 +464,6 @@ var app = (function () {
         var result = {};
         var section_id;
         var section;
-        var items;
 
         for (i = 0; i < image_data.length; i += 1) {
             if (image_data.slice(i, i + ROM_MAGIC_LENGTH).join() ===
@@ -480,29 +483,6 @@ var app = (function () {
                     section = SECTIONS[section_id];
                     result[section] = i + 8;
                 }
-            }
-        }
-
-        if (config_version === 2) {
-            items = document.getElementsByClassName('v2_show');
-            for (i = 0; i < items.length; i++) {
-                items[i].classList.remove('hidden');
-            }
-
-            items = document.getElementsByClassName('v2_hide');
-            for (i = 0; i < items.length; i++) {
-                items[i].classList.add('hidden');
-            }
-        }
-        else {
-            items = document.getElementsByClassName('v2_show');
-            for (i = 0; i < items.length; i++) {
-                items[i].classList.add('hidden');
-            }
-
-            items = document.getElementsByClassName('v2_hide');
-            for (i = 0; i < items.length; i++) {
-                items[i].classList.remove('hidden');
             }
         }
 
@@ -658,10 +638,33 @@ var app = (function () {
             }
         }
 
-        var new_mode = parseInt(el.mode.options[el.mode.selectedIndex].value,
-            10
-        );
+        var items;
+        var i;
+        if (config_version === 2) {
+            items = document.getElementsByClassName('v2_show');
+            for (i = 0; i < items.length; i++) {
+                items[i].classList.remove('hidden');
+            }
 
+            items = document.getElementsByClassName('v2_hide');
+            for (i = 0; i < items.length; i++) {
+                items[i].classList.add('hidden');
+            }
+        }
+        else {
+            items = document.getElementsByClassName('v2_show');
+            for (i = 0; i < items.length; i++) {
+                items[i].classList.add('hidden');
+            }
+
+            items = document.getElementsByClassName('v2_hide');
+            for (i = 0; i < items.length; i++) {
+                items[i].classList.remove('hidden');
+            }
+        }
+
+
+        var new_mode = parseInt(el.mode.value, 10);
         switch (new_mode) {
         case MODE.MASTER_WITH_SERVO_READER:
             show_mode_info(el.mode_master_servo);
@@ -911,7 +914,7 @@ var app = (function () {
     // *************************************************************************
     var update_ui = function () {
         // Master/Slave
-        el.mode.selectedIndex = config.mode;
+        el.mode.value = config.mode;
 
         // Firmware version
         el.firmware_version.textContent = config_version + '.' + config.firmware_version;
@@ -1431,11 +1434,27 @@ var app = (function () {
             light_programs = data.light_programs;
             gamma_object = data.gamma;
 
+            // Extend the configuration generated for config_version 1
+            // Since config_version is not saved in the JSON we use the
+            // firmware_version to check. firmware_version <20 means
+            // config_version 1
+            if (config.firmware_version < 20) {
+                config.blink_counter_value_dark = config.blink_counter_value;
+                config.multi_aux = false;
+                config.shelf_queen_mode = true;
+                config.us_style_combined_lights = true;
+
+                config.aux_type = AUX_TYPE_TWO_POSITION;
+                config.aux_function = AUX_FUNCTION_MULTI_FUNCTION;
+                config.aux2_type = AUX_TYPE_TWO_POSITION;
+                config.aux2_function = AUX_FUNCTION_NOT_USED;
+                config.aux3_type = AUX_TYPE_TWO_POSITION;
+                config.aux3_function = AUX_FUNCTION_NOT_USED;
+            }
+
             // Use the current firmware when loading a configuration file
             firmware = parse_firmware_structure(hex_to_bin(default_firmware_image_mk4));
             config.firmware_version = default_firmware_version;
-
-            // FIXME: handle configuration version 1 and 2
         } catch (err) {
             window.alert(
                 'Failed to load configuration.\n' +
@@ -1632,6 +1651,10 @@ var app = (function () {
         // FIXME: handle preprocessor
         // FIXME: patch firmware version
         // FIXME: patch baudrate
+
+
+        log.log('config_version: ' + config_version);
+        log.log('config.firmware_version: ' + config.firmware_version);
 
         // mode: Master/Slave/...
         config.multi_aux = false;
