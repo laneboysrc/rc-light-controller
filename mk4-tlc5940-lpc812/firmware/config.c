@@ -31,14 +31,14 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
 
         .ch3_is_local_switch = true,
         .ch3_is_momentary = false,
-        .ch3_is_two_button = true,
+        .ch3_is_two_button = false,
 
         .auto_brake_lights_forward_enabled = true,
         .auto_brake_lights_reverse_enabled = true,
     },
 
     .flags2 = {
-        .multi_aux = true,
+        .multi_aux = false,
         .shelf_queen_mode = true,
         .us_style_combined_lights = true,
     },
@@ -85,11 +85,11 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
     .aux_type = TWO_POSITION,
     .aux_function = MULTI_FUNCTION,
 
-    .aux2_type = ANALOG,
-    .aux2_function = INDICATORS,
+    .aux2_type = TWO_POSITION,
+    .aux2_function = NOT_USED,
 
-    .aux3_type = ANALOG,
-    .aux3_function = LIGHT_SWITCH,
+    .aux3_type = TWO_POSITION,
+    .aux3_function = NOT_USED,
 
     .light_switch_centers = {-80, -40, 0, 40, 80, 0, 0, 0, 0},
     .light_switch_hysteresis = 40 / 4,
