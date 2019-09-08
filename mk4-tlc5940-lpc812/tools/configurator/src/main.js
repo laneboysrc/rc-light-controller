@@ -425,7 +425,7 @@ var app = (function () {
         log.log('config_version: ' + config_version);
         log.log('config.firmware_version: ' + new_config.firmware_version);
 
-        if (config.firmware_version >= 20) {
+        if (new_config.firmware_version >= 20) {
             // config_version 2 settings
             new_config.multi_aux = get_flag2(0x0001);
             new_config.shelf_queen_mode = get_flag2(0x0002);
@@ -439,17 +439,6 @@ var app = (function () {
             new_config.aux2_function = data[offset + 73];
             new_config.aux3_type = data[offset + 74];
             new_config.aux3_function = data[offset + 75];
-
-            // FIXME: what happens if a user loads a preprocessor firmware
-            // that supports multi_aux? It would show up as Master, servo reader
-            // with multi_aux turned on, which is not a supported hardware
-            // configuration.
-            //
-            // Whenever we change mode to SERVO_READER, we should clear multi_aux
-            // But when loading the firmware, we accept SERVO_READER and multi_aux
-            // being set!
-            // This way someone with custom hardware can use that trick to
-            // create a servo reader with multi_aux functionality
         }
         else {
             // Set some defaults
@@ -601,6 +590,29 @@ var app = (function () {
 
 
     // *************************************************************************
+    var mode_changed_handler = function () {
+        update_section_visibility();
+
+        // We set the multi_aux flag only when the appropriate configuration is
+        // set, otherwise clear it.
+        // This is done deliberately here and not in update_section_visibility()
+        // because we want to allow for the use-case that a configuration is loaded
+        // where SERVO_READER is active and multi_aux as well.
+        // Such configuration can not be set directly in the configurator but
+        // could be useful to someone making custom hardware with 5 servo inputs.
+
+        var new_mode = parseInt(el.mode.value, 10);
+
+        if (new_mode === MASTER_WITH_UART_READER_5CH) {
+            config.multi_aux = true;
+        }
+        else {
+            config.multi_aux = false;
+        }
+    }
+
+
+    // *************************************************************************
     var update_section_visibility = function () {
         function set_name(elements, name) {
             var i;
@@ -748,7 +760,6 @@ var app = (function () {
         case MODE.MASTER_WITH_UART_READER_5CH:
             show_mode_info(el.mode_master_uart_5ch);
 
-            // FIXME: adjust as necessary
             update_menu_visibility([
                 'config_hardware',
                 'config_mode',
@@ -1039,7 +1050,6 @@ var app = (function () {
         el.gamma_value.value = gamma_object.gamma_value;
 
 
-        // FIXME: update for config_verion 2
         el.blink_counter_value_dark.value = config.blink_counter_value_dark * SYSTICK_IN_MS;
         el.us_style_combined_lights.checked = Boolean(config.us_style_combined_lights);
 
@@ -1315,32 +1325,41 @@ var app = (function () {
 
         set_uint16(data, offset + 60, config.startup_time);
 
-        // FIXME: handle config_version 2
-        set_uint16(data, offset + 68, config.blink_counter_value_dark);
+        // Handle firmware supporting config_version 2 and above
+        if (config.firmware_version >= 20) {
+            var flags2 = 0;
+            flags2 |= (config.multi_aux << 0);
+            flags2 |= (config.shelf_queen_mode << 1);
+            flags2 |= (config.us_style_combined_lights << 2);
+            set_uint16(data, offset + 64, flags2);
 
-        var flags2 = 0;
-        flags2 |= (config.multi_aux << 0);
-        flags2 |= (config.shelf_queen_mode << 1);
-        flags2 |= (config.us_style_combined_lights << 2);
-        set_uint16(data, offset + 64, flags2);
+            set_uint16(data, offset + 68, config.blink_counter_value_dark);
+        
+            set_uint8(data, offset + 70, config.aux_type);
+            set_uint8(data, offset + 71, config.aux_function);
+            set_uint8(data, offset + 72, config.aux2_type);
+            set_uint8(data, offset + 73, config.aux2_function);
+            set_uint8(data, offset + 74, config.aux3_type);
+            set_uint8(data, offset + 75, config.aux3_function);
 
-        // Pre-calculate AUX function for light switch handling hysteresis
-        // and center values
-        spacing = (200 / light_switch_positions);
+            // Pre-calculate AUX function for light switch handling hysteresis
+            // and center values
+            spacing = (200 / light_switch_positions);
 
-        config.light_switch_hysteresis = Math.round(spacing / 4);
-        set_uint8(data, offset + 85, config.light_switch_hysteresis);
+            config.light_switch_hysteresis = Math.round(spacing / 4);
+            set_uint8(data, offset + 85, config.light_switch_hysteresis);
 
-        config.light_switch_centers = [];
-        for (i = 0; i < 9; i++) {
-            if (i > light_switch_positions) {
-                config.light_switch_centers.push(0);
+            config.light_switch_centers = [];
+            for (i = 0; i < 9; i++) {
+                if (i > light_switch_positions) {
+                    config.light_switch_centers.push(0);
+                }
+                else {
+                    config.light_switch_centers.push(
+                        Math.round(-100 + (spacing / 2) + (i * spacing)));
+                }
+                set_int8(data, offset + 76 + i, config.light_switch_centers[i]);
             }
-            else {
-                config.light_switch_centers.push(
-                    Math.round(-100 + (spacing / 2) + (i * spacing)));
-            }
-            set_int8(data, offset + 76 + i, config.light_switch_centers[i]);
         }
     };
 
@@ -1679,30 +1698,28 @@ var app = (function () {
         if (parseInt(el.mode.value, 10) === MODE.TEST) {
             // Patch firmware version
             hardware_test_configuration.config.firmware_version = config.firmware_version;
+            hardware_test_configuration.config.baudrate = config.baudrate;
             return hardware_test_configuration;
         }
-
-        // FIXME: handle preprocessor
-        // FIXME: patch firmware version
-        // FIXME: patch baudrate
+        else if (parseInt(el.mode.value, 10) === MODE.PREPROCESSOR) {
+            preprocessor_configuration.config.firmware_version = config.firmware_version;
+            preprocessor_configuration.config.baudrate = config.baudrate;
+            preprocessor_configuration.config.multi_aux = false;
+        }
+        else if (parseInt(el.mode.value, 10) === MODE.PREPROCESSOR_5CH) {
+            preprocessor_configuration.config.firmware_version = config.firmware_version;
+            preprocessor_configuration.config.baudrate = config.baudrate;
+            preprocessor_configuration.config.multi_aux = true;
+        }
 
 
         log.log('config_version: ' + config_version);
         log.log('config.firmware_version: ' + config.firmware_version);
 
-        // mode: Master/Slave/...
-        // FIXME: don't set multi_aux here, set it on mode change.
-        // This way we can have someone make custom hardware to do multi_aux
-        // even though that is not a supported scennario
-        config.multi_aux = false;
+
         if (config.mode === MODE.MASTER_WITH_UART_READER_5CH) {
             config.mode = MODE.MASTER_WITH_UART_READER;
-            config.multi_aux = true;
         }
-        if (config.mode === MODE.PREPROCESSOR_5CH) {
-            config.multi_aux = true;
-        }
-
         update_int('mode');
 
 
@@ -1794,7 +1811,6 @@ var app = (function () {
         update_int('servo_pulse_max');
         update_time('startup_time');
 
-        // FIXME: update for config_version 2
         update_time('blink_counter_value_dark');
         update_boolean('us_style_combined_lights');
 
@@ -2454,7 +2470,7 @@ var app = (function () {
         set_led_feature_handler('leds_master', 'master');
         set_led_feature_handler('leds_slave', 'slave');
 
-        el.mode.addEventListener('change', update_section_visibility, false);
+        el.mode.addEventListener('change', mode_changed_handler, false);
 
         el.config_output.addEventListener('change', update_section_visibility, false);
 

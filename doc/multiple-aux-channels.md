@@ -119,4 +119,7 @@ We need to add preprocessor and multi-aux preprocessor to the configuration list
 * How to setup the light controller if there is no CH3/AUX toggle function assigned?
     - We always do local button on CH3 if master with uart-reader
 * Arbitration of functions
-
+* What happens if a user loads a preprocessor firmware that supports multi_aux? 
+    - It would show up as Master, servo reader with multi_aux turned on, which is not a supported hardware configuration.
+    - Whenever we change mode to SERVO_READER, we should clear multi_aux But when loading the firmware, we accept SERVO_READER and multi_aux being set! This way someone with custom hardware can use that trick to create a servo reader with multi_aux functionality
+    
