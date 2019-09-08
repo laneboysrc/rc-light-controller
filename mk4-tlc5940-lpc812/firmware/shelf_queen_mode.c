@@ -15,7 +15,6 @@
 
 static uint16_t shelf_queen_mode_timeout = SHELF_QUEEN_MODE_TIMEOUT;
 
-static uint16_t pause_time;
 static uint16_t delay_time;
 
 static uint8_t command;
@@ -66,7 +65,6 @@ static void indicator(void)
     }
 
     delay_time = random_min_max(2000/__SYSTICK_IN_MS, 8000/__SYSTICK_IN_MS);
-    pause_time = random_min_max(500/__SYSTICK_IN_MS, 4000/__SYSTICK_IN_MS);
 }
 
 
@@ -93,22 +91,24 @@ static void reverse(void)
     delay_time = random_min_max(config.auto_brake_counter_value_reverse_max, 5000/__SYSTICK_IN_MS);
 }
 
-// ****************************************************************************
-static void stop_blinking(void)
-{
-    // Stop the indicators/hazard if active
-    set_blink_off();
-    if (global_flags.blink_hazard) {
-        toggle_hazard_lights();
-    }
-}
-
 
 
 // ****************************************************************************
 static void next_action(void)
 {
-    stop_blinking();
+
+    // Stop the indicators/hazard if active
+    if (global_flags.blink_indicator_left || global_flags.blink_indicator_right) {
+        set_blink_off();
+        delay_time = random_min_max(500/__SYSTICK_IN_MS, 4000/__SYSTICK_IN_MS);
+        return;
+    }
+    else if (global_flags.blink_hazard) {
+        toggle_hazard_lights();
+        delay_time = random_min_max(500/__SYSTICK_IN_MS, 4000/__SYSTICK_IN_MS);
+        return;
+    }
+
 
     do {
         command = random_min_max(COMMAND_MIN, COMMAND_MAX);
@@ -164,10 +164,6 @@ void process_shelf_queen_mode(void)
     if (global_flags.shelf_queen_mode) {
         if (delay_time) {
             --delay_time;
-        }
-        else if (pause_time) {
-            --pause_time;
-            stop_blinking();
         }
         else {
             next_action();
