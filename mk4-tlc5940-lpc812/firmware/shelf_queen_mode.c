@@ -15,6 +15,7 @@
 
 static uint16_t shelf_queen_mode_timeout = SHELF_QUEEN_MODE_TIMEOUT;
 
+static uint16_t pause_time;
 static uint16_t delay_time;
 
 static uint8_t command;
@@ -37,7 +38,7 @@ static void light_switch(void)
     last_light_switch_position = new_light_switch_position;
     light_switch_position = new_light_switch_position;
 
-    delay_time = random_min_max(1000/__SYSTICK_IN_MS, 3000/__SYSTICK_IN_MS);
+    delay_time = random_min_max(1000/__SYSTICK_IN_MS, 5000/__SYSTICK_IN_MS);
 }
 
 
@@ -64,7 +65,8 @@ static void indicator(void)
             break;
     }
 
-    delay_time = random_min_max(2000/__SYSTICK_IN_MS, 10000/__SYSTICK_IN_MS);
+    delay_time = random_min_max(2000/__SYSTICK_IN_MS, 8000/__SYSTICK_IN_MS);
+    pause_time = random_min_max(500/__SYSTICK_IN_MS, 4000/__SYSTICK_IN_MS);
 }
 
 
@@ -76,7 +78,7 @@ static void brake(void)
     global_flags.braking = false;
 
     throttle_neutral();
-    delay_time = config.auto_brake_counter_value_forward_max;
+    delay_time = random_min_max(config.auto_brake_counter_value_forward_max, 5000/__SYSTICK_IN_MS);
 }
 
 
@@ -88,18 +90,25 @@ static void reverse(void)
     global_flags.braking = false;
 
     throttle_neutral();
-    delay_time = config.auto_brake_counter_value_reverse_max;
+    delay_time = random_min_max(config.auto_brake_counter_value_reverse_max, 5000/__SYSTICK_IN_MS);
 }
 
-
 // ****************************************************************************
-static void next_action(void)
+static void stop_blinking(void)
 {
     // Stop the indicators/hazard if active
     set_blink_off();
     if (global_flags.blink_hazard) {
         toggle_hazard_lights();
     }
+}
+
+
+
+// ****************************************************************************
+static void next_action(void)
+{
+    stop_blinking();
 
     do {
         command = random_min_max(COMMAND_MIN, COMMAND_MAX);
@@ -155,6 +164,10 @@ void process_shelf_queen_mode(void)
     if (global_flags.shelf_queen_mode) {
         if (delay_time) {
             --delay_time;
+        }
+        else if (pause_time) {
+            --pause_time;
+            stop_blinking();
         }
         else {
             next_action();
