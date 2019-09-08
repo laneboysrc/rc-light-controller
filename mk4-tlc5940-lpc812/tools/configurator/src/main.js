@@ -1052,6 +1052,7 @@ var app = (function () {
 
         el.blink_counter_value_dark.value = config.blink_counter_value_dark * SYSTICK_IN_MS;
         el.us_style_combined_lights.checked = Boolean(config.us_style_combined_lights);
+        el.shelf_queen_mode.checked = Boolean(config.shelf_queen_mode);
 
         el.aux_type.value = config.aux_type;
         el.aux_function.value = config.aux_function;
@@ -1823,6 +1824,7 @@ var app = (function () {
 
         update_time('blink_counter_value_dark');
         update_boolean('us_style_combined_lights');
+        update_boolean('shelf_queen_mode');
 
         update_int('aux_type');
         update_int('aux_function');
@@ -2442,7 +2444,7 @@ var app = (function () {
 
             'centre_threshold_low', 'centre_threshold_high',
             'initial_endpoint_delta', 'ch3_multi_click_timeout',
-            'winch_command_repeat_time','no_signal_timeout',
+            'winch_command_repeat_time','no_signal_timeout', 'shelf_queen_mode',
 
             'number_of_gears','gearbox_servo_active_time','gearbox_servo_idle_time',
 

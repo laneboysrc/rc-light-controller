@@ -12,11 +12,11 @@ X Add AUX value reading to light programs
 
 # Configurator
 
-* Add shelf-queen-mode checkbox
-
 * Limit AUX function choices based on AUX type
 
 * Fix IE7 (remove 'flex' on nav, page but keep on body? menu disabling)
+
+X Add shelf-queen-mode checkbox
 
 X Fix table for ground fault not lining up
 
