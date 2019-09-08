@@ -12,9 +12,9 @@ X Add AUX value reading to light programs
 
 # Configurator
 
-* Limit AUX function choices based on AUX type
-
 * Fix IE7 (remove 'flex' on nav, page but keep on body? menu disabling)
+
+X Limit AUX function choices based on AUX type
 
 X Add shelf-queen-mode checkbox
 

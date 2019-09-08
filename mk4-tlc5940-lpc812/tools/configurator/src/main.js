@@ -590,6 +590,39 @@ var app = (function () {
 
 
     // *************************************************************************
+    var aux_type_changed_handler = function () {
+        var new_type = parseInt(this.type.value, 10);
+        var current_function = parseInt(this.fn.value, 10);
+
+        switch (new_type) {
+            case AUX_TYPE.AUX_TYPE_TWO_POSITION:
+            case AUX_TYPE.AUX_TYPE_TWO_POSITION_UP_DOWN:
+            case AUX_TYPE.AUX_TYPE_MOMENTARY:
+                this.fn.querySelector(".function_multi_function").disabled = false;
+                this.fn.querySelector(".function_indicators").disabled = true;
+                this.fn.querySelector(".function_light_switch").disabled = true;
+
+                if (current_function === AUX_FUNCTION.AUX_FUNCTION_LIGHT_SWITCH ||
+                    current_function === AUX_FUNCTION.AUX_FUNCTION_INDICATORS) {
+                    this.fn.value = AUX_FUNCTION.AUX_FUNCTION_NOT_USED;    
+                }
+                break;
+
+            case AUX_TYPE.AUX_TYPE_THREE_POSITION:
+            case AUX_TYPE.AUX_TYPE_ANALOG:
+                this.fn.querySelector(".function_multi_function").disabled = true;
+                this.fn.querySelector(".function_indicators").disabled = false;
+                this.fn.querySelector(".function_light_switch").disabled = false;
+
+                if (current_function === AUX_FUNCTION.AUX_FUNCTION_MULTI_FUNCTION) {
+                    this.fn.value = AUX_FUNCTION.AUX_FUNCTION_NOT_USED;    
+                }
+                break;
+        }
+    };
+
+
+    // *************************************************************************
     var mode_changed_handler = function () {
         update_section_visibility();
 
@@ -609,7 +642,7 @@ var app = (function () {
         else {
             config.multi_aux = false;
         }
-    }
+    };
 
 
     // *************************************************************************
@@ -1061,6 +1094,10 @@ var app = (function () {
         el.aux3_type.value = config.aux3_type;
         el.aux3_function.value = config.aux3_function;
 
+        // Ensure proper enabling/disabling of allowed AUX functions based on AUX type
+        (aux_type_changed_handler.bind({'type': el.aux_type, 'fn': el.aux_function}))();
+        (aux_type_changed_handler.bind({'type': el.aux2_type, 'fn': el.aux2_function}))();
+        (aux_type_changed_handler.bind({'type': el.aux3_type, 'fn': el.aux3_function}))();
 
         // Show/hide various sections depending on the current settings
         update_section_visibility();
@@ -2516,6 +2553,16 @@ var app = (function () {
                 select_page(selected_page);
             });
         }
+
+        el.aux_type.addEventListener('change', 
+            aux_type_changed_handler.bind({'type': el.aux_type, 'fn': el.aux_function})
+        );
+        el.aux2_type.addEventListener('change', 
+            aux_type_changed_handler.bind({'type': el.aux2_type, 'fn': el.aux2_function})
+        );
+        el.aux3_type.addEventListener('change', 
+            aux_type_changed_handler.bind({'type': el.aux3_type, 'fn': el.aux3_function})
+        );
 
         // el.webusb_pair.addEventListener('click', pair_usb_device);
 
