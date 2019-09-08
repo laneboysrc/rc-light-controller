@@ -23,15 +23,16 @@ X Add support for addressing LEDs without having to use an
     LED sequence is important. This could be as easy as translating names like
     'indicator' to the appropriate led[0..31] values.
 
-* Set Local ch3_is_local_switch always when UART input active
-
-* Set multi_aux when 5ch chosen
 
 * Add shelf-queen-mode checkbox
 
 * Limit AUX function choices based on AUX type
 
 * Fix IE7 (remove 'flex' on nav, page but keep on body? menu disabling)
+
+X Set Local ch3_is_local_switch always when UART input active
+
+X Set multi_aux when 5ch chosen
 
 X Add RUN_WHEN_SHELF_QUEEN_MODE
 X Add AUX, AUX2. AUX3

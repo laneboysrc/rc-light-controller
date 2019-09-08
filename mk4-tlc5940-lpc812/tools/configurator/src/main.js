@@ -1693,6 +1693,11 @@ var app = (function () {
         }
 
 
+        log.log('config.mode: ' + config.mode);
+        log.log('config_version: ' + config_version);
+        log.log('config.firmware_version: ' + config.firmware_version);
+
+
         // If the test firmware is requested return the special configuration
         // that is stored as part of this tool.
         if (parseInt(el.mode.value, 10) === MODE.TEST) {
@@ -1713,14 +1718,11 @@ var app = (function () {
         }
 
 
-        log.log('config_version: ' + config_version);
-        log.log('config.firmware_version: ' + config.firmware_version);
-
-
         if (config.mode === MODE.MASTER_WITH_UART_READER_5CH) {
             config.mode = MODE.MASTER_WITH_UART_READER;
         }
         update_int('mode');
+
 
 
         // ESC mode
@@ -1766,6 +1768,12 @@ var app = (function () {
             config.ch3_is_two_button = true;
         }
 
+        // Set Local ch3_is_local_switch always when UART input active
+        if (config_version !== 1) {
+            if (config.mode === MODE.MASTER_WITH_UART_READER || config.mode === MODE.STAND_ALONE) {
+                config.ch3_is_local_switch = true;
+            }
+        }
 
         // Baudrate
         update_int('baudrate');
