@@ -1710,11 +1710,13 @@ var app = (function () {
             preprocessor_configuration.config.firmware_version = config.firmware_version;
             preprocessor_configuration.config.baudrate = config.baudrate;
             preprocessor_configuration.config.multi_aux = false;
+            return preprocessor_configuration;
         }
         else if (parseInt(el.mode.value, 10) === MODE.PREPROCESSOR_5CH) {
             preprocessor_configuration.config.firmware_version = config.firmware_version;
             preprocessor_configuration.config.baudrate = config.baudrate;
             preprocessor_configuration.config.multi_aux = true;
+            return preprocessor_configuration;
         }
 
 
