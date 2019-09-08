@@ -348,6 +348,9 @@ var app = (function () {
 
 
     // *************************************************************************
+    // Parse the configuration out of the firmware image
+    // Note that this function is not used when loading a saved configuration,
+    // in that case the function load_configuration_from_disk() is used.
     var parse_configuration = function () {
         var data = firmware.data;
         var offset = firmware.offset[SECTION_CONFIG];
@@ -422,19 +425,47 @@ var app = (function () {
         log.log('config_version: ' + config_version);
         log.log('config.firmware_version: ' + new_config.firmware_version);
 
-        // FIXME: handle config_version 1 and 2
-        new_config.blink_counter_value_dark = get_uint16(data, offset + 68);
-        new_config.multi_aux = get_flag2(0x0001);
-        new_config.shelf_queen_mode = get_flag2(0x0002);
-        new_config.us_style_combined_lights = get_flag2(0x0004);
+        if (config.firmware_version >= 20) {
+            // config_version 2 settings
+            new_config.multi_aux = get_flag2(0x0001);
+            new_config.shelf_queen_mode = get_flag2(0x0002);
+            new_config.us_style_combined_lights = get_flag2(0x0004);
 
-        new_config.aux_type = data[offset + 70];
-        new_config.aux_function = data[offset + 71];
-        new_config.aux2_type = data[offset + 72];
-        new_config.aux2_function = data[offset + 73];
-        new_config.aux3_type = data[offset + 74];
-        new_config.aux3_function = data[offset + 75];
+            new_config.blink_counter_value_dark = get_uint16(data, offset + 68);
 
+            new_config.aux_type = data[offset + 70];
+            new_config.aux_function = data[offset + 71];
+            new_config.aux2_type = data[offset + 72];
+            new_config.aux2_function = data[offset + 73];
+            new_config.aux3_type = data[offset + 74];
+            new_config.aux3_function = data[offset + 75];
+
+            // FIXME: what happens if a user loads a preprocessor firmware
+            // that supports multi_aux? It would show up as Master, servo reader
+            // with multi_aux turned on, which is not a supported hardware
+            // configuration.
+            //
+            // Whenever we change mode to SERVO_READER, we should clear multi_aux
+            // But when loading the firmware, we accept SERVO_READER and multi_aux
+            // being set!
+            // This way someone with custom hardware can use that trick to
+            // create a servo reader with multi_aux functionality
+        }
+        else {
+            // Set some defaults
+            new_config.multi_aux = false;
+            new_config.shelf_queen_mode = true;
+            new_config.us_style_combined_lights = true;
+
+            new_config.blink_counter_value_dark = new_config.blink_counter_value;
+
+            new_config.aux_type = AUX_TYPE_TWO_POSITION;
+            new_config.aux_function = AUX_FUNCTION_MULTI_FUNCTION;
+            new_config.aux2_type = AUX_TYPE_TWO_POSITION;
+            new_config.aux2_function = AUX_FUNCTION_NOT_USED;
+            new_config.aux3_type = AUX_TYPE_TWO_POSITION;
+            new_config.aux3_function = AUX_FUNCTION_NOT_USED;
+        }
 
         return new_config;
     };
@@ -630,7 +661,7 @@ var app = (function () {
 
                     if (menu_item == page_name) {
                         // if (page_name != 'testing' || !preprocessor_simulator_disabled) {
-                            button.disabled = false;
+                        button.disabled = false;
                         // }
                         break;
                     }
@@ -1228,9 +1259,11 @@ var app = (function () {
         var i;
         var spacing;
 
+        log.log('config.mode: ' + config.mode);
+        log.log('config_version: ' + config_version);
+        log.log('config.firmware_version: ' + config.firmware_version);
+
         config.light_switch_positions = light_switch_positions;
-
-
 
         set_uint8(data, offset, config.firmware_version);
         set_uint8(data, offset + 1, config.mode);
@@ -1439,10 +1472,11 @@ var app = (function () {
             // firmware_version to check. firmware_version <20 means
             // config_version 1
             if (config.firmware_version < 20) {
-                config.blink_counter_value_dark = config.blink_counter_value;
                 config.multi_aux = false;
                 config.shelf_queen_mode = true;
                 config.us_style_combined_lights = true;
+
+                config.blink_counter_value_dark = config.blink_counter_value;
 
                 config.aux_type = AUX_TYPE_TWO_POSITION;
                 config.aux_function = AUX_FUNCTION_MULTI_FUNCTION;
@@ -1657,6 +1691,9 @@ var app = (function () {
         log.log('config.firmware_version: ' + config.firmware_version);
 
         // mode: Master/Slave/...
+        // FIXME: don't set multi_aux here, set it on mode change.
+        // This way we can have someone make custom hardware to do multi_aux
+        // even though that is not a supported scennario
         config.multi_aux = false;
         if (config.mode === MODE.MASTER_WITH_UART_READER_5CH) {
             config.mode = MODE.MASTER_WITH_UART_READER;
