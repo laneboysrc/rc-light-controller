@@ -15,8 +15,8 @@
    viewBox="0 0 1052.3622 744.09448"
    id="svg2"
    version="1.1"
-   inkscape:version="0.91 r13725"
-   sodipodi:docname="arne-jeep-wiring-diagram.svg"
+   inkscape:version="0.92.3 (2405546, 2018-03-11)"
+   sodipodi:docname="crawler-wiring-diagram-master-slave-lightbar.svg"
    inkscape:export-filename="/home/laneboysrc/scratchpad/markus/arne-jeep.svg.png"
    inkscape:export-xdpi="87.57"
    inkscape:export-ydpi="87.57">
@@ -28,7 +28,7 @@
      inkscape:pageopacity="1"
      inkscape:pageshadow="2"
      inkscape:zoom="1.1431423"
-     inkscape:cx="475.02387"
+     inkscape:cx="476.77343"
      inkscape:cy="379.92856"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
@@ -58,23 +58,23 @@
      id="layer1"
      transform="translate(0,-308.26772)">
     <image
-       sodipodi:absref="/home/laneboysrc/scratchpad/markus/scx10-chassis.jpg"
-       xlink:href="scx10-chassis.jpg"
-       y="734.90851"
-       x="282.87164"
-       id="image3505"
-       preserveAspectRatio="none"
+       sodipodi:absref="/home/laneboysrc/projects/rc-light-controller/doc/../../rc-light-controller.PRIVATE/configurations-for-customers/markus/scx10-chassis.jpg"
+       xlink:href="../../rc-light-controller.PRIVATE/configurations-for-customers/markus/scx10-chassis.jpg"
+       width="463"
        height="264"
-       width="463" />
-    <image
-       sodipodi:absref="/home/laneboysrc/scratchpad/markus/jeep-top-view.jpg"
-       xlink:href="jeep-top-view.jpg"
-       y="333.75235"
-       x="246.86815"
-       id="image3516"
        preserveAspectRatio="none"
+       id="image3505"
+       x="282.87164"
+       y="734.90851" />
+    <image
+       sodipodi:absref="/home/laneboysrc/projects/rc-light-controller/doc/../../rc-light-controller.PRIVATE/configurations-for-customers/markus/jeep-top-view.jpg"
+       xlink:href="../../rc-light-controller.PRIVATE/configurations-for-customers/markus/jeep-top-view.jpg"
+       width="563"
        height="314"
-       width="563" />
+       preserveAspectRatio="none"
+       id="image3516"
+       x="246.86815"
+       y="333.75235" />
     <image
        y="-618.68683"
        x="178.47609"
@@ -86,16 +86,16 @@
        width="183.3"
        transform="matrix(-0.44816152,0.8939526,-0.8939526,-0.44816152,0,0)" />
     <text
-       sodipodi:linespacing="125%"
        id="text4246"
        y="709.41815"
        x="499.71149"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:17.5px;line-height:125%;font-family:FreeSans;-inkscape-font-specification:FreeSans;text-align:start;letter-spacing:0px;word-spacing:0px;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:0%;font-family:FreeSans;-inkscape-font-specification:FreeSans;text-align:start;letter-spacing:0px;word-spacing:0px;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        xml:space="preserve"><tspan
          id="tspan4250"
          y="709.41815"
          x="499.71149"
-         sodipodi:role="line">Light controller (master)</tspan></text>
+         sodipodi:role="line"
+         style="font-size:17.5px;line-height:1.25">Light controller (master)</tspan></text>
     <image
        y="846.40497"
        x="346.13376"
@@ -105,27 +105,27 @@
        height="59.254646"
        width="86.503136" />
     <text
-       sodipodi:linespacing="125%"
        id="text4236-3"
        y="1016.4963"
        x="373.93018"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:17.5px;line-height:125%;font-family:FreeSans;-inkscape-font-specification:FreeSans;text-align:start;letter-spacing:0px;word-spacing:0px;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:0%;font-family:FreeSans;-inkscape-font-specification:FreeSans;text-align:start;letter-spacing:0px;word-spacing:0px;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        xml:space="preserve"><tspan
          y="1016.4963"
          x="373.93018"
          sodipodi:role="line"
-         id="tspan4340-7">LiPo</tspan></text>
+         id="tspan4340-7"
+         style="font-size:17.5px;line-height:1.25">LiPo</tspan></text>
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:17.5px;line-height:125%;font-family:FreeSans;-inkscape-font-specification:FreeSans;text-align:start;letter-spacing:0px;word-spacing:0px;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:0%;font-family:FreeSans;-inkscape-font-specification:FreeSans;text-align:start;letter-spacing:0px;word-spacing:0px;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        x="350.73239"
        y="336.55301"
-       id="text4551"
-       sodipodi:linespacing="125%"><tspan
+       id="text4551"><tspan
          id="tspan4553"
          sodipodi:role="line"
          x="350.73239"
-         y="336.55301">Light Bar</tspan></text>
+         y="336.55301"
+         style="font-size:17.5px;line-height:1.25">Light Bar</tspan></text>
     <image
        width="142.94016"
        height="98.958572"
@@ -166,15 +166,15 @@
        style="fill:none;fill-rule:evenodd;stroke:#ff0000;stroke-width:3.54330707;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:17.5px;line-height:125%;font-family:FreeSans;-inkscape-font-specification:FreeSans;text-align:start;letter-spacing:0px;word-spacing:0px;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:0%;font-family:FreeSans;-inkscape-font-specification:FreeSans;text-align:start;letter-spacing:0px;word-spacing:0px;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        x="504.66"
        y="342.57687"
-       id="text3521"
-       sodipodi:linespacing="125%"><tspan
+       id="text3521"><tspan
          sodipodi:role="line"
          x="504.66"
          y="342.57687"
-         id="tspan4390">Light controller (slave)</tspan></text>
+         id="tspan4390"
+         style="font-size:17.5px;line-height:1.25">Light controller (slave)</tspan></text>
     <image
        y="-820.4129"
        x="385.06009"
@@ -383,14 +383,14 @@
        inkscape:connector-curvature="0" />
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:17.5px;line-height:125%;font-family:FreeSans;-inkscape-font-specification:FreeSans;text-align:start;letter-spacing:0px;word-spacing:0px;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:0%;font-family:FreeSans;-inkscape-font-specification:FreeSans;text-align:start;letter-spacing:0px;word-spacing:0px;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        x="443.72546"
        y="672.67731"
-       id="text4402"
-       sodipodi:linespacing="125%"><tspan
+       id="text4402"><tspan
          sodipodi:role="line"
          x="443.72546"
          y="672.67731"
-         id="tspan4404">Easy to remove connector</tspan></text>
+         id="tspan4404"
+         style="font-size:17.5px;line-height:1.25">Easy to remove connector</tspan></text>
   </g>
 </svg>
