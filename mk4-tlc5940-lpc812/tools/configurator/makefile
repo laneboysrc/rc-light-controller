@@ -28,8 +28,9 @@ endif
 SOURCES := src/index.html
 SOURCES += src/chrome_uart.js
 SOURCES += src/default_firmware_image_mk4.js
+SOURCES += src/config_hardware_test.js
+SOURCES += src/config_preprocessor.js
 SOURCES += src/gamma.js
-SOURCES += src/hardware_test.js
 SOURCES += src/flash_lpc8xx.js
 SOURCES += src/flash_dfu.js
 SOURCES += src/main.js
