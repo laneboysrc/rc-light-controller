@@ -12,7 +12,7 @@ X Add AUX value reading to light programs
 
 # Configurator
 
-* Fix IE7 (remove 'flex' on nav, page but keep on body? menu disabling)
+* Check with IE10
 
 X Limit AUX function choices based on AUX type
 
