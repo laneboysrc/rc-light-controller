@@ -182,7 +182,7 @@
             resides on the body while the receiver is mounted on the chassis.
           </div>
           <div>
-            For more information on the preprocessor please read our blog articles:
+            For more information on the pre-processor please read our blog articles:
             <ul>
               <li><a href="http://laneboysrc.blogspot.com/2012/12/pre-processor-for-diy-rc-light.html" target="_blank">Pre-processor for the DIY RC Light controller</a></li>
               <li><a href="http://laneboysrc.blogspot.com/2013/01/pre-processor-miniaturization.html" target="_blank">pre-processor miniaturization</a></li>
@@ -195,7 +195,13 @@
         </div>
         <div id="mode_master_uart_5ch" class="info">
           <div>
-            FIXME: add some useful text here...
+            The light controller does not read servo signals directly, but from a
+            <em>pre-processor</em>. This particular mode requires what we call
+            <em>multi-aux pre-processor</em> that is capable of reading up
+            to five servo channels from a receiver.
+            The <em>pre-processor</em> reads the servo signals and converts them
+            into a serial data stream so that the light controller can be
+            connected with a single servo extension cable.
           </div>
         </div>
         <div id="mode_master_cppm" class="info">
@@ -229,17 +235,27 @@
         </div>
         <div id="mode_stand_alone" class="info">
           <div>
-            FIXME: add some useful text here...
+            The light controller can operate without any RC system being
+            connected. This is useful for non-RC applications such as lighting
+            up doll-houses or model railways.
+          </div>
+          <div>
+            In this mode you would either program the light controller for
+            automatic operation using the <em>light programs</em>, and/or use
+            a push-button connected to the CH3/AUX input.
           </div>
         </div>
         <div id="mode_preprocessor" class="info">
           <div>
-            FIXME: add some useful text here...
+            Choosing this mode creates a firmware that is suitable for flashing
+            into the <em>pre-processor hardware</em>.
           </div>
         </div>
         <div id="mode_preprocessor_5ch" class="info">
           <div>
-            FIXME: add some useful text here...
+            Choosing this mode creates a firmware that is suitable for flashing
+            into the <em>multi-aux pre-processor hardware</em> that supports
+            up to 5 servo inputs.
           </div>
         </div>
         <div id="mode_test" class="info">
@@ -728,7 +744,7 @@
               <label for="us_style_combined_lights">Enable US style combined tail/brake/indicators</label>
             </div>
             <div>
-              When enabled, setting values for tail, brake and indicator for a particular LED enables US-style indicators. When this flag is enabled then the indicators have priority over the brake lights. When the flag is disabled the brake lights have priority.
+              When enabled, setting values for tail, brake and indicator for a particular LED enables US-style indicators. When this flag is enabled then the indicators have priority over the brake lights (= correct setting for US cars). When the flag is disabled the brake lights have priority (= behavior of early light controller versions.
             </div>
           </div>
 
