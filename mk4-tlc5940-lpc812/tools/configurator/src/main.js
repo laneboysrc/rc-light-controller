@@ -604,7 +604,7 @@ var app = (function () {
 
                 if (current_function === AUX_FUNCTION.AUX_FUNCTION_LIGHT_SWITCH ||
                     current_function === AUX_FUNCTION.AUX_FUNCTION_INDICATORS) {
-                    this.fn.value = AUX_FUNCTION.AUX_FUNCTION_NOT_USED;    
+                    this.fn.value = AUX_FUNCTION.AUX_FUNCTION_NOT_USED;
                 }
                 break;
 
@@ -615,7 +615,7 @@ var app = (function () {
                 this.fn.querySelector(".function_light_switch").disabled = false;
 
                 if (current_function === AUX_FUNCTION.AUX_FUNCTION_MULTI_FUNCTION) {
-                    this.fn.value = AUX_FUNCTION.AUX_FUNCTION_NOT_USED;    
+                    this.fn.value = AUX_FUNCTION.AUX_FUNCTION_NOT_USED;
                 }
                 break;
         }
@@ -855,15 +855,11 @@ var app = (function () {
         case MODE.STAND_ALONE:
             show_mode_info(el.mode_stand_alone);
 
-            // FIXME: adjust as necessary
             update_menu_visibility([
                 'config_hardware',
                 'config_mode',
-                'config_esc',
-                'config_output',
                 'config_leds',
                 'config_light_programs',
-                'config_advanced',
                 'testing',
                 'info',
             ]);
@@ -1372,7 +1368,7 @@ var app = (function () {
             set_uint16(data, offset + 64, flags2);
 
             set_uint16(data, offset + 68, config.blink_counter_value_dark);
-        
+
             set_uint8(data, offset + 70, config.aux_type);
             set_uint8(data, offset + 71, config.aux_function);
             set_uint8(data, offset + 72, config.aux2_type);
@@ -2554,13 +2550,13 @@ var app = (function () {
             });
         }
 
-        el.aux_type.addEventListener('change', 
+        el.aux_type.addEventListener('change',
             aux_type_changed_handler.bind({'type': el.aux_type, 'fn': el.aux_function})
         );
-        el.aux2_type.addEventListener('change', 
+        el.aux2_type.addEventListener('change',
             aux_type_changed_handler.bind({'type': el.aux2_type, 'fn': el.aux2_function})
         );
-        el.aux3_type.addEventListener('change', 
+        el.aux3_type.addEventListener('change',
             aux_type_changed_handler.bind({'type': el.aux3_type, 'fn': el.aux3_function})
         );
 
