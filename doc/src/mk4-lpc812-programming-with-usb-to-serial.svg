@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="150mm"
+   height="60mm"
+   viewBox="0 0 150 60"
+   version="1.1"
+   id="svg8"
+   inkscape:version="0.92.3 (2405546, 2018-03-11)"
+   sodipodi:docname="mk4-lpc812-programming-with-usb-to-serial.svg"
+   inkscape:export-filename="/home/laneboysrc/projects/rc-light-controller/doc/src/mk4-lpc812-programming-with-usb-to-serial.svg.png"
+   inkscape:export-xdpi="90.169998"
+   inkscape:export-ydpi="90.169998">
+  <defs
+     id="defs2">
+    <inkscape:path-effect
+       effect="bspline"
+       id="path-effect855"
+       is_visible="true"
+       weight="33.333333"
+       steps="2"
+       helper_size="0"
+       apply_no_weight="true"
+       apply_with_weight="true"
+       only_selected="false" />
+    <inkscape:path-effect
+       only_selected="false"
+       apply_with_weight="true"
+       apply_no_weight="true"
+       helper_size="0"
+       steps="2"
+       weight="33.333333"
+       is_visible="true"
+       id="path-effect851"
+       effect="bspline" />
+    <inkscape:path-effect
+       effect="bspline"
+       id="path-effect847"
+       is_visible="true"
+       weight="33.333333"
+       steps="2"
+       helper_size="0"
+       apply_no_weight="true"
+       apply_with_weight="true"
+       only_selected="false" />
+    <inkscape:path-effect
+       only_selected="false"
+       apply_with_weight="true"
+       apply_no_weight="true"
+       helper_size="0"
+       steps="2"
+       weight="33.333333"
+       is_visible="true"
+       id="path-effect843"
+       effect="bspline" />
+    <inkscape:path-effect
+       effect="bspline"
+       id="path-effect34"
+       is_visible="true"
+       weight="33.333333"
+       steps="2"
+       helper_size="0"
+       apply_no_weight="true"
+       apply_with_weight="true"
+       only_selected="false" />
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="1"
+     inkscape:pageshadow="2"
+     inkscape:zoom="2.3001111"
+     inkscape:cx="283.46457"
+     inkscape:cy="113.38583"
+     inkscape:document-units="mm"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:showpageshadow="false"
+     inkscape:window-width="1438"
+     inkscape:window-height="850"
+     inkscape:window-x="0"
+     inkscape:window-y="25"
+     inkscape:window-maximized="1" />
+  <metadata
+     id="metadata5">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(0,-237)">
+    <image
+       sodipodi:absref="/home/laneboysrc/projects/rc-light-controller/doc/src/usb-to-serial-back.jpg"
+       xlink:href="usb-to-serial-back.jpg"
+       y="242.11583"
+       x="8.4965868"
+       id="image18"
+       preserveAspectRatio="none"
+       height="39.382412"
+       width="37.500656" />
+    <image
+       sodipodi:absref="/home/laneboysrc/projects/rc-light-controller/doc/mk4-tlc5940-lpc812-single-closeup.jpg"
+       y="253.93042"
+       x="93.697189"
+       id="image29"
+       xlink:href="file:///home/laneboysrc/projects/rc-light-controller/doc/mk4-tlc5940-lpc812-single-closeup.jpg"
+       preserveAspectRatio="none"
+       height="26.553272"
+       width="43.817284" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#800000;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 31.633435,279.17024 c 2.338928,3.10579 4.677885,6.21162 9.202557,8.10966 4.524671,1.89804 11.234794,2.58822 18.86502,0.24927 7.630226,-2.33896 16.181198,-7.70728 22.459352,-10.39346 6.278155,-2.68619 10.283892,-2.69065 14.289368,-2.69512"
+       id="path32"
+       inkscape:connector-curvature="0"
+       inkscape:path-effect="#path-effect34"
+       inkscape:original-d="m 31.633435,279.17024 c 2.339222,3.10557 4.678179,6.2114 7.016871,9.31749 6.710387,0.68992 13.42051,1.3801 20.130368,2.07055 8.550517,-5.36814 17.101491,-10.73646 25.65184,-16.10429 4.006004,-0.005 8.011742,-0.009 12.017218,-0.0134"
+       sodipodi:nodetypes="ccccc" />
+    <path
+       sodipodi:nodetypes="ccccc"
+       inkscape:original-d="m 35.486962,275.77684 c 2.339222,3.10557 4.678179,6.2114 7.016871,9.31749 6.403639,-0.15364 12.807013,-0.30701 19.210123,-0.46012 8.762731,-4.42991 17.525194,-8.85955 26.287399,-13.28893 2.754422,0.0673 5.508579,0.1349 8.26247,0.20275"
+       inkscape:path-effect="#path-effect843"
+       inkscape:connector-curvature="0"
+       id="path841"
+       d="m 35.486962,275.77684 c 2.338928,3.10579 4.677885,6.21162 9.049201,7.68787 4.371315,1.47624 10.774689,1.32287 18.357633,-0.96872 7.582944,-2.29158 16.345407,-6.72123 22.10369,-8.90217 5.758284,-2.18095 8.512441,-2.11337 11.266339,-2.04579"
+       style="fill:none;fill-rule:evenodd;stroke:#ff0000;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#ff7f2a;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 37.902606,274.22393 c 2.262236,3.08661 4.524508,6.17327 8.641813,7.27565 4.117304,1.10238 10.089313,0.22048 17.01561,-2.23405 6.926297,-2.45453 14.80686,-6.48156 20.411771,-8.48038 5.604911,-1.99882 8.934221,-1.96959 12.263268,-1.94036"
+       id="path845"
+       inkscape:connector-curvature="0"
+       inkscape:path-effect="#path-effect847"
+       inkscape:original-d="m 37.902606,274.22393 c 2.262537,3.08639 4.524807,6.17305 6.78681,9.25997 5.972274,-0.88217 11.944283,-1.76407 17.916028,-2.6457 7.88083,-4.0273 15.761391,-8.05434 23.641693,-12.08111 3.329576,0.029 6.658886,0.0582 9.987931,0.0877"
+       sodipodi:nodetypes="ccccc" />
+    <path
+       sodipodi:nodetypes="ccccc"
+       inkscape:original-d="m 39.858127,272.26841 c 2.262537,3.08639 4.524807,6.17305 6.78681,9.25997 5.972274,-0.88217 11.944283,-1.76407 17.916028,-2.6457 6.193713,-4.32446 12.387158,-8.64866 18.580343,-12.9726 4.431954,0.01 8.863641,0.0199 13.295063,0.0302"
+       inkscape:path-effect="#path-effect851"
+       inkscape:connector-curvature="0"
+       id="path849"
+       d="m 39.858127,272.26841 c 2.262236,3.08661 4.524508,6.17327 8.641813,7.27565 4.117304,1.10238 10.089313,0.22048 16.172043,-2.38266 6.08273,-2.60313 12.276176,-6.92733 17.588727,-9.08429 5.312552,-2.15696 9.744238,-2.1469 14.175661,-2.13683"
+       style="fill:none;fill-rule:evenodd;stroke:#008000;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#800000;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 96.549357,260.35679 c -1.002913,0.007 -2.004139,0.0135 -4.109489,0.11538 -2.10535,0.10186 -5.29844,0.29804 -6.776244,2.6737 -1.477804,2.37566 -1.233802,6.93038 0.851112,9.17627 2.084914,2.24588 6.009975,2.18216 9.934996,2.11845"
+       id="path853"
+       inkscape:connector-curvature="0"
+       inkscape:path-effect="#path-effect855"
+       inkscape:original-d="m 96.549357,260.35679 c -1.002911,0.007 -2.00414,0.0133 -3.009543,0.0203 -3.205311,0.19669 -6.398402,0.39287 -9.597998,0.58971 0.244281,4.55472 0.488284,9.10944 0.73205,13.66494 3.92578,-0.064 7.850841,-0.1277 11.775866,-0.19115"
+       sodipodi:nodetypes="ccccc" />
+  </g>
+</svg>
