@@ -5,7 +5,7 @@ Note: most users will not need to build the firmware as it can be fully configur
 
 ## Tools required:
 
-- GCC for ARM - [https://launchpad.net/gcc-arm-embedded/](https://launchpad.net/gcc-arm-embedded/)
+- GCC for ARM - [https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads)
 
 - GNU Make - [https://www.gnu.org/software/make/](https://www.gnu.org/software/make/)
   Windows executable is available at [http://gnuwin32.sourceforge.net/packages/make.htm](http://gnuwin32.sourceforge.net/packages/make.htm)

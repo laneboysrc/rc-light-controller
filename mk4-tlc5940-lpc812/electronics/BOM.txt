@@ -1,0 +1,15 @@
+Partlist for the TLC5940/LPC812 Light Controller
+
+Part  Value      Device            Package           Description
+C1    1u         C-EUC0805         C0805             CAPACITOR, MLCC, X7R
+C2    47u/6V3    C-EUC0805         C0805             CAPACITOR, Polymer, Vishay T58W9476M6R3C0150
+C3    100n       C-EUC0805         C0805             CAPACITOR, MLCC, X5R
+R1    2k0        R-EU_R0805        R0805             RESISTOR 1%, Determines max. LED current (2kOhm = 20mA)
+R2    1k         R-EU_R0603        R0603             RESISTOR
+R3    1k         R-EU_R0603        R0603             RESISTOR
+R4    1k         R-EU_R0603        R0603             RESISTOR
+R6    1k         R-EU_R0603        R0603             RESISTOR
+T1               DMN2075U-7        SOT-23            Optional for switching light output! MOS FET, N-Channel, Logic level
+U$1   3V3        MCP1703T-3302E/CB SOT-23A           Microchip, Low Quiescent Current LDO Regulator, Alternate part: MCP1702T-3302E/CB
+U$2   LPC812     LPC812M101JDH16   TSSOP16           NXP, ARM Cortex-M0 microcontroller, 16 Kbytes flash, 4 Kbytes RAM
+U2    TLC5940PWP TLC5940PWP        TSSOP28           Texas Instruments, 16 channel LED driver with dot-correction
