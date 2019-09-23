@@ -37,8 +37,15 @@ ul {
   margin-left: 20px;
 }
 
+nav {
+  /*display: none;*/
+  /*flex: 0 0 0.5em; Remove for IE11 compatibility*/
+  order: -1;
+  background-color: #ff9900;
+}
+
 nav button {
-  background-color: inherit;
+  background-color: #ff9900;  /* Necessary for IE11 */
   color: inherit;
   border: none;
   display: inline-block;
@@ -47,13 +54,6 @@ nav button {
 
 nav button[disabled] {
   color: rgba(0, 0, 0, 0.3);
-}
-
-nav {
-  /*display: none;*/
-  flex: 0 0 0.5em;
-  order: -1;
-  background-color: #ff9900;
 }
 
 nav ul {
