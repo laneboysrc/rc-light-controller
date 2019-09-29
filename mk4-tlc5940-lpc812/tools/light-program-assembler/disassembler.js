@@ -306,9 +306,11 @@ var disassembler = (function () {
         var i;
         var any_led = false;
 
-        leds_used = parseInt(instruction, 16);
+        leds_used = instruction;
         leds_to_declare_offset = offset++;
         asm[leds_to_declare_offset].leds_to_declare = leds_used;
+
+        // console.log(instruction)
 
         if (leds_used === (Math.pow(2, NUMBER_OF_LEDS) - 1)) {
             asm[leds_to_declare_offset].leds_to_declare = 0;
@@ -988,6 +990,17 @@ var disassembler = (function () {
         state = STATE_PRIORITY;
 
         instructions.forEach(function (instruction) {
+            // 'instruction' could be either a hex-string, or a number.
+            // We apply the proper decoding, converting it into a 
+            // number for further processing. 
+            try {
+                if (instruction.startsWith('0x')) {
+                    instruction = parseInt(instruction, 16);
+                }
+            }
+            catch (e) {
+                instruction = parseInt(instruction, 10);
+            } 
             process_instruction(instruction);
         });
 

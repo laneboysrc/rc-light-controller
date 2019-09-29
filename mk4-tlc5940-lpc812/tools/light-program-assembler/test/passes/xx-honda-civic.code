@@ -1,0 +1,87 @@
+run when no-signal
+
+use all leds
+led led2 = led[2]
+led led3 = led[3]
+
+label0:
+    fade all leds stepsize 0   // (no fading)
+    all leds = 0%
+    led2, led3 = 100%
+    sleep 0
+    goto label0
+
+end
+
+run when initializing
+
+use all leds
+led led0 = led[0]
+led led1 = led[1]
+
+label0:
+    fade all leds stepsize 0   // (no fading)
+    all leds = 0%
+    led0, led1 = 100%
+    sleep 0
+    goto label0
+
+end
+
+run when reversing-setup-steering
+run when reversing-setup-throttle
+
+use all leds
+led led0 = led[0]
+led led1 = led[1]
+led led2 = led[2]
+led led6 = led[6]
+
+label0:
+    sleep 0
+    fade all leds stepsize 0   // (no fading)
+    all leds = 0%
+    skip if is reversing-setup-steering
+    goto label7
+    led2 = 100%
+    led6 = 100%
+label7:
+    skip if is reversing-setup-throttle
+    goto label0
+    led0, led1 = 100%
+    goto label0
+
+end
+
+run when servo-output-setup-centre
+run when servo-output-setup-left
+run when servo-output-setup-right
+
+use all leds
+led led2 = led[2]
+led led3 = led[3]
+led led6 = led[6]
+led led7 = led[7]
+
+label0:
+    sleep 0
+    fade all leds stepsize 0   // (no fading)
+    all leds = 0%
+    skip if not servo-output-setup-left
+    goto label10
+    skip if not servo-output-setup-right
+    goto label13
+    led2, led3 = 100%
+    led6, led7 = 100%
+    goto label0
+label10:
+    led2 = 100%
+    led6 = 100%
+    goto label0
+label13:
+    led3 = 100%
+    led7 = 100%
+    goto label0
+
+end
+

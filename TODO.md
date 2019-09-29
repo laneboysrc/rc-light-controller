@@ -2,9 +2,6 @@
 
 - Tail lights do not turn off in shelf queen mode? ABC hobby
 
-# Configurator
-
-- Fix issue with disassembling firmware USE ALL LEDS
 
 # LPC81X_ISP
 
