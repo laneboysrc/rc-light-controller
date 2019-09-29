@@ -31,7 +31,7 @@ extern uint8_t light_switch_position;
 static void light_switch(void)
 {
     do {
-        new_light_switch_position = random_min_max(1, config.light_switch_positions+1) - 1;
+        new_light_switch_position = random_min_max(1, config.light_switch_positions) - 1;
     } while (new_light_switch_position == last_light_switch_position);
 
     last_light_switch_position = new_light_switch_position;
