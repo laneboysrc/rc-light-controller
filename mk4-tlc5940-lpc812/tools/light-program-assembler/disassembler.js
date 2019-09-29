@@ -991,16 +991,14 @@ var disassembler = (function () {
 
         instructions.forEach(function (instruction) {
             // 'instruction' could be either a hex-string, or a number.
-            // We apply the proper decoding, converting it into a 
-            // number for further processing. 
-            try {
-                if (instruction.startsWith('0x')) {
-                    instruction = parseInt(instruction, 16);
-                }
+            // We apply the proper decoding, converting it into a
+            // number for further processing.
+            if (('' + instruction).startsWith('0x')) {
+                instruction = parseInt(instruction, 16);
             }
-            catch (e) {
+            else {
                 instruction = parseInt(instruction, 10);
-            } 
+            }
             process_instruction(instruction);
         });
 

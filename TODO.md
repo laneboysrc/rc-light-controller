@@ -8,8 +8,3 @@
 - Python 3 compatibility
 
 - Add capability to export HEX file
-
-- Make dependence on Tk fully optional
-
-- Integrate Intel-Hex from https://github.com/python-intelhex/intelhex
-  - Add license
