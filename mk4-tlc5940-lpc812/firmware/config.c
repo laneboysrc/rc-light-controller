@@ -26,7 +26,7 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
         .slave_output = false,
         .preprocessor_output = false,
         .winch_output = false,
-        .steering_wheel_servo_output = false,
+        .steering_wheel_servo_output = true,
         .gearbox_servo_output = false,
 
         .ch3_is_local_switch = true,
@@ -66,7 +66,7 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
 
     .initial_endpoint_delta = 250,
 
-    .ch3_multi_click_timeout = (300 / __SYSTICK_IN_MS),
+    .ch3_multi_click_timeout = (500 / __SYSTICK_IN_MS),
 
     .winch_command_repeat_time = (1000 / __SYSTICK_IN_MS),
 
