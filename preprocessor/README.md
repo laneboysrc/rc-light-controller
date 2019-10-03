@@ -8,7 +8,7 @@ This makes it very convenient when removing the body shell from the chassis: onl
 
 The pre-processor PCB also acts as "Y-cable" for steering and throttle. Use short male-to-male servo extensions to connect the pre-processor to your receiver, and plug the servo and ESC into the two extra ports on the pre-processor.
 
-A [wiring diagram](pre-processor-wiring-diagram.pdf) explains how to connect the pre-processor, the light controller and the other electronics components in an RC car together.
+A [wiring diagram](../doc/pre-processor-wiring-diagram.pdf) explains how to connect the pre-processor, the light controller and the other electronics components in an RC car together.
 
 The firmware for the pre-processor is the same as for the [MK4 variant](../mk4-tlc5940-lpc812/), you just have to utilize the MK4 configurator tool to generate a pre-processor firmware.
 
