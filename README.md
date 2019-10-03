@@ -41,7 +41,7 @@ An **introduction video** can be found at:
 
 - [https://youtu.be/-VyNAVU3-ok](https://youtu.be/-VyNAVU3-ok)
 
-You may also want to read the **[users guide](doc/light-controller-instructions.pdf)** to get a grasp of the full functionality of this light controller system.
+You may also want to read the **[users guide](doc/light-controller-instructions-mk4-tlc5940-lpc812.pdf)** to get a grasp of the full functionality of this light controller system.
 
 
 ## Hardware
