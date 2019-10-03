@@ -11,7 +11,7 @@ Use the LPC81x-ISP tool included in the archive to flash the firmware. You need 
 
 Wire-up the USB-to-serial adapter as follows:
 
-![Connecting the USB-to-serial adapter](doc/mk4-tlc5940-lpc812-programming.jpg)
+![Connecting the USB-to-serial adapter](../doc/mk4-lpc812-programming-with-usb-to-serial.png)
 
 
 In the rare event you want to modify the firmware, please consult [README.md](firmware/README.md) for build instructions.
