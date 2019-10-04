@@ -636,7 +636,7 @@ var app = (function () {
 
         var new_mode = parseInt(el.mode.value, 10);
 
-        if (new_mode === MASTER_WITH_UART_READER_5CH) {
+        if (new_mode === MODE.MASTER_WITH_UART_READER_5CH) {
             config.multi_aux = true;
         }
         else {
@@ -1151,6 +1151,11 @@ var app = (function () {
         light_programs = disassemble_light_programs();
         gamma_object = parse_gamma();
 
+
+        if (config.multi_aux && config.mode === MODE.MASTER_WITH_UART_READER) {
+            config.mode = MODE.MASTER_WITH_UART_READER_5CH;
+        }
+
         update_ui();
 
         el.light_programs.value = light_programs;
@@ -1549,6 +1554,10 @@ var app = (function () {
             );
         }
 
+        if (config.multi_aux && config.mode === MODE.MASTER_WITH_UART_READER) {
+            config.mode = MODE.MASTER_WITH_UART_READER_5CH;
+        }
+
         update_ui();
 
         el.light_programs.value = light_programs;
@@ -1753,12 +1762,10 @@ var app = (function () {
             return preprocessor_configuration;
         }
 
-
+        update_int('mode');
         if (config.mode === MODE.MASTER_WITH_UART_READER_5CH) {
             config.mode = MODE.MASTER_WITH_UART_READER;
         }
-        update_int('mode');
-
 
 
         // ESC mode
@@ -1871,7 +1878,8 @@ var app = (function () {
             // Force gamma to 1.0 in slave mode as the gamma correction is
             // already handled in the master
             gamma_object.gamma_value = '1.0';
-        } else {
+        }
+        else {
             update_gamma('gamma_value');
         }
 
