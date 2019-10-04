@@ -422,6 +422,7 @@ var app = (function () {
         new_config.startup_time = get_uint16(data, offset + 60);
 
         log.log('config.mode: ' + new_config.mode);
+        log.log('config.multi_aux: ' + new_config.multi_aux);
         log.log('config_version: ' + config_version);
         log.log('config.firmware_version: ' + new_config.firmware_version);
 
@@ -595,36 +596,35 @@ var app = (function () {
         var current_function = parseInt(this.fn.value, 10);
 
         switch (new_type) {
-            case AUX_TYPE.AUX_TYPE_TWO_POSITION:
-            case AUX_TYPE.AUX_TYPE_TWO_POSITION_UP_DOWN:
-            case AUX_TYPE.AUX_TYPE_MOMENTARY:
-                this.fn.querySelector(".function_multi_function").disabled = false;
-                this.fn.querySelector(".function_indicators").disabled = true;
-                this.fn.querySelector(".function_light_switch").disabled = true;
+        case AUX_TYPE.AUX_TYPE_TWO_POSITION:
+        case AUX_TYPE.AUX_TYPE_TWO_POSITION_UP_DOWN:
+        case AUX_TYPE.AUX_TYPE_MOMENTARY:
+            this.fn.querySelector('.function_multi_function').disabled = false;
+            this.fn.querySelector('.function_indicators').disabled = true;
+            this.fn.querySelector('.function_light_switch').disabled = true;
 
-                if (current_function === AUX_FUNCTION.AUX_FUNCTION_LIGHT_SWITCH ||
-                    current_function === AUX_FUNCTION.AUX_FUNCTION_INDICATORS) {
-                    this.fn.value = AUX_FUNCTION.AUX_FUNCTION_NOT_USED;
-                }
-                break;
+            if (current_function === AUX_FUNCTION.AUX_FUNCTION_LIGHT_SWITCH ||
+                current_function === AUX_FUNCTION.AUX_FUNCTION_INDICATORS) {
+                this.fn.value = AUX_FUNCTION.AUX_FUNCTION_NOT_USED;
+            }
+            break;
 
-            case AUX_TYPE.AUX_TYPE_THREE_POSITION:
-            case AUX_TYPE.AUX_TYPE_ANALOG:
-                this.fn.querySelector(".function_multi_function").disabled = true;
-                this.fn.querySelector(".function_indicators").disabled = false;
-                this.fn.querySelector(".function_light_switch").disabled = false;
+        case AUX_TYPE.AUX_TYPE_THREE_POSITION:
+        case AUX_TYPE.AUX_TYPE_ANALOG:
+            this.fn.querySelector('.function_multi_function').disabled = true;
+            this.fn.querySelector('.function_indicators').disabled = false;
+            this.fn.querySelector('.function_light_switch').disabled = false;
 
-                if (current_function === AUX_FUNCTION.AUX_FUNCTION_MULTI_FUNCTION) {
-                    this.fn.value = AUX_FUNCTION.AUX_FUNCTION_NOT_USED;
-                }
-                break;
+            if (current_function === AUX_FUNCTION.AUX_FUNCTION_MULTI_FUNCTION) {
+                this.fn.value = AUX_FUNCTION.AUX_FUNCTION_NOT_USED;
+            }
+            break;
         }
     };
 
 
     // *************************************************************************
     var mode_changed_handler = function () {
-        update_section_visibility();
 
         // We set the multi_aux flag only when the appropriate configuration is
         // set, otherwise clear it.
@@ -636,12 +636,29 @@ var app = (function () {
 
         var new_mode = parseInt(el.mode.value, 10);
 
-        if (new_mode === MODE.MASTER_WITH_UART_READER_5CH) {
-            config.multi_aux = true;
-        }
-        else {
+        switch (new_mode) {
+        case MODE.MASTER_WITH_CPPM_READER:
+        case MODE.MASTER_WITH_SERVO_READER:
+        case MODE.MASTER_WITH_UART_READER:
+        case MODE.STAND_ALONE:
             config.multi_aux = false;
+            config.mode = new_mode;
+            break;
+
+        case MODE.MASTER_WITH_UART_READER_5CH:
+            config.multi_aux = true;
+            config.mode = MODE.MASTER_WITH_UART_READER;
+            break;
+
+        case MODE.TEST:
+        case MODE.SLAVE:
+        case MODE.PREPROCESSOR:
+        case MODE.PREPROCESSOR_5CH:
+        default:
+            break;
         }
+
+        update_section_visibility();
     };
 
 
@@ -763,7 +780,6 @@ var app = (function () {
             show([el.aux_3ch]);
             hide([el.multi_aux]);
             set_name(el.dual_output_th, 'output_out');
-            config.mode = new_mode;
             break;
 
         case MODE.MASTER_WITH_UART_READER:
@@ -787,7 +803,6 @@ var app = (function () {
             show([el.aux_3ch]);
             hide([el.multi_aux]);
             set_name(el.dual_output_th, 'output_th');
-            config.mode = new_mode;
             break;
 
         case MODE.MASTER_WITH_UART_READER_5CH:
@@ -811,7 +826,6 @@ var app = (function () {
             hide([el.aux_3ch]);
             show([el.multi_aux]);
             set_name(el.dual_output_th, 'output_th');
-            config.mode = new_mode;
             break;
 
         case MODE.MASTER_WITH_CPPM_READER:
@@ -835,7 +849,6 @@ var app = (function () {
             show([el.aux_3ch]);
             hide([el.multi_aux]);
             set_name(el.dual_output_th, 'output_th');
-            config.mode = new_mode;
             break;
 
         case MODE.SLAVE:
@@ -848,8 +861,6 @@ var app = (function () {
                 'testing',
                 'info',
             ]);
-
-            config.mode = new_mode;
             break;
 
         case MODE.STAND_ALONE:
@@ -869,7 +880,6 @@ var app = (function () {
             show([el.aux_3ch]);
             hide([el.multi_aux]);
             set_name(el.dual_output_th, 'output_th');
-            config.mode = new_mode;
             break;
 
         case MODE.PREPROCESSOR:
@@ -879,8 +889,6 @@ var app = (function () {
                 'config_hardware',
                 'config_mode',
             ]);
-
-            config.mode = new_mode;
             break;
 
         case MODE.PREPROCESSOR_5CH:
@@ -890,8 +898,6 @@ var app = (function () {
                 'config_hardware',
                 'config_mode',
             ]);
-
-            config.mode = new_mode;
             break;
 
         case MODE.TEST:
@@ -901,8 +907,6 @@ var app = (function () {
                 'config_hardware',
                 'config_mode',
             ]);
-
-            config.mode = new_mode;
             break;
         }
 
@@ -984,8 +988,13 @@ var app = (function () {
 
     // *************************************************************************
     var update_ui = function () {
-        // Master/Slave
-        el.mode.value = config.mode;
+        // Master/Slave/...
+        if (config.multi_aux && config.mode === MODE.MASTER_WITH_UART_READER) {
+            el.mode.value = MODE.MASTER_WITH_UART_READER_5CH;
+        }
+        else {
+            el.mode.value = config.mode;
+        }
 
         // Firmware version
         el.firmware_version.textContent = config_version + '.' + config.firmware_version;
@@ -1150,11 +1159,6 @@ var app = (function () {
         slave_leds = parse_leds(SECTION_SLAVE_LEDS);
         light_programs = disassemble_light_programs();
         gamma_object = parse_gamma();
-
-
-        if (config.multi_aux && config.mode === MODE.MASTER_WITH_UART_READER) {
-            config.mode = MODE.MASTER_WITH_UART_READER_5CH;
-        }
 
         update_ui();
 
@@ -1554,10 +1558,6 @@ var app = (function () {
             );
         }
 
-        if (config.multi_aux && config.mode === MODE.MASTER_WITH_UART_READER) {
-            config.mode = MODE.MASTER_WITH_UART_READER_5CH;
-        }
-
         update_ui();
 
         el.light_programs.value = light_programs;
@@ -1760,11 +1760,6 @@ var app = (function () {
             preprocessor_configuration.config.baudrate = config.baudrate;
             preprocessor_configuration.config.multi_aux = true;
             return preprocessor_configuration;
-        }
-
-        update_int('mode');
-        if (config.mode === MODE.MASTER_WITH_UART_READER_5CH) {
-            config.mode = MODE.MASTER_WITH_UART_READER;
         }
 
 
