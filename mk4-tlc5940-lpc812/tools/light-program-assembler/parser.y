@@ -290,7 +290,7 @@ single_led
   : LED_ID
       { yy.emitter.add_led_to_list(yy.symbols.get_symbol($1).opcode, @1); }
   | LED '[' NUMBER ']'
-      { yy.emitter.add_led_to_list($3, @3); }
+      { yy.symbols.add_to_leds_used($3); yy.emitter.add_led_to_list($3, @3); }
   ;
 
 led_assignment_parameter

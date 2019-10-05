@@ -1,0 +1,20 @@
+// ----------------------------------------------------------------------------
+// Headlamp flasher on AUX3
+// ----------------------------------------------------------------------------
+run when light-switch-position-0 or light-switch-position-1
+
+var switch
+led l9 = led[9]
+
+loop:
+    sleep 0
+
+    switch = aux3
+    led[10], led[13], l9 = 100%
+    skip if switch < 0
+    goto loop
+
+    led[10], led[13] = 0
+    goto loop
+
+end

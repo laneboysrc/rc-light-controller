@@ -353,6 +353,13 @@ var symbols = (function () {
 
 
     // *************************************************************************
+    var add_to_leds_used = function (led_number) {
+        var led_bit = Math.pow(2, led_number);
+        leds_used |= led_bit;
+    };
+
+
+    // *************************************************************************
     var get_number_of_light_switch_positions = function () {
         return number_of_light_switch_positions;
     };
@@ -393,6 +400,7 @@ var symbols = (function () {
         set_symbol: set_symbol,
         get_reserved_word: get_reserved_word,
         get_number_of_light_switch_positions: get_number_of_light_switch_positions,
+        add_to_leds_used: add_to_leds_used,
         set_leds_used: set_leds_used,
         get_leds_used: get_leds_used,
         get_forward_declerations: get_forward_declerations,
