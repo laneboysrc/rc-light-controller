@@ -1810,13 +1810,6 @@ var app = (function () {
             config.ch3_is_two_button = true;
         }
 
-        // Set Local ch3_is_local_switch always when UART input active
-        if (config_version !== 1) {
-            if (config.mode === MODE.MASTER_WITH_UART_READER || config.mode === MODE.STAND_ALONE) {
-                config.ch3_is_local_switch = true;
-            }
-        }
-
 
         // LEDs
         update_led_config();
@@ -1900,6 +1893,13 @@ var app = (function () {
 
         // Update data based on UI
         var data = get_config();
+
+        // Set ch3_is_local_switch always when UART input active
+        if (config_version !== 1) {
+            if (config.mode === MODE.MASTER_WITH_UART_READER || config.mode === MODE.STAND_ALONE) {
+                data.config.ch3_is_local_switch = true;
+            }
+        }
 
         try {
             assemble_firmware(data);
