@@ -21032,6 +21032,10 @@ var app = (function () {
         log.log('config.firmware_version: ' + config.firmware_version);
 
 
+        // Baudrate
+        update_int('baudrate');
+
+
         // If the test firmware is requested return the special configuration
         // that is stored as part of this tool.
         if (parseInt(el.mode.value, 10) === MODE.TEST) {
@@ -21096,16 +21100,6 @@ var app = (function () {
         } else if (el.ch3[1].checked) {
             config.ch3_is_two_button = true;
         }
-
-        // Set Local ch3_is_local_switch always when UART input active
-        if (config_version !== 1) {
-            if (config.mode === MODE.MASTER_WITH_UART_READER || config.mode === MODE.STAND_ALONE) {
-                config.ch3_is_local_switch = true;
-            }
-        }
-
-        // Baudrate
-        update_int('baudrate');
 
 
         // LEDs
@@ -21190,6 +21184,13 @@ var app = (function () {
 
         // Update data based on UI
         var data = get_config();
+
+        // Set ch3_is_local_switch always when UART input active
+        if (config_version !== 1) {
+            if (config.mode === MODE.MASTER_WITH_UART_READER || config.mode === MODE.STAND_ALONE) {
+                data.config.ch3_is_local_switch = true;
+            }
+        }
 
         try {
             assemble_firmware(data);
