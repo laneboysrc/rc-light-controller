@@ -1741,6 +1741,10 @@ var app = (function () {
         log.log('config.firmware_version: ' + config.firmware_version);
 
 
+        // Baudrate
+        update_int('baudrate');
+
+
         // If the test firmware is requested return the special configuration
         // that is stored as part of this tool.
         if (parseInt(el.mode.value, 10) === MODE.TEST) {
@@ -1812,9 +1816,6 @@ var app = (function () {
                 config.ch3_is_local_switch = true;
             }
         }
-
-        // Baudrate
-        update_int('baudrate');
 
 
         // LEDs
