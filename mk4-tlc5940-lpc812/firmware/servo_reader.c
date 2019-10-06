@@ -92,8 +92,9 @@ static void normalize_channel(CHANNEL_T *c)
 static void normalize_aux_channel(CHANNEL_T *c)
 {
     if (c->raw_data < config.servo_pulse_min  ||  c->raw_data > config.servo_pulse_max) {
-        c->normalized = 0;
-        c->absolute = 0;
+        // CHANGE: Keep the last value in case we receive a wrong pulse
+        // c->normalized = 0;
+        // c->absolute = 0;
         return;
     }
 

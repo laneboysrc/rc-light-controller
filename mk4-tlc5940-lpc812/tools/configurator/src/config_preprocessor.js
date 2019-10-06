@@ -1,6 +1,6 @@
 var preprocessor_configuration = {
   "config": {
-    "firmware_version": 20,
+    "firmware_version": 21,
     "mode": 0,
     "esc_mode": 0,
     "slave_output": false,

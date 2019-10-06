@@ -2,8 +2,8 @@
 
 /*global emitter, symbols, CodeMirror, ui, gamma, disassembler,
     intel_hex, parser, default_firmware_image_mk4,
-    default_light_program, FileReader, Blob, saveAs, preprocessor, chrome_uart,
-    flash_lpc8xx hardware_test_configuration, chrome, dfu, logger */
+    default_light_program, FileReader, Blob, saveAs, preprocessor_configuration,
+    hardware_test_configuration, chrome, logger */
 
 
 
@@ -1896,7 +1896,7 @@ var app = (function () {
 
         // Set ch3_is_local_switch always when UART input active
         if (config_version !== 1) {
-            if (config.mode === MODE.MASTER_WITH_UART_READER || config.mode === MODE.STAND_ALONE) {
+            if (data.config.mode === MODE.MASTER_WITH_UART_READER || data.config.mode === MODE.STAND_ALONE) {
                 data.config.ch3_is_local_switch = true;
             }
         }

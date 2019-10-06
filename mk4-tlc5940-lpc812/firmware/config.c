@@ -12,7 +12,7 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
         .version = CONFIG_VERSION
     },
 
-    .firmware_version = 20,
+    .firmware_version = 21,
 
     .mode = MASTER_WITH_UART_READER,
     .esc_mode = ESC_FORWARD_BRAKE_REVERSE_TIMEOUT,
@@ -29,7 +29,7 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
         .steering_wheel_servo_output = true,
         .gearbox_servo_output = false,
 
-        .ch3_is_local_switch = true,
+        .ch3_is_local_switch = false,
         .ch3_is_momentary = false,
         .ch3_is_two_button = false,
 
