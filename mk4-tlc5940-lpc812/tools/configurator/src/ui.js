@@ -157,6 +157,17 @@ var ui = (function () {
         init_led_feature('leds_slave', 'slave');
     };
 
+    // *************************************************************************
+    var clear_led_tables = function () {
+        var i;
+        var rows;
+
+        rows = document.querySelectorAll('.led_config');
+        for (i = 0; i < rows.length; i += 1) {
+            var row = rows[i];
+            row.parentNode.removeChild(row);
+        }
+    };
 
     // *************************************************************************
     var init_led_tables = function () {
@@ -167,6 +178,7 @@ var ui = (function () {
             var template_function = tmpl('led_row_template');
             var i;
             var helper;
+
 
             var html = '<table>';
             for (i = 0; i < 16; i += 1) {
@@ -195,6 +207,7 @@ var ui = (function () {
             }
         }
 
+        clear_led_tables();
         init_led_table('leds_master', 0, 'master');
         init_led_table('leds_slave', 16, 'slave');
     };
@@ -309,6 +322,17 @@ var ui = (function () {
 
     // *************************************************************************
     var init_editor = function () {
+        var i;
+        var oldEditors;
+
+        // Remove any remains e.g. when the user was saving the Configurator
+        // via the browsers Save As function.
+        oldEditors = document.querySelectorAll('.CodeMirror');
+        for (i = 0; i < oldEditors.length; i += 1) {
+            var oldEditor = oldEditors[i];
+            oldEditor.parentNode.removeChild(oldEditor);
+        }
+
         editor = CodeMirror.fromTextArea(document.getElementById('light_programs'),
             {
                 indentUnit: 4,
