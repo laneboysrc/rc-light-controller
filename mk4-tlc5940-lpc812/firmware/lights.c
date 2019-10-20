@@ -582,6 +582,14 @@ static void process_car_lights(void)
         }
     }
 
+    // If one of the AUX channels has requested to disable all light outputs
+    // then manually force all light values to 0,
+    if (global_flags.outputs_disabled) {
+        for (i = 0; i < MAX_LIGHTS ; i++) {
+            light_actual[i] = 0;
+        }
+    }
+
     send_light_data_to_tlc5940();
     if (config.flags.slave_output) {
         HAL_putc(NULL, SLAVE_MAGIC_BYTE);

@@ -395,6 +395,7 @@
               <option class="function_indicators" value="5">Indicators</option>
               <option class="function_hazard" value="6">Hazard lights on/off</option>
               <option class="function_light_switch" value="7">Light switch</option>
+              <option class="function_disable_outputs" value="8">Disable outputs</option>
             </select>
           </div>
           <br>
@@ -415,6 +416,7 @@
               <option class="function_indicators" value="5">Indicators</option>
               <option class="function_hazard" value="6">Hazard lights on/off</option>
               <option class="function_light_switch" value="7">Light switch</option>
+              <option class="function_disable_outputs" value="8">Disable outputs</option>
             </select>
           </div>
           <br>
@@ -435,7 +437,22 @@
               <option class="function_indicators" value="5">Indicators</option>
               <option class="function_hazard" value="6">Hazard lights on/off</option>
               <option class="function_light_switch" value="7">Light switch</option>
+              <option class="function_disable_outputs" value="8">Disable outputs</option>
             </select>
+          </div>
+          <br>
+          <div>
+            <strong>Multi-function:</strong> 1-click is &quot;more lights&quot;; 2-clicks
+            is &quot;less lights&quot;; 3-clicks
+            is &quot;toggle lights on/off&quot;; 4-clicks
+            is &quot;hazard lights on/off&quot; ...
+          </div>
+          <br>
+          <div>
+            <strong>Disable outputs:</strong> When the corresponding AUX channel outputs a
+            servo pulse of larger than 1.75 ms then all light outputs are turned off.
+            This allows you to disable all manual and automatic light functions from
+            the transmitter.
           </div>
         </div>
       </div>
@@ -748,7 +765,7 @@
               <label for="us_style_combined_lights">Enable US style combined tail/brake/indicators</label>
             </div>
             <div>
-              When enabled, setting values for tail, brake and indicator for a particular LED enables US-style indicators. When this flag is enabled then the indicators have priority over the brake lights (= correct setting for US cars). When the flag is disabled the brake lights have priority (= behavior of early light controller versions.
+              When enabled, setting values for tail, brake and indicator for a particular LED enables US-style indicators. When this flag is enabled then the indicators have priority over the brake lights (= correct setting for US cars). When the flag is disabled the brake lights have priority (= behavior of early light controller versions).
             </div>
           </div>
 

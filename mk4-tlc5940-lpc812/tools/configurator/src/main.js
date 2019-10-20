@@ -116,6 +116,7 @@ var app = (function () {
     var AUX_FUNCTION_INDICATORS = 'Indicators';
     var AUX_FUNCTION_HAZARD = 'Hazard';
     var AUX_FUNCTION_LIGHT_SWITCH = 'Light switch';
+    var AUX_FUNCTION_DISABLE_OUTPUTS = 'Disable outputs';
 
     var AUX_FUNCTION = {
         0: AUX_FUNCTION_NOT_USED,
@@ -126,6 +127,7 @@ var app = (function () {
         5: AUX_FUNCTION_INDICATORS,
         6: AUX_FUNCTION_HAZARD,
         7: AUX_FUNCTION_LIGHT_SWITCH,
+        8: AUX_FUNCTION_DISABLE_OUTPUTS,
 
         AUX_FUNCTION_NOT_USED: 0,
         AUX_FUNCTION_MULTI_FUNCTION: 1,
@@ -134,7 +136,8 @@ var app = (function () {
         AUX_FUNCTION_SERVO: 4,
         AUX_FUNCTION_INDICATORS: 5,
         AUX_FUNCTION_HAZARD: 6,
-        AUX_FUNCTION_LIGHT_SWITCH: 7
+        AUX_FUNCTION_LIGHT_SWITCH: 7,
+        AUX_FUNCTION_DISABLE_OUTPUTS: 8
     };
 
     // var ESC_FORWARD_BRAKE_REVERSE_TIMEOUT = 'Forward/Brake/Reverse with timeout';

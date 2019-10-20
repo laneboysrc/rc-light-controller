@@ -358,6 +358,27 @@ static void light_switch(CHANNEL_T *c, struct AUX_FLAGS *f)
 }
 
 
+
+// ****************************************************************************
+static void disable_outputs(CHANNEL_T *c)
+{
+/*
+    Allows turning all LED outputs off. Requested by a customer.
+
+    If the assigned AUX channel has a value of >50 (>1750 us) then the
+    all LED outputs get disabled in lights.c at a very low level.
+    Note that the light controller operates normally in the background,
+    the disable function just turns all light outputs off.
+*/
+
+    global_flags.outputs_disabled = false;
+    if (c->normalized > 50) {
+        global_flags.outputs_disabled = true;
+    }
+}
+
+
+
 // ****************************************************************************
 static void handle_aux_channel(CHANNEL_T *c, struct AUX_FLAGS *f, AUX_TYPE_T type, AUX_FUNCTION_T function)
 {
@@ -393,6 +414,10 @@ static void handle_aux_channel(CHANNEL_T *c, struct AUX_FLAGS *f, AUX_TYPE_T typ
 
         case LIGHT_SWITCH:
             light_switch(c, f);
+            break;
+
+        case DISABLE_OUTPUTS:
+            disable_outputs(c);
             break;
 
         case WINCH:

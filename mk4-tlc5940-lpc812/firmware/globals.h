@@ -355,7 +355,8 @@ typedef enum {
     SERVO = 4,
     INDICATORS = 5,
     HAZARD = 6,
-    LIGHT_SWITCH = 7
+    LIGHT_SWITCH = 7,
+    DISABLE_OUTPUTS = 8
 } AUX_FUNCTION_T;
 
 
@@ -386,6 +387,8 @@ typedef struct {
 
     unsigned int servo_output_enabled : 1;  // Set when there OUT is configured as servo output
     unsigned int uart_output_enabled : 1;   // Set when the UART Tx is used for slave, preprocessor or winch output
+
+    unsigned int outputs_disabled : 1;      // Set when all LED outputs should be disabled
 } GLOBAL_FLAGS_T;
 
 
@@ -447,7 +450,7 @@ typedef struct {
         unsigned int ch3_is_two_button : 1;
 
         // Not used; was prepared for MK5 but not implemented!
-        unsigned int local_switch_is_momentary : 1; 
+        unsigned int local_switch_is_momentary : 1;
     } flags;
 
     uint16_t auto_brake_counter_value_forward_min;
