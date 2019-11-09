@@ -6,7 +6,7 @@ $fn = 50;
 eps = 0.05;
 
 h_bottom = 0.6;
-h_middle = 1.3;
+h_middle = 1.5;
 
 h_total = h_bottom + h_middle;
 
