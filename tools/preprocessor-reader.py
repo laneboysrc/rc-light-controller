@@ -16,14 +16,28 @@ E-mail:         laneboysrc@gmail.com
 
 from __future__ import print_function
 
+import argparse
+import serial
 import sys
 import time
-import serial
 
 
 CH3_BIT = 0
 STARTUP_MODE_NEUTRAL = 4
 MULTI_AUX = 3
+
+def parse_commandline():
+    ''' Read the Pre-processor output for diagnostic purpose. '''
+    parser = argparse.ArgumentParser(
+        description="Read the Pre-processor output for diagnostic purpose.")
+
+    parser.add_argument("-b", "--baudrate", type=int, default=115200,
+        help='Baudrate to use. Default is 115200.')
+
+    parser.add_argument("tty", nargs="?", default="/dev/ttyUSB0",
+        help="Serial port to use. ")
+
+    return parser.parse_args()
 
 
 def make_signed(value):
@@ -95,20 +109,15 @@ def main():
     Parse command line parameters, open the serial port and start the reading
     and parsing process
     '''
-    try:
-        port = sys.argv[1]
-    except IndexError:
-        port = '/dev/ttyUSB0'
+    args = parse_commandline()
+
+    print("Pre-processor reader, using %s at %d bps" % (args.tty, args.baudrate))
+    print("")
 
     try:
-        baud = int(sys.argv[2])
-    except IndexError:
-        baud = 38400
-
-    try:
-        uart = serial.Serial(port, baud)
+        uart = serial.Serial(args.tty, args.baudrate)
     except serial.SerialException, error:
-        print("Unable to open port %s.\nError message: %s" % (port, error))
+        print("%s" % error)
         sys.exit(0)
 
     try:
