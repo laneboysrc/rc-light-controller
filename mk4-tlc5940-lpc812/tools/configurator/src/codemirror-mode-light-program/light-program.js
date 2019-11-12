@@ -79,6 +79,7 @@
       "winch-idle": "attribute",
       "winch-in": "attribute",
       "winch-out": "attribute",
+      "shelf-queen-mode": "attribute",
     };
 
     var skip_if_directives_multiple = {
