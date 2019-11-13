@@ -317,11 +317,7 @@ var symbols = (function () {
                     loc: location
                 });
             } else {
-                led_bit = Math.pow(2, opcode);
-                if (!(leds_used & led_bit)) {
-                    // Add LED to bit-field of leds_used
-                    leds_used += led_bit;
-                }
+                add_to_leds_used(opcode);
             }
         }
 
@@ -349,14 +345,29 @@ var symbols = (function () {
 
     // *************************************************************************
     var set_leds_used = function (led_bits) {
+        parser.yy.logger.log(MODULE, 'DEBUG', 'set_leds_used() ' + led_bits);
         leds_used = led_bits;
     };
 
 
     // *************************************************************************
     var add_to_leds_used = function (led_number) {
+        parser.yy.logger.log(MODULE, 'DEBUG', 'add_to_leds_used() ' + led_number);
+
         var led_bit = Math.pow(2, led_number);
-        leds_used |= led_bit;
+        if (!(leds_used & led_bit)) {
+            // Add LED to bit-field of leds_used
+            leds_used += led_bit;
+        }
+
+        // IMPORTANT: do NOT use logical OR because JavaScript computes bitwise
+        // logical operations as signed 32 bit Integer! So we end up with -1
+        // instead of 0xffffffff ...
+        //
+        // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Bitwise_Operators
+
+        // var led_bit = Math.pow(2, led_number);
+        // leds_used |= led_bit;
     };
 
 

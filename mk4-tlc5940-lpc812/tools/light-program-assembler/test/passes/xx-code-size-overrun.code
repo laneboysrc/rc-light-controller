@@ -1,0 +1,27 @@
+// This light program caused a "program code overrun" error in the LPC programmer.
+// This turned out to be caused by a faulty HEX file, containing the value -1
+// instead of 0xffffffff
+//
+// The -1 was caused by using bitwise logic operations, which in JavaScript
+// work on SIGNED 32 bit integers. So 0xffffffff | 1 became "-1"
+
+run when light-switch-position-0
+use all leds
+var counter
+var temp
+
+    counter = -20
+
+loop:
+    temp = counter
+    temp %= 6
+
+    all leds = 0
+
+    skip if temp < 0
+    led[0] = 100
+
+    sleep 100
+    goto loop
+
+end
