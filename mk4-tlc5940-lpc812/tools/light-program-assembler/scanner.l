@@ -60,7 +60,7 @@ reserved keywords:
   return symbol.token;
 }
 
-"="|"+="|"-="|"*="|"/="|"&="|"|="|"^=" {
+"="|"+="|"-="|"*="|"/="|"&="|"|="|"^="|"%=" {
   yy.line_is_empty = false;
   var symbol = yy.symbols.get_reserved_word(yytext);
   yy.logger.log(MODULE, "DEBUG", "Assignment " + yytext + " (" + symbol.token + "=0x" + symbol.opcode.toString(16) + ")");

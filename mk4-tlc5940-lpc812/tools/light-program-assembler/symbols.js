@@ -130,6 +130,7 @@ var symbols = (function () {
         '&=': {'token': 'AND_ASSIGN', 'opcode': 0x1a000000},
         '|=': {'token': 'OR_ASSIGN', 'opcode': 0x1c000000},
         '^=': {'token': 'XOR_ASSIGN', 'opcode': 0x1e000000},
+        '%=': {'token': 'MOD_ASSIGN', 'opcode': 0x38000000},
         '==': {'token': 'EQ', 'opcode': 0x20000000},
         '!=': {'token': 'NE', 'opcode': 0x24000000},
         '>=': {'token': 'GE', 'opcode': 0x28000000},

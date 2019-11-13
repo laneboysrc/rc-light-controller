@@ -77,4 +77,17 @@ x ^= clicks
 x ^= steering
 x ^= throttle
 
+x %= 42
+x %= 0xface
+x %= y
+x %= LED1a
+x %= random
+x %= clicks
+x %= steering
+x %= throttle
+x %= gear
+x %= aux
+x %= aux2
+x %= aux3
+
 end

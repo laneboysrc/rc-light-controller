@@ -82,6 +82,8 @@
 #define OPCODE_XOR              0x1e    // VAR ^= type, id
 #define OPCODE_XOR_I            0x1f    // VAR ^= immediate
 
+#define OPCODE_MOD              0x38    // VAR %= type, id
+#define OPCODE_MOD_I            0x39    // VAR %= immediate
 
 
 #define FIRST_SKIP_IF_OPCODE    0x20

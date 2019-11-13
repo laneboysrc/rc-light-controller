@@ -345,6 +345,7 @@ assignment_operator
   | AND_ASSIGN
   | OR_ASSIGN
   | XOR_ASSIGN
+  | MOD_ASSIGN
   | ABS '='
     { $$ = "ABS" }
   ;

@@ -557,6 +557,11 @@ static void execute_program(
                 var[var_id] ^= get_parameter_value(instruction);
                 break;
 
+            case OPCODE_MOD:
+            case OPCODE_MOD_I:
+                var[var_id] %= get_parameter_value(instruction);
+                break;
+
             case OPCODE_ABS:
                 parameter = get_parameter_value(instruction);
                 // int16_t requires special handling

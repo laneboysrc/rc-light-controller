@@ -57,6 +57,8 @@ var disassembler = (function () {
         'OR_I': 0x1d,
         'XOR': 0x1e,
         'XOR_I': 0x1f,
+        'MOD': 0x38,
+        'MOD_I': 0x39,
         'ABS': 0x40,                // VAR = |VAR| (steering, throttle)
         'SKIP_IF_EQ_V': 0x20,       // ==       var, type, id
         'SKIP_IF_EQ_VI': 0x21,      // ==       var, immediate
@@ -815,6 +817,12 @@ var disassembler = (function () {
         case opcodes.XOR_I:
             asm[offset + pc++].code =
                 decode_variable_assignment(instruction, '^=');
+            break;
+
+        case opcodes.MOD:
+        case opcodes.MOD_I:
+            asm[offset + pc++].code =
+                decode_variable_assignment(instruction, '%=');
             break;
 
         case opcodes.ABS:

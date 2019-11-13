@@ -431,6 +431,7 @@ Assignments to variables can also perform mathematical functions:
     x &= y          // bit-wise AND
     x |= 0x80       // bit-wise OR
     x ^= 15         // bit-wise XOR
+    x %= 8          // Modulo operation
 
 > **Division by zero**
 >
