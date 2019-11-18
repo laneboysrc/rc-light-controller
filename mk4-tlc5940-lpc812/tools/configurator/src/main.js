@@ -452,12 +452,12 @@ var app = (function () {
 
             new_config.blink_counter_value_dark = new_config.blink_counter_value;
 
-            new_config.aux_type = AUX_TYPE_TWO_POSITION;
-            new_config.aux_function = AUX_FUNCTION_MULTI_FUNCTION;
-            new_config.aux2_type = AUX_TYPE_TWO_POSITION;
-            new_config.aux2_function = AUX_FUNCTION_NOT_USED;
-            new_config.aux3_type = AUX_TYPE_TWO_POSITION;
-            new_config.aux3_function = AUX_FUNCTION_NOT_USED;
+            new_config.aux_type = AUX_TYPE.AUX_TYPE_TWO_POSITION;
+            new_config.aux_function = AUX_FUNCTION.AUX_FUNCTION_MULTI_FUNCTION;
+            new_config.aux2_type = AUX_TYPE.AUX_TYPE_TWO_POSITION;
+            new_config.aux2_function = AUX_FUNCTION.AUX_FUNCTION_NOT_USED;
+            new_config.aux3_type = AUX_TYPE.AUX_TYPE_TWO_POSITION;
+            new_config.aux3_function = AUX_FUNCTION.AUX_FUNCTION_NOT_USED;
         }
 
         return new_config;
@@ -1543,13 +1543,30 @@ var app = (function () {
 
                 config.blink_counter_value_dark = config.blink_counter_value;
 
-                config.aux_type = AUX_TYPE_TWO_POSITION;
-                config.aux_function = AUX_FUNCTION_MULTI_FUNCTION;
-                config.aux2_type = AUX_TYPE_TWO_POSITION;
-                config.aux2_function = AUX_FUNCTION_NOT_USED;
-                config.aux3_type = AUX_TYPE_TWO_POSITION;
-                config.aux3_function = AUX_FUNCTION_NOT_USED;
+                config.aux_type = AUX_TYPE.AUX_TYPE_TWO_POSITION;
+                config.aux_function = AUX_FUNCTION.AUX_FUNCTION_MULTI_FUNCTION;
+                config.aux2_type = AUX_TYPE.AUX_TYPE_TWO_POSITION;
+                config.aux2_function = AUX_FUNCTION.AUX_FUNCTION_NOT_USED;
+                config.aux3_type = AUX_TYPE.AUX_TYPE_TWO_POSITION;
+                config.aux3_function = AUX_FUNCTION.AUX_FUNCTION_NOT_USED;
             }
+
+            if (config.aux_type == null ||
+                    config.aux2_type == null ||
+                    config.aux3_type == null ||
+                    config.aux_function == null ||
+                    config.aux2_function == null ||
+                    config.aux3_function == null) {
+
+                console.log('WARNING: fixing corrupt configuration regarding aux_type and aux_function');
+                config.aux_type = AUX_TYPE.AUX_TYPE_TWO_POSITION;
+                config.aux_function = AUX_FUNCTION.AUX_FUNCTION_MULTI_FUNCTION;
+                config.aux2_type = AUX_TYPE.AUX_TYPE_TWO_POSITION;
+                config.aux2_function = AUX_FUNCTION.AUX_FUNCTION_NOT_USED;
+                config.aux3_type = AUX_TYPE.AUX_TYPE_TWO_POSITION;
+                config.aux3_function = AUX_FUNCTION.AUX_FUNCTION_NOT_USED;
+            }
+
 
             // Use the current firmware when loading a configuration file
             firmware = parse_firmware_structure(hex_to_bin(default_firmware_image_mk4));
