@@ -21,7 +21,7 @@ Measurements in mm; 0/0 is the pad OUT11 on the lower-left corner of the light c
     OUT5        0       12.4
     OUT4        0       14.4
 
-    OUT3        0       14.4
-    OUT2        2.8     14.4
-    OUT1        4.8     14.4
-    OUT0        6.9     14.4
+    OUT3        2.8     14.4
+    OUT2        4.8     14.4
+    OUT1        6.9     14.4
+    OUT0        8.9     14.4
