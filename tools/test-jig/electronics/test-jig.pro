@@ -1,4 +1,4 @@
-update=Tue 19 Nov 2019 01:50:40 PM +08
+update=Wed 20 Nov 2019 09:36:44 AM +08
 version=1
 last_client=kicad
 [general]
@@ -21,7 +21,7 @@ BoardThickness=1.6
 AllowMicroVias=0
 AllowBlindVias=0
 RequireCourtyardDefinitions=0
-ProhibitOverlappingCourtyards=1
+ProhibitOverlappingCourtyards=0
 MinTrackWidth=0.2032
 MinViaDiameter=0.4064
 MinViaDrill=0.3
@@ -36,6 +36,8 @@ TrackWidth5=1.016
 TrackWidth6=1.27
 ViaDiameter1=0.762
 ViaDrill1=0.4
+ViaDiameter2=1.2
+ViaDrill2=0.4
 dPairWidth1=0.2032
 dPairGap1=0.254
 dPairViaGap1=0.25
@@ -208,13 +210,13 @@ Enabled=1
 [pcbnew/Layer.F.Mask]
 Enabled=1
 [pcbnew/Layer.Dwgs.User]
-Enabled=1
+Enabled=0
 [pcbnew/Layer.Cmts.User]
 Enabled=1
 [pcbnew/Layer.Eco1.User]
-Enabled=1
+Enabled=0
 [pcbnew/Layer.Eco2.User]
-Enabled=1
+Enabled=0
 [pcbnew/Layer.Edge.Cuts]
 Enabled=1
 [pcbnew/Layer.Margin]

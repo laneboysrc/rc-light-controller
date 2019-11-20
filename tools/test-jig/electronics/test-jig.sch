@@ -1,5 +1,4 @@
 EESchema Schematic File Version 4
-LIBS:test-jig-cache
 EELAYER 30 0
 EELAYER END
 $Descr A3 16535 11693
@@ -15,77 +14,38 @@ Comment3 ""
 Comment4 ""
 $EndDescr
 $Comp
-L Connector_Generic:Conn_02x08_Odd_Even J8
+L Connector_Generic:Conn_01x03 J8
 U 1 1 5DD32E15
-P 5050 7350
-F 0 "J8" H 5100 7867 50  0000 C CNN
-F 1 "RX8CH_S_PLUS" H 5100 7776 50  0000 C CNN
-F 2 "Connector_PinSocket_2.54mm:PinSocket_2x08_P2.54mm_Vertical" H 5050 7350 50  0001 C CNN
-F 3 "~" H 5050 7350 50  0001 C CNN
-	1    5050 7350
-	1    0    0    -1  
+P 5050 6850
+F 0 "J8" V 5150 6950 50  0000 C CNN
+F 1 "RX8CH_S_PLUS" V 5250 6700 50  0000 C CNN
+F 2 "Connector_PinSocket_2.54mm:PinSocket_1x03_P2.54mm_Vertical" H 5050 6850 50  0001 C CNN
+F 3 "~" H 5050 6850 50  0001 C CNN
+	1    5050 6850
+	0    -1   -1   0   
 $EndComp
 $Comp
-L Connector_Generic:Conn_01x08 J9
+L Connector_Generic:Conn_01x07 J9
 U 1 1 5DD33535
-P 5050 8300
-F 0 "J9" H 5130 8292 50  0000 L CNN
-F 1 "RX8CH_GND" H 5130 8201 50  0000 L CNN
-F 2 "Connector_PinSocket_2.54mm:PinSocket_1x08_P2.54mm_Vertical" H 5050 8300 50  0001 C CNN
-F 3 "~" H 5050 8300 50  0001 C CNN
-	1    5050 8300
-	1    0    0    -1  
+P 5150 7450
+F 0 "J9" H 5100 7050 50  0000 L CNN
+F 1 "RX8CH_S" H 4850 6950 50  0000 L CNN
+F 2 "Connector_PinSocket_2.54mm:PinSocket_1x07_P2.54mm_Vertical" H 5150 7450 50  0001 C CNN
+F 3 "~" H 5150 7450 50  0001 C CNN
+	1    5150 7450
+	-1   0    0    -1  
 $EndComp
 $Comp
 L power:GND #PWR08
 U 1 1 5DD347DC
-P 4700 8900
-F 0 "#PWR08" H 4700 8650 50  0001 C CNN
-F 1 "GND" H 4705 8727 50  0000 C CNN
-F 2 "" H 4700 8900 50  0001 C CNN
-F 3 "" H 4700 8900 50  0001 C CNN
-	1    4700 8900
+P 4950 8000
+F 0 "#PWR08" H 4950 7750 50  0001 C CNN
+F 1 "GND" H 4955 7827 50  0000 C CNN
+F 2 "" H 4950 8000 50  0001 C CNN
+F 3 "" H 4950 8000 50  0001 C CNN
+	1    4950 8000
 	1    0    0    -1  
 $EndComp
-Wire Wire Line
-	4850 8000 4700 8000
-Wire Wire Line
-	4700 8000 4700 8100
-Wire Wire Line
-	4850 8700 4700 8700
-Connection ~ 4700 8700
-Wire Wire Line
-	4700 8700 4700 8900
-Wire Wire Line
-	4850 8600 4700 8600
-Connection ~ 4700 8600
-Wire Wire Line
-	4700 8600 4700 8700
-Wire Wire Line
-	4850 8500 4700 8500
-Connection ~ 4700 8500
-Wire Wire Line
-	4700 8500 4700 8600
-Wire Wire Line
-	4850 8400 4700 8400
-Connection ~ 4700 8400
-Wire Wire Line
-	4700 8400 4700 8500
-Wire Wire Line
-	4850 8300 4700 8300
-Connection ~ 4700 8300
-Wire Wire Line
-	4700 8300 4700 8400
-Wire Wire Line
-	4850 8200 4700 8200
-Connection ~ 4700 8200
-Wire Wire Line
-	4700 8200 4700 8300
-Wire Wire Line
-	4850 8100 4700 8100
-Connection ~ 4700 8100
-Wire Wire Line
-	4700 8100 4700 8200
 $Comp
 L power:VCC #PWR07
 U 1 1 5DD35BD0
@@ -97,45 +57,6 @@ F 3 "" H 4700 6700 50  0001 C CNN
 	1    4700 6700
 	1    0    0    -1  
 $EndComp
-Wire Wire Line
-	4700 6700 4700 7050
-Wire Wire Line
-	4700 7750 4850 7750
-Wire Wire Line
-	4850 7650 4700 7650
-Connection ~ 4700 7650
-Wire Wire Line
-	4700 7650 4700 7750
-Wire Wire Line
-	4850 7550 4700 7550
-Connection ~ 4700 7550
-Wire Wire Line
-	4700 7550 4700 7650
-Wire Wire Line
-	4850 7450 4700 7450
-Connection ~ 4700 7450
-Wire Wire Line
-	4700 7450 4700 7550
-Wire Wire Line
-	4850 7350 4700 7350
-Connection ~ 4700 7350
-Wire Wire Line
-	4700 7350 4700 7450
-Wire Wire Line
-	4850 7250 4700 7250
-Connection ~ 4700 7250
-Wire Wire Line
-	4700 7250 4700 7350
-Wire Wire Line
-	4850 7150 4700 7150
-Connection ~ 4700 7150
-Wire Wire Line
-	4700 7150 4700 7250
-Wire Wire Line
-	4850 7050 4700 7050
-Connection ~ 4700 7050
-Wire Wire Line
-	4700 7050 4700 7150
 $Comp
 L Connector_Generic:Conn_01x03 J3
 U 1 1 5DD3AE08
@@ -263,7 +184,7 @@ Wire Wire Line
 Wire Wire Line
 	5350 7150 5750 7150
 Wire Wire Line
-	5350 7050 5750 7050
+	5150 7050 5750 7050
 Text Label 5750 7050 2    50   ~ 0
 ST
 Text Label 5750 7150 2    50   ~ 0
@@ -383,7 +304,7 @@ U 1 1 5DD8A9AB
 P 2500 2400
 F 0 "SW1" H 2500 2635 50  0000 C CNN
 F 1 "On/Off" H 2500 2544 50  0000 C CNN
-F 2 "Button_Switch_THT:SW_CuK_JS202011CQN_DPDT_Straight" H 2500 2400 50  0001 C CNN
+F 2 "Connector_PinSocket_2.54mm:PinSocket_2x03_P2.54mm_Vertical" H 2500 2400 50  0001 C CNN
 F 3 "~" H 2500 2400 50  0001 C CNN
 	1    2500 2400
 	1    0    0    -1  
@@ -1028,18 +949,7 @@ F 3 "~" H 7900 10300 50  0001 C CNN
 	1    7900 10300
 	-1   0    0    1   
 $EndComp
-$Comp
-L Connector_Generic:Conn_01x02 J28
-U 1 1 5DF3B667
-P 7900 10750
-F 0 "J28" H 7818 10425 50  0000 C CNN
-F 1 "TP_OUT_ISP" H 7818 10516 50  0000 C CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical" H 7900 10750 50  0001 C CNN
-F 3 "~" H 7900 10750 50  0001 C CNN
-	1    7900 10750
-	-1   0    0    1   
-$EndComp
-Text Notes 7600 7950 3    118  ~ 0
+Text Notes 7600 7750 3    118  ~ 0
 Test point pin headers
 Wire Wire Line
 	8800 7050 8250 7050
@@ -1139,15 +1049,6 @@ Wire Wire Line
 Connection ~ 8250 10200
 Wire Wire Line
 	8250 10200 8800 10200
-Wire Wire Line
-	8100 10650 8250 10650
-Wire Wire Line
-	8100 10750 8250 10750
-Wire Wire Line
-	8250 10750 8250 10650
-Connection ~ 8250 10650
-Wire Wire Line
-	8250 10650 8800 10650
 Text Label 8800 7950 2    50   ~ 0
 ST
 Text Label 8800 8400 2    50   ~ 0
@@ -1160,7 +1061,7 @@ Text Label 8800 9750 2    50   ~ 0
 AUX3
 Text Label 8800 10200 2    50   ~ 0
 Light
-Text Label 8800 10650 2    50   ~ 0
+Text Label 6100 5100 2    50   ~ 0
 OUT_ISP
 $Comp
 L Connector_Generic:Conn_01x01 J34
@@ -1168,7 +1069,7 @@ U 1 1 5DFFE6EF
 P 13350 2250
 F 0 "J34" H 13268 2025 50  0000 C CNN
 F 1 "OUT0" H 13268 2116 50  0000 C CNN
-F 2 "TestPoint:TestPoint_THTPad_D1.5mm_Drill0.7mm" H 13350 2250 50  0001 C CNN
+F 2 "Pogo_pin:Pogo_pin_Drill1mm" H 13350 2250 50  0001 C CNN
 F 3 "~" H 13350 2250 50  0001 C CNN
 	1    13350 2250
 	-1   0    0    1   
@@ -1192,7 +1093,7 @@ U 1 1 5E00B8FA
 P 13350 1900
 F 0 "J33" H 13268 1675 50  0000 C CNN
 F 1 "LED_PLUS" H 13268 1766 50  0000 C CNN
-F 2 "TestPoint:TestPoint_THTPad_D1.5mm_Drill0.7mm" H 13350 1900 50  0001 C CNN
+F 2 "Pogo_pin:Pogo_pin_Drill1mm" H 13350 1900 50  0001 C CNN
 F 3 "~" H 13350 1900 50  0001 C CNN
 	1    13350 1900
 	-1   0    0    1   
@@ -1203,7 +1104,7 @@ U 1 1 5E016669
 P 13350 2600
 F 0 "J35" H 13268 2375 50  0000 C CNN
 F 1 "OUT1" H 13268 2466 50  0000 C CNN
-F 2 "TestPoint:TestPoint_THTPad_D1.5mm_Drill0.7mm" H 13350 2600 50  0001 C CNN
+F 2 "Pogo_pin:Pogo_pin_Drill1mm" H 13350 2600 50  0001 C CNN
 F 3 "~" H 13350 2600 50  0001 C CNN
 	1    13350 2600
 	-1   0    0    1   
@@ -1227,7 +1128,7 @@ U 1 1 5E020773
 P 13350 2950
 F 0 "J36" H 13268 2725 50  0000 C CNN
 F 1 "OUT2" H 13268 2816 50  0000 C CNN
-F 2 "TestPoint:TestPoint_THTPad_D1.5mm_Drill0.7mm" H 13350 2950 50  0001 C CNN
+F 2 "Pogo_pin:Pogo_pin_Drill1mm" H 13350 2950 50  0001 C CNN
 F 3 "~" H 13350 2950 50  0001 C CNN
 	1    13350 2950
 	-1   0    0    1   
@@ -1251,7 +1152,7 @@ U 1 1 5E02AFB0
 P 13350 3300
 F 0 "J37" H 13268 3075 50  0000 C CNN
 F 1 "OUT3" H 13268 3166 50  0000 C CNN
-F 2 "TestPoint:TestPoint_THTPad_D1.5mm_Drill0.7mm" H 13350 3300 50  0001 C CNN
+F 2 "Pogo_pin:Pogo_pin_Drill1mm" H 13350 3300 50  0001 C CNN
 F 3 "~" H 13350 3300 50  0001 C CNN
 	1    13350 3300
 	-1   0    0    1   
@@ -1275,7 +1176,7 @@ U 1 1 5E0358CF
 P 13350 3650
 F 0 "J38" H 13268 3425 50  0000 C CNN
 F 1 "OUT4" H 13268 3516 50  0000 C CNN
-F 2 "TestPoint:TestPoint_THTPad_D1.5mm_Drill0.7mm" H 13350 3650 50  0001 C CNN
+F 2 "Pogo_pin:Pogo_pin_Drill1mm" H 13350 3650 50  0001 C CNN
 F 3 "~" H 13350 3650 50  0001 C CNN
 	1    13350 3650
 	-1   0    0    1   
@@ -1299,7 +1200,7 @@ U 1 1 5E040541
 P 13350 4000
 F 0 "J39" H 13268 3775 50  0000 C CNN
 F 1 "OUT5" H 13268 3866 50  0000 C CNN
-F 2 "TestPoint:TestPoint_THTPad_D1.5mm_Drill0.7mm" H 13350 4000 50  0001 C CNN
+F 2 "Pogo_pin:Pogo_pin_Drill1mm" H 13350 4000 50  0001 C CNN
 F 3 "~" H 13350 4000 50  0001 C CNN
 	1    13350 4000
 	-1   0    0    1   
@@ -1336,7 +1237,7 @@ U 1 1 5E056D34
 P 13350 4700
 F 0 "J41" H 13268 4475 50  0000 C CNN
 F 1 "OUT7" H 13268 4566 50  0000 C CNN
-F 2 "TestPoint:TestPoint_THTPad_D1.5mm_Drill0.7mm" H 13350 4700 50  0001 C CNN
+F 2 "Pogo_pin:Pogo_pin_Drill1mm" H 13350 4700 50  0001 C CNN
 F 3 "~" H 13350 4700 50  0001 C CNN
 	1    13350 4700
 	-1   0    0    1   
@@ -1360,7 +1261,7 @@ U 1 1 5E0624A7
 P 13350 5050
 F 0 "J42" H 13268 4825 50  0000 C CNN
 F 1 "OUT8" H 13268 4916 50  0000 C CNN
-F 2 "TestPoint:TestPoint_THTPad_D1.5mm_Drill0.7mm" H 13350 5050 50  0001 C CNN
+F 2 "Pogo_pin:Pogo_pin_Drill1mm" H 13350 5050 50  0001 C CNN
 F 3 "~" H 13350 5050 50  0001 C CNN
 	1    13350 5050
 	-1   0    0    1   
@@ -1384,7 +1285,7 @@ U 1 1 5E06DD31
 P 13350 5400
 F 0 "J43" H 13268 5175 50  0000 C CNN
 F 1 "OUT9" H 13268 5266 50  0000 C CNN
-F 2 "TestPoint:TestPoint_THTPad_D1.5mm_Drill0.7mm" H 13350 5400 50  0001 C CNN
+F 2 "Pogo_pin:Pogo_pin_Drill1mm" H 13350 5400 50  0001 C CNN
 F 3 "~" H 13350 5400 50  0001 C CNN
 	1    13350 5400
 	-1   0    0    1   
@@ -1408,7 +1309,7 @@ U 1 1 5E07989D
 P 13350 5750
 F 0 "J44" H 13268 5525 50  0000 C CNN
 F 1 "OUT10" H 13268 5616 50  0000 C CNN
-F 2 "TestPoint:TestPoint_THTPad_D1.5mm_Drill0.7mm" H 13350 5750 50  0001 C CNN
+F 2 "Pogo_pin:Pogo_pin_Drill1mm" H 13350 5750 50  0001 C CNN
 F 3 "~" H 13350 5750 50  0001 C CNN
 	1    13350 5750
 	-1   0    0    1   
@@ -1432,7 +1333,7 @@ U 1 1 5E08C0AA
 P 13350 6100
 F 0 "J45" H 13268 5875 50  0000 C CNN
 F 1 "OUT11" H 13268 5966 50  0000 C CNN
-F 2 "TestPoint:TestPoint_THTPad_D1.5mm_Drill0.7mm" H 13350 6100 50  0001 C CNN
+F 2 "Pogo_pin:Pogo_pin_Drill1mm" H 13350 6100 50  0001 C CNN
 F 3 "~" H 13350 6100 50  0001 C CNN
 	1    13350 6100
 	-1   0    0    1   
@@ -1456,7 +1357,7 @@ U 1 1 5E08C0B8
 P 13350 6450
 F 0 "J46" H 13268 6225 50  0000 C CNN
 F 1 "OUT12" H 13268 6316 50  0000 C CNN
-F 2 "TestPoint:TestPoint_THTPad_D1.5mm_Drill0.7mm" H 13350 6450 50  0001 C CNN
+F 2 "Pogo_pin:Pogo_pin_Drill1mm" H 13350 6450 50  0001 C CNN
 F 3 "~" H 13350 6450 50  0001 C CNN
 	1    13350 6450
 	-1   0    0    1   
@@ -1480,7 +1381,7 @@ U 1 1 5E08C0C6
 P 13350 6800
 F 0 "J47" H 13268 6575 50  0000 C CNN
 F 1 "OUT13" H 13268 6666 50  0000 C CNN
-F 2 "TestPoint:TestPoint_THTPad_D1.5mm_Drill0.7mm" H 13350 6800 50  0001 C CNN
+F 2 "Pogo_pin:Pogo_pin_Drill1mm" H 13350 6800 50  0001 C CNN
 F 3 "~" H 13350 6800 50  0001 C CNN
 	1    13350 6800
 	-1   0    0    1   
@@ -1504,7 +1405,7 @@ U 1 1 5E08C0D4
 P 13350 7150
 F 0 "J48" H 13268 6925 50  0000 C CNN
 F 1 "OUT14" H 13268 7016 50  0000 C CNN
-F 2 "TestPoint:TestPoint_THTPad_D1.5mm_Drill0.7mm" H 13350 7150 50  0001 C CNN
+F 2 "Pogo_pin:Pogo_pin_Drill1mm" H 13350 7150 50  0001 C CNN
 F 3 "~" H 13350 7150 50  0001 C CNN
 	1    13350 7150
 	-1   0    0    1   
@@ -1528,7 +1429,7 @@ U 1 1 5E08C0E2
 P 13350 7500
 F 0 "J49" H 13268 7275 50  0000 C CNN
 F 1 "OUT15" H 13268 7366 50  0000 C CNN
-F 2 "TestPoint:TestPoint_THTPad_D1.5mm_Drill0.7mm" H 13350 7500 50  0001 C CNN
+F 2 "Pogo_pin:Pogo_pin_Drill1mm" H 13350 7500 50  0001 C CNN
 F 3 "~" H 13350 7500 50  0001 C CNN
 	1    13350 7500
 	-1   0    0    1   
@@ -1631,7 +1532,7 @@ U 1 1 5E04B3EB
 P 13350 4350
 F 0 "J40" H 13268 4125 50  0000 C CNN
 F 1 "OUT6" H 13268 4216 50  0000 C CNN
-F 2 "TestPoint:TestPoint_THTPad_D1.5mm_Drill0.7mm" H 13350 4350 50  0001 C CNN
+F 2 "Pogo_pin:Pogo_pin_Drill1mm" H 13350 4350 50  0001 C CNN
 F 3 "~" H 13350 4350 50  0001 C CNN
 	1    13350 4350
 	-1   0    0    1   
@@ -1642,7 +1543,7 @@ U 1 1 5E1AE0AC
 P 13350 7850
 F 0 "J50" H 13268 7625 50  0000 C CNN
 F 1 "OUT15S" H 13268 7716 50  0000 C CNN
-F 2 "TestPoint:TestPoint_THTPad_D1.5mm_Drill0.7mm" H 13350 7850 50  0001 C CNN
+F 2 "Pogo_pin:Pogo_pin_Drill1mm" H 13350 7850 50  0001 C CNN
 F 3 "~" H 13350 7850 50  0001 C CNN
 	1    13350 7850
 	-1   0    0    1   
@@ -1791,4 +1692,57 @@ $EndComp
 NoConn ~ 5350 7550
 NoConn ~ 5350 7650
 NoConn ~ 5350 7750
+Wire Wire Line
+	4700 7200 5050 7200
+Wire Wire Line
+	5050 7200 5050 7050
+Wire Wire Line
+	4700 6700 4700 7200
+Wire Wire Line
+	4950 7050 4950 8000
+$Comp
+L Connector_Generic:Conn_01x03 J28
+U 1 1 5DD633B5
+P 5300 5200
+F 0 "J28" H 5300 5500 50  0000 C CNN
+F 1 "TP_OUT_ISP" H 5300 5400 50  0000 C CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical" H 5300 5200 50  0001 C CNN
+F 3 "~" H 5300 5200 50  0001 C CNN
+	1    5300 5200
+	-1   0    0    1   
+$EndComp
+$Comp
+L power:GND #PWR0101
+U 1 1 5DD8858A
+P 5600 5400
+F 0 "#PWR0101" H 5600 5150 50  0001 C CNN
+F 1 "GND" H 5605 5227 50  0000 C CNN
+F 2 "" H 5600 5400 50  0001 C CNN
+F 3 "" H 5600 5400 50  0001 C CNN
+	1    5600 5400
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	5500 5300 5600 5300
+Wire Wire Line
+	5600 5300 5600 5400
+$Comp
+L power:VCC #PWR0102
+U 1 1 5DD94BDD
+P 5600 5000
+F 0 "#PWR0102" H 5600 4850 50  0001 C CNN
+F 1 "VCC" H 5617 5173 50  0000 C CNN
+F 2 "" H 5600 5000 50  0001 C CNN
+F 3 "" H 5600 5000 50  0001 C CNN
+	1    5600 5000
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	5600 5000 5600 5200
+Wire Wire Line
+	5600 5200 5500 5200
+Wire Wire Line
+	5500 5100 6100 5100
+Text Notes 5000 5700 1    118  ~ 0
+Slave/Servo\noutput
 $EndSCHEMATC
