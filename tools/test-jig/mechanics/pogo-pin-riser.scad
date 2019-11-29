@@ -55,22 +55,45 @@ pin_pos = [
 ];
 
 
-difference() {
-    riser();
-    pogo_pins();
-    mounting_holes();
+pogo_pin_riser();
+
+
+module pogo_pin_riser() {
+    difference() {
+        riser();
+        pogo_pins();
+        mounting_holes();
+        solder_clearance();
+    }
 }
 
 module riser() {
     translate(riser_pos) {
-        
         cube(riser_dim);
-        translate([0, 0, riser_dim.z]) chute();
+        translate([fudge, fudge, riser_dim.z]) chute();
     }
-
 }
 
-
+module solder_clearance() {
+    w = 3.5;
+    h1 = 2;
+    h2 = 7;
+    
+    module shape(length=10) {
+        translate([-fudge, -fudge, -fudge]) rotate([0, 90, 0]) linear_extrude(length+fudge2) polygon([
+            [0, 0],
+            [0, w],
+            [-h1, w],
+            [-h2, 0],
+        ]);
+    }
+    
+    translate(riser_pos) {
+        shape(19);
+        translate([0, riser_dim.y, 0]) mirror([0, 1, 0]) shape(13);
+        mirror([0, 1, 0] ) rotate([0, 0, -90]) shape(riser_dim.y);
+    }
+}
 
 module mounting_holes() {
     for (pos = mounting_hole_pos) {
@@ -88,29 +111,27 @@ module pogo_pins() {
     }
 }
 
-
 module pogo_pin_clearance() {
     d = pogo_pin_d + 0.5;
     d_solder = 6;
     h_solder = pcb_t * 3;
-    d_head = pogo_pin_head_d + 0.5;
+    d_head = pogo_pin_head_d + 1.5;
     
     cylinder(h=pogo_pin_l, d=d);
-    cylinder(h=h_solder, d1=d_solder, d2=d);
+//    cylinder(h=h_solder, d1=d_solder, d2=d);
     translate([0, 0, pogo_pin_l-pogo_pin_head_l]) cylinder(h=pogo_pin_head_l, d=d_head);
-    
 }
     
 module chute() {
-    inner_bottom = [pcb_dim.x, pcb_dim.y];
+    inner_bottom = [pcb_dim.x, pcb_dim.y] - [fudge, fudge2];
     inner_top = [pcb_dim.x+chute_w, pcb_dim.y+chute_w];
     
-    outer_bottom = inner_bottom + [2*wall_t, 2*wall_t, 0];
-    outer_top = inner_top + [2*wall_t, 2*wall_t, 0];
+    outer_bottom = inner_bottom;
+    outer_top = inner_top + [0, 2*wall_t, 0];
     
     difference() {
         translate([-wall_t, -wall_t, 0]) hull() {
-            linear_extrude(fudge2) square(outer_bottom);
+            translate([wall_t, wall_t, -chute_w]) linear_extrude(fudge2) square(outer_bottom);
             translate([-chute_w/2, -chute_w/2, chute_w]) linear_extrude(fudge) square(outer_top);
         }
         
@@ -119,6 +140,4 @@ module chute() {
             translate([-chute_w/2, -chute_w/2, chute_w+fudge2]) linear_extrude(fudge) square(inner_top);
         }
     }
-    
-    
 }
