@@ -16,11 +16,13 @@ pogo_pin_l = 16.5;
 pogo_pin_head_d = 1.75;
 pogo_pin_head_l = 7;
 
-riser_dim = [pcb_dim.x, pcb_dim.y, 15-pcb_t];
-riser_pos = [-1.78, -1.78, 0];
-
 chute_w = 2;
 wall_t = 1;
+
+riser_dim = [pcb_dim.x+wall_t, pcb_dim.y+2*wall_t, 15-pcb_t];
+riser_pos = [-1.78-wall_t, -1.78-wall_t, 0];
+
+
 
 mounting_hole_d = 1.75;
 mounting_hole_l = 9;
@@ -62,6 +64,7 @@ module pogo_pin_riser() {
     difference() {
         riser();
         pogo_pins();
+        pogo_pins_head_clearance();
         mounting_holes();
         solder_clearance();
     }
@@ -70,7 +73,7 @@ module pogo_pin_riser() {
 module riser() {
     translate(riser_pos) {
         cube(riser_dim);
-        translate([fudge, fudge, riser_dim.z]) chute();
+        translate([fudge+wall_t, fudge+wall_t, riser_dim.z]) chute();
     }
 }
 
@@ -104,6 +107,29 @@ module mounting_holes() {
 module mounting_hole() {
     cylinder(h=mounting_hole_l, d=mounting_hole_d);
 }
+
+module pogo_pins_head_clearance() {
+    h = pogo_pin_l-pogo_pin_head_l;
+    d_head = pogo_pin_head_d + 1.5;
+    
+    translate([0, 0, h-pcb_t]) {
+        hull() {
+            translate(pin_pos[0]) cylinder(h=pogo_pin_head_l, d=d_head);
+            translate(pin_pos[6]) cylinder(h=pogo_pin_head_l, d=d_head);
+        }
+
+        hull() {
+            translate(pin_pos[0]) cylinder(h=pogo_pin_head_l, d=d_head);
+            translate(pin_pos[13]) cylinder(h=pogo_pin_head_l, d=d_head);
+        }
+        
+        hull() {
+            translate(pin_pos[13]) cylinder(h=pogo_pin_head_l, d=d_head);
+            translate(pin_pos[17]) cylinder(h=pogo_pin_head_l, d=d_head);
+        }
+    }
+}
+
 
 module pogo_pins() {
     for (pos = pin_pos) {
