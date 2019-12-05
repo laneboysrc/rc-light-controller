@@ -4,6 +4,7 @@ $fs = 0.2;
 
 fudge = 0.05;
 fudge2 = 2 * fudge;
+clearance = 0.3;
 
 // Light controller PCB dimension
 pcb_dim = [27, 18, 0.8];
@@ -22,14 +23,18 @@ wall_t = 1;
 riser_dim = [pcb_dim.x+wall_t, pcb_dim.y+2*wall_t, 15-pcb_t];
 riser_pos = [-1.78-wall_t, -1.78-wall_t, 0];
 
-
-
 mounting_hole_d = 1.75;
 mounting_hole_l = 9;
 mounting_hole_pos = [
     [6, 7],
     [16, 7],
 ];
+
+// Chute dimensions
+inner_bottom = [pcb_dim.x, pcb_dim.y] - [fudge, fudge2];
+inner_top = [pcb_dim.x+chute_w, pcb_dim.y+chute_w];
+outer_bottom = inner_bottom;
+outer_top = inner_top + [0, 2*wall_t, 0];
 
 
 pin_pos = [
@@ -58,6 +63,35 @@ pin_pos = [
 
 
 pogo_pin_riser();
+//mirror([0, 0, 1]) clip();
+
+module clip() {
+    clip_dim = [10, outer_top.y+2*wall_t, chute_w+1+wall_t];
+
+    module cavity() {
+        x = clip_dim.x + fudge2;
+        y1 = outer_bottom.y + clearance;
+        y2 = outer_top.y + clearance;
+        z1 = chute_w;
+        z2 = chute_w + 1 + clearance;
+        y1p = (y2-y1)/2;
+        y2p = 0;
+        
+        translate([-fudge, wall_t, 0]) rotate([90, 0, 90]) linear_extrude(x) polygon([
+            [y1p, -fudge],
+            [y2p, z1],            
+            [y2p, z2],            
+            [y2p+y2, z2],            
+            [y2p+y2, z1],           
+            [y1p+y1, -fudge], 
+        ]);
+    }
+
+    translate([0, -3*wall_t, 0]) difference() {
+        cube(clip_dim);
+        cavity();
+    }
+}
 
 
 module pogo_pin_riser() {
@@ -74,6 +108,7 @@ module riser() {
     translate(riser_pos) {
         cube(riser_dim);
         translate([fudge+wall_t, fudge+wall_t, riser_dim.z]) chute();
+//        translate([fudge+wall_t, fudge+wall_t, riser_dim.z]) clip();
     }
 }
 
@@ -149,13 +184,7 @@ module pogo_pin_clearance() {
 }
     
 module chute() {
-    inner_bottom = [pcb_dim.x, pcb_dim.y] - [fudge, fudge2];
-    inner_top = [pcb_dim.x+chute_w, pcb_dim.y+chute_w];
-    
-    outer_bottom = inner_bottom;
-    outer_top = inner_top + [0, 2*wall_t, 0];
-    
-    difference() {
+     difference() {
         translate([-wall_t, -wall_t, 0]) hull() {
             translate([wall_t, wall_t, -chute_w]) linear_extrude(fudge2) square(outer_bottom);
             translate([-chute_w/2, -chute_w/2, chute_w]) linear_extrude(fudge) square(outer_top);
