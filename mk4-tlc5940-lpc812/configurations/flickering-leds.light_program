@@ -9,9 +9,6 @@ const NUMBER_OF_LEDS = 3
 
 // MIN_VALUE defines the darkest light level during flickering
 // RANGE + MIN_VALUE give the brightes light leve.
-//
-// IMPORTANT: to simplify the code the value of
-// RANGE must be a power of 2 (e.g. 2, 4, 8, 16 ...) minus 1
 const MIN_VALUE = 10
 const RANGE = 15
 
@@ -22,7 +19,7 @@ var range
 loop:
     // Get a random value, limit it to RANGE, and add the minimum brightness
     value = random
-    value &= RANGE
+    value %= RANGE
     value += MIN_VALUE
 
     // Make the leds to change brightness slowly

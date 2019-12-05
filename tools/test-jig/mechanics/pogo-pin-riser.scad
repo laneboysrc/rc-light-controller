@@ -62,18 +62,21 @@ pin_pos = [
 ];
 
 
-pogo_pin_riser();
-//mirror([0, 0, 1]) clip();
+//pogo_pin_riser();
+rotate([0, -90, 0]) clip();
+translate([-13.9, 0, 0]) cube([10, 20, 0.3]);
 
 module clip() {
-    clip_dim = [10, outer_top.y+2*wall_t, chute_w+1+wall_t];
+    gap = 2.5;
+    cl = 3 * clearance;
+    clip_dim = [10, outer_top.y+2*wall_t+cl, chute_w+gap+wall_t+cl];
 
     module cavity() {
         x = clip_dim.x + fudge2;
-        y1 = outer_bottom.y + clearance;
-        y2 = outer_top.y + clearance;
+        y1 = outer_bottom.y + cl;
+        y2 = outer_top.y + cl;
         z1 = chute_w;
-        z2 = chute_w + 1 + clearance;
+        z2 = chute_w + gap + clearance;
         y1p = (y2-y1)/2;
         y2p = 0;
         
