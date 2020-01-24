@@ -8,11 +8,13 @@ LANE Boys RC light controller (TLC5940/LPC812 version)
 
 reserved keywords:
   goto, const, var, led, leds, sleep, skip, if, is, any, all, none, not, fade,
-  stepsize, run, when, or, global, random, steering, throttle, gear, abs, use
+  stepsize, run, when, or, global, random, steering, throttle, abs, use
 
   Pre-defined global variables:
   clicks: increments when 6-clicks on CH3
   light-switch-positions: reads and sets the current light switch position
+  gear: gearbox get or set
+  servo: servo output control
 
 */
 
@@ -47,7 +49,7 @@ reserved keywords:
   return yytext.toUpperCase();
 }
 
-"goto"|"const"|"var"|"leds"|"led"|"sleep"|"skip"|"if"|"fade"|"stepsize"|"when"|"or"|"global"|"random"|"steering"|"throttle"|"gear"|"aux3"|"aux2"|"aux"|"abs"|"end"|"use" {
+"goto"|"const"|"var"|"leds"|"led"|"sleep"|"skip"|"if"|"fade"|"stepsize"|"when"|"or"|"global"|"random"|"steering"|"throttle"|"aux3"|"aux2"|"aux"|"abs"|"end"|"use" {
   yy.line_is_empty = false;
   yy.logger.log(MODULE, "DEBUG", "Reserved word: " + yytext);
   return yytext.toUpperCase();

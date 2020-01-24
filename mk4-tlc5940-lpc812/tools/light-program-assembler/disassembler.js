@@ -102,7 +102,7 @@ var disassembler = (function () {
     var PARAMETER_TYPE_RANDOM = 2;
     var PARAMETER_TYPE_STEERING = 3;
     var PARAMETER_TYPE_THROTTLE = 4;
-    var PARAMETER_TYPE_GEAR = 5;
+    // var PARAMETER_TYPE_GEAR = 5;
     var PARAMETER_TYPE_AUX = 6;
     var PARAMETER_TYPE_AUX2 = 7;
     var PARAMETER_TYPE_AUX3 = 8;
@@ -398,8 +398,8 @@ var disassembler = (function () {
         case PARAMETER_TYPE_THROTTLE:
             return 'throttle';
 
-        case PARAMETER_TYPE_GEAR:
-            return 'gear';
+        // case PARAMETER_TYPE_GEAR:
+        //     return 'gear';
 
         case PARAMETER_TYPE_AUX:
             return 'aux';
@@ -425,6 +425,10 @@ var disassembler = (function () {
             result = 'clicks ' + operator + ' ';
         } else if (index === 1) {
             result = 'light-switch-position ' + operator + ' ';
+        } else if (index === 2) {
+            result = 'gear ' + operator + ' ';
+        } else if (index === 3) {
+            result = 'servo ' + operator + ' ';
         } else {
             set_variable_used(index, current_program);
             result = 'var' + index + ' ' + operator + ' ';
@@ -482,8 +486,8 @@ var disassembler = (function () {
         case PARAMETER_TYPE_THROTTLE:
             return 'throttle';
 
-        case PARAMETER_TYPE_GEAR:
-            return 'gear';
+        // case PARAMETER_TYPE_GEAR:
+        //     return 'gear';
 
         case PARAMETER_TYPE_AUX:
             return 'aux';

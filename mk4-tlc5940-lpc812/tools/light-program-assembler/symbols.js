@@ -99,7 +99,7 @@ var symbols = (function () {
         'const': {'token': 'CONST'},
         'end': {'token': 'END', 'opcode': 0xfe000000},
         'fade': {'token': 'FADE', 'opcode': 0x04000000},
-        'gear': {'token': 'GEAR'},
+        // 'gear': {'token': 'GEAR'},
         'global': {'token': 'GLOBAL'},
         'goto': {'token': 'GOTO', 'opcode': 0x01000000},
         'if': {'token': 'IF'},
@@ -393,6 +393,10 @@ var symbols = (function () {
         add_symbol('clicks', 'GLOBAL_VARIABLE', next_variable_index);
         next_variable_index += 1;
         add_symbol('light-switch-position', 'GLOBAL_VARIABLE', next_variable_index);
+        next_variable_index += 1;
+        add_symbol('gear', 'GLOBAL_VARIABLE', next_variable_index);
+        next_variable_index += 1;
+        add_symbol('servo', 'GLOBAL_VARIABLE', next_variable_index);
         next_variable_index += 1;
     };
 

@@ -1,0 +1,14 @@
+run always
+
+var x
+
+
+    gear = x
+    gear = 1
+    light-switch-position = 3
+    light-switch-position = x
+    servo = x
+    servo = -42
+    servo = clicks
+
+end
