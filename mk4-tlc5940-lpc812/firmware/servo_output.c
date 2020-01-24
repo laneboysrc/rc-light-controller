@@ -9,6 +9,7 @@
 
 
 static bool next = false;
+static uint8_t servo_position;
 static uint16_t servo_pulse;
 
 static uint16_t gearbox_servo_counter;
@@ -50,6 +51,22 @@ void set_servo_pulse(uint16_t value)
     servo_pulse = value;
 }
 
+// ****************************************************************************
+void set_servo_position(uint8_t value)
+{
+    servo_position = value;
+}
+
+// ****************************************************************************
+void set_gear(uint8_t new_gear) {
+    if (global_flags.gear == new_gear) {
+        return;
+    }
+
+    global_flags.gear_change_requested = true;
+    fprintf(STDOUT_DEBUG, "gear %d\n", global_flags.gear);
+    activate_gearbox_servo();
+}
 
 // ****************************************************************************
 void gearbox_action(uint8_t ch3_clicks)
@@ -61,10 +78,10 @@ void gearbox_action(uint8_t ch3_clicks)
     // 2-speed gearbox: one click is Gear 1; two clicks is Gear 2
     if (config.number_of_gears == 2) {
         if (ch3_clicks == 1) {
-            global_flags.gear = GEAR_1;
+            set_gear(GEAR_1);
         }
         else {
-            global_flags.gear = GEAR_2;
+            set_gear(GEAR_2);
         }
     }
 
@@ -72,25 +89,21 @@ void gearbox_action(uint8_t ch3_clicks)
     else {
         if (ch3_clicks == 1) {
             if (global_flags.gear == GEAR_1) {
-                global_flags.gear = GEAR_2;
+                set_gear(GEAR_2);
             }
             else {
-                global_flags.gear = GEAR_3;
+                set_gear(GEAR_3);
             }
         }
         else {
             if (global_flags.gear == GEAR_3) {
-                global_flags.gear = GEAR_2;
+                set_gear(GEAR_2);
             }
             else {
-                global_flags.gear = GEAR_1;
+                set_gear(GEAR_1);
             }
         }
     }
-
-    global_flags.gear_changed = true;
-    fprintf(STDOUT_DEBUG, "gear %d\n", global_flags.gear);
-    activate_gearbox_servo();
 }
 
 
@@ -140,17 +153,17 @@ void servo_output_setup_action(uint8_t ch3_clicks)
     removed e.g. if only a gearbox servo is used.
 
 ******************************************************************************/
-static void calculate_servo_pulse(void)
+static void calculate_servo_pulse(int16_t value)
 {
-    if (channel[ST].normalized < 0) {
+    if (value < 0) {
         servo_pulse = servo_output_endpoint.centre -
             (((servo_output_endpoint.centre - servo_output_endpoint.left) *
-                channel[ST].absolute) / 100);
+                (-value)) / 100);
     }
     else {
         servo_pulse = servo_output_endpoint.centre +
             (((servo_output_endpoint.right - servo_output_endpoint.centre) *
-                channel[ST].absolute) / 100);
+                value) / 100);
     }
 }
 
@@ -165,7 +178,7 @@ void process_servo_output(void)
     // --------------------------------
     // Servo output setup is active
     if (global_flags.servo_output_setup != SERVO_OUTPUT_SETUP_OFF) {
-        calculate_servo_pulse();
+        calculate_servo_pulse(channel[ST].normalized);
         if (next) {
             next = false;
 
@@ -249,7 +262,13 @@ void process_servo_output(void)
     // --------------------------------
     // Steering wheel servo output is avtive
     else if (config.flags.steering_wheel_servo_output) {
-        calculate_servo_pulse();
+        calculate_servo_pulse(channel[ST].normalized);
+    }
+
+    // --------------------------------
+    // Light progrqm servo output is avtive
+    else if (config.flags2.light_program_servo_output) {
+        calculate_servo_pulse(servo_position);
     }
 
     HAL_servo_output_set_pulse(servo_pulse);

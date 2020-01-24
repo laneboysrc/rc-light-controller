@@ -482,12 +482,25 @@
             <label for="gearbox_servo_output">Gearbox servo output</label>
             <br>
             When enabled, a servo signal is generated that allows control of a
-            two-speed gearbox.
+            two-speed or three-speed gearbox.
             <br>
             <label for="number_of_gears">Number of gears:</label> <select id="number_of_gears">
               <option value="2">2</option>
               <option value="3">3</option>
             </select>
+            <br>
+            <input type="checkbox" name="gearbox_light_program_control" value="1" id="gearbox_light_program_control">
+            <label for="gearbox_light_program_control">Control the gearbox through light programs</label>
+            <br>
+            When enabled, the gearbox can be controlled from light programs only,
+            and not via 1- or 2-clicks on CH3.
+          </div>
+          <div class="radio_item">
+            <input type="radio" name="output_out" value="5" id="light_program_servo_output">
+            <label for="light_program_servo_output">Servo controlled from light programs</label>
+            <br>
+            This function can be useful to control sequences of servo positions,
+            or for example to randomize head movements of a figure.
           </div>
         </div>
         <h3 class="dual_output">Output function on pin TH/Tx</h3>

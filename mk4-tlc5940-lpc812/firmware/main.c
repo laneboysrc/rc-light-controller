@@ -213,6 +213,12 @@ int main(void)
     fprintf(STDOUT_DEBUG, "\n\n**********\nLight controller v%d\n", config.firmware_version);
 
     while (1) {
+        global_flags.gear_changed = 0;
+        if (global_flags.gear_change_requested) {
+            global_flags.gear_change_requested = 0;
+            global_flags.gear_changed = 1;
+        }
+
         service_systick();
 
         global_flags.new_channel_data = false;

@@ -105,6 +105,8 @@
 // Pre-defined global variables in var[]
 #define GLOBAL_VAR_CLICKS 0
 #define GLOBAL_VAR_LIGHT_SWITCH_POSITION 1
+#define GLOBAL_VAR_GEAR 2
+#define GLOBAL_VAR_SERVO 3
 
 typedef struct {
     const uint32_t *PC;
@@ -248,7 +250,7 @@ static void load_light_program_environment(void)
 
 
 // ****************************************************************************
-static void limit_light_switch_position_variable(void)
+static void limit_variables(void)
 {
     if (var[GLOBAL_VAR_LIGHT_SWITCH_POSITION] < 0) {
         var[GLOBAL_VAR_LIGHT_SWITCH_POSITION] = 0;
@@ -612,15 +614,16 @@ uint32_t process_light_programs(void)
     leds_used = 0;
     load_light_program_environment();
 
-    // Place the current light switch position into a global variable
-    // so that light programs can access them
+    // Place relevant data into global variables  that light programs can
+    // access them
     var[GLOBAL_VAR_LIGHT_SWITCH_POSITION] = light_switch_position;
+    var[GLOBAL_VAR_GEAR] = global_flags.gear;
 
     // Run all programs that were triggered by an event
     for (i = 0; i < light_programs.number_of_programs; i++) {
         if (cpu[i].event) {
             execute_program(light_programs.start[i], &cpu[i], &leds_used);
-            limit_light_switch_position_variable();
+            limit_variables();
         }
     }
 
@@ -637,7 +640,7 @@ uint32_t process_light_programs(void)
         if (*(light_programs.start[i] + PRIORITY_STATE_OFFSET) &
                 priority_run_state) {
             execute_program(light_programs.start[i], &cpu[i], &leds_used);
-            limit_light_switch_position_variable();
+            limit_variables();
         }
         else {
             reset_program(i);
@@ -652,15 +655,19 @@ uint32_t process_light_programs(void)
 
         if (*(light_programs.start[i] + RUN_STATE_OFFSET) & run_state) {
             execute_program(light_programs.start[i], &cpu[i], &leds_used);
-            limit_light_switch_position_variable();
+            limit_variables();
         }
         else {
             reset_program(i);
         }
     }
 
-    // Return the possibly modified value of light switch position
+    // Return the modified global variables
     light_switch_position = var[GLOBAL_VAR_LIGHT_SWITCH_POSITION];
+    set_servo_position(var[GLOBAL_VAR_SERVO]);
+    if (config.flags2.gearbox_light_program_control) {
+        global_flags.gear = var[GLOBAL_VAR_GEAR];
+    }
 
     return leds_used;
 }

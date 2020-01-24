@@ -76,7 +76,7 @@ static void process_click_timeout(void)
             case 1:
                 // --------------------------
                 // Single click
-                if (config.flags.gearbox_servo_output) {
+                if (config.flags.gearbox_servo_output && !config.flags2.gearbox_light_program_control) {
                     gearbox_action(clicks);
                 }
                 else {
@@ -87,7 +87,7 @@ static void process_click_timeout(void)
             case 2:
                 // --------------------------
                 // Double click
-                if (config.flags.gearbox_servo_output) {
+                if (config.flags.gearbox_servo_output && !config.flags2.gearbox_light_program_control) {
                     gearbox_action(clicks);
                 }
                 else {
@@ -432,8 +432,6 @@ static void handle_aux_channel(CHANNEL_T *c, struct AUX_FLAGS *f, AUX_TYPE_T typ
 // ****************************************************************************
 void process_aux(void)
 {
-    global_flags.gear_changed = 0;
-
     if (global_flags.initializing) {
         initialized = false;
     }

@@ -380,6 +380,7 @@ typedef struct {
     unsigned int braking : 1;               // Set when the brakes are enganged
     unsigned int reversing : 1;             // Set when the car is reversing
 
+    unsigned int gear_change_requested : 1; // Set until the next mainloop to synchronize gear_changed event
     unsigned int gear_changed : 1;          // Set for one mainloop when a new gear was selected
     unsigned int gear : 2;
 
@@ -510,7 +511,16 @@ typedef struct {
         // set to 0 for the old mode we used in our XR311
         unsigned int us_style_combined_lights :1;
 
-        unsigned int reserved0 : 13;
+        // Set to 1 when the gearbox should be controlled through light
+        // programs only and not 1/2 clicks.
+        // Only in effect when gearbox_servo_output is enabled.
+        unsigned int gearbox_light_program_control :1;
+
+        // Set to 1 when the servo can be directly controlled from light
+        // programs, range -100 / 0 / +100
+        unsigned int light_program_servo_output :1;
+
+        unsigned int reserved0 : 11;
     } flags2;
 
     // Dark phase of the indicator. The blink_counter_value from config version
@@ -632,7 +642,10 @@ void init_servo_output(void);
 void process_servo_output(void);
 void servo_output_setup_action(uint8_t ch3_clicks);
 void gearbox_action(uint8_t ch3_clicks);
+void set_gear(uint8_t new_gear);
 void set_servo_pulse(uint16_t value);
+void set_servo_position(uint8_t value);
+
 
 void process_winch(void);
 void winch_action(uint8_t ch3_clicks);

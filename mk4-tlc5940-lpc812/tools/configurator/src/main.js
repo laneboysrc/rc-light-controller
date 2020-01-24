@@ -434,6 +434,8 @@ var app = (function () {
             new_config.multi_aux = get_flag2(0x0001);
             new_config.shelf_queen_mode = get_flag2(0x0002);
             new_config.us_style_combined_lights = get_flag2(0x0004);
+            new_config.gearbox_light_program_control = get_flag2(0x0008);
+            new_config.light_program_servo_output = get_flag2(0x0010);
 
             new_config.blink_counter_value_dark = get_uint16(data, offset + 68);
 
@@ -1008,13 +1010,12 @@ var app = (function () {
         // Output functions
         el.winch_output.checked = Boolean(config.winch_output);
         el.winch_enable.checked = Boolean(config.winch_output);
-        el.gearbox_servo_output.checked =
-            Boolean(config.gearbox_servo_output);
-        el.steering_wheel_servo_output.checked =
-            Boolean(config.steering_wheel_servo_output);
-        el.preprocessor_output.checked =
-            Boolean(config.preprocessor_output);
+        el.gearbox_servo_output.checked = Boolean(config.gearbox_servo_output);
+        el.steering_wheel_servo_output.checked = Boolean(config.steering_wheel_servo_output);
+        el.preprocessor_output.checked = Boolean(config.preprocessor_output);
         el.slave_output.checked = Boolean(config.slave_output);
+        el.gearbox_light_program_control = Boolean(config.gearbox_light_program_control);
+        el.light_program_servo_output = Boolean(config.light_program_servo_output);
 
         // CH3/AUX type
         el.ch3[0].checked = true;
@@ -1377,6 +1378,8 @@ var app = (function () {
             flags2 |= (config.multi_aux << 0);
             flags2 |= (config.shelf_queen_mode << 1);
             flags2 |= (config.us_style_combined_lights << 2);
+            flags2 |= (config.gearbox_light_program_control << 3);
+            flags2 |= (config.light_program_servo_output << 4);
             set_uint16(data, offset + 64, flags2);
 
             set_uint16(data, offset + 68, config.blink_counter_value_dark);
@@ -1803,12 +1806,16 @@ var app = (function () {
             config.slave_output = false;
             config.steering_wheel_servo_output = false;
             config.gearbox_servo_output = false;
+            config.gearbox_light_program_control = false;
+            config.light_program_servo_output = false;
             config.winch_output = false;
         } else {
             update_boolean('preprocessor_output');
             update_boolean('slave_output');
             update_boolean('steering_wheel_servo_output');
             update_boolean('gearbox_servo_output');
+            update_boolean('gearbox_light_program_control');
+            update_boolean('light_program_servo_output');
             if (el.preprocessor_output.checked || el.slave_output.checked) {
                 config.winch_output = Boolean(el.winch_enable.checked);
             }
@@ -2476,6 +2483,7 @@ var app = (function () {
 
             'slave_output', 'preprocessor_output', 'steering_wheel_servo_output',
             'gearbox_servo_output', 'winch_output', 'winch_enable',
+            'light_program_servo_output', 'gearbox_light_program_control',
 
             'leds_clear',
 
