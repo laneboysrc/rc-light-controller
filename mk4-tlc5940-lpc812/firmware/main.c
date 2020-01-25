@@ -167,7 +167,8 @@ int main(void)
 
     global_flags.servo_output_enabled =
         config.flags.steering_wheel_servo_output ||
-        config.flags.gearbox_servo_output;
+        config.flags.gearbox_servo_output ||
+        config.flags2.light_program_servo_output;
 
     if (config.flags2.multi_aux) {
         global_flags.servo_output_enabled |=

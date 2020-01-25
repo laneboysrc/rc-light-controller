@@ -9,7 +9,7 @@
 
 
 static bool next = false;
-static uint8_t servo_position;
+static int16_t servo_position;
 static uint16_t servo_pulse;
 
 static uint16_t gearbox_servo_counter;
@@ -52,17 +52,30 @@ void set_servo_pulse(uint16_t value)
 }
 
 // ****************************************************************************
-void set_servo_position(uint8_t value)
+void set_servo_position(int16_t value)
 {
+    // Ensure the servo position is in the range of -100 .. 0 ,, +100
+    value = MAX(value, -100);
+    value = MIN(value, 100);
+
     servo_position = value;
 }
 
 // ****************************************************************************
 void set_gear(uint8_t new_gear) {
+    // Ensure that new_gear is in the valid range
+    if (new_gear < 1) {
+        new_gear = 1;
+    }
+    if (new_gear > config.number_of_gears) {
+        new_gear = config.number_of_gears;
+    }
+
     if (global_flags.gear == new_gear) {
         return;
     }
 
+    global_flags.gear = new_gear;
     global_flags.gear_change_requested = true;
     fprintf(STDOUT_DEBUG, "gear %d\n", global_flags.gear);
     activate_gearbox_servo();
@@ -178,6 +191,7 @@ void process_servo_output(void)
     // --------------------------------
     // Servo output setup is active
     if (global_flags.servo_output_setup != SERVO_OUTPUT_SETUP_OFF) {
+        HAL_servo_output_enable();
         calculate_servo_pulse(channel[ST].normalized);
         if (next) {
             next = false;
@@ -200,6 +214,7 @@ void process_servo_output(void)
                         servo_output_endpoint.left = servo_setup_endpoint.left;
                         write_persistent_storage();
 
+                        activate_gearbox_servo();
                         global_flags.servo_output_setup = SERVO_OUTPUT_SETUP_OFF;
                         fprintf(STDOUT_DEBUG, "servo setup done\n");
                     }
@@ -216,6 +231,10 @@ void process_servo_output(void)
                     servo_output_endpoint.centre = servo_setup_endpoint.centre;
                     servo_output_endpoint.left = servo_setup_endpoint.left;
                     write_persistent_storage();
+
+                    if (config.flags.gearbox_servo_output) {
+                        activate_gearbox_servo();
+                    }
 
                     global_flags.servo_output_setup = SERVO_OUTPUT_SETUP_OFF;
                     fprintf(STDOUT_DEBUG, "servo setup done\n");

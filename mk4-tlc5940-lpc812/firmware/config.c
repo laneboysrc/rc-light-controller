@@ -41,6 +41,8 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
         .multi_aux = false,
         .shelf_queen_mode = true,
         .us_style_combined_lights = true,
+        .gearbox_light_program_control = false,
+        .light_program_servo_output = false,
     },
 
     .auto_brake_counter_value_forward_min = (500 / __SYSTICK_IN_MS),

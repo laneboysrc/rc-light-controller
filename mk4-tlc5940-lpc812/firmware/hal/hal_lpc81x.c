@@ -494,8 +494,8 @@ void HAL_servo_output_set_pulse(uint16_t servo_pulse)
 // ****************************************************************************
 void HAL_servo_output_enable(void)
 {
-    // Re-enable event 0 to set CTOUT_1
-    LPC_SCT->OUT[1].SET = (1 << 0);
+    // Re-enable event 4 to set CTOUT_1
+    LPC_SCT->OUT[1].SET = (1 << 4);
 }
 
 

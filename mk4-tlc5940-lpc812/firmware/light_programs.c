@@ -666,7 +666,7 @@ uint32_t process_light_programs(void)
     light_switch_position = var[GLOBAL_VAR_LIGHT_SWITCH_POSITION];
     set_servo_position(var[GLOBAL_VAR_SERVO]);
     if (config.flags2.gearbox_light_program_control) {
-        global_flags.gear = var[GLOBAL_VAR_GEAR];
+        set_gear(var[GLOBAL_VAR_GEAR]);
     }
 
     return leds_used;

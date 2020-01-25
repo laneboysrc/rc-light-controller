@@ -1014,8 +1014,8 @@ var app = (function () {
         el.steering_wheel_servo_output.checked = Boolean(config.steering_wheel_servo_output);
         el.preprocessor_output.checked = Boolean(config.preprocessor_output);
         el.slave_output.checked = Boolean(config.slave_output);
-        el.gearbox_light_program_control = Boolean(config.gearbox_light_program_control);
-        el.light_program_servo_output = Boolean(config.light_program_servo_output);
+        el.gearbox_light_program_control.checked = Boolean(config.gearbox_light_program_control);
+        el.light_program_servo_output.checked = Boolean(config.light_program_servo_output);
 
         // CH3/AUX type
         el.ch3[0].checked = true;
@@ -1823,7 +1823,6 @@ var app = (function () {
                 update_boolean('winch_output');
             }
         }
-
 
         // CH3/AUX type
         config.ch3_is_momentary = false;
