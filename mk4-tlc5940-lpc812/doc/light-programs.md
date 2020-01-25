@@ -319,8 +319,9 @@ Light program 3:
 Light programs 1 and 2 share the global variable ``i_am_global``.
 Light program 1 and 3 declare another global variable ``VARIABLE3``. Light program 2 also declares ``VARIABLE3``, but as local variable, so in this example ``VARIABLE3`` of light program 2 is a separate, private storage location from the global ``VARIABLE3`` shared by light programs 1 and 3.
 
+### Predefined variables
 
-There two global variables predefined for all light programs:
+There a few global variables predefined for all light programs:
 
 - clicks
 
@@ -329,6 +330,21 @@ There two global variables predefined for all light programs:
 - light-switch-position
 
     This variable reflects the current position of the virtual light switch. It can be modified by light programs to turn the light switch to a specific position as well.
+
+- gear
+
+    If the configuration has the control of a gearbox servo enabled, this variable reflects the current gear. The light program can also change to a new gear. If an invalid
+    gear number is assigned then the assignment is ignored and reverted back to the
+    current gear once the light program execution yields.
+
+- servo
+
+    If Light Program Servo Control is enabled in the configuration, this variable
+    can be used to read and set the current servo location in the range of -100
+    (left endpoint) .. 0 (center) .. +100 (right endpoint). Values set outside
+    this range are clamped to -100 or +100. Note that the endpoints and center
+    position can be adjusted in the light controller by performing 8 clicks.
+    Refer to the light controller user manual for details.
 
 
 ### LED declerations
@@ -398,8 +414,10 @@ Most statements support a variety of different arguments:
     x = aux         // AUX/CH3 channel (range: -100..100), read-only
     x = aux2        // AUX2 channel (range: -100..100), read-only
     x = aux3        // AUX3 channel (range: -100..100), read-only
-    x = gear        // Current gear, read only,
+    x = gear        // Current gear,
                     //   only useful if gearbox servo support is enabled
+    x = servo       // Current servo position -100..0..+100,
+                    //   only useful if light program servo control is enabled
 
 Note: aux, aux2 and aux3 are only available in firmware versions greater than 20, and only when a multi-aux-channel preprocessor hardware is used.s
 
@@ -585,7 +603,7 @@ Light programs can make use of ``skip if`` statements to change program flow dep
         skip if x != l      // skip if value of variable x is not the same
                             // as the value of led[7]
 
-        skip if l >= 5      // skip if led[7] is greater or equal to 5
+        skip if l >= 5      // skip if led[7] is greater or equal to 5 (5%)
         skip if l > x       // skip if led[7] is greater than value of x
         skip if l2 < l      // skip if value of led[8] is less than value
                             // of led[7]
