@@ -601,8 +601,6 @@ var app = (function () {
         var current_function = parseInt(this.fn.value, 10);
 
         switch (new_type) {
-        case AUX_TYPE.AUX_TYPE_TWO_POSITION:
-        case AUX_TYPE.AUX_TYPE_TWO_POSITION_UP_DOWN:
         case AUX_TYPE.AUX_TYPE_MOMENTARY:
             this.fn.querySelector('.function_multi_function').disabled = false;
             this.fn.querySelector('.function_indicators').disabled = true;
@@ -610,6 +608,16 @@ var app = (function () {
 
             if (current_function === AUX_FUNCTION.AUX_FUNCTION_LIGHT_SWITCH ||
                 current_function === AUX_FUNCTION.AUX_FUNCTION_INDICATORS) {
+                this.fn.value = AUX_FUNCTION.AUX_FUNCTION_NOT_USED;
+            }
+            break;
+
+        case AUX_TYPE.AUX_TYPE_TWO_POSITION:
+        case AUX_TYPE.AUX_TYPE_TWO_POSITION_UP_DOWN:
+            this.fn.querySelector('.function_multi_function').disabled = false;
+            this.fn.querySelector('.function_indicators').disabled = true;
+            this.fn.querySelector('.function_light_switch').disabled = false;
+            if (current_function === AUX_FUNCTION.AUX_FUNCTION_INDICATORS) {
                 this.fn.value = AUX_FUNCTION.AUX_FUNCTION_NOT_USED;
             }
             break;
