@@ -25,23 +25,23 @@ typedef struct {
 // ****************************************************************************
 // IO pins: (SAMD21E15 in QFN32 package)
 //
-// PA01     (2)                             LED
-// PA02     (3)                             OUT15S Switched light output
-// PA04     (5 SERCOM0/PAD0)                TLC5940 SIN
-// PA05     (6 SERCOM0/PAD1)                TLC5940 SCLK
-// PA06     (7)                             TLC5940 XLAT
-// PA07     (8)                             TLC5940 BLANK
-// PA09     (12)                            TLC5940 GSCLK
-// PA11     (14)                            Push button
-// PA18     (19 SERCOM3/PAD2, EXTINT[1])    Throttle input
-// PA19     (20 EXTINT[3])                  CH3 input
-// PA22     (21 SERCOM3/PAD0, TC4/W[0])     OUT / Tx
-// PA23     (22 EXTINT[7], SERCOM3/PAD1)    Steering input / Rx
-// PA24     (23 USB-DM)
-// PA25     (24 USB-DP)
-// PA30     (31 SWCLK)
-// PA31     (32 SWDIO)
-// RESET    (26)
+// PA01     (2)
+// PA02     (3)
+// PA04     (5 SERCOM0/PAD0)                LED OK
+// PA05     (6 SERCOM0/PAD1)                LED Busy
+// PA06     (7)                             LED Error
+// PA07     (8)                             Light Controller supply enable
+// PA09     (12)
+// PA11     (14)
+// PA18     (19 SERCOM3/PAD2, EXTINT[1])
+// PA19     (20 EXTINT[3])
+// PA22     (21 SERCOM3/PAD0, TC4/W[0])     TX
+// PA23     (22 EXTINT[7], SERCOM3/PAD1)    RX
+// PA24     (23 USB-DM)                     USB-DM
+// PA25     (24 USB-DP)                     USB-DP
+// PA30     (31 SWCLK)                      SWCLK
+// PA31     (32 SWDIO)                      SWDIO
+// RESET    (26)                            Reset
 //
 // GND      (10)
 // GND      (28)
@@ -52,19 +52,19 @@ typedef struct {
 //
 // Arduino Zero (and Protoneer Nano-ARM) pin mapping:
 //
-// PA01             32.768 kHz crystal
-// PA02     A0      OUT15S Switched light output
-// PA04     A3      TLC5940 SIN
-// PA05     A4      TLC5940 SCLK
-// PA06     D8      TLC5940 XLAT
-// PA07     D9      TLC5940 BLANK
-// PA09     D3      TLC5940 GSCLK
-// PA11     D0      Push button
+// PA01             [32.768 kHz crystal]
+// PA02     A0
+// PA04     A3      LED OK
+// PA05     A4      LED Busy
+// PA06     D8      LED Error
+// PA07     D9      Light Controller supply enable
+// PA09     D3
+// PA11     D0
 // PA17     D13     LED
-// PA18     D10     Throttle input
-// PA19     D12     CH3 input
-// PA22     SDA     OUT / Tx
-// PA23     SCL     Steering input / Rx
+// PA18     D10
+// PA19     D12
+// PA22     SDA     TX
+// PA23     SCL     RX
 // PA24     USB-DM
 // PA25     USB-DP
 //
