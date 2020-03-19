@@ -27,7 +27,7 @@
 
 bool test_interface_is_write_busy(void);
 void test_interface_write(uint8_t *data, uint8_t length);
-extern void add_uint8_to_receive_buffer(uint8_t byte);
+extern void add_uint8_to_usb_receive_buffer(uint8_t byte);
 
 static alignas(4) uint8_t test_interface_buf_in[BUF_SIZE];
 static alignas(4) uint8_t test_interface_buf_out[BUF_SIZE];
@@ -90,7 +90,7 @@ static void test_interface_out_completion(void)
     uint32_t length = usb_ep_out_length(USB_EP_TEST_OUT);
 
     for (uint32_t i = 0; i < length ; i++) {
-        add_uint8_to_receive_buffer(test_interface_buf_out[i]);
+        add_uint8_to_usb_receive_buffer(test_interface_buf_out[i]);
     }
 
     usb_ep_start_out(USB_EP_TEST_OUT, test_interface_buf_out, BUF_SIZE);
@@ -183,12 +183,9 @@ static void command_handler(void)
             HAL_gpio_in(HAL_GPIO_OUT_ISP);
             break;
 
+        // Baudrate is currently not supported
         case CMD_BAUDRATE_38400:
-            break;
-
         case CMD_BAUDRATE_115200:
-            break;
-
         default:
             usb_ep0_stall();
             return;

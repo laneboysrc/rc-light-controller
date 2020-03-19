@@ -11,7 +11,7 @@
 #include <globals.h>
 
 #include <hal.h>
-#include <printf.h>
+// #include <printf.h>
 
 
 // ****************************************************************************
@@ -24,33 +24,24 @@ static void service_systick(void)
 // ****************************************************************************
 int main(void)
 {
-    HAL_hardware_init(false, false, true);
+    HAL_hardware_init();
     HAL_uart_init(115200);
-    init_printf(STDOUT, HAL_putc);
+    // init_printf(STDOUT_UART, HAL_putc);
 
-    // Wait for 100ms to have the supply settle down before initializing the
-    // rest of the system. This is especially important for the TLC5940,
-    // which misbehaves (certain LEDs don't work) when being addressed before
-    // power is stable.
-    //
-    // It is also important in terms of servo reader function, because some
-    // RC electronics like the Hobbywing Quicrun 1080 are outputing serial
-    // data after startup, which interferes with the initialization procedure
+    // Wait for 100ms to have the supply settle
     while (milliseconds <  100);
 
     HAL_hardware_init_final();
-
-    fprintf(STDOUT_DEBUG, "\n\n**********\nWebUSB programmer\n");
 
     while (1) {
         service_systick();
         HAL_service();
 
 
-        if (HAL_getchar_pending()) {
-            uint8_t c = HAL_getchar();
+        if (HAL_getchar_pending(STDOUT_UART)) {
+            uint8_t c = HAL_getchar(STDOUT_UART);
 
-            HAL_putc(STDOUT_DEBUG, c);
+            HAL_putc(STDOUT_USB, c);
         }
     }
 }

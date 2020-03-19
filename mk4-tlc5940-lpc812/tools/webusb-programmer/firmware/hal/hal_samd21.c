@@ -7,13 +7,13 @@
 #include <usb.h>
 #include <printf.h>
 
-void add_uint8_to_receive_buffer(uint8_t byte);
+void add_uint8_to_uart_receive_buffer(uint8_t byte);
+void add_uint8_to_usb_receive_buffer(uint8_t byte);
+
 extern bool test_interface_is_write_busy(void);
 extern void test_interface_write(uint8_t *data, uint8_t length);
 
 volatile uint32_t milliseconds;
-
-static bool diagnostics_on_uart;
 
 // These are defined by the linker via the samd21e15.ld linker script.
 extern uint32_t _ram;
@@ -28,21 +28,21 @@ extern uint32_t * const magic_value;
 #define BOOTLOADER_MAGIC 0x47110815
 bool start_bootloader = false;
 
-static uint8_t tx_pad;
-
-__attribute__ ((section(".persistent_data")))
-static volatile const uint32_t persistent_data[HAL_NUMBER_OF_PERSISTENT_ELEMENTS];
-
 
 #define RECEIVE_BUFFER_SIZE (128)        // Must be modulo 2 for speed
 #define RECEIVE_BUFFER_INDEX_MASK (RECEIVE_BUFFER_SIZE - 1)
-static uint8_t receive_buffer[RECEIVE_BUFFER_SIZE];
-static volatile uint16_t read_index = 0;
-static volatile uint16_t write_index = 0;
+static uint8_t uart_receive_buffer[RECEIVE_BUFFER_SIZE];
+static volatile uint16_t uart_read_index = 0;
+static volatile uint16_t uart_write_index = 0;
+static uint8_t usb_receive_buffer[RECEIVE_BUFFER_SIZE];
+static volatile uint16_t usb_read_index = 0;
+static volatile uint16_t usb_write_index = 0;
 
 #define SEND_BUFFER_SIZE (64)
-static uint8_t send_buffer[SEND_BUFFER_SIZE];
-static volatile uint16_t send_buffer_index = 0;
+// static uint8_t uart_send_buffer[SEND_BUFFER_SIZE];
+// static volatile uint16_t uart_send_buffer_index = 0;
+static uint8_t usb_send_buffer[SEND_BUFFER_SIZE];
+static volatile uint16_t usb_send_buffer_index = 0;
 
 // We use all 24 bits of TCC0, so the maximum period value is 0xffffff
 #define TCC0_PERIOD (0xfffffful)
@@ -50,13 +50,10 @@ static volatile uint16_t send_buffer_index = 0;
 
 
 // ****************************************************************************
-void HAL_hardware_init(bool is_servo_reader, bool servo_output_enabled, bool uart_output_enabled)
+void HAL_hardware_init(void)
 {
     uint32_t *coarse_p;
     uint32_t coarse;
-
-    // FIXME: output diagnostics on UART only if uart_output_enabled is false
-    (void) uart_output_enabled;
 
 
     // ------------------------------------------------
@@ -80,7 +77,6 @@ void HAL_hardware_init(bool is_servo_reader, bool servo_output_enabled, bool uar
     // Configure GPIOs for the UART
     HAL_gpio_out(HAL_GPIO_TX);
     HAL_gpio_pmuxen(HAL_GPIO_TX);
-    tx_pad = HAL_GPIO_TX.txpo;
 
     HAL_gpio_in(HAL_GPIO_RX);
     HAL_gpio_pmuxen(HAL_GPIO_RX);
@@ -193,25 +189,6 @@ void HAL_hardware_init(bool is_servo_reader, bool servo_output_enabled, bool uar
     SysTick_Config(48000);
     NVIC_SetPriority(SysTick_IRQn, 0);
 
-
-    // ------------------------
-    // The UART Tx can be used for diagnostics output if it is not in use.
-    // The pin is in use when HAL gets passed "uart_output_enabled==true"
-    // (UART used for pre-processor, winch or slave output), or when we
-    // have a servo reader and the servo output is enabled.
-    //
-    // Or in other words: the UART can output diagnostics on the OUT pin
-    // when it is not in use, or the UART can output diagnostics on the TH/Tx
-    // pin when we the UART reader is in use and no UART output function is
-    // configured.
-    diagnostics_on_uart = !uart_output_enabled;
-    if (is_servo_reader) {
-        if (servo_output_enabled) {
-            diagnostics_on_uart = false;
-        }
-    }
-
-
     __enable_irq();
 }
 
@@ -234,43 +211,10 @@ void HAL_hardware_init_final(void)
 // ****************************************************************************
 void HAL_service(void)
 {
-#ifndef NODEBUG
-    #define CANARY 0xcafebabe
-
-    /*
-    There is an issue if we initialize the last_found static variable with
-    _stacktop at compile time. For some reason it does not contain the proper
-    value.
-    We therefore initialize it with 0 and check for that. If we enounter 0 we
-    load the _stacktop address and everything works well.
-
-    Worst case the program hangs when last_found is not aligned to 4 bytes, as
-    a hard fault is raised.
-    */
-
-    static uint32_t *last_found;
-    uint32_t *now;
-
-    if (last_found == NULL) {
-        last_found = (uint32_t *)&_stacktop;
-    }
-
-    now = last_found;
-
-    while (*now != CANARY  &&  now > (uint32_t *)&_ram) {
-        --now;
-    }
-
-    if (now < last_found) {
-        last_found = now;
-        fprintf(STDOUT_DEBUG, "Stack down to 0x%08x\n", (uint32_t)now);
-    }
-#endif
-
     if (start_bootloader) {
         uint32_t end = milliseconds + 50;
 
-        fprintf(STDOUT_DEBUG, "REBOOTING INTO BOOTLOADER\n");
+        // fprintf(STDOUT_DEBUG, "REBOOTING INTO BOOTLOADER\n");
 
         // Wait a short while ...
         while (milliseconds < end);
@@ -296,10 +240,10 @@ void HAL_service(void)
 
     // If we have data to send via USB serial, and USB serial is available to
     // send, then do it
-    if (send_buffer_index) {
+    if (usb_send_buffer_index) {
         if (!test_interface_is_write_busy()) {
-            test_interface_write(send_buffer, send_buffer_index);
-            send_buffer_index = 0;
+            test_interface_write(usb_send_buffer, usb_send_buffer_index);
+            usb_send_buffer_index = 0;
         }
     }
 }
@@ -330,7 +274,7 @@ void HAL_uart_init(uint32_t baudrate)
         SERCOM_USART_CTRLA_DORD |
         SERCOM_USART_CTRLA_MODE_USART_INT_CLK |
         SERCOM_USART_CTRLA_RXPO(HAL_GPIO_RX.rxpo) |
-        SERCOM_USART_CTRLA_TXPO(tx_pad);
+        SERCOM_USART_CTRLA_TXPO(HAL_GPIO_TX.txpo);
 
     // Enable transmit and receive; 8 bit characters
     UART_SERCOM->USART.CTRLB.reg =
@@ -355,71 +299,115 @@ void HAL_uart_init(uint32_t baudrate)
 void UART_SERCOM_HANDLER(void)
 {
     if (UART_SERCOM->USART.INTFLAG.bit.RXC) {
-        add_uint8_to_receive_buffer((uint8_t)UART_SERCOM->USART.DATA.reg);
+        add_uint8_to_uart_receive_buffer((uint8_t)UART_SERCOM->USART.DATA.reg);
     }
 }
 
 
 // ****************************************************************************
-void add_uint8_to_receive_buffer(uint8_t byte)
-{
-    receive_buffer[write_index++] = byte;
-
-    // Wrap around the write pointer. This works because the buffer size is
-    // a modulo of 2.
-    write_index &= RECEIVE_BUFFER_INDEX_MASK;
-
-    // If we are bumping into the read pointer we are dealing with a buffer
-    // overflow. Back off and rather destroy the last value.
-    if (write_index == read_index) {
-        write_index = (write_index - 1) & RECEIVE_BUFFER_INDEX_MASK;
+static void usbserial_putc(char c) {
+    if (usb_send_buffer_index < SEND_BUFFER_SIZE) {
+        usb_send_buffer[usb_send_buffer_index++] = c;
     }
 }
 
 
 // ****************************************************************************
-bool HAL_getchar_pending(void)
+static bool usbserial_getchar_pending(void)
 {
-    return (read_index != write_index);
+    return (usb_read_index != usb_write_index);
 }
 
 
 // ****************************************************************************
-uint8_t HAL_getchar(void)
-{
+static uint8_t usbserial_getchar(void) {
     uint8_t data;
 
-    while (!HAL_getchar_pending());
+    while (!usbserial_getchar_pending());
 
-    data = receive_buffer[read_index++];
+    data = usb_receive_buffer[usb_read_index++];
 
     // Wrap around the read pointer.
-    read_index &= RECEIVE_BUFFER_INDEX_MASK;
+    usb_read_index &= RECEIVE_BUFFER_INDEX_MASK;
 
     return data;
 }
 
 
 // ****************************************************************************
-static void usbserial_putc(char c) {
-    if (send_buffer_index < SEND_BUFFER_SIZE) {
-        send_buffer[send_buffer_index++] = c;
+void add_uint8_to_usb_receive_buffer(uint8_t byte)
+{
+    usb_receive_buffer[usb_write_index++] = byte;
+
+    // Wrap around the write pointer. This works because the buffer size is
+    // a modulo of 2.
+    usb_write_index &= RECEIVE_BUFFER_INDEX_MASK;
+
+    // If we are bumping into the read pointer we are dealing with a buffer
+    // overflow. Back off and rather destroy the last value.
+    if (usb_write_index == usb_read_index) {
+        usb_write_index = (usb_write_index - 1) & RECEIVE_BUFFER_INDEX_MASK;
     }
+}
+
+
+// ****************************************************************************
+void add_uint8_to_uart_receive_buffer(uint8_t byte)
+{
+    uart_receive_buffer[uart_write_index++] = byte;
+
+    // Wrap around the write pointer. This works because the buffer size is
+    // a modulo of 2.
+    uart_write_index &= RECEIVE_BUFFER_INDEX_MASK;
+
+    // If we are bumping into the read pointer we are dealing with a buffer
+    // overflow. Back off and rather destroy the last value.
+    if (uart_write_index == uart_read_index) {
+        uart_write_index = (uart_write_index - 1) & RECEIVE_BUFFER_INDEX_MASK;
+    }
+}
+
+
+// ****************************************************************************
+bool HAL_getchar_pending(void *p)
+{
+    if (p == STDOUT_USB) {
+        return usbserial_getchar_pending();
+    }
+
+    return (uart_read_index != uart_write_index);
+}
+
+
+// ****************************************************************************
+uint8_t HAL_getchar(void *p)
+{
+    uint8_t data;
+
+    if (p == STDOUT_USB) {
+        return usbserial_getchar();
+    }
+
+    while (!HAL_getchar_pending(p));
+
+    data = uart_receive_buffer[uart_read_index++];
+
+    // Wrap around the read pointer.
+    uart_read_index &= RECEIVE_BUFFER_INDEX_MASK;
+
+    return data;
 }
 
 
 // ****************************************************************************
 void HAL_putc(void *p, char c)
 {
-    if (p == STDOUT_DEBUG) {
+    if (p == STDOUT_USB) {
         usbserial_putc(c);
-    }
-
-    // Ignore diagnostics requests if disabled
-    if (!diagnostics_on_uart  &&  p == STDOUT_DEBUG) {
         return;
     }
 
+    // FIXME: use a ring buffer to avoid blocking
     while (!(UART_SERCOM->USART.INTFLAG.reg & SERCOM_USART_INTFLAG_DRE));
     UART_SERCOM->USART.DATA.reg = c;
 }
