@@ -61,70 +61,29 @@ void HAL_hardware_init(bool is_servo_reader, bool servo_output_enabled, bool uar
 
     // ------------------------------------------------
     // Perform GPIO initialization as early as possible
-    HAL_gpio_set(HAL_GPIO_BLANK);
-    HAL_gpio_out(HAL_GPIO_BLANK);
+    HAL_gpio_set(HAL_GPIO_POWER_ENABLE);
+    HAL_gpio_out(HAL_GPIO_POWER_ENABLE);
 
-    HAL_gpio_clear(HAL_GPIO_SWITCHED_LIGHT_OUTPUT);
-    HAL_gpio_out(HAL_GPIO_SWITCHED_LIGHT_OUTPUT);
-
-    HAL_gpio_out(HAL_GPIO_XLAT);
-
-    HAL_gpio_out(HAL_GPIO_SIN);
-    HAL_gpio_pmuxen(HAL_GPIO_SIN);
-
-    HAL_gpio_out(HAL_GPIO_SCK);
-    HAL_gpio_pmuxen(HAL_GPIO_SCK);
-
-    HAL_gpio_in(HAL_GPIO_CH3);
-    HAL_gpio_pmuxen(HAL_GPIO_CH3);
-
-    HAL_gpio_in(HAL_GPIO_PUSH_BUTTON);
+    HAL_gpio_in(HAL_GPIO_OUT_ISP);
 
     HAL_gpio_pmuxen(HAL_GPIO_USB_DM);
     HAL_gpio_pmuxen(HAL_GPIO_USB_DP);
 
     // Turn the status LED on to signify we are initializing
-    HAL_gpio_out(HAL_GPIO_LED);
-    HAL_gpio_out(HAL_GPIO_LED2);
-    HAL_gpio_set(HAL_GPIO_LED);
-    HAL_gpio_set(HAL_GPIO_LED2);
+    HAL_gpio_out(HAL_GPIO_LED_OK);
+    HAL_gpio_out(HAL_GPIO_LED_BUSY);
+    HAL_gpio_out(HAL_GPIO_LED_ERROR);
+    HAL_gpio_set(HAL_GPIO_LED_OK);
+    HAL_gpio_set(HAL_GPIO_LED_BUSY);
+    HAL_gpio_set(HAL_GPIO_LED_ERROR);
 
-    // ------------------------------------------------
-    // Configure GPIOs shared between servo inputs, servo output and UART
+    // Configure GPIOs for the UART
+    HAL_gpio_out(HAL_GPIO_TX);
+    HAL_gpio_pmuxen(HAL_GPIO_TX);
+    tx_pad = HAL_GPIO_TX.txpo;
 
-    // Output UART Tx on OUT in all cases when the servo output is disabled
-    if (servo_output_enabled) {
-        HAL_gpio_out(HAL_GPIO_OUT);
-        HAL_gpio_pmuxen(HAL_GPIO_OUT);
-    }
-    else {
-        HAL_gpio_out(HAL_GPIO_TX_ON_OUT);
-        HAL_gpio_pmuxen(HAL_GPIO_TX_ON_OUT);
-        tx_pad = HAL_GPIO_TX_ON_OUT.txpo;
-    }
-
-    if (is_servo_reader) {
-        HAL_gpio_in(HAL_GPIO_ST);
-        HAL_gpio_pmuxen(HAL_GPIO_ST);
-        HAL_gpio_in(HAL_GPIO_TH);
-        HAL_gpio_pmuxen(HAL_GPIO_TH);
-    }
-    else {
-        HAL_gpio_in(HAL_GPIO_RX);
-        HAL_gpio_pmuxen(HAL_GPIO_RX);
-
-        // In case we have a UART and a servi output, TH is unused. We can
-        // use TH as Tx signal, just like in the LPC812 Mk4 light controller
-        if (servo_output_enabled) {
-            HAL_gpio_out(HAL_GPIO_TX_ON_TH);
-            HAL_gpio_pmuxen(HAL_GPIO_TX_ON_TH);
-            tx_pad = HAL_GPIO_TX_ON_TH.txpo;
-        }
-        else {
-            HAL_gpio_in(HAL_GPIO_TH);
-            HAL_gpio_pmuxen(HAL_GPIO_TH);
-        }
-    }
+    HAL_gpio_in(HAL_GPIO_RX);
+    HAL_gpio_pmuxen(HAL_GPIO_RX);
 
 
     // ------------------------------------------------
@@ -199,7 +158,6 @@ void HAL_hardware_init(bool is_servo_reader, bool servo_output_enabled, bool uar
     // Turn on power to the peripherals we use
     PM->APBCMASK.reg =
         UART_SERCOM_APBCMASK |
-        SPI_SERCOM_APBCMASK |
         PM_APBAMASK_EIC |
         PM_APBCMASK_EVSYS |
         PM_APBCMASK_TCC0 |

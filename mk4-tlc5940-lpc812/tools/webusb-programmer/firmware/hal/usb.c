@@ -9,6 +9,22 @@
 #include <usb_bos.h>
 #include <printf.h>
 
+#define VENDOR_CODE_COMMAND 72      // Light Controller programmer command interface
+
+#define CMD_DUT_POWER_OFF (10)
+#define CMD_DUT_POWER_ON (11)
+#define CMD_OUT_ISP_LOW (20)
+#define CMD_OUT_ISP_HIGH (21)
+#define CMD_OUT_ISP_TRISTATE (22)
+#define CMD_BAUDRATE_38400 (30)
+#define CMD_BAUDRATE_115200 (31)
+#define CMD_LED_OK_OFF (40)
+#define CMD_LED_OK_ON (41)
+#define CMD_LED_BUSY_OFF (42)
+#define CMD_LED_BUSY_ON (43)
+#define CMD_LED_ERROR_OFF (44)
+#define CMD_LED_ERROR_ON (45)
+
 bool test_interface_is_write_busy(void);
 void test_interface_write(uint8_t *data, uint8_t length);
 extern void add_uint8_to_receive_buffer(uint8_t byte);
@@ -19,6 +35,8 @@ static bool test_interface_buf_in_busy = false;
 
 static const uint8_t* data;
 static uint16_t data_length;
+
+
 
 
 // ****************************************************************************
@@ -111,9 +129,7 @@ static void command_handler(void)
 {
     switch(usb_setup.wValue) {
         case 0:
-            usb_ep0_in(0);
-            usb_ep0_out();
-            return;
+            break;
 
         case 1:
             ep0_buf_in[0] = 42;
@@ -121,11 +137,65 @@ static void command_handler(void)
             usb_ep0_out();
             return;
 
-        default:
+        case CMD_DUT_POWER_ON:
+            HAL_gpio_clear(HAL_GPIO_POWER_ENABLE);
             break;
+
+        case CMD_DUT_POWER_OFF:
+            HAL_gpio_set(HAL_GPIO_POWER_ENABLE);
+            break;
+
+        case CMD_LED_OK_ON:
+            HAL_gpio_set(HAL_GPIO_LED_OK);
+            break;
+
+        case CMD_LED_OK_OFF:
+            HAL_gpio_clear(HAL_GPIO_LED_OK);
+            break;
+
+        case CMD_LED_BUSY_ON:
+            HAL_gpio_set(HAL_GPIO_LED_BUSY);
+            break;
+
+        case CMD_LED_BUSY_OFF:
+            HAL_gpio_clear(HAL_GPIO_LED_BUSY);
+            break;
+
+        case CMD_LED_ERROR_ON:
+            HAL_gpio_set(HAL_GPIO_LED_ERROR);
+            break;
+
+        case CMD_LED_ERROR_OFF:
+            HAL_gpio_clear(HAL_GPIO_LED_ERROR);
+            break;
+
+        case CMD_OUT_ISP_LOW:
+            HAL_gpio_clear(HAL_GPIO_OUT_ISP);
+            HAL_gpio_out(HAL_GPIO_OUT_ISP);
+            break;
+
+        case CMD_OUT_ISP_HIGH:
+            HAL_gpio_set(HAL_GPIO_OUT_ISP);
+            HAL_gpio_out(HAL_GPIO_OUT_ISP);
+            break;
+
+        case CMD_OUT_ISP_TRISTATE:
+            HAL_gpio_in(HAL_GPIO_OUT_ISP);
+            break;
+
+        case CMD_BAUDRATE_38400:
+            break;
+
+        case CMD_BAUDRATE_115200:
+            break;
+
+        default:
+            usb_ep0_stall();
+            return;
     }
 
-    usb_ep0_stall();
+    usb_ep0_in(0);
+    usb_ep0_out();
 }
 
 // ****************************************************************************
