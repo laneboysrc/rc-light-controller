@@ -25,11 +25,17 @@ It connects to a PC or Android phone via USB and uses WebUSB (available in Chrom
     - IN endpoint sends data received from Light Controller (Rx on the programmer)
 
 - Controler interface
-    - OUT/ISP state: low, high, tri-state
-    - DUT power: on, off
-    - Baudrate
-    - LEDs on, off
-    - Do we need feedback on the controller interface?
+    - We will be using USB control transfers
+        - Type will be set to VENDOR
+        - Request will be set to 72
+        - wValue will contain the command
+        - Commands can return data if necessary (using controlTransferIn)
+            - Note that a command must be either out or in (SET or GET), it is not possible to use the same command with different directions
+    - Commands:
+        - OUT/ISP state: low, high, tri-state
+        - DUT power: on, off
+        - Baudrate
+        - LEDs on, off
 
 - LEDs
     - System power

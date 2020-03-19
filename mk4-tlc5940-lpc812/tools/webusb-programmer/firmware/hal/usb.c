@@ -21,7 +21,6 @@ static const uint8_t* data;
 static uint16_t data_length;
 
 
-
 // ****************************************************************************
 static void send_descriptor_multi(void) {
     uint16_t transfer_length = data_length;
@@ -107,6 +106,27 @@ static void test_interface_in_completion(void)
     test_interface_buf_in_busy = false;
 }
 
+// ****************************************************************************
+static void command_handler(void)
+{
+    switch(usb_setup.wValue) {
+        case 0:
+            usb_ep0_in(0);
+            usb_ep0_out();
+            return;
+
+        case 1:
+            ep0_buf_in[0] = 42;
+            usb_ep0_in(1);
+            usb_ep0_out();
+            return;
+
+        default:
+            break;
+    }
+
+    usb_ep0_stall();
+}
 
 // ****************************************************************************
 static void dfu_send_app_idle(void)
@@ -150,7 +170,7 @@ uint16_t usb_cb_get_descriptor(uint8_t type, uint8_t index, const uint8_t** ptr)
                     break;
 
                 case USB_STRING_PRODUCT:
-                    address = usb_string_to_descriptor((char *)"RC Light Controller");
+                    address = usb_string_to_descriptor((char *)"Light Controller Programmer");
                     break;
 
                 case USB_STRING_SERIAL_NUMBER:
@@ -158,7 +178,7 @@ uint16_t usb_cb_get_descriptor(uint8_t type, uint8_t index, const uint8_t** ptr)
                     break;
 
                 case USB_STRING_DFU:
-                    address = usb_string_to_descriptor((char *)"RC Light Controller (DFU)");
+                    address = usb_string_to_descriptor((char *)"Light Controller Programmer (DFU)");
                     break;
 
                 // case USB_STRING_TEST:
@@ -244,12 +264,12 @@ void usb_cb_control_setup(void) {
 
     else if (recipient == USB_RECIPIENT_DEVICE  &&  requestType == USB_REQTYPE_VENDOR) {
         switch(usb_setup.bRequest) {
-            case VENDOR_CODE_WEBUSB:
-                if (usb_setup.wIndex == WEBUSB_REQUEST_GET_URL) {
-                    send_descriptor(&landing_page_descriptor, sizeof(landing_page_descriptor_t));
-                    return;
-                }
-                break;
+            // case VENDOR_CODE_WEBUSB:
+            //     if (usb_setup.wIndex == WEBUSB_REQUEST_GET_URL) {
+            //         send_descriptor(&landing_page_descriptor, sizeof(landing_page_descriptor_t));
+            //         return;
+            //     }
+            //     break;
 
             case VENDOR_CODE_MS:
                 if (usb_setup.wIndex == WINUSB_REQUEST_DESCRIPTOR) {
@@ -257,6 +277,10 @@ void usb_cb_control_setup(void) {
                     return;
                 }
                 break;
+
+            case VENDOR_CODE_COMMAND:
+                command_handler();
+                return;
 
             default:
                 break;
@@ -276,6 +300,8 @@ void usb_cb_control_in_completion(void) {
 
 // ****************************************************************************
 void usb_cb_control_out_completion(void) {
+    // At this point we would have data from the host when the host sent a
+    // control out request. The data would be in ep0_buf_out[]
     // Nothing to do
 }
 

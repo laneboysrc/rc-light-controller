@@ -323,7 +323,7 @@ uint16_t usb_cb_get_descriptor(uint8_t type, uint8_t index, const uint8_t** ptr)
                     break;
 
                 case USB_STRING_PRODUCT:
-                    address = usb_string_to_descriptor((char *)"RC Light Controller");
+                    address = usb_string_to_descriptor((char *)"Light Controller Programmer");
                     break;
 
                 case USB_STRING_SERIAL_NUMBER:
@@ -331,7 +331,7 @@ uint16_t usb_cb_get_descriptor(uint8_t type, uint8_t index, const uint8_t** ptr)
                     break;
 
                 case USB_STRING_DFU:
-                    address = usb_string_to_descriptor((char *)"RC Light Controller (DFU-boot)");
+                    address = usb_string_to_descriptor((char *)"Light Controller Programmer (DFU-boot)");
                     break;
 
                 default:
@@ -407,12 +407,12 @@ void usb_cb_control_setup(void) {
 
     else if (recipient == USB_RECIPIENT_DEVICE  &&  requestType == USB_REQTYPE_VENDOR) {
         switch(usb_setup.bRequest) {
-            case VENDOR_CODE_WEBUSB:
-                if (usb_setup.wIndex == WEBUSB_REQUEST_GET_URL) {
-                    send_descriptor(&landing_page_descriptor, sizeof(landing_page_descriptor_t));
-                    return;
-                }
-                break;
+            // case VENDOR_CODE_WEBUSB:
+            //     if (usb_setup.wIndex == WEBUSB_REQUEST_GET_URL) {
+            //         send_descriptor(&landing_page_descriptor, sizeof(landing_page_descriptor_t));
+            //         return;
+            //     }
+            //     break;
 
             case VENDOR_CODE_MS:
                 if (usb_setup.wIndex == WINUSB_REQUEST_DESCRIPTOR) {

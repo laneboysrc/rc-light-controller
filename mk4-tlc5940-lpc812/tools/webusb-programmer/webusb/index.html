@@ -2,10 +2,31 @@
 <html>
   <head>
     <title>WebUSB test</title>
-    <script src="webusb.js"></script>
+    <style type="text/css">
+      body {
+        font-family: sans-serif;
+      }
+
+      #protocol-error {
+        background-color: red;
+        color: white;
+        font-weight: 800;
+        margin-bottom: 0.5em;
+        padding: 0.5em;
+      }
+
+      .hidden {
+        display: none;
+      }
+    </style>
   </head>
   <body>
-      <button id="connect">Connect</button>
-      <span id="status"></span>
+    <div id="protocol-error" class="hidden">
+      WebUSB does not work on <em>file:</em> or <em>http:</em> protocol (except when running on localhost)<br>
+      For local testing use <em>python3 -m http.server</em> and browse to <em>http://localhost:8000</em>
+    </div>
+    <button id="connect">Connect</button>
+    <span id="status"></span>
+    <script src="webusb.js"></script>
   </body>
 </html>
