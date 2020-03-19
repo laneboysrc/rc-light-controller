@@ -45,5 +45,12 @@ int main(void)
     while (1) {
         service_systick();
         HAL_service();
+
+
+        if (HAL_getchar_pending()) {
+            uint8_t c = HAL_getchar();
+
+            HAL_putc(STDOUT_DEBUG, c);
+        }
     }
 }

@@ -34,7 +34,7 @@ __attribute__ ((section(".persistent_data")))
 static volatile const uint32_t persistent_data[HAL_NUMBER_OF_PERSISTENT_ELEMENTS];
 
 
-#define RECEIVE_BUFFER_SIZE (16)        // Must be modulo 2 for speed
+#define RECEIVE_BUFFER_SIZE (128)        // Must be modulo 2 for speed
 #define RECEIVE_BUFFER_INDEX_MASK (RECEIVE_BUFFER_SIZE - 1)
 static uint8_t receive_buffer[RECEIVE_BUFFER_SIZE];
 static volatile uint16_t read_index = 0;
