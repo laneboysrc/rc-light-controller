@@ -38,6 +38,7 @@ TERMINAL_PROGRAM := miniterm /dev/ttyACM0 115200
 SOURCE_PATH := .
 
 SOURCES += $(SOURCE_PATH)/main.c
+SOURCES += $(SOURCE_PATH)/ring_buffer.c
 SOURCES += hal/hal_samd21.c
 SOURCES += hal/startup_samd21.c
 SOURCES += hal/usb.c

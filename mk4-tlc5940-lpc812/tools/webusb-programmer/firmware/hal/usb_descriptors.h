@@ -1,5 +1,6 @@
 #pragma once
 
+#include <globals.h>
 #include <stdint.h>
 #include <stdalign.h>
 
@@ -10,7 +11,6 @@ USB_ENDPOINTS(3)
 #define USB_EP_TEST_IN (USB_IN + 1)
 #define USB_EP_TEST_OUT (USB_OUT + 2)
 
-#define BUF_SIZE 64
 
 
 // Transfer size conforms to one flash 'row', which consists of four 'pages'

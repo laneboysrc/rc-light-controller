@@ -4,14 +4,13 @@
 #include <globals.h>
 
 #include <hal.h>
+#include <ring_buffer.h>
 #include <usb.h>
-#include <printf.h>
 
-void add_uint8_to_uart_receive_buffer(uint8_t byte);
 void add_uint8_to_usb_receive_buffer(uint8_t byte);
 
 extern bool test_interface_is_write_busy(void);
-extern void test_interface_write(uint8_t *data, uint8_t length);
+extern void test_interface_write(uint8_t length);
 
 volatile uint32_t milliseconds;
 
@@ -29,20 +28,19 @@ extern uint32_t * const magic_value;
 bool start_bootloader = false;
 
 
-#define RECEIVE_BUFFER_SIZE (128)        // Must be modulo 2 for speed
-#define RECEIVE_BUFFER_INDEX_MASK (RECEIVE_BUFFER_SIZE - 1)
+#define RECEIVE_BUFFER_SIZE (64)        // Must be modulo 2 for speed
+static RING_BUFFER_T uart_receive_ring_buffer;
 static uint8_t uart_receive_buffer[RECEIVE_BUFFER_SIZE];
-static volatile uint16_t uart_read_index = 0;
-static volatile uint16_t uart_write_index = 0;
+static RING_BUFFER_T usb_receive_ring_buffer;
 static uint8_t usb_receive_buffer[RECEIVE_BUFFER_SIZE];
-static volatile uint16_t usb_read_index = 0;
-static volatile uint16_t usb_write_index = 0;
 
 #define SEND_BUFFER_SIZE (64)
-// static uint8_t uart_send_buffer[SEND_BUFFER_SIZE];
-// static volatile uint16_t uart_send_buffer_index = 0;
+static RING_BUFFER_T uart_send_ring_buffer;
+static uint8_t uart_send_buffer[SEND_BUFFER_SIZE];
+static RING_BUFFER_T usb_send_ring_buffer;
 static uint8_t usb_send_buffer[SEND_BUFFER_SIZE];
-static volatile uint16_t usb_send_buffer_index = 0;
+
+extern uint8_t test_interface_buf_in[BUF_SIZE];
 
 // We use all 24 bits of TCC0, so the maximum period value is 0xffffff
 #define TCC0_PERIOD (0xfffffful)
@@ -189,6 +187,13 @@ void HAL_hardware_init(void)
     SysTick_Config(48000);
     NVIC_SetPriority(SysTick_IRQn, 0);
 
+
+    // ------------------------------------------------
+    RING_BUFFER_init(&uart_receive_ring_buffer, uart_receive_buffer, RECEIVE_BUFFER_SIZE);
+    RING_BUFFER_init(&usb_receive_ring_buffer, usb_receive_buffer, RECEIVE_BUFFER_SIZE);
+    RING_BUFFER_init(&uart_send_ring_buffer, uart_send_buffer, SEND_BUFFER_SIZE);
+    RING_BUFFER_init(&usb_send_ring_buffer, usb_send_buffer, SEND_BUFFER_SIZE);
+
     __enable_irq();
 }
 
@@ -214,8 +219,6 @@ void HAL_service(void)
     if (start_bootloader) {
         uint32_t end = milliseconds + 50;
 
-        // fprintf(STDOUT_DEBUG, "REBOOTING INTO BOOTLOADER\n");
-
         // Wait a short while ...
         while (milliseconds < end);
 
@@ -234,16 +237,24 @@ void HAL_service(void)
         NVIC_SystemReset();
     }
 
-    // HAL_gpio_clear(HAL_GPIO_LED);
-    // HAL_gpio_clear(HAL_GPIO_LED2);
+    // Send a character to the UART if it is free and we have data pending
+    if (!RING_BUFFER_is_empty(&uart_send_ring_buffer)) {
+        if (UART_SERCOM->USART.INTFLAG.reg & SERCOM_USART_INTFLAG_DRE) {
+            uint8_t c;
 
+            RING_BUFFER_read_uint8(&uart_receive_ring_buffer, &c);
+            UART_SERCOM->USART.DATA.reg = c;
+        }
+    }
 
     // If we have data to send via USB serial, and USB serial is available to
     // send, then do it
-    if (usb_send_buffer_index) {
-        if (!test_interface_is_write_busy()) {
-            test_interface_write(usb_send_buffer, usb_send_buffer_index);
-            usb_send_buffer_index = 0;
+    if (!test_interface_is_write_busy()) {
+        if (!RING_BUFFER_is_empty(&usb_send_ring_buffer)) {
+            uint8_t length;
+
+            length = RING_BUFFER_read(&usb_send_ring_buffer, test_interface_buf_in, BUF_SIZE);
+            test_interface_write(length);
         }
     }
 }
@@ -299,23 +310,21 @@ void HAL_uart_init(uint32_t baudrate)
 void UART_SERCOM_HANDLER(void)
 {
     if (UART_SERCOM->USART.INTFLAG.bit.RXC) {
-        add_uint8_to_uart_receive_buffer((uint8_t)UART_SERCOM->USART.DATA.reg);
+        RING_BUFFER_write_uint8(&uart_receive_ring_buffer, (uint8_t)UART_SERCOM->USART.DATA.reg);
     }
 }
 
 
 // ****************************************************************************
 static void usbserial_putc(char c) {
-    if (usb_send_buffer_index < SEND_BUFFER_SIZE) {
-        usb_send_buffer[usb_send_buffer_index++] = c;
-    }
+    RING_BUFFER_write_uint8(&usb_send_ring_buffer, c);
 }
 
 
 // ****************************************************************************
 static bool usbserial_getchar_pending(void)
 {
-    return (usb_read_index != usb_write_index);
+    return !RING_BUFFER_is_empty(&usb_receive_ring_buffer);
 }
 
 
@@ -325,11 +334,7 @@ static uint8_t usbserial_getchar(void) {
 
     while (!usbserial_getchar_pending());
 
-    data = usb_receive_buffer[usb_read_index++];
-
-    // Wrap around the read pointer.
-    usb_read_index &= RECEIVE_BUFFER_INDEX_MASK;
-
+    RING_BUFFER_read_uint8(&usb_receive_ring_buffer, &data);
     return data;
 }
 
@@ -337,34 +342,7 @@ static uint8_t usbserial_getchar(void) {
 // ****************************************************************************
 void add_uint8_to_usb_receive_buffer(uint8_t byte)
 {
-    usb_receive_buffer[usb_write_index++] = byte;
-
-    // Wrap around the write pointer. This works because the buffer size is
-    // a modulo of 2.
-    usb_write_index &= RECEIVE_BUFFER_INDEX_MASK;
-
-    // If we are bumping into the read pointer we are dealing with a buffer
-    // overflow. Back off and rather destroy the last value.
-    if (usb_write_index == usb_read_index) {
-        usb_write_index = (usb_write_index - 1) & RECEIVE_BUFFER_INDEX_MASK;
-    }
-}
-
-
-// ****************************************************************************
-void add_uint8_to_uart_receive_buffer(uint8_t byte)
-{
-    uart_receive_buffer[uart_write_index++] = byte;
-
-    // Wrap around the write pointer. This works because the buffer size is
-    // a modulo of 2.
-    uart_write_index &= RECEIVE_BUFFER_INDEX_MASK;
-
-    // If we are bumping into the read pointer we are dealing with a buffer
-    // overflow. Back off and rather destroy the last value.
-    if (uart_write_index == uart_read_index) {
-        uart_write_index = (uart_write_index - 1) & RECEIVE_BUFFER_INDEX_MASK;
-    }
+    RING_BUFFER_write_uint8(&usb_receive_ring_buffer, byte);
 }
 
 
@@ -375,7 +353,7 @@ bool HAL_getchar_pending(void *p)
         return usbserial_getchar_pending();
     }
 
-    return (uart_read_index != uart_write_index);
+    return !RING_BUFFER_is_empty(&uart_receive_ring_buffer);
 }
 
 
@@ -390,11 +368,7 @@ uint8_t HAL_getchar(void *p)
 
     while (!HAL_getchar_pending(p));
 
-    data = uart_receive_buffer[uart_read_index++];
-
-    // Wrap around the read pointer.
-    uart_read_index &= RECEIVE_BUFFER_INDEX_MASK;
-
+    RING_BUFFER_read_uint8(&uart_receive_ring_buffer, &data);
     return data;
 }
 
@@ -407,9 +381,7 @@ void HAL_putc(void *p, char c)
         return;
     }
 
-    // FIXME: use a ring buffer to avoid blocking
-    while (!(UART_SERCOM->USART.INTFLAG.reg & SERCOM_USART_INTFLAG_DRE));
-    UART_SERCOM->USART.DATA.reg = c;
+    RING_BUFFER_write_uint8(&uart_send_ring_buffer, c);
 }
 
 

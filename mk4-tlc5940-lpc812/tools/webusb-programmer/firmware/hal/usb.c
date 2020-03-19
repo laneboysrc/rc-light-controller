@@ -26,10 +26,10 @@
 #define CMD_LED_ERROR_ON (45)
 
 bool test_interface_is_write_busy(void);
-void test_interface_write(uint8_t *data, uint8_t length);
+void test_interface_write(uint8_t length);
 extern void add_uint8_to_usb_receive_buffer(uint8_t byte);
 
-static alignas(4) uint8_t test_interface_buf_in[BUF_SIZE];
+alignas(4) uint8_t test_interface_buf_in[BUF_SIZE];
 static alignas(4) uint8_t test_interface_buf_out[BUF_SIZE];
 static bool test_interface_buf_in_busy = false;
 
@@ -103,19 +103,10 @@ bool test_interface_is_write_busy(void)
 }
 
 // ****************************************************************************
-void test_interface_write(uint8_t *data_to_send, uint8_t length)
+void test_interface_write(uint8_t length)
 {
-    (void) data_to_send;
-    (void) length;
-
-    if (length) {
-        test_interface_buf_in_busy = true;
-
-        for (uint32_t i = 0; i < length ; i++) {
-            test_interface_buf_in[i] = data_to_send[i];
-        }
-        usb_ep_start_in(USB_EP_TEST_IN, test_interface_buf_in, length, false);
-    }
+    test_interface_buf_in_busy = true;
+    usb_ep_start_in(USB_EP_TEST_IN, test_interface_buf_in, length, false);
 }
 
 // ****************************************************************************
