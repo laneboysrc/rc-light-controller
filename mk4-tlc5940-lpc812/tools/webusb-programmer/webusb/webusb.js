@@ -26,7 +26,9 @@ const CMD_LED_ERROR_ON = 45;
 
 let webusb_device;
 
-const connectButton = document.querySelector("#connect");
+const el_connect_button = document.querySelector("#connect");
+const el_send_button = document.querySelector("#send");
+const el_send_text =  document.querySelector("#send-text");
 const el_dut_power = document.querySelector("#dut-power");
 const el_led_ok = document.querySelector("#led-ok");
 const el_led_busy = document.querySelector("#led-busy");
@@ -207,6 +209,21 @@ async function webusb_receive_data() {
   }
 }
 
+async function send_to_programmer() {
+  try {
+    const data = string2arraybuffer(el_send_text.value + '\r\n');
+
+    const result = await webusb_device.transferOut(TEST_EP_OUT, data);
+    if (result.status != 'ok') {
+      console.error('transferOut() failed:', result.status);
+    }
+  }
+  catch (e) {
+    console.error('transferOut() exception:', e);
+    return;
+  }
+}
+
 function init() {
   if (window.location.protocol != 'https:') {
     if (window.location.protocol != 'http:' || window.location.hostname != 'localhost') {
@@ -214,7 +231,8 @@ function init() {
     }
   }
 
-  connectButton.addEventListener('click', request_device);
+  el_connect_button.addEventListener('click', request_device);
+  el_send_button.addEventListener('click', send_to_programmer);
 
   el_dut_power.CMD_ON = CMD_DUT_POWER_ON;
   el_dut_power.CMD_OFF = CMD_DUT_POWER_OFF;
