@@ -174,9 +174,14 @@ static void command_handler(void)
             HAL_gpio_in(HAL_GPIO_OUT_ISP);
             break;
 
-        // Baudrate is currently not supported
         case CMD_BAUDRATE_38400:
+            HAL_uart_set_baudrate(38400);
+            break;
+
         case CMD_BAUDRATE_115200:
+            HAL_uart_set_baudrate(115200);
+            break;
+
         default:
             usb_ep0_stall();
             return;

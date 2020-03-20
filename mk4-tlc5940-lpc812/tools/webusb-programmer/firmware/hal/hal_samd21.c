@@ -242,7 +242,7 @@ void HAL_service(void)
         if (UART_SERCOM->USART.INTFLAG.reg & SERCOM_USART_INTFLAG_DRE) {
             uint8_t c;
 
-            RING_BUFFER_read_uint8(&uart_receive_ring_buffer, &c);
+            RING_BUFFER_read_uint8(&uart_send_ring_buffer, &c);
             UART_SERCOM->USART.DATA.reg = c;
         }
     }
@@ -310,6 +310,8 @@ void HAL_uart_init(uint32_t baudrate)
 void HAL_uart_set_baudrate(uint32_t baudrate)
 {
     uint64_t brr = (uint64_t)65536 * (UART_CLK - 16 * baudrate) / UART_CLK;
+
+    // FIXME: need to stop and restart the UART!
 
     UART_SERCOM->USART.BAUD.reg = (uint16_t)brr;
     while (UART_SERCOM->USART.SYNCBUSY.reg);
