@@ -311,9 +311,14 @@ void HAL_uart_set_baudrate(uint32_t baudrate)
 {
     uint64_t brr = (uint64_t)65536 * (UART_CLK - 16 * baudrate) / UART_CLK;
 
-    // FIXME: need to stop and restart the UART!
+    // We need to disable the UART before changing the baudrate!
+    UART_SERCOM->USART.CTRLA.reg &= ~SERCOM_USART_CTRLA_ENABLE;
+    while (UART_SERCOM->USART.SYNCBUSY.reg);
 
     UART_SERCOM->USART.BAUD.reg = (uint16_t)brr;
+    while (UART_SERCOM->USART.SYNCBUSY.reg);
+
+    UART_SERCOM->USART.CTRLA.reg |= SERCOM_USART_CTRLA_ENABLE;
     while (UART_SERCOM->USART.SYNCBUSY.reg);
 }
 
