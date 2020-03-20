@@ -307,6 +307,16 @@ void HAL_uart_init(uint32_t baudrate)
 
 
 // ****************************************************************************
+void HAL_uart_set_baudrate(uint32_t baudrate)
+{
+    uint64_t brr = (uint64_t)65536 * (UART_CLK - 16 * baudrate) / UART_CLK;
+
+    UART_SERCOM->USART.BAUD.reg = (uint16_t)brr;
+    while (UART_SERCOM->USART.SYNCBUSY.reg);
+}
+
+
+// ****************************************************************************
 void UART_SERCOM_HANDLER(void)
 {
     if (UART_SERCOM->USART.INTFLAG.bit.RXC) {
