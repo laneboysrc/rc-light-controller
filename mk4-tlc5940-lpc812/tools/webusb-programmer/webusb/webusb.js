@@ -33,7 +33,8 @@ const el_dut_power = document.querySelector("#dut-power");
 const el_led_ok = document.querySelector("#led-ok");
 const el_led_busy = document.querySelector("#led-busy");
 const el_led_error = document.querySelector("#led-error");
-const elStatus = document.querySelector('#status');
+const el_status = document.querySelector('#status');
+const el_isp = document.querySelector('#isp');
 
 
 function string2arraybuffer(str) {
@@ -188,14 +189,14 @@ async function webusb_receive_data() {
         console.log(msg);
         const el = document.createElement('div');
         el.textContent += msg;
-        if (elStatus.firstChild) {
-          elStatus.insertBefore(el, elStatus.firstChild);
-          while (elStatus.childElementCount > MAX_UART_LOG_LINES) {
-            elStatus.removeChild(elStatus.lastChild);
+        if (el_status.firstChild) {
+          el_status.insertBefore(el, el_status.firstChild);
+          while (el_status.childElementCount > MAX_UART_LOG_LINES) {
+            el_status.removeChild(el_status.lastChild);
           }
         }
         else {
-          elStatus.appendChild(el);
+          el_status.appendChild(el);
         }
       }
       else {
@@ -249,6 +250,10 @@ function init() {
   el_led_error.CMD_ON = CMD_LED_ERROR_ON;
   el_led_error.CMD_OFF = CMD_LED_ERROR_OFF;
   el_led_error.addEventListener('change', checkbox_handler);
+
+  el_isp.CMD_ON = CMD_OUT_ISP_LOW;
+  el_isp.CMD_OFF = CMD_OUT_ISP_TRISTATE;
+  el_isp.addEventListener('change', checkbox_handler);
 
   init_webusb();
 }
