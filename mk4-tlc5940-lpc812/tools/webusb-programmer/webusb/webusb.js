@@ -61,7 +61,7 @@ async function send_set_command(cmd) {
     "index": 0
   };
 
-  let result = await device.controlTransferOut(setup);
+  let result = await webusb_device.controlTransferOut(setup);
   if (result.status != "ok") {
     console.log("send_set_command(" + cmd + ") FAIL: " + result.staus);
   }
@@ -146,6 +146,9 @@ async function webusb_disconnect() {
     try {
       await webusb_device.close();
     }
+    catch (e) {
+      // console.info('close() exception:', e);
+    }
     finally {
       webusb_device = undefined;
     }
@@ -194,11 +197,11 @@ async function webusb_receive_data() {
         }
       }
       else {
-        console.error('transferIn() failed:', result.status);
+        console.info('transferIn() failed:', result.status);
       }
     }
     catch (e) {
-      console.error('transferIn() exception:', e);
+      console.info('transferIn() exception:', e);
       return;
     }
   }
