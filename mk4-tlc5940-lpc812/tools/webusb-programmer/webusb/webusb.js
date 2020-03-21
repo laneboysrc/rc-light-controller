@@ -39,6 +39,9 @@ const el_send_questionmark_button = document.querySelector('#send-questionmark')
 const el_send_synchronized_button = document.querySelector('#send-synchronized');
 const el_send_crystal_button = document.querySelector('#send-crystal');
 const el_send_a0_button = document.querySelector('#send-a0');
+const el_send_unlock_button = document.querySelector('#send-unlock');
+const el_send_prepare_button = document.querySelector('#send-prepare');
+const el_send_erase_button = document.querySelector('#send-erase');
 
 
 function string2arraybuffer(str) {
@@ -246,6 +249,9 @@ function init() {
   el_send_synchronized_button.addEventListener('click', () => { send('Synchronized\r\n') });
   el_send_crystal_button.addEventListener('click', () => { send('12000\r\n') });
   el_send_a0_button.addEventListener('click', () => { send('A 0\r\n') });
+  el_send_unlock_button.addEventListener('click', () => { send('U 23130\r\n') });
+  el_send_prepare_button.addEventListener('click', () => { send('P 0 15\r\n') });
+  el_send_erase_button.addEventListener('click', () => { send('E 0 15\r\n') });
 
   el_dut_power.CMD_ON = CMD_DUT_POWER_ON;
   el_dut_power.CMD_OFF = CMD_DUT_POWER_OFF;
