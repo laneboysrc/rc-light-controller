@@ -25,6 +25,7 @@ const CMD_LED_ERROR_OFF = 44;
 const CMD_LED_ERROR_ON = 45;
 
 let webusb_device;
+let firmware_image;
 
 const el_connect_button = document.querySelector("#connect");
 const el_send_button = document.querySelector("#send");
@@ -42,6 +43,8 @@ const el_send_a0_button = document.querySelector('#send-a0');
 const el_send_unlock_button = document.querySelector('#send-unlock');
 const el_send_prepare_button = document.querySelector('#send-prepare');
 const el_send_erase_button = document.querySelector('#send-erase');
+const el_load = document.querySelector('#load');
+const el_load_input = document.querySelector('#load-input');
 
 
 function string2arraybuffer(str) {
@@ -236,6 +239,41 @@ function send_textfield_to_programmer() {
   send(el_send_text.value + '\r\n');
 }
 
+function hex_to_bin (intel_hex_data) {
+    return intel_hex.parse(intel_hex_data).data;
+}
+
+function load_file_from_disk() {
+  firmware_image = undefined;
+
+  if (this.files.length < 1) {
+      return;
+  }
+
+  const intelHex = /^:[0-9a-fA-F][0-9a-fA-F]/;
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const contents = e.target.result;
+
+    let contentsString = String.fromCharCode.apply(null, new Uint8Array(contents));
+
+    if (contentsString.match(intelHex)) {
+      firmware_image = hex_to_bin(contentsString);
+    }
+    else {
+      console.warn('Loading BINARY image');
+      let data = new Uint8Array(8192 + contents.byteLength);
+      data.fill(0xff);
+      data.set(new Uint8Array(contents), 8192);
+      firmware_image = data;
+    }
+    console.log('Firmware loaded; ' + firmware_image.length + ' Bytes');
+  };
+  reader.readAsArrayBuffer(this.files[0]);
+}
+
+
 function init() {
   if (window.location.protocol != 'https:') {
     if (window.location.protocol != 'http:' || window.location.hostname != 'localhost') {
@@ -272,6 +310,9 @@ function init() {
   el_isp.CMD_ON = CMD_OUT_ISP_LOW;
   el_isp.CMD_OFF = CMD_OUT_ISP_TRISTATE;
   el_isp.addEventListener('change', checkbox_handler);
+
+  el_load.addEventListener('click', () => {el_load_input.click(); }, false);
+  el_load_input.addEventListener('change', load_file_from_disk, false);
 
   init_webusb();
 }

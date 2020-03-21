@@ -46,9 +46,17 @@
       <button id="send-erase">Erase 0-15</button>
     </div>
     <div>
+      <button id="load">Load firmware</button>
+    </div>
+    <div>
       <input type="text" name="tx" id="send-text"><button id="send">Send</button>
     </div>
     <span id="status"></span>
+
+    <input type="file" id="load-input" style="display:none">
+
+
+    <script src="intel-hex.js"></script>
     <script src="webusb.js"></script>
   </body>
 </html>
