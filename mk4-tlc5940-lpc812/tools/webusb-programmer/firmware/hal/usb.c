@@ -7,7 +7,6 @@
 #include <class/dfu/dfu.h>
 #include <usb_descriptors.h>
 #include <usb_bos.h>
-#include <printf.h>
 
 #define VENDOR_CODE_COMMAND 72      // Light Controller programmer command interface
 
@@ -130,10 +129,16 @@ static void command_handler(void)
 
         case CMD_DUT_POWER_ON:
             HAL_gpio_clear(HAL_GPIO_POWER_ENABLE);
+            // Switch the TX output back to UART
+            HAL_gpio_pmuxen(HAL_GPIO_TX);
             break;
 
         case CMD_DUT_POWER_OFF:
             HAL_gpio_set(HAL_GPIO_POWER_ENABLE);
+            // Switch the UART TX output to GPIO and set it to low, so that
+            // we don't power the light controller via the ST/RX pin!
+            HAL_gpio_clear(HAL_GPIO_TXIO);
+            HAL_gpio_pmuxen(HAL_GPIO_TXIO);
             break;
 
         case CMD_LED_OK_ON:

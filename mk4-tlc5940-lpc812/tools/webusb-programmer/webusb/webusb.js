@@ -51,7 +51,7 @@ const SECTOR_SIZE = 1024;
 
 const allow_code_protection = false;
 
-
+let receive_buffer = '';
 
 let webusb_device;
 let firmware_image;
@@ -73,8 +73,31 @@ const el_send_unlock_button = document.querySelector('#send-unlock');
 const el_send_prepare_button = document.querySelector('#send-prepare');
 const el_send_erase_button = document.querySelector('#send-erase');
 const el_load = document.querySelector('#load');
+const el_program = document.querySelector('#program');
 const el_load_input = document.querySelector('#load-input');
 
+function log(msg) {
+  const content = new Date(Date.now()).toISOString() + ' ' + msg;
+  const el = document.createElement('div');
+  el.textContent = content;
+
+  if (el_status.firstChild) {
+    el_status.insertBefore(el, el_status.firstChild);
+    while (el_status.childElementCount > MAX_UART_LOG_LINES) {
+      el_status.removeChild(el_status.lastChild);
+    }
+  }
+  else {
+    el_status.appendChild(el);
+  }
+}
+
+function make_crlf_visible(string) {
+  const cr = /\r/g;
+  const lf = /\n/g;
+
+  return string.replace(cr, '\\r').replace(lf, '\\n');
+}
 
 function string2arraybuffer(str) {
   var buf = new ArrayBuffer(str.length);
@@ -158,11 +181,13 @@ async function webusb_connect(device) {
     console.error('Failed to open the device', e);
     return;
   }
-  console.log('Connected to Light Controller Programmer with serial number ' + device.serialNumber);
 
   webusb_device = device;
-  controlTransferTest();
+  // controlTransferTest();
   webusb_receive_data();
+
+  const msg = 'Connected to Light Controller Programmer with serial number ' + device.serialNumber;
+  log(msg);
 }
 
 async function controlTransferTest() {
@@ -223,20 +248,8 @@ async function webusb_receive_data() {
         const decoder = new TextDecoder('utf-8');
         const value = decoder.decode(result.data);
 
-        let msg = new Date(Date.now()).toISOString() + ' ' + value;
-
-        console.log(msg);
-        const el = document.createElement('div');
-        el.textContent += msg;
-        if (el_status.firstChild) {
-          el_status.insertBefore(el, el_status.firstChild);
-          while (el_status.childElementCount > MAX_UART_LOG_LINES) {
-            el_status.removeChild(el_status.lastChild);
-          }
-        }
-        else {
-          el_status.appendChild(el);
-        }
+        receive_buffer += value;
+        console.log('USB receive: ' + make_crlf_visible(value));
       }
       else {
         console.info('transferIn() failed:', result.status);
@@ -250,7 +263,10 @@ async function webusb_receive_data() {
 }
 
 async function send_command(string) {
+  flush();
   await send(string + '\r\n');
+  let msg = await readline();
+  // console.log('command response: ' + make_crlf_visible(msg));
 }
 
 async function send(string) {
@@ -269,20 +285,33 @@ async function send(string) {
 }
 
 async function send_data(data) {
-  try {
-    const result = await webusb_device.transferOut(TEST_EP_OUT, data);
-    if (result.status != 'ok') {
-      console.error('transferOut() failed:', result.status);
+  const transfer_size = EP_SIZE;
+
+  while (data.length) {
+    const bytes = data.slice(0, transfer_size);
+    data = data.slice(transfer_size);
+    try {
+      const result = await webusb_device.transferOut(TEST_EP_OUT, bytes);
+      if (result.status != 'ok') {
+        console.error('transferOut() failed:', result.status);
+      }
     }
-  }
-  catch (e) {
-    console.error('transferOut() exception:', e);
-    return;
+    catch (e) {
+      console.error('transferOut() exception:', e);
+      return;
+    }
+
+    // Delay to allow the UART to send the bytes
+    await new Promise(resolve => {setTimeout(() => {resolve()}, 1)});
   }
 }
 
 function send_textfield_to_programmer() {
   send(el_send_text.value + '\r\n');
+}
+
+function progressCallback(progress) {
+  log("Progress: " + Math.round(progress * 100));
 }
 
 async function program(bin) {
@@ -295,7 +324,12 @@ async function program(bin) {
   // Also the checksum of the vectors that the ISP uses to detect valid
   // flash is generated and added to the image before flashing.
 
-  let used_sectors = (bin.length / SECTOR_SIZE);
+  if (!bin) {
+    log('Please load a firmware image');
+    return;
+  }
+
+  const used_sectors = bin.length / SECTOR_SIZE;
 
 
   // Abort if the Code Read Protection in the image contains one of the
@@ -324,17 +358,25 @@ async function program(bin) {
   // Calculate the signature that the ISP uses to detect "valid code"
   append_signature(bin);
 
+
   // Unlock the chip with the magic number
   await send_command('U 23130');
+
+  // Erase the whole chip
+  log('Erasing the flash memory');
+  await send_command('P 0 15');
+  await send_command('E 0 15');
 
 
   // Program the image
   for (let index = 0; index < used_sectors; index += 1) {
+    progressCallback(index / used_sectors);
+
     let sector = index;
 
-    // Erase the sector
-    await send_command('P ' + sector + ' ' + sector);
-    await send_command('E ' + sector + ' ' + sector);
+    // // Erase the sector
+    // await send_command('P ' + sector + ' ' + sector);
+    // await send_command('E ' + sector + ' ' + sector);
 
     let address = sector * SECTOR_SIZE;
     let last_address = address + SECTOR_SIZE - 1;
@@ -346,6 +388,10 @@ async function program(bin) {
     await send_command('P ' + sector + ' ' + sector);
     await send_command('C ' + address + ' ' + RAM_ADDRESS + ' ' + SECTOR_SIZE);
   }
+
+  progressCallback(1.0);
+  log('Programming finished');
+  console.log('Programming finished');
 }
 
 function append_signature(bin) {
@@ -403,6 +449,28 @@ function load_file_from_disk() {
   reader.readAsArrayBuffer(this.files[0]);
 }
 
+function flush() {
+  receive_buffer = '';
+}
+
+function readline() {
+  return new Promise(resolve => {
+    function check() {
+      let pos = receive_buffer.search(/\r\n/);
+      if (pos >= 0) {
+        pos += 2;
+        const line = receive_buffer.substring(0, pos);
+        receive_buffer = receive_buffer.substring(pos);
+        resolve(line);
+        return;
+      }
+
+      setTimeout(check, 100);
+    }
+    check();
+  });
+}
+
 
 function init() {
   if (window.location.protocol != 'https:') {
@@ -420,6 +488,7 @@ function init() {
   el_send_unlock_button.addEventListener('click', () => { send('U 23130\r\n') });
   el_send_prepare_button.addEventListener('click', () => { send('P 0 15\r\n') });
   el_send_erase_button.addEventListener('click', () => { send('E 0 15\r\n') });
+
 
   el_dut_power.CMD_ON = CMD_DUT_POWER_ON;
   el_dut_power.CMD_OFF = CMD_DUT_POWER_OFF;
@@ -443,6 +512,8 @@ function init() {
 
   el_load.addEventListener('click', () => {el_load_input.click(); }, false);
   el_load_input.addEventListener('change', load_file_from_disk, false);
+
+  el_program.addEventListener('click', () => { program(firmware_image); }, false);
 
   init_webusb();
 }

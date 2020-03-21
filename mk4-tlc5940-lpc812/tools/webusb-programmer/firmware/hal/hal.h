@@ -50,6 +50,7 @@ static const HAL_GPIO_T HAL_GPIO_LED_ERROR = { .group = 0, .pin = 6 };
 static const HAL_GPIO_T HAL_GPIO_POWER_ENABLE = { .group = 0, .pin = 7 };
 
 static const HAL_GPIO_T HAL_GPIO_TX = { .group = 0, .pin = 22, .mux = PORT_PMUX_PMUXE_C_Val, .txpo = 0 };
+static const HAL_GPIO_T HAL_GPIO_TXIO = { .group = 0, .pin = 22, .mux = PORT_PMUX_PMUXE_A_Val};
 static const HAL_GPIO_T HAL_GPIO_RX = { .group = 0, .pin = 23, .mux = PORT_PMUX_PMUXE_C_Val, .rxpo = 1 };
 
 static const HAL_GPIO_T HAL_GPIO_USB_DM = { .group = 0, .pin = 24, .mux = PORT_PMUX_PMUXE_G_Val };

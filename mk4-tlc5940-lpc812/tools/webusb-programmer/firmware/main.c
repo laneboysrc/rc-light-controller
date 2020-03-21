@@ -35,8 +35,8 @@ int main(void)
         service_systick();
         HAL_service();
 
-        // Transfer up to 16 bytes in one go from USB to UART
-        for (uint8_t count = 0; count < 16; count++) {
+        // Transfer up to BUF_SIZE bytes in one go from USB to UART
+        for (uint8_t count = 0; count < BUF_SIZE; count++) {
             uint8_t c;
 
             if (!HAL_getchar_pending(STDOUT_USB)) {
@@ -47,8 +47,8 @@ int main(void)
             HAL_putc(STDOUT_UART, c);
         }
 
-        // Transfer up to 16 bytes in one go from UART to USB
-        for (uint8_t count = 0; count < 16; count++) {
+        // Transfer up to BUF_SIZE bytes in one go from UART to USB
+        for (uint8_t count = 0; count < BUF_SIZE; count++) {
             uint8_t c;
             if (!HAL_getchar_pending(STDOUT_UART)) {
                 break;

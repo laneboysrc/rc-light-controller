@@ -3,7 +3,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-typedef uint8_t RING_BUFFER_SIZE_T;
+typedef uint16_t RING_BUFFER_SIZE_T;
 
 typedef struct  {
     uint32_t begin;

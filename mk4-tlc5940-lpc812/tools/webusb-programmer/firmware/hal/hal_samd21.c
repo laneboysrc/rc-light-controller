@@ -28,15 +28,16 @@ extern uint32_t * const magic_value;
 bool start_bootloader = false;
 
 
-#define RECEIVE_BUFFER_SIZE (64)        // Must be modulo 2 for speed
+#define RECEIVE_BUFFER_SIZE (128)        // Must be modulo 2 for speed
 static RING_BUFFER_T uart_receive_ring_buffer;
 static uint8_t uart_receive_buffer[RECEIVE_BUFFER_SIZE];
 static RING_BUFFER_T usb_receive_ring_buffer;
 static uint8_t usb_receive_buffer[RECEIVE_BUFFER_SIZE];
 
+#define UART_SEND_BUFFER_SIZE (1024)
 #define SEND_BUFFER_SIZE (64)
 static RING_BUFFER_T uart_send_ring_buffer;
-static uint8_t uart_send_buffer[SEND_BUFFER_SIZE];
+static uint8_t uart_send_buffer[UART_SEND_BUFFER_SIZE];
 static RING_BUFFER_T usb_send_ring_buffer;
 static uint8_t usb_send_buffer[SEND_BUFFER_SIZE];
 
@@ -74,6 +75,7 @@ void HAL_hardware_init(void)
 
     // Configure GPIOs for the UART
     HAL_gpio_out(HAL_GPIO_TX);
+    HAL_gpio_clear(HAL_GPIO_TX);
     HAL_gpio_pmuxen(HAL_GPIO_TX);
 
     HAL_gpio_in(HAL_GPIO_RX);
@@ -191,7 +193,7 @@ void HAL_hardware_init(void)
     // ------------------------------------------------
     RING_BUFFER_init(&uart_receive_ring_buffer, uart_receive_buffer, RECEIVE_BUFFER_SIZE);
     RING_BUFFER_init(&usb_receive_ring_buffer, usb_receive_buffer, RECEIVE_BUFFER_SIZE);
-    RING_BUFFER_init(&uart_send_ring_buffer, uart_send_buffer, SEND_BUFFER_SIZE);
+    RING_BUFFER_init(&uart_send_ring_buffer, uart_send_buffer, UART_SEND_BUFFER_SIZE);
     RING_BUFFER_init(&usb_send_ring_buffer, usb_send_buffer, SEND_BUFFER_SIZE);
 
     __enable_irq();
