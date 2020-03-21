@@ -24,6 +24,10 @@
         font-family: monospace;
       }
 
+      #progress {
+        width: 100%;
+      }
+
     </style>
   </head>
   <body>
@@ -57,6 +61,9 @@
     <div>
       <button id="load">Load firmware</button>
       <button id="program">Program</button>
+    </div>
+    <div>
+      <progress id="progress" max="100" value="0"></progress>
     </div>
     <div>
       <input type="text" name="tx" id="send-text"><button id="send">Send</button>

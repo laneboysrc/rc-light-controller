@@ -75,6 +75,7 @@ const el_send_erase_button = document.querySelector('#send-erase');
 const el_load = document.querySelector('#load');
 const el_load_input = document.querySelector('#load-input');
 const el_program = document.querySelector('#program');
+const el_progress = document.querySelector('#progress');
 const el_initialize = document.querySelector('#initialize');
 
 function log(msg) {
@@ -186,6 +187,9 @@ async function webusb_connect(device) {
   webusb_device = device;
   // controlTransferTest();
   webusb_receive_data();
+
+  await send_set_command(CMD_DUT_POWER_OFF);
+  await send_set_command(CMD_OUT_ISP_LOW);
 
   const msg = 'Connected to Light Controller Programmer with serial number ' + device.serialNumber;
   log(msg);
@@ -314,7 +318,8 @@ function send_textfield_to_programmer() {
 }
 
 function progressCallback(progress) {
-  log("Progress: " + Math.round(progress * 100));
+  el_progress.value = progress * 100;
+  // log("Progress: " + Math.round(progress * 100));
 }
 
 async function program(bin) {
@@ -326,14 +331,7 @@ async function program(bin) {
 
   // Also the checksum of the vectors that the ISP uses to detect valid
   // flash is generated and added to the image before flashing.
-
-  if (!bin) {
-    log('Please load a firmware image');
-    return;
-  }
-
   const used_sectors = bin.length / SECTOR_SIZE;
-
 
   // Abort if the Code Read Protection in the image contains one of the
   // special patterns. We don't want to lock us out of the chip...
@@ -361,19 +359,20 @@ async function program(bin) {
   // Calculate the signature that the ISP uses to detect "valid code"
   append_signature(bin);
 
+  log("Unlocking the programming functions ...");
 
   // Unlock the chip with the magic number
   await send_command('U 23130');
 
   // Erase the whole chip
   log('Erasing the flash memory');
+  progressCallback(0.15);
   await send_command('P 0 15');
   await send_command('E 0 15');
 
-
-  // Program the image
+  log('Program the firmware image');
   for (let index = 0; index < used_sectors; index += 1) {
-    progressCallback(index / used_sectors);
+    progressCallback(0.2 + (0.8 * index / used_sectors));
 
     let sector = index;
 
@@ -418,6 +417,32 @@ function append_signature(bin) {
   bin[vector8] = signature & 0xff;
 }
 
+async function reset_mcu() {
+  /*
+  Reset the MCU to start the application.
+  We do that by downloading a small binary into RAM. This binary corresponds
+  to the following C code:
+
+      SCB->AIRCR = 0x05FA0004;
+
+  This code resets the ARM CPU by setting SYSRESETREQ. We load this
+  program into RAM and run it with the "Go" command.
+  */
+  const reset_program = new Uint8Array([
+      0x01, 0x4a, 0x02, 0x4b, 0x1a, 0x60, 0x70, 0x47,
+      0x04, 0x00, 0xfa, 0x05, 0x0c, 0xed, 0x00, 0xe0]);
+
+  await send_command('W ' + RAM_ADDRESS + ' ' + reset_program.length);
+  await send_data(reset_program);
+
+  // Unlock the Go command
+  await send_command('U 23130');
+
+  // Run the program from RAM. Note that this command does not respond with
+  // COMMAND_SUCCESS as it directly executes.
+  await send('G ' + RAM_ADDRESS + ' T\r\n');
+}
+
 function hex_to_bin (intel_hex_data) {
     return intel_hex.parse(intel_hex_data).data;
 }
@@ -457,7 +482,9 @@ function flush() {
 }
 
 function readline() {
-  return new Promise(resolve => {
+  return new Promise((resolve, reject) => {
+    let tries = 10;
+
     function check() {
       let pos = receive_buffer.search(/\r\n/);
       if (pos >= 0) {
@@ -468,11 +495,25 @@ function readline() {
         return;
       }
 
+      tries -= 1;
+      if (tries == 0) {
+        reject("Timeout in readline()");
+        return;
+      }
       setTimeout(check, 100);
     }
     check();
   });
 }
+
+async function expect(expected_string) {
+  const answer = await readline();
+  if (answer != expected_string) {
+    throw('Expected "' + expected_string + '", got "' + answer);
+  }
+  return answer;
+}
+
 
 async function delay(milliseconds) {
     await new Promise(resolve => {setTimeout(() => {resolve()}, milliseconds)});
@@ -481,28 +522,64 @@ async function delay(milliseconds) {
 async function initialization_sequence() {
   let answer;
 
+  log("Power-cycling the light controller ...");
   await send_set_command(CMD_DUT_POWER_OFF);
-  await delay(500);
   await send_set_command(CMD_OUT_ISP_LOW);
-  await delay(100);
+  await delay(500);
   await send_set_command(CMD_DUT_POWER_ON);
   await delay(100);
+  progressCallback(0.02);
+
   flush();
+  log("Performing ISP handshake ...");
   await send('?')
-  answer = await readline();
+  await expect('Synchronized\r\n');
+  progressCallback(0.04);
   await send('Synchronized\r\n');
-  answer = await readline();
-  answer = await readline();
+  await expect('Synchronized\r\n');
+  await expect('OK\r\n');
+  progressCallback(0.06);
+  log("Sending crystal frequency ...");
   await send('12000\r\n');
-  answer = await readline();
-  answer = await readline();
+  await expect('12000\r\n');
+  await expect('OK\r\n');
+  log("Turning ECHO off ...");
   await send('A 0\r\n');
-  answer = await readline();
-  answer = await readline();
+  await expect('A 0\r\n');
+  await expect('0\r\n');
+  log("ISP ready");
   await send_set_command(CMD_OUT_ISP_TRISTATE);
+  progressCallback(0.1);
 }
 
+async function initialize_and_program() {
+  if (!firmware_image) {
+    log('Please load a firmware image');
+    return;
+  }
 
+  try {
+    progressCallback(0);
+    await initialization_sequence();
+    await program(firmware_image);
+
+    // We let the downloaded program run for 200 ms. This causes the voltage to
+    // drop off sharply after we switch it off. If we don't do this then
+    // the capacitor on the light controller stays at a low voltage, causing
+    // the MCU to not properly reset (most likely because the ISP program does
+    // not use brown-out detection and maybe sleeps the CPU?)
+    await reset_mcu();
+    await delay(200);
+  }
+  catch(e) {
+    log(e);
+    console.error(e);
+  }
+  finally {
+    await send_set_command(CMD_DUT_POWER_OFF);
+    await send_set_command(CMD_OUT_ISP_LOW);
+  }
+}
 
 function init() {
   if (window.location.protocol != 'https:') {
@@ -544,7 +621,7 @@ function init() {
   el_load.addEventListener('click', () => {el_load_input.click(); }, false);
   el_load_input.addEventListener('change', load_file_from_disk, false);
 
-  el_program.addEventListener('click', () => { program(firmware_image);  }, false);
+  el_program.addEventListener('click', () => { initialize_and_program() }, false);
   el_initialize.addEventListener('click', () => { initialization_sequence(); }, false);
 
   init_webusb();
