@@ -254,7 +254,7 @@ async function webusb_receive_data() {
         const value = decoder.decode(result.data);
 
         receive_buffer += value;
-        console.log('USB receive: ' + make_crlf_visible(value));
+        console.log('USB R: ' + make_crlf_visible(value));
       }
       else {
         console.info('transferIn() failed:', result.status);
@@ -267,15 +267,14 @@ async function webusb_receive_data() {
   }
 }
 
-async function send_command(string) {
+async function send_isp_command(string) {
   flush();
-  await send(string + '\r\n');
-  let msg = await readline();
-  // console.log('command response: ' + make_crlf_visible(msg));
+  await send_isp(string + '\r\n');
+  await expect('0\r\n');
 }
 
-async function send(string) {
-  console.log('Sending: ' + make_crlf_visible(string));
+async function send_isp(string) {
+  console.log('USB W: ' + make_crlf_visible(string));
 
   try {
     const data = string2arraybuffer(string);
@@ -308,13 +307,13 @@ async function send_data(data) {
       return;
     }
 
-    // Delay to allow the UART to send the bytes
+    // Delay to allow the UART to send_isp the bytes
     await delay(1);
   }
 }
 
 function send_textfield_to_programmer() {
-  send(el_send_text.value + '\r\n');
+  send_isp(el_send_text.value + '\r\n');
 }
 
 function progressCallback(progress) {
@@ -362,13 +361,13 @@ async function program(bin) {
   log("Unlocking the programming functions ...");
 
   // Unlock the chip with the magic number
-  await send_command('U 23130');
+  await send_isp_command('U 23130');
 
   // Erase the whole chip
   log('Erasing the flash memory');
   progressCallback(0.15);
-  await send_command('P 0 15');
-  await send_command('E 0 15');
+  await send_isp_command('P 0 15');
+  await send_isp_command('E 0 15');
 
   log('Program the firmware image');
   for (let index = 0; index < used_sectors; index += 1) {
@@ -377,18 +376,18 @@ async function program(bin) {
     let sector = index;
 
     // // Erase the sector
-    // await send_command('P ' + sector + ' ' + sector);
-    // await send_command('E ' + sector + ' ' + sector);
+    // await send_isp_command('P ' + sector + ' ' + sector);
+    // await send_isp_command('E ' + sector + ' ' + sector);
 
     let address = sector * SECTOR_SIZE;
     let last_address = address + SECTOR_SIZE - 1;
 
     let data = bin.slice(address, last_address+1);
 
-    await send_command('W ' + RAM_ADDRESS + ' ' + data.length);
+    await send_isp_command('W ' + RAM_ADDRESS + ' ' + data.length);
     await send_data(new Uint8Array(data));
-    await send_command('P ' + sector + ' ' + sector);
-    await send_command('C ' + address + ' ' + RAM_ADDRESS + ' ' + SECTOR_SIZE);
+    await send_isp_command('P ' + sector + ' ' + sector);
+    await send_isp_command('C ' + address + ' ' + RAM_ADDRESS + ' ' + SECTOR_SIZE);
   }
 
   progressCallback(1.0);
@@ -432,15 +431,15 @@ async function reset_mcu() {
       0x01, 0x4a, 0x02, 0x4b, 0x1a, 0x60, 0x70, 0x47,
       0x04, 0x00, 0xfa, 0x05, 0x0c, 0xed, 0x00, 0xe0]);
 
-  await send_command('W ' + RAM_ADDRESS + ' ' + reset_program.length);
+  await send_isp_command('W ' + RAM_ADDRESS + ' ' + reset_program.length);
   await send_data(reset_program);
 
   // Unlock the Go command
-  await send_command('U 23130');
+  await send_isp_command('U 23130');
 
   // Run the program from RAM. Note that this command does not respond with
   // COMMAND_SUCCESS as it directly executes.
-  await send('G ' + RAM_ADDRESS + ' T\r\n');
+  await send_isp('G ' + RAM_ADDRESS + ' T\r\n');
 }
 
 function hex_to_bin (intel_hex_data) {
@@ -530,23 +529,26 @@ async function initialization_sequence() {
   await delay(100);
   progressCallback(0.02);
 
-  flush();
   log("Performing ISP handshake ...");
-  await send('?')
+  flush();
+  await send_isp('?')
   await expect('Synchronized\r\n');
   progressCallback(0.04);
-  await send('Synchronized\r\n');
+  await send_isp('Synchronized\r\n');
   await expect('Synchronized\r\n');
   await expect('OK\r\n');
   progressCallback(0.06);
+
   log("Sending crystal frequency ...");
-  await send('12000\r\n');
+  await send_isp('12000\r\n');
   await expect('12000\r\n');
   await expect('OK\r\n');
+
   log("Turning ECHO off ...");
-  await send('A 0\r\n');
+  await send_isp('A 0\r\n');
   await expect('A 0\r\n');
   await expect('0\r\n');
+
   log("ISP ready");
   await send_set_command(CMD_OUT_ISP_TRISTATE);
   progressCallback(0.1);
@@ -590,13 +592,13 @@ function init() {
 
   el_connect_button.addEventListener('click', request_device);
   el_send_button.addEventListener('click', send_textfield_to_programmer);
-  el_send_questionmark_button.addEventListener('click', () => { send('?') });
-  el_send_synchronized_button.addEventListener('click', () => { send('Synchronized\r\n') });
-  el_send_crystal_button.addEventListener('click', () => { send('12000\r\n') });
-  el_send_a0_button.addEventListener('click', () => { send('A 0\r\n') });
-  el_send_unlock_button.addEventListener('click', () => { send('U 23130\r\n') });
-  el_send_prepare_button.addEventListener('click', () => { send('P 0 15\r\n') });
-  el_send_erase_button.addEventListener('click', () => { send('E 0 15\r\n') });
+  el_send_questionmark_button.addEventListener('click', () => { send_isp('?') });
+  el_send_synchronized_button.addEventListener('click', () => { send_isp('Synchronized\r\n') });
+  el_send_crystal_button.addEventListener('click', () => { send_isp('12000\r\n') });
+  el_send_a0_button.addEventListener('click', () => { send_isp('A 0\r\n') });
+  el_send_unlock_button.addEventListener('click', () => { send_isp('U 23130\r\n') });
+  el_send_prepare_button.addEventListener('click', () => { send_isp('P 0 15\r\n') });
+  el_send_erase_button.addEventListener('click', () => { send_isp('E 0 15\r\n') });
 
   el_dut_power.CMD_ON = CMD_DUT_POWER_ON;
   el_dut_power.CMD_OFF = CMD_DUT_POWER_OFF;
