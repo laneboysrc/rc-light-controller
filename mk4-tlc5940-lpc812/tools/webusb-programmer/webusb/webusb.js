@@ -24,6 +24,35 @@ const CMD_LED_BUSY_ON = 43;
 const CMD_LED_ERROR_OFF = 44;
 const CMD_LED_ERROR_ON = 45;
 
+// Code Read Protection (CRP) address and patterns
+const CRP_ADDRESS = 0x000002fc;
+
+// Prevents sampling of the ISP entry pin
+const NO_ISP = 0x4E697370;
+
+// Access to chip via the SWD pins is disabled; allow partial flash update
+const CRP1 = 0x12345678;
+
+// Access to chip via the SWD pins is disabled; most flash commands are disabled
+const CRP2 = 0x87654321;
+
+// Access to chip via the SWD pins is disabled; prevents sampling of the ISP
+// entry pin
+const CRP3 = 0x43218765;
+
+// RAM start address we use for programming and the Go command. We use
+// 0x10000300 because everything below may be locked by CRP.
+const RAM_BASE_ADDRESS = 0x10000000;
+const RAM_ADDRESS = RAM_BASE_ADDRESS + 0x300;
+
+const FLASH_BASE_ADDRESS = 0x00000000;
+const PAGE_SIZE = 64;
+const SECTOR_SIZE = 1024;
+
+const allow_code_protection = false;
+
+
+
 let webusb_device;
 let firmware_image;
 
@@ -220,6 +249,10 @@ async function webusb_receive_data() {
   }
 }
 
+async function send_command(string) {
+  await send(string + '\r\n');
+}
+
 async function send(string) {
   try {
     const data = string2arraybuffer(string);
@@ -235,8 +268,105 @@ async function send(string) {
   }
 }
 
+async function send_data(data) {
+  try {
+    const result = await webusb_device.transferOut(TEST_EP_OUT, data);
+    if (result.status != 'ok') {
+      console.error('transferOut() failed:', result.status);
+    }
+  }
+  catch (e) {
+    console.error('transferOut() exception:', e);
+    return;
+  }
+}
+
 function send_textfield_to_programmer() {
   send(el_send_text.value + '\r\n');
+}
+
+async function program(bin) {
+  // Write the given binary image file into the flash memory.
+
+  // The image is checked whether it contains any of the code protection
+  // values, and flashing is aborted (unless instructed with a flag)
+  // so that we don't "brick" the ISP functionality.
+
+  // Also the checksum of the vectors that the ISP uses to detect valid
+  // flash is generated and added to the image before flashing.
+
+  let used_sectors = (bin.length / SECTOR_SIZE);
+
+
+  // Abort if the Code Read Protection in the image contains one of the
+  // special patterns. We don't want to lock us out of the chip...
+  if (!allow_code_protection) {
+    let pattern = ((bin[CRP_ADDRESS + 3] << 24) + (bin[CRP_ADDRESS + 2] << 16) + (bin[CRP_ADDRESS + 1] << 8) + bin[CRP_ADDRESS]);
+
+    if (pattern == NO_ISP) {
+        throw 'ERROR: NO_ISP code read protection detected in image file';
+    }
+
+    if (pattern == CRP1) {
+        throw 'ERROR: CRP1 code read protection detected in image file';
+    }
+
+    if (pattern == CRP2) {
+        throw 'ERROR: CRP2 code read protection detected in image file';
+    }
+
+    if (pattern == CRP3) {
+        throw 'ERROR: CRP3 code read protection detected in image file';
+    }
+  }
+
+
+  // Calculate the signature that the ISP uses to detect "valid code"
+  append_signature(bin);
+
+  // Unlock the chip with the magic number
+  await send_command('U 23130');
+
+
+  // Program the image
+  for (let index = 0; index < used_sectors; index += 1) {
+    let sector = index;
+
+    // Erase the sector
+    await send_command('P ' + sector + ' ' + sector);
+    await send_command('E ' + sector + ' ' + sector);
+
+    let address = sector * SECTOR_SIZE;
+    let last_address = address + SECTOR_SIZE - 1;
+
+    let data = bin.slice(address, last_address+1);
+
+    await send_command('W ' + RAM_ADDRESS + ' ' + data.length);
+    await send_data(new Uint8Array(data));
+    await send_command('P ' + sector + ' ' + sector);
+    await send_command('C ' + address + ' ' + RAM_ADDRESS + ' ' + SECTOR_SIZE);
+  }
+}
+
+function append_signature(bin) {
+  // Calculate the signature that the ISP uses to detect "valid code"
+
+  let signature = 0;
+  for (let i = 0 ; i < 7; i += 1) {
+    let vector = i * 4;
+    signature = signature + (
+      (bin[vector + 3] << 24) +
+      (bin[vector + 2] << 16) +
+      (bin[vector + 1] << 8) +
+      (bin[vector]));
+  }
+  signature = (signature ^ 0xffffffff) + 1;   // Two's complement
+
+  const vector8 = 28;
+  bin[vector8 + 3] = (signature >> 24) & 0xff;
+  bin[vector8 + 2] = (signature >> 16) & 0xff;
+  bin[vector8 + 1] = (signature >> 8) & 0xff;
+  bin[vector8] = signature & 0xff;
 }
 
 function hex_to_bin (intel_hex_data) {
