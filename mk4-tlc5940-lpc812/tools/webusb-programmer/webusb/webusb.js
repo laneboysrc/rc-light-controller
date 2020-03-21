@@ -35,6 +35,10 @@ const el_led_busy = document.querySelector("#led-busy");
 const el_led_error = document.querySelector("#led-error");
 const el_status = document.querySelector('#status');
 const el_isp = document.querySelector('#isp');
+const el_send_questionmark_button = document.querySelector('#send-questionmark');
+const el_send_synchronized_button = document.querySelector('#send-synchronized');
+const el_send_crystal_button = document.querySelector('#send-crystal');
+const el_send_a0_button = document.querySelector('#send-a0');
 
 
 function string2arraybuffer(str) {
@@ -210,9 +214,9 @@ async function webusb_receive_data() {
   }
 }
 
-async function send_to_programmer() {
+async function send(string) {
   try {
-    const data = string2arraybuffer(el_send_text.value + '\r\n');
+    const data = string2arraybuffer(string);
 
     const result = await webusb_device.transferOut(TEST_EP_OUT, data);
     if (result.status != 'ok') {
@@ -225,6 +229,10 @@ async function send_to_programmer() {
   }
 }
 
+function send_textfield_to_programmer() {
+  send(el_send_text.value + '\r\n');
+}
+
 function init() {
   if (window.location.protocol != 'https:') {
     if (window.location.protocol != 'http:' || window.location.hostname != 'localhost') {
@@ -233,7 +241,11 @@ function init() {
   }
 
   el_connect_button.addEventListener('click', request_device);
-  el_send_button.addEventListener('click', send_to_programmer);
+  el_send_button.addEventListener('click', send_textfield_to_programmer);
+  el_send_questionmark_button.addEventListener('click', () => { send('?') });
+  el_send_synchronized_button.addEventListener('click', () => { send('Synchronized\r\n') });
+  el_send_crystal_button.addEventListener('click', () => { send('12000\r\n') });
+  el_send_a0_button.addEventListener('click', () => { send('A 0\r\n') });
 
   el_dut_power.CMD_ON = CMD_DUT_POWER_ON;
   el_dut_power.CMD_OFF = CMD_DUT_POWER_OFF;
