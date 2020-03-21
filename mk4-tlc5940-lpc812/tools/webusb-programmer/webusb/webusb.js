@@ -1,6 +1,5 @@
 'use strict';
 
-const MAX_UART_LOG_LINES = 20;
 
 const VENDOR_ID = 0x6666;
 const VENDOR_CODE_COMMAND = 72;
@@ -10,134 +9,10 @@ const TEST_EP_IN = 1;
 const TEST_EP_OUT = 2;
 const EP_SIZE = 64;
 
-const CMD_DUT_POWER_OFF = 10;
-const CMD_DUT_POWER_ON = 11;
-const CMD_OUT_ISP_LOW = 20;
-const CMD_OUT_ISP_HIGH = 21;
-const CMD_OUT_ISP_TRISTATE = 22;
-const CMD_BAUDRATE_38400 = 30;
-const CMD_BAUDRATE_115200 = 31;
-const CMD_LED_OK_OFF = 40;
-const CMD_LED_OK_ON = 41;
-const CMD_LED_BUSY_OFF = 42;
-const CMD_LED_BUSY_ON = 43;
-const CMD_LED_ERROR_OFF = 44;
-const CMD_LED_ERROR_ON = 45;
-
-// Code Read Protection (CRP) address and patterns
-const CRP_ADDRESS = 0x000002fc;
-
-// Prevents sampling of the ISP entry pin
-const NO_ISP = 0x4E697370;
-
-// Access to chip via the SWD pins is disabled; allow partial flash update
-const CRP1 = 0x12345678;
-
-// Access to chip via the SWD pins is disabled; most flash commands are disabled
-const CRP2 = 0x87654321;
-
-// Access to chip via the SWD pins is disabled; prevents sampling of the ISP
-// entry pin
-const CRP3 = 0x43218765;
-
-// RAM start address we use for programming and the Go command. We use
-// 0x10000300 because everything below may be locked by CRP.
-const RAM_BASE_ADDRESS = 0x10000000;
-const RAM_ADDRESS = RAM_BASE_ADDRESS + 0x300;
-
-const FLASH_BASE_ADDRESS = 0x00000000;
-const PAGE_SIZE = 64;
-const SECTOR_SIZE = 1024;
-
-const allow_code_protection = false;
-
-let receive_buffer = '';
-
 let webusb_device;
-let firmware_image;
 
-const el_connect_button = document.querySelector("#connect");
-const el_send_button = document.querySelector("#send");
-const el_send_text =  document.querySelector("#send-text");
-const el_dut_power = document.querySelector("#dut-power");
-const el_led_ok = document.querySelector("#led-ok");
-const el_led_busy = document.querySelector("#led-busy");
-const el_led_error = document.querySelector("#led-error");
-const el_status = document.querySelector('#status');
-const el_isp = document.querySelector('#isp');
-const el_send_questionmark_button = document.querySelector('#send-questionmark');
-const el_send_synchronized_button = document.querySelector('#send-synchronized');
-const el_send_crystal_button = document.querySelector('#send-crystal');
-const el_send_a0_button = document.querySelector('#send-a0');
-const el_send_unlock_button = document.querySelector('#send-unlock');
-const el_send_prepare_button = document.querySelector('#send-prepare');
-const el_send_erase_button = document.querySelector('#send-erase');
-const el_load = document.querySelector('#load');
-const el_load_input = document.querySelector('#load-input');
-const el_program = document.querySelector('#program');
-const el_progress = document.querySelector('#progress');
-const el_initialize = document.querySelector('#initialize');
 
-function log(msg) {
-  const content = new Date(Date.now()).toISOString() + ' ' + msg;
-  const el = document.createElement('div');
-  el.textContent = content;
-
-  if (el_status.firstChild) {
-    el_status.insertBefore(el, el_status.firstChild);
-    while (el_status.childElementCount > MAX_UART_LOG_LINES) {
-      el_status.removeChild(el_status.lastChild);
-    }
-  }
-  else {
-    el_status.appendChild(el);
-  }
-}
-
-function make_crlf_visible(string) {
-  const cr = /\r/g;
-  const lf = /\n/g;
-
-  return string.replace(cr, '\\r').replace(lf, '\\n');
-}
-
-function string2arraybuffer(str) {
-  var buf = new ArrayBuffer(str.length);
-  var bufView = new Uint8Array(buf);
-  for (var i=0, strLen=str.length; i<strLen; i++) {
-    bufView[i] = str.charCodeAt(i);
-  }
-  return buf;
-}
-
-function checkbox_handler() {
-  if (this.checked) {
-    send_set_command(this.CMD_ON);
-  }
-  else {
-    send_set_command(this.CMD_OFF);
-  }
-}
-
-async function send_set_command(cmd) {
-  const setup = {
-    "requestType": "vendor",
-    "recipient": "device",
-    "request": VENDOR_CODE_COMMAND,
-    "value": cmd,
-    "index": 0
-  };
-
-  let result = await webusb_device.controlTransferOut(setup);
-  if (result.status != "ok") {
-    console.log("send_set_command(" + cmd + ") FAIL: " + result.staus);
-  }
-  else {
-    console.log("send_set_command(" + cmd + ") OK");
-  }
-}
-
-async function init_webusb() {
+async function webusb_init() {
   navigator.usb.addEventListener('connect', webusb_device_connected);
   navigator.usb.addEventListener('disconnect', webusb_device_disconnected);
 
@@ -149,7 +24,7 @@ async function init_webusb() {
   }
 }
 
-async function request_device() {
+async function webusb_request_device() {
   let device;
 
   const filters = [
@@ -253,7 +128,7 @@ async function webusb_receive_data() {
         const decoder = new TextDecoder('utf-8');
         const value = decoder.decode(result.data);
 
-        receive_buffer += value;
+        stdin_buffer += value;
         console.log('USB R: ' + make_crlf_visible(value));
       }
       else {
@@ -264,6 +139,24 @@ async function webusb_receive_data() {
       console.info('transferIn() exception:', e);
       return;
     }
+  }
+}
+
+async function send_set_command(cmd) {
+  const setup = {
+    "requestType": "vendor",
+    "recipient": "device",
+    "request": VENDOR_CODE_COMMAND,
+    "value": cmd,
+    "index": 0
+  };
+
+  let result = await webusb_device.controlTransferOut(setup);
+  if (result.status != "ok") {
+    console.log("send_set_command(" + cmd + ") FAIL: " + result.staus);
+  }
+  else {
+    console.log("send_set_command(" + cmd + ") OK");
   }
 }
 
@@ -290,7 +183,7 @@ async function send_isp(string) {
   }
 }
 
-async function send_data(data) {
+async function send_isp_data(data) {
   const transfer_size = EP_SIZE;
 
   while (data.length) {
@@ -311,337 +204,3 @@ async function send_data(data) {
     await delay(1);
   }
 }
-
-function send_textfield_to_programmer() {
-  send_isp(el_send_text.value + '\r\n');
-}
-
-function progressCallback(progress) {
-  el_progress.value = progress * 100;
-  // log("Progress: " + Math.round(progress * 100));
-}
-
-async function program(bin) {
-  // Write the given binary image file into the flash memory.
-
-  // The image is checked whether it contains any of the code protection
-  // values, and flashing is aborted (unless instructed with a flag)
-  // so that we don't "brick" the ISP functionality.
-
-  // Also the checksum of the vectors that the ISP uses to detect valid
-  // flash is generated and added to the image before flashing.
-  const used_sectors = bin.length / SECTOR_SIZE;
-
-  // Abort if the Code Read Protection in the image contains one of the
-  // special patterns. We don't want to lock us out of the chip...
-  if (!allow_code_protection) {
-    let pattern = ((bin[CRP_ADDRESS + 3] << 24) + (bin[CRP_ADDRESS + 2] << 16) + (bin[CRP_ADDRESS + 1] << 8) + bin[CRP_ADDRESS]);
-
-    if (pattern == NO_ISP) {
-        throw 'ERROR: NO_ISP code read protection detected in image file';
-    }
-
-    if (pattern == CRP1) {
-        throw 'ERROR: CRP1 code read protection detected in image file';
-    }
-
-    if (pattern == CRP2) {
-        throw 'ERROR: CRP2 code read protection detected in image file';
-    }
-
-    if (pattern == CRP3) {
-        throw 'ERROR: CRP3 code read protection detected in image file';
-    }
-  }
-
-
-  // Calculate the signature that the ISP uses to detect "valid code"
-  append_signature(bin);
-
-  log("Unlocking the programming functions ...");
-
-  // Unlock the chip with the magic number
-  await send_isp_command('U 23130');
-
-  // Erase the whole chip
-  log('Erasing the flash memory');
-  progressCallback(0.15);
-  await send_isp_command('P 0 15');
-  await send_isp_command('E 0 15');
-
-  log('Program the firmware image');
-  for (let index = 0; index < used_sectors; index += 1) {
-    progressCallback(0.2 + (0.8 * index / used_sectors));
-
-    let sector = index;
-
-    // // Erase the sector
-    // await send_isp_command('P ' + sector + ' ' + sector);
-    // await send_isp_command('E ' + sector + ' ' + sector);
-
-    let address = sector * SECTOR_SIZE;
-    let last_address = address + SECTOR_SIZE - 1;
-
-    let data = bin.slice(address, last_address+1);
-
-    await send_isp_command('W ' + RAM_ADDRESS + ' ' + data.length);
-    await send_data(new Uint8Array(data));
-    await send_isp_command('P ' + sector + ' ' + sector);
-    await send_isp_command('C ' + address + ' ' + RAM_ADDRESS + ' ' + SECTOR_SIZE);
-  }
-
-  progressCallback(1.0);
-  log('Programming finished');
-  console.log('Programming finished');
-}
-
-function append_signature(bin) {
-  // Calculate the signature that the ISP uses to detect "valid code"
-
-  let signature = 0;
-  for (let i = 0 ; i < 7; i += 1) {
-    let vector = i * 4;
-    signature = signature + (
-      (bin[vector + 3] << 24) +
-      (bin[vector + 2] << 16) +
-      (bin[vector + 1] << 8) +
-      (bin[vector]));
-  }
-  signature = (signature ^ 0xffffffff) + 1;   // Two's complement
-
-  const vector8 = 28;
-  bin[vector8 + 3] = (signature >> 24) & 0xff;
-  bin[vector8 + 2] = (signature >> 16) & 0xff;
-  bin[vector8 + 1] = (signature >> 8) & 0xff;
-  bin[vector8] = signature & 0xff;
-}
-
-async function reset_mcu() {
-  /*
-  Reset the MCU to start the application.
-  We do that by downloading a small binary into RAM. This binary corresponds
-  to the following C code:
-
-      SCB->AIRCR = 0x05FA0004;
-
-  This code resets the ARM CPU by setting SYSRESETREQ. We load this
-  program into RAM and run it with the "Go" command.
-  */
-  const reset_program = new Uint8Array([
-      0x01, 0x4a, 0x02, 0x4b, 0x1a, 0x60, 0x70, 0x47,
-      0x04, 0x00, 0xfa, 0x05, 0x0c, 0xed, 0x00, 0xe0]);
-
-  await send_isp_command('W ' + RAM_ADDRESS + ' ' + reset_program.length);
-  await send_data(reset_program);
-
-  // Unlock the Go command
-  await send_isp_command('U 23130');
-
-  // Run the program from RAM. Note that this command does not respond with
-  // COMMAND_SUCCESS as it directly executes.
-  await send_isp('G ' + RAM_ADDRESS + ' T\r\n');
-}
-
-function hex_to_bin (intel_hex_data) {
-    return intel_hex.parse(intel_hex_data).data;
-}
-
-function load_file_from_disk() {
-  firmware_image = undefined;
-
-  if (this.files.length < 1) {
-      return;
-  }
-
-  const intelHex = /^:[0-9a-fA-F][0-9a-fA-F]/;
-
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    const contents = e.target.result;
-
-    let contentsString = String.fromCharCode.apply(null, new Uint8Array(contents));
-
-    if (contentsString.match(intelHex)) {
-      firmware_image = hex_to_bin(contentsString);
-    }
-    else {
-      console.warn('Loading BINARY image');
-      let data = new Uint8Array(8192 + contents.byteLength);
-      data.fill(0xff);
-      data.set(new Uint8Array(contents), 8192);
-      firmware_image = data;
-    }
-    console.log('Firmware loaded; ' + firmware_image.length + ' Bytes');
-  };
-  reader.readAsArrayBuffer(this.files[0]);
-}
-
-function flush() {
-  receive_buffer = '';
-}
-
-function readline(terminator) {
-  return new Promise((resolve, reject) => {
-    let tries = 10;
-
-    function check() {
-      let pos = receive_buffer.search(terminator);
-      if (pos >= 0) {
-        pos += terminator.length;
-        const line = receive_buffer.substring(0, pos);
-        receive_buffer = receive_buffer.substring(pos);
-        resolve(line);
-        return;
-      }
-
-      tries -= 1;
-      if (tries == 0) {
-        reject("Timeout in readline()");
-        return;
-      }
-      setTimeout(check, 100);
-    }
-    check();
-  });
-}
-
-async function expect(expected_string) {
-  const answer = await readline('\r\n');
-  if (answer != expected_string) {
-    throw('Expected "' + make_crlf_visible(expected_string) + '", got "' + make_crlf_visible(answer));
-  }
-  return answer;
-}
-
-async function delay(milliseconds) {
-    await new Promise(resolve => {setTimeout(() => {resolve()}, milliseconds)});
-}
-
-async function initialization_sequence() {
-  let answer;
-
-  log("Power-cycling the light controller ...");
-  await send_set_command(CMD_DUT_POWER_OFF);
-  await send_set_command(CMD_OUT_ISP_LOW);
-  await delay(500);
-  await send_set_command(CMD_DUT_POWER_ON);
-  await delay(100);
-  progressCallback(0.02);
-
-  log("Performing ISP handshake ...");
-  flush();
-  await send_isp('?')
-  await expect('Synchronized\r\n');
-  progressCallback(0.04);
-  await send_isp('Synchronized\r\n');
-  await expect('Synchronized\r\n');
-  await expect('OK\r\n');
-  progressCallback(0.06);
-
-  log("Sending crystal frequency ...");
-  await send_isp('12000\r\n');
-  await expect('12000\r\n');
-  await expect('OK\r\n');
-
-  log("Turning ECHO off ...");
-  await send_isp('A 0\r\n');
-  await expect('A 0\r\n');
-  await expect('0\r\n');
-
-  log("ISP ready");
-  await send_set_command(CMD_OUT_ISP_TRISTATE);
-  progressCallback(0.1);
-}
-
-async function initialize_and_program() {
-  if (!firmware_image) {
-    log('Please load a firmware image');
-    return;
-  }
-
-  try {
-    progressCallback(0);
-    await initialization_sequence();
-    await program(firmware_image);
-
-    // We let the downloaded program run for 200 ms. This causes the voltage to
-    // drop off sharply after we switch it off. If we don't do this then
-    // the capacitor on the light controller stays at a low voltage, causing
-    // the MCU to not properly reset (most likely because the ISP program does
-    // not use brown-out detection and maybe sleeps the CPU?)
-    await reset_mcu();
-    await delay(200);
-  }
-  catch(e) {
-    log(e);
-    console.error(e);
-  }
-  finally {
-    await send_set_command(CMD_DUT_POWER_OFF);
-    await send_set_command(CMD_OUT_ISP_LOW);
-  }
-}
-
-
-let logcat_exit = false;
-async function logcat() {
-  flush()
-  while (logcat_exit == false) {
-    try {
-      log(await readline('\n'));
-    }
-    catch (e) {
-      ;
-    }
-  }
-  logcat_exit = false
-}
-
-function init() {
-  if (window.location.protocol != 'https:') {
-    if (window.location.protocol != 'http:' || window.location.hostname != 'localhost') {
-      document.querySelector('#protocol-error').classList.remove('hidden');
-    }
-  }
-
-  el_connect_button.addEventListener('click', request_device);
-  el_send_button.addEventListener('click', send_textfield_to_programmer);
-  el_send_questionmark_button.addEventListener('click', () => { send_isp('?') });
-  el_send_synchronized_button.addEventListener('click', () => { send_isp('Synchronized\r\n') });
-  el_send_crystal_button.addEventListener('click', () => { send_isp('12000\r\n') });
-  el_send_a0_button.addEventListener('click', () => { send_isp('A 0\r\n') });
-  el_send_unlock_button.addEventListener('click', () => { send_isp('U 23130\r\n') });
-  el_send_prepare_button.addEventListener('click', () => { send_isp('P 0 15\r\n') });
-  el_send_erase_button.addEventListener('click', () => { send_isp('E 0 15\r\n') });
-
-  el_dut_power.CMD_ON = CMD_DUT_POWER_ON;
-  el_dut_power.CMD_OFF = CMD_DUT_POWER_OFF;
-  el_dut_power.addEventListener('change', checkbox_handler);
-
-  el_led_ok.CMD_ON = CMD_LED_OK_ON;
-  el_led_ok.CMD_OFF = CMD_LED_OK_OFF;
-  el_led_ok.addEventListener('change', checkbox_handler);
-
-  el_led_busy.CMD_ON = CMD_LED_BUSY_ON;
-  el_led_busy.CMD_OFF = CMD_LED_BUSY_OFF;
-  el_led_busy.addEventListener('change', checkbox_handler);
-
-  el_led_error.CMD_ON = CMD_LED_ERROR_ON;
-  el_led_error.CMD_OFF = CMD_LED_ERROR_OFF;
-  el_led_error.addEventListener('change', checkbox_handler);
-
-  el_isp.CMD_ON = CMD_OUT_ISP_LOW;
-  el_isp.CMD_OFF = CMD_OUT_ISP_TRISTATE;
-  el_isp.addEventListener('change', checkbox_handler);
-
-  el_load.addEventListener('click', () => {el_load_input.click(); }, false);
-  el_load_input.addEventListener('change', load_file_from_disk, false);
-
-  el_program.addEventListener('click', () => { initialize_and_program() }, false);
-  el_initialize.addEventListener('click', () => { initialization_sequence(); }, false);
-
-  init_webusb();
-}
-
-init();
-
