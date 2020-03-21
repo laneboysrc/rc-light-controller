@@ -73,8 +73,9 @@ const el_send_unlock_button = document.querySelector('#send-unlock');
 const el_send_prepare_button = document.querySelector('#send-prepare');
 const el_send_erase_button = document.querySelector('#send-erase');
 const el_load = document.querySelector('#load');
-const el_program = document.querySelector('#program');
 const el_load_input = document.querySelector('#load-input');
+const el_program = document.querySelector('#program');
+const el_initialize = document.querySelector('#initialize');
 
 function log(msg) {
   const content = new Date(Date.now()).toISOString() + ' ' + msg;
@@ -270,6 +271,8 @@ async function send_command(string) {
 }
 
 async function send(string) {
+  console.log('Sending: ' + make_crlf_visible(string));
+
   try {
     const data = string2arraybuffer(string);
 
@@ -302,7 +305,7 @@ async function send_data(data) {
     }
 
     // Delay to allow the UART to send the bytes
-    await new Promise(resolve => {setTimeout(() => {resolve()}, 1)});
+    await delay(1);
   }
 }
 
@@ -471,6 +474,35 @@ function readline() {
   });
 }
 
+async function delay(milliseconds) {
+    await new Promise(resolve => {setTimeout(() => {resolve()}, milliseconds)});
+}
+
+async function initialization_sequence() {
+  let answer;
+
+  await send_set_command(CMD_DUT_POWER_OFF);
+  await delay(500);
+  await send_set_command(CMD_OUT_ISP_LOW);
+  await delay(100);
+  await send_set_command(CMD_DUT_POWER_ON);
+  await delay(100);
+  flush();
+  await send('?')
+  answer = await readline();
+  await send('Synchronized\r\n');
+  answer = await readline();
+  answer = await readline();
+  await send('12000\r\n');
+  answer = await readline();
+  answer = await readline();
+  await send('A 0\r\n');
+  answer = await readline();
+  answer = await readline();
+  await send_set_command(CMD_OUT_ISP_TRISTATE);
+}
+
+
 
 function init() {
   if (window.location.protocol != 'https:') {
@@ -488,7 +520,6 @@ function init() {
   el_send_unlock_button.addEventListener('click', () => { send('U 23130\r\n') });
   el_send_prepare_button.addEventListener('click', () => { send('P 0 15\r\n') });
   el_send_erase_button.addEventListener('click', () => { send('E 0 15\r\n') });
-
 
   el_dut_power.CMD_ON = CMD_DUT_POWER_ON;
   el_dut_power.CMD_OFF = CMD_DUT_POWER_OFF;
@@ -513,7 +544,8 @@ function init() {
   el_load.addEventListener('click', () => {el_load_input.click(); }, false);
   el_load_input.addEventListener('change', load_file_from_disk, false);
 
-  el_program.addEventListener('click', () => { program(firmware_image); }, false);
+  el_program.addEventListener('click', () => { program(firmware_image);  }, false);
+  el_initialize.addEventListener('click', () => { initialization_sequence(); }, false);
 
   init_webusb();
 }

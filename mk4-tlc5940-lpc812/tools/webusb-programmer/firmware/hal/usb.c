@@ -129,16 +129,20 @@ static void command_handler(void)
 
         case CMD_DUT_POWER_ON:
             HAL_gpio_clear(HAL_GPIO_POWER_ENABLE);
-            // Switch the TX output back to UART
+            // Switch the TX and RX back to UART
             HAL_gpio_pmuxen(HAL_GPIO_TX);
+            HAL_gpio_in(HAL_GPIO_RX);
+            HAL_gpio_pmuxen(HAL_GPIO_RX);
             break;
 
         case CMD_DUT_POWER_OFF:
             HAL_gpio_set(HAL_GPIO_POWER_ENABLE);
-            // Switch the UART TX output to GPIO and set it to low, so that
+            // Switch the UART TX and RX to GPIO output  and set it to low, so that
             // we don't power the light controller via the ST/RX pin!
             HAL_gpio_clear(HAL_GPIO_TXIO);
             HAL_gpio_pmuxen(HAL_GPIO_TXIO);
+            HAL_gpio_clear(HAL_GPIO_RXIO);
+            HAL_gpio_pmuxen(HAL_GPIO_RXIO);
             break;
 
         case CMD_LED_OK_ON:
