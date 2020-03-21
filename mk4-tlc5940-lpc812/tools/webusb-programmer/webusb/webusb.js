@@ -480,14 +480,14 @@ function flush() {
   receive_buffer = '';
 }
 
-function readline() {
+function readline(terminator) {
   return new Promise((resolve, reject) => {
     let tries = 10;
 
     function check() {
-      let pos = receive_buffer.search(/\r\n/);
+      let pos = receive_buffer.search(terminator);
       if (pos >= 0) {
-        pos += 2;
+        pos += terminator.length;
         const line = receive_buffer.substring(0, pos);
         receive_buffer = receive_buffer.substring(pos);
         resolve(line);
@@ -506,13 +506,12 @@ function readline() {
 }
 
 async function expect(expected_string) {
-  const answer = await readline();
+  const answer = await readline('\r\n');
   if (answer != expected_string) {
-    throw('Expected "' + expected_string + '", got "' + answer);
+    throw('Expected "' + make_crlf_visible(expected_string) + '", got "' + make_crlf_visible(answer));
   }
   return answer;
 }
-
 
 async function delay(milliseconds) {
     await new Promise(resolve => {setTimeout(() => {resolve()}, milliseconds)});
@@ -581,6 +580,21 @@ async function initialize_and_program() {
     await send_set_command(CMD_DUT_POWER_OFF);
     await send_set_command(CMD_OUT_ISP_LOW);
   }
+}
+
+
+let logcat_exit = false;
+async function logcat() {
+  flush()
+  while (logcat_exit == false) {
+    try {
+      log(await readline('\n'));
+    }
+    catch (e) {
+      ;
+    }
+  }
+  logcat_exit = false
 }
 
 function init() {
