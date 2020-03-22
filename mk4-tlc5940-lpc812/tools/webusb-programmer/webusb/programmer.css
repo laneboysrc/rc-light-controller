@@ -19,8 +19,8 @@ h1 {
 }
 
 h2 {
-  font-size: 1.4em;
-  color: black;
+  font-size: 1.2em;
+  color: gray;
 }
 
 h3 {
@@ -99,10 +99,6 @@ button.menu i {
   font-size: 2em;
 }
 
-.redborder {
-   border: 1px solid red;
-}
-
 .body {
   display: flex;
 }
@@ -166,7 +162,7 @@ nav.box {
   padding: 8px;
 }*/
 
-#hardware {
+/*#hardware {
   vertical-align: top;
 }
 
@@ -174,7 +170,7 @@ nav.box {
   display: inline-block;
   width: 200px;
   height: 120px;
-}
+}*/
 
 .footer {
   background-color: #FFEDA5;
@@ -199,7 +195,7 @@ nav.box {
   background-color: #ffcf0d;
 }
 
-.configuration > div, #config_baudrate > div {
+.configuration > div {
   margin-top: 0.5em;
 }
 
@@ -212,21 +208,21 @@ button.menu[disabled] {
   opacity: 0.3;
 }
 
-#load_and_save div {
+/*#load_and_save div {
   margin-top: 1em;
 }
 
 .load_save_table td {
   padding-right: 40px;
-}
+}*/
 
-.configuration .radio_item {
+/*.configuration .radio_item {
   margin-bottom: 1em;
-}
+}*/
 
-.configuration label {
+/*.configuration label {
   font-weight: bold;
-}
+}*/
 
 
 
@@ -278,9 +274,11 @@ button.menu[disabled] {
   width: 100%;
 }
 
+#heading {
+  height: 68px;
+}
 
-
-.modal_dialog {
+/*.modal_dialog {
   position: absolute;
   z-index: 9999;
   left: 0;
@@ -307,7 +305,7 @@ button.menu[disabled] {
 
 .modal_dialog progress {
   width: 100%;
-}
+}*/
 
 .align_right {
   float: right;
@@ -322,6 +320,10 @@ button.menu[disabled] {
 
 .error div {
   margin-top: 0.5em;
+}
+
+.error > div {
+  margin-top: 2em;
 }
 
 .fail {

@@ -67,7 +67,8 @@ async function webusb_connect(device) {
   await send_set_command(CMD_OUT_ISP_LOW);
 
   const msg = 'Connected to Light Controller Programmer with serial number ' + device.serialNumber;
-  log(msg);
+  console.log(msg);
+  update_programmer_connection(device.serialNumber);
 }
 
 // async function controlTransferTest() {
@@ -98,6 +99,7 @@ async function webusb_disconnect() {
     }
     finally {
       webusb_device = undefined;
+      update_programmer_connection();
     }
   }
 }

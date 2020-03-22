@@ -16,14 +16,23 @@ const CMD_LED_BUSY_ON = 43;
 const CMD_LED_ERROR_OFF = 44;
 const CMD_LED_ERROR_ON = 45;
 
+const MENU_CONNECTION = 0;
+const MENU_PROGRAMMING = 1;
+const MENU_TESTING = 2;
+
 let firmware_image;
 let log_stdin_running = false;
+let programming_active = false;
+let is_connected = false;
+let has_webusb = false;
 
 const el = {};
 
 el.menu_buttons = document.querySelectorAll('nav button');
 
-el.connect_button = document.querySelector("#connect");
+el.connect_button = document.querySelector("#webusb_connect_button");
+el.disconnect_button = document.querySelector("#webusb_disconnect_button");
+el.connection_info = document.querySelector("#connection_info");
 el.send_button = document.querySelector("#send");
 el.send_text =  document.querySelector("#send-text");
 el.dut_power = document.querySelector("#dut-power");
@@ -65,6 +74,63 @@ function log(msg, displayClass) {
   else {
     el.status.appendChild(div);
   }
+}
+
+function show(element) {
+  element.classList.remove('hidden');
+}
+
+function hide(element) {
+  element.classList.add('hidden');
+}
+
+function enable(element) {
+  element.disabled = false;
+}
+
+function disable(element) {
+  element.disabled = true;
+}
+
+function update_ui() {
+  if (!is_connected) {
+    hide(el.connection_info);
+    hide(el.disconnect_button);
+    show(el.connect_button);
+    disable(el.menu_buttons[MENU_PROGRAMMING]);
+    disable(el.menu_buttons[MENU_TESTING]);
+  }
+  else {
+    show(el.connection_info);
+    show(el.disconnect_button);
+    hide(el.connect_button);
+    enable(el.menu_buttons[MENU_PROGRAMMING]);
+    enable(el.menu_buttons[MENU_TESTING]);
+  }
+
+  if (firmware_image) {
+    enable(el.program);
+  }
+  else {
+    disable(el.program);
+  }
+
+  if (!has_webusb) {
+    hide(document.querySelector('.body'));
+  }
+}
+
+function update_programmer_connection(device_serial) {
+  if (typeof device_serial === 'undefined') {
+    is_connected = false;
+    select_page('tab_connection');
+  }
+  else {
+    is_connected = true;
+    el.connection_info.textContent = 'Connected to Light Controller Programmer with serial number ' + device_serial;
+    select_page('tab_programming');
+  }
+  update_ui();
 }
 
 function log_stdin_stop() {
@@ -110,6 +176,7 @@ function load_file_from_disk() {
       firmware_image = data;
     }
     console.log('Firmware loaded; ' + firmware_image.length + ' Bytes');
+    update_ui();
   };
 
   const fileobject = this.files[0];
@@ -125,6 +192,7 @@ async function program() {
   }
 
   try {
+    programming_active = true;
     progressCallback(0);
     await isp_initialization_sequence();
     await isp_program(firmware_image);
@@ -145,6 +213,7 @@ async function program() {
   finally {
     await send_set_command(CMD_DUT_POWER_OFF);
     await send_set_command(CMD_OUT_ISP_LOW);
+    programming_active = false;
   }
 }
 
@@ -184,50 +253,59 @@ function select_page(selected_page) {
   }
 };
 
-// select_page('config_hardware');
-
 function init() {
   if (window.location.protocol != 'https:') {
     if (window.location.protocol != 'http:' || window.location.hostname != 'localhost') {
-      document.querySelector('#protocol-error').classList.remove('hidden');
+      show(document.querySelector('#error_https'));
+      show(document.querySelector('#error'));
     }
   }
 
+  has_webusb = true;
+  if (!navigator || !navigator.usb) {
+      show(document.querySelector('#error_webusb'));
+      show(document.querySelector('#error'));
+    has_webusb = false;
+  }
+
+
   el.connect_button.addEventListener('click', webusb_request_device);
-  el.send_button.addEventListener('click', send_textfield_to_programmer);
-  el.send_questionmark_button.addEventListener('click', () => { send_isp('?') });
-  el.send_synchronized_button.addEventListener('click', () => { send_isp('Synchronized\r\n') });
-  el.send_crystal_button.addEventListener('click', () => { send_isp('12000\r\n') });
-  el.send_a0_button.addEventListener('click', () => { send_isp('A 0\r\n') });
-  el.send_unlock_button.addEventListener('click', () => { send_isp('U 23130\r\n') });
-  el.send_prepare_button.addEventListener('click', () => { send_isp('P 0 15\r\n') });
-  el.send_erase_button.addEventListener('click', () => { send_isp('E 0 15\r\n') });
+  el.disconnect_button.addEventListener('click', webusb_disconnect);
 
-  el.dut_power.CMD_ON = CMD_DUT_POWER_ON;
-  el.dut_power.CMD_OFF = CMD_DUT_POWER_OFF;
-  el.dut_power.addEventListener('change', checkbox_handler);
+  // el.send_button.addEventListener('click', send_textfield_to_programmer);
+  // el.send_questionmark_button.addEventListener('click', () => { send_isp('?') });
+  // el.send_synchronized_button.addEventListener('click', () => { send_isp('Synchronized\r\n') });
+  // el.send_crystal_button.addEventListener('click', () => { send_isp('12000\r\n') });
+  // el.send_a0_button.addEventListener('click', () => { send_isp('A 0\r\n') });
+  // el.send_unlock_button.addEventListener('click', () => { send_isp('U 23130\r\n') });
+  // el.send_prepare_button.addEventListener('click', () => { send_isp('P 0 15\r\n') });
+  // el.send_erase_button.addEventListener('click', () => { send_isp('E 0 15\r\n') });
+  // el.initialize.addEventListener('click', () => { isp_initialization_sequence(); }, false);
 
-  el.led_ok.CMD_ON = CMD_LED_OK_ON;
-  el.led_ok.CMD_OFF = CMD_LED_OK_OFF;
-  el.led_ok.addEventListener('change', checkbox_handler);
+  // el.dut_power.CMD_ON = CMD_DUT_POWER_ON;
+  // el.dut_power.CMD_OFF = CMD_DUT_POWER_OFF;
+  // el.dut_power.addEventListener('change', checkbox_handler);
 
-  el.led_busy.CMD_ON = CMD_LED_BUSY_ON;
-  el.led_busy.CMD_OFF = CMD_LED_BUSY_OFF;
-  el.led_busy.addEventListener('change', checkbox_handler);
+  // el.led_ok.CMD_ON = CMD_LED_OK_ON;
+  // el.led_ok.CMD_OFF = CMD_LED_OK_OFF;
+  // el.led_ok.addEventListener('change', checkbox_handler);
 
-  el.led_error.CMD_ON = CMD_LED_ERROR_ON;
-  el.led_error.CMD_OFF = CMD_LED_ERROR_OFF;
-  el.led_error.addEventListener('change', checkbox_handler);
+  // el.led_busy.CMD_ON = CMD_LED_BUSY_ON;
+  // el.led_busy.CMD_OFF = CMD_LED_BUSY_OFF;
+  // el.led_busy.addEventListener('change', checkbox_handler);
 
-  el.isp.CMD_ON = CMD_OUT_ISP_LOW;
-  el.isp.CMD_OFF = CMD_OUT_ISP_TRISTATE;
-  el.isp.addEventListener('change', checkbox_handler);
+  // el.led_error.CMD_ON = CMD_LED_ERROR_ON;
+  // el.led_error.CMD_OFF = CMD_LED_ERROR_OFF;
+  // el.led_error.addEventListener('change', checkbox_handler);
+
+  // el.isp.CMD_ON = CMD_OUT_ISP_LOW;
+  // el.isp.CMD_OFF = CMD_OUT_ISP_TRISTATE;
+  // el.isp.addEventListener('change', checkbox_handler);
 
   el.load.addEventListener('click', () => {el.load_input.click(); }, false);
   el.load_input.addEventListener('change', load_file_from_disk, false);
 
   el.program.addEventListener('click', () => { program() }, false);
-  el.initialize.addEventListener('click', () => { isp_initialization_sequence(); }, false);
 
   for (let index = 0; index < el.menu_buttons.length; index += 1) {
     const button = el.menu_buttons[index];
@@ -238,7 +316,7 @@ function init() {
   }
 
   select_page("tab_connection");
-
+  update_ui();
   webusb_init();
 }
 
