@@ -1,6 +1,6 @@
 // This file was modified from source code found at
 //
-//      https://github.com/bminer/intel-hex.js
+//      https://github.com/bminer/intel-hex .js
 //
 // which had the following license attached:
 //
