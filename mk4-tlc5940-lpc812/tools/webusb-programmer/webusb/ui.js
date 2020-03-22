@@ -25,6 +25,7 @@ let log_stdin_running = false;
 let programming_active = false;
 let is_connected = false;
 let has_webusb = false;
+let last_programming_failed = false;
 
 const el = {};
 
@@ -111,10 +112,22 @@ function update_ui() {
   if (programming_active) {
     disable(el.load);
     disable(el.menu_buttons[MENU_CONNECTION]);
+    send_set_command(CMD_LED_OK_OFF);
+    send_set_command(CMD_LED_BUSY_ON);
+    send_set_command(CMD_LED_ERROR_OFF);
   }
   else {
     enable(el.load);
     enable(el.menu_buttons[MENU_CONNECTION]);
+    send_set_command(CMD_LED_BUSY_OFF);
+    if (last_programming_failed) {
+      send_set_command(CMD_LED_OK_OFF);
+      send_set_command(CMD_LED_ERROR_ON);
+    }
+    else {
+      send_set_command(CMD_LED_OK_ON);
+      send_set_command(CMD_LED_ERROR_OFF);
+    }
   }
 
   if (firmware_image && !programming_active) {
@@ -139,6 +152,7 @@ function update_programmer_connection(device_serial) {
     el.connection_info.textContent = 'Connected to Light Controller Programmer with serial number ' + device_serial;
     select_page('tab_programming');
   }
+  last_programming_failed = false;
   update_ui();
 }
 
@@ -202,6 +216,7 @@ async function program() {
 
   try {
     programming_active = true;
+    last_programming_failed = false;
     update_ui();
     progressCallback(0);
     await isp_initialization_sequence();
@@ -223,6 +238,7 @@ async function program() {
   }
   catch(e) {
     progressCallback(0);
+    last_programming_failed = true;
     log("ERROR: programming failed", "fail");
   }
   finally {

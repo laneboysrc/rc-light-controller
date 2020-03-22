@@ -67,13 +67,13 @@ void HAL_hardware_init(void)
     HAL_gpio_pmuxen(HAL_GPIO_USB_DM);
     HAL_gpio_pmuxen(HAL_GPIO_USB_DP);
 
-    // Turn the status LED on to signify we are initializing
+    // Turn the LEDs off initially
     HAL_gpio_out(HAL_GPIO_LED_OK);
     HAL_gpio_out(HAL_GPIO_LED_BUSY);
     HAL_gpio_out(HAL_GPIO_LED_ERROR);
-    HAL_gpio_set(HAL_GPIO_LED_OK);
-    HAL_gpio_set(HAL_GPIO_LED_BUSY);
-    HAL_gpio_set(HAL_GPIO_LED_ERROR);
+    HAL_gpio_clear(HAL_GPIO_LED_OK);
+    HAL_gpio_clear(HAL_GPIO_LED_BUSY);
+    HAL_gpio_clear(HAL_GPIO_LED_ERROR);
 
     // Configure GPIOs for the UART
     HAL_gpio_out(HAL_GPIO_TX);
