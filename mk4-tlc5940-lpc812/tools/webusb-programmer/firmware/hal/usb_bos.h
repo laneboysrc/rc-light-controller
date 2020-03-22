@@ -7,8 +7,7 @@
 #define VENDOR_CODE_MS 42           // Retrieve the Microsoft OS 2.0 descriptor
 #define VENDOR_CODE_WEBUSB 69       // Retrieve WebUSB landing page URL
 
-// #define URL1 "laneboysrc.github.io/rc-light-controller"
-#define URL1 "laneboysrc.github.io/rc-light-controller/preprocessor-simulator.html"
+#define URL1 "laneboysrc.github.io/rc-light-controller/programmer.html"
 
 
 // Binary Object Store descriptor
@@ -86,7 +85,7 @@ static const bos_descriptor_t bos_descriptor = {
         .PlatformCapabilityUUID = {0x38, 0xb6, 0x08, 0x34, 0xa9, 0x09, 0xa0, 0x47, 0x8b, 0xfd, 0xa0, 0x76, 0x88, 0x15, 0xb6, 0x65},
         .bcdVersion = 0x0100,
         .bVendorCode = VENDOR_CODE_WEBUSB,
-        .iLandingPage = 0
+        .iLandingPage = 1
     },
 
     .MS_OS_20_Descriptor = {

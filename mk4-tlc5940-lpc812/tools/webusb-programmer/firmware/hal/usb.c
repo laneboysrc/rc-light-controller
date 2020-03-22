@@ -339,12 +339,12 @@ void usb_cb_control_setup(void) {
 
     else if (recipient == USB_RECIPIENT_DEVICE  &&  requestType == USB_REQTYPE_VENDOR) {
         switch(usb_setup.bRequest) {
-            // case VENDOR_CODE_WEBUSB:
-            //     if (usb_setup.wIndex == WEBUSB_REQUEST_GET_URL) {
-            //         send_descriptor(&landing_page_descriptor, sizeof(landing_page_descriptor_t));
-            //         return;
-            //     }
-            //     break;
+            case VENDOR_CODE_WEBUSB:
+                if (usb_setup.wIndex == WEBUSB_REQUEST_GET_URL) {
+                    send_descriptor(&landing_page_descriptor, sizeof(landing_page_descriptor_t));
+                    return;
+                }
+                break;
 
             case VENDOR_CODE_MS:
                 if (usb_setup.wIndex == WINUSB_REQUEST_DESCRIPTOR) {
