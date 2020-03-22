@@ -2,6 +2,10 @@
 <html>
   <head>
     <title>WebUSB test</title>
+
+    <link inline rel="stylesheet" href="programmer.css">
+    <link inline rel="stylesheet" href="font-awesome.css">
+
     <style type="text/css">
       body {
         font-family: sans-serif;
@@ -30,10 +34,120 @@
     </style>
   </head>
   <body>
-    <div id="protocol-error" class="hidden">
-      WebUSB does not work on <em>file:</em> or <em>http:</em> protocol (except when running on localhost)<br>
-      For local testing use <em>python3 -m http.server</em> and browse to <em>http://localhost:8000</em>
+<!--     <div id="heading" class="widebox menu_bar">
+      <button id="load" class="menu" title="Load a configuration or firmware image file"><i class="fa fa-arrow-circle-o-up"></i><br>Load</button>
+      <button id="save_config" class="menu" title="Save configuration file"><i class="fa fa-arrow-circle-o-down"></i><br>Save config</button>
+      <button id="save_firmware" class="menu" title="Save the firmware image"><i class="fa fa-arrow-circle-o-down"></i><br>Save firmware</button>
+      <button id="flash" class="menu hidden" title="Flash the firmware into the light controller"><i class="fa fa-download"></i><br>Flash</button>
+      <button id="read" class="menu hidden" title="Read the configuration from the light controller"><i class="fa fa-upload"></i><br>Read</button>
+    </div> -->
+
+
+    <div id="protocol-error" class="error hidden">
+      <h1 style="color: white">ATTENTION</h1>
+      <div>
+        <strong>
+          Run this program from <a href="https://laneboysrc.github.io/rc-light-controller/programmer.html">https://laneboysrc.github.io/rc-light-controller/programmer.html</a>
+        </strong>
+      </div>
+      <div>
+        <strong>
+          WebUSB does not work on <em>file:</em> or <em>http:</em> protocol (except when running on localhost)
+          <br>
+          For local testing use <em>python3 -m http.server</em> and browse to <em>http://localhost:8000</em>
+        </strong>
+      </div>
     </div>
+
+    <div class="body">
+
+      <nav class="menu box">
+        <ul>
+          <li><button data="tab_connection"><i class="fa fa-connectdevelop"></i><span class="menu-label">Connection</span></button></li>
+          <li><button data="tab_programming"><i class="fa fa-microchip"></i><span class="menu-label">Programming</span></button></li>
+          <li><button data="tab_testing"><i class="fa fa-sliders"></i><span class="menu-label">Testing</span></button></li>
+        </ul>
+      </nav>
+
+      <div class="page" id="main">
+
+        <div id="tab_connection" class="hidden">
+          <div id="webusb-connect" class="box configuration widebox">
+            <button id="webusb-connect-button" disabled>Connect</button>
+          </div>
+        </div>
+
+        <div id="tab_programming" class="hidden">
+          <div class="widebox configuration">
+            <button id="load">Select file ...</button>
+            <span id="filename">(no file selected)</span>
+          </div>
+          <div class="widebox configuration">
+            <button id="program">Program</button>
+            <div>
+              <progress id="progress" max="100" value="0"></progress>
+            </div>
+          </div>
+          <div class="widebox response" id="diagnostics">
+            <span style="float: right; font-size: 0.75em">
+                (newest on top)
+            </span>
+            <h2>Diagnostic messages</h2>
+            <div id="status"></div>
+          </div>
+        </div>
+
+        <div id="tab_testing" class="hidden">
+          <div class="preprocessor-page" id="preprocessor-simulator">
+              <div class="column">
+                  <div class="box configuration controls">
+                      <h2>Steering</h2>
+                      <div>
+                          <input id="steering" type="range" min ="-100" max="100" step ="1" value ="0">
+                          <div class="centered">
+                              <button id="steering-neutral">neutral</button>
+                          </div>
+                      </div>
+                      <h2>Throttle</h2>
+                      <div>
+                          <input id="throttle" type="range" min ="-100" max="100" step ="1" value ="0">
+                          <div class="centered">
+                              <button id="throttle-neutral">neutral</button>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+
+              <div class="column">
+                  <div class="box configuration features">
+                      <div>
+                          <input id="startup-mode" type="checkbox"> <label for="startup-mode">Startup</label>
+                      </div>
+                  </div>
+                  <div class="box configuration features">
+                      <span style="float: right;">
+                          <input id="momentary" type="checkbox"> <label for="momentary">Momemtary</label>
+                      </span>
+                      <h2>CH3 / AUX</h2>
+                      <div>
+                          <button id="ch3">CH3</button>
+                      </div>
+                  </div>
+              </div>
+          </div>
+
+          <div class="widebox response" id="diagnostics">
+              <span style="float: right; font-size: 0.75em">
+                  (newest on top)
+              </span>
+              <h2>Diagnostics sent by the light controller</h2>
+              <div class="message" id="diagnostics-messages"></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
     <button id="connect">Connect</button>
     <br>
     <input type="checkbox" id="dut-power"><label for="dut-power">DUT power</label>
@@ -58,16 +172,9 @@
       <button id="initialize">Initialization sequence</button>
     </div>
     <div>
-      <button id="load">Load firmware</button>
-      <button id="program">Program</button>
-    </div>
-    <div>
-      <progress id="progress" max="100" value="0"></progress>
-    </div>
-    <div>
       <input type="text" name="tx" id="send-text"><button id="send">Send</button>
     </div>
-    <div id="status"></div>
+
 
     <input type="file" id="load-input" style="display:none">
 

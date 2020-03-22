@@ -19,41 +19,51 @@ const CMD_LED_ERROR_ON = 45;
 let firmware_image;
 let log_stdin_running = false;
 
-const el_connect_button = document.querySelector("#connect");
-const el_send_button = document.querySelector("#send");
-const el_send_text =  document.querySelector("#send-text");
-const el_dut_power = document.querySelector("#dut-power");
-const el_led_ok = document.querySelector("#led-ok");
-const el_led_busy = document.querySelector("#led-busy");
-const el_led_error = document.querySelector("#led-error");
-const el_status = document.querySelector('#status');
-const el_isp = document.querySelector('#isp');
-const el_send_questionmark_button = document.querySelector('#send-questionmark');
-const el_send_synchronized_button = document.querySelector('#send-synchronized');
-const el_send_crystal_button = document.querySelector('#send-crystal');
-const el_send_a0_button = document.querySelector('#send-a0');
-const el_send_unlock_button = document.querySelector('#send-unlock');
-const el_send_prepare_button = document.querySelector('#send-prepare');
-const el_send_erase_button = document.querySelector('#send-erase');
-const el_load = document.querySelector('#load');
-const el_load_input = document.querySelector('#load-input');
-const el_program = document.querySelector('#program');
-const el_progress = document.querySelector('#progress');
-const el_initialize = document.querySelector('#initialize');
+const el = {};
 
-function log(msg) {
+el.menu_buttons = document.querySelectorAll('nav button');
+
+el.connect_button = document.querySelector("#connect");
+el.send_button = document.querySelector("#send");
+el.send_text =  document.querySelector("#send-text");
+el.dut_power = document.querySelector("#dut-power");
+el.led_ok = document.querySelector("#led-ok");
+el.led_busy = document.querySelector("#led-busy");
+el.led_error = document.querySelector("#led-error");
+el.status = document.querySelector('#status');
+el.isp = document.querySelector('#isp');
+el.send_questionmark_button = document.querySelector('#send-questionmark');
+el.send_synchronized_button = document.querySelector('#send-synchronized');
+el.send_crystal_button = document.querySelector('#send-crystal');
+el.send_a0_button = document.querySelector('#send-a0');
+el.send_unlock_button = document.querySelector('#send-unlock');
+el.send_prepare_button = document.querySelector('#send-prepare');
+el.send_erase_button = document.querySelector('#send-erase');
+el.load = document.querySelector('#load');
+el.load_input = document.querySelector('#load-input');
+el.program = document.querySelector('#program');
+el.progress = document.querySelector('#progress');
+el.initialize = document.querySelector('#initialize');
+el.filename = document.querySelector('#filename');
+
+function log(msg, displayClass) {
   const content = new Date(Date.now()).toISOString() + ' ' + msg;
-  const el = document.createElement('div');
-  el.textContent = content;
+  const div = document.createElement('div');
+  div.textContent = content;
+  console.log("log: " + content);
 
-  if (el_status.firstChild) {
-    el_status.insertBefore(el, el_status.firstChild);
-    while (el_status.childElementCount > MAX_UART_LOG_LINES) {
-      el_status.removeChild(el_status.lastChild);
+  if (displayClass) {
+    div.classList.add(displayClass);
+  }
+
+  if (el.status.firstChild) {
+    el.status.insertBefore(div, el.status.firstChild);
+    while (el.status.childElementCount > MAX_UART_LOG_LINES) {
+      el.status.removeChild(el.status.lastChild);
     }
   }
   else {
-    el_status.appendChild(el);
+    el.status.appendChild(div);
   }
 }
 
@@ -80,10 +90,8 @@ async function log_stdin_start() {
 }
 
 function load_file_from_disk() {
-  firmware_image = undefined;
-
   if (this.files.length < 1) {
-      return;
+    return;
   }
 
   const reader = new FileReader();
@@ -91,7 +99,6 @@ function load_file_from_disk() {
     const contents = e.target.result;
 
     let contentsString = String.fromCharCode.apply(null, new Uint8Array(contents));
-
     if (is_intel_hex(contentsString)) {
       firmware_image = hex_to_bin(contentsString);
     }
@@ -104,12 +111,16 @@ function load_file_from_disk() {
     }
     console.log('Firmware loaded; ' + firmware_image.length + ' Bytes');
   };
-  reader.readAsArrayBuffer(this.files[0]);
+
+  const fileobject = this.files[0];
+  firmware_image = undefined;
+  el.filename.textContent = fileobject.name;
+  reader.readAsArrayBuffer(fileobject);
 }
 
 async function program() {
   if (!firmware_image) {
-    log('Please load a firmware image');
+    log('Please load a firmware image', 'fail');
     return;
   }
 
@@ -125,10 +136,11 @@ async function program() {
     // not use brown-out detection and maybe sleeps the CPU?)
     await isp_reset_mcu();
     await delay(200);
+    log("SUCCESS: programming complete", "success");
   }
   catch(e) {
-    log(e);
-    console.error(e);
+    progressCallback(0);
+    log("ERROR: programming failed", "fail");
   }
   finally {
     await send_set_command(CMD_DUT_POWER_OFF);
@@ -137,11 +149,11 @@ async function program() {
 }
 
 function send_textfield_to_programmer() {
-  send_isp(el_send_text.value + '\r\n');
+  send_isp(el.send_text.value + '\r\n');
 }
 
 function progressCallback(progress) {
-  el_progress.value = progress * 100;
+  el.progress.value = progress * 100;
   // log("Progress: " + Math.round(progress * 100));
 }
 
@@ -154,6 +166,26 @@ function checkbox_handler() {
   }
 }
 
+function select_page(selected_page) {
+  for (let index = 0; index < el.menu_buttons.length; index += 1) {
+    let button = el.menu_buttons[index];
+    let page_name = button.getAttribute('data');
+    let page = document.querySelector('#' + page_name);
+    if (page) {
+      if (page_name == selected_page) {
+          page.classList.remove('hidden');
+          button.classList.add('selected');
+      }
+      else {
+          page.classList.add('hidden');
+          button.classList.remove('selected');
+      }
+    }
+  }
+};
+
+// select_page('config_hardware');
+
 function init() {
   if (window.location.protocol != 'https:') {
     if (window.location.protocol != 'http:' || window.location.hostname != 'localhost') {
@@ -161,41 +193,51 @@ function init() {
     }
   }
 
-  el_connect_button.addEventListener('click', webusb_request_device);
-  el_send_button.addEventListener('click', send_textfield_to_programmer);
-  el_send_questionmark_button.addEventListener('click', () => { send_isp('?') });
-  el_send_synchronized_button.addEventListener('click', () => { send_isp('Synchronized\r\n') });
-  el_send_crystal_button.addEventListener('click', () => { send_isp('12000\r\n') });
-  el_send_a0_button.addEventListener('click', () => { send_isp('A 0\r\n') });
-  el_send_unlock_button.addEventListener('click', () => { send_isp('U 23130\r\n') });
-  el_send_prepare_button.addEventListener('click', () => { send_isp('P 0 15\r\n') });
-  el_send_erase_button.addEventListener('click', () => { send_isp('E 0 15\r\n') });
+  el.connect_button.addEventListener('click', webusb_request_device);
+  el.send_button.addEventListener('click', send_textfield_to_programmer);
+  el.send_questionmark_button.addEventListener('click', () => { send_isp('?') });
+  el.send_synchronized_button.addEventListener('click', () => { send_isp('Synchronized\r\n') });
+  el.send_crystal_button.addEventListener('click', () => { send_isp('12000\r\n') });
+  el.send_a0_button.addEventListener('click', () => { send_isp('A 0\r\n') });
+  el.send_unlock_button.addEventListener('click', () => { send_isp('U 23130\r\n') });
+  el.send_prepare_button.addEventListener('click', () => { send_isp('P 0 15\r\n') });
+  el.send_erase_button.addEventListener('click', () => { send_isp('E 0 15\r\n') });
 
-  el_dut_power.CMD_ON = CMD_DUT_POWER_ON;
-  el_dut_power.CMD_OFF = CMD_DUT_POWER_OFF;
-  el_dut_power.addEventListener('change', checkbox_handler);
+  el.dut_power.CMD_ON = CMD_DUT_POWER_ON;
+  el.dut_power.CMD_OFF = CMD_DUT_POWER_OFF;
+  el.dut_power.addEventListener('change', checkbox_handler);
 
-  el_led_ok.CMD_ON = CMD_LED_OK_ON;
-  el_led_ok.CMD_OFF = CMD_LED_OK_OFF;
-  el_led_ok.addEventListener('change', checkbox_handler);
+  el.led_ok.CMD_ON = CMD_LED_OK_ON;
+  el.led_ok.CMD_OFF = CMD_LED_OK_OFF;
+  el.led_ok.addEventListener('change', checkbox_handler);
 
-  el_led_busy.CMD_ON = CMD_LED_BUSY_ON;
-  el_led_busy.CMD_OFF = CMD_LED_BUSY_OFF;
-  el_led_busy.addEventListener('change', checkbox_handler);
+  el.led_busy.CMD_ON = CMD_LED_BUSY_ON;
+  el.led_busy.CMD_OFF = CMD_LED_BUSY_OFF;
+  el.led_busy.addEventListener('change', checkbox_handler);
 
-  el_led_error.CMD_ON = CMD_LED_ERROR_ON;
-  el_led_error.CMD_OFF = CMD_LED_ERROR_OFF;
-  el_led_error.addEventListener('change', checkbox_handler);
+  el.led_error.CMD_ON = CMD_LED_ERROR_ON;
+  el.led_error.CMD_OFF = CMD_LED_ERROR_OFF;
+  el.led_error.addEventListener('change', checkbox_handler);
 
-  el_isp.CMD_ON = CMD_OUT_ISP_LOW;
-  el_isp.CMD_OFF = CMD_OUT_ISP_TRISTATE;
-  el_isp.addEventListener('change', checkbox_handler);
+  el.isp.CMD_ON = CMD_OUT_ISP_LOW;
+  el.isp.CMD_OFF = CMD_OUT_ISP_TRISTATE;
+  el.isp.addEventListener('change', checkbox_handler);
 
-  el_load.addEventListener('click', () => {el_load_input.click(); }, false);
-  el_load_input.addEventListener('change', load_file_from_disk, false);
+  el.load.addEventListener('click', () => {el.load_input.click(); }, false);
+  el.load_input.addEventListener('change', load_file_from_disk, false);
 
-  el_program.addEventListener('click', () => { program() }, false);
-  el_initialize.addEventListener('click', () => { isp_initialization_sequence(); }, false);
+  el.program.addEventListener('click', () => { program() }, false);
+  el.initialize.addEventListener('click', () => { isp_initialization_sequence(); }, false);
+
+  for (let index = 0; index < el.menu_buttons.length; index += 1) {
+    const button = el.menu_buttons[index];
+    button.addEventListener('click', (event) => {
+      const selected_page = event.currentTarget.getAttribute('data');
+      select_page(selected_page);
+    });
+  }
+
+  select_page("tab_connection");
 
   webusb_init();
 }

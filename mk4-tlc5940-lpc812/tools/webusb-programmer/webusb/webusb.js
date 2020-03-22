@@ -70,23 +70,23 @@ async function webusb_connect(device) {
   log(msg);
 }
 
-async function controlTransferTest() {
-  console.log("controlTransferOut() ...");
-  await send_set_command(0);
+// async function controlTransferTest() {
+//   console.log("controlTransferOut() ...");
+//   await send_set_command(0);
 
-  console.log("controlTransferIn() ...");
-  const setup = {
-    "requestType": "vendor",
-    "recipient": "device",
-    "request": VENDOR_CODE_COMMAND,
-    "value": 1,
-    "index": 0
-  };
+//   console.log("controlTransferIn() ...");
+//   const setup = {
+//     "requestType": "vendor",
+//     "recipient": "device",
+//     "request": VENDOR_CODE_COMMAND,
+//     "value": 1,
+//     "index": 0
+//   };
 
-  let controlIn = await webusb_device.controlTransferIn(setup, 1);
-  console.log(controlIn);
-  console.log(controlIn.data.getUint8(0));
-}
+//   let controlIn = await webusb_device.controlTransferIn(setup, 1);
+//   console.log(controlIn);
+//   console.log(controlIn.data.getUint8(0));
+// }
 
 async function webusb_disconnect() {
   if (webusb_device) {

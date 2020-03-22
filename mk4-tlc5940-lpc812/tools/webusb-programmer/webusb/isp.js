@@ -107,12 +107,12 @@ async function isp_program(bin) {
   await send_isp_command('U 23130');
 
   // Erase the whole chip
-  log('Erasing the flash memory');
+  log('Erasing the flash memory ...');
   progressCallback(0.15);
   await send_isp_command('P 0 15');
   await send_isp_command('E 0 15');
 
-  log('Program the firmware image');
+  log('Program the firmware image ...');
   for (let index = 0; index < used_sectors; index += 1) {
     progressCallback(0.2 + (0.8 * index / used_sectors));
 
@@ -130,8 +130,7 @@ async function isp_program(bin) {
   }
 
   progressCallback(1.0);
-  log('Programming finished');
-  console.log('Programming finished');
+  log('Programming done');
 }
 
 async function isp_reset_mcu() {
