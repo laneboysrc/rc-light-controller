@@ -34,7 +34,7 @@ async function isp_initialization_sequence() {
   log("Power-cycling the light controller ...");
   await send_set_command(CMD_DUT_POWER_OFF);
   await send_set_command(CMD_OUT_ISP_LOW);
-  await delay(500);
+  await delay(200);
   await send_set_command(CMD_DUT_POWER_ON);
   await delay(100);
   progressCallback(0.02);

@@ -207,13 +207,18 @@ async function program() {
     await isp_initialization_sequence();
     await isp_program(firmware_image);
 
+    // UPDATE: the code below is not needed anymore.
+    // Instead we added a MOSFET that pulls the supply voltage of the light
+    // controller low when it is powered off, bleeding off any voltage
+    // stored in the light controller.
+
     // We let the downloaded isp_program run for 200 ms. This causes the voltage to
     // drop off sharply after we switch it off. If we don't do this then
     // the capacitor on the light controller stays at a low voltage, causing
     // the MCU to not properly reset (most likely because the ISP isp_program does
     // not use brown-out detection and maybe sleeps the CPU?)
-    await isp_reset_mcu();
-    await delay(200);
+    // await isp_reset_mcu();
+    // await delay(200);
     log("SUCCESS: programming complete", "success");
   }
   catch(e) {
@@ -221,10 +226,10 @@ async function program() {
     log("ERROR: programming failed", "fail");
   }
   finally {
-    await send_set_command(CMD_DUT_POWER_OFF);
-    await send_set_command(CMD_OUT_ISP_LOW);
     programming_active = false;
     update_ui();
+    await send_set_command(CMD_DUT_POWER_OFF);
+    await send_set_command(CMD_OUT_ISP_LOW);
   }
 }
 
@@ -297,6 +302,10 @@ function init() {
   // el.dut_power.CMD_OFF = CMD_DUT_POWER_OFF;
   // el.dut_power.addEventListener('change', checkbox_handler);
 
+  // el.isp.CMD_ON = CMD_OUT_ISP_LOW;
+  // el.isp.CMD_OFF = CMD_OUT_ISP_TRISTATE;
+  // el.isp.addEventListener('change', checkbox_handler);
+
   // el.led_ok.CMD_ON = CMD_LED_OK_ON;
   // el.led_ok.CMD_OFF = CMD_LED_OK_OFF;
   // el.led_ok.addEventListener('change', checkbox_handler);
@@ -309,9 +318,7 @@ function init() {
   // el.led_error.CMD_OFF = CMD_LED_ERROR_OFF;
   // el.led_error.addEventListener('change', checkbox_handler);
 
-  // el.isp.CMD_ON = CMD_OUT_ISP_LOW;
-  // el.isp.CMD_OFF = CMD_OUT_ISP_TRISTATE;
-  // el.isp.addEventListener('change', checkbox_handler);
+
 
   el.load.addEventListener('click', () => {el.load_input.click(); }, false);
   el.load_input.addEventListener('change', load_file_from_disk, false);

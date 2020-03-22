@@ -128,6 +128,7 @@ static void command_handler(void)
             return;
 
         case CMD_DUT_POWER_ON:
+            HAL_gpio_clear(HAL_GPIO_POWER_SHORT);
             HAL_gpio_clear(HAL_GPIO_POWER_ENABLE);
             // Switch the TX and RX back to UART
             HAL_gpio_pmuxen(HAL_GPIO_TX);
@@ -143,6 +144,8 @@ static void command_handler(void)
             HAL_gpio_pmuxen(HAL_GPIO_TXIO);
             HAL_gpio_clear(HAL_GPIO_RXIO);
             HAL_gpio_pmuxen(HAL_GPIO_RXIO);
+
+            HAL_gpio_set(HAL_GPIO_POWER_SHORT);
             break;
 
         case CMD_LED_OK_ON:

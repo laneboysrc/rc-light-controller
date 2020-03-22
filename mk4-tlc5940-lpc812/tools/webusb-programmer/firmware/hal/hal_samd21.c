@@ -59,6 +59,8 @@ void HAL_hardware_init(void)
     // Perform GPIO initialization as early as possible
     HAL_gpio_set(HAL_GPIO_POWER_ENABLE);
     HAL_gpio_out(HAL_GPIO_POWER_ENABLE);
+    HAL_gpio_set(HAL_GPIO_POWER_SHORT);
+    HAL_gpio_out(HAL_GPIO_POWER_SHORT);
 
     HAL_gpio_in(HAL_GPIO_OUT_ISP);
 

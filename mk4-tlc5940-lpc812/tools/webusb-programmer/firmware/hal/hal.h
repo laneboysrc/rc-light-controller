@@ -26,6 +26,7 @@ typedef struct {
 // PA05     (6 SERCOM0/PAD1)                LED Busy
 // PA06     (7)                             LED Error
 // PA07     (8)                             Light Controller supply enable
+// PA08     (?)                             Light Controller supply short to GND
 // PA22     (21 SERCOM3/PAD0, TC4/W[0])     TX
 // PA23     (22 EXTINT[7], SERCOM3/PAD1)    RX
 // PA24     (23 USB-DM)                     USB-DM
@@ -48,6 +49,7 @@ static const HAL_GPIO_T HAL_GPIO_LED_BUSY = { .group = 0, .pin = 4 };
 static const HAL_GPIO_T HAL_GPIO_LED_ERROR = { .group = 0, .pin = 6 };
 
 static const HAL_GPIO_T HAL_GPIO_POWER_ENABLE = { .group = 0, .pin = 7 };
+static const HAL_GPIO_T HAL_GPIO_POWER_SHORT = { .group = 0, .pin = 8 };
 
 static const HAL_GPIO_T HAL_GPIO_TX = { .group = 0, .pin = 22, .mux = PORT_PMUX_PMUXE_C_Val, .txpo = 0 };
 static const HAL_GPIO_T HAL_GPIO_TXIO = { .group = 0, .pin = 22, .mux = PORT_PMUX_PMUXE_A_Val };
