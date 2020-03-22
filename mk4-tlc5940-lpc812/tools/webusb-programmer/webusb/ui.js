@@ -108,7 +108,16 @@ function update_ui() {
     enable(el.menu_buttons[MENU_TESTING]);
   }
 
-  if (firmware_image) {
+  if (programming_active) {
+    disable(el.load);
+    disable(el.menu_buttons[MENU_CONNECTION]);
+  }
+  else {
+    enable(el.load);
+    enable(el.menu_buttons[MENU_CONNECTION]);
+  }
+
+  if (firmware_image && !programming_active) {
     enable(el.program);
   }
   else {
@@ -193,6 +202,7 @@ async function program() {
 
   try {
     programming_active = true;
+    update_ui();
     progressCallback(0);
     await isp_initialization_sequence();
     await isp_program(firmware_image);
@@ -214,6 +224,7 @@ async function program() {
     await send_set_command(CMD_DUT_POWER_OFF);
     await send_set_command(CMD_OUT_ISP_LOW);
     programming_active = false;
+    update_ui();
   }
 }
 
