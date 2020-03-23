@@ -245,7 +245,7 @@ uint16_t usb_cb_get_descriptor(uint8_t type, uint8_t index, const uint8_t** ptr)
                     break;
 
                 case USB_STRING_PRODUCT:
-                    address = usb_string_to_descriptor((char *)"Light Controller Programmer");
+                    address = usb_string_to_descriptor((char *)"Programmer");
                     break;
 
                 case USB_STRING_SERIAL_NUMBER:
@@ -253,12 +253,12 @@ uint16_t usb_cb_get_descriptor(uint8_t type, uint8_t index, const uint8_t** ptr)
                     break;
 
                 case USB_STRING_DFU:
-                    address = usb_string_to_descriptor((char *)"Light Controller Programmer (DFU)");
+                    address = usb_string_to_descriptor((char *)"Programmer DFU");
                     break;
 
-                // case USB_STRING_TEST:
-                //     address = usb_string_to_descriptor((char *)"RC Light Controller (Test)");
-                //     break;
+                case USB_STRING_TEST:
+                    address = usb_string_to_descriptor((char *)"Programmer UART");
+                    break;
 
                 default:
                     *ptr = NULL;
