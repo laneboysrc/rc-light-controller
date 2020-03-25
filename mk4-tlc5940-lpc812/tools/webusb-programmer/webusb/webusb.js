@@ -4,9 +4,9 @@
 const VENDOR_ID = 0x6666;
 const VENDOR_CODE_COMMAND = 72;
 
-const TEST_INTERFACE = 1;
-const TEST_EP_IN = 1;
-const TEST_EP_OUT = 2;
+const TEST_INTERFACE = 0;
+const TEST_EP_OUT = 1;
+const TEST_EP_IN = 2;
 const EP_SIZE = 64;
 
 let webusb_device;
@@ -145,6 +145,10 @@ async function webusb_receive_data() {
 }
 
 async function send_set_command(cmd) {
+  if (typeof webusb_device === 'undefined') {
+    return;
+  }
+
   const setup = {
     "requestType": "vendor",
     "recipient": "device",
