@@ -54,19 +54,37 @@ typedef struct {
 
 // Microsoft OS 2.0 Descriptor Set
 typedef struct {
-    struct {
-        uint16_t wLength;
-        uint16_t wHeaderType;
-        uint32_t dwVersion;
-        uint16_t wSize;
-    } __attribute__((packed)) Descriptor_Set_Header;
+    uint16_t wLength;
+    uint16_t wDescriptorType;
+    uint32_t dwWindowsVersion;
+    uint16_t wTotalLength;
+} __attribute__((packed)) descriptor_set_header_t;
 
-    struct {
-        uint16_t wLength;
-        uint16_t wHeaderType;
-        uint8_t bId[16];
-    } __attribute__((packed)) Compatible_Id_Descriptor;
+typedef struct {
+    uint16_t wLength;
+    uint16_t wDescriptorType;
+    uint8_t bConfigurationValue;
+    uint8_t bReserved;
+    uint16_t wTotalLength;
+} __attribute__((packed)) configuration_subset_header_t;
 
+typedef struct {
+    uint16_t wLength;
+    uint16_t wDescriptorType;
+    uint8_t bFirstInterface;
+    uint8_t bReserved;
+    uint16_t wSubsetLength;
+} __attribute__((packed)) function_subset_header_t;
+
+typedef struct {
+    uint16_t wLength;
+    uint16_t wDescriptorType;
+    uint8_t bId[16];
+} __attribute__((packed)) compatible_id_descriptor_t;
+
+typedef struct {
+    descriptor_set_header_t Descriptor_Set_Header;
+    compatible_id_descriptor_t Compatible_Id_Descriptor;
 } __attribute__((packed)) ms_os_20_descriptor_t;
 
 
@@ -95,7 +113,7 @@ static const bos_descriptor_t bos_descriptor = {
 
         .bReserved = 0,
         .PlatformCapabilityUUID = {0xdf, 0x60, 0xdd, 0xd8, 0x89, 0x45, 0xc7, 0x4c, 0x9c, 0xd2, 0x65, 0x9d, 0x9e, 0x64, 0x8a, 0x9f},
-        .dwVersion = 0x06030000,    // Windows version (8.1)
+        .dwVersion = 0x06030000,    // Windows Blue
         .wLength = sizeof(ms_os_20_descriptor_t),
         .bVendorCode = VENDOR_CODE_MS,
         .bAlternateEnumerationCode = 0
@@ -112,14 +130,14 @@ static const landing_page_descriptor_t landing_page_descriptor = {
 static const ms_os_20_descriptor_t ms_os_20_descriptor = {
     .Descriptor_Set_Header = {
         .wLength = sizeof(ms_os_20_descriptor.Descriptor_Set_Header),
-        .wHeaderType = 0,           // MS OS 2.0 descriptor set header
-        .dwVersion = 0x06030000,    // Windows version (8.1)
-        .wSize = sizeof(ms_os_20_descriptor)
+        .wDescriptorType = 0,               // MS OS 2.0 descriptor set header
+        .dwWindowsVersion = 0x06030000,     // Windows Blue
+        .wTotalLength = sizeof(ms_os_20_descriptor)
     },
 
     .Compatible_Id_Descriptor = {
         .wLength = sizeof(ms_os_20_descriptor.Compatible_Id_Descriptor),
-        .wHeaderType = 3,       // MS OS 2.0 compatible ID descriptor
+        .wDescriptorType = 3,       // MS OS 2.0 compatible ID descriptor
         .bId = {'W',  'I',  'N',  'U',  'S',  'B',  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}
     }
 };
