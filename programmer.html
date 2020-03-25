@@ -1039,6 +1039,10 @@ async function webusb_receive_data() {
 }
 
 async function send_set_command(cmd) {
+  if (typeof webusb_device === 'undefined') {
+    return;
+  }
+
   const setup = {
     "requestType": "vendor",
     "recipient": "device",
