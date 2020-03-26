@@ -70,7 +70,7 @@ static const USB_DeviceDescriptor device_descriptor = {
     .bMaxPacketSize0 = USB_EP0_SIZE,
     .idVendor = 0x6666,
     .idProduct = 0xcab7,
-    .bcdDevice = 0x0109,
+    .bcdDevice = 0x0111,
 
     .iManufacturer = USB_STRING_MANUFACTURER,
     .iProduct = USB_STRING_PRODUCT,

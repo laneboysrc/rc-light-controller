@@ -84,7 +84,6 @@ typedef struct {
 
 typedef struct {
     descriptor_set_header_t Descriptor_Set_Header;
-    compatible_id_descriptor_t Compatible_Id_Descriptor;
 
     configuration_subset_header_t Configuration_Subset_Header;
     function_subset_header_t Function_Subset_Header1;
@@ -142,16 +141,16 @@ static const ms_os_20_descriptor_t ms_os_20_descriptor = {
         .wTotalLength = sizeof(ms_os_20_descriptor)
     },
 
-    .Compatible_Id_Descriptor = {
-        .wLength = sizeof(ms_os_20_descriptor.Compatible_Id_Descriptor),
-        .wDescriptorType = 3,       // MS OS 2.0 compatible ID descriptor
-        .bId = {'W',  'I',  'N',  'U',  'S',  'B',  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}
-    },
+    // Since we have two interfaces, we must declare the WINUSB compatible ID
+    // for both of them.
+    // To do so we have to use the configuration subset header, and then two
+    // function subset header (one for each interface), which declares the
+    // WINUSB compatible ID.
 
     .Configuration_Subset_Header = {
         .wLength = sizeof(ms_os_20_descriptor.Configuration_Subset_Header),
         .wDescriptorType = 1,        // MS OS 2.0 configuration subset header
-        .bConfigurationValue = 1,
+        .bConfigurationValue = 0,    // This is actualy bConfigurationINDEX, not VALUE!
         .bReserved = 0,
         .wTotalLength = sizeof(ms_os_20_descriptor.Configuration_Subset_Header) +
                         sizeof(ms_os_20_descriptor.Function_Subset_Header1) +
