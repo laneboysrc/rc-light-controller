@@ -85,7 +85,14 @@ typedef struct {
 typedef struct {
     descriptor_set_header_t Descriptor_Set_Header;
     compatible_id_descriptor_t Compatible_Id_Descriptor;
+
+    configuration_subset_header_t Configuration_Subset_Header;
+    function_subset_header_t Function_Subset_Header1;
+    compatible_id_descriptor_t Compatible_Id_Descriptor1;
+    function_subset_header_t Function_Subset_Header2;
+    compatible_id_descriptor_t Compatible_Id_Descriptor2;
 } __attribute__((packed)) ms_os_20_descriptor_t;
+
 
 
 static const bos_descriptor_t bos_descriptor = {
@@ -137,6 +144,48 @@ static const ms_os_20_descriptor_t ms_os_20_descriptor = {
 
     .Compatible_Id_Descriptor = {
         .wLength = sizeof(ms_os_20_descriptor.Compatible_Id_Descriptor),
+        .wDescriptorType = 3,       // MS OS 2.0 compatible ID descriptor
+        .bId = {'W',  'I',  'N',  'U',  'S',  'B',  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}
+    },
+
+    .Configuration_Subset_Header = {
+        .wLength = sizeof(ms_os_20_descriptor.Configuration_Subset_Header),
+        .wDescriptorType = 1,        // MS OS 2.0 configuration subset header
+        .bConfigurationValue = 1,
+        .bReserved = 0,
+        .wTotalLength = sizeof(ms_os_20_descriptor.Configuration_Subset_Header) +
+                        sizeof(ms_os_20_descriptor.Function_Subset_Header1) +
+                        sizeof(ms_os_20_descriptor.Compatible_Id_Descriptor1) +
+                        sizeof(ms_os_20_descriptor.Function_Subset_Header2) +
+                        sizeof(ms_os_20_descriptor.Compatible_Id_Descriptor2)
+    },
+
+    .Function_Subset_Header1 = {
+        .wLength = sizeof(ms_os_20_descriptor.Function_Subset_Header1),
+        .wDescriptorType = 2,        // MS OS 2.0 function subset header
+        .bFirstInterface = 0,
+        .bReserved = 0,
+        .wSubsetLength = sizeof(ms_os_20_descriptor.Function_Subset_Header1) +
+                         sizeof(ms_os_20_descriptor.Compatible_Id_Descriptor1)
+    },
+
+    .Compatible_Id_Descriptor1 = {
+        .wLength = sizeof(ms_os_20_descriptor.Compatible_Id_Descriptor1),
+        .wDescriptorType = 3,       // MS OS 2.0 compatible ID descriptor
+        .bId = {'W',  'I',  'N',  'U',  'S',  'B',  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}
+    },
+
+    .Function_Subset_Header2 = {
+        .wLength = sizeof(ms_os_20_descriptor.Function_Subset_Header2),
+        .wDescriptorType = 2,        // MS OS 2.0 function subset header
+        .bFirstInterface = 1,
+        .bReserved = 0,
+        .wSubsetLength = sizeof(ms_os_20_descriptor.Function_Subset_Header2) +
+                         sizeof(ms_os_20_descriptor.Compatible_Id_Descriptor2)
+    },
+
+    .Compatible_Id_Descriptor2 = {
+        .wLength = sizeof(ms_os_20_descriptor.Compatible_Id_Descriptor2),
         .wDescriptorType = 3,       // MS OS 2.0 compatible ID descriptor
         .bId = {'W',  'I',  'N',  'U',  'S',  'B',  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}
     }
