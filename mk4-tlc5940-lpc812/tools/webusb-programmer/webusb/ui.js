@@ -220,6 +220,14 @@ async function program() {
     update_ui();
     progressCallback(0);
     await isp_initialization_sequence();
+
+    const flash_size = await get_flash_size();
+    log("Flash size: " + flash_size / 1024 + " Kbytes");
+    if (firmware_image.length > flash_size) {
+      log('Firmware size (' + firmware_image.length + ') exceeds flash size (' + flash_size + ')', 'fail');
+      throw 'Firmware too large';
+    }
+
     await isp_program(firmware_image);
 
     // UPDATE: the code below is not needed anymore.

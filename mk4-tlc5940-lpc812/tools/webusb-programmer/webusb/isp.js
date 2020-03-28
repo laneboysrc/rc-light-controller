@@ -64,15 +64,63 @@ async function isp_initialization_sequence() {
   progressCallback(0.1);
 }
 
+// Read the Part ID from the MCU and decode it in human readable form.
+async function read_part_id() {
+  let part_id;
+  let part_name = "unknown";
+
+  const known_parts = {
+    0x00008100: "LPC810M021FN8",
+    0x00008110: "LPC811M001JDH16",
+    0x00008120: "LPC812M101JDH16",
+    0x00008121: "LPC812M101JD20",
+    0x00008122: "LPC812M101JDH20, LPC812M101JTB16"
+  }
+
+  await send_isp_command('J');
+  part_id = await readline('\r\n');
+  part_id = parseInt(part_id.trim(), 10);
+
+  if (part_id in known_parts) {
+    part_name = known_parts[part_id];
+  }
+
+  return { part_id: part_id,  part_name: part_name };
+}
+
+// Obtain the size of the Flash memory from the LPC81x.
+// If we are unable to identify the part we assume a default of 4 KBytes.
+async function get_flash_size() {
+  let part_id;
+
+  const known_parts = {
+    0x00008100: 4 * 1024,       // LPC810M021FN8
+    0x00008110: 8 * 1024,       // LPC811M001JDH16
+    0x00008120: 16 * 1024,      // PC812M101JDH16
+    0x00008121: 16 * 1024,      // LPC812M101JD20
+    0x00008122: 16 * 1024       // LPC812M101JDH20, LPC812M101JTB16
+  };
+
+  const part = await read_part_id();
+  part_id = part.part_id;
+
+  if (part_id in known_parts) {
+    return known_parts[part_id];
+  }
+
+  console.warn('Unknown part ID ' + part_id + ', using 4 Kbytes');
+  return 4 * 1024;
+}
+
+// Write the given binary image file into the flash memory.
+//
+// The image is checked whether it contains any of the code protection
+// values, and flashing is aborted (unless instructed with a flag)
+// so that we don't "brick" the ISP functionality.
+//
+// Also the checksum of the vectors that the ISP uses to detect valid
+// flash is generated and added to the image before flashing.
 async function isp_program(bin) {
-  // Write the given binary image file into the flash memory.
-
-  // The image is checked whether it contains any of the code protection
-  // values, and flashing is aborted (unless instructed with a flag)
-  // so that we don't "brick" the ISP functionality.
-
-  // Also the checksum of the vectors that the ISP uses to detect valid
-  // flash is generated and added to the image before flashing.
   const used_sectors = bin.length / SECTOR_SIZE;
 
   // Abort if the Code Read Protection in the image contains one of the
@@ -81,22 +129,25 @@ async function isp_program(bin) {
     let pattern = ((bin[CRP_ADDRESS + 3] << 24) + (bin[CRP_ADDRESS + 2] << 16) + (bin[CRP_ADDRESS + 1] << 8) + bin[CRP_ADDRESS]);
 
     if (pattern == NO_ISP) {
-        throw 'ERROR: NO_ISP code read protection detected in image file';
+      log('ERROR: NO_ISP code read protection detected in image file', 'fail');
+      throw 'ERROR: NO_ISP code read protection detected in image file';
     }
 
     if (pattern == CRP1) {
-        throw 'ERROR: CRP1 code read protection detected in image file';
+      log('ERROR: CRP1 code read protection detected in image file', 'fail');
+      throw 'ERROR: CRP1 code read protection detected in image file';
     }
 
     if (pattern == CRP2) {
-        throw 'ERROR: CRP2 code read protection detected in image file';
+      log('ERROR: CRP2 code read protection detected in image file', 'fail');
+      throw 'ERROR: CRP2 code read protection detected in image file';
     }
 
     if (pattern == CRP3) {
-        throw 'ERROR: CRP3 code read protection detected in image file';
+      log('ERROR: CRP3 code read protection detected in image file', 'fail');
+      throw 'ERROR: CRP3 code read protection detected in image file';
     }
   }
-
 
   // Calculate the signature that the ISP uses to detect "valid code"
   append_signature(bin);
@@ -133,20 +184,21 @@ async function isp_program(bin) {
   log('Programming done');
 }
 
+/*
+Reset the MCU to start the application.
+We do that by downloading a small binary into RAM. This binary corresponds
+to the following C code:
+
+    SCB->AIRCR = 0x05FA0004;
+
+This code resets the ARM CPU by setting SYSRESETREQ. We load this
+isp_program into RAM and run it with the "Go" command.
+*/
 async function isp_reset_mcu() {
-  /*
-  Reset the MCU to start the application.
-  We do that by downloading a small binary into RAM. This binary corresponds
-  to the following C code:
-
-      SCB->AIRCR = 0x05FA0004;
-
-  This code resets the ARM CPU by setting SYSRESETREQ. We load this
-  isp_program into RAM and run it with the "Go" command.
-  */
   const reset_program = new Uint8Array([
-      0x01, 0x4a, 0x02, 0x4b, 0x1a, 0x60, 0x70, 0x47,
-      0x04, 0x00, 0xfa, 0x05, 0x0c, 0xed, 0x00, 0xe0]);
+    0x01, 0x4a, 0x02, 0x4b, 0x1a, 0x60, 0x70, 0x47,
+    0x04, 0x00, 0xfa, 0x05, 0x0c, 0xed, 0x00, 0xe0
+  ]);
 
   await send_isp_command('W ' + RAM_ADDRESS + ' ' + reset_program.length);
   await send_isp_data(reset_program);
@@ -159,10 +211,11 @@ async function isp_reset_mcu() {
   await send_isp('G ' + RAM_ADDRESS + ' T\r\n');
 }
 
+// Calculate the signature that the ISP uses to detect "valid code"
 function append_signature(bin) {
-  // Calculate the signature that the ISP uses to detect "valid code"
-
   let signature = 0;
+  const vector8 = 28;
+
   for (let i = 0 ; i < 7; i += 1) {
     let vector = i * 4;
     signature = signature + (
@@ -173,7 +226,6 @@ function append_signature(bin) {
   }
   signature = (signature ^ 0xffffffff) + 1;   // Two's complement
 
-  const vector8 = 28;
   bin[vector8 + 3] = (signature >> 24) & 0xff;
   bin[vector8 + 2] = (signature >> 16) & 0xff;
   bin[vector8 + 1] = (signature >> 8) & 0xff;
