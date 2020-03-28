@@ -19,6 +19,6 @@
   },
   "devDependencies": {
     "font-awesome-base64": "^1.0.4",
-    "inline-source-cli": "^1.2.0"
+    "inline-source-cli": "^2.0.0"
   }
 }
