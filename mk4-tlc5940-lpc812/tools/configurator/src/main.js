@@ -654,6 +654,7 @@ var app = (function () {
         case MODE.MASTER_WITH_SERVO_READER:
         case MODE.MASTER_WITH_UART_READER:
         case MODE.STAND_ALONE:
+        case MODE.SLAVE:
             config.multi_aux = false;
             config.mode = new_mode;
             break;
@@ -664,7 +665,6 @@ var app = (function () {
             break;
 
         case MODE.TEST:
-        case MODE.SLAVE:
         case MODE.PREPROCESSOR:
         case MODE.PREPROCESSOR_5CH:
         default:
@@ -870,7 +870,6 @@ var app = (function () {
             update_menu_visibility([
                 'config_hardware',
                 'config_mode',
-                'config_output',
                 'testing',
                 'info',
             ]);

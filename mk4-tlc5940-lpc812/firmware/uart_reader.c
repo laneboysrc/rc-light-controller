@@ -84,6 +84,9 @@ void read_preprocessor(void)
 
     uint8_t uart_byte;
 
+    if (config.mode == SLAVE) {
+        return;
+    }
 
     // We let the read_preprocessor function operate even if SERVO_READER
     // is active, so that for test purpose the UART can still send us
