@@ -41,6 +41,7 @@ SOURCES += $(COMMON_SOURCE_PATH)/libs/usb/samd/usb_samd.c
 SOURCES += $(PRINTF_SOURCE_PATH)/printf.c
 
 INCLUDES += -I.
+INCLUDES += -I$(COMMON_SOURCE_PATH)
 INCLUDES += -I$(COMMON_SOURCE_PATH)/hal
 INCLUDES += -isystem$(COMMON_SOURCE_PATH)/hal/samd21
 INCLUDES += -isystem$(COMMON_SOURCE_PATH)/libs/usb

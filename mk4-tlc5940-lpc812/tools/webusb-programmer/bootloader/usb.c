@@ -22,127 +22,6 @@ static const uint8_t* data;
 static uint16_t data_length;
 
 
-
-// // The transfer size is set to the USB endpoint 0 size as we haven't been
-// // able to figure output uploading the firmware if one transfer requires
-// // multiple endpoint transactions.
-// #define DFU_TRANSFER_SIZE USB_EP0_SIZE
-
-// #define DFU_RUNTIME_PROTOCOL 1
-// #define DFU_DFU_MODE_PROTOCOL 2
-
-// #define USB_DTYPE_BOS 15
-// #define WEBUSB_REQUEST_GET_URL 2
-// #define WINUSB_REQUEST_DESCRIPTOR 7
-
-// enum {
-//     USB_INTERFACE_DFU,
-//     USB_NUMBER_OF_INTERFACES
-// };
-
-// #define USB_STRING_LANGUAGE 0
-// #define USB_STRING_MANUFACTURER 1
-// #define USB_STRING_PRODUCT 2
-// #define USB_STRING_SERIAL_NUMBER 3
-// #define USB_STRING_DFU 4
-
-// #define USB_EP0 (USB_IN + 0)
-
-
-// // Declare the endpoints in use.
-// USB_ENDPOINTS(1)
-
-
-// typedef struct {
-//     USB_ConfigurationDescriptor Config;
-
-//     USB_InterfaceAssociationDescriptor DFU_interface_association;
-
-//     USB_InterfaceDescriptor DFU_interface;
-//     DFU_FunctionalDescriptor DFU_functional;
-
-// }  __attribute__((packed)) configuration_descriptor_t;
-
-// typedef struct {
-//     uint8_t bLength;
-//     uint8_t bDescriptorType;
-//     __CHAR16_TYPE__ bString[1];
-// } __attribute__ ((packed)) language_string_t;
-
-
-// static const USB_DeviceDescriptor device_descriptor = {
-//     .bLength = sizeof(USB_DeviceDescriptor),
-//     .bDescriptorType = USB_DTYPE_Device,
-
-//     .bcdUSB = 0x0210,
-//     .bDeviceClass = USB_CSCP_NoDeviceClass,
-//     .bDeviceSubClass = USB_CSCP_NoDeviceSubclass,
-//     .bDeviceProtocol = USB_CSCP_NoDeviceProtocol,
-
-//     .bMaxPacketSize0 = 64,
-//     .idVendor = 0x6666,
-//     .idProduct = 0xcab0,
-//     .bcdDevice = 0x0104,
-
-//     .iManufacturer = USB_STRING_MANUFACTURER,
-//     .iProduct = USB_STRING_PRODUCT,
-//     .iSerialNumber = USB_STRING_SERIAL_NUMBER,
-
-//     .bNumConfigurations = 1
-// };
-
-// static const configuration_descriptor_t configuration_descriptor = {
-//     .Config = {
-//         .bLength = sizeof(USB_ConfigurationDescriptor),
-//         .bDescriptorType = USB_DTYPE_Configuration,
-//         .wTotalLength  = sizeof(configuration_descriptor_t),
-//         .bNumInterfaces = USB_NUMBER_OF_INTERFACES,
-//         .bConfigurationValue = 1,
-//         .iConfiguration = 0,
-//         .bmAttributes = USB_CONFIG_ATTR_BUSPOWERED,
-//         .bMaxPower = USB_CONFIG_POWER_MA(100)
-//     },
-
-//     .DFU_interface_association = {
-//         .bLength = sizeof(USB_InterfaceAssociationDescriptor),
-//         .bDescriptorType = USB_DTYPE_InterfaceAssociation,
-//         .bFirstInterface = USB_INTERFACE_DFU,
-//         .bInterfaceCount = 1,
-//         .bFunctionClass = DFU_INTERFACE_CLASS,
-//         .bFunctionSubClass = DFU_INTERFACE_SUBCLASS,
-//         .bFunctionProtocol = DFU_DFU_MODE_PROTOCOL,
-//         .iFunction = USB_STRING_DFU,
-//     },
-
-//     .DFU_interface = {
-//         .bLength = sizeof(USB_InterfaceDescriptor),
-//         .bDescriptorType = USB_DTYPE_Interface,
-//         .bInterfaceNumber = USB_INTERFACE_DFU,
-//         .bAlternateSetting = 0,
-//         .bNumEndpoints = 0,
-//         .bInterfaceClass = DFU_INTERFACE_CLASS,
-//         .bInterfaceSubClass = DFU_INTERFACE_SUBCLASS,
-//         .bInterfaceProtocol = DFU_DFU_MODE_PROTOCOL,
-//         .iInterface = USB_STRING_DFU
-//     },
-//     .DFU_functional = {
-//         .bLength = sizeof(DFU_FunctionalDescriptor),
-//         .bDescriptorType = DFU_DESCRIPTOR_TYPE,
-//         .bmAttributes = DFU_ATTR_CAN_DOWNLOAD | DFU_ATTR_CAN_UPLOAD | DFU_ATTR_WILL_DETACH,
-//         .wDetachTimeout = 0,
-//         .wTransferSize = DFU_TRANSFER_SIZE,
-//         .bcdDFUVersion = 0x0110,
-//     }
-// };
-
-// static const language_string_t language_string = {
-//     .bLength = USB_STRING_LEN(1),
-//     .bDescriptorType = USB_DTYPE_String,
-//     .bString = { USB_LANGUAGE_EN_US }
-// };
-
-
-
 // ****************************************************************************
 void dfu_cb_dnload_block(uint16_t block_number, uint16_t length) {
     uint32_t address;
@@ -323,7 +202,7 @@ uint16_t usb_cb_get_descriptor(uint8_t type, uint8_t index, const uint8_t** ptr)
                     break;
 
                 case USB_STRING_PRODUCT:
-                    address = usb_string_to_descriptor((char *)"Light Controller Programmer");
+                    address = usb_string_to_descriptor((char *)"Programmer");
                     break;
 
                 case USB_STRING_SERIAL_NUMBER:
@@ -331,7 +210,11 @@ uint16_t usb_cb_get_descriptor(uint8_t type, uint8_t index, const uint8_t** ptr)
                     break;
 
                 case USB_STRING_DFU:
-                    address = usb_string_to_descriptor((char *)"Light Controller Programmer (DFU-boot)");
+                    address = usb_string_to_descriptor((char *)"Programmer DFU");
+                    break;
+
+                case USB_STRING_TEST:
+                    address = usb_string_to_descriptor((char *)"Programmer UART");
                     break;
 
                 default:
@@ -407,12 +290,12 @@ void usb_cb_control_setup(void) {
 
     else if (recipient == USB_RECIPIENT_DEVICE  &&  requestType == USB_REQTYPE_VENDOR) {
         switch(usb_setup.bRequest) {
-            // case VENDOR_CODE_WEBUSB:
-            //     if (usb_setup.wIndex == WEBUSB_REQUEST_GET_URL) {
-            //         send_descriptor(&landing_page_descriptor, sizeof(landing_page_descriptor_t));
-            //         return;
-            //     }
-            //     break;
+            case VENDOR_CODE_WEBUSB:
+                if (usb_setup.wIndex == WEBUSB_REQUEST_GET_URL) {
+                    send_descriptor(&landing_page_descriptor, sizeof(landing_page_descriptor_t));
+                    return;
+                }
+                break;
 
             case VENDOR_CODE_MS:
                 if (usb_setup.wIndex == WINUSB_REQUEST_DESCRIPTOR) {
