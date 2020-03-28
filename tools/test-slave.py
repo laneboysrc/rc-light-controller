@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 '''
 test-tlc5940-16f1825-slave.py
 
