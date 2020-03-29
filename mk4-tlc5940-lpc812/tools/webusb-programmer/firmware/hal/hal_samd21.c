@@ -59,10 +59,6 @@ void HAL_hardware_init(void)
     // Perform GPIO initialization as early as possible
     HAL_gpio_set(HAL_GPIO_POWER_ENABLE);
     HAL_gpio_out(HAL_GPIO_POWER_ENABLE);
-    HAL_gpio_set(HAL_GPIO_POWER_SHORT);
-    HAL_gpio_out(HAL_GPIO_POWER_SHORT);
-
-    HAL_gpio_in(HAL_GPIO_OUT_ISP);
 
     HAL_gpio_pmuxen(HAL_GPIO_USB_DM);
     HAL_gpio_pmuxen(HAL_GPIO_USB_DP);
@@ -75,13 +71,20 @@ void HAL_hardware_init(void)
     HAL_gpio_clear(HAL_GPIO_LED_BUSY);
     HAL_gpio_clear(HAL_GPIO_LED_ERROR);
 
-    // Configure GPIOs for the UART
-    HAL_gpio_out(HAL_GPIO_TX);
-    HAL_gpio_clear(HAL_GPIO_TX);
-    HAL_gpio_pmuxen(HAL_GPIO_TX);
+    // Switch the UART TX and RX to GPIO output  and set it to low, so that
+    // we don't power the light controller via the ST/RX pin!
+    HAL_gpio_clear(HAL_GPIO_TXIO);
+    HAL_gpio_out(HAL_GPIO_TXIO);
+    HAL_gpio_pmuxen(HAL_GPIO_TXIO);
+    HAL_gpio_clear(HAL_GPIO_RXIO);
+    HAL_gpio_out(HAL_GPIO_RXIO);
+    HAL_gpio_pmuxen(HAL_GPIO_RXIO);
 
-    HAL_gpio_in(HAL_GPIO_RX);
-    HAL_gpio_pmuxen(HAL_GPIO_RX);
+    HAL_gpio_set(HAL_GPIO_POWER_SHORT);
+    HAL_gpio_out(HAL_GPIO_POWER_SHORT);
+
+    HAL_gpio_in(HAL_GPIO_OUT_ISP);
+    HAL_gpio_in(HAL_GPIO_CH3);
 
 
     // ------------------------------------------------

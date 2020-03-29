@@ -15,6 +15,9 @@
 #define CMD_OUT_ISP_LOW (20)
 #define CMD_OUT_ISP_HIGH (21)
 #define CMD_OUT_ISP_TRISTATE (22)
+#define CMD_CH3_LOW (23)
+#define CMD_CH3_HIGH (24)
+#define CMD_CH3_TRISTATE (25)
 #define CMD_BAUDRATE_38400 (30)
 #define CMD_BAUDRATE_115200 (31)
 #define CMD_LED_OK_OFF (40)
@@ -141,8 +144,10 @@ static void command_handler(void)
             // Switch the UART TX and RX to GPIO output  and set it to low, so that
             // we don't power the light controller via the ST/RX pin!
             HAL_gpio_clear(HAL_GPIO_TXIO);
+            HAL_gpio_out(HAL_GPIO_TXIO);
             HAL_gpio_pmuxen(HAL_GPIO_TXIO);
             HAL_gpio_clear(HAL_GPIO_RXIO);
+            HAL_gpio_out(HAL_GPIO_RXIO);
             HAL_gpio_pmuxen(HAL_GPIO_RXIO);
 
             HAL_gpio_set(HAL_GPIO_POWER_SHORT);
@@ -184,6 +189,20 @@ static void command_handler(void)
 
         case CMD_OUT_ISP_TRISTATE:
             HAL_gpio_in(HAL_GPIO_OUT_ISP);
+            break;
+
+        case CMD_CH3_LOW:
+            HAL_gpio_clear(HAL_GPIO_CH3);
+            HAL_gpio_out(HAL_GPIO_CH3);
+            break;
+
+        case CMD_CH3_HIGH:
+            HAL_gpio_set(HAL_GPIO_CH3);
+            HAL_gpio_out(HAL_GPIO_CH3);
+            break;
+
+        case CMD_CH3_TRISTATE:
+            HAL_gpio_in(HAL_GPIO_CH3);
             break;
 
         case CMD_BAUDRATE_38400:
