@@ -16,7 +16,7 @@ function string2arraybuffer(str) {
   for (var i=0, strLen=str.length; i<strLen; i++) {
     bufView[i] = str.charCodeAt(i);
   }
-  return buf;
+  return bufView;
 }
 
 function is_intel_hex(str) {

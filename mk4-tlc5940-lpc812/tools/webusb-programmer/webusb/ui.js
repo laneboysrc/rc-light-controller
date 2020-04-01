@@ -252,7 +252,17 @@ async function program() {
     last_programming_failed = false;
     update_ui();
     progressCallback(0);
+
+    log("Power-cycling the light controller ...");
+    await send_set_command(CMD_DUT_POWER_OFF);
+    await send_set_command(CMD_OUT_ISP_LOW);
+    await delay(200);
+    await send_set_command(CMD_DUT_POWER_ON);
+    await delay(100);
+    progressCallback(0.02);
+
     await isp_initialization_sequence();
+    await send_set_command(CMD_OUT_ISP_TRISTATE);
 
     const flash_size = await get_flash_size();
     log("Flash size: " + flash_size / 1024 + " Kbytes");
@@ -278,6 +288,7 @@ async function program() {
     log("SUCCESS: programming complete", "success");
   }
   catch(e) {
+    console.error(e);
     progressCallback(0);
     last_programming_failed = true;
     log("ERROR: programming failed", "fail");

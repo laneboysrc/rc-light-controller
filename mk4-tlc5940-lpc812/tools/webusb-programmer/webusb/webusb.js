@@ -166,31 +166,16 @@ async function send_set_command(cmd) {
   }
 }
 
-async function send_isp_command(string) {
-  flush();
-  await send_isp(string + '\r\n');
-  await expect('0\r\n');
-}
-
-async function send_isp(string) {
-  console.log('USB W: ' + make_crlf_visible(string));
-
-  try {
-    const data = string2arraybuffer(string);
-
-    const result = await webusb_device.transferOut(TEST_EP_OUT, data);
-    if (result.status != 'ok') {
-      console.error('transferOut() failed:', result.status);
-    }
-  }
-  catch (e) {
-    console.error('transferOut() exception:', e);
-    return;
-  }
-}
-
-async function send_isp_data(data) {
+async function send_isp(data) {
   const transfer_size = EP_SIZE;
+
+  if (data instanceof Uint8Array) {
+    console.log('USB W: <data len=' + data.length + '>');
+  }
+  else {
+    console.log('USB W: ' + make_crlf_visible(data));
+    data = string2arraybuffer(data);
+  }
 
   while (data.length) {
     const bytes = data.slice(0, transfer_size);
@@ -206,7 +191,8 @@ async function send_isp_data(data) {
       return;
     }
 
-    // Delay to allow the UART to send_isp the bytes
+    // Delay to allow the other side to process the data
     await delay(1);
   }
 }
+

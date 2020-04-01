@@ -27,40 +27,46 @@ const SECTOR_SIZE = 1024;
 
 const allow_code_protection = false;
 
+let uart = {
+  'write': send_isp,
+  'readline': readline,
+  'expect': expect,
+};
+
+// function set_communications_interface(device) {
+//   uart = device;
+// }
+
+async function send_command(string) {
+  flush();
+  await uart.write(string + '\r\n');
+  await uart.expect('0\r\n');
+}
 
 async function isp_initialization_sequence() {
   let answer;
 
-  log("Power-cycling the light controller ...");
-  await send_set_command(CMD_DUT_POWER_OFF);
-  await send_set_command(CMD_OUT_ISP_LOW);
-  await delay(200);
-  await send_set_command(CMD_DUT_POWER_ON);
-  await delay(100);
-  progressCallback(0.02);
-
   log("Performing ISP handshake ...");
   flush();
-  await send_isp('?')
-  await expect('Synchronized\r\n');
+  await uart.write('?')
+  await uart.expect('Synchronized\r\n');
   progressCallback(0.04);
-  await send_isp('Synchronized\r\n');
-  await expect('Synchronized\r\n');
-  await expect('OK\r\n');
+  await uart.write('Synchronized\r\n');
+  await uart.expect('Synchronized\r\n');
+  await uart.expect('OK\r\n');
   progressCallback(0.06);
 
   log("Sending crystal frequency ...");
-  await send_isp('12000\r\n');
-  await expect('12000\r\n');
-  await expect('OK\r\n');
+  await uart.write('12000\r\n');
+  await uart.expect('12000\r\n');
+  await uart.expect('OK\r\n');
 
   log("Turning ECHO off ...");
-  await send_isp('A 0\r\n');
-  await expect('A 0\r\n');
-  await expect('0\r\n');
+  await uart.write('A 0\r\n');
+  await uart.expect('A 0\r\n');
+  await uart.expect('0\r\n');
 
   log("ISP ready");
-  await send_set_command(CMD_OUT_ISP_TRISTATE);
   progressCallback(0.1);
 }
 
@@ -77,8 +83,8 @@ async function read_part_id() {
     0x00008122: "LPC812M101JDH20, LPC812M101JTB16"
   }
 
-  await send_isp_command('J');
-  part_id = await readline('\r\n');
+  await send_command('J');
+  part_id = await uart.readline('\r\n');
   part_id = parseInt(part_id.trim(), 10);
 
   if (part_id in known_parts) {
@@ -155,13 +161,13 @@ async function isp_program(bin) {
   log("Unlocking the programming functions ...");
 
   // Unlock the chip with the magic number
-  await send_isp_command('U 23130');
+  await send_command('U 23130');
 
   // Erase the whole chip
   log('Erasing the flash memory ...');
   progressCallback(0.15);
-  await send_isp_command('P 0 15');
-  await send_isp_command('E 0 15');
+  await send_command('P 0 15');
+  await send_command('E 0 15');
 
   log('Program the firmware image ...');
   for (let index = 0; index < used_sectors; index += 1) {
@@ -174,10 +180,10 @@ async function isp_program(bin) {
 
     let data = bin.slice(address, last_address+1);
 
-    await send_isp_command('W ' + RAM_ADDRESS + ' ' + data.length);
-    await send_isp_data(new Uint8Array(data));
-    await send_isp_command('P ' + sector + ' ' + sector);
-    await send_isp_command('C ' + address + ' ' + RAM_ADDRESS + ' ' + SECTOR_SIZE);
+    await send_command('W ' + RAM_ADDRESS + ' ' + data.length);
+    await uart.write(new Uint8Array(data));
+    await send_command('P ' + sector + ' ' + sector);
+    await send_command('C ' + address + ' ' + RAM_ADDRESS + ' ' + SECTOR_SIZE);
   }
 
   progressCallback(1.0);
@@ -200,15 +206,15 @@ async function isp_reset_mcu() {
     0x04, 0x00, 0xfa, 0x05, 0x0c, 0xed, 0x00, 0xe0
   ]);
 
-  await send_isp_command('W ' + RAM_ADDRESS + ' ' + reset_program.length);
-  await send_isp_data(reset_program);
+  await send_command('W ' + RAM_ADDRESS + ' ' + reset_program.length);
+  await uart.write(reset_program);
 
   // Unlock the Go command
-  await send_isp_command('U 23130');
+  await send_command('U 23130');
 
   // Run the isp_program from RAM. Note that this command does not respond with
   // COMMAND_SUCCESS as it directly executes.
-  await send_isp('G ' + RAM_ADDRESS + ' T\r\n');
+  await uart.write('G ' + RAM_ADDRESS + ' T\r\n');
 }
 
 // Calculate the signature that the ISP uses to detect "valid code"
