@@ -37,9 +37,11 @@ function flush() {
   stdin_buffer = '';
 }
 
-function readline(terminator) {
+function readline(terminator, tries) {
   return new Promise((resolve, reject) => {
-    let tries = 10;
+    if (typeof tries === 'undefined') {
+      tries = 10;
+    }
 
     function check() {
       let pos = stdin_buffer.search(terminator);
@@ -52,7 +54,7 @@ function readline(terminator) {
       }
 
       tries -= 1;
-      if (tries == 0) {
+      if (tries <= 0) {
         reject("Timeout in readline()");
         return;
       }

@@ -30,6 +30,8 @@ let is_connected = false;
 let has_webusb = false;
 let last_programming_failed = false;
 
+let testing_active = false;
+
 const el = {};
 
 el.menu_buttons = document.querySelectorAll('nav button');
@@ -58,6 +60,7 @@ el.program = document.querySelector('#program');
 el.progress = document.querySelector('#progress');
 el.initialize = document.querySelector('#initialize');
 el.filename = document.querySelector('#filename');
+el.diagnostics = document.querySelector('#diagnostics-messages');
 
 function log(msg, displayClass) {
   const content = new Date(Date.now()).toISOString() + ' ' + msg;
@@ -77,6 +80,33 @@ function log(msg, displayClass) {
   }
   else {
     el.status.appendChild(div);
+  }
+}
+
+function log_testing(msg, displayClass) {
+  const content = new Date(Date.now()).toISOString() + ' ' + msg;
+  const div = document.createElement('div');
+  div.textContent = content;
+  console.log("sim: " + content);
+
+  if (displayClass) {
+    div.classList.add(displayClass);
+  }
+
+  if (el.diagnostics.firstChild) {
+    el.diagnostics.insertBefore(div, el.diagnostics.firstChild);
+    while (el.diagnostics.childElementCount > MAX_UART_LOG_LINES) {
+      el.diagnostics.removeChild(el.diagnostics.lastChild);
+    }
+  }
+  else {
+    el.diagnostics.appendChild(div);
+  }
+}
+
+function log_testing_clear() {
+  while (el.diagnostics.childElementCount > 0) {
+    el.diagnostics.removeChild(el.diagnostics.lastChild);
   }
 }
 
@@ -294,7 +324,41 @@ function select_page(selected_page) {
       }
     }
   }
+
+  if (selected_page == 'tab_testing') {
+    send_set_command(CMD_OUT_ISP_TRISTATE);
+    send_set_command(CMD_DUT_POWER_ON);
+    testing_active = true;
+    reader();
+
+  }
+  else {
+    testing_active = false;
+    send_set_command(CMD_DUT_POWER_OFF);
+    send_set_command(CMD_OUT_ISP_LOW);
+  }
+
 };
+
+async function reader() {
+  let line;
+  console.log('reader() start');
+  log_testing_clear();
+  while (testing_active) {
+    line = '';
+    try {
+      line = await readline('\n', 0);
+    }
+    catch (e) {
+      await delay(100);
+    }
+
+    if (line) {
+      log_testing(line);
+    }
+  }
+  console.log('reader() end');
+}
 
 function init() {
   if (window.location.protocol != 'https:') {
