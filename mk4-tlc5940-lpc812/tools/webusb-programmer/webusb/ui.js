@@ -247,6 +247,14 @@ async function program() {
     return;
   }
 
+  const programmer = new flash_lpc8xx({
+    'write': send_isp,
+    'readline': readline,
+    'expect': expect,
+  });
+  programmer.messageCallback = log;
+  programmer.progressCallback = progressCallback;
+
   try {
     programming_active = true;
     last_programming_failed = false;
@@ -261,17 +269,17 @@ async function program() {
     await delay(100);
     progressCallback(0.02);
 
-    await isp_initialization_sequence();
+    await programmer.initialization_sequence();
     await send_set_command(CMD_OUT_ISP_TRISTATE);
 
-    const flash_size = await get_flash_size();
+    const flash_size = await programmer.get_flash_size();
     log("Flash size: " + flash_size / 1024 + " Kbytes");
     if (firmware_image.length > flash_size) {
       log('Firmware size (' + firmware_image.length + ') exceeds flash size (' + flash_size + ')', 'fail');
       throw 'Firmware too large';
     }
 
-    await isp_program(firmware_image);
+    await programmer.program(firmware_image);
 
     // UPDATE: the code below is not needed anymore.
     // Instead we added a MOSFET that pulls the supply voltage of the light
@@ -283,7 +291,7 @@ async function program() {
     // the capacitor on the light controller stays at a low voltage, causing
     // the MCU to not properly reset (most likely because the ISP isp_program does
     // not use brown-out detection and maybe sleeps the CPU?)
-    // await isp_reset_mcu();
+    // await programmer.reset_mcu();
     // await delay(200);
     log("SUCCESS: programming complete", "success");
   }
