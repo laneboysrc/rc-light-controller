@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <meta charset="utf-8">
     <title>RC Light Controller programmmer</title>
     <link inline rel="stylesheet" href="programmer.css">
     <link inline rel="stylesheet" href="font-awesome.css">
@@ -29,7 +30,7 @@
       </div>
       <div id="error_webusb" class="hidden error_topic">
         <strong>
-          This webbrowser does not support <a href="">WebUSB</a>. Please use the Google Chrome browser.
+          This web browser does not support <a href="https://caniuse.com/#search=webusb">WebUSB</a>. Please use Google Chrome (<a href="https://www.google.com/chrome/">https://www.google.com/chrome/</a>)
         </strong>
       </div>
     </div>
@@ -125,41 +126,13 @@
       </div>
     </div>
 
-<!--     <button id="connect">Connect</button>
-    <br>
-    <input type="checkbox" id="dut-power"><label for="dut-power">DUT power</label>
-    <br>
-    <input type="checkbox" id="isp"><label for="isp">Pull ISP/OUT low</label>
-    <br>
-    <input type="checkbox" id="led-ok"><label for="led-ok">LED OK</label>
-    <br>
-    <input type="checkbox" id="led-busy"><label for="led-ok">LED Busy</label>
-    <br>
-    <input type="checkbox" id="led-error"><label for="led-ok">LED Error</label>
-    <div>
-      <button id="send-questionmark">?</button>
-      <button id="send-synchronized">Synchronized</button>
-      <button id="send-crystal">12000</button>
-      <button id="send-a0">A0</button>
-      <button id="send-unlock">Unlock</button>
-      <button id="send-prepare">Prepare 0-15</button>
-      <button id="send-erase">Erase 0-15</button>
-    </div>
-    <div>
-      <button id="initialize">Initialization sequence</button>
-    </div>
-    <div>
-      <input type="text" name="tx" id="send-text"><button id="send">Send</button>
-    </div>
- -->
-
     <input type="file" id="load-input" style="display:none">
-
 
     <script src="intel-hex.js"></script>
     <script src="utils.js"></script>
     <script src="webusb.js"></script>
     <script src="lpc81x_isp.js"></script>
+    <script src="preprocessor-simulator.js"></script>
     <script src="ui.js"></script>
   </body>
 </html>

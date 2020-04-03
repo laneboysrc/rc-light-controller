@@ -30,6 +30,7 @@ let is_connected = false;
 let has_webusb = false;
 let last_programming_failed = false;
 let programmer;
+let simulator;
 
 let testing_active = false;
 
@@ -351,39 +352,30 @@ function select_page(selected_page) {
   }
 
   if (selected_page == 'tab_testing') {
-    programmer.send_command(CMD_OUT_ISP_TRISTATE);
-    programmer.send_command(CMD_DUT_POWER_ON);
     testing_active = true;
     last_programming_failed = false;
-    reader();
+    if (programmer) {
+      programmer.send_command(CMD_OUT_ISP_TRISTATE);
+      programmer.send_command(CMD_DUT_POWER_ON);
+    }
+
+    simulator = new Preprocessor_simulator(programmer);
+    log_testing_clear();
+    simulator.onMessageCallback = log_testing;
   }
   else {
     testing_active = false;
-    programmer.send_command(CMD_DUT_POWER_OFF);
-    programmer.send_command(CMD_OUT_ISP_LOW);
+    if (simulator) {
+      simulator.close();
+    }
+    simulator = undefined;
+    if (programmer) {
+      programmer.send_command(CMD_DUT_POWER_OFF);
+      programmer.send_command(CMD_OUT_ISP_LOW);
+    }
   }
   update_ui();
 };
-
-async function reader() {
-  let line;
-  console.log('reader() start');
-  log_testing_clear();
-  while (testing_active) {
-    line = '';
-    try {
-      line = await programmer.readline('\n', 0);
-    }
-    catch (e) {
-      await delay(100);
-    }
-
-    if (line) {
-      log_testing(line);
-    }
-  }
-  console.log('reader() end');
-}
 
 async function connect(device) {
   await programmer.open(device);
@@ -425,7 +417,6 @@ async function init() {
     has_webusb = false;
   }
 
-
   if (has_webusb) {
     programmer = new WebUSB_programmer();
     programmer.onConnectedCallback = onWebusbDeviceConnected;
@@ -434,38 +425,6 @@ async function init() {
 
   el.connect_button.addEventListener('click', connect);
   el.disconnect_button.addEventListener('click', disconnect);
-
-  // el.send_button.addEventListener('click', send_textfield_to_programmer);
-  // el.send_questionmark_button.addEventListener('click', () => { send_isp('?') });
-  // el.send_synchronized_button.addEventListener('click', () => { send_isp('Synchronized\r\n') });
-  // el.send_crystal_button.addEventListener('click', () => { send_isp('12000\r\n') });
-  // el.send_a0_button.addEventListener('click', () => { send_isp('A 0\r\n') });
-  // el.send_unlock_button.addEventListener('click', () => { send_isp('U 23130\r\n') });
-  // el.send_prepare_button.addEventListener('click', () => { send_isp('P 0 15\r\n') });
-  // el.send_erase_button.addEventListener('click', () => { send_isp('E 0 15\r\n') });
-  // el.initialize.addEventListener('click', () => { isp_initialization_sequence(); }, false);
-
-  // el.dut_power.CMD_ON = CMD_DUT_POWER_ON;
-  // el.dut_power.CMD_OFF = CMD_DUT_POWER_OFF;
-  // el.dut_power.addEventListener('change', checkbox_handler);
-
-  // el.isp.CMD_ON = CMD_OUT_ISP_LOW;
-  // el.isp.CMD_OFF = CMD_OUT_ISP_TRISTATE;
-  // el.isp.addEventListener('change', checkbox_handler);
-
-  // el.led_ok.CMD_ON = CMD_LED_OK_ON;
-  // el.led_ok.CMD_OFF = CMD_LED_OK_OFF;
-  // el.led_ok.addEventListener('change', checkbox_handler);
-
-  // el.led_busy.CMD_ON = CMD_LED_BUSY_ON;
-  // el.led_busy.CMD_OFF = CMD_LED_BUSY_OFF;
-  // el.led_busy.addEventListener('change', checkbox_handler);
-
-  // el.led_error.CMD_ON = CMD_LED_ERROR_ON;
-  // el.led_error.CMD_OFF = CMD_LED_ERROR_OFF;
-  // el.led_error.addEventListener('change', checkbox_handler);
-
-
 
   el.load.addEventListener('click', () => {el.load_input.click(); }, false);
   el.load_input.addEventListener('change', load_file_from_disk, false);
