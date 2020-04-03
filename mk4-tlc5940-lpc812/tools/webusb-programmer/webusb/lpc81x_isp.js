@@ -55,34 +55,46 @@ class flash_lpc8xx {
     }
   }
 
+  _make_crlf_visible(string) {
+    return string.replace(/\r/g, '\\r').replace(/\n/g, '\\n');
+  }
+
   async send_command(string) {
-    flush();
+    this.uart.flush();
     await this.uart.write(string + '\r\n');
-    await this.uart.expect('0\r\n');
+    await this.expect('0\r\n');
+  }
+
+  async expect(expected_string) {
+    const answer = await this.uart.readline('\r\n');
+    if (answer != expected_string) {
+      throw('Expected "' + _make_crlf_visible(expected_string) + '", got "' + _make_crlf_visible(answer));
+    }
+    return answer;
   }
 
   async initialization_sequence() {
     let answer;
 
     log("Performing ISP handshake ...");
-    flush();
+    this.uart.flush();
     await this.uart.write('?')
-    await this.uart.expect('Synchronized\r\n');
+    await this.expect('Synchronized\r\n');
     this.doProgressCallback(0.04);
     await this.uart.write('Synchronized\r\n');
-    await this.uart.expect('Synchronized\r\n');
-    await this.uart.expect('OK\r\n');
+    await this.expect('Synchronized\r\n');
+    await this.expect('OK\r\n');
     this.doProgressCallback(0.06);
 
     log("Sending crystal frequency ...");
     await this.uart.write('12000\r\n');
-    await this.uart.expect('12000\r\n');
-    await this.uart.expect('OK\r\n');
+    await this.expect('12000\r\n');
+    await this.expect('OK\r\n');
 
     log("Turning ECHO off ...");
     await this.uart.write('A 0\r\n');
-    await this.uart.expect('A 0\r\n');
-    await this.uart.expect('0\r\n');
+    await this.expect('A 0\r\n');
+    await this.expect('0\r\n');
 
     log("ISP ready");
     this.doProgressCallback(0.1);
@@ -208,6 +220,23 @@ class flash_lpc8xx {
     this.doMessageCallback('Programming done');
   }
 
+  async read() {
+      let flash_size = await this.get_flash_size();
+      this.doMessageCallback('Reading ' + flash_size + ' bytes ...');
+
+      await this.send_command('R ' + this.FLASH_BASE_ADDRESS + ' ' + flash_size);
+      let image_data = await this.uart.read(flash_size);
+      if (image_data.length !== flash_size) {
+          throw 'Failed to read the whole Flash memory';
+      }
+
+      let binaryData = [];
+      for (let i = 0; i < image_data.length; i += 1) {
+          binaryData.push(image_data.charCodeAt(i));
+      }
+      return binaryData;
+  }
+
   /*
   Reset the MCU to start the application.
   We do that by downloading a small binary into RAM. This binary corresponds
@@ -263,4 +292,5 @@ class flash_lpc8xx {
   set onProgressCallback(fn) {
     this.progressCallback = fn;
   }
+
 }

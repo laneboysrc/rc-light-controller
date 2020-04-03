@@ -29,6 +29,7 @@ let programming_active = false;
 let is_connected = false;
 let has_webusb = false;
 let last_programming_failed = false;
+let programmer;
 
 let testing_active = false;
 
@@ -145,21 +146,21 @@ function update_ui() {
   if (programming_active) {
     disable(el.load);
     disable(el.menu_buttons[MENU_CONNECTION]);
-    send_set_command(CMD_LED_OK_OFF);
-    send_set_command(CMD_LED_BUSY_ON);
-    send_set_command(CMD_LED_ERROR_OFF);
+    programmer.send_command(CMD_LED_OK_OFF);
+    programmer.send_command(CMD_LED_BUSY_ON);
+    programmer.send_command(CMD_LED_ERROR_OFF);
   }
   else {
     enable(el.load);
     enable(el.menu_buttons[MENU_CONNECTION]);
-    send_set_command(CMD_LED_BUSY_OFF);
+    programmer.send_command(CMD_LED_BUSY_OFF);
     if (last_programming_failed) {
-      send_set_command(CMD_LED_OK_OFF);
-      send_set_command(CMD_LED_ERROR_ON);
+      programmer.send_command(CMD_LED_OK_OFF);
+      programmer.send_command(CMD_LED_ERROR_ON);
     }
     else {
-      send_set_command(CMD_LED_OK_ON);
-      send_set_command(CMD_LED_ERROR_OFF);
+      programmer.send_command(CMD_LED_OK_ON);
+      programmer.send_command(CMD_LED_ERROR_OFF);
     }
   }
 
@@ -247,13 +248,9 @@ async function program() {
     return;
   }
 
-  const programmer = new flash_lpc8xx({
-    'write': send_isp,
-    'readline': readline,
-    'expect': expect,
-  });
-  programmer.messageCallback = log;
-  programmer.progressCallback = progressCallback;
+  const isp = new flash_lpc8xx(programmer);
+  isp.messageCallback = log;
+  isp.progressCallback = progressCallback;
 
   try {
     programming_active = true;
@@ -262,24 +259,24 @@ async function program() {
     progressCallback(0);
 
     log("Power-cycling the light controller ...");
-    await send_set_command(CMD_DUT_POWER_OFF);
-    await send_set_command(CMD_OUT_ISP_LOW);
+    await programmer.send_command(CMD_DUT_POWER_OFF);
+    await programmer.send_command(CMD_OUT_ISP_LOW);
     await delay(200);
-    await send_set_command(CMD_DUT_POWER_ON);
+    await programmer.send_command(CMD_DUT_POWER_ON);
     await delay(100);
     progressCallback(0.02);
 
-    await programmer.initialization_sequence();
-    await send_set_command(CMD_OUT_ISP_TRISTATE);
+    await isp.initialization_sequence();
+    await programmer.send_command(CMD_OUT_ISP_TRISTATE);
 
-    const flash_size = await programmer.get_flash_size();
+    const flash_size = await isp.get_flash_size();
     log("Flash size: " + flash_size / 1024 + " Kbytes");
     if (firmware_image.length > flash_size) {
       log('Firmware size (' + firmware_image.length + ') exceeds flash size (' + flash_size + ')', 'fail');
       throw 'Firmware too large';
     }
 
-    await programmer.program(firmware_image);
+    await isp.program(firmware_image);
 
     // UPDATE: the code below is not needed anymore.
     // Instead we added a MOSFET that pulls the supply voltage of the light
@@ -304,8 +301,8 @@ async function program() {
   finally {
     programming_active = false;
     update_ui();
-    await send_set_command(CMD_DUT_POWER_OFF);
-    await send_set_command(CMD_OUT_ISP_LOW);
+    await programmer.send_command(CMD_DUT_POWER_OFF);
+    await programmer.send_command(CMD_OUT_ISP_LOW);
   }
 }
 
@@ -345,16 +342,16 @@ function select_page(selected_page) {
   }
 
   if (selected_page == 'tab_testing') {
-    send_set_command(CMD_OUT_ISP_TRISTATE);
-    send_set_command(CMD_DUT_POWER_ON);
+    programmer.send_command(CMD_OUT_ISP_TRISTATE);
+    programmer.send_command(CMD_DUT_POWER_ON);
     testing_active = true;
     reader();
 
   }
   else {
     testing_active = false;
-    send_set_command(CMD_DUT_POWER_OFF);
-    send_set_command(CMD_OUT_ISP_LOW);
+    programmer.send_command(CMD_DUT_POWER_OFF);
+    programmer.send_command(CMD_OUT_ISP_LOW);
   }
 
 };
@@ -366,7 +363,7 @@ async function reader() {
   while (testing_active) {
     line = '';
     try {
-      line = await readline('\n', 0);
+      line = await programmer.readline('\n', 0);
     }
     catch (e) {
       await delay(100);
@@ -379,7 +376,27 @@ async function reader() {
   console.log('reader() end');
 }
 
-function init() {
+async function connect(device) {
+  await programmer.open();
+  if (programmer.is_open) {
+    await programmer.send_command(CMD_DUT_POWER_OFF);
+    await programmer.send_command(CMD_OUT_ISP_LOW);
+
+    const msg = 'Connected to Light Controller Programmer with serial number ' + programmer.serial_number;
+    console.log(msg);
+    update_programmer_connection(programmer.serial_number);
+  }
+}
+
+async function onWebusbDeviceConnected(device) {
+  connect(device);
+}
+
+async function onWebusbDeviceDisconnected() {
+  update_programmer_connection();
+}
+
+async function init() {
   if (window.location.protocol != 'https:') {
     if (window.location.protocol != 'http:' || window.location.hostname != 'localhost') {
       show(document.querySelector('#error_https'));
@@ -395,8 +412,14 @@ function init() {
   }
 
 
-  el.connect_button.addEventListener('click', webusb_request_device);
-  el.disconnect_button.addEventListener('click', webusb_disconnect);
+  if (has_webusb) {
+    programmer = new WebUSB_programmer();
+    programmer.onConnectedCallback = onWebusbDeviceConnected;
+    programmer.onDisconnectedCallback = onWebusbDeviceDisconnected;
+  }
+
+  el.connect_button.addEventListener('click', connect);
+  el.disconnect_button.addEventListener('click', programmer.close.bind(programmer));
 
   // el.send_button.addEventListener('click', send_textfield_to_programmer);
   // el.send_questionmark_button.addEventListener('click', () => { send_isp('?') });
@@ -445,7 +468,14 @@ function init() {
 
   select_page("tab_connection");
   update_ui();
-  webusb_init();
+
+  if (programmer) {
+    const available_devices = await programmer.get_available_devices();
+    if (available_devices.length) {
+      console.log('Paired USB devices: ', available_devices);
+      connect(available_devices[0]);
+    }
+  }
 }
 
 init();
