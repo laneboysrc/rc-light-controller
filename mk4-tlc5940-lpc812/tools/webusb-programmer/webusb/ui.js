@@ -128,24 +128,33 @@ function disable(element) {
 }
 
 function update_ui() {
+  if (!has_webusb) {
+    hide(document.querySelector('.body'));
+    return;
+  }
+
   if (!is_connected) {
     hide(el.connection_info);
     hide(el.disconnect_button);
     show(el.connect_button);
     disable(el.menu_buttons[MENU_PROGRAMMING]);
     disable(el.menu_buttons[MENU_TESTING]);
+    return;
   }
-  else {
-    show(el.connection_info);
-    show(el.disconnect_button);
-    hide(el.connect_button);
-    enable(el.menu_buttons[MENU_PROGRAMMING]);
-    enable(el.menu_buttons[MENU_TESTING]);
-  }
+
+  show(el.connection_info);
+  show(el.disconnect_button);
+  hide(el.connect_button);
 
   if (programming_active) {
     disable(el.load);
     disable(el.menu_buttons[MENU_CONNECTION]);
+    disable(el.menu_buttons[MENU_TESTING]);
+    programmer.send_command(CMD_LED_OK_OFF);
+    programmer.send_command(CMD_LED_BUSY_ON);
+    programmer.send_command(CMD_LED_ERROR_OFF);
+  }
+  else if (testing_active) {
     programmer.send_command(CMD_LED_OK_OFF);
     programmer.send_command(CMD_LED_BUSY_ON);
     programmer.send_command(CMD_LED_ERROR_OFF);
@@ -153,6 +162,8 @@ function update_ui() {
   else {
     enable(el.load);
     enable(el.menu_buttons[MENU_CONNECTION]);
+    enable(el.menu_buttons[MENU_PROGRAMMING]);
+    enable(el.menu_buttons[MENU_TESTING]);
     programmer.send_command(CMD_LED_BUSY_OFF);
     if (last_programming_failed) {
       programmer.send_command(CMD_LED_OK_OFF);
@@ -171,9 +182,7 @@ function update_ui() {
     disable(el.program);
   }
 
-  if (!has_webusb) {
-    hide(document.querySelector('.body'));
-  }
+
 }
 
 function update_programmer_connection(device_serial) {
@@ -345,15 +354,15 @@ function select_page(selected_page) {
     programmer.send_command(CMD_OUT_ISP_TRISTATE);
     programmer.send_command(CMD_DUT_POWER_ON);
     testing_active = true;
+    last_programming_failed = false;
     reader();
-
   }
   else {
     testing_active = false;
     programmer.send_command(CMD_DUT_POWER_OFF);
     programmer.send_command(CMD_OUT_ISP_LOW);
   }
-
+  update_ui();
 };
 
 async function reader() {
@@ -377,7 +386,7 @@ async function reader() {
 }
 
 async function connect(device) {
-  await programmer.open();
+  await programmer.open(device);
   if (programmer.is_open) {
     await programmer.send_command(CMD_DUT_POWER_OFF);
     await programmer.send_command(CMD_OUT_ISP_LOW);
@@ -386,6 +395,11 @@ async function connect(device) {
     console.log(msg);
     update_programmer_connection(programmer.serial_number);
   }
+}
+
+async function disconnect() {
+  await programmer.close();
+  update_programmer_connection();
 }
 
 async function onWebusbDeviceConnected(device) {
@@ -419,7 +433,7 @@ async function init() {
   }
 
   el.connect_button.addEventListener('click', connect);
-  el.disconnect_button.addEventListener('click', programmer.close.bind(programmer));
+  el.disconnect_button.addEventListener('click', disconnect);
 
   // el.send_button.addEventListener('click', send_textfield_to_programmer);
   // el.send_questionmark_button.addEventListener('click', () => { send_isp('?') });

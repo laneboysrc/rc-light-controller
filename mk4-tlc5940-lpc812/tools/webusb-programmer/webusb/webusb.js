@@ -98,16 +98,9 @@ class WebUSB_programmer {
   async open(device) {
     console.log("open()", device);
 
-    // If no device given, open the first available.
-    // If none available, show the request device dialog
-    if (!device || !device,open) {
-      const devices = await this.get_available_devices();
-      if (devices.length) {
-        device = devices[0];
-      }
-      else {
-        device = await this.webusb_request_device();
-      }
+    // If none given, show the request device dialog
+    if (!device || !device.open) {
+      device = await this.webusb_request_device();
     }
     if (!device) {
       return;
@@ -157,11 +150,11 @@ class WebUSB_programmer {
           console.log('USB R: ' + this._make_crlf_visible(value));
         }
         else {
-          console.info('transferIn() failed:', result.status);
+          console.info('_background_receive transferIn() failed:', result.status);
         }
       }
       catch (e) {
-        console.info('transferIn() exception:', e);
+        console.info('_background_receive transferIn() exception:', e);
         return;
       }
     }
