@@ -16,6 +16,8 @@ API:
 */
 class WebUSB_programmer {
   VENDOR_ID = 0x6666;
+  PRODUCT_ID = 0xcab7;
+
   VENDOR_CODE_COMMAND = 72;
 
   TEST_INTERFACE = 0;
@@ -38,7 +40,7 @@ class WebUSB_programmer {
     const device = connection_event.device;
     console.log('USB device connected:', device);
     if (!this.active_device) {
-      if (device && device.vendorId == this.VENDOR_ID) {
+      if (device && device.vendorId == this.VENDOR_ID && device.productId == this.PRODUCT_ID) {
         if (this.connectedCallback) {
           this.connectedCallback(device);
         }
@@ -77,8 +79,10 @@ class WebUSB_programmer {
   async webusb_request_device() {
     let device;
 
-    const filters = [
-      { 'vendorId': this.VENDOR_ID }
+    const filters = [{
+        'vendorId': this.VENDOR_ID,
+        'productId': this.PRODUCT_ID,
+      }
     ];
 
     try {
