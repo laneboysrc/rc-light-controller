@@ -163,7 +163,7 @@ class Preprocessor_simulator_ui {
 
     case s.AUX_TYPE_MOMENTARY:
       aux.slider.step = 200;
-      update_aux_value(aux, -100);
+      this.update_aux_value(aux, -100);
       aux.toggle.textContent = 'toggle';
       break;
 

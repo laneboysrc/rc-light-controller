@@ -176,6 +176,8 @@ class Preprocessor_simulator {
   }
 
   channel_changed(channel, value) {
+    value = parseInt(value, 10);
+
     if (value < - 100 || value > 100) {
       throw 'value ' + value + ' is out of range -100..0..+100';
     }
