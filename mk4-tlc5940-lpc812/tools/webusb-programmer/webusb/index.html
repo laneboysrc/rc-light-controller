@@ -96,20 +96,62 @@
                   </div>
               </div>
 
-              <div class="column">
-                  <div class="box configuration features">
+              <div class='column'>
+                  <div class='box configuration controls'>
                       <div>
-                          <input id="startup-mode" type="checkbox"> <label for="startup-mode">Startup</label>
+                          <input id='startup-mode' type='checkbox'> <label for='startup-mode'>Startup</label>
                       </div>
                   </div>
-                  <div class="box configuration features">
-                      <span style="float: right;">
-                          <input id="momentary" type="checkbox"> <label for="momentary">Momemtary</label>
+                  <div class='box configuration controls'>
+                      <span style='float: right;'>
+                          <select id='aux-type'>
+                              <option value='0'>Two-position switch</option>
+                              <option value='1'>Two-position switch up/down</option>
+                              <option value='2'>Momentary</option>
+                              <option value='3' class='multi-aux'>Three-position switch</option>
+                              <option value='4' class='multi-aux'>Analog</option>
+                          </select>
                       </span>
-                      <h2>CH3 / AUX</h2>
-                      <div>
-                          <button id="ch3">CH3</button>
+                      <h2>AUX</h2>
+                      <div id='aux-function' class='function'></div>
+                      <div class='centered'>
+                          <button id='aux-toggle'>AUX</button>
                       </div>
+                      <input id='aux-slider' type='range' min ='-100' max='100' step ='1' value ='0'>
+                  </div>
+                  <div class='box configuration controls multi-aux'>
+                      <span style='float: right;'>
+                         <select id='aux2-type'>
+                              <option value='0'>Two-position switch</option>
+                              <option value='1'>Two-position switch up/down</option>
+                              <option value='2'>Momentary</option>
+                              <option value='3'>Three-position switch</option>
+                              <option value='4'>Analog</option>
+                          </select>
+                      </span>
+                      <h2>AUX2</h2>
+                      <div id='aux2-function' class='function'></div>
+                      <div class='centered'>
+                          <button id='aux2-toggle'>AUX2</button>
+                      </div>
+                      <input id='aux2-slider' type='range' min ='-100' max='100' step ='1' value ='0'>
+                  </div>
+                  <div class='box configuration controls multi-aux'>
+                      <span style='float: right;'>
+                          <select id='aux3-type'>
+                              <option value='0'>Two-position switch</option>
+                              <option value='1'>Two-position switch up/down</option>
+                              <option value='2'>Momentary</option>
+                              <option value='3'>Three-position switch</option>
+                              <option value='4'>Analog</option>
+                          </select>
+                      </span>
+                      <h2>AUX3</h2>
+                      <div id='aux3-function' class='function'></div>
+                      <div class='centered'>
+                          <button id='aux3-toggle'>AUX3</button>
+                      </div>
+                      <input id='aux3-slider' type='range' min ='-100' max='100' step ='1' value ='0'>
                   </div>
               </div>
           </div>
@@ -133,6 +175,7 @@
     <script src="webusb.js"></script>
     <script src="lpc81x_isp.js"></script>
     <script src="preprocessor-simulator.js"></script>
+    <script src="preprocessor-simulator-ui.js"></script>
     <script src="ui.js"></script>
   </body>
 </html>

@@ -216,15 +216,17 @@ class WebUSB_programmer {
     }
   }
 
-  async write(data) {
+  async write(data, dont_log) {
     const transfer_size = this.EP_SIZE;
 
-    if (data instanceof Uint8Array) {
-      console.log('USB W: <data len=' + data.length + '>');
-    }
-    else {
-      console.log('USB W: ' + this._make_crlf_visible(data));
-      data = this._string2arraybuffer(data);
+    if (!dont_log) {
+      if (data instanceof Uint8Array) {
+        console.log('USB W: <data len=' + data.length + '>');
+      }
+      else {
+        console.log('USB W: ' + this._make_crlf_visible(data));
+        data = this._string2arraybuffer(data);
+      }
     }
 
     while (data.length) {

@@ -30,6 +30,7 @@ let is_connected = false;
 let has_webusb = false;
 let last_programming_failed = false;
 let programmer;
+let simulator_ui;
 let simulator;
 
 let testing_active = false;
@@ -62,7 +63,7 @@ el.program = document.querySelector('#program');
 el.progress = document.querySelector('#progress');
 el.initialize = document.querySelector('#initialize');
 el.filename = document.querySelector('#filename');
-el.diagnostics = document.querySelector('#diagnostics-messages');
+
 
 function log(msg, displayClass) {
   const content = new Date(Date.now()).toISOString() + ' ' + msg;
@@ -82,33 +83,6 @@ function log(msg, displayClass) {
   }
   else {
     el.status.appendChild(div);
-  }
-}
-
-function log_testing(msg, displayClass) {
-  const content = new Date(Date.now()).toISOString() + ' ' + msg;
-  const div = document.createElement('div');
-  div.textContent = content;
-  console.log("sim: " + content);
-
-  if (displayClass) {
-    div.classList.add(displayClass);
-  }
-
-  if (el.diagnostics.firstChild) {
-    el.diagnostics.insertBefore(div, el.diagnostics.firstChild);
-    while (el.diagnostics.childElementCount > MAX_UART_LOG_LINES) {
-      el.diagnostics.removeChild(el.diagnostics.lastChild);
-    }
-  }
-  else {
-    el.diagnostics.appendChild(div);
-  }
-}
-
-function log_testing_clear() {
-  while (el.diagnostics.childElementCount > 0) {
-    el.diagnostics.removeChild(el.diagnostics.lastChild);
   }
 }
 
@@ -352,23 +326,27 @@ function select_page(selected_page) {
   }
 
   if (selected_page == 'tab_testing') {
-    testing_active = true;
-    last_programming_failed = false;
-    if (programmer) {
-      programmer.send_command(CMD_OUT_ISP_TRISTATE);
-      programmer.send_command(CMD_DUT_POWER_ON);
-    }
+    if (!testing_active) {
+      testing_active = true;
+      last_programming_failed = false;
+      if (programmer) {
+        programmer.send_command(CMD_OUT_ISP_TRISTATE);
+        programmer.send_command(CMD_DUT_POWER_ON);
+      }
 
-    simulator = new Preprocessor_simulator(programmer);
-    log_testing_clear();
-    simulator.onMessageCallback = log_testing;
+      simulator = new Preprocessor_simulator(programmer);
+      simulator_ui = new Preprocessor_simulator_ui(simulator);
+    }
   }
   else {
     testing_active = false;
     if (simulator) {
       simulator.close();
+      simulator_ui.close();
     }
     simulator = undefined;
+    simulator_ui = undefined;
+
     if (programmer) {
       programmer.send_command(CMD_DUT_POWER_OFF);
       programmer.send_command(CMD_OUT_ISP_LOW);
@@ -430,6 +408,7 @@ async function init() {
   el.load_input.addEventListener('change', load_file_from_disk, false);
 
   el.program.addEventListener('click', () => { program() }, false);
+
 
   for (let index = 0; index < el.menu_buttons.length; index += 1) {
     const button = el.menu_buttons[index];
