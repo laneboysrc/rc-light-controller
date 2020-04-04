@@ -67,6 +67,10 @@ class Preprocessor_simulator_ui {
     this._addEventListener(this.el.aux[this.AUX3].toggle, 'mousedown', this.aux_toggle.bind(this, this.el.aux[this.AUX3]));
     this._addEventListener(this.el.aux[this.AUX3].toggle, 'mouseup', this.aux_toggle.bind(this, this.el.aux[this.AUX3]));
 
+    this._addEventListener(this.el.aux[this.AUX].type, 'change', this.aux_type_changed.bind(this, this.el.aux[this.AUX]));
+    this._addEventListener(this.el.aux[this.AUX2].type, 'change', this.aux_type_changed.bind(this, this.el.aux[this.AUX2]));
+    this._addEventListener(this.el.aux[this.AUX3].type, 'change', this.aux_type_changed.bind(this, this.el.aux[this.AUX3]));
+
     this.config_changed(this.simulator.default_config);
 
     this.log_testing_clear();
@@ -123,6 +127,26 @@ class Preprocessor_simulator_ui {
         this.update_aux_value(aux, -100);
       }
     }
+    else if (aux.type.value == s.AUX_TYPE_THREE_POSITION) {
+      if (event.type == 'keydown' || event.type == 'mousedown') {
+        if (parseInt(aux.slider.value, 10) > 0) {
+          this.update_aux_value(aux, 0);
+          aux.direction_down = true;
+        }
+        else if (parseInt(aux.slider.value, 10) < 0) {
+          this.update_aux_value(aux, 0);
+          aux.direction_down = false;
+        }
+        else {
+          if (aux.direction_down) {
+            this.update_aux_value(aux, -100);
+          }
+          else {
+            this.update_aux_value(aux, 100);
+          }
+        }
+      }
+    }
     else {
       if (event.type == 'keydown' || event.type == 'mousedown') {
         if (aux.type.value == s.AUX_TYPE_TWO_POSITION_UP_DOWN) {
@@ -144,10 +168,12 @@ class Preprocessor_simulator_ui {
     }
   }
 
-  aux_type_changed(aux, type) {
+  aux_type_changed(aux) {
     const s = this.simulator;
 
-    switch (parseInt(type)) {
+    const type = parseInt(aux.type.value);
+
+    switch (type) {
     case s.AUX_TYPE_TWO_POSITION:
     case s.AUX_TYPE_TWO_POSITION_UP_DOWN:
       if (aux.slider.value <= 0) {
@@ -206,9 +232,9 @@ class Preprocessor_simulator_ui {
     this.el.aux[this.AUX2].type.value = this.config[s.AUX2][s.AUX_TYPE];
     this.el.aux[this.AUX3].type.value = this.config[s.AUX3][s.AUX_TYPE];
 
-    this.aux_type_changed(this.el.aux[this.AUX], this.config[s.AUX][s.AUX_TYPE]);
-    this.aux_type_changed(this.el.aux[this.AUX2], this.config[s.AUX2][s.AUX_TYPE]);
-    this.aux_type_changed(this.el.aux[this.AUX3], this.config[s.AUX3][s.AUX_TYPE]);
+    this.aux_type_changed(this.el.aux[this.AUX]);
+    this.aux_type_changed(this.el.aux[this.AUX2]);
+    this.aux_type_changed(this.el.aux[this.AUX3]);
   }
 
   close() {
