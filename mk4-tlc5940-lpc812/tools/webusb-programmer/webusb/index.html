@@ -78,6 +78,14 @@
         <div id="tab_testing" class="hidden">
           <div class="preprocessor-page" id="preprocessor-simulator">
               <div class="column">
+                  <div class='box configuration controls'>
+                      <div>
+                          <input id='startup-mode' type='checkbox'> <label for='startup-mode'>Startup</label>
+                      </div>
+                      <div>
+                          <input id='no-signal' type='checkbox'> <label for='no-signal'>Simulate no signal</label>
+                      </div>
+                  </div>
                   <div class="box configuration controls">
                       <h2>Steering</h2>
                       <div>
@@ -97,11 +105,6 @@
               </div>
 
               <div class='column'>
-                  <div class='box configuration controls'>
-                      <div>
-                          <input id='startup-mode' type='checkbox'> <label for='startup-mode'>Startup</label>
-                      </div>
-                  </div>
                   <div class='box configuration controls'>
                       <span style='float: right;'>
                           <select id='aux-type'>

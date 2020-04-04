@@ -183,6 +183,16 @@ class Preprocessor_simulator {
     }
 
     this.channels[channel] = value;
+
+    if (this.channels[this.NO_SIGNAL]) {
+      this.transmitter_active = false;
+    }
+    else {
+      if (!this.transmitter_active) {
+        this.transmitter_active = true;
+        this._transmitter();
+      }
+    }
   }
 
   set onMessageCallback(fn) {
