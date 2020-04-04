@@ -26,6 +26,7 @@
 #define CMD_LED_BUSY_ON (43)
 #define CMD_LED_ERROR_OFF (44)
 #define CMD_LED_ERROR_ON (45)
+#define CMD_PING (99)
 
 bool test_interface_is_write_busy(void);
 void test_interface_write(uint8_t length);
@@ -121,15 +122,6 @@ static void test_interface_in_completion(void)
 static void command_handler(void)
 {
     switch(usb_setup.wValue) {
-        case 0:
-            break;
-
-        case 1:
-            ep0_buf_in[0] = 42;
-            usb_ep0_in(1);
-            usb_ep0_out();
-            return;
-
         case CMD_DUT_POWER_ON:
             HAL_gpio_clear(HAL_GPIO_POWER_SHORT);
             HAL_gpio_clear(HAL_GPIO_POWER_ENABLE);
@@ -211,6 +203,9 @@ static void command_handler(void)
 
         case CMD_BAUDRATE_115200:
             HAL_uart_set_baudrate(115200);
+            break;
+
+        case CMD_PING:
             break;
 
         default:
