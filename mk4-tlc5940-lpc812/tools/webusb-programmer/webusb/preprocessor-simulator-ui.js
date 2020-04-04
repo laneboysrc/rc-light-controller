@@ -1,7 +1,5 @@
 class Preprocessor_simulator_ui {
   MAX_LOG_LINES = 20;
-  BOUND_EVENT = '_preprocessor_sim_event';
-  BOUND_LISTENER = '_preprocessor_sim_listener';
   SIMULATOR_CHANNEL = '_preprocessor_sim_channel';
 
   AUX = 'AUX';
@@ -46,6 +44,8 @@ class Preprocessor_simulator_ui {
     this.el.aux[this.AUX3].slider = document.querySelector('#aux3-slider');
     this.el.aux[this.AUX3].toggle = document.querySelector('#aux3-toggle');
 
+    this.event_listeners = [];
+
     this._addEventListener(this.el.startup_mode, 'change', this.startup_mode_changed.bind(this));
     this._addEventListener(this.el.no_signal, 'change', this.no_signal_changed.bind(this));
 
@@ -88,9 +88,18 @@ class Preprocessor_simulator_ui {
   }
 
   _addEventListener(element, event, listener) {
-    element[this.BOUND_EVENT] = event;
-    element[this.BOUND_LISTENER] = listener;
-    element.addEventListener(event, element[this.BOUND_LISTENER], false);
+    this.event_listeners.push({'element': element, 'event': event, 'listener': listener});
+    element.addEventListener(event, listener, false);
+  }
+
+  _removeEventListener(entry) {
+    entry.element.removeEventListener(entry.event, entry.listener, false);
+  }
+
+  close() {
+    // Remove all event listeners that we have set
+    const self = this;
+    this.event_listeners.forEach(entry => self._removeEventListener(entry));
   }
 
   slider_changed(event) {
@@ -219,40 +228,13 @@ class Preprocessor_simulator_ui {
     this.simulator.channel_changed(aux.channel, aux.slider.value);
   }
 
-  reset_aux(aux) {
-    const s = this.simulator;
-
-    const type = parseInt(aux.type.value);
-
-    switch (type) {
-    case s.AUX_TYPE_TWO_POSITION:
-    case s.AUX_TYPE_TWO_POSITION_UP_DOWN:
-    case s.AUX_TYPE_MOMENTARY:
-      this.update_aux_value(aux, -100);
-      break;
-
-    case s.AUX_TYPE_THREE_POSITION:
-    case s.AUX_TYPE_ANALOG:
-    default:
-      this.update_aux_value(aux, 0);
-      break;
-    }
-  }
-
   startup_mode_changed() {
     if (this.el.startup_mode.checked) {
       this.el.steering.value = 0;
       this.el.throttle.value = 0;
 
-      this.reset_aux(this.el.aux[this.AUX]);
-      this.reset_aux(this.el.aux[this.AUX2]);
-      this.reset_aux(this.el.aux[this.AUX3]);
-
-      this.simulator.channel_changed(this.el.steering.channel, this.el.steering.value);
-      this.simulator.channel_changed(this.el.throttle.channel, this.el.throttle.value);
-      this.simulator.channel_changed(this.el.aux[this.AUX].channel, this.el.aux[this.AUX].slider.value);
-      this.simulator.channel_changed(this.el.aux[this.AUX2].channel, this.el.aux[this.AUX2].slider.value);
-      this.simulator.channel_changed(this.el.aux[this.AUX3].channel, this.el.aux[this.AUX3].slider.value);
+      this.simulator.channel_changed(this.el.steering[this.SIMULATOR_CHANNEL], this.el.steering.value);
+      this.simulator.channel_changed(this.el.throttle[this.SIMULATOR_CHANNEL], this.el.throttle.value);
     }
     this.update_ui_state();
   }
@@ -331,18 +313,6 @@ class Preprocessor_simulator_ui {
     this.aux_type_changed(this.el.aux[this.AUX]);
     this.aux_type_changed(this.el.aux[this.AUX2]);
     this.aux_type_changed(this.el.aux[this.AUX3]);
-  }
-
-  close() {
-    // Remove all event listeners that we have set
-    for (name in this.el) {
-      const element = this.el[name];
-      if (this.BOUND_EVENT in element) {
-        element.removeEventListener(element[this.BOUND_EVENT], element[this.BOUND_LISTENER], false);
-        delete element[this.BOUND_EVENT];
-        delete element[this.BOUND_LISTENER];
-      }
-    };
   }
 
   log_testing(msg, displayClass) {
