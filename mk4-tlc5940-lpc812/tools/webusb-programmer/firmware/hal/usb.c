@@ -215,6 +215,8 @@ static void command_handler(void)
 
     usb_ep0_in(0);
     usb_ep0_out();
+
+    watchdog_reset();
 }
 
 // ****************************************************************************

@@ -12,6 +12,65 @@
 
 #include <hal.h>
 
+#define WATCHDOG_TIMEOUT_MS (2000)
+
+static bool watchdog_enabled = false;
+static uint32_t watchdog_expiry_ms;
+
+
+// ****************************************************************************
+void watchdog_reset(void)
+{
+    watchdog_expiry_ms = milliseconds + WATCHDOG_TIMEOUT_MS;
+    watchdog_enabled = true;
+}
+
+
+// ****************************************************************************
+static void watchdog_service(void)
+{
+    if (!watchdog_enabled) {
+        return;
+    }
+
+    if (milliseconds < watchdog_expiry_ms) {
+        return;
+    }
+
+    watchdog_enabled = false;
+
+    // Watchdog expired: turn the power to the light controller off
+    HAL_gpio_set(HAL_GPIO_POWER_ENABLE);
+    HAL_gpio_out(HAL_GPIO_POWER_ENABLE);
+
+    // Turn the LEDs off
+    HAL_gpio_out(HAL_GPIO_LED_OK);
+    HAL_gpio_out(HAL_GPIO_LED_BUSY);
+    HAL_gpio_out(HAL_GPIO_LED_ERROR);
+    HAL_gpio_clear(HAL_GPIO_LED_OK);
+    HAL_gpio_clear(HAL_GPIO_LED_BUSY);
+    HAL_gpio_clear(HAL_GPIO_LED_ERROR);
+
+    // Switch the UART TX and RX to GPIO output  and set it to low, so that
+    // we don't power the light controller via the ST/RX pin!
+    HAL_gpio_clear(HAL_GPIO_TXIO);
+    HAL_gpio_out(HAL_GPIO_TXIO);
+    HAL_gpio_pmuxen(HAL_GPIO_TXIO);
+    HAL_gpio_clear(HAL_GPIO_RXIO);
+    HAL_gpio_out(HAL_GPIO_RXIO);
+    HAL_gpio_pmuxen(HAL_GPIO_RXIO);
+
+    // Also switch CH3 and OUT/ISP to low
+    HAL_gpio_clear(HAL_GPIO_CH3);
+    HAL_gpio_out(HAL_GPIO_CH3);
+    HAL_gpio_clear(HAL_GPIO_OUT_ISP);
+    HAL_gpio_out(HAL_GPIO_OUT_ISP);
+
+    // Short the power lines of the light controller to discharge its capacitors
+    HAL_gpio_set(HAL_GPIO_POWER_SHORT);
+    HAL_gpio_out(HAL_GPIO_POWER_SHORT);
+}
+
 
 // ****************************************************************************
 static void service_systick(void)
@@ -33,6 +92,7 @@ int main(void)
 
     while (1) {
         service_systick();
+        watchdog_service();
         HAL_service();
 
         // Transfer up to BUF_SIZE bytes in one go from USB to UART

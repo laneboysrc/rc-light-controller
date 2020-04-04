@@ -18,6 +18,7 @@ const CMD_LED_BUSY_OFF = 42;
 const CMD_LED_BUSY_ON = 43;
 const CMD_LED_ERROR_OFF = 44;
 const CMD_LED_ERROR_ON = 45;
+const CMD_PING = 99;
 
 const MENU_CONNECTION = 0;
 const MENU_PROGRAMMING = 1;
@@ -156,8 +157,6 @@ function update_ui() {
   else {
     disable(el.program);
   }
-
-
 }
 
 function update_programmer_connection(device_serial) {
@@ -364,7 +363,22 @@ async function connect(device) {
     const msg = 'Connected to Light Controller Programmer with serial number ' + programmer.serial_number;
     console.log(msg);
     update_programmer_connection(programmer.serial_number);
+    keep_programmer_alive();
   }
+}
+
+async function keep_programmer_alive() {
+  // Send a PING command to the programmer every one second.
+  // The programmer uses this command to see whether the host is still connected
+  // to it, as the USB stack does not provide any info when e.g. when the webpage
+  // with the programmer has been closed.
+  try {
+    await programmer.send_command(CMD_PING);
+  }
+  catch (e) {
+    return;
+  }
+  setTimeout(keep_programmer_alive, 1000);
 }
 
 async function disconnect() {
