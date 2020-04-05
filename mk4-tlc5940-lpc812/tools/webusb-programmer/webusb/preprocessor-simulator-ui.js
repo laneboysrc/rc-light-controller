@@ -80,7 +80,7 @@ class Preprocessor_simulator_ui {
     this.el.startup_mode.checked = true;
     setTimeout(this.startup_mode_auto_timeout.bind(this), 1000);
 
-    this.config_changed(this.simulator.default_config);
+    this.config_changed(this.simulator.config_default);
 
     this.log_testing_clear();
     simulator.onMessageCallback = this.log_testing.bind(this);
@@ -257,7 +257,26 @@ class Preprocessor_simulator_ui {
   }
 
   config_changed(new_config) {
-    console.log(new_config);
+    /* We have to deal with 4 types of configuration:
+        - User manually sets 3-channel mode
+        - User manually sets 5-channel mode
+        - Automatic 3-channel mode based on light controller sending CONFIG
+        - Automatic 5-channel mode based on light controller sending CONFIG
+        - Default 3-channel mode for old light controller firmware that dones't
+          send CONFIG
+
+        From the UI point of view we want to have radio buttons or a drop-down
+        box where the user can select AUTO, 3-CH and 5-CH mode.
+
+        The default 3-channel mode and manual 3-channel mode are the same
+        functionality-wise, with the difference being that when the UI changes
+        back to AUTO we have to know that we are in this default 3-ch mode.
+
+        Implementation-wise, we have an currently active config, and an auto
+        config. The auto config is set at application start (default 3-ch) and
+        when the light controller sends the CONFIG data.
+        The active config is set based on the UI.
+    */
     this.config = new_config;
     this.update_ui_state();
   }
@@ -313,6 +332,8 @@ class Preprocessor_simulator_ui {
     this.aux_type_changed(this.el.aux[this.AUX]);
     this.aux_type_changed(this.el.aux[this.AUX2]);
     this.aux_type_changed(this.el.aux[this.AUX3]);
+
+    this.simulator.channel_changed(s.MULTI_AUX, this.config[s.MULTI_AUX] ? 1 : 0);
   }
 
   log_testing(msg, displayClass) {

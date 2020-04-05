@@ -31,6 +31,7 @@ class Preprocessor_simulator {
   AUX3 = 'AUX3';
   STARTUP_MODE = 'STARTUP_MODE';
   NO_SIGNAL = 'NO_SIGNAL';
+  MULTI_AUX = 'MULTI_AUX';
 
   AUX_TYPE = 'AUX_TYPE';
   AUX_TYPE_TWO_POSITION = 0;
@@ -49,7 +50,10 @@ class Preprocessor_simulator {
   AUX_FUNCTION_HAZARD = 6;
   AUX_FUNCTION_LIGHT_SWITCH = 7;
 
-  MULTI_AUX = 'multi_aux';
+  CONFIG_TYPE = 'CONFIG_TYPE';
+  CONFIG_TYPE_DEFAULT = 'DEFAULT';
+  CONFIG_TYPE_AUTO = 'AUTO';
+  CONFIG_TYPE_MANUAL = 'MANUAL';
 
   SLAVE_MAGIC_BYTE = 0x87;
 
@@ -65,7 +69,7 @@ class Preprocessor_simulator {
     this.channels[this.STARTUP_MODE] = 0;
     this.channels[this.NO_SIGNAL] = 0;
 
-    this.config = this.default_config;
+    this.config = this.config_default;
 
     this.configChangedCallback = undefined;
 
@@ -139,12 +143,12 @@ class Preprocessor_simulator {
       if (this.startup_mode) {
           mode_byte += 0x10;
       }
-      if (this.config[this.MULTI_AUX]) {
+      if (this.channels[this.MULTI_AUX]) {
           mode_byte += 0x08;
       }
 
       let data;
-      if (this.config[this.MULTI_AUX]) {
+      if (this.channels[this.MULTI_AUX]) {
         data = new Uint8Array(7);
         data[0] = this.SLAVE_MAGIC_BYTE;
         data[1] = st;
@@ -201,35 +205,32 @@ class Preprocessor_simulator {
 
 
   _parse_config(msg) {
-    if (msg == this.config_string) {
-        return;
+    if (msg == this.last_received_config) {
+      return;
     }
 
-    this.config_string = msg;
+    this.last_received_config = msg;
     console.log('New config: ' + msg);
 
     let values = msg.split(' ');
     if (values.length < 1) {
-        return;
+      return;
     }
-
-    values.unshift('A');
 
     /*
 
     CONFIG array elements:
     ======================
-    0: A=automatic 3=force_3ch 5=force_5ch
-    1: CONFIG
-    2: config.flags2.multi_aux
-    3: config.flags.ch3_is_momentary
-    4: config.flags.ch3_is_two_button,
-    5: config.aux_type
-    6: config.aux_function
-    7: config.aux2_type
-    8: config.aux2_function
-    9: config.aux3_type
-    10: config.aux3_function
+    0: CONFIG
+    1: config.flags2.multi_aux
+    2: config.flags.ch3_is_momentary
+    3: config.flags.ch3_is_two_button,
+    4: config.aux_type
+    5: config.aux_function
+    6: config.aux2_type
+    7: config.aux2_function
+    8: config.aux3_type
+    9: config.aux3_function
 
     AUX_TYPE_T:
     -----------
@@ -252,73 +253,43 @@ class Preprocessor_simulator {
 
     */
 
-    if (values[0] == '3') {
-      // const elements = document.querySelectorAll('.multi-aux');
-      // elements.forEach(e => {
-      //   e.classList.add('hidden');
-      // });
-
-      // [aux, aux2, aux3].forEach(a => {
-      //   a.elType.disabled = false;
-      // });
+    if (values.length < 10) {
+      console.error('CONFIG has less than 10 entries: "' + msg + '" (length=' + values.length + ')');
+      return;
     }
 
-    else if (values[0] == '5') {
-      // const elements = document.querySelectorAll('.multi-aux');
-      // elements.forEach(e => {
-      //     e.classList.remove('hidden');
-      // });
+    this.config[this.CONFIG_TYPE] = this.CONFIG_TYPE_AUTO;
 
-      // [aux, aux2, aux3].forEach(a => {
-      //     a.elType.disabled = false;
-      // });
+    if ((values[1] != '0')) {
+      this.config[this.MULTI_AUX] = true;
+
+      this.config[this.AUX][this.AUX_TYPE] = values[4];
+      this.config[this.AUX2][this.AUX_TYPE] = values[6];
+      this.config[this.AUX3][this.AUX_TYPE] = values[8];
+
+      this.config[this.AUX][this.AUX_FUNCTION] = values[5];
+      this.config[this.AUX2][this.AUX_FUNCTION] = values[7];
+      this.config[this.AUX3][this.AUX_FUNCTION] = values[9];
     }
+    else {
+      this.config[this.MULTI_AUX] = false;
 
-    else if (values.length >= 11) {
-      // 2:  config.flags2.multi_aux
-      if ((values[2] != '0')) {
-        this.config[this.MULTI_AUX] = true;
-
-        this.config[this.AUX][this.AUX_TYPE] = values[5];
-        this.config[this.AUX2][this.AUX_TYPE] = values[7];
-        this.config[this.AUX3][this.AUX_TYPE] = values[9];
-
-        this.config[this.AUX][this.AUX_FUNCTION] = values[6];
-        this.config[this.AUX2][this.AUX_FUNCTION] = values[8];
-        this.config[this.AUX3][this.AUX_FUNCTION] = values[10];
+      // 2: config.flags.ch3_is_momentary
+      if (values[2] != '0') {
+          this.config[this.AUX][this.AUX_TYPE] = this.AUX_TYPE_MOMENTARY;
+      }
+      // 3: config.flags.ch3_is_two_button
+      else if (values[3] != '0') {
+          this.config[this.AUX][this.AUX_TYPE] = this.AUX_TYPE_TWO_POSITION_UP_DOWN;
       }
       else {
-        this.config[this.MULTI_AUX] = false;
-
-        // 3: config.flags.ch3_is_momentary
-        if (values[3] != '0') {
-            this.config[this.AUX][this.AUX_TYPE] = this.AUX_TYPE_MOMENTARY;
-        }
-        // 4: config.flags.ch3_is_two_button
-        else if (values[4] != '0') {
-            this.config[this.AUX][this.AUX_TYPE] = this.AUX_TYPE_TWO_POSITION_UP_DOWN;
-        }
-        else {
-            this.config[this.AUX][this.AUX_TYPE] = this.AUX_TYPE_TWO_POSITION;
-        }
-
-        this.config[this.AUX2][this.AUX_TYPE] = values[7];
-        this.config[this.AUX3][this.AUX_TYPE] = values[9];
-        this.config[this.AUX2][this.AUX_FUNCTION] = values[8];
-        this.config[this.AUX3][this.AUX_FUNCTION] = values[10];
+          this.config[this.AUX][this.AUX_TYPE] = this.AUX_TYPE_TWO_POSITION;
       }
-    }
 
-    else {
-      this.config = this.default_config;
-      // const elements = document.querySelectorAll('.multi-aux');
-      // elements.forEach(e => {
-      //     e.classList.add('hidden');
-      // });
-
-      // [aux, aux2, aux3].forEach(a => {
-      //     a.elType.disabled = false;
-      // });
+      this.config[this.AUX2][this.AUX_TYPE] = values[6];
+      this.config[this.AUX3][this.AUX_TYPE] = values[8];
+      this.config[this.AUX2][this.AUX_FUNCTION] = values[7];
+      this.config[this.AUX3][this.AUX_FUNCTION] = values[9];
     }
 
     if (this.configChangedCallback) {
@@ -361,9 +332,42 @@ class Preprocessor_simulator {
     this.configChangedCallback = fn;
   }
 
-  get default_config() {
+  get config_default() {
     const config = {};
+    config[this.CONFIG_TYPE] = this.CONFIG_TYPE_DEFAULT;
     config[this.MULTI_AUX] = false;
+    config[this.AUX] = {};
+    config[this.AUX][this.AUX_TYPE] = this.AUX_TYPE_TWO_POSITION;
+    config[this.AUX][this.AUX_FUNCTION] = this.AUX_FUNCTION_MULTI_FUNCTION;
+    config[this.AUX2] = {};
+    config[this.AUX2][this.AUX_TYPE] = this.AUX_TYPE_ANALOG;
+    config[this.AUX2][this.AUX_FUNCTION] = this.AUX_FUNCTION_NOT_USED;
+    config[this.AUX3] = {};
+    config[this.AUX3][this.AUX_TYPE] = this.AUX_TYPE_ANALOG;
+    config[this.AUX3][this.AUX_FUNCTION] = this.AUX_FUNCTION_NOT_USED;
+    return config;
+  }
+
+  get config_manual_3ch() {
+    const config = {};
+    config[this.CONFIG_TYPE] = this.CONFIG_TYPE_MANUAL;
+    config[this.MULTI_AUX] = false;
+    config[this.AUX] = {};
+    config[this.AUX][this.AUX_TYPE] = this.AUX_TYPE_TWO_POSITION;
+    config[this.AUX][this.AUX_FUNCTION] = this.AUX_FUNCTION_MULTI_FUNCTION;
+    config[this.AUX2] = {};
+    config[this.AUX2][this.AUX_TYPE] = this.AUX_TYPE_ANALOG;
+    config[this.AUX2][this.AUX_FUNCTION] = this.AUX_FUNCTION_NOT_USED;
+    config[this.AUX3] = {};
+    config[this.AUX3][this.AUX_TYPE] = this.AUX_TYPE_ANALOG;
+    config[this.AUX3][this.AUX_FUNCTION] = this.AUX_FUNCTION_NOT_USED;
+    return config;
+  }
+
+  get config_manual_5ch() {
+    const config = {};
+    config[this.CONFIG_TYPE] = this.CONFIG_TYPE_MANUAL;
+    config[this.MULTI_AUX] = true;
     config[this.AUX] = {};
     config[this.AUX][this.AUX_TYPE] = this.AUX_TYPE_TWO_POSITION;
     config[this.AUX][this.AUX_FUNCTION] = this.AUX_FUNCTION_MULTI_FUNCTION;
