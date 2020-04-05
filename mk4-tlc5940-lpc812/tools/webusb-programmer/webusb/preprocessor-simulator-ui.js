@@ -20,6 +20,7 @@ class Preprocessor_simulator_ui {
     this.el.diagnostics = document.querySelector('#diagnostics-messages');
     this.el.startup_mode = document.querySelector('#startup-mode');
     this.el.no_signal = document.querySelector('#no-signal');
+    this.el.preprocessor_mode = document.querySelector('#preprocessor-mode');
 
     this.el.steering = document.querySelector('#steering');
     this.el.throttle = document.querySelector('#throttle');
@@ -48,6 +49,7 @@ class Preprocessor_simulator_ui {
 
     this._addEventListener(this.el.startup_mode, 'change', this.startup_mode_changed.bind(this));
     this._addEventListener(this.el.no_signal, 'change', this.no_signal_changed.bind(this));
+    this._addEventListener(this.el.preprocessor_mode, 'change', this.preprocessor_mode_changed.bind(this));
 
     this._addEventListener(this.el.steering, 'change', this.slider_changed.bind(this));
     this._addEventListener(this.el.steering, 'input', this.slider_changed.bind(this));
@@ -80,7 +82,11 @@ class Preprocessor_simulator_ui {
     this.el.startup_mode.checked = true;
     setTimeout(this.startup_mode_auto_timeout.bind(this), 1000);
 
-    this.config_changed(this.simulator.config_default);
+    this.el.preprocessor_mode.value = 0;
+    this.config_3ch = this.simulator.config_manual_3ch;
+    this.config_5ch = this.simulator.config_manual_5ch;
+    this.config_auto = this.simulator.config_default;
+    this.config_changed(this.config_auto);
 
     this.log_testing_clear();
     simulator.onMessageCallback = this.log_testing.bind(this);
@@ -94,6 +100,10 @@ class Preprocessor_simulator_ui {
 
   _removeEventListener(entry) {
     entry.element.removeEventListener(entry.event, entry.listener, false);
+  }
+
+  _deep_clone(object_to_clone) {
+    return Object.assign({}, object_to_clone);
   }
 
   close() {
@@ -256,6 +266,24 @@ class Preprocessor_simulator_ui {
     this.update_ui_state();
   }
 
+  preprocessor_mode_changed() {
+    const new_mode = parseInt(this.el.preprocessor_mode.value);
+    switch (new_mode) {
+      case 3:
+        this.config_changed(this.config_3ch);
+        break;
+
+      case 5:
+        this.config_changed(this.config_5ch);
+        break;
+
+      case 0:
+      default:
+        this.config_changed(this.config_auto);
+        break;
+    }
+  }
+
   config_changed(new_config) {
     /* We have to deal with 4 types of configuration:
         - User manually sets 3-channel mode
@@ -276,8 +304,39 @@ class Preprocessor_simulator_ui {
         config. The auto config is set at application start (default 3-ch) and
         when the light controller sends the CONFIG data.
         The active config is set based on the UI.
+
+        The auto config can be either the one sent by the light controller
+        (3ch, 5ch) or the default config.
+
+        In auto 3ch and auto 5ch the user should not be allowed to make settings
+        of the type. However, in any mode (manual or default) the user must be
+        able to change the type. Ideally we store the user selected type
+        so that the user can switch back/forth.
+
+        If the auto config is 3ch, then the initial manual 3ch setting should
+        follow the auto config.
+        If the auto config is 5ch, then the initial manual 5ch setting should
+        follow the auto config.
+
+        Reading the above, maybe we should treat the default 3-ch mode for
+        legacy light controller as one of the AUTO mode.
     */
-    this.config = new_config;
+
+    if (this.config) {
+      if (this.config[this.simulator.CONFIG_TYPE_MANUAL]) {
+        if (this.config[this.simulator.MULTI_AUX]) {
+          this.config_5ch = this._deep_clone(this.config);
+        }
+        else {
+          this.config_3ch = this._deep_clone(this.config);
+        }
+      }
+      else {
+        this.config_auto = this._deep_clone(this.config);
+      }
+    }
+
+    this.config = this._deep_clone(new_config);
     this.update_ui_state();
   }
 
