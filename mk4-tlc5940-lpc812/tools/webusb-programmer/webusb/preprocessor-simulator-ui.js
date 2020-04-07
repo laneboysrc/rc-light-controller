@@ -296,6 +296,7 @@ class Preprocessor_simulator_ui {
   }
 
   config_changed(new_config) {
+    console.info('config_changed()')
     /* We have to deal with 4 types of configuration:
         - User manually sets 3-channel mode
         - User manually sets 5-channel mode
@@ -354,25 +355,10 @@ class Preprocessor_simulator_ui {
   }
 
   update_ui_state() {
+    console.info('update_ui_state()')
     const s = this.simulator;
 
-    if (this.el.startup_mode.checked || this.el.no_signal.checked) {
-      this.el.steering.disabled = true;
-      this.el.steering_neutral.disabled = true;
-      this.el.throttle.disabled = true;
-      this.el.throttle_neutral.disabled = true;
-      this.el.aux[this.AUX].function.disabled = true;
-      this.el.aux[this.AUX].slider.disabled = true;
-      this.el.aux[this.AUX].toggle.disabled = true;
-      this.el.aux[this.AUX2].type.disabled = true;
-      this.el.aux[this.AUX2].slider.disabled = true;
-      this.el.aux[this.AUX2].toggle.disabled = true;
-      this.el.aux[this.AUX3].type.disabled = true;
-      this.el.aux[this.AUX3].slider.disabled = true;
-      this.el.aux[this.AUX3].toggle.disabled = true;
-
-    }
-    else if (this.config[s.CONFIG_TYPE] == s.CONFIG_TYPE_AUTO) {
+    if (this.config[s.CONFIG_TYPE] == s.CONFIG_TYPE_AUTO) {
       this.el.steering.disabled = false;
       this.el.steering_neutral.disabled = false;
       this.el.throttle.disabled = false;
@@ -433,6 +419,22 @@ class Preprocessor_simulator_ui {
       this.hide(this.el.aux[this.AUX].function);
       this.hide(this.el.aux[this.AUX2].function);
       this.hide(this.el.aux[this.AUX3].function);
+    }
+
+    if (this.el.startup_mode.checked || this.el.no_signal.checked) {
+      this.el.steering.disabled = true;
+      this.el.steering_neutral.disabled = true;
+      this.el.throttle.disabled = true;
+      this.el.throttle_neutral.disabled = true;
+      this.el.aux[this.AUX].function.disabled = true;
+      this.el.aux[this.AUX].slider.disabled = true;
+      this.el.aux[this.AUX].toggle.disabled = true;
+      this.el.aux[this.AUX2].type.disabled = true;
+      this.el.aux[this.AUX2].slider.disabled = true;
+      this.el.aux[this.AUX2].toggle.disabled = true;
+      this.el.aux[this.AUX3].type.disabled = true;
+      this.el.aux[this.AUX3].slider.disabled = true;
+      this.el.aux[this.AUX3].toggle.disabled = true;
     }
 
     this.el.aux[this.AUX].function.textContent = s.getAuxFunctionLabel(this.config[s.AUX][s.AUX_FUNCTION]);
