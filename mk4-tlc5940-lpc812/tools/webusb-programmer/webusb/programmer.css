@@ -354,3 +354,7 @@ button.menu[disabled] {
   color: white;
   font-weight: 800;
 }
+
+.expert {
+  color: gray;
+}

@@ -228,7 +228,7 @@ class Preprocessor_simulator_ui {
 
     case s.AUX_TYPE_ANALOG:
       aux.slider.step = 1;
-      aux.toggle.textContent = 'neutral';
+      aux.toggle.textContent = 'center';
       break;
     }
   }

@@ -78,7 +78,24 @@
         <div id="tab_testing" class="hidden">
           <div class="preprocessor-page" id="preprocessor-simulator">
               <div class="column">
-                  <div class='box configuration controls'>
+                  <div class="box configuration controls">
+                      <h2>Steering</h2>
+                      <div>
+                          <input id="steering" type="range" min ="-100" max="100" step ="1" value ="0">
+                          <div class="centered">
+                              <button id="steering-neutral">center</button>
+                          </div>
+                      </div>
+                      <h2>Throttle</h2>
+                      <div>
+                          <input id="throttle" type="range" min ="-100" max="100" step ="1" value ="0">
+                          <div class="centered">
+                              <button id="throttle-neutral">center</button>
+                          </div>
+                      </div>
+                  </div>
+                  <div class='box configuration controls expert'>
+                      <h2>Expert settings</h2>
                       <div>
                           <input id='startup-mode' type='checkbox'> <label for='startup-mode'>Startup</label>
                       </div>
@@ -92,24 +109,7 @@
                             <option value='5'>5-channel</option>
                         </select>
                       </div>
-                  </div>
-                  <div class="box configuration controls">
-                      <h2>Steering</h2>
-                      <div>
-                          <input id="steering" type="range" min ="-100" max="100" step ="1" value ="0">
-                          <div class="centered">
-                              <button id="steering-neutral">neutral</button>
-                          </div>
-                      </div>
-                      <h2>Throttle</h2>
-                      <div>
-                          <input id="throttle" type="range" min ="-100" max="100" step ="1" value ="0">
-                          <div class="centered">
-                              <button id="throttle-neutral">neutral</button>
-                          </div>
-                      </div>
-                  </div>
-              </div>
+                  </div>              </div>
 
               <div class='column'>
                   <div class='box configuration controls'>
