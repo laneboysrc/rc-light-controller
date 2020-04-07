@@ -17,6 +17,9 @@ class Preprocessor_simulator_ui {
     this.el.aux[this.AUX2] = {};
     this.el.aux[this.AUX3] = {};
 
+    this.el.multi_aux = document.querySelectorAll('.multi-aux');
+
+
     this.el.diagnostics = document.querySelector('#diagnostics-messages');
     this.el.startup_mode = document.querySelector('#startup-mode');
     this.el.no_signal = document.querySelector('#no-signal');
@@ -104,6 +107,14 @@ class Preprocessor_simulator_ui {
 
   _deep_clone(object_to_clone) {
     return Object.assign({}, object_to_clone);
+  }
+
+  show(element) {
+    element.classList.remove('hidden');
+  }
+
+  hide(element) {
+    element.classList.add('hidden');
   }
 
   close() {
@@ -323,8 +334,10 @@ class Preprocessor_simulator_ui {
     */
 
     if (this.config) {
-      if (this.config[this.simulator.CONFIG_TYPE_MANUAL]) {
-        if (this.config[this.simulator.MULTI_AUX]) {
+      const s = this.simulator;
+
+      if (this.config[s.CONFIG_TYPE] != s.CONFIG_TYPE_AUTO) {
+        if (this.config[s.MULTI_AUX]) {
           this.config_5ch = this._deep_clone(this.config);
         }
         else {
@@ -348,18 +361,59 @@ class Preprocessor_simulator_ui {
       this.el.steering_neutral.disabled = true;
       this.el.throttle.disabled = true;
       this.el.throttle_neutral.disabled = true;
-      this.el.aux[this.AUX].type.disabled = true;
       this.el.aux[this.AUX].function.disabled = true;
       this.el.aux[this.AUX].slider.disabled = true;
       this.el.aux[this.AUX].toggle.disabled = true;
       this.el.aux[this.AUX2].type.disabled = true;
-      this.el.aux[this.AUX2].function.disabled = true;
       this.el.aux[this.AUX2].slider.disabled = true;
       this.el.aux[this.AUX2].toggle.disabled = true;
       this.el.aux[this.AUX3].type.disabled = true;
-      this.el.aux[this.AUX3].function.disabled = true;
       this.el.aux[this.AUX3].slider.disabled = true;
       this.el.aux[this.AUX3].toggle.disabled = true;
+
+    }
+    else if (this.config[s.CONFIG_TYPE] == s.CONFIG_TYPE_AUTO) {
+      this.el.steering.disabled = false;
+      this.el.steering_neutral.disabled = false;
+      this.el.throttle.disabled = false;
+      this.el.throttle_neutral.disabled = false;
+      this.el.aux[this.AUX].type.disabled = true;
+      this.el.aux[this.AUX].slider.disabled = false;
+      this.el.aux[this.AUX].toggle.disabled = false;
+      this.el.aux[this.AUX2].type.disabled = true;
+      this.el.aux[this.AUX2].slider.disabled = !this.config[s.MULTI_AUX];
+      this.el.aux[this.AUX2].toggle.disabled = !this.config[s.MULTI_AUX];
+      this.el.aux[this.AUX3].type.disabled = true;
+      this.el.aux[this.AUX3].slider.disabled = !this.config[s.MULTI_AUX];
+      this.el.aux[this.AUX3].toggle.disabled = !this.config[s.MULTI_AUX];
+      if (this.config[s.MULTI_AUX]) {
+        this.el.multi_aux.forEach(element => { this.show(element); });
+      }
+      else {
+        this.el.multi_aux.forEach(element => { this.hide(element); });
+      }
+      this.show(this.el.aux[this.AUX].function);
+      this.show(this.el.aux[this.AUX2].function);
+      this.show(this.el.aux[this.AUX3].function);
+    }
+    else if (this.config[s.MULTI_AUX]) {
+      this.el.steering.disabled = false;
+      this.el.steering_neutral.disabled = false;
+      this.el.throttle.disabled = false;
+      this.el.throttle_neutral.disabled = false;
+      this.el.aux[this.AUX].type.disabled = false;
+      this.el.aux[this.AUX].slider.disabled = false;
+      this.el.aux[this.AUX].toggle.disabled = false;
+      this.el.aux[this.AUX2].type.disabled = false;
+      this.el.aux[this.AUX2].slider.disabled = false;
+      this.el.aux[this.AUX2].toggle.disabled = false;
+      this.el.aux[this.AUX3].type.disabled = false;
+      this.el.aux[this.AUX3].slider.disabled = false;
+      this.el.aux[this.AUX3].toggle.disabled = false;
+      this.el.multi_aux.forEach(element => { this.show(element); });
+      this.hide(this.el.aux[this.AUX].function);
+      this.hide(this.el.aux[this.AUX2].function);
+      this.hide(this.el.aux[this.AUX3].function);
     }
     else {
       this.el.steering.disabled = false;
@@ -367,17 +421,18 @@ class Preprocessor_simulator_ui {
       this.el.throttle.disabled = false;
       this.el.throttle_neutral.disabled = false;
       this.el.aux[this.AUX].type.disabled = false;
-      this.el.aux[this.AUX].function.disabled = false;
       this.el.aux[this.AUX].slider.disabled = false;
       this.el.aux[this.AUX].toggle.disabled = false;
-      this.el.aux[this.AUX2].type.disabled = !this.config[s.MULTI_AUX];
-      this.el.aux[this.AUX2].function.disabled = !this.config[s.MULTI_AUX];
-      this.el.aux[this.AUX2].slider.disabled = !this.config[s.MULTI_AUX];
-      this.el.aux[this.AUX2].toggle.disabled = !this.config[s.MULTI_AUX];
-      this.el.aux[this.AUX3].type.disabled = !this.config[s.MULTI_AUX];
-      this.el.aux[this.AUX3].function.disabled = !this.config[s.MULTI_AUX];
-      this.el.aux[this.AUX3].slider.disabled = !this.config[s.MULTI_AUX];
-      this.el.aux[this.AUX3].toggle.disabled = !this.config[s.MULTI_AUX];
+      this.el.aux[this.AUX2].type.disabled = true;
+      this.el.aux[this.AUX2].slider.disabled = true;
+      this.el.aux[this.AUX2].toggle.disabled = true;
+      this.el.aux[this.AUX3].type.disabled = true;
+      this.el.aux[this.AUX3].slider.disabled = true;
+      this.el.aux[this.AUX3].toggle.disabled = true;
+      this.el.multi_aux.forEach(element => { this.hide(element); });
+      this.hide(this.el.aux[this.AUX].function);
+      this.hide(this.el.aux[this.AUX2].function);
+      this.hide(this.el.aux[this.AUX3].function);
     }
 
     this.el.aux[this.AUX].function.textContent = s.getAuxFunctionLabel(this.config[s.AUX][s.AUX_FUNCTION]);

@@ -358,3 +358,7 @@ button.menu[disabled] {
 .expert {
   color: gray;
 }
+
+div.function {
+  margin-top: 0;
+}
