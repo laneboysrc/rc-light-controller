@@ -1,27 +1,48 @@
 /*
 
-API:
+This is the mid-level interface to the light controller. It simulates
+a Pre-Processor, where ST, TH and AUX data is sent over a UART to the light
+controller.
 
-How do we separate the UI elements from the function?
+It also reads diagnostics messages from the light controller to show them
+to the user.
 
-ST slider (neutral button can be local to UI)
-TH slider (neutral button can be local to UI)
-Startup mode
-AUX slider
-AUX type
-AUX2 slider
-AUX2 type
-AUX3 slider
-AUX3 type
+This module expects operating on a (virtual) UART that has already been opened
+and configured with the right baudrate.
+The uart object must support the following functions:
+* uart.write(data)
+* uart.readline(terminator, number_of_retries_before_timeout)
 
-Simulate no signal?
+The preprocessor-simulator object provides the following methods:
 
+  channel_changed(channel, value)
+    channel: one of ST, TH, AUX, AUX2, AUX3, STARTUP_MODE, NO_SIGNAL and
+             MULTI_AUX
+             Together they determine the output of the Pre-Processor simulator
+             as sent to the light controller
+    value: the value to set <channel> to. For servo channels this is
+           -100..0..+100. For STARTUP_MODE, NO_SIGNAL and MULTI_AUX it is
+           0 (off) or 1 (on)`
 
+  set onMessageCallback(fn)
+    Set a callback function that will receive a string whenever a diagnostics
+    line (terminated by \n) was read from the light controller.
+    Note that also the CONFIG (which determines the detailed configuration the
+    AUX channels in the light controller have been configured) are sent via
+    this method.
 
-channel_changed(channel, value)
+  getAuxFunctionLabel(aux_function_number)
+    Retrieve a human readable text for the given AUX function number.
+    Example: For AUX_FUNCTION_MULTI_FUNCTION, which is 1, this function would
+    return "Multi-function switch"
+
+  get config_default
+  get config_manual_3ch
+  get config_manual_5ch
+    Retrieve default AUX type and AUX function values for various use-cases.
+    Useful to apply as UI defaults.
 
 */
-
 
 class Preprocessor_simulator {
   ST = 'ST';

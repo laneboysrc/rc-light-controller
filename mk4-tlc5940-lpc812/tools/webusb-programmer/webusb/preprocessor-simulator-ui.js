@@ -9,6 +9,7 @@ class Preprocessor_simulator_ui {
   UP_DOWN_TIMEOUT = 500;
 
   constructor(simulator) {
+    // Store the simulator hardware access instance that has been passed to us.
     this.simulator = simulator;
 
     this.el = {};
@@ -17,8 +18,9 @@ class Preprocessor_simulator_ui {
     this.el.aux[this.AUX2] = {};
     this.el.aux[this.AUX3] = {};
 
+    // Collect all UI elements that are relevant in 5-ch mode only, so that
+    // we can show/hide them as necessary in a simple forEach() loop.
     this.el.multi_aux = document.querySelectorAll('.multi-aux');
-
 
     this.el.diagnostics = document.querySelector('#diagnostics-messages');
     this.el.startup_mode = document.querySelector('#startup-mode');
@@ -37,17 +39,21 @@ class Preprocessor_simulator_ui {
     this.el.aux[this.AUX].function = document.querySelector('#aux-function');
     this.el.aux[this.AUX].slider = document.querySelector('#aux-slider');
     this.el.aux[this.AUX].toggle = document.querySelector('#aux-toggle');
+
     this.el.aux[this.AUX2].channel = this.simulator.AUX2;
     this.el.aux[this.AUX2].type = document.querySelector('#aux2-type');
     this.el.aux[this.AUX2].function = document.querySelector('#aux2-function');
     this.el.aux[this.AUX2].slider = document.querySelector('#aux2-slider');
     this.el.aux[this.AUX2].toggle = document.querySelector('#aux2-toggle');
+
     this.el.aux[this.AUX3].channel = this.simulator.AUX3;
     this.el.aux[this.AUX3].type = document.querySelector('#aux3-type');
     this.el.aux[this.AUX3].function = document.querySelector('#aux3-function');
     this.el.aux[this.AUX3].slider = document.querySelector('#aux3-slider');
     this.el.aux[this.AUX3].toggle = document.querySelector('#aux3-toggle');
 
+    // Cache for all event listernes that we've set, so that we can remove them
+    // when the simulator is shut down.
     this.event_listeners = [];
 
     this._addEventListener(this.el.startup_mode, 'change', this.startup_mode_changed.bind(this));
@@ -312,31 +318,28 @@ class Preprocessor_simulator_ui {
         functionality-wise, with the difference being that when the UI changes
         back to AUTO we have to know that we are in this default 3-ch mode.
 
-        Implementation-wise, we have an currently active config, and an auto
-        config. The auto config is set at application start (default 3-ch) and
-        when the light controller sends the CONFIG data.
-        The active config is set based on the UI.
+        Implementation-wise, we have a currently-active-config, and an
+        auto-config. The auto-config is set at application start (default 3-ch)
+        and every time the light controller sends the CONFIG data debug string.
+        The currently-active-config is set based on the UI.
 
-        The auto config can be either the one sent by the light controller
-        (3ch, 5ch) or the default config.
+        If auto-config origintes from the CONFIG data debug string sent by
+        the light controloler, the user should not be allowed to make changes
+        to the AUX type. However, in any manual or default config the user must
+        be able to change the AUX type. Ideally we store the last user selected
+        AUX type so that users can switch back/forth before auto and manual
+        without loosing their last manual setting.
 
-        In auto 3ch and auto 5ch the user should not be allowed to make settings
-        of the type. However, in any mode (manual or default) the user must be
-        able to change the type. Ideally we store the user selected type
-        so that the user can switch back/forth.
-
-        If the auto config is 3ch, then the initial manual 3ch setting should
+        If the auto-config is 3ch, then the initial manual 3ch setting should
         follow the auto config.
         If the auto config is 5ch, then the initial manual 5ch setting should
         follow the auto config.
-
-        Reading the above, maybe we should treat the default 3-ch mode for
-        legacy light controller as one of the AUTO mode.
     */
 
     if (this.config) {
       const s = this.simulator;
 
+      // Backup the current manual config
       if (this.config[s.CONFIG_TYPE] != s.CONFIG_TYPE_AUTO) {
         if (this.config[s.MULTI_AUX]) {
           this.config_5ch = this._deep_clone(this.config);
@@ -350,6 +353,7 @@ class Preprocessor_simulator_ui {
       }
     }
 
+    // Apply the newly requested config
     this.config = this._deep_clone(new_config);
     this.update_ui_state();
   }
@@ -476,22 +480,6 @@ class Preprocessor_simulator_ui {
   log_testing_clear() {
     while (this.el.diagnostics.childElementCount > 0) {
       this.el.diagnostics.removeChild(this.el.diagnostics.lastChild);
-    }
-  }
-
-
-  aux_toggle_handler() {
-    if (!this.simulator) {
-      return;
-    }
-
-    if (this.aux_value) {
-      this.aux_value = false;
-      this.simulator.channel_changed(this.simulator.AUX, -100);
-    }
-    else {
-      this.aux_value = true;
-      this.simulator.channel_changed(this.simulator.AUX, 100);
     }
   }
 }
