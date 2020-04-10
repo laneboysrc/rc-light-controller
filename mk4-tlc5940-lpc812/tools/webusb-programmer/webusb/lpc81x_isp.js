@@ -31,25 +31,15 @@ class flash_lpc8xx {
     this.SECTOR_SIZE = 1024;
 
     this.allow_code_protection = false;
-
-    // this.uart = {
-    //   'write': send_isp,
-    //   'readline': readline,
-    //   'expect': expect,
-    // };
-
-    // function set_communications_interface(device) {
-    //   uart = device;
-    // }
   }
 
-  doProgressCallback(value) {
+  _doProgressCallback(value) {
     if (this.progressCallback) {
       this.progressCallback(value);
     }
   }
 
-  doMessageCallback(value) {
+  _doMessageCallback(value) {
     if (this.messageCallback) {
       this.messageCallback(value);
     }
@@ -59,13 +49,28 @@ class flash_lpc8xx {
     return string.replace(/\r/g, '\\r').replace(/\n/g, '\\n');
   }
 
-  async send_command(string) {
-    this.uart.flush();
-    await this.uart.write(string + '\r\n');
-    await this.expect('0\r\n');
+  // Calculate the signature that the ISP uses to detect "valid code"
+  _append_signature(bin) {
+    let signature = 0;
+    const vector8 = 28;
+
+    for (let i = 0 ; i < 7; i += 1) {
+      let vector = i * 4;
+      signature = signature + (
+        (bin[vector + 3] << 24) +
+        (bin[vector + 2] << 16) +
+        (bin[vector + 1] << 8) +
+        (bin[vector]));
+    }
+    signature = (signature ^ 0xffffffff) + 1;   // Two's complement
+
+    bin[vector8 + 3] = (signature >> 24) & 0xff;
+    bin[vector8 + 2] = (signature >> 16) & 0xff;
+    bin[vector8 + 1] = (signature >> 8) & 0xff;
+    bin[vector8] = signature & 0xff;
   }
 
-  async expect(expected_string) {
+  async _expect(expected_string) {
     const answer = await this.uart.readline('\r\n');
     if (answer != expected_string) {
       throw('Expected "' + _make_crlf_visible(expected_string) + '", got "' + _make_crlf_visible(answer));
@@ -73,31 +78,37 @@ class flash_lpc8xx {
     return answer;
   }
 
+  async send_command(string) {
+    this.uart.flush();
+    await this.uart.write(string + '\r\n');
+    await this._expect('0\r\n');
+  }
+
   async initialization_sequence() {
     let answer;
 
-    log("Performing ISP handshake ...");
+    this._doMessageCallback("Performing ISP handshake ...");
     this.uart.flush();
     await this.uart.write('?')
-    await this.expect('Synchronized\r\n');
-    this.doProgressCallback(0.04);
+    await this._expect('Synchronized\r\n');
+    this._doProgressCallback(0.04);
     await this.uart.write('Synchronized\r\n');
-    await this.expect('Synchronized\r\n');
-    await this.expect('OK\r\n');
-    this.doProgressCallback(0.06);
+    await this._expect('Synchronized\r\n');
+    await this._expect('OK\r\n');
+    this._doProgressCallback(0.06);
 
-    log("Sending crystal frequency ...");
+    this._doMessageCallback("Sending crystal frequency ...");
     await this.uart.write('12000\r\n');
-    await this.expect('12000\r\n');
-    await this.expect('OK\r\n');
+    await this._expect('12000\r\n');
+    await this._expect('OK\r\n');
 
-    log("Turning ECHO off ...");
+    this._doMessageCallback("Turning ECHO off ...");
     await this.uart.write('A 0\r\n');
-    await this.expect('A 0\r\n');
-    await this.expect('0\r\n');
+    await this._expect('A 0\r\n');
+    await this._expect('0\r\n');
 
-    log("ISP ready");
-    this.doProgressCallback(0.1);
+    this._doMessageCallback("ISP ready");
+    this._doProgressCallback(0.1);
   }
 
   // Read the Part ID from the MCU and decode it in human readable form.
@@ -165,43 +176,43 @@ class flash_lpc8xx {
       let pattern = ((bin[this.CRP_ADDRESS + 3] << 24) + (bin[this.CRP_ADDRESS + 2] << 16) + (bin[this.CRP_ADDRESS + 1] << 8) + bin[this.CRP_ADDRESS]);
 
       if (pattern == this.NO_ISP) {
-        this.doMessageCallback('ERROR: NO_ISP code read protection detected in image file', 'fail');
+        this._doMessageCallback('ERROR: NO_ISP code read protection detected in image file', 'fail');
         throw 'ERROR: NO_ISP code read protection detected in image file';
       }
 
       if (pattern == this.CRP1) {
-        this.doMessageCallback('ERROR: CRP1 code read protection detected in image file', 'fail');
+        this._doMessageCallback('ERROR: CRP1 code read protection detected in image file', 'fail');
         throw 'ERROR: CRP1 code read protection detected in image file';
       }
 
       if (pattern == this.CRP2) {
-        this.doMessageCallback('ERROR: CRP2 code read protection detected in image file', 'fail');
+        this._doMessageCallback('ERROR: CRP2 code read protection detected in image file', 'fail');
         throw 'ERROR: CRP2 code read protection detected in image file';
       }
 
       if (pattern == this.CRP3) {
-        this.doMessageCallback('ERROR: CRP3 code read protection detected in image file', 'fail');
+        this._doMessageCallback('ERROR: CRP3 code read protection detected in image file', 'fail');
         throw 'ERROR: CRP3 code read protection detected in image file';
       }
     }
 
     // Calculate the signature that the ISP uses to detect "valid code"
-    this.append_signature(bin);
+    this._append_signature(bin);
 
-    this.doMessageCallback("Unlocking the programming functions ...");
+    this._doMessageCallback("Unlocking the programming functions ...");
 
     // Unlock the chip with the magic number
     await this.send_command('U 23130');
 
     // Erase the whole chip
-    this.doMessageCallback('Erasing the flash memory ...');
-    this.doProgressCallback(0.15);
+    this._doMessageCallback('Erasing the flash memory ...');
+    this._doProgressCallback(0.15);
     await this.send_command('P 0 15');
     await this.send_command('E 0 15');
 
-    this.doMessageCallback('Program the firmware image ...');
+    this._doMessageCallback('Program the firmware image ...');
     for (let index = 0; index < used_sectors; index += 1) {
-      this.doProgressCallback(0.2 + (0.8 * index / used_sectors));
+      this._doProgressCallback(0.2 + (0.8 * index / used_sectors));
 
       let sector = index;
 
@@ -216,13 +227,13 @@ class flash_lpc8xx {
       await this.send_command('C ' + address + ' ' + this.RAM_ADDRESS + ' ' + this.SECTOR_SIZE);
     }
 
-    this.doProgressCallback(1.0);
-    this.doMessageCallback('Programming done');
+    this._doProgressCallback(1.0);
+    this._doMessageCallback('Programming done');
   }
 
   async read() {
       let flash_size = await this.get_flash_size();
-      this.doMessageCallback('Reading ' + flash_size + ' bytes ...');
+      this._doMessageCallback('Reading ' + flash_size + ' bytes ...');
 
       await this.send_command('R ' + this.FLASH_BASE_ADDRESS + ' ' + flash_size);
       let image_data = await this.uart.read(flash_size);
@@ -262,27 +273,6 @@ class flash_lpc8xx {
     // Run the isp_program from RAM. Note that this command does not respond with
     // COMMAND_SUCCESS as it directly executes.
     await this.uart.write('G ' + RAM_ADDRESS + ' T\r\n');
-  }
-
-  // Calculate the signature that the ISP uses to detect "valid code"
-  append_signature(bin) {
-    let signature = 0;
-    const vector8 = 28;
-
-    for (let i = 0 ; i < 7; i += 1) {
-      let vector = i * 4;
-      signature = signature + (
-        (bin[vector + 3] << 24) +
-        (bin[vector + 2] << 16) +
-        (bin[vector + 1] << 8) +
-        (bin[vector]));
-    }
-    signature = (signature ^ 0xffffffff) + 1;   // Two's complement
-
-    bin[vector8 + 3] = (signature >> 24) & 0xff;
-    bin[vector8 + 2] = (signature >> 16) & 0xff;
-    bin[vector8 + 1] = (signature >> 8) & 0xff;
-    bin[vector8] = signature & 0xff;
   }
 
   set onMessageCallback(fn) {
