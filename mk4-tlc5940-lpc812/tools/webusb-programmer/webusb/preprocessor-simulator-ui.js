@@ -11,6 +11,7 @@ class Preprocessor_simulator_ui {
   constructor(simulator) {
     // Store the simulator hardware access instance that has been passed to us.
     this.simulator = simulator;
+    this.closed = false;
 
     this.el = {};
     this.el.aux = {};
@@ -124,6 +125,7 @@ class Preprocessor_simulator_ui {
   }
 
   close() {
+    this.closed = true;
     // Remove all event listeners that we have set
     const self = this;
     this.event_listeners.forEach(entry => self._removeEventListener(entry));
@@ -267,6 +269,10 @@ class Preprocessor_simulator_ui {
   }
 
   startup_mode_auto_timeout() {
+    if (this.closed) {
+      return;
+    }
+
     if (this.el.startup_mode.checked) {
       this.el.startup_mode.checked = false;
       this.startup_mode_changed();

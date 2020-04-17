@@ -33,6 +33,7 @@ let last_programming_failed = false;
 let programmer;
 let simulator_ui;
 let simulator;
+let power_is_on = false;
 
 let testing_active = false;
 
@@ -159,15 +160,15 @@ function update_ui() {
   }
 }
 
-function update_programmer_connection(device_serial) {
+async function update_programmer_connection(device_serial) {
   if (typeof device_serial === 'undefined') {
     is_connected = false;
-    select_page('tab_connection');
+    await select_page('tab_connection');
   }
   else {
     is_connected = true;
     el.connection_info.textContent = 'Connected to Light Controller Programmer with serial number ' + device_serial;
-    select_page('tab_programming');
+    await select_page('tab_programming');
   }
   last_programming_failed = false;
   update_ui();
@@ -246,9 +247,9 @@ async function program() {
     await programmer.send_command(CMD_OUT_ISP_LOW);
     await delay(200);
     await programmer.send_command(CMD_DUT_POWER_ON);
+    power_is_on = true;
     await delay(100);
     progressCallback(0.02);
-
     await isp.initialization_sequence();
     await programmer.send_command(CMD_OUT_ISP_TRISTATE);
 
@@ -282,10 +283,15 @@ async function program() {
     log("ERROR: programming failed", "fail");
   }
   finally {
-    programming_active = false;
-    update_ui();
     await programmer.send_command(CMD_DUT_POWER_OFF);
     await programmer.send_command(CMD_OUT_ISP_LOW);
+    power_is_on = false;
+    // Wait 500 ms for the voltage to bled fully, otherwise when quickly
+    // switching to Pre-Processor simulator mode the MCU would still be in ISP
+    // state.
+    await delay(500);
+    programming_active = false;
+    update_ui();
   }
 }
 
@@ -307,7 +313,7 @@ function checkbox_handler() {
   }
 }
 
-function select_page(selected_page) {
+async function select_page(selected_page) {
   for (let index = 0; index < el.menu_buttons.length; index += 1) {
     let button = el.menu_buttons[index];
     let page_name = button.getAttribute('data');
@@ -329,8 +335,10 @@ function select_page(selected_page) {
       testing_active = true;
       last_programming_failed = false;
       if (programmer) {
-        programmer.send_command(CMD_OUT_ISP_TRISTATE);
-        programmer.send_command(CMD_DUT_POWER_ON);
+        await programmer.send_command(CMD_OUT_ISP_TRISTATE);
+        await programmer.send_command(CMD_CH3_TRISTATE);
+        await programmer.send_command(CMD_DUT_POWER_ON);
+        power_is_on = true;
       }
 
       simulator = new Preprocessor_simulator(programmer);
@@ -346,9 +354,11 @@ function select_page(selected_page) {
     simulator = undefined;
     simulator_ui = undefined;
 
-    if (programmer) {
-      programmer.send_command(CMD_DUT_POWER_OFF);
-      programmer.send_command(CMD_OUT_ISP_LOW);
+    if (programmer && power_is_on) {
+      await programmer.send_command(CMD_DUT_POWER_OFF);
+      await programmer.send_command(CMD_OUT_ISP_LOW);
+      await programmer.send_command(CMD_CH3_LOW);
+      power_is_on = false;
     }
   }
   update_ui();
@@ -359,6 +369,8 @@ async function connect(device) {
   if (programmer.is_open) {
     await programmer.send_command(CMD_DUT_POWER_OFF);
     await programmer.send_command(CMD_OUT_ISP_LOW);
+    await programmer.send_command(CMD_CH3_LOW);
+    power_is_on = false;
 
     const msg = 'Connected to Light Controller Programmer with serial number ' + programmer.serial_number;
     console.log(msg);
@@ -426,13 +438,13 @@ async function init() {
 
   for (let index = 0; index < el.menu_buttons.length; index += 1) {
     const button = el.menu_buttons[index];
-    button.addEventListener('click', (event) => {
+    button.addEventListener('click', async (event) => {
       const selected_page = event.currentTarget.getAttribute('data');
-      select_page(selected_page);
+      await select_page(selected_page);
     });
   }
 
-  select_page("tab_connection");
+  await select_page("tab_connection");
   update_ui();
 
   if (programmer) {

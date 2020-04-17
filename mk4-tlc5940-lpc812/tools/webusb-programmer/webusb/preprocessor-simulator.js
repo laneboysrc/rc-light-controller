@@ -107,6 +107,7 @@ class Preprocessor_simulator {
 
   async _reader() {
     console.log('Preprocessor_simulator.reader() start');
+    this.uart.flush();
 
     while (this.reader_active) {
       let line = '';
