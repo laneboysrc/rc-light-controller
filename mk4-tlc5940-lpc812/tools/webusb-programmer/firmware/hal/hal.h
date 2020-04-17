@@ -54,9 +54,7 @@ static const HAL_GPIO_T HAL_GPIO_POWER_SHORT = { .group = 0, .pin = 7 };
 
 
 static const HAL_GPIO_T HAL_GPIO_TX = { .group = 0, .pin = 22, .mux = PORT_PMUX_PMUXE_C_Val, .txpo = 0 };
-static const HAL_GPIO_T HAL_GPIO_TXIO = { .group = 0, .pin = 22, .mux = PORT_PMUX_PMUXE_A_Val };
 static const HAL_GPIO_T HAL_GPIO_RX = { .group = 0, .pin = 23, .mux = PORT_PMUX_PMUXE_C_Val, .rxpo = 1 };
-static const HAL_GPIO_T HAL_GPIO_RXIO = { .group = 0, .pin = 23, .mux = PORT_PMUX_PMUXE_A_Val };
 
 static const HAL_GPIO_T HAL_GPIO_CH3 = { .group = 0, .pin = 18 };
 
@@ -129,3 +127,7 @@ static inline void HAL_gpio_pmuxen(const HAL_GPIO_T gpio)
     PORT->Group[gpio.group].PINCFG[gpio.pin].reg |= PORT_PINCFG_PMUXEN;
 }
 
+static inline void HAL_gpio_pmuxdis(const HAL_GPIO_T gpio)
+{
+    PORT->Group[gpio.group].PINCFG[gpio.pin].reg &= ~PORT_PINCFG_PMUXEN;
+}

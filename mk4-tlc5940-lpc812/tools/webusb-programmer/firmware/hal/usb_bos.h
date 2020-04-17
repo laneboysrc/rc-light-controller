@@ -121,7 +121,8 @@ static const bos_descriptor_t bos_descriptor = {
         .PlatformCapabilityUUID = {0x38, 0xb6, 0x08, 0x34, 0xa9, 0x09, 0xa0, 0x47, 0x8b, 0xfd, 0xa0, 0x76, 0x88, 0x15, 0xb6, 0x65},
         .bcdVersion = 0x0100,
         .bVendorCode = VENDOR_CODE_WEBUSB,
-        .iLandingPage = 1
+        .iLandingPage = 0           // Set this to '1' to enable notification
+                                    // when the device is plugged-in.
     },
 
     .MS_OS_20_Descriptor = {

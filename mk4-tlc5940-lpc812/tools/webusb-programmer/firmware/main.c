@@ -53,12 +53,12 @@ static void watchdog_service(void)
 
     // Switch the UART TX and RX to GPIO output  and set it to low, so that
     // we don't power the light controller via the ST/RX pin!
-    HAL_gpio_clear(HAL_GPIO_TXIO);
-    HAL_gpio_out(HAL_GPIO_TXIO);
-    HAL_gpio_pmuxen(HAL_GPIO_TXIO);
-    HAL_gpio_clear(HAL_GPIO_RXIO);
-    HAL_gpio_out(HAL_GPIO_RXIO);
-    HAL_gpio_pmuxen(HAL_GPIO_RXIO);
+    HAL_gpio_clear(HAL_GPIO_TX);
+    HAL_gpio_out(HAL_GPIO_TX);
+    HAL_gpio_pmuxdis(HAL_GPIO_TX);
+    HAL_gpio_clear(HAL_GPIO_RX);
+    HAL_gpio_out(HAL_GPIO_RX);
+    HAL_gpio_pmuxdis(HAL_GPIO_RX);
 
     // Also switch CH3 and OUT/ISP to low
     HAL_gpio_clear(HAL_GPIO_CH3);
