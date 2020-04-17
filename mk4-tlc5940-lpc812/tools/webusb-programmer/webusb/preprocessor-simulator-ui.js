@@ -90,7 +90,6 @@ class Preprocessor_simulator_ui {
 
     this.el.no_signal.checked = false;
     this.el.startup_mode.checked = true;
-    setTimeout(this.startup_mode_auto_timeout.bind(this), 1000);
 
     this.el.preprocessor_mode.value = 0;
     this.config_3ch = this.simulator.config_manual_3ch;
@@ -101,6 +100,9 @@ class Preprocessor_simulator_ui {
     this.log_testing_clear();
     simulator.onMessageCallback = this.log_testing.bind(this);
     simulator.onConfigChangedCallback = this.config_changed.bind(this);
+
+    this.startup_mode_changed();
+    setTimeout(this.startup_mode_auto_timeout.bind(this), 1000);
   }
 
   _addEventListener(element, event, listener) {
@@ -264,6 +266,10 @@ class Preprocessor_simulator_ui {
 
       this.simulator.channel_changed(this.el.steering[this.SIMULATOR_CHANNEL], this.el.steering.value);
       this.simulator.channel_changed(this.el.throttle[this.SIMULATOR_CHANNEL], this.el.throttle.value);
+      this.simulator.channel_changed(this.simulator.STARTUP_MODE, 100);
+    }
+    else {
+      this.simulator.channel_changed(this.simulator.STARTUP_MODE, 0);
     }
     this.update_ui_state();
   }

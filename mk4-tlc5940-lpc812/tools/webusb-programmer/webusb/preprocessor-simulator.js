@@ -162,7 +162,7 @@ class Preprocessor_simulator {
       if (this.channels[this.AUX] > 0) {
           mode_byte += 0x01;
       }
-      if (this.startup_mode) {
+      if (this.channels[this.STARTUP_MODE]) {
           mode_byte += 0x10;
       }
       if (this.channels[this.MULTI_AUX]) {
