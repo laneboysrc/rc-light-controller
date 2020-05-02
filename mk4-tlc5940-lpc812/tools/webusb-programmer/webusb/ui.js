@@ -218,6 +218,7 @@ function load_file_from_disk() {
     }
     console.log('Firmware loaded; ' + firmware_image.length + ' Bytes');
     update_ui();
+    el.program.focus();
   };
 
   const fileobject = this.files[0];
@@ -292,6 +293,7 @@ async function program() {
     await delay(500);
     programming_active = false;
     update_ui();
+    el.program.focus();
   }
 }
 
@@ -330,6 +332,23 @@ async function select_page(selected_page) {
     }
   }
 
+  if (selected_page == 'tab_programming') {
+    if (firmware_image) {
+      el.program.focus();
+    }
+    else {
+      el.load.focus();
+    }
+  }
+  else if (selected_page == 'tab_connection') {
+    if (is_connected) {
+      el.disconnect_button.focus();
+    }
+    else {
+      el.connect_button.focus();
+    }
+  }
+
   if (selected_page == 'tab_testing') {
     if (!testing_active) {
       testing_active = true;
@@ -361,6 +380,7 @@ async function select_page(selected_page) {
       power_is_on = false;
     }
   }
+
   update_ui();
 };
 

@@ -1,3 +1,6 @@
+ ./inline-media.py index.html >../../../../gh-pages/programmer.html
+
+
 WORK IN PROGRESS -- DO NOT USE!
 
 This is a programmer for the NXP LPC812 micro-controller, using the ISP (serial) protocol.
