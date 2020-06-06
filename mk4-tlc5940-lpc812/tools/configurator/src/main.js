@@ -1247,7 +1247,7 @@ var app = (function () {
 
 
     // *************************************************************************
-    var assemble_leds = function (section, led_object) {
+    var assemble_leds = function (section, led_object, adjust_light_switch_positions) {
         var data = firmware.data;
         var offset = firmware.offset[section];
         var car_lights_offset = get_uint32(data, offset + 4);
@@ -1303,8 +1303,10 @@ var app = (function () {
             if (led_object.light_switch_position7) { positions = 8; }
             if (led_object.light_switch_position8) { positions = 9; }
 
-            if (positions > light_switch_positions) {
-                light_switch_positions = positions;
+            if (adjust_light_switch_positions) {
+                if (positions > light_switch_positions) {
+                    light_switch_positions = positions;
+                }
             }
         }
 
@@ -1475,8 +1477,10 @@ var app = (function () {
     var assemble_firmware = function (configuration) {
         light_switch_positions = 1;
 
-        assemble_leds(SECTION_LOCAL_LEDS, configuration.local_leds);
-        assemble_leds(SECTION_SLAVE_LEDS, configuration.slave_leds);
+        // For the LOCAL LEDs, always adjust "light_switch_positions" ...
+        assemble_leds(SECTION_LOCAL_LEDS, configuration.local_leds, true);
+        // ... but for SLAVE LEDs only when slave is enabled!
+        assemble_leds(SECTION_SLAVE_LEDS, configuration.slave_leds, configuration.config.slave_output);
         assemble_light_programs(configuration.light_programs);
 
         assemble_gamma(configuration.gamma);
