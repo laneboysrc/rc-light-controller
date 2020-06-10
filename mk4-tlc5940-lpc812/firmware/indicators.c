@@ -94,6 +94,8 @@ void toggle_hazard_lights(void)
 // ****************************************************************************
 void process_indicators(void)
 {
+    bool throttle_neutral;
+
     if (global_flags.systick) {
         if (indicator_timer) {
             --indicator_timer;
@@ -123,11 +125,24 @@ void process_indicators(void)
         return;
     }
 
+    if (config.flags2.indicators_while_driving) {
+        // Simulate throttle being in neutral when indicators shall not depend
+        // whether driving or not
+        throttle_neutral = true;
+    }
+    else {
+        throttle_neutral = (channel[TH].absolute <= config.centre_threshold_high);
+    }
+
     switch (indicator_state) {
         // ---------------------------------
         case NOT_NEUTRAL:
-            if (channel[TH].absolute > config.centre_threshold_low ||
-                channel[ST].absolute > config.centre_threshold_low) {
+            if (channel[ST].absolute > config.centre_threshold_low) {
+                return;
+            }
+
+            if (!config.flags2.indicators_while_driving  &&
+                channel[TH].absolute > config.centre_threshold_low) {
                 return;
             }
 
@@ -137,8 +152,12 @@ void process_indicators(void)
 
         // ---------------------------------
         case NEUTRAL_WAIT:
-            if (channel[TH].absolute > config.centre_threshold_high ||
-                channel[ST].absolute > config.centre_threshold_high) {
+            if (channel[ST].absolute > config.centre_threshold_high) {
+                set_blink_off();
+                return;
+            }
+
+            if (!throttle_neutral) {
                 set_blink_off();
                 return;
             }
@@ -150,7 +169,7 @@ void process_indicators(void)
 
         // ---------------------------------
         case BLINK_ARMED:
-            if (channel[TH].absolute > config.centre_threshold_high) {
+            if (!throttle_neutral) {
                 set_blink_off();
                 return;
             }
@@ -166,7 +185,7 @@ void process_indicators(void)
 
         // ---------------------------------
         case BLINK_ARMED_LEFT:
-            if (channel[TH].absolute > config.centre_threshold_high) {
+            if (!throttle_neutral) {
                 set_blink_off();
                 return;
             }
@@ -185,7 +204,7 @@ void process_indicators(void)
 
         // ---------------------------------
         case BLINK_ARMED_RIGHT:
-            if (channel[TH].absolute > config.centre_threshold_high) {
+            if (!throttle_neutral) {
                 set_blink_off();
                 return;
             }

@@ -520,7 +520,12 @@ typedef struct {
         // programs, range -100 / 0 / +100
         unsigned int light_program_servo_output :1;
 
-        unsigned int reserved0 : 11;
+        // Set to 1 when the indicators should also engage while the car is
+        // driving. By default (flag is 0) they only engage if both throttle
+        // and steering is 0 for a certain time.
+        unsigned int indicators_while_driving :1;
+
+        unsigned int reserved0 : 10;
     } flags2;
 
     // Dark phase of the indicator. The blink_counter_value from config version

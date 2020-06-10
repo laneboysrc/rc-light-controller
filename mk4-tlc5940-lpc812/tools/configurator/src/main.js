@@ -436,6 +436,7 @@ var app = (function () {
             new_config.us_style_combined_lights = get_flag2(0x0004);
             new_config.gearbox_light_program_control = get_flag2(0x0008);
             new_config.light_program_servo_output = get_flag2(0x0010);
+            new_config.indicators_while_driving =  get_flag2(0x0020);
 
             new_config.blink_counter_value_dark = get_uint16(data, offset + 68);
 
@@ -1023,6 +1024,7 @@ var app = (function () {
         el.slave_output.checked = Boolean(config.slave_output);
         el.gearbox_light_program_control.checked = Boolean(config.gearbox_light_program_control);
         el.light_program_servo_output.checked = Boolean(config.light_program_servo_output);
+        el.indicators_while_driving.checked = Boolean(config.indicators_while_driving);
 
         // CH3/AUX type
         el.ch3[0].checked = true;
@@ -1389,6 +1391,7 @@ var app = (function () {
             flags2 |= (config.us_style_combined_lights << 2);
             flags2 |= (config.gearbox_light_program_control << 3);
             flags2 |= (config.light_program_servo_output << 4);
+            flags2 |= (config.indicators_while_driving << 5);
             set_uint16(data, offset + 64, flags2);
 
             set_uint16(data, offset + 68, config.blink_counter_value_dark);
@@ -1823,6 +1826,7 @@ var app = (function () {
             config.gearbox_servo_output = false;
             config.gearbox_light_program_control = false;
             config.light_program_servo_output = false;
+            config.indicators_while_driving = false;
             config.winch_output = false;
         } else {
             update_boolean('preprocessor_output');
@@ -1831,6 +1835,7 @@ var app = (function () {
             update_boolean('gearbox_servo_output');
             update_boolean('gearbox_light_program_control');
             update_boolean('light_program_servo_output');
+            update_boolean('indicators_while_driving');
             if (el.preprocessor_output.checked || el.slave_output.checked) {
                 config.winch_output = Boolean(el.winch_enable.checked);
             }
@@ -2497,7 +2502,8 @@ var app = (function () {
 
             'slave_output', 'preprocessor_output', 'steering_wheel_servo_output',
             'gearbox_servo_output', 'winch_output', 'winch_enable',
-            'light_program_servo_output', 'gearbox_light_program_control',
+            'light_program_servo_output', 'indicators_while_driving',
+            'gearbox_light_program_control',
 
             'leds_clear',
 

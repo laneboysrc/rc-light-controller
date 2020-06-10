@@ -12,7 +12,7 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
         .version = CONFIG_VERSION
     },
 
-    .firmware_version = 25,
+    .firmware_version = 26,
 
     .mode = MASTER_WITH_UART_READER,
     .esc_mode = ESC_FORWARD_BRAKE_REVERSE_TIMEOUT,
@@ -43,6 +43,7 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
         .us_style_combined_lights = true,
         .gearbox_light_program_control = false,
         .light_program_servo_output = false,
+        .indicators_while_driving = false,
     },
 
     .auto_brake_counter_value_forward_min = (500 / __SYSTICK_IN_MS),
