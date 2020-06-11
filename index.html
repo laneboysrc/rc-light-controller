@@ -22057,7 +22057,7 @@ document.addEventListener('DOMContentLoaded', function () {
         Please check out <a href="https://github.com/laneboysrc/rc-light-controller" target="_blank">https://github.com/laneboysrc/rc-light-controller</a> for a description of the RC Light Controller this tool belongs to.
         </div>
         <div>
-          Configurator version: 2020-06-10<br>
+          Configurator version: 2020-06-11<br>
           Firmware version: <span id="firmware_version"></span>
         </div>
 
@@ -22873,9 +22873,9 @@ document.addEventListener('DOMContentLoaded', function () {
             <div>
               The values above define what minimum and maxium pulse width a servo
               signal is allowed to have in order to consider it valid. This
-              setting only applies to servo inputs and CPPM input configurations.
+              setting only applies to servo reader <span class="v2_hide">and CPPM input </span>configurations.
             </div>
-            <div>
+            <div class="v2_hide">
               For the CPPM input the max pulse duration is the minimum idle
               idle time to identify a start of a CPPM frame.
             </div>
@@ -22888,7 +22888,7 @@ document.addEventListener('DOMContentLoaded', function () {
             </div>
 
             <div>
-              This value applies to servo inputs and CPPM input configurations.
+              This value applies to servo reader <span class="v2_hide">and CPPM input </span>configurations.
               After power on, the light controller waits for the first servo
               pulse to arrive. The time given in this field determines how
               long the light controller waits after the first servo pulse until
