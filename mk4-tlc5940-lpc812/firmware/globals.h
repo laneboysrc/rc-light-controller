@@ -301,6 +301,7 @@ typedef struct {
     int16_t normalized;
     uint16_t absolute;
     bool reversed;
+    bool auto_endpoint;
 } CHANNEL_T;
 
 

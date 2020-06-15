@@ -34,8 +34,10 @@ void init_servo_reader(void)
 static void normalize_channel(CHANNEL_T *c)
 {
     if (c->raw_data < config.servo_pulse_min  ||  c->raw_data > config.servo_pulse_max) {
-        c->normalized = 0;
-        c->absolute = 0;
+        if (c->auto_endpoint) {
+            c->normalized = 0;
+            c->absolute = 0;
+        }
         return;
     }
 
@@ -51,8 +53,10 @@ static void normalize_channel(CHANNEL_T *c)
         c->normalized = 0;
     }
     else if (c->raw_data < c->endpoint.centre) {
-        if (c->raw_data < c->endpoint.left) {
-            c->endpoint.left = c->raw_data;
+        if (c->auto_endpoint) {
+            if (c->raw_data < c->endpoint.left) {
+                c->endpoint.left = c->raw_data;
+            }
         }
         // In order to acheive a stable 100% value we actually calculate the
         // percentage up to 101%, and then clamp to 100%.
@@ -66,8 +70,10 @@ static void normalize_channel(CHANNEL_T *c)
         }
     }
     else {
-        if (c->raw_data > c->endpoint.right) {
-            c->endpoint.right = c->raw_data;
+        if (c->auto_endpoint) {
+            if (c->raw_data > c->endpoint.right) {
+                c->endpoint.right = c->raw_data;
+            }
         }
         c->normalized = (c->raw_data - c->endpoint.centre) * 101 /
             (c->endpoint.right - c->endpoint.centre);
@@ -87,55 +93,6 @@ static void normalize_channel(CHANNEL_T *c)
     }
 }
 
-
-// ****************************************************************************
-static void normalize_aux_channel(CHANNEL_T *c)
-{
-    if (c->raw_data < config.servo_pulse_min  ||  c->raw_data > config.servo_pulse_max) {
-        // CHANGE: Keep the last value in case we receive a wrong pulse
-        // c->normalized = 0;
-        // c->absolute = 0;
-        return;
-    }
-
-    if (c->raw_data == c->endpoint.centre) {
-        c->normalized = 0;
-    }
-    else if (c->raw_data < c->endpoint.centre) {
-        if (c->raw_data <= c->endpoint.left) {
-            c->normalized = -100;
-        }
-        else {
-            // In order to acheive a stable 100% value we actually calculate the
-            // percentage up to 101%, and then clamp to 100%.
-            c->normalized = (c->endpoint.centre - c->raw_data) * 101 /
-                (c->endpoint.centre - c->endpoint.left);
-            if (c->normalized > 100) {
-                c->normalized = 100;
-            }
-            c->normalized = -c->normalized;
-        }
-    }
-    else {
-        if (c->raw_data > c->endpoint.right) {
-            c->normalized = 100;
-        }
-        else {
-            c->normalized = (c->raw_data - c->endpoint.centre) * 101 /
-                (c->endpoint.right - c->endpoint.centre);
-            if (c->normalized > 100) {
-                c->normalized = 100;
-            }
-        }
-    }
-
-    if (c->normalized < 0) {
-        c->absolute = -c->normalized;
-    }
-    else {
-        c->absolute = c->normalized;
-    }
-}
 
 // ****************************************************************************
 static void initialize_channel(CHANNEL_T *c) {
@@ -182,10 +139,10 @@ void read_all_servo_channels(void)
             if (servo_reader_timer == 0) {
                 initialize_channel(&channel[ST]);
                 initialize_channel(&channel[TH]);
-                normalize_aux_channel(&channel[AUX]);
+                normalize_channel(&channel[AUX]);
                 if (config.flags2.multi_aux) {
-                    normalize_aux_channel(&channel[AUX2]);
-                    normalize_aux_channel(&channel[AUX3]);
+                    normalize_channel(&channel[AUX2]);
+                    normalize_channel(&channel[AUX3]);
                 }
 
                 servo_reader_state = NORMAL_OPERATION;
@@ -198,11 +155,11 @@ void read_all_servo_channels(void)
             normalize_channel(&channel[ST]);
             normalize_channel(&channel[TH]);
             if (!config.flags.ch3_is_local_switch) {
-                normalize_aux_channel(&channel[AUX]);
+                normalize_channel(&channel[AUX]);
             }
             if (config.flags2.multi_aux) {
-                normalize_aux_channel(&channel[AUX2]);
-                normalize_aux_channel(&channel[AUX3]);
+                normalize_channel(&channel[AUX2]);
+                normalize_channel(&channel[AUX3]);
             }
             global_flags.new_channel_data = true;
             break;
