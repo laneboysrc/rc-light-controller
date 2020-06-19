@@ -21,8 +21,6 @@ static enum {
     NOT_NEUTRAL = 0,
     NEUTRAL_WAIT,
     BLINK_ARMED,
-    BLINK_ARMED_LEFT,
-    BLINK_ARMED_RIGHT,
     BLINK_LEFT,
     BLINK_LEFT_WAIT,
     BLINK_RIGHT,
@@ -178,45 +176,10 @@ void process_indicators(void)
                 return;
             }
 
-            indicator_timer = config.indicator_idle_time_value;
-            indicator_state = (channel[ST].normalized < 0) ?
-                BLINK_ARMED_LEFT : BLINK_ARMED_RIGHT;
-            return;
-
-        // ---------------------------------
-        case BLINK_ARMED_LEFT:
-            if (!throttle_neutral) {
-                set_blink_off();
-                return;
-            }
-
-            // Note: we are testing here the +/- value of steering
-            // to catch if the user quickly changed direction
-            if (channel[ST].normalized > -config.blink_threshold) {
-                indicator_state = BLINK_ARMED;
-                return;
-            }
-
-            if (indicator_timer != 0) {
+            if (channel[ST].normalized < 0) {
                 set_blink_left();
             }
-            return;
-
-        // ---------------------------------
-        case BLINK_ARMED_RIGHT:
-            if (!throttle_neutral) {
-                set_blink_off();
-                return;
-            }
-
-            // Note: we are testing here the +/- value of steering
-            // to catch if the user quickly changed direction
-            if (channel[ST].normalized < config.blink_threshold) {
-                indicator_state = BLINK_ARMED;
-                return;
-            }
-
-            if (indicator_timer == 0) {
+            else {
                 set_blink_right();
             }
             return;
