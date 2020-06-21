@@ -963,6 +963,8 @@ function parse_config(msg) {
     */
 
     if (values[0] == '3') {
+        multi_aux = false;
+
         const elements = document.querySelectorAll('.multi-aux');
         elements.forEach(e => {
             e.classList.add('hidden');
@@ -974,6 +976,8 @@ function parse_config(msg) {
     }
 
     else if (values[0] == '5') {
+        multi_aux = true;
+
         const elements = document.querySelectorAll('.multi-aux');
         elements.forEach(e => {
             e.classList.remove('hidden');
@@ -982,7 +986,6 @@ function parse_config(msg) {
         [aux, aux2, aux3].forEach(a => {
             a.elType.disabled = false;
         });
-
     }
 
     else if (values.length >= 11) {
