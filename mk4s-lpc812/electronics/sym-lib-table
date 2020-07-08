@@ -1,0 +1,4 @@
+(sym_lib_table
+  (lib (name rc-light-controller-switching-lpc812-eagle-import)(type Legacy)(uri ${KIPRJMOD}/rc-light-controller-switching-lpc812-eagle-import.lib)(options "")(descr ""))
+  (lib (name rc-light-controller-switching-lpc812-rescue)(type Legacy)(uri ${KIPRJMOD}/rc-light-controller-switching-lpc812-rescue.lib)(options "")(descr ""))
+)
