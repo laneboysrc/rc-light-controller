@@ -22,9 +22,9 @@ Wire Wire Line
 Wire Wire Line
 	4400 2600 4400 3200
 Wire Wire Line
-	2050 2900 2050 2800
+	1450 5000 1450 4900
 Wire Wire Line
-	2050 2800 1450 2800
+	1450 4900 1050 4900
 Wire Wire Line
 	3150 3600 2650 3600
 Text Label 3150 3600 2    70   ~ 0
@@ -34,20 +34,12 @@ Wire Wire Line
 Wire Wire Line
 	4000 2700 4000 2400
 Connection ~ 4000 2400
-Wire Wire Line
-	8550 6050 8050 6050
-Wire Wire Line
-	8550 5750 8050 5750
-Text Label 3150 2400 2    70   ~ 0
+Text Label 2400 2400 0    70   ~ 0
 VIN
 Wire Wire Line
 	3150 3200 2650 3200
 Text Label 3150 3200 2    70   ~ 0
 ST-RX
-Wire Wire Line
-	2250 3200 1450 3200
-Wire Wire Line
-	2250 3600 1450 3600
 Wire Wire Line
 	3150 4400 2650 4400
 Text Label 3150 4400 2    70   ~ 0
@@ -58,8 +50,6 @@ Wire Wire Line
 	2650 4000 3150 4000
 Text Label 3150 4000 2    70   ~ 0
 CH3
-Wire Wire Line
-	1450 4400 1950 4400
 $Comp
 L rc-light-controller-switching-lpc812-rescue:+3V3-rc-light-controller-tlc5940-lpc812-eagle-import #+3V01
 U 1 1 910CF6D9
@@ -94,182 +84,6 @@ F 3 "" H 5100 2400 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L rc-light-controller-switching-lpc812-rescue:SDM80X120-rc-light-controller-tlc5940-lpc812-eagle-import PAD1
-U 1 1 1C475C6D
-P 1350 2400
-F 0 "PAD1" H 1305 2473 59  0000 L BNN
-F 1 "+" H 1305 2270 59  0000 L BNN
-F 2 "rc-light-controller-tlc5940-lpc812:SMD80X120" H 1350 2400 50  0001 C CNN
-F 3 "" H 1350 2400 50  0001 C CNN
-	1    1350 2400
-	1    0    0    1   
-$EndComp
-$Comp
-L rc-light-controller-switching-lpc812-rescue:SDM80X120-rc-light-controller-tlc5940-lpc812-eagle-import PAD2
-U 1 1 A0CD53A2
-P 1350 2800
-F 0 "PAD2" H 1305 2873 59  0000 L BNN
-F 1 "-" H 1305 2670 59  0000 L BNN
-F 2 "rc-light-controller-tlc5940-lpc812:SMD80X120" H 1350 2800 50  0001 C CNN
-F 3 "" H 1350 2800 50  0001 C CNN
-	1    1350 2800
-	1    0    0    1   
-$EndComp
-$Comp
-L rc-light-controller-switching-lpc812-rescue:SDM80X120-rc-light-controller-tlc5940-lpc812-eagle-import PAD3
-U 1 1 1CFA7EBC
-P 1350 3200
-F 0 "PAD3" H 1305 3273 59  0000 L BNN
-F 1 "ST/Rx" H 1305 3070 59  0000 L BNN
-F 2 "rc-light-controller-tlc5940-lpc812:SMD80X120" H 1350 3200 50  0001 C CNN
-F 3 "" H 1350 3200 50  0001 C CNN
-	1    1350 3200
-	1    0    0    1   
-$EndComp
-$Comp
-L rc-light-controller-switching-lpc812-rescue:SDM80X120-rc-light-controller-tlc5940-lpc812-eagle-import PAD4
-U 1 1 9066C7CA
-P 1350 3600
-F 0 "PAD4" H 1305 3673 59  0000 L BNN
-F 1 "TH/Tx" H 1305 3470 59  0000 L BNN
-F 2 "rc-light-controller-tlc5940-lpc812:SMD80X120" H 1350 3600 50  0001 C CNN
-F 3 "" H 1350 3600 50  0001 C CNN
-	1    1350 3600
-	1    0    0    1   
-$EndComp
-$Comp
-L rc-light-controller-switching-lpc812-rescue:SDM80X120-rc-light-controller-tlc5940-lpc812-eagle-import PAD6
-U 1 1 6D080C98
-P 1350 4400
-F 0 "PAD6" H 1305 4473 59  0000 L BNN
-F 1 "OUT/ISP" H 1305 4270 59  0000 L BNN
-F 2 "rc-light-controller-tlc5940-lpc812:SMD80X120" H 1350 4400 50  0001 C CNN
-F 3 "" H 1350 4400 50  0001 C CNN
-	1    1350 4400
-	1    0    0    1   
-$EndComp
-$Comp
-L rc-light-controller-switching-lpc812-rescue:SMD50X100-rc-light-controller-tlc5940-lpc812-eagle-import OUT0
-U 1 1 3C53439C
-P 14200 1700
-F 0 "OUT0" H 14155 1773 59  0000 L BNN
-F 1 "SMD50X100" H 14155 1570 59  0001 L BNN
-F 2 "rc-light-controller-tlc5940-lpc812:SMD50X100" H 14200 1700 50  0001 C CNN
-F 3 "" H 14200 1700 50  0001 C CNN
-	1    14200 1700
-	-1   0    0    1   
-$EndComp
-$Comp
-L rc-light-controller-switching-lpc812-rescue:SMD50X100-rc-light-controller-tlc5940-lpc812-eagle-import OUT1
-U 1 1 6BADA7B7
-P 14200 2300
-F 0 "OUT1" H 14155 2373 59  0000 L BNN
-F 1 "SMD50X100" H 14155 2170 59  0001 L BNN
-F 2 "rc-light-controller-tlc5940-lpc812:SMD50X100" H 14200 2300 50  0001 C CNN
-F 3 "" H 14200 2300 50  0001 C CNN
-	1    14200 2300
-	-1   0    0    1   
-$EndComp
-$Comp
-L rc-light-controller-switching-lpc812-rescue:SMD50X100-rc-light-controller-tlc5940-lpc812-eagle-import OUT2
-U 1 1 861A1973
-P 14150 2900
-F 0 "OUT2" H 14105 2973 59  0000 L BNN
-F 1 "SMD50X100" H 14105 2770 59  0001 L BNN
-F 2 "rc-light-controller-tlc5940-lpc812:SMD50X100" H 14150 2900 50  0001 C CNN
-F 3 "" H 14150 2900 50  0001 C CNN
-	1    14150 2900
-	-1   0    0    1   
-$EndComp
-$Comp
-L rc-light-controller-switching-lpc812-rescue:SMD50X100-rc-light-controller-tlc5940-lpc812-eagle-import OUT3
-U 1 1 FBBF8CFD
-P 14150 3500
-F 0 "OUT3" H 14105 3573 59  0000 L BNN
-F 1 "SMD50X100" H 14105 3370 59  0001 L BNN
-F 2 "rc-light-controller-tlc5940-lpc812:SMD50X100" H 14150 3500 50  0001 C CNN
-F 3 "" H 14150 3500 50  0001 C CNN
-	1    14150 3500
-	-1   0    0    1   
-$EndComp
-$Comp
-L rc-light-controller-switching-lpc812-rescue:SMD50X100-rc-light-controller-tlc5940-lpc812-eagle-import OUT4
-U 1 1 F2672D97
-P 14200 4100
-F 0 "OUT4" H 14155 4173 59  0000 L BNN
-F 1 "SMD50X100" H 14155 3970 59  0001 L BNN
-F 2 "rc-light-controller-tlc5940-lpc812:SMD50X100" H 14200 4100 50  0001 C CNN
-F 3 "" H 14200 4100 50  0001 C CNN
-	1    14200 4100
-	-1   0    0    1   
-$EndComp
-$Comp
-L rc-light-controller-switching-lpc812-rescue:SMD50X100-rc-light-controller-tlc5940-lpc812-eagle-import OUT5
-U 1 1 A0BFA14C
-P 14200 4700
-F 0 "OUT5" H 14155 4773 59  0000 L BNN
-F 1 "SMD50X100" H 14155 4570 59  0001 L BNN
-F 2 "rc-light-controller-tlc5940-lpc812:SMD50X100" H 14200 4700 50  0001 C CNN
-F 3 "" H 14200 4700 50  0001 C CNN
-	1    14200 4700
-	-1   0    0    1   
-$EndComp
-$Comp
-L rc-light-controller-switching-lpc812-rescue:SMD50X100-rc-light-controller-tlc5940-lpc812-eagle-import OUT6
-U 1 1 F2728259
-P 14200 5300
-F 0 "OUT6" H 14155 5373 59  0000 L BNN
-F 1 "SMD50X100" H 14155 5170 59  0001 L BNN
-F 2 "rc-light-controller-tlc5940-lpc812:SMD50X100" H 14200 5300 50  0001 C CNN
-F 3 "" H 14200 5300 50  0001 C CNN
-	1    14200 5300
-	-1   0    0    1   
-$EndComp
-$Comp
-L rc-light-controller-switching-lpc812-rescue:SMD50X100-rc-light-controller-tlc5940-lpc812-eagle-import OUT7
-U 1 1 F2054039
-P 14200 5900
-F 0 "OUT7" H 14155 5973 59  0000 L BNN
-F 1 "SMD50X100" H 14155 5770 59  0001 L BNN
-F 2 "rc-light-controller-tlc5940-lpc812:SMD50X100" H 14200 5900 50  0001 C CNN
-F 3 "" H 14200 5900 50  0001 C CNN
-	1    14200 5900
-	-1   0    0    1   
-$EndComp
-$Comp
-L rc-light-controller-switching-lpc812-rescue:SMD50X100-rc-light-controller-tlc5940-lpc812-eagle-import OUT8
-U 1 1 D45D03D4
-P 14200 6500
-F 0 "OUT8" H 14155 6573 59  0000 L BNN
-F 1 "SMD50X100" H 14155 6370 59  0001 L BNN
-F 2 "rc-light-controller-tlc5940-lpc812:SMD50X100" H 14200 6500 50  0001 C CNN
-F 3 "" H 14200 6500 50  0001 C CNN
-	1    14200 6500
-	-1   0    0    1   
-$EndComp
-$Comp
-L rc-light-controller-switching-lpc812-rescue:SMD50X100-rc-light-controller-tlc5940-lpc812-eagle-import LED+2
-U 1 1 2268DE62
-P 8650 6050
-F 0 "LED+2" H 8605 6123 59  0000 L BNN
-F 1 "SMD50X100" H 8605 5920 59  0001 L BNN
-F 2 "rc-light-controller-tlc5940-lpc812:SMD50X100" H 8650 6050 50  0001 C CNN
-F 3 "" H 8650 6050 50  0001 C CNN
-	1    8650 6050
-	-1   0    0    1   
-$EndComp
-$Comp
-L rc-light-controller-switching-lpc812-rescue:SMD50X100-rc-light-controller-tlc5940-lpc812-eagle-import LED+1
-U 1 1 CFCDD87C
-P 8650 5750
-F 0 "LED+1" H 8605 5823 59  0000 L BNN
-F 1 "SMD50X100" H 8605 5620 59  0001 L BNN
-F 2 "rc-light-controller-tlc5940-lpc812:SMD50X100" H 8650 5750 50  0001 C CNN
-F 3 "" H 8650 5750 50  0001 C CNN
-	1    8650 5750
-	-1   0    0    1   
-$EndComp
-$Comp
 L rc-light-controller-switching-lpc812-rescue:C-EUC0805-rc-light-controller-tlc5940-lpc812-eagle-import C1
 U 1 1 30D010B6
 P 4000 2800
@@ -300,17 +114,6 @@ F 1 "1k" H 2300 3470 59  0000 L BNN
 F 2 "Resistor_SMD:R_0603_1608Metric" H 2450 3600 50  0001 C CNN
 F 3 "" H 2450 3600 50  0001 C CNN
 	1    2450 3600
-	1    0    0    1   
-$EndComp
-$Comp
-L rc-light-controller-switching-lpc812-rescue:SDM80X120-rc-light-controller-tlc5940-lpc812-eagle-import PAD5
-U 1 1 411DFD1A
-P 1350 4000
-F 0 "PAD5" H 1305 4073 59  0000 L BNN
-F 1 "CH3" H 1305 3870 59  0000 L BNN
-F 2 "rc-light-controller-tlc5940-lpc812:SMD80X120" H 1350 4000 50  0001 C CNN
-F 3 "" H 1350 4000 50  0001 C CNN
-	1    1350 4000
 	1    0    0    1   
 $EndComp
 $Comp
@@ -400,12 +203,12 @@ Polymer
 $Comp
 L power:GND #PWR0101
 U 1 1 5CCABD51
-P 2050 2900
-F 0 "#PWR0101" H 2050 2650 50  0001 C CNN
-F 1 "GND" H 2055 2727 50  0000 C CNN
-F 2 "" H 2050 2900 50  0001 C CNN
-F 3 "" H 2050 2900 50  0001 C CNN
-	1    2050 2900
+P 1450 5000
+F 0 "#PWR0101" H 1450 4750 50  0001 C CNN
+F 1 "GND" H 1455 4827 50  0000 C CNN
+F 2 "" H 1450 5000 50  0001 C CNN
+F 3 "" H 1450 5000 50  0001 C CNN
+	1    1450 5000
 	1    0    0    -1  
 $EndComp
 $Comp
@@ -452,11 +255,6 @@ F 3 "" H 6000 3200 50  0001 C CNN
 	1    6000 3200
 	1    0    0    -1  
 $EndComp
-Wire Wire Line
-	8050 6050 8050 5750
-Connection ~ 8050 5750
-Wire Wire Line
-	8050 5750 7300 5750
 Wire Wire Line
 	9750 3450 9750 3550
 $Comp
@@ -643,8 +441,6 @@ Wire Wire Line
 	13300 2100 13300 2700
 Connection ~ 13300 2700
 Wire Wire Line
-	13000 1700 14100 1700
-Wire Wire Line
 	12800 2000 12200 2000
 Text Label 12200 2000 0    50   ~ 0
 OUT0
@@ -717,171 +513,24 @@ Wire Wire Line
 Text Label 11100 2950 2    50   ~ 0
 OUT4
 $Comp
-L rc-light-controller-switching-lpc812-rescue:SMD50X100-rc-light-controller-tlc5940-lpc812-eagle-import LED+3
-U 1 1 5EFA4B99
-P 8650 6350
-F 0 "LED+3" H 8605 6423 59  0000 L BNN
-F 1 "SMD50X100" H 8605 6220 59  0001 L BNN
-F 2 "rc-light-controller-tlc5940-lpc812:SMD50X100" H 8650 6350 50  0001 C CNN
-F 3 "" H 8650 6350 50  0001 C CNN
-	1    8650 6350
-	-1   0    0    1   
-$EndComp
-$Comp
-L rc-light-controller-switching-lpc812-rescue:SMD50X100-rc-light-controller-tlc5940-lpc812-eagle-import LED+4
-U 1 1 5EFA4E98
-P 8650 6650
-F 0 "LED+4" H 8605 6723 59  0000 L BNN
-F 1 "SMD50X100" H 8605 6520 59  0001 L BNN
-F 2 "rc-light-controller-tlc5940-lpc812:SMD50X100" H 8650 6650 50  0001 C CNN
-F 3 "" H 8650 6650 50  0001 C CNN
-	1    8650 6650
-	-1   0    0    1   
-$EndComp
-$Comp
-L rc-light-controller-switching-lpc812-rescue:SMD50X100-rc-light-controller-tlc5940-lpc812-eagle-import LED+5
-U 1 1 5EFA50EE
-P 8650 6950
-F 0 "LED+5" H 8605 7023 59  0000 L BNN
-F 1 "SMD50X100" H 8605 6820 59  0001 L BNN
-F 2 "rc-light-controller-tlc5940-lpc812:SMD50X100" H 8650 6950 50  0001 C CNN
-F 3 "" H 8650 6950 50  0001 C CNN
-	1    8650 6950
-	-1   0    0    1   
-$EndComp
-$Comp
-L rc-light-controller-switching-lpc812-rescue:SMD50X100-rc-light-controller-tlc5940-lpc812-eagle-import LED+6
-U 1 1 5EFA58A6
-P 8650 7250
-F 0 "LED+6" H 8605 7323 59  0000 L BNN
-F 1 "SMD50X100" H 8605 7120 59  0001 L BNN
-F 2 "rc-light-controller-tlc5940-lpc812:SMD50X100" H 8650 7250 50  0001 C CNN
-F 3 "" H 8650 7250 50  0001 C CNN
-	1    8650 7250
-	-1   0    0    1   
-$EndComp
-$Comp
-L rc-light-controller-switching-lpc812-rescue:SMD50X100-rc-light-controller-tlc5940-lpc812-eagle-import LED+7
-U 1 1 5EFA5A3F
-P 8650 7550
-F 0 "LED+7" H 8605 7623 59  0000 L BNN
-F 1 "SMD50X100" H 8605 7420 59  0001 L BNN
-F 2 "rc-light-controller-tlc5940-lpc812:SMD50X100" H 8650 7550 50  0001 C CNN
-F 3 "" H 8650 7550 50  0001 C CNN
-	1    8650 7550
-	-1   0    0    1   
-$EndComp
-$Comp
-L rc-light-controller-switching-lpc812-rescue:SMD50X100-rc-light-controller-tlc5940-lpc812-eagle-import LED+8
-U 1 1 5EFA5BE9
-P 8650 7850
-F 0 "LED+8" H 8605 7923 59  0000 L BNN
-F 1 "SMD50X100" H 8605 7720 59  0001 L BNN
-F 2 "rc-light-controller-tlc5940-lpc812:SMD50X100" H 8650 7850 50  0001 C CNN
-F 3 "" H 8650 7850 50  0001 C CNN
-	1    8650 7850
-	-1   0    0    1   
-$EndComp
-$Comp
-L rc-light-controller-switching-lpc812-rescue:SMD50X100-rc-light-controller-tlc5940-lpc812-eagle-import LED+9
-U 1 1 5EFA5EEB
-P 8650 8100
-F 0 "LED+9" H 8605 8173 59  0000 L BNN
-F 1 "SMD50X100" H 8605 7970 59  0001 L BNN
-F 2 "rc-light-controller-tlc5940-lpc812:SMD50X100" H 8650 8100 50  0001 C CNN
-F 3 "" H 8650 8100 50  0001 C CNN
-	1    8650 8100
-	-1   0    0    1   
-$EndComp
-Wire Wire Line
-	8550 8100 8050 8100
-Wire Wire Line
-	8050 8100 8050 7850
-Connection ~ 8050 6050
-Wire Wire Line
-	8550 7850 8050 7850
-Connection ~ 8050 7850
-Wire Wire Line
-	8050 7850 8050 7550
-Wire Wire Line
-	8550 7550 8050 7550
-Connection ~ 8050 7550
-Wire Wire Line
-	8050 7550 8050 7250
-Wire Wire Line
-	8550 7250 8050 7250
-Connection ~ 8050 7250
-Wire Wire Line
-	8050 7250 8050 6950
-Wire Wire Line
-	8550 6950 8050 6950
-Connection ~ 8050 6950
-Wire Wire Line
-	8050 6950 8050 6650
-Wire Wire Line
-	8550 6650 8050 6650
-Connection ~ 8050 6650
-Wire Wire Line
-	8050 6650 8050 6350
-Wire Wire Line
-	8550 6350 8050 6350
-Connection ~ 8050 6350
-Wire Wire Line
-	8050 6350 8050 6050
-$Comp
-L rc-light-controller-switching-lpc812-rescue:SDM80X120-rc-light-controller-tlc5940-lpc812-eagle-import PAD7
-U 1 1 5EFD5293
-P 1350 5850
-F 0 "PAD7" H 1305 5923 59  0000 L BNN
-F 1 "+" H 1305 5720 59  0000 L BNN
-F 2 "rc-light-controller-tlc5940-lpc812:SMD80X120" H 1350 5850 50  0001 C CNN
-F 3 "" H 1350 5850 50  0001 C CNN
-	1    1350 5850
-	1    0    0    1   
-$EndComp
-$Comp
-L rc-light-controller-switching-lpc812-rescue:SDM80X120-rc-light-controller-tlc5940-lpc812-eagle-import PAD8
-U 1 1 5EFD555E
-P 1350 6150
-F 0 "PAD8" H 1305 6223 59  0000 L BNN
-F 1 "-" H 1305 6020 59  0000 L BNN
-F 2 "rc-light-controller-tlc5940-lpc812:SMD80X120" H 1350 6150 50  0001 C CNN
-F 3 "" H 1350 6150 50  0001 C CNN
-	1    1350 6150
-	1    0    0    1   
-$EndComp
-$Comp
-L rc-light-controller-switching-lpc812-rescue:SDM80X120-rc-light-controller-tlc5940-lpc812-eagle-import PAD9
-U 1 1 5EFD596E
-P 1350 6500
-F 0 "PAD9" H 1305 6573 59  0000 L BNN
-F 1 "OUT/ISP" H 1305 6370 59  0000 L BNN
-F 2 "rc-light-controller-tlc5940-lpc812:SMD80X120" H 1350 6500 50  0001 C CNN
-F 3 "" H 1350 6500 50  0001 C CNN
-	1    1350 6500
-	1    0    0    1   
-$EndComp
-$Comp
 L power:GND #PWR02
 U 1 1 5EFD836E
-P 2400 6300
-F 0 "#PWR02" H 2400 6050 50  0001 C CNN
-F 1 "GND" H 2405 6127 50  0000 C CNN
-F 2 "" H 2400 6300 50  0001 C CNN
-F 3 "" H 2400 6300 50  0001 C CNN
-	1    2400 6300
+P 2000 6600
+F 0 "#PWR02" H 2000 6350 50  0001 C CNN
+F 1 "GND" H 2005 6427 50  0000 C CNN
+F 2 "" H 2000 6600 50  0001 C CNN
+F 3 "" H 2000 6600 50  0001 C CNN
+	1    2000 6600
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	1450 6150 2400 6150
+	1050 6450 1550 6450
 Wire Wire Line
-	2400 6150 2400 6300
+	2000 6450 2000 6600
 Wire Wire Line
-	1450 5850 2250 5850
+	1950 4400 1950 6250
 Wire Wire Line
-	1950 4400 1950 6500
-Wire Wire Line
-	1950 6500 1450 6500
+	1950 6250 1050 6250
 Connection ~ 1950 4400
 Wire Wire Line
 	1950 4400 2250 4400
@@ -892,84 +541,20 @@ OUT8
 NoConn ~ 10450 2850
 NoConn ~ 10450 3150
 NoConn ~ 9050 2850
-$Comp
-L rc-light-controller-switching-lpc812-rescue:SMD50X100-rc-light-controller-tlc5940-lpc812-eagle-import LED+_in1
-U 1 1 5F04C1D0
-P 7200 5750
-F 0 "LED+_in1" H 7155 5823 59  0000 L BNN
-F 1 "SMD50X100" H 7155 5620 59  0001 L BNN
-F 2 "rc-light-controller-tlc5940-lpc812:SMD50X100" H 7200 5750 50  0001 C CNN
-F 3 "" H 7200 5750 50  0001 C CNN
-	1    7200 5750
-	1    0    0    -1  
-$EndComp
-$Comp
-L rc-light-controller-switching-lpc812-rescue:SMD50X100-rc-light-controller-tlc5940-lpc812-eagle-import Vin1
-U 1 1 5F054E07
-P 6900 5750
-F 0 "Vin1" H 6855 5823 59  0000 L BNN
-F 1 "SMD50X100" H 6855 5620 59  0001 L BNN
-F 2 "rc-light-controller-tlc5940-lpc812:SMD50X100" H 6900 5750 50  0001 C CNN
-F 3 "" H 6900 5750 50  0001 C CNN
-	1    6900 5750
-	-1   0    0    1   
-$EndComp
-Wire Wire Line
-	6800 5750 6200 5750
-Text Label 6200 5750 0    70   ~ 0
+Text Label 1700 6050 2    50   ~ 0
 VIN
-Text Label 7650 5750 0    50   ~ 0
+Text Label 1700 5950 2    50   ~ 0
 LED+
-$Comp
-L power:GND #PWR03
-U 1 1 5F06E5EF
-P 7500 6500
-F 0 "#PWR03" H 7500 6250 50  0001 C CNN
-F 1 "GND" H 7505 6327 50  0000 C CNN
-F 2 "" H 7500 6500 50  0001 C CNN
-F 3 "" H 7500 6500 50  0001 C CNN
-	1    7500 6500
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	7500 6100 7500 6500
-Wire Wire Line
-	7300 6100 7500 6100
-$Comp
-L rc-light-controller-switching-lpc812-rescue:SMD50X100-rc-light-controller-tlc5940-lpc812-eagle-import LED-_in1
-U 1 1 5F06BB15
-P 7200 6100
-F 0 "LED-_in1" H 7155 6173 59  0000 L BNN
-F 1 "SMD50X100" H 7155 5970 59  0001 L BNN
-F 2 "rc-light-controller-tlc5940-lpc812:SMD50X100" H 7200 6100 50  0001 C CNN
-F 3 "" H 7200 6100 50  0001 C CNN
-	1    7200 6100
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	13000 6500 14100 6500
-Wire Wire Line
-	13000 5900 14100 5900
-Wire Wire Line
-	13000 5300 14100 5300
-Wire Wire Line
-	13000 4700 14100 4700
-Wire Wire Line
-	13000 4100 14100 4100
 Wire Wire Line
 	13000 3500 14050 3500
 Wire Wire Line
 	13000 2900 14050 2900
-Wire Wire Line
-	13000 2300 14100 2300
-Text Notes 5750 7600 0    59   ~ 0
-VIN1 is physically close to LED+_in1.\nThis allows two modes of operation:\n1) when VIN1 is conntected to LED+_in1\nvia a solder bridge, then the LEDs are \npowered from the receiver.\n2) A separate power supply can be \nconnected to LED+_in1 (and LED-_in1),\ne.g. for higher voltages
+Text Notes 1300 7950 0    59   ~ 0
+VIN1 is physically close to LED+.\nThis allows two modes of operation:\n1) when VIN1 is conntected to LED+\nvia a solder bridge, then the LEDs are \npowered from the receiver.\n2) A separate power supply can be \nconnected to LED+ (and the nearby GND),\ne.g. for higher voltages
 Text Notes 1300 5550 0    85   ~ 0
 Slave out
 Wire Wire Line
-	1450 2400 4000 2400
-Text Label 2250 5850 2    50   ~ 0
-VIN
+	2400 2400 4000 2400
 Text Label 1700 3200 0    50   ~ 0
 ST-Rx-in
 Text Label 1700 3600 0    50   ~ 0
@@ -978,4 +563,251 @@ Text Label 1700 4000 0    50   ~ 0
 CH3-in
 Text Label 1700 4400 0    50   ~ 0
 OUT-ISP-out
+$Comp
+L Connector_Generic:Conn_01x06 J2
+U 1 1 5F1D0E80
+P 850 4700
+F 0 "J2" H 768 4175 50  0000 C CNN
+F 1 "Conn_01x06" H 768 4266 50  0000 C CNN
+F 2 "rc-light-controller-tlc5940-lpc812:PinHeader_1x06_P2.54mm_Flat" H 850 4700 50  0001 C CNN
+F 3 "~" H 850 4700 50  0001 C CNN
+	1    850  4700
+	-1   0    0    1   
+$EndComp
+Wire Wire Line
+	1050 4400 1950 4400
+Wire Wire Line
+	1450 4000 1450 4500
+Wire Wire Line
+	1450 4500 1050 4500
+Wire Wire Line
+	1300 3600 1300 4600
+Wire Wire Line
+	1300 4600 1050 4600
+Wire Wire Line
+	1300 3600 2250 3600
+Wire Wire Line
+	1200 3200 1200 4700
+Wire Wire Line
+	1200 4700 1050 4700
+Wire Wire Line
+	1200 3200 2250 3200
+Wire Wire Line
+	1050 4800 1600 4800
+Text Label 1600 4800 2    50   ~ 0
+VIN
+Wire Wire Line
+	15600 2550 15600 1750
+Text Label 15600 1750 0    50   ~ 0
+LED+
+Connection ~ 15600 2550
+Connection ~ 15600 2650
+Wire Wire Line
+	15600 2650 15600 2550
+Connection ~ 15600 2750
+Wire Wire Line
+	15600 2750 15600 2650
+Connection ~ 15600 2850
+Wire Wire Line
+	15600 2850 15600 2750
+Connection ~ 15600 2950
+Wire Wire Line
+	15600 2950 15600 2850
+Connection ~ 15600 3050
+Wire Wire Line
+	15600 3050 15600 2950
+Connection ~ 15600 3150
+Wire Wire Line
+	15600 3150 15600 3050
+Wire Wire Line
+	15600 3150 15600 3250
+Connection ~ 15600 3250
+Wire Wire Line
+	15600 3250 15600 3350
+Connection ~ 15600 3350
+Wire Wire Line
+	15600 3350 15600 3450
+Connection ~ 15600 3450
+Wire Wire Line
+	15600 3450 15600 3550
+Connection ~ 15600 3550
+Wire Wire Line
+	15600 3550 15600 3650
+Connection ~ 15600 3650
+Wire Wire Line
+	15600 3650 15600 3750
+Connection ~ 15600 3750
+Wire Wire Line
+	15600 3750 15600 3850
+Connection ~ 15600 3850
+Wire Wire Line
+	15600 3850 15600 3950
+Connection ~ 15600 3950
+Wire Wire Line
+	15600 3950 15600 4050
+Connection ~ 15600 4050
+Wire Wire Line
+	15600 4050 15600 4150
+Wire Wire Line
+	14600 1700 14600 2550
+Wire Wire Line
+	14600 2550 14850 2550
+Wire Wire Line
+	13000 1700 14600 1700
+Wire Wire Line
+	14850 2650 14600 2650
+Wire Wire Line
+	14600 2650 14600 2550
+Connection ~ 14600 2550
+Wire Wire Line
+	14400 2300 14400 2750
+Wire Wire Line
+	14400 2750 14850 2750
+Wire Wire Line
+	13000 2300 14400 2300
+Wire Wire Line
+	14850 2850 14400 2850
+Wire Wire Line
+	14400 2850 14400 2750
+Connection ~ 14400 2750
+Wire Wire Line
+	14050 2900 14050 2950
+Wire Wire Line
+	14050 2950 14850 2950
+Wire Wire Line
+	14850 3050 14050 3050
+Wire Wire Line
+	14050 3050 14050 2950
+Connection ~ 14050 2950
+Wire Wire Line
+	14850 3150 14050 3150
+Wire Wire Line
+	14050 3150 14050 3250
+Wire Wire Line
+	14850 3250 14050 3250
+Connection ~ 14050 3250
+Wire Wire Line
+	14050 3250 14050 3500
+Wire Wire Line
+	14850 3350 14150 3350
+Wire Wire Line
+	14150 3350 14150 3450
+Wire Wire Line
+	13000 4100 14150 4100
+Wire Wire Line
+	14850 3450 14150 3450
+Connection ~ 14150 3450
+Wire Wire Line
+	14150 3450 14150 4100
+Wire Wire Line
+	14850 3550 14200 3550
+Wire Wire Line
+	14200 3550 14200 3650
+Wire Wire Line
+	13000 4700 14200 4700
+Wire Wire Line
+	14850 3650 14200 3650
+Connection ~ 14200 3650
+Wire Wire Line
+	14200 3650 14200 4700
+Wire Wire Line
+	14850 3750 14300 3750
+Wire Wire Line
+	14300 3750 14300 3850
+Wire Wire Line
+	13000 5300 14300 5300
+Wire Wire Line
+	14850 3850 14300 3850
+Connection ~ 14300 3850
+Wire Wire Line
+	14300 3850 14300 5300
+Wire Wire Line
+	14850 3950 14450 3950
+Wire Wire Line
+	14450 3950 14450 4050
+Wire Wire Line
+	13000 5900 14450 5900
+Wire Wire Line
+	14850 4050 14450 4050
+Connection ~ 14450 4050
+Wire Wire Line
+	14450 4050 14450 5900
+Wire Wire Line
+	14850 4150 14850 6500
+Wire Wire Line
+	13000 6500 14850 6500
+$Comp
+L Connector_Generic:Conn_01x06 J3
+U 1 1 5F244636
+P 850 6250
+F 0 "J3" H 768 5725 50  0000 C CNN
+F 1 "Conn_01x06" H 768 5816 50  0000 C CNN
+F 2 "rc-light-controller-tlc5940-lpc812:PinHeader_1x06_P2.54mm_Flat" H 850 6250 50  0001 C CNN
+F 3 "~" H 850 6250 50  0001 C CNN
+	1    850  6250
+	-1   0    0    1   
+$EndComp
+Wire Wire Line
+	1050 6050 1250 6050
+Wire Wire Line
+	1050 6350 1250 6350
+Wire Wire Line
+	1250 6350 1250 6050
+Connection ~ 1250 6050
+Wire Wire Line
+	1250 6050 1700 6050
+Wire Wire Line
+	1050 6150 1550 6150
+Wire Wire Line
+	1550 6150 1550 6450
+Connection ~ 1550 6450
+Wire Wire Line
+	1550 6450 2000 6450
+Wire Wire Line
+	1050 5950 1700 5950
+Wire Wire Line
+	15600 2850 15350 2850
+Wire Wire Line
+	15350 2750 15600 2750
+Wire Wire Line
+	15350 2650 15600 2650
+Wire Wire Line
+	15350 4150 15600 4150
+Wire Wire Line
+	15350 4050 15600 4050
+Wire Wire Line
+	15350 3950 15600 3950
+Wire Wire Line
+	15350 3850 15600 3850
+Wire Wire Line
+	15350 3750 15600 3750
+Wire Wire Line
+	15350 3650 15600 3650
+Wire Wire Line
+	15350 3550 15600 3550
+Wire Wire Line
+	15350 3450 15600 3450
+Wire Wire Line
+	15350 2550 15600 2550
+Wire Wire Line
+	15350 3350 15600 3350
+Wire Wire Line
+	15350 3250 15600 3250
+Wire Wire Line
+	15350 3150 15600 3150
+Wire Wire Line
+	15350 3050 15600 3050
+Wire Wire Line
+	15350 2950 15600 2950
+$Comp
+L Connector_Generic:Conn_02x17_Odd_Even J1
+U 1 1 5F1ABEB8
+P 15150 3350
+F 0 "J1" H 15200 4367 50  0000 C CNN
+F 1 "Conn_02x17_Odd_Even" H 15200 4276 50  0000 C CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_2x17_P2.54mm_Horizontal" H 15150 3350 50  0001 C CNN
+F 3 "~" H 15150 3350 50  0001 C CNN
+	1    15150 3350
+	-1   0    0    -1  
+$EndComp
 $EndSCHEMATC
