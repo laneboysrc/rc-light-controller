@@ -59,7 +59,7 @@ F 1 "+3V3" V 9650 950 59  0000 L BNN
 F 2 "" H 9750 1150 50  0001 C CNN
 F 3 "" H 9750 1150 50  0001 C CNN
 	1    9750 1150
-	1    0    0    -1
+	1    0    0    -1  
 $EndComp
 $Comp
 L rc-light-controller-pinheader-lpc812-rescue:+3V3-rc-light-controller-tlc5940-lpc812-eagle-import #+3V03
@@ -70,7 +70,7 @@ F 1 "+3V3" V 5900 1900 59  0000 L BNN
 F 2 "" H 6000 2100 50  0001 C CNN
 F 3 "" H 6000 2100 50  0001 C CNN
 	1    6000 2100
-	1    0    0    -1
+	1    0    0    -1  
 $EndComp
 $Comp
 L rc-light-controller-pinheader-lpc812-rescue:MCP1703T-3302E_CB-rc-light-controller-tlc5940-lpc812-eagle-import U$1
@@ -81,7 +81,7 @@ F 1 "3V3" H 4994 1812 69  0000 L BNN
 F 2 "rc-light-controller-tlc5940-lpc812:SOT95P300X145-3N" H 5100 2400 50  0001 C CNN
 F 3 "" H 5100 2400 50  0001 C CNN
 	1    5100 2400
-	1    0    0    -1
+	1    0    0    -1  
 $EndComp
 $Comp
 L rc-light-controller-pinheader-lpc812-rescue:C-EUC0805-rc-light-controller-tlc5940-lpc812-eagle-import C1
@@ -92,7 +92,7 @@ F 1 "1u/16V" H 4060 2615 59  0000 L BNN
 F 2 "Capacitor_SMD:C_0805_2012Metric" H 4000 2800 50  0001 C CNN
 F 3 "" H 4000 2800 50  0001 C CNN
 	1    4000 2800
-	1    0    0    -1
+	1    0    0    -1  
 $EndComp
 Text Notes 7750 4500 0    56   ~ 0
 Special pins:\nPIO0_0  (19)   ISP UART RX\nPIO0_4  ( 5)   ISP UART TX\nPIO0_5  ( 4)   RESET\nPIO0_10 ( 9)   Open drain\nPIO0_11 ( 8)   Open drain\nPIO0_2  ( 7)   SWDIO\nPIO0_3  ( 6)   SWCLK
@@ -119,7 +119,7 @@ F 1 "PWR_FLAG" H 1150 10624 50  0000 C CNN
 F 2 "" H 1150 10450 50  0001 C CNN
 F 3 "~" H 1150 10450 50  0001 C CNN
 	1    1150 10450
-	1    0    0    -1
+	1    0    0    -1  
 $EndComp
 Wire Wire Line
 	1150 10450 1150 10550
@@ -137,7 +137,7 @@ F 1 "47u/6V3" H 6118 2905 50  0000 L CNN
 F 2 "Capacitor_SMD:C_0805_2012Metric" H 6038 2800 50  0001 C CNN
 F 3 "~" H 6000 2950 50  0001 C CNN
 	1    6000 2950
-	1    0    0    -1
+	1    0    0    -1  
 $EndComp
 Text Notes 6100 3200 0    50   ~ 0
 Polymer
@@ -150,7 +150,7 @@ F 1 "GND" H 1455 4827 50  0000 C CNN
 F 2 "" H 1450 5000 50  0001 C CNN
 F 3 "" H 1450 5000 50  0001 C CNN
 	1    1450 5000
-	1    0    0    -1
+	1    0    0    -1  
 $EndComp
 $Comp
 L power:GND #PWR0103
@@ -161,7 +161,7 @@ F 1 "GND" H 9755 3377 50  0000 C CNN
 F 2 "" H 9750 3550 50  0001 C CNN
 F 3 "" H 9750 3550 50  0001 C CNN
 	1    9750 3550
-	1    0    0    -1
+	1    0    0    -1  
 $EndComp
 $Comp
 L power:GND #PWR0104
@@ -172,7 +172,7 @@ F 1 "GND" H 4005 3027 50  0000 C CNN
 F 2 "" H 4000 3200 50  0001 C CNN
 F 3 "" H 4000 3200 50  0001 C CNN
 	1    4000 3200
-	1    0    0    -1
+	1    0    0    -1  
 $EndComp
 $Comp
 L power:GND #PWR0105
@@ -183,7 +183,7 @@ F 1 "GND" H 4405 3027 50  0000 C CNN
 F 2 "" H 4400 3200 50  0001 C CNN
 F 3 "" H 4400 3200 50  0001 C CNN
 	1    4400 3200
-	1    0    0    -1
+	1    0    0    -1  
 $EndComp
 $Comp
 L power:GND #PWR0106
@@ -194,7 +194,7 @@ F 1 "GND" H 6005 3027 50  0000 C CNN
 F 2 "" H 6000 3200 50  0001 C CNN
 F 3 "" H 6000 3200 50  0001 C CNN
 	1    6000 3200
-	1    0    0    -1
+	1    0    0    -1  
 $EndComp
 Wire Wire Line
 	9750 3450 9750 3550
@@ -207,7 +207,7 @@ F 1 "GND" H 1155 10377 50  0000 C CNN
 F 2 "" H 1150 10550 50  0001 C CNN
 F 3 "" H 1150 10550 50  0001 C CNN
 	1    1150 10550
-	1    0    0    -1
+	1    0    0    -1  
 $EndComp
 Text Notes 12200 1450 0    85   ~ 0
 LED driver and outputs
@@ -234,7 +234,7 @@ F 1 "LPC812M101JDH20" H 10150 3400 50  0000 C CNN
 F 2 "Package_SO:TSSOP-20_4.4x6.5mm_P0.65mm" H 10750 3450 50  0001 C CNN
 F 3 "http://www.nxp.com/documents/data_sheet/LPC81XM.pdf" H 9750 2250 50  0001 C CNN
 	1    9750 2750
-	1    0    0    -1
+	1    0    0    -1  
 $EndComp
 Wire Wire Line
 	9750 1250 9750 1450
@@ -261,7 +261,7 @@ F 1 "GND" H 2005 6427 50  0000 C CNN
 F 2 "" H 2000 6600 50  0001 C CNN
 F 3 "" H 2000 6600 50  0001 C CNN
 	1    2000 6600
-	1    0    0    -1
+	1    0    0    -1  
 $EndComp
 Wire Wire Line
 	1050 6450 1550 6450
@@ -303,7 +303,7 @@ F 1 "Conn_01x06" H 768 4266 50  0000 C CNN
 F 2 "rc-light-controller-tlc5940-lpc812:PinHeader_1x06_P2.54mm_Flat" H 850 4700 50  0001 C CNN
 F 3 "~" H 850 4700 50  0001 C CNN
 	1    850  4700
-	-1   0    0    1
+	-1   0    0    1   
 $EndComp
 Wire Wire Line
 	1450 4400 1450 4500
@@ -388,7 +388,7 @@ F 1 "Conn_01x06" H 768 5816 50  0000 C CNN
 F 2 "rc-light-controller-tlc5940-lpc812:PinHeader_1x06_P2.54mm_Flat" H 850 6250 50  0001 C CNN
 F 3 "~" H 850 6250 50  0001 C CNN
 	1    850  6250
-	-1   0    0    1
+	-1   0    0    1   
 $EndComp
 Wire Wire Line
 	1050 6050 1250 6050
@@ -451,7 +451,7 @@ F 1 "Conn_02x17_Odd_Even" H 15200 4276 50  0000 C CNN
 F 2 "Connector_PinHeader_2.54mm:PinHeader_2x17_P2.54mm_Horizontal" H 15150 3350 50  0001 C CNN
 F 3 "~" H 15150 3350 50  0001 C CNN
 	1    15150 3350
-	-1   0    0    1
+	-1   0    0    1   
 $EndComp
 $Comp
 L Device:R_Pack04 RN1
@@ -459,10 +459,10 @@ U 1 1 5F192F7F
 P 2450 4300
 F 0 "RN1" V 2033 4300 50  0000 C CNN
 F 1 "R_Pack04" V 2124 4300 50  0000 C CNN
-F 2 "Resistor_SMD:R_Array_Concave_4x0603" V 2725 4300 50  0001 C CNN
+F 2 "Resistor_SMD:R_Array_Convex_4x0603" V 2725 4300 50  0001 C CNN
 F 3 "~" H 2450 4300 50  0001 C CNN
 	1    2450 4300
-	0    1    1    0
+	0    1    1    0   
 $EndComp
 Text Label 11100 2750 2    50   ~ 0
 CH3
@@ -486,7 +486,7 @@ F 1 "MountingHole" H 7700 8105 50  0000 L CNN
 F 2 "MountingHole:MountingHole_2.2mm_M2_ISO14580" H 7600 8150 50  0001 C CNN
 F 3 "~" H 7600 8150 50  0001 C CNN
 	1    7600 8150
-	1    0    0    -1
+	1    0    0    -1  
 $EndComp
 $Comp
 L Mechanical:MountingHole H2
@@ -497,7 +497,7 @@ F 1 "MountingHole" H 7700 8355 50  0000 L CNN
 F 2 "MountingHole:MountingHole_2.2mm_M2_ISO14580" H 7600 8400 50  0001 C CNN
 F 3 "~" H 7600 8400 50  0001 C CNN
 	1    7600 8400
-	1    0    0    -1
+	1    0    0    -1  
 $EndComp
 Wire Wire Line
 	8450 2650 9050 2650
@@ -511,7 +511,7 @@ F 1 "100n" H 10165 1555 50  0000 L CNN
 F 2 "Capacitor_SMD:C_0603_1608Metric" H 10088 1450 50  0001 C CNN
 F 3 "~" H 10050 1600 50  0001 C CNN
 	1    10050 1600
-	1    0    0    -1
+	1    0    0    -1  
 $EndComp
 $Comp
 L power:GND #PWR03
@@ -522,7 +522,7 @@ F 1 "GND" H 10055 1627 50  0000 C CNN
 F 2 "" H 10050 1800 50  0001 C CNN
 F 3 "" H 10050 1800 50  0001 C CNN
 	1    10050 1800
-	1    0    0    -1
+	1    0    0    -1  
 $EndComp
 Wire Wire Line
 	10050 1750 10050 1800
@@ -548,7 +548,7 @@ F 1 "GND" H 13305 7477 50  0000 C CNN
 F 2 "" H 13300 7650 50  0001 C CNN
 F 3 "" H 13300 7650 50  0001 C CNN
 	1    13300 7650
-	1    0    0    -1
+	1    0    0    -1  
 $EndComp
 Text Notes 12250 7350 0    56   ~ 0
 N-Channel MOSFET\nSOT23 package\ne.g. NXP PMV16UN
@@ -571,7 +571,7 @@ F 1 "NMOSSOT23" H 13000 6700 59  0001 L BNN
 F 2 "Package_TO_SOT_SMD:SOT-23" H 12900 6700 50  0001 C CNN
 F 3 "" H 12900 6700 50  0001 C CNN
 	1    12900 6700
-	1    0    0    -1
+	1    0    0    -1  
 $EndComp
 NoConn ~ 14550 7300
 $Comp
@@ -583,7 +583,7 @@ F 1 "TLC5940PWP-rc-light-controller-tlc5940-lpc812-eagle-import" H 8000 8731 59 
 F 2 "rc-light-controller-tlc5940-lpc812:SOP65P640X120-29N" H 8800 7050 50  0001 C CNN
 F 3 "" H 8800 7050 50  0001 C CNN
 	1    8800 7050
-	1    0    0    -1
+	1    0    0    -1  
 $EndComp
 Wire Wire Line
 	8900 5550 9650 5550
@@ -658,7 +658,7 @@ F 1 "GND" H 8205 7277 50  0000 C CNN
 F 2 "" H 8200 7450 50  0001 C CNN
 F 3 "" H 8200 7450 50  0001 C CNN
 	1    8200 7450
-	1    0    0    -1
+	1    0    0    -1  
 $EndComp
 Wire Wire Line
 	8200 7350 8200 7450
@@ -671,7 +671,7 @@ F 1 "R" H 6420 7205 50  0000 L CNN
 F 2 "Resistor_SMD:R_0603_1608Metric" V 6280 7250 50  0001 C CNN
 F 3 "~" H 6350 7250 50  0001 C CNN
 	1    6350 7250
-	1    0    0    -1
+	1    0    0    -1  
 $EndComp
 $Comp
 L power:GND #PWR04
@@ -682,7 +682,7 @@ F 1 "GND" H 6355 7327 50  0000 C CNN
 F 2 "" H 6350 7500 50  0001 C CNN
 F 3 "" H 6350 7500 50  0001 C CNN
 	1    6350 7500
-	1    0    0    -1
+	1    0    0    -1  
 $EndComp
 Wire Wire Line
 	6350 7400 6350 7500
@@ -699,7 +699,7 @@ F 1 "GND" H 6755 5577 50  0000 C CNN
 F 2 "" H 6750 5750 50  0001 C CNN
 F 3 "" H 6750 5750 50  0001 C CNN
 	1    6750 5750
-	1    0    0    -1
+	1    0    0    -1  
 $EndComp
 Wire Wire Line
 	6750 5750 7100 5750
@@ -712,7 +712,7 @@ F 1 "+3V3" V 6750 4550 59  0000 L BNN
 F 2 "" H 6850 4750 50  0001 C CNN
 F 3 "" H 6850 4750 50  0001 C CNN
 	1    6850 4750
-	1    0    0    -1
+	1    0    0    -1  
 $EndComp
 Wire Wire Line
 	6850 4850 6850 5550
