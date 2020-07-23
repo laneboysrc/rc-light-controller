@@ -1,4 +1,2 @@
 (sym_lib_table
-  (lib (name rc-light-controller-pinheader-lpc812-eagle-import)(type Legacy)(uri ${KIPRJMOD}/rc-light-controller-pinheader-lpc812-eagle-import.lib)(options "")(descr ""))
-  (lib (name rc-light-controller-pinheader-lpc812-rescue)(type Legacy)(uri ${KIPRJMOD}/rc-light-controller-pinheader-lpc812-rescue.lib)(options "")(descr ""))
 )
