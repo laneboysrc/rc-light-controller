@@ -26,8 +26,8 @@ Wire Wire Line
 Wire Wire Line
 	1450 4900 1050 4900
 Wire Wire Line
-	3150 3600 2650 3600
-Text Label 3150 3600 2    70   ~ 0
+	3150 4200 2650 4200
+Text Label 3150 4200 2    50   ~ 0
 TH-TX
 Wire Wire Line
 	4400 2400 4000 2400
@@ -37,28 +37,28 @@ Connection ~ 4000 2400
 Text Label 2400 2400 0    70   ~ 0
 VIN
 Wire Wire Line
-	3150 3200 2650 3200
-Text Label 3150 3200 2    70   ~ 0
+	3150 4100 2650 4100
+Text Label 3150 4100 2    50   ~ 0
 ST-RX
 Wire Wire Line
 	3150 4400 2650 4400
-Text Label 3150 4400 2    70   ~ 0
+Text Label 3150 4300 2    50   ~ 0
 OUT-ISP
 Wire Wire Line
-	1450 4000 2250 4000
+	1450 4400 2250 4400
 Wire Wire Line
-	2650 4000 3150 4000
-Text Label 3150 4000 2    70   ~ 0
+	2650 4300 3150 4300
+Text Label 3150 4400 2    50   ~ 0
 CH3
 $Comp
 L rc-light-controller-switching-lpc812-rescue:+3V3-rc-light-controller-tlc5940-lpc812-eagle-import #+3V01
 U 1 1 910CF6D9
-P 9750 1700
-F 0 "#+3V01" H 9750 1700 50  0001 C CNN
-F 1 "+3V3" V 9650 1500 59  0000 L BNN
-F 2 "" H 9750 1700 50  0001 C CNN
-F 3 "" H 9750 1700 50  0001 C CNN
-	1    9750 1700
+P 9750 1150
+F 0 "#+3V01" H 9750 1150 50  0001 C CNN
+F 1 "+3V3" V 9650 950 59  0000 L BNN
+F 2 "" H 9750 1150 50  0001 C CNN
+F 3 "" H 9750 1150 50  0001 C CNN
+	1    9750 1150
 	1    0    0    -1  
 $EndComp
 $Comp
@@ -95,72 +95,26 @@ F 3 "" H 4000 2800 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L rc-light-controller-switching-lpc812-rescue:R-EU_R0603-rc-light-controller-tlc5940-lpc812-eagle-import R3
-U 1 1 3A5EE2B3
-P 2450 3200
-F 0 "R3" H 2300 3259 59  0000 L BNN
-F 1 "1k" H 2300 3070 59  0000 L BNN
-F 2 "Resistor_SMD:R_0603_1608Metric" H 2450 3200 50  0001 C CNN
-F 3 "" H 2450 3200 50  0001 C CNN
-	1    2450 3200
-	1    0    0    1   
-$EndComp
-$Comp
-L rc-light-controller-switching-lpc812-rescue:R-EU_R0603-rc-light-controller-tlc5940-lpc812-eagle-import R4
-U 1 1 EB3F1CA8
-P 2450 3600
-F 0 "R4" H 2300 3659 59  0000 L BNN
-F 1 "1k" H 2300 3470 59  0000 L BNN
-F 2 "Resistor_SMD:R_0603_1608Metric" H 2450 3600 50  0001 C CNN
-F 3 "" H 2450 3600 50  0001 C CNN
-	1    2450 3600
-	1    0    0    1   
-$EndComp
-$Comp
-L rc-light-controller-switching-lpc812-rescue:R-EU_R0603-rc-light-controller-tlc5940-lpc812-eagle-import R6
-U 1 1 5049E5A2
-P 2450 4000
-F 0 "R6" H 2300 4059 59  0000 L BNN
-F 1 "1k" H 2300 3870 59  0000 L BNN
-F 2 "Resistor_SMD:R_0603_1608Metric" H 2450 4000 50  0001 C CNN
-F 3 "" H 2450 4000 50  0001 C CNN
-	1    2450 4000
-	1    0    0    1   
-$EndComp
-$Comp
-L rc-light-controller-switching-lpc812-rescue:R-EU_R0603-rc-light-controller-tlc5940-lpc812-eagle-import R2
-U 1 1 29741822
-P 2450 4400
-F 0 "R2" H 2300 4459 59  0000 L BNN
-F 1 "1k" H 2300 4270 59  0000 L BNN
-F 2 "Resistor_SMD:R_0603_1608Metric" H 2450 4400 50  0001 C CNN
-F 3 "" H 2450 4400 50  0001 C CNN
-	1    2450 4400
-	1    0    0    1   
-$EndComp
-$Comp
-L rc-light-controller-switching-lpc812-rescue:NMOSSOT23-rc-light-controller-tlc5940-lpc812-eagle-import T1
+L Device:Q_NMOS_GSD T1
 U 1 1 8692C711
-P 13000 1900
-F 0 "T1" H 13100 2000 59  0000 L BNN
-F 1 "NMOSSOT23" H 13100 1900 59  0001 L BNN
-F 2 "rc-light-controller-tlc5940-lpc812:SOT-23" H 13000 1900 50  0001 C CNN
-F 3 "" H 13000 1900 50  0001 C CNN
-	1    13000 1900
+P 12900 1900
+F 0 "T1" H 13000 2000 59  0000 L BNN
+F 1 "NMOSSOT23" H 13000 1900 59  0001 L BNN
+F 2 "Package_TO_SOT_SMD:SOT-23" H 12900 1900 50  0001 C CNN
+F 3 "" H 12900 1900 50  0001 C CNN
+	1    12900 1900
 	1    0    0    -1  
 $EndComp
 Text Notes 7750 4500 0    56   ~ 0
 Special pins:\nPIO0_0  (19)   ISP UART RX\nPIO0_4  ( 5)   ISP UART TX\nPIO0_5  ( 4)   RESET\nPIO0_10 ( 9)   Open drain\nPIO0_11 ( 8)   Open drain\nPIO0_2  ( 7)   SWDIO\nPIO0_3  ( 6)   SWCLK
-Text Notes 1300 2100 0    85   ~ 0
+Text Notes 1750 3650 0    85   ~ 0
 Servo in/out
 Text Notes 4600 1750 0    85   ~ 0
 Voltage regulator
-Text Notes 9300 1500 0    85   ~ 0
+Text Notes 9350 900  0    85   ~ 0
 Microcontroller
 Text Notes 3650 3000 0    59   ~ 0
 X7R
-Text Notes 2300 4650 0    59   ~ 0
-All resistors 0603
 Text Notes 2650 2650 0    59   ~ 0
 Input voltage range:\n4 ... 10V
 Text Notes 6300 2600 0    59   ~ 0
@@ -284,8 +238,6 @@ Text Label 11100 2650 2    50   ~ 0
 OUT-ISP
 Wire Wire Line
 	11100 2750 10450 2750
-Text Label 11100 2750 2    50   ~ 0
-CH3
 $Comp
 L MCU_NXP_LPC:LPC812M101JDH20 U1
 U 1 1 5EE5F15A
@@ -298,93 +250,93 @@ F 3 "http://www.nxp.com/documents/data_sheet/LPC81XM.pdf" H 9750 2250 50  0001 C
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	9750 1800 9750 2050
+	9750 1250 9750 1450
 $Comp
-L rc-light-controller-switching-lpc812-rescue:NMOSSOT23-rc-light-controller-tlc5940-lpc812-eagle-import T2
+L Device:Q_NMOS_GSD T2
 U 1 1 5EEDFD3A
-P 13000 2500
-F 0 "T2" H 13100 2600 59  0000 L BNN
-F 1 "NMOSSOT23" H 13100 2500 59  0001 L BNN
-F 2 "rc-light-controller-tlc5940-lpc812:SOT-23" H 13000 2500 50  0001 C CNN
-F 3 "" H 13000 2500 50  0001 C CNN
-	1    13000 2500
+P 12900 2500
+F 0 "T2" H 13000 2600 59  0000 L BNN
+F 1 "NMOSSOT23" H 13000 2500 59  0001 L BNN
+F 2 "Package_TO_SOT_SMD:SOT-23" H 12900 2500 50  0001 C CNN
+F 3 "" H 12900 2500 50  0001 C CNN
+	1    12900 2500
 	1    0    0    -1  
 $EndComp
 $Comp
-L rc-light-controller-switching-lpc812-rescue:NMOSSOT23-rc-light-controller-tlc5940-lpc812-eagle-import T3
+L Device:Q_NMOS_GSD T3
 U 1 1 5EEE0AF7
-P 13000 3100
-F 0 "T3" H 13100 3200 59  0000 L BNN
-F 1 "NMOSSOT23" H 13100 3100 59  0001 L BNN
-F 2 "rc-light-controller-tlc5940-lpc812:SOT-23" H 13000 3100 50  0001 C CNN
-F 3 "" H 13000 3100 50  0001 C CNN
-	1    13000 3100
+P 12900 3100
+F 0 "T3" H 13000 3200 59  0000 L BNN
+F 1 "NMOSSOT23" H 13000 3100 59  0001 L BNN
+F 2 "Package_TO_SOT_SMD:SOT-23" H 12900 3100 50  0001 C CNN
+F 3 "" H 12900 3100 50  0001 C CNN
+	1    12900 3100
 	1    0    0    -1  
 $EndComp
 $Comp
-L rc-light-controller-switching-lpc812-rescue:NMOSSOT23-rc-light-controller-tlc5940-lpc812-eagle-import T4
+L Device:Q_NMOS_GSD T4
 U 1 1 5EEE2D0F
-P 13000 3700
-F 0 "T4" H 13100 3800 59  0000 L BNN
-F 1 "NMOSSOT23" H 13100 3700 59  0001 L BNN
-F 2 "rc-light-controller-tlc5940-lpc812:SOT-23" H 13000 3700 50  0001 C CNN
-F 3 "" H 13000 3700 50  0001 C CNN
-	1    13000 3700
+P 12900 3700
+F 0 "T4" H 13000 3800 59  0000 L BNN
+F 1 "NMOSSOT23" H 13000 3700 59  0001 L BNN
+F 2 "Package_TO_SOT_SMD:SOT-23" H 12900 3700 50  0001 C CNN
+F 3 "" H 12900 3700 50  0001 C CNN
+	1    12900 3700
 	1    0    0    -1  
 $EndComp
 $Comp
-L rc-light-controller-switching-lpc812-rescue:NMOSSOT23-rc-light-controller-tlc5940-lpc812-eagle-import T5
+L Device:Q_NMOS_GSD T5
 U 1 1 5EEE34BB
-P 13000 4300
-F 0 "T5" H 13100 4400 59  0000 L BNN
-F 1 "NMOSSOT23" H 13100 4300 59  0001 L BNN
-F 2 "rc-light-controller-tlc5940-lpc812:SOT-23" H 13000 4300 50  0001 C CNN
-F 3 "" H 13000 4300 50  0001 C CNN
-	1    13000 4300
+P 12900 4300
+F 0 "T5" H 13000 4400 59  0000 L BNN
+F 1 "NMOSSOT23" H 13000 4300 59  0001 L BNN
+F 2 "Package_TO_SOT_SMD:SOT-23" H 12900 4300 50  0001 C CNN
+F 3 "" H 12900 4300 50  0001 C CNN
+	1    12900 4300
 	1    0    0    -1  
 $EndComp
 $Comp
-L rc-light-controller-switching-lpc812-rescue:NMOSSOT23-rc-light-controller-tlc5940-lpc812-eagle-import T6
+L Device:Q_NMOS_GSD T6
 U 1 1 5EEE5899
-P 13000 4900
-F 0 "T6" H 13100 5000 59  0000 L BNN
-F 1 "NMOSSOT23" H 13100 4900 59  0001 L BNN
-F 2 "rc-light-controller-tlc5940-lpc812:SOT-23" H 13000 4900 50  0001 C CNN
-F 3 "" H 13000 4900 50  0001 C CNN
-	1    13000 4900
+P 12900 4900
+F 0 "T6" H 13000 5000 59  0000 L BNN
+F 1 "NMOSSOT23" H 13000 4900 59  0001 L BNN
+F 2 "Package_TO_SOT_SMD:SOT-23" H 12900 4900 50  0001 C CNN
+F 3 "" H 12900 4900 50  0001 C CNN
+	1    12900 4900
 	1    0    0    -1  
 $EndComp
 $Comp
-L rc-light-controller-switching-lpc812-rescue:NMOSSOT23-rc-light-controller-tlc5940-lpc812-eagle-import T7
+L Device:Q_NMOS_GSD T7
 U 1 1 5EEE6005
-P 13000 5500
-F 0 "T7" H 13100 5600 59  0000 L BNN
-F 1 "NMOSSOT23" H 13100 5500 59  0001 L BNN
-F 2 "rc-light-controller-tlc5940-lpc812:SOT-23" H 13000 5500 50  0001 C CNN
-F 3 "" H 13000 5500 50  0001 C CNN
-	1    13000 5500
+P 12900 5500
+F 0 "T7" H 13000 5600 59  0000 L BNN
+F 1 "NMOSSOT23" H 13000 5500 59  0001 L BNN
+F 2 "Package_TO_SOT_SMD:SOT-23" H 12900 5500 50  0001 C CNN
+F 3 "" H 12900 5500 50  0001 C CNN
+	1    12900 5500
 	1    0    0    -1  
 $EndComp
 $Comp
-L rc-light-controller-switching-lpc812-rescue:NMOSSOT23-rc-light-controller-tlc5940-lpc812-eagle-import T8
+L Device:Q_NMOS_GSD T8
 U 1 1 5EEE6489
-P 13000 6100
-F 0 "T8" H 13100 6200 59  0000 L BNN
-F 1 "NMOSSOT23" H 13100 6100 59  0001 L BNN
-F 2 "rc-light-controller-tlc5940-lpc812:SOT-23" H 13000 6100 50  0001 C CNN
-F 3 "" H 13000 6100 50  0001 C CNN
-	1    13000 6100
+P 12900 6100
+F 0 "T8" H 13000 6200 59  0000 L BNN
+F 1 "NMOSSOT23" H 13000 6100 59  0001 L BNN
+F 2 "Package_TO_SOT_SMD:SOT-23" H 12900 6100 50  0001 C CNN
+F 3 "" H 12900 6100 50  0001 C CNN
+	1    12900 6100
 	1    0    0    -1  
 $EndComp
 $Comp
-L rc-light-controller-switching-lpc812-rescue:NMOSSOT23-rc-light-controller-tlc5940-lpc812-eagle-import T9
+L Device:Q_NMOS_GSD T9
 U 1 1 5EEE69E5
-P 13000 6700
-F 0 "T9" H 13100 6800 59  0000 L BNN
-F 1 "NMOSSOT23" H 13100 6700 59  0001 L BNN
-F 2 "rc-light-controller-tlc5940-lpc812:SOT-23" H 13000 6700 50  0001 C CNN
-F 3 "" H 13000 6700 50  0001 C CNN
-	1    13000 6700
+P 12900 6700
+F 0 "T9" H 13000 6800 59  0000 L BNN
+F 1 "NMOSSOT23" H 13000 6700 59  0001 L BNN
+F 2 "Package_TO_SOT_SMD:SOT-23" H 12900 6700 50  0001 C CNN
+F 3 "" H 12900 6700 50  0001 C CNN
+	1    12900 6700
 	1    0    0    -1  
 $EndComp
 $Comp
@@ -436,47 +388,43 @@ Wire Wire Line
 	13300 2700 13300 3300
 Connection ~ 13300 3300
 Wire Wire Line
-	13000 2100 13300 2100
-Wire Wire Line
 	13300 2100 13300 2700
 Connection ~ 13300 2700
-Wire Wire Line
-	12800 2000 12200 2000
-Text Label 12200 2000 0    50   ~ 0
+Text Label 12100 1900 0    50   ~ 0
 OUT0
 Wire Wire Line
-	12800 2600 12200 2600
-Text Label 12200 2600 0    50   ~ 0
+	12700 2500 12100 2500
+Text Label 12100 2500 0    50   ~ 0
 OUT1
 Wire Wire Line
-	12200 3200 12800 3200
-Text Label 12200 3200 0    50   ~ 0
+	12100 3100 12700 3100
+Text Label 12100 3100 0    50   ~ 0
 OUT2
 Wire Wire Line
-	12200 3800 12800 3800
-Text Label 12200 3800 0    50   ~ 0
+	12100 3700 12700 3700
+Text Label 12100 3700 0    50   ~ 0
 OUT3
 Wire Wire Line
-	12200 4400 12800 4400
-Text Label 12200 4400 0    50   ~ 0
+	12100 4300 12700 4300
+Text Label 12100 4300 0    50   ~ 0
 OUT4
 Wire Wire Line
-	12200 5000 12800 5000
-Text Label 12200 5000 0    50   ~ 0
+	12100 4900 12700 4900
+Text Label 12100 4900 0    50   ~ 0
 OUT5
 Wire Wire Line
 	13300 6900 13300 7650
 Wire Wire Line
-	12200 5600 12800 5600
-Text Label 12200 5600 0    50   ~ 0
+	12100 5500 12700 5500
+Text Label 12100 5500 0    50   ~ 0
 OUT6
 Wire Wire Line
-	12200 6200 12800 6200
-Text Label 12200 6200 0    50   ~ 0
+	12100 6100 12700 6100
+Text Label 12100 6100 0    50   ~ 0
 OUT7
 Wire Wire Line
-	12200 6800 12800 6800
-Text Label 12200 6800 0    50   ~ 0
+	12100 6700 12700 6700
+Text Label 12100 6700 0    50   ~ 0
 OUT8
 Wire Wire Line
 	10450 2350 11100 2350
@@ -484,33 +432,23 @@ Wire Wire Line
 	8450 2450 9050 2450
 Wire Wire Line
 	11100 2950 10450 2950
-Text Label 8450 2450 0    50   ~ 0
+Text Label 11100 2350 2    50   ~ 0
 OUT6
 NoConn ~ 10450 2450
 NoConn ~ 10450 2550
-Wire Wire Line
-	11100 3050 10450 3050
-Text Label 8450 3050 0    50   ~ 0
+Text Label 11100 3150 2    50   ~ 0
 OUT0
-Wire Wire Line
-	8450 2550 9050 2550
-Text Label 8450 2550 0    50   ~ 0
+Text Label 8450 2650 0    50   ~ 0
 OUT1
-Wire Wire Line
-	8450 2650 9050 2650
-Text Label 11100 3050 2    50   ~ 0
+Text Label 8450 2550 0    50   ~ 0
 OUT2
 Wire Wire Line
 	8450 3150 9050 3150
-Text Label 8450 2950 0    50   ~ 0
+Text Label 8450 3150 0    50   ~ 0
 OUT5
-Wire Wire Line
-	8450 3050 9050 3050
-Text Label 8450 2650 0    50   ~ 0
+Text Label 11100 3050 2    50   ~ 0
 OUT3
-Wire Wire Line
-	8450 2950 9050 2950
-Text Label 11100 2950 2    50   ~ 0
+Text Label 8450 3050 0    50   ~ 0
 OUT4
 $Comp
 L power:GND #PWR02
@@ -528,18 +466,13 @@ Wire Wire Line
 Wire Wire Line
 	2000 6450 2000 6600
 Wire Wire Line
-	1950 4400 1950 6250
+	1950 4300 1950 6250
 Wire Wire Line
 	1950 6250 1050 6250
-Connection ~ 1950 4400
 Wire Wire Line
-	1950 4400 2250 4400
-Text Label 11100 2350 2    50   ~ 0
+	1950 4300 2250 4300
+Text Label 8450 2450 0    50   ~ 0
 OUT7
-Text Label 8450 3150 0    50   ~ 0
-OUT8
-NoConn ~ 10450 2850
-NoConn ~ 10450 3150
 NoConn ~ 9050 2850
 Text Label 1700 6050 2    50   ~ 0
 VIN
@@ -555,13 +488,13 @@ Text Notes 1300 5550 0    85   ~ 0
 Slave out
 Wire Wire Line
 	2400 2400 4000 2400
-Text Label 1700 3200 0    50   ~ 0
+Text Label 1700 4100 0    50   ~ 0
 ST-Rx-in
-Text Label 1700 3600 0    50   ~ 0
+Text Label 1700 4200 0    50   ~ 0
 TH-Tx-in
-Text Label 1700 4000 0    50   ~ 0
-CH3-in
 Text Label 1700 4400 0    50   ~ 0
+CH3-in
+Text Label 1700 4300 0    50   ~ 0
 OUT-ISP-out
 $Comp
 L Connector_Generic:Conn_01x06 J2
@@ -575,23 +508,21 @@ F 3 "~" H 850 4700 50  0001 C CNN
 	-1   0    0    1   
 $EndComp
 Wire Wire Line
-	1050 4400 1950 4400
-Wire Wire Line
-	1450 4000 1450 4500
+	1450 4400 1450 4500
 Wire Wire Line
 	1450 4500 1050 4500
 Wire Wire Line
-	1300 3600 1300 4600
+	1300 4200 1300 4600
 Wire Wire Line
 	1300 4600 1050 4600
 Wire Wire Line
-	1300 3600 2250 3600
+	1300 4200 2250 4200
 Wire Wire Line
-	1200 3200 1200 4700
+	1200 4100 1200 4700
 Wire Wire Line
 	1200 4700 1050 4700
 Wire Wire Line
-	1200 3200 2250 3200
+	1200 4100 2250 4100
 Wire Wire Line
 	1050 4800 1600 4800
 Text Label 1600 4800 2    50   ~ 0
@@ -652,8 +583,6 @@ Wire Wire Line
 	14600 1700 14600 2550
 Wire Wire Line
 	14600 2550 14850 2550
-Wire Wire Line
-	13000 1700 14600 1700
 Wire Wire Line
 	14850 2650 14600 2650
 Wire Wire Line
@@ -808,6 +737,97 @@ F 1 "Conn_02x17_Odd_Even" H 15200 4276 50  0000 C CNN
 F 2 "Connector_PinHeader_2.54mm:PinHeader_2x17_P2.54mm_Horizontal" H 15150 3350 50  0001 C CNN
 F 3 "~" H 15150 3350 50  0001 C CNN
 	1    15150 3350
-	-1   0    0    -1  
+	-1   0    0    1   
 $EndComp
+$Comp
+L Device:R_Pack04 RN1
+U 1 1 5F192F7F
+P 2450 4300
+F 0 "RN1" V 2033 4300 50  0000 C CNN
+F 1 "R_Pack04" V 2124 4300 50  0000 C CNN
+F 2 "Resistor_SMD:R_Array_Concave_4x0603" V 2725 4300 50  0001 C CNN
+F 3 "~" H 2450 4300 50  0001 C CNN
+	1    2450 4300
+	0    1    1    0   
+$EndComp
+Text Label 11100 2950 2    50   ~ 0
+OUT8
+Text Label 11100 2750 2    50   ~ 0
+CH3
+Wire Wire Line
+	8450 2550 9050 2550
+Wire Wire Line
+	8450 3050 9050 3050
+Wire Wire Line
+	1950 4300 1100 4300
+Wire Wire Line
+	1100 4300 1100 4400
+Wire Wire Line
+	1100 4400 1050 4400
+Connection ~ 1950 4300
+$Comp
+L Mechanical:MountingHole H1
+U 1 1 5F2D18E2
+P 7600 8150
+F 0 "H1" H 7700 8196 50  0000 L CNN
+F 1 "MountingHole" H 7700 8105 50  0000 L CNN
+F 2 "MountingHole:MountingHole_2.2mm_M2_ISO14580" H 7600 8150 50  0001 C CNN
+F 3 "~" H 7600 8150 50  0001 C CNN
+	1    7600 8150
+	1    0    0    -1  
+$EndComp
+$Comp
+L Mechanical:MountingHole H2
+U 1 1 5F2D2122
+P 7600 8400
+F 0 "H2" H 7700 8446 50  0000 L CNN
+F 1 "MountingHole" H 7700 8355 50  0000 L CNN
+F 2 "MountingHole:MountingHole_2.2mm_M2_ISO14580" H 7600 8400 50  0001 C CNN
+F 3 "~" H 7600 8400 50  0001 C CNN
+	1    7600 8400
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	10450 3050 11100 3050
+Wire Wire Line
+	13000 2100 13300 2100
+Wire Wire Line
+	13000 1700 14600 1700
+Wire Wire Line
+	12100 1900 12700 1900
+Wire Wire Line
+	11100 3150 10450 3150
+Wire Wire Line
+	8450 2650 9050 2650
+NoConn ~ 10450 2850
+NoConn ~ 9050 2950
+$Comp
+L Device:C C3
+U 1 1 5F2418F7
+P 10050 1600
+F 0 "C3" H 10165 1646 50  0000 L CNN
+F 1 "100n" H 10165 1555 50  0000 L CNN
+F 2 "Capacitor_SMD:C_0603_1608Metric" H 10088 1450 50  0001 C CNN
+F 3 "~" H 10050 1600 50  0001 C CNN
+	1    10050 1600
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:GND #PWR03
+U 1 1 5F2421F0
+P 10050 1800
+F 0 "#PWR03" H 10050 1550 50  0001 C CNN
+F 1 "GND" H 10055 1627 50  0000 C CNN
+F 2 "" H 10050 1800 50  0001 C CNN
+F 3 "" H 10050 1800 50  0001 C CNN
+	1    10050 1800
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	10050 1750 10050 1800
+Wire Wire Line
+	10050 1450 9750 1450
+Connection ~ 9750 1450
+Wire Wire Line
+	9750 1450 9750 2050
 $EndSCHEMATC
