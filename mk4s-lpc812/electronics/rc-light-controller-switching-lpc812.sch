@@ -14,84 +14,53 @@ Comment3 ""
 Comment4 ""
 $EndDescr
 Wire Wire Line
-	6000 2400 6000 2200
+	9000 5800 9000 5600
 Wire Wire Line
-	6000 2400 5800 2400
+	7000 6600 7000 6400
 Wire Wire Line
-	4000 3200 4000 3000
+	8100 6100 8100 6600
 Wire Wire Line
-	4400 2600 4400 3200
+	1750 2750 1750 2650
 Wire Wire Line
-	1450 5000 1450 4900
+	1750 2650 1600 2650
 Wire Wire Line
-	1450 4900 1050 4900
-Wire Wire Line
-	3150 4200 2650 4200
-Text Label 3150 4200 2    50   ~ 0
+	3500 2050 3000 2050
+Text Label 3500 2050 2    50   ~ 0
 TH-TX
-Wire Wire Line
-	4400 2400 4000 2400
-Wire Wire Line
-	4000 2700 4000 2400
-Connection ~ 4000 2400
-Text Label 2400 2400 0    70   ~ 0
+Text Label 5650 5800 0    70   ~ 0
 VIN
 Wire Wire Line
-	3150 4100 2650 4100
-Text Label 3150 4100 2    50   ~ 0
+	3500 1950 3000 1950
+Text Label 3500 1950 2    50   ~ 0
 ST-RX
 Wire Wire Line
-	3150 4400 2650 4400
-Text Label 3150 4300 2    50   ~ 0
+	3500 2250 3000 2250
+Text Label 3500 2150 2    50   ~ 0
 OUT-ISP
 Wire Wire Line
-	1450 4400 2250 4400
-Wire Wire Line
-	2650 4300 3150 4300
-Text Label 3150 4400 2    50   ~ 0
+	3000 2150 3500 2150
+Text Label 3500 2250 2    50   ~ 0
 CH3
 $Comp
-L rc-light-controller-switching-lpc812-rescue:+3V3-rc-light-controller-tlc5940-lpc812-eagle-import #+3V01
-U 1 1 910CF6D9
-P 9750 1150
-F 0 "#+3V01" H 9750 1150 50  0001 C CNN
-F 1 "+3V3" V 9650 950 59  0000 L BNN
-F 2 "" H 9750 1150 50  0001 C CNN
-F 3 "" H 9750 1150 50  0001 C CNN
-	1    9750 1150
-	1    0    0    -1  
-$EndComp
-$Comp
-L rc-light-controller-switching-lpc812-rescue:+3V3-rc-light-controller-tlc5940-lpc812-eagle-import #+3V03
+L power:+3V3 #+3V03
 U 1 1 8A0CCF2D
-P 6000 2100
-F 0 "#+3V03" H 6000 2100 50  0001 C CNN
-F 1 "+3V3" V 5900 1900 59  0000 L BNN
-F 2 "" H 6000 2100 50  0001 C CNN
-F 3 "" H 6000 2100 50  0001 C CNN
-	1    6000 2100
+P 9000 5600
+F 0 "#+3V03" H 9000 5600 50  0001 C CNN
+F 1 "+3V3" H 8850 5750 59  0000 L BNN
+F 2 "" H 9000 5600 50  0001 C CNN
+F 3 "" H 9000 5600 50  0001 C CNN
+	1    9000 5600
 	1    0    0    -1  
 $EndComp
 $Comp
-L rc-light-controller-switching-lpc812-rescue:MCP1703T-3302E_CB-rc-light-controller-tlc5940-lpc812-eagle-import U$1
+L Regulator_Linear:MCP1703A-3302_SOT23 U2
 U 1 1 09B5DC2D
-P 5100 2400
-F 0 "U$1" H 4946 2699 69  0000 L BNN
-F 1 "3V3" H 4994 1812 69  0000 L BNN
-F 2 "rc-light-controller-tlc5940-lpc812:SOT95P300X145-3N" H 5100 2400 50  0001 C CNN
-F 3 "" H 5100 2400 50  0001 C CNN
-	1    5100 2400
-	1    0    0    -1  
-$EndComp
-$Comp
-L rc-light-controller-switching-lpc812-rescue:C-EUC0805-rc-light-controller-tlc5940-lpc812-eagle-import C1
-U 1 1 30D010B6
-P 4000 2800
-F 0 "C1" H 4060 2815 59  0000 L BNN
-F 1 "1u/16V" H 4060 2615 59  0000 L BNN
-F 2 "Capacitor_SMD:C_0805_2012Metric" H 4000 2800 50  0001 C CNN
-F 3 "" H 4000 2800 50  0001 C CNN
-	1    4000 2800
+P 8100 5800
+F 0 "U2" H 8050 5950 69  0000 L BNN
+F 1 "3V3" H 7994 5212 69  0000 L BNN
+F 2 "Package_TO_SOT_SMD:SOT-23W" H 8100 5800 50  0001 C CNN
+F 3 "" H 8100 5800 50  0001 C CNN
+	1    8100 5800
 	1    0    0    -1  
 $EndComp
 $Comp
@@ -105,24 +74,24 @@ F 3 "" H 12900 1900 50  0001 C CNN
 	1    12900 1900
 	1    0    0    -1  
 $EndComp
-Text Notes 7750 4500 0    56   ~ 0
+Text Notes 6350 4400 0    56   ~ 0
 Special pins:\nPIO0_0  (19)   ISP UART RX\nPIO0_4  ( 5)   ISP UART TX\nPIO0_5  ( 4)   RESET\nPIO0_10 ( 9)   Open drain\nPIO0_11 ( 8)   Open drain\nPIO0_2  ( 7)   SWDIO\nPIO0_3  ( 6)   SWCLK
-Text Notes 1750 3650 0    85   ~ 0
-Servo in/out
-Text Notes 4600 1750 0    85   ~ 0
+Text Notes 1450 1600 0    85   ~ 0
+Servo/Pre-processor in/out
+Text Notes 7600 5150 0    85   ~ 0
 Voltage regulator
-Text Notes 9350 900  0    85   ~ 0
+Text Notes 7500 1000 0    85   ~ 0
 Microcontroller
-Text Notes 3650 3000 0    59   ~ 0
-X7R
-Text Notes 2650 2650 0    59   ~ 0
+Text Notes 6350 6400 0    59   ~ 0
+X7R or X5R
+Text Notes 5650 6050 0    59   ~ 0
 Input voltage range:\n4 ... 10V
-Text Notes 6300 2600 0    59   ~ 0
+Text Notes 9300 6000 0    59   ~ 0
 LDO: Microchip \nMCP1702 or MCP1703
-Text Notes 10450 3900 0    59   ~ 0
+Text Notes 8600 4000 0    59   ~ 0
 NXP LPC812\nARM Cortex-M0\n16K Flash, 4K RAM\nTSSOP-20
-Text Notes 12250 7350 0    56   ~ 0
-N-Channel MOSFET\nSOT23 package\ne.g. NXP PMV16UN
+Text Notes 13750 7400 0    56   ~ 0
+N-Channel MOSFET\nSOT23 package\ne.g. PMV16UN, PMV30UN, \nSI2302. AO3400, DMN2075U-7
 $Comp
 L power:PWR_FLAG #FLG0101
 U 1 1 5C85CE29
@@ -137,80 +106,80 @@ $EndComp
 Wire Wire Line
 	1150 10450 1150 10550
 Wire Wire Line
-	6000 2400 6000 2800
-Connection ~ 6000 2400
+	9000 5800 9000 6200
+Connection ~ 9000 5800
 Wire Wire Line
-	6000 3100 6000 3200
+	9000 6500 9000 6600
 $Comp
 L Device:CP C2
 U 1 1 5C870864
-P 6000 2950
-F 0 "C2" H 6118 2996 50  0000 L CNN
-F 1 "47u/6V3" H 6118 2905 50  0000 L CNN
-F 2 "Capacitor_SMD:C_0805_2012Metric" H 6038 2800 50  0001 C CNN
-F 3 "~" H 6000 2950 50  0001 C CNN
-	1    6000 2950
+P 9000 6350
+F 0 "C2" H 9118 6396 50  0000 L CNN
+F 1 "47u/6V3" H 9118 6305 50  0000 L CNN
+F 2 "Capacitor_SMD:C_0805_2012Metric" H 9038 6200 50  0001 C CNN
+F 3 "~" H 9000 6350 50  0001 C CNN
+	1    9000 6350
 	1    0    0    -1  
 $EndComp
-Text Notes 6100 3200 0    50   ~ 0
+Text Notes 9100 6600 0    50   ~ 0
 Polymer
 $Comp
 L power:GND #PWR0101
 U 1 1 5CCABD51
-P 1450 5000
-F 0 "#PWR0101" H 1450 4750 50  0001 C CNN
-F 1 "GND" H 1455 4827 50  0000 C CNN
-F 2 "" H 1450 5000 50  0001 C CNN
-F 3 "" H 1450 5000 50  0001 C CNN
-	1    1450 5000
+P 1750 2750
+F 0 "#PWR0101" H 1750 2500 50  0001 C CNN
+F 1 "GND" H 1755 2577 50  0000 C CNN
+F 2 "" H 1750 2750 50  0001 C CNN
+F 3 "" H 1750 2750 50  0001 C CNN
+	1    1750 2750
 	1    0    0    -1  
 $EndComp
 $Comp
 L power:GND #PWR0103
 U 1 1 5CCAC0F7
-P 9750 3550
-F 0 "#PWR0103" H 9750 3300 50  0001 C CNN
-F 1 "GND" H 9755 3377 50  0000 C CNN
-F 2 "" H 9750 3550 50  0001 C CNN
-F 3 "" H 9750 3550 50  0001 C CNN
-	1    9750 3550
+P 7900 3650
+F 0 "#PWR0103" H 7900 3400 50  0001 C CNN
+F 1 "GND" H 7905 3477 50  0000 C CNN
+F 2 "" H 7900 3650 50  0001 C CNN
+F 3 "" H 7900 3650 50  0001 C CNN
+	1    7900 3650
 	1    0    0    -1  
 $EndComp
 $Comp
 L power:GND #PWR0104
 U 1 1 5CCAC156
-P 4000 3200
-F 0 "#PWR0104" H 4000 2950 50  0001 C CNN
-F 1 "GND" H 4005 3027 50  0000 C CNN
-F 2 "" H 4000 3200 50  0001 C CNN
-F 3 "" H 4000 3200 50  0001 C CNN
-	1    4000 3200
+P 7000 6600
+F 0 "#PWR0104" H 7000 6350 50  0001 C CNN
+F 1 "GND" H 7005 6427 50  0000 C CNN
+F 2 "" H 7000 6600 50  0001 C CNN
+F 3 "" H 7000 6600 50  0001 C CNN
+	1    7000 6600
 	1    0    0    -1  
 $EndComp
 $Comp
 L power:GND #PWR0105
 U 1 1 5CCAC492
-P 4400 3200
-F 0 "#PWR0105" H 4400 2950 50  0001 C CNN
-F 1 "GND" H 4405 3027 50  0000 C CNN
-F 2 "" H 4400 3200 50  0001 C CNN
-F 3 "" H 4400 3200 50  0001 C CNN
-	1    4400 3200
+P 8100 6600
+F 0 "#PWR0105" H 8100 6350 50  0001 C CNN
+F 1 "GND" H 8105 6427 50  0000 C CNN
+F 2 "" H 8100 6600 50  0001 C CNN
+F 3 "" H 8100 6600 50  0001 C CNN
+	1    8100 6600
 	1    0    0    -1  
 $EndComp
 $Comp
 L power:GND #PWR0106
 U 1 1 5CCAC4F1
-P 6000 3200
-F 0 "#PWR0106" H 6000 2950 50  0001 C CNN
-F 1 "GND" H 6005 3027 50  0000 C CNN
-F 2 "" H 6000 3200 50  0001 C CNN
-F 3 "" H 6000 3200 50  0001 C CNN
-	1    6000 3200
+P 9000 6600
+F 0 "#PWR0106" H 9000 6350 50  0001 C CNN
+F 1 "GND" H 9005 6427 50  0000 C CNN
+F 2 "" H 9000 6600 50  0001 C CNN
+F 3 "" H 9000 6600 50  0001 C CNN
+	1    9000 6600
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	9750 3450 9750 3550
+	7900 3550 7900 3650
 $Comp
 L power:GND #PWR0111
 U 1 1 5CD1123C
@@ -225,32 +194,32 @@ $EndComp
 Text Notes 12200 1450 0    85   ~ 0
 LED driver and outputs
 Wire Wire Line
-	9050 2350 8450 2350
-Text Label 8450 2350 0    50   ~ 0
+	7200 2450 6600 2450
+Text Label 6600 2450 0    50   ~ 0
 ST-RX
 Wire Wire Line
-	9050 2750 8450 2750
-Text Label 8450 2750 0    50   ~ 0
+	7200 2850 6600 2850
+Text Label 6600 2850 0    50   ~ 0
 TH-TX
 Wire Wire Line
-	11100 2650 10450 2650
-Text Label 11100 2650 2    50   ~ 0
+	9250 2750 8600 2750
+Text Label 9250 2750 2    50   ~ 0
 OUT-ISP
 Wire Wire Line
-	11100 2750 10450 2750
+	9250 2850 8600 2850
 $Comp
 L MCU_NXP_LPC:LPC812M101JDH20 U1
 U 1 1 5EE5F15A
-P 9750 2750
-F 0 "U1" H 9250 3400 50  0000 C CNN
-F 1 "LPC812M101JDH20" H 10150 3400 50  0000 C CNN
-F 2 "Package_SO:TSSOP-20_4.4x6.5mm_P0.65mm" H 10750 3450 50  0001 C CNN
-F 3 "http://www.nxp.com/documents/data_sheet/LPC81XM.pdf" H 9750 2250 50  0001 C CNN
-	1    9750 2750
+P 7900 2850
+F 0 "U1" H 7400 3500 50  0000 C CNN
+F 1 "LPC812M101JDH20" H 8300 3500 50  0000 C CNN
+F 2 "Package_SO:TSSOP-20_4.4x6.5mm_P0.65mm" H 8900 3550 50  0001 C CNN
+F 3 "http://www.nxp.com/documents/data_sheet/LPC81XM.pdf" H 7900 2350 50  0001 C CNN
+	1    7900 2850
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	9750 1250 9750 1450
+	7900 1350 7900 1550
 $Comp
 L Device:Q_NMOS_GSD T2
 U 1 1 5EEDFD3A
@@ -390,142 +359,130 @@ Connection ~ 13300 3300
 Wire Wire Line
 	13300 2100 13300 2700
 Connection ~ 13300 2700
-Text Label 12100 1900 0    50   ~ 0
+Text Label 12350 1900 0    50   ~ 0
 OUT0
 Wire Wire Line
-	12700 2500 12100 2500
-Text Label 12100 2500 0    50   ~ 0
+	12700 2500 12350 2500
+Text Label 12350 2500 0    50   ~ 0
 OUT1
 Wire Wire Line
-	12100 3100 12700 3100
-Text Label 12100 3100 0    50   ~ 0
+	12350 3100 12700 3100
+Text Label 12350 3100 0    50   ~ 0
 OUT2
 Wire Wire Line
-	12100 3700 12700 3700
-Text Label 12100 3700 0    50   ~ 0
+	12350 3700 12700 3700
+Text Label 12350 3700 0    50   ~ 0
 OUT3
 Wire Wire Line
-	12100 4300 12700 4300
-Text Label 12100 4300 0    50   ~ 0
+	12350 4300 12700 4300
+Text Label 12350 4300 0    50   ~ 0
 OUT4
 Wire Wire Line
-	12100 4900 12700 4900
-Text Label 12100 4900 0    50   ~ 0
+	12350 4900 12700 4900
+Text Label 12350 4900 0    50   ~ 0
 OUT5
 Wire Wire Line
 	13300 6900 13300 7650
 Wire Wire Line
-	12100 5500 12700 5500
-Text Label 12100 5500 0    50   ~ 0
+	12350 5500 12700 5500
+Text Label 12350 5500 0    50   ~ 0
 OUT6
 Wire Wire Line
-	12100 6100 12700 6100
-Text Label 12100 6100 0    50   ~ 0
+	12350 6100 12700 6100
+Text Label 12350 6100 0    50   ~ 0
 OUT7
 Wire Wire Line
-	12100 6700 12700 6700
-Text Label 12100 6700 0    50   ~ 0
+	12350 6700 12700 6700
+Text Label 12350 6700 0    50   ~ 0
 OUT8
 Wire Wire Line
-	10450 2350 11100 2350
+	8600 2450 9250 2450
 Wire Wire Line
-	8450 2450 9050 2450
+	6600 2550 7200 2550
 Wire Wire Line
-	11100 2950 10450 2950
-Text Label 11100 2350 2    50   ~ 0
+	9250 3050 8600 3050
+Text Label 9250 2450 2    50   ~ 0
 OUT6
-NoConn ~ 10450 2450
-NoConn ~ 10450 2550
-Text Label 11100 3150 2    50   ~ 0
+NoConn ~ 8600 2550
+NoConn ~ 8600 2650
+Text Label 9250 3250 2    50   ~ 0
 OUT0
-Text Label 8450 2650 0    50   ~ 0
+Text Label 6600 2750 0    50   ~ 0
 OUT1
-Text Label 8450 2550 0    50   ~ 0
+Text Label 6600 2650 0    50   ~ 0
 OUT2
 Wire Wire Line
-	8450 3150 9050 3150
-Text Label 8450 3150 0    50   ~ 0
+	6600 3250 7200 3250
+Text Label 6600 3250 0    50   ~ 0
 OUT5
-Text Label 11100 3050 2    50   ~ 0
+Text Label 9250 3150 2    50   ~ 0
 OUT3
-Text Label 8450 3050 0    50   ~ 0
+Text Label 6600 3150 0    50   ~ 0
 OUT4
 $Comp
 L power:GND #PWR02
 U 1 1 5EFD836E
-P 2000 6600
-F 0 "#PWR02" H 2000 6350 50  0001 C CNN
-F 1 "GND" H 2005 6427 50  0000 C CNN
-F 2 "" H 2000 6600 50  0001 C CNN
-F 3 "" H 2000 6600 50  0001 C CNN
-	1    2000 6600
+P 1700 4550
+F 0 "#PWR02" H 1700 4300 50  0001 C CNN
+F 1 "GND" H 1705 4377 50  0000 C CNN
+F 2 "" H 1700 4550 50  0001 C CNN
+F 3 "" H 1700 4550 50  0001 C CNN
+	1    1700 4550
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	1050 6450 1550 6450
+	1600 4400 1700 4400
 Wire Wire Line
-	2000 6450 2000 6600
-Wire Wire Line
-	1950 4300 1950 6250
-Wire Wire Line
-	1950 6250 1050 6250
-Wire Wire Line
-	1950 4300 2250 4300
-Text Label 8450 2450 0    50   ~ 0
+	1700 4400 1700 4550
+Text Label 6600 2550 0    50   ~ 0
 OUT7
-NoConn ~ 9050 2850
-Text Label 1700 6050 2    50   ~ 0
+NoConn ~ 7200 2950
+Text Label 2850 4000 2    50   ~ 0
 VIN
-Text Label 1700 5950 2    50   ~ 0
+Text Label 2850 3900 2    50   ~ 0
 LED+
 Wire Wire Line
 	13000 3500 14050 3500
 Wire Wire Line
 	13000 2900 14050 2900
-Text Notes 1300 7950 0    59   ~ 0
+Text Notes 1350 5600 0    59   ~ 0
 VIN1 is physically close to LED+.\nThis allows two modes of operation:\n1) when VIN1 is conntected to LED+\nvia a solder bridge, then the LEDs are \npowered from the receiver.\n2) A separate power supply can be \nconnected to LED+ (and the nearby GND),\ne.g. for higher voltages
-Text Notes 1300 5550 0    85   ~ 0
-Slave out
-Wire Wire Line
-	2400 2400 4000 2400
-Text Label 1700 4100 0    50   ~ 0
+Text Notes 1650 3500 0    85   ~ 0
+Output connector
+Text Label 2050 1950 0    50   ~ 0
 ST-Rx-in
-Text Label 1700 4200 0    50   ~ 0
+Text Label 2050 2050 0    50   ~ 0
 TH-Tx-in
-Text Label 1700 4400 0    50   ~ 0
+Text Label 2050 2250 0    50   ~ 0
 CH3-in
-Text Label 1700 4300 0    50   ~ 0
+Text Label 2050 2150 0    50   ~ 0
 OUT-ISP-out
 $Comp
 L Connector_Generic:Conn_01x06 J2
 U 1 1 5F1D0E80
-P 850 4700
-F 0 "J2" H 768 4175 50  0000 C CNN
-F 1 "Conn_01x06" H 768 4266 50  0000 C CNN
-F 2 "rc-light-controller-tlc5940-lpc812:PinHeader_1x06_P2.54mm_Flat" H 850 4700 50  0001 C CNN
-F 3 "~" H 850 4700 50  0001 C CNN
-	1    850  4700
+P 1400 2450
+F 0 "J2" H 1318 1925 50  0000 C CNN
+F 1 "Conn_01x06" H 1318 2016 50  0000 C CNN
+F 2 "rc-light-controller-tlc5940-lpc812:PinHeader_1x06_P2.54mm_Flat" H 1400 2450 50  0001 C CNN
+F 3 "~" H 1400 2450 50  0001 C CNN
+	1    1400 2450
 	-1   0    0    1   
 $EndComp
 Wire Wire Line
-	1450 4400 1450 4500
+	1850 2050 1850 2350
 Wire Wire Line
-	1450 4500 1050 4500
+	1850 2350 1600 2350
 Wire Wire Line
-	1300 4200 1300 4600
+	1850 2050 2600 2050
 Wire Wire Line
-	1300 4600 1050 4600
+	1750 1950 1750 2450
 Wire Wire Line
-	1300 4200 2250 4200
+	1750 2450 1600 2450
 Wire Wire Line
-	1200 4100 1200 4700
+	1750 1950 2600 1950
 Wire Wire Line
-	1200 4700 1050 4700
-Wire Wire Line
-	1200 4100 2250 4100
-Wire Wire Line
-	1050 4800 1600 4800
-Text Label 1600 4800 2    50   ~ 0
+	1600 2550 3500 2550
+Text Label 3500 2550 2    50   ~ 0
 VIN
 Wire Wire Line
 	15600 2550 15600 1750
@@ -668,32 +625,30 @@ Wire Wire Line
 $Comp
 L Connector_Generic:Conn_01x06 J3
 U 1 1 5F244636
-P 850 6250
-F 0 "J3" H 768 5725 50  0000 C CNN
-F 1 "Conn_01x06" H 768 5816 50  0000 C CNN
-F 2 "rc-light-controller-tlc5940-lpc812:PinHeader_1x06_P2.54mm_Flat" H 850 6250 50  0001 C CNN
-F 3 "~" H 850 6250 50  0001 C CNN
-	1    850  6250
+P 1400 4200
+F 0 "J3" H 1318 3675 50  0000 C CNN
+F 1 "Conn_01x06" H 1318 3766 50  0000 C CNN
+F 2 "rc-light-controller-tlc5940-lpc812:PinHeader_1x06_P2.54mm_Flat" H 1400 4200 50  0001 C CNN
+F 3 "~" H 1400 4200 50  0001 C CNN
+	1    1400 4200
 	-1   0    0    1   
 $EndComp
 Wire Wire Line
-	1050 6050 1250 6050
+	1600 4000 1800 4000
 Wire Wire Line
-	1050 6350 1250 6350
+	1600 4300 1800 4300
 Wire Wire Line
-	1250 6350 1250 6050
-Connection ~ 1250 6050
+	1800 4300 1800 4000
+Connection ~ 1800 4000
 Wire Wire Line
-	1250 6050 1700 6050
+	1800 4000 2850 4000
 Wire Wire Line
-	1050 6150 1550 6150
+	1600 4100 1700 4100
 Wire Wire Line
-	1550 6150 1550 6450
-Connection ~ 1550 6450
+	1700 4100 1700 4400
+Connection ~ 1700 4400
 Wire Wire Line
-	1550 6450 2000 6450
-Wire Wire Line
-	1050 5950 1700 5950
+	1600 3900 2850 3900
 Wire Wire Line
 	15600 2850 15350 2850
 Wire Wire Line
@@ -742,92 +697,124 @@ $EndComp
 $Comp
 L Device:R_Pack04 RN1
 U 1 1 5F192F7F
-P 2450 4300
-F 0 "RN1" V 2033 4300 50  0000 C CNN
-F 1 "R_Pack04" V 2124 4300 50  0000 C CNN
-F 2 "Resistor_SMD:R_Array_Convex_4x0603" V 2725 4300 50  0001 C CNN
-F 3 "~" H 2450 4300 50  0001 C CNN
-	1    2450 4300
+P 2800 2150
+F 0 "RN1" V 2383 2150 50  0000 C CNN
+F 1 "1k x4" V 2474 2150 50  0000 C CNN
+F 2 "Resistor_SMD:R_Array_Convex_4x0603" V 3075 2150 50  0001 C CNN
+F 3 "~" H 2800 2150 50  0001 C CNN
+	1    2800 2150
 	0    1    1    0   
 $EndComp
-Text Label 11100 2950 2    50   ~ 0
+Text Label 9250 3050 2    50   ~ 0
 OUT8
-Text Label 11100 2750 2    50   ~ 0
+Text Label 9250 2850 2    50   ~ 0
 CH3
 Wire Wire Line
-	8450 2550 9050 2550
+	6600 2650 7200 2650
 Wire Wire Line
-	8450 3050 9050 3050
-Wire Wire Line
-	1950 4300 1100 4300
-Wire Wire Line
-	1100 4300 1100 4400
-Wire Wire Line
-	1100 4400 1050 4400
-Connection ~ 1950 4300
+	6600 3150 7200 3150
 $Comp
 L Mechanical:MountingHole H1
 U 1 1 5F2D18E2
-P 7600 8150
-F 0 "H1" H 7700 8196 50  0000 L CNN
-F 1 "MountingHole" H 7700 8105 50  0000 L CNN
-F 2 "MountingHole:MountingHole_2.2mm_M2_ISO14580" H 7600 8150 50  0001 C CNN
-F 3 "~" H 7600 8150 50  0001 C CNN
-	1    7600 8150
+P 1600 10400
+F 0 "H1" H 1700 10446 50  0000 L CNN
+F 1 "MountingHole" H 1700 10355 50  0000 L CNN
+F 2 "MountingHole:MountingHole_2.2mm_M2_ISO14580" H 1600 10400 50  0001 C CNN
+F 3 "~" H 1600 10400 50  0001 C CNN
+	1    1600 10400
 	1    0    0    -1  
 $EndComp
 $Comp
 L Mechanical:MountingHole H2
 U 1 1 5F2D2122
-P 7600 8400
-F 0 "H2" H 7700 8446 50  0000 L CNN
-F 1 "MountingHole" H 7700 8355 50  0000 L CNN
-F 2 "MountingHole:MountingHole_2.2mm_M2_ISO14580" H 7600 8400 50  0001 C CNN
-F 3 "~" H 7600 8400 50  0001 C CNN
-	1    7600 8400
+P 1600 10650
+F 0 "H2" H 1700 10696 50  0000 L CNN
+F 1 "MountingHole" H 1700 10605 50  0000 L CNN
+F 2 "MountingHole:MountingHole_2.2mm_M2_ISO14580" H 1600 10650 50  0001 C CNN
+F 3 "~" H 1600 10650 50  0001 C CNN
+	1    1600 10650
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	10450 3050 11100 3050
+	8600 3150 9250 3150
 Wire Wire Line
 	13000 2100 13300 2100
 Wire Wire Line
 	13000 1700 14600 1700
 Wire Wire Line
-	12100 1900 12700 1900
+	12350 1900 12700 1900
 Wire Wire Line
-	11100 3150 10450 3150
+	9250 3250 8600 3250
 Wire Wire Line
-	8450 2650 9050 2650
-NoConn ~ 10450 2850
-NoConn ~ 9050 2950
+	6600 2750 7200 2750
+NoConn ~ 8600 2950
+NoConn ~ 7200 3050
 $Comp
 L Device:C C3
 U 1 1 5F2418F7
-P 10050 1600
-F 0 "C3" H 10165 1646 50  0000 L CNN
-F 1 "100n" H 10165 1555 50  0000 L CNN
-F 2 "Capacitor_SMD:C_0603_1608Metric" H 10088 1450 50  0001 C CNN
-F 3 "~" H 10050 1600 50  0001 C CNN
-	1    10050 1600
+P 8200 1700
+F 0 "C3" H 8315 1746 50  0000 L CNN
+F 1 "100n" H 8315 1655 50  0000 L CNN
+F 2 "Capacitor_SMD:C_0603_1608Metric" H 8238 1550 50  0001 C CNN
+F 3 "~" H 8200 1700 50  0001 C CNN
+	1    8200 1700
 	1    0    0    -1  
 $EndComp
 $Comp
 L power:GND #PWR03
 U 1 1 5F2421F0
-P 10050 1800
-F 0 "#PWR03" H 10050 1550 50  0001 C CNN
-F 1 "GND" H 10055 1627 50  0000 C CNN
-F 2 "" H 10050 1800 50  0001 C CNN
-F 3 "" H 10050 1800 50  0001 C CNN
-	1    10050 1800
+P 8200 1900
+F 0 "#PWR03" H 8200 1650 50  0001 C CNN
+F 1 "GND" H 8205 1727 50  0000 C CNN
+F 2 "" H 8200 1900 50  0001 C CNN
+F 3 "" H 8200 1900 50  0001 C CNN
+	1    8200 1900
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	10050 1750 10050 1800
+	8200 1850 8200 1900
 Wire Wire Line
-	10050 1450 9750 1450
-Connection ~ 9750 1450
+	8200 1550 7900 1550
+Connection ~ 7900 1550
 Wire Wire Line
-	9750 1450 9750 2050
+	7900 1550 7900 2150
+Wire Wire Line
+	8400 5800 9000 5800
+$Comp
+L power:+3V3 #+3V01
+U 1 1 5F1CA21E
+P 7900 1350
+F 0 "#+3V01" H 7900 1350 50  0001 C CNN
+F 1 "+3V3" H 7750 1500 59  0000 L BNN
+F 2 "" H 7900 1350 50  0001 C CNN
+F 3 "" H 7900 1350 50  0001 C CNN
+	1    7900 1350
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	7000 5800 7800 5800
+Wire Wire Line
+	5650 5800 7000 5800
+Connection ~ 7000 5800
+Wire Wire Line
+	7000 6100 7000 5800
+$Comp
+L Device:C C1
+U 1 1 30D010B6
+P 7000 6250
+F 0 "C1" H 7100 6350 59  0000 L BNN
+F 1 "1u/16V" H 7100 6100 59  0000 L BNN
+F 2 "Capacitor_SMD:C_0805_2012Metric" H 7000 6250 50  0001 C CNN
+F 3 "" H 7000 6250 50  0001 C CNN
+	1    7000 6250
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	1600 4200 2850 4200
+Text Label 2850 4200 2    50   ~ 0
+OUT-ISP-out
+Wire Wire Line
+	1600 2250 2600 2250
+Wire Wire Line
+	1600 2150 2600 2150
 $EndSCHEMATC

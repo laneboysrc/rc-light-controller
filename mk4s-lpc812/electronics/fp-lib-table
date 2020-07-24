@@ -1,3 +1,2 @@
 (fp_lib_table
-  (lib (name rc-light-controller-tlc5940-lpc812)(type KiCad)(uri "$(KIPRJMOD)/rc-light-controller-tlc5940-lpc812.pretty")(options "")(descr ""))
 )
