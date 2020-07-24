@@ -1,7 +1,7 @@
-# Mk4-S Switching version of Mk4
+# Mk4S Switching version of Mk4
 
 - LPC812 20 pins
-    - 20 pins would allow detection when flashing the wrong firmware
+    - easier availability
 
 - 3-pin connection for slave on opposite side
 
@@ -9,3 +9,11 @@
 
 - Connections for LED+ for every output
 
+# Mk4P Pinheader version of Mk4
+
+- LPC812 20 pins
+    - easier availability
+
+- 3-pin connection for slave on opposite side
+
+- Separate pin for each LED output
