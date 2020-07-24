@@ -88,7 +88,7 @@ P 5250 2850
 F 0 "C2" H 5368 2896 50  0000 L CNN
 F 1 "47u/6V3" H 5368 2805 50  0000 L CNN
 F 2 "Capacitor_SMD:C_0805_2012Metric" H 5288 2700 50  0001 C CNN
-F 3 "~" H 5250 2850 50  0001 C CNN
+F 3 "https://www.vishay.com/doc?40189" H 5250 2850 50  0001 C CNN
 	1    5250 2850
 	1    0    0    -1  
 $EndComp
@@ -248,7 +248,7 @@ L Connector_Generic:Conn_01x06 J2
 U 1 1 5F1D0E80
 P 1750 5750
 F 0 "J2" H 1668 5225 50  0000 C CNN
-F 1 "Conn_01x06" H 1668 5316 50  0000 C CNN
+F 1 "Pinheader straight 1x06" H 1668 5316 50  0000 C CNN
 F 2 "rc-light-controller-tlc5940-lpc812:PinHeader_1x06_P2.54mm_Flat" H 1750 5750 50  0001 C CNN
 F 3 "~" H 1750 5750 50  0001 C CNN
 	1    1750 5750
@@ -323,7 +323,7 @@ L Connector_Generic:Conn_01x06 J3
 U 1 1 5F244636
 P 1750 7550
 F 0 "J3" H 1668 7025 50  0000 C CNN
-F 1 "Conn_01x06" H 1668 7116 50  0000 C CNN
+F 1 "Pinheader straight 1x06" H 1668 7116 50  0000 C CNN
 F 2 "rc-light-controller-tlc5940-lpc812:PinHeader_1x06_P2.54mm_Flat" H 1750 7550 50  0001 C CNN
 F 3 "~" H 1750 7550 50  0001 C CNN
 	1    1750 7550
@@ -384,7 +384,7 @@ L Connector_Generic:Conn_02x17_Odd_Even J1
 U 1 1 5F1ABEB8
 P 14000 3350
 F 0 "J1" H 14050 4367 50  0000 C CNN
-F 1 "Conn_02x17_Odd_Even" H 14050 4276 50  0000 C CNN
+F 1 "Pinheader right-angle 2x17" H 14050 4276 50  0000 C CNN
 F 2 "Connector_PinHeader_2.54mm:PinHeader_2x17_P2.54mm_Horizontal" H 14000 3350 50  0001 C CNN
 F 3 "~" H 14000 3350 50  0001 C CNN
 	1    14000 3350
@@ -484,7 +484,7 @@ P 11150 6800
 F 0 "T9" H 11050 6950 59  0000 L BNN
 F 1 "PMV30UN" H 11250 6800 59  0001 L BNN
 F 2 "Package_TO_SOT_SMD:SOT-23" H 11150 6800 50  0001 C CNN
-F 3 "" H 11150 6800 50  0001 C CNN
+F 3 "https://assets.nexperia.com/documents/data-sheet/PMV30UN.pdf" H 11150 6800 50  0001 C CNN
 	1    11150 6800
 	1    0    0    -1  
 $EndComp
@@ -732,7 +732,7 @@ P 3250 5450
 F 0 "RN1" V 2833 5450 50  0000 C CNN
 F 1 "1k x4" V 2924 5450 50  0000 C CNN
 F 2 "Resistor_SMD:R_Array_Convex_4x0603" V 3525 5450 50  0001 C CNN
-F 3 "~" H 3250 5450 50  0001 C CNN
+F 3 "https://datasheet.lcsc.com/szlcsc/1810311812_UNI-ROYAL-Uniroyal-Elec-4D03WGJ0102T5E_C20197.pdf" H 3250 5450 50  0001 C CNN
 	1    3250 5450
 	0    1    1    0   
 $EndComp
