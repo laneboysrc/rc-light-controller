@@ -121,6 +121,13 @@ void gearbox_action(uint8_t ch3_clicks)
 
 
 // ****************************************************************************
+static void diag(const char *s)
+{
+    fprintf(STDOUT_DEBUG, "servo setup %s\n", s);
+}
+
+
+// ****************************************************************************
 void servo_output_setup_action(uint8_t ch3_clicks)
 {
     if (!global_flags.servo_output_enabled) {
@@ -132,7 +139,7 @@ void servo_output_setup_action(uint8_t ch3_clicks)
         servo_output_endpoint.centre = 1500;
         servo_output_endpoint.right = 2100;
         global_flags.servo_output_setup = SERVO_OUTPUT_SETUP_LEFT;
-        fprintf(STDOUT_DEBUG, "servo setup left\n");
+        diag("left");
     }
     else {
         if (ch3_clicks == 1) {
@@ -144,7 +151,7 @@ void servo_output_setup_action(uint8_t ch3_clicks)
             // More than 1 click: cancel setup
             global_flags.servo_output_setup = SERVO_OUTPUT_SETUP_OFF;
             load_persistent_storage();
-            fprintf(STDOUT_DEBUG, "servo setup cancelled\n");
+            diag("cancelled");
         }
     }
 }
@@ -200,7 +207,7 @@ void process_servo_output(void)
                 case SERVO_OUTPUT_SETUP_LEFT:
                     servo_setup_endpoint.left = servo_pulse;
                     global_flags.servo_output_setup = SERVO_OUTPUT_SETUP_CENTRE;
-                    fprintf(STDOUT_DEBUG, "servo setup center\n");
+                    diag("center");
                     break;
 
                 case SERVO_OUTPUT_SETUP_CENTRE:
@@ -216,11 +223,11 @@ void process_servo_output(void)
 
                         activate_gearbox_servo();
                         global_flags.servo_output_setup = SERVO_OUTPUT_SETUP_OFF;
-                        fprintf(STDOUT_DEBUG, "servo setup done\n");
+                        diag("done");
                     }
                     else {
                         global_flags.servo_output_setup = SERVO_OUTPUT_SETUP_RIGHT;
-                        fprintf(STDOUT_DEBUG, "servo setup right\n");
+                        diag("right");
                     }
                     break;
 
@@ -237,7 +244,7 @@ void process_servo_output(void)
                     }
 
                     global_flags.servo_output_setup = SERVO_OUTPUT_SETUP_OFF;
-                    fprintf(STDOUT_DEBUG, "servo setup done\n");
+                    diag("done");
                     break;
 
                 default:
