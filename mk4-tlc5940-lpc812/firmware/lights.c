@@ -148,6 +148,10 @@ static void send_light_data_to_tlc5940(void)
 // ****************************************************************************
 void init_lights(void)
 {
+    // Make the switched light output PIO0_9 an output and shut it off.
+    HAL_gpio_clear(HAL_GPIO_SWITCHED_LIGHT_OUTPUT);
+    HAL_gpio_out(HAL_GPIO_SWITCHED_LIGHT_OUTPUT);
+
     HAL_gpio_set(HAL_GPIO_BLANK);
     HAL_gpio_clear(HAL_GPIO_GSCLK);
 

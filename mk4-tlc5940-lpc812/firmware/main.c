@@ -170,6 +170,9 @@ int main(void)
 
     is_servo_reader = (config.mode == MASTER_WITH_SERVO_READER);
 
+    // When GPIO0_14 is low we are dealing with a Mk4S (9 switched outputs)
+    global_flags.switched_outputs = !HAL_gpio_read(HAL_GPIO_HARDWARE_CONFIG);
+
     global_flags.servo_output_enabled =
         config.flags.steering_wheel_servo_output ||
         config.flags.gearbox_servo_output ||
@@ -216,7 +219,7 @@ int main(void)
 
     next_tick = milliseconds + __SYSTICK_IN_MS;
 
-    fprintf(STDOUT_DEBUG, "\n\n**********\nLight controller v%d\n", config.firmware_version);
+    fprintf(STDOUT_DEBUG, "\n\n**********\nLight controller v%d sw=%d\n", config.firmware_version, global_flags.switched_outputs);
 
     while (1) {
         global_flags.gear_changed = 0;

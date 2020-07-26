@@ -31,18 +31,71 @@ typedef struct {
 // PIO0_11  (7,  Open drain)    AUX3 input
 // PIO0_12  (2,  ISP-entry)     OUT / ISP
 // PIO0_13  (1)                 AUX input
+// GND      (13)
+// 3.3V     (12)
 //
+//
+// Mk4P IO pins: (LPC812 in TSSOP20 package)
+//
+// PIO0_0   (19, TDO, ISP-Rx)   Steering input / Rx
+// PIO0_1   (12,  TDI)          TLC5940 GSCLK
+// PIO0_2   (7,  TMS, SWDIO)    TLC5940 SCLK
+// PIO0_3   (6,  TCK, SWCLK)    TLC5940 XLAT
+// PIO0_4   (5,  TRST, ISP-Tx)  Throttle input / Tx
+// PIO0_5   (4,  RESET)         NC
+// PIO0_6   (18)                TLC5940 BLANK
+// PIO0_7   (17)                TLC5940 SIN
+// PIO0_8   (14, XTALIN)        NC
+// PIO0_9   (13, XTALOUT)       Switched light output (for driving a load via a MOSFET)
+// PIO0_10  (9,  Open drain)    NC
+// PIO0_11  (8,  Open drain)    AUX3 input
+// PIO0_12  (3,  ISP-entry)     OUT / ISP
+// PIO0_13  (2)                 AUX input
+// PIO0_14  (20)                Hardware detection, must be floating (or high)
+// PIO0_15  (11)                NC
+// PIO0_16  (10)                NC
+// PIO0_17  (1)                 NC
+// GND      (13)
+// 3.3V     (12)
+//
+//
+// Mk4S IO pins: (LPC812 in TSSOP20 package)
+//
+// PIO0_0   (19, TDO, ISP-Rx)   Steering input / Rx
+// PIO0_1   (12,  TDI)          OUT7
+// PIO0_2   (7,  TMS, SWDIO)    OUT2
+// PIO0_3   (6,  TCK, SWCLK)    OUT1
+// PIO0_4   (5,  TRST, ISP-Tx)  Throttle input / Tx
+// PIO0_5   (4,  RESET)         NC
+// PIO0_6   (18)                NC
+// PIO0_7   (17)                OUT4
+// PIO0_8   (14, XTALIN)        OUT5
+// PIO0_9   (13, XTALOUT)       OUT6
+// PIO0_10  (9,  Open drain)    NC
+// PIO0_11  (8,  Open drain)    NC
+// PIO0_12  (3,  ISP-entry)     OUT / ISP
+// PIO0_13  (2)                 AUX input
+// PIO0_14  (20)                Hardware detection, must be GND!
+// PIO0_15  (11)                OUT8
+// PIO0_16  (10)                OUT3
+// PIO0_17  (1)                 OUT0
 // GND      (13)
 // 3.3V     (12)
 // ****************************************************************************
 
-
+// GPIOs common to all versions
 static const HAL_GPIO_T HAL_GPIO_ST = { .pin = 0, .iocon = &LPC_IOCON->PIO0_0 };
 static const HAL_GPIO_T HAL_GPIO_TH = { .pin = 4, .iocon = &LPC_IOCON->PIO0_4 };
 static const HAL_GPIO_T HAL_GPIO_AUX = { .pin = 13, .iocon = &LPC_IOCON->PIO0_13 };
+static const HAL_GPIO_T HAL_GPIO_OUT = { .pin = 12 };
+static const HAL_GPIO_T HAL_GPIO_PIN10 = { .pin = 10 };
+static const HAL_GPIO_T HAL_GPIO_PIN11 = { .pin = 11 };
+
+// GPIOs for 5-channel Pre-processor
 static const HAL_GPIO_T HAL_GPIO_AUX2 = { .pin = 8, .iocon = &LPC_IOCON->PIO0_8 };
 static const HAL_GPIO_T HAL_GPIO_AUX3 = { .pin = 11, .iocon = &LPC_IOCON->PIO0_11 };
-static const HAL_GPIO_T HAL_GPIO_OUT = { .pin = 12 };
+
+// GPIOs for original Mk4 and Mk4P
 static const HAL_GPIO_T HAL_GPIO_SWITCHED_LIGHT_OUTPUT = { .pin = 9 };
 static const HAL_GPIO_T HAL_GPIO_SCK = { .pin = 2 };
 static const HAL_GPIO_T HAL_GPIO_SIN = { .pin = 7 };
@@ -50,8 +103,17 @@ static const HAL_GPIO_T HAL_GPIO_XLAT = { .pin = 3 };
 static const HAL_GPIO_T HAL_GPIO_GSCLK = { .pin = 1 };
 static const HAL_GPIO_T HAL_GPIO_BLANK = { .pin = 6 };
 
-static const HAL_GPIO_T HAL_GPIO_PIN10 = { .pin = 10 };
-static const HAL_GPIO_T HAL_GPIO_PIN11 = { .pin = 11 };
+// GPIOs for Mk4S
+static const HAL_GPIO_T HAL_GPIO_HARDWARE_CONFIG = { .pin = 14 };
+static const HAL_GPIO_T HAL_GPIO_OUT0 = { .pin = 17 };
+static const HAL_GPIO_T HAL_GPIO_OUT1 = { .pin = 6 };
+static const HAL_GPIO_T HAL_GPIO_OUT2 = { .pin = 2 };
+static const HAL_GPIO_T HAL_GPIO_OUT3 = { .pin = 16 };
+static const HAL_GPIO_T HAL_GPIO_OUT4 = { .pin = 7 };
+static const HAL_GPIO_T HAL_GPIO_OUT5 = { .pin = 8 };
+static const HAL_GPIO_T HAL_GPIO_OUT6 = { .pin = 9 };
+static const HAL_GPIO_T HAL_GPIO_OUT7 = { .pin = 1 };
+static const HAL_GPIO_T HAL_GPIO_OUT8 = { .pin = 15 };
 
 
 static inline void HAL_gpio_in(const HAL_GPIO_T gpio)

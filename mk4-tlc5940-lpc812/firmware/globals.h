@@ -393,6 +393,8 @@ typedef struct {
     unsigned int uart_output_enabled : 1;   // Set when the UART Tx is used for slave, preprocessor or winch output
 
     unsigned int outputs_disabled : 1;      // Set when all LED outputs should be disabled
+
+    unsigned int switched_outputs : 1;      // Set when this is a light controller with 9 switched outputs (Mk4S)
 } GLOBAL_FLAGS_T;
 
 

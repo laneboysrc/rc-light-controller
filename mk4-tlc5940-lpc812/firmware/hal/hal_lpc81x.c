@@ -130,10 +130,6 @@ void HAL_hardware_init(bool is_servo_reader, bool servo_output_enabled, bool uar
         HAL_gpio_out(HAL_GPIO_PIN11);
     }
 
-    // Make the switched light output PIO0_9 an output and shut it off.
-    HAL_gpio_clear(HAL_GPIO_SWITCHED_LIGHT_OUTPUT);
-    HAL_gpio_out(HAL_GPIO_SWITCHED_LIGHT_OUTPUT);
-
 
     // Enable glitch filtering on the IOs
     // GOTCHA: ICONCLKDIV0 is actually the last register in the array!
