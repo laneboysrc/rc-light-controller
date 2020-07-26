@@ -1,6 +1,6 @@
-update=Thu 23 Jul 2020 04:16:11 PM
+update=Sun 26 Jul 2020 12:22:09 PM
 version=1
-last_client=kicad
+last_client=pcbnew
 [general]
 version=1
 RootSch=
@@ -72,7 +72,7 @@ OthersTextUpright=1
 SolderMaskClearance=0.0254
 SolderMaskMinWidth=0
 SolderPasteClearance=0
-SolderPasteRatio=-0.1
+SolderPasteRatio=-0.05
 [pcbnew/Layer.F.Cu]
 Name=Top
 Type=0
