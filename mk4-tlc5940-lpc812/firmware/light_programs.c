@@ -155,7 +155,7 @@ void init_light_programs(void)
 // ****************************************************************************
 void next_light_sequence(void)
 {
-	++var[0];
+	++var[GLOBAL_VAR_CLICKS];
 }
 
 
@@ -559,7 +559,7 @@ static void execute_program(
                 }
                 else {
                     var[var_id] /= dividend;
-                    }
+                }
                 break;
 
             case OPCODE_AND:
@@ -655,8 +655,7 @@ uint32_t process_light_programs(void)
             continue;
         }
 
-        if (*(light_programs.start[i] + PRIORITY_STATE_OFFSET) &
-                priority_run_state) {
+        if (*(light_programs.start[i] + PRIORITY_STATE_OFFSET) & priority_run_state) {
             execute_program(light_programs.start[i], &cpu[i], &leds_used);
             limit_variables();
         }

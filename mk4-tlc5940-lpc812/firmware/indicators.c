@@ -137,6 +137,7 @@ void process_indicators(void)
     switch (indicator_state) {
         // ---------------------------------
         case NOT_NEUTRAL:
+        default:
             if (channel[ST].absolute > config.centre_threshold_low) {
                 return;
             }
@@ -280,10 +281,6 @@ void process_indicators(void)
                 set_blink_off();
             }
             return;
-
-        // ---------------------------------
-        default:
-            indicator_state = NOT_NEUTRAL;
     }
 }
 

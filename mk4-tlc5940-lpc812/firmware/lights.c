@@ -202,7 +202,7 @@ void toggle_light_switch(void)
 static const LED_T *get_light_value(const CAR_LIGHT_T *light,
     CAR_LIGHT_FUNCTION_T function)
 {
-    static LED_T zero = 0;
+    static const LED_T zero = 0;
 
     switch (function) {
         case ALWAYS_ON:
@@ -400,7 +400,6 @@ static void combined_tail_brake_indicators(LED_T *led, const CAR_LIGHT_T *light)
             us_style_combined_lights(led, light);
         }
         else {
-            not_quite_us_style_combined_lights(led, light);
             not_quite_us_style_combined_lights(led, light);
         }
     }

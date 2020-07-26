@@ -143,7 +143,7 @@ static void process_click_timeout(void)
 // ****************************************************************************
 static void add_click(void)
 {
-    fprintf(STDOUT_DEBUG, "add_click\n");
+    fprintf(STDOUT_DEBUG, "click\n");
 
     // If the winch is running any movement of CH3 immediately turns off
     // the winch (without waiting for click timeout!)

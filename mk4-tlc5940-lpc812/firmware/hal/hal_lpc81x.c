@@ -407,7 +407,7 @@ const char *HAL_persistent_storage_write(const uint32_t *new_data)
     iap_entry(param, param);
     __enable_irq();
     if (param[0] != 0) {
-        return "ERR: prepare sector";
+        return "prepare sector";
     }
 
     param[0] = 59;  // Erase page command
@@ -418,7 +418,7 @@ const char *HAL_persistent_storage_write(const uint32_t *new_data)
     iap_entry(param, param);
     __enable_irq();
     if (param[0] != 0) {
-        return "ERR: erase page";
+        return "erase page";
     }
 
     param[0] = 50;
@@ -428,7 +428,7 @@ const char *HAL_persistent_storage_write(const uint32_t *new_data)
     iap_entry(param, param);
     __enable_irq();
     if (param[0] != 0) {
-        return "ERR: prepare sector";
+        return "prepare sector";
     }
 
     param[0] = 51;  // Copy RAM to Flash command
@@ -440,7 +440,7 @@ const char *HAL_persistent_storage_write(const uint32_t *new_data)
     iap_entry(param, param);
     __enable_irq();
     if (param[0] != 0) {
-        return "ERR: copy RAM to flash";
+        return "copy RAM to flash";
     }
 
     return NULL;

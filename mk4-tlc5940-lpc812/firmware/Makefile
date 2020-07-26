@@ -66,7 +66,7 @@ INCLUDES += -I./hal
 INCLUDES += -isystem./libs/printf
 INCLUDES += -isystem./hal/LPC8xx
 
-# DEFINES += -DNODEBUG
+DEFINES += -DNODEBUG
 
 LIBS := -lnosys
 

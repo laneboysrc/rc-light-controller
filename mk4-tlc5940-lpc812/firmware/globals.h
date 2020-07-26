@@ -634,6 +634,7 @@ void read_preprocessor(void);
 
 void process_aux(void);
 
+void init_drive_mode(void);
 void process_drive_mode(void);
 void throttle_neutral(void);
 
