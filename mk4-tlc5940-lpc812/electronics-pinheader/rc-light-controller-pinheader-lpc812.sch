@@ -225,9 +225,9 @@ Wire Wire Line
 Text Label 6400 7850 0    50   ~ 0
 GSCLK
 NoConn ~ 7000 8250
-Text Label 2850 7350 2    50   ~ 0
-VIN
 Text Label 2850 7250 2    50   ~ 0
+VIN
+Text Label 2850 7350 2    50   ~ 0
 LED+
 Text Notes 1700 8900 0    59   ~ 0
 VIN1 is physically close to LED+.\nThis allows two modes of operation:\n1) when VIN1 is conntected to LED+\nvia a solder bridge, then the LEDs are \npowered from the receiver.\n2) A separate power supply can be \nconnected to LED+ (and the nearby GND),\ne.g. for higher voltages
@@ -330,21 +330,14 @@ F 3 "~" H 1750 7550 50  0001 C CNN
 	-1   0    0    1   
 $EndComp
 Wire Wire Line
-	1950 7350 2150 7350
-Wire Wire Line
 	1950 7650 2150 7650
-Wire Wire Line
-	2150 7650 2150 7350
-Connection ~ 2150 7350
-Wire Wire Line
-	2150 7350 2850 7350
 Wire Wire Line
 	1950 7450 2050 7450
 Wire Wire Line
 	2050 7450 2050 7750
 Connection ~ 2050 7750
 Wire Wire Line
-	1950 7250 2850 7250
+	1950 7250 2150 7250
 Wire Wire Line
 	14450 2850 14200 2850
 Wire Wire Line
@@ -420,7 +413,6 @@ F 3 "~" H 1600 10650 50  0001 C CNN
 $EndComp
 Wire Wire Line
 	6400 8050 7000 8050
-NoConn ~ 8400 8250
 $Comp
 L Device:C C3
 U 1 1 5F2418F7
@@ -461,31 +453,31 @@ NoConn ~ 8400 8350
 $Comp
 L power:GND #PWR01
 U 1 1 5EEF5842
-P 11250 7100
-F 0 "#PWR01" H 11250 6850 50  0001 C CNN
-F 1 "GND" H 11255 6927 50  0000 C CNN
-F 2 "" H 11250 7100 50  0001 C CNN
-F 3 "" H 11250 7100 50  0001 C CNN
-	1    11250 7100
+P 12800 7150
+F 0 "#PWR01" H 12800 6900 50  0001 C CNN
+F 1 "GND" H 12805 6977 50  0000 C CNN
+F 2 "" H 12800 7150 50  0001 C CNN
+F 3 "" H 12800 7150 50  0001 C CNN
+	1    12800 7150
 	1    0    0    -1  
 $EndComp
-Text Notes 11500 6950 0    56   ~ 0
+Text Notes 13050 7000 0    56   ~ 0
 N-Channel MOSFET\nSOT23 package\ne.g. PMV16UN, PMV30UN, \nSI2302. AO3400, DMN2075U-7
-Text Label 10550 6800 0    50   ~ 0
+Text Label 12100 6850 0    50   ~ 0
 OUT15S
 Wire Wire Line
-	10550 6800 10950 6800
+	12100 6850 12500 6850
 Wire Wire Line
-	11250 7000 11250 7100
+	12800 7050 12800 7150
 $Comp
 L Device:Q_NMOS_GSD T9
 U 1 1 5EEE69E5
-P 11150 6800
-F 0 "T9" H 11050 6950 59  0000 L BNN
-F 1 "PMV30UN" H 11250 6800 59  0001 L BNN
-F 2 "Package_TO_SOT_SMD:SOT-23" H 11150 6800 50  0001 C CNN
-F 3 "https://assets.nexperia.com/documents/data-sheet/PMV30UN.pdf" H 11150 6800 50  0001 C CNN
-	1    11150 6800
+P 12700 6850
+F 0 "T9" H 12600 7000 59  0000 L BNN
+F 1 "PMV30UN" H 12800 6850 59  0001 L BNN
+F 2 "Package_TO_SOT_SMD:SOT-23" H 12700 6850 50  0001 C CNN
+F 3 "https://assets.nexperia.com/documents/data-sheet/PMV30UN.pdf" H 12700 6850 50  0001 C CNN
+	1    12700 6850
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
@@ -740,19 +732,19 @@ Wire Wire Line
 	1950 5550 3050 5550
 Wire Wire Line
 	1950 5450 3050 5450
-Text Label 11850 6350 2    50   ~ 0
+Text Label 13400 6400 2    50   ~ 0
 OUT15S_OUT
 Text Label 13000 4150 0    50   ~ 0
 OUT15S_OUT
 Wire Wire Line
-	11250 6600 11250 6350
+	12800 6650 12800 6400
 Wire Wire Line
-	11250 6350 11850 6350
+	12800 6400 13400 6400
 Text Notes 9100 1750 0    85   ~ 0
 LED driver
 Wire Wire Line
 	13000 4150 13700 4150
-Text Notes 11050 5900 0    85   ~ 0
+Text Notes 12600 5950 0    85   ~ 0
 Switched output driver
 $Comp
 L Regulator_Linear:MCP1703A-3302_SOT23 U3
@@ -802,4 +794,16 @@ F 3 "" H 7700 6650 50  0001 C CNN
 	1    7700 6650
 	1    0    0    -1  
 $EndComp
+Wire Wire Line
+	1950 7350 2850 7350
+Wire Wire Line
+	2150 7650 2150 7250
+Connection ~ 2150 7250
+Wire Wire Line
+	2150 7250 2850 7250
+Wire Wire Line
+	8400 8250 9050 8250
+NoConn ~ 9050 8250
+Text Notes 9350 8500 0    50   ~ 0
+PIO0_14 serves as detection whether \nthe hardware has the TLC5940 or is the switching version. \nFor TLC5940 it must be left floating (pull-up).\nFor switching version it must be pulled to GND.
 $EndSCHEMATC
