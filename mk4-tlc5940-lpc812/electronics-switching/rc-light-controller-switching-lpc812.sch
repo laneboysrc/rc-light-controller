@@ -435,7 +435,7 @@ Wire Wire Line
 Wire Wire Line
 	12450 2850 13500 2850
 Text Notes 1450 8900 0    59   ~ 0
-VIN1 is physically close to LED+.\nThis allows two modes of operation:\n1) when VIN1 is conntected to LED+\nvia a solder bridge, then the LEDs are \npowered from the receiver.\n2) A separate power supply can be \nconnected to LED+ (and the nearby GND),\ne.g. for higher voltages
+VIN1 is physically close to LED+.\nThis allows two modes of operation:\n1) when VIN1 is conntected to LED+\nvia a jumper, then the LEDs are \npowered from the receiver.\n2) A separate power supply can be \nconnected to LED+ (and the nearby GND),\ne.g. for higher voltages
 Text Notes 1750 6800 0    85   ~ 0
 Output connector
 Text Label 2150 5250 0    50   ~ 0

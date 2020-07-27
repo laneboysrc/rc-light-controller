@@ -1,10 +1,12 @@
 # Mk4S Switching version of Mk4
 # Mk4P Pinheader version of Mk4
 
-* Software for version auto-detect support
-    * Mk4S and Mk4P can be detected by processor 20 pin type
-    * Switching version has PIO0_14 (20) pulled to ground
 * LED driver for switching version
+
+* Able to move Pre-processor output to OUT/ISP
+
+DONE Software for version auto-detect support
+    DONE Switching version has PIO0_14 (20) pulled to ground
 
 DONE  LED+ on center pin, next to GND
 
