@@ -44,6 +44,16 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
         .gearbox_light_program_control = false,
         .light_program_servo_output = false,
         .indicators_while_driving = false,
+
+        // Important: those flags need to be set correctly depeding on the
+        // flags above (slave_outout, preprocessor_output ...)
+        .uart_rx_on_st = true,
+        .uart_tx_on_th = true,
+        .uart_tx_on_out = false,
+        .servo_on_th = false,
+        .servo_on_out = true,
+        .uart_diagnostics_enabled = true,
+        .servo_output_enabled = true,
     },
 
     .auto_brake_counter_value_forward_min = (500 / __SYSTICK_IN_MS),

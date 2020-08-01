@@ -83,6 +83,8 @@ typedef struct {
 // 3.3V     (12)
 // ****************************************************************************
 
+static const uint8_t HAL_GPIO_NO_PIN = 0xff;
+
 // GPIOs common to all versions
 static const HAL_GPIO_T HAL_GPIO_ST = { .pin = 0, .iocon = &LPC_IOCON->PIO0_0 };
 static const HAL_GPIO_T HAL_GPIO_TH = { .pin = 4, .iocon = &LPC_IOCON->PIO0_4 };

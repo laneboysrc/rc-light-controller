@@ -436,7 +436,12 @@ var app = (function () {
             new_config.us_style_combined_lights = get_flag2(0x0004);
             new_config.gearbox_light_program_control = get_flag2(0x0008);
             new_config.light_program_servo_output = get_flag2(0x0010);
-            new_config.indicators_while_driving =  get_flag2(0x0020);
+            new_config.indicators_while_driving = get_flag2(0x0020);
+
+            // The GPIO assignment is set whenever uart_tx_on_out (bit 9)
+            // is set
+            new_config.assign_uart_to_out = get_flag2(0x0100);
+            console.log("flags2=0x" + flags2.toString(16));
 
             new_config.blink_counter_value_dark = get_uint16(data, offset + 68);
 
@@ -452,6 +457,7 @@ var app = (function () {
             new_config.multi_aux = false;
             new_config.shelf_queen_mode = true;
             new_config.us_style_combined_lights = true;
+            new_config.assign_uart_to_out = false;
 
             new_config.blink_counter_value_dark = new_config.blink_counter_value;
 
@@ -925,6 +931,7 @@ var app = (function () {
 
         ensure_one_is_checked('output_out');
         ensure_one_is_checked('output_th');
+        ensure_one_is_checked('assign_servo_uart');
 
         if (el.preprocessor_output.checked || el.slave_output.checked) {
             el.winch_output.classList.add('hidden');
@@ -1116,6 +1123,13 @@ var app = (function () {
         (aux_type_changed_handler.bind({'type': el.aux_type, 'fn': el.aux_function}))();
         (aux_type_changed_handler.bind({'type': el.aux2_type, 'fn': el.aux2_function}))();
         (aux_type_changed_handler.bind({'type': el.aux3_type, 'fn': el.aux3_function}))();
+
+        if (config.assign_uart_to_out) {
+            el.assign_uart_to_out.checked = true;
+        }
+        else {
+            el.assign_servo_to_out.checked = true;
+        }
 
         // Show/hide various sections depending on the current settings
         update_section_visibility();
@@ -1392,6 +1406,52 @@ var app = (function () {
             flags2 |= (config.gearbox_light_program_control << 3);
             flags2 |= (config.light_program_servo_output << 4);
             flags2 |= (config.indicators_while_driving << 5);
+
+
+            // Convenience flags for the output configuration
+            let servo_enabled = false;
+            if (config.steering_wheel_servo_output ||
+                config.gearbox_servo_output ||
+                config.light_program_servo_output) {
+                servo_enabled = true;
+            }
+            if (config.multi_aux && (
+                    config.aux_function == AUX_FUNCTION_SERVO ||
+                    config.aux2_function == AUX_FUNCTION_SERVO ||
+                    config.aux3_function == AUX_FUNCTION_SERVO )) {
+                servo_enabled = true;
+            }
+
+            if (servo_enabled) {
+                flags2 |= (1 << 12); // servo_output_enabled
+                if (config.assign_uart_to_out) {
+                    flags2 |= (1 << 9); // servo_on_th
+                }
+                else {
+                    flags2 |= (1 << 10); // servo_on_out
+                }
+            }
+
+            if (config.mode == MASTER_WITH_SERVO_READER) {
+                if (!servo_enabled) {
+                    flags2 |= (1 << 8); // uart_tx_on_out
+                }
+            }
+            else {
+                flags2 |= (1 << 6); // uart_rx_on_st
+                if (config.assign_uart_to_out) {
+                    flags2 |= (1 << 8); // uart_tx_on_out
+                }
+                else {
+                    flags2 |= (1 << 7); // uart_tx_on_th
+                }
+            }
+
+            if (!config.slave_output && !config.preprocessor_output && !config.winch_output) {
+                flags2 |= (1 << 11); // config.uart_diagnostics_enabled
+            }
+
+            console.log("flags2=0x" + flags2.toString(16));
             set_uint16(data, offset + 64, flags2);
 
             set_uint16(data, offset + 68, config.blink_counter_value_dark);
@@ -1908,6 +1968,7 @@ var app = (function () {
         update_int('aux3_type');
         update_int('aux3_function');
 
+        update_boolean('assign_uart_to_out');
 
         if (config.mode === MODE.SLAVE) {
             // Force gamma to 1.0 in slave mode as the gamma correction is
@@ -2504,6 +2565,7 @@ var app = (function () {
             'gearbox_servo_output', 'winch_output', 'winch_enable',
             'light_program_servo_output', 'indicators_while_driving',
             'gearbox_light_program_control',
+            'assign_uart_to_out', 'assign_servo_to_out',
 
             'leds_clear',
 
@@ -2556,6 +2618,7 @@ var app = (function () {
         el.single_output = document.getElementsByClassName('single_output');
         el.dual_output = document.getElementsByClassName('dual_output');
         el.dual_output_th = document.getElementsByClassName('dual_output_th');
+        el.assign_servo_uart = document.getElementsByName('assign_servo_uart');
 
         el.flash_dialog = document.querySelector('#flash_dialog');
         el.flash_heading = el.flash_dialog.querySelector('.heading');
@@ -2632,6 +2695,7 @@ var app = (function () {
 
     // *************************************************************************
     return {
+        el: el,
         load: load_firmware,
         init: init
     };

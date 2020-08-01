@@ -72,7 +72,7 @@ void HardFault_handler(void)
 
 
 // ****************************************************************************
-void HAL_hardware_init(bool is_servo_reader, bool servo_output_enabled)
+void HAL_hardware_init(void)
 {
 #if HAL_SYSTEM_CLOCK != 12000000
 #error Clock initialization code expexts __SYSTEM_CLOCK to be set to 1200000
@@ -96,25 +96,6 @@ void HAL_hardware_init(bool is_servo_reader, bool servo_output_enabled)
 
     // Enable reset, all other special functions disabled
     LPC_SWM->PINENABLE0 = 0xffffffbf;
-
-    // Configure the UART input and output
-    if (is_servo_reader) {
-        // Turn the UART output on unless a servo output is requested
-        if (!servo_output_enabled) {
-            // U0_TXT_O=PIO0_12 (OUT/ISP)
-            LPC_SWM->PINASSIGN0 = (0xff << 24) |
-                                  (0xff << 16) |
-                                  (0xff << 8) |
-                                  (HAL_GPIO_OUT.pin << 0);
-        }
-    }
-    else {
-        // U0_TXT_O=PIO0_4 (TH), U0_RXD_I=PIO0_0 (ST)
-        LPC_SWM->PINASSIGN0 = (0xff << 24) |
-                              (0xff << 16) |
-                              (HAL_GPIO_ST.pin << 8) |
-                              (HAL_GPIO_TH.pin << 0);
-    }
 
     // Make the open drain ports PIO0_10, PIO0_11 outputs and pull to ground
     // to prevent them from floating.
@@ -272,8 +253,14 @@ Again we have to round by adding BAUDRATE * 16 / 2 to the nominator:
 
 
 // ****************************************************************************
-void HAL_uart_init(uint32_t baudrate)
+void HAL_uart_init(uint32_t baudrate, uint8_t rx_pin, uint8_t tx_pin)
 {
+    // Configure RX and TX pins
+    LPC_SWM->PINASSIGN0 = (0xff << 24) |
+                          (0xff << 16) |
+                          (rx_pin << 8) |
+                          (tx_pin << 0);
+
     // Turn on peripheral clocks for UART0
     LPC_SYSCON->SYSAHBCLKCTRL |= (1 << 14);
 
@@ -425,7 +412,7 @@ const char *HAL_persistent_storage_write(const uint32_t *new_data)
 
 
 // ****************************************************************************
-void HAL_servo_output_init(void)
+void HAL_servo_output_init(uint8_t pin)
 {
     LPC_SCT->CONFIG |= (1 << 18);           // Auto-limit on counter H
     LPC_SCT->CTRL_H |= (1 << 3) |           // Clear the counter H
@@ -453,7 +440,7 @@ void HAL_servo_output_init(void)
     LPC_SWM->PINASSIGN7 = (0xff << 24) |            // I2C_SDA
                           (0xff << 16) |            // CTOUT_3
                           (0xff << 8) |             // CTOUT_2
-                          (HAL_GPIO_OUT.pin << 0);  // CTOUT_1
+                          (pin << 0);               // CTOUT_1
 
     LPC_SCT->CTRL_H &= ~(1 << 2);          // Start the SCTimer H
 }

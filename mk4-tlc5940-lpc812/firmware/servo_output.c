@@ -31,12 +31,22 @@ static void activate_gearbox_servo(void)
 
 // ****************************************************************************
 void init_servo_output(void) {
-    if (!global_flags.servo_output_enabled) {
+    uint8_t pin = HAL_GPIO_NO_PIN;
+
+    if (!config.flags2.servo_output_enabled) {
         return;
     }
 
     servo_pulse = servo_output_endpoint.centre;
-    HAL_servo_output_init();
+
+    // Initialize the servo output on the configured pin
+    if (config.flags2.servo_on_th) {
+        pin = HAL_GPIO_TH.pin;
+    }
+    if (config.flags2.servo_on_out) {
+        pin = HAL_GPIO_OUT.pin;
+    }
+    HAL_servo_output_init(pin);
 
     if (config.flags.gearbox_servo_output) {
         global_flags.gear = GEAR_1;
@@ -130,7 +140,7 @@ static void diag(const char *s)
 // ****************************************************************************
 void servo_output_setup_action(uint8_t ch3_clicks)
 {
-    if (!global_flags.servo_output_enabled) {
+    if (!config.flags2.servo_output_enabled) {
         return;
     }
 
@@ -191,7 +201,7 @@ static void calculate_servo_pulse(int16_t value)
 // ****************************************************************************
 void process_servo_output(void)
 {
-    if (!global_flags.servo_output_enabled) {
+    if (!config.flags2.servo_output_enabled) {
         return;
     }
 

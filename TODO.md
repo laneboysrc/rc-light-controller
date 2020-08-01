@@ -1,13 +1,18 @@
 # Mk4S Switching version of Mk4
 # Mk4P Pinheader version of Mk4
 
-* Change UART and servo out initialization to be able to use OUT or TH pins based on user wish
-
-DONE Change diagnostics to use NULL for STDOUT when diagnostics is disabled; use printf instead of fprintf
 
 * LED driver for switching version
 
 * Early init of GPIO controlled light outputs
+
+DONE Add new convenience flags to configurator
+
+DONE Move servo_output_enabled to config
+
+DONE Change UART and servo out initialization to be able to use OUT or TH pins based on user wish
+
+DONE Change diagnostics to use NULL for STDOUT when diagnostics is disabled; use printf instead of fprintf
 
 DONE Software for version auto-detect support
     DONE Switching version has PIO0_14 (20) pulled to ground

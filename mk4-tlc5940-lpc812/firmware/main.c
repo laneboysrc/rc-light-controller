@@ -166,50 +166,38 @@ static void output_channel_diagnostics(void)
 // ****************************************************************************
 int main(void)
 {
-    bool is_servo_reader;
-
-    is_servo_reader = (config.mode == MASTER_WITH_SERVO_READER);
+    uint8_t rx_pin = HAL_GPIO_NO_PIN;
+    uint8_t tx_pin = HAL_GPIO_NO_PIN;
 
     // When GPIO0_14 is low we are dealing with a Mk4S (9 switched outputs)
     global_flags.switched_outputs = !HAL_gpio_read(HAL_GPIO_HARDWARE_CONFIG);
-
-    global_flags.servo_output_enabled =
-        config.flags.steering_wheel_servo_output ||
-        config.flags.gearbox_servo_output ||
-        config.flags2.light_program_servo_output;
-
-    if (config.flags2.multi_aux) {
-        global_flags.servo_output_enabled |=
-            (config.aux_function == SERVO) ||
-            (config.aux2_function == SERVO) ||
-            (config.aux3_function == SERVO);
-    }
-
-    global_flags.uart_output_enabled =
-        config.flags.slave_output ||
-        config.flags.preprocessor_output ||
-        config.flags.winch_output;
 
     if (config.mode != STAND_ALONE) {
         global_flags.no_signal = true;
         global_flags.initializing = true;
     }
 
-    HAL_hardware_init(is_servo_reader, global_flags.servo_output_enabled);
+    HAL_hardware_init();
     load_persistent_storage();
-    HAL_uart_init(config.baudrate);
 
+    // Initialize the UART on the configured GPIO pins, which are adjusted
+    // by the configurator depending on the user-supplied configuration.
+    if (config.flags2.uart_rx_on_st) {
+        rx_pin = HAL_GPIO_ST.pin;
+    }
+    if (config.flags2.uart_tx_on_out) {
+        tx_pin = HAL_GPIO_OUT.pin;
+    }
+    if (config.flags2.uart_tx_on_th) {
+        tx_pin = HAL_GPIO_TH.pin;
+    }
+    HAL_uart_init(config.baudrate, rx_pin, tx_pin);
 
     // The printf function is only used for diagnostics, so we default to
     // STDOUT_DEBUG for the file pointer!
     // If the diagnostics need to be disabled, we use NULL as file pointer
     // (which we check for in HAL_putc)
-    if (global_flags.uart_output_enabled || (is_servo_reader && global_flags.servo_output_enabled)) {
-        init_printf(NULL, HAL_putc);
-    }
-    else {
-        init_printf(STDOUT_DEBUG, HAL_putc);
-    }
+    init_printf(config.flags2.uart_diagnostics_enabled ? STDOUT_DEBUG : NULL, HAL_putc);
 
     // Wait for 100ms to have the supply settle down before initializing the
     // rest of the system. This is especially important for the TLC5940,

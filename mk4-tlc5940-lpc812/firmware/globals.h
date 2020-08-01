@@ -389,9 +389,6 @@ typedef struct {
 
     unsigned int shelf_queen_mode : 1;      // Set when car driving is simulated
 
-    unsigned int servo_output_enabled : 1;  // Set when there OUT is configured as servo output
-    unsigned int uart_output_enabled : 1;   // Set when the UART Tx is used for slave, preprocessor or winch output
-
     unsigned int outputs_disabled : 1;      // Set when all LED outputs should be disabled
 
     unsigned int switched_outputs : 1;      // Set when this is a light controller with 9 switched outputs (Mk4S)
@@ -528,7 +525,28 @@ typedef struct {
         // and steering is 0 for a certain time.
         unsigned int indicators_while_driving :1;
 
-        unsigned int reserved0 : 10;
+        // Convenience flags that indicate which pin should have what function
+        // to reduce complexity and code size
+        // For pre-processor reader, uart_rx_on_st would be set; but for
+        // servo reader it would be cleared.
+        // Some flags are mutually exclusive, i.e. only one of uart_tx_on_th
+        // and servo_on_th can be set.
+        unsigned int uart_rx_on_st :1;
+        unsigned int uart_tx_on_th :1;
+        unsigned int uart_tx_on_out :1;
+        unsigned int servo_on_th :1;
+        unsigned int servo_on_out :1;
+
+        // Set when the UART output is not used and therefore available for
+        // human-readable diagnostics messages.
+        unsigned int uart_diagnostics_enabled :1;
+
+        // Convenience flag to save code space. Set when any of the servo
+        // output functions is enabled (including direct servo control on
+        // multi-aux)
+        unsigned int servo_output_enabled :1;
+
+        unsigned int reserved0 : 3;
     } flags2;
 
     // Dark phase of the indicator. The blink_counter_value from config version

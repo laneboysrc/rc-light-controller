@@ -3,12 +3,12 @@
 extern uint32_t entropy;
 extern volatile uint32_t milliseconds;
 
-void HAL_hardware_init(bool is_servo_reader, bool servo_output_enabled);
+void HAL_hardware_init(void);
 void HAL_hardware_init_final(void);
 
 void HAL_service(void);
 
-void HAL_uart_init(uint32_t baudrate);
+void HAL_uart_init(uint32_t baudrate, uint8_t rx_pin, uint8_t tx_pin);
 bool HAL_getchar_pending(void);
 uint8_t HAL_getchar(void);
 void HAL_putc(void *p, char c);
@@ -21,7 +21,7 @@ const char *HAL_persistent_storage_write(const uint32_t *new_data);
 
 bool HAL_switch_triggered(void);
 
-void HAL_servo_output_init(void);
+void HAL_servo_output_init(uint8_t pin);
 void HAL_servo_output_set_pulse(uint16_t servo_pulse);
 void HAL_servo_output_enable(void);
 void HAL_servo_output_disable(void);
