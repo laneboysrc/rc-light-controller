@@ -14,6 +14,7 @@
 
 #include <globals.h>
 #include <printf.h>
+#include <hal.h>
 
 #define SLAVE_MAGIC_BYTE 0x87
 
@@ -58,7 +59,7 @@ void output_preprocessor(void)
     }
 
     if (next_tx_index < (config.flags2.multi_aux ? PACKET_LENGTH_MULTI : PACKET_LENGTH)) {
-        printf("%c", tx_data[next_tx_index++]);
+        HAL_putc(STDOUT, tx_data[next_tx_index++]);
     }
 }
 
