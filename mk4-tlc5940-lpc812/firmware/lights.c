@@ -120,10 +120,23 @@ extern uint32_t process_light_programs(void);
 
 
 // ****************************************************************************
-static void send_light_data_to_tlc5940(void)
+static void output_lights(void)
 {
     uint8_t data[16];
     uint8_t i;
+
+    if (global_flags.switched_outputs) {
+        HAL_gpio_write(HAL_GPIO_OUT0, light_setpoint[0]);
+        HAL_gpio_write(HAL_GPIO_OUT1, light_setpoint[1]);
+        HAL_gpio_write(HAL_GPIO_OUT2, light_setpoint[2]);
+        HAL_gpio_write(HAL_GPIO_OUT3, light_setpoint[3]);
+        HAL_gpio_write(HAL_GPIO_OUT4, light_setpoint[4]);
+        HAL_gpio_write(HAL_GPIO_OUT5, light_setpoint[5]);
+        HAL_gpio_write(HAL_GPIO_OUT6, light_setpoint[6]);
+        HAL_gpio_write(HAL_GPIO_OUT7, light_setpoint[7]);
+        HAL_gpio_write(HAL_GPIO_OUT8, light_setpoint[8]);
+        return;
+    }
 
     for (i = 0; i < 16; i++) {
        data[i] = gamma_table.gamma_table[light_actual[i]] >> 2;
@@ -140,6 +153,39 @@ static void send_light_data_to_tlc5940(void)
 
 
 // ****************************************************************************
+void init_gpio_lights(void) {
+    if (global_flags.switched_outputs) {
+        HAL_gpio_clear_mask(
+            (1 << HAL_GPIO_OUT0.pin) |
+            (1 << HAL_GPIO_OUT1.pin) |
+            (1 << HAL_GPIO_OUT2.pin) |
+            (1 << HAL_GPIO_OUT3.pin) |
+            (1 << HAL_GPIO_OUT4.pin) |
+            (1 << HAL_GPIO_OUT5.pin) |
+            (1 << HAL_GPIO_OUT6.pin) |
+            (1 << HAL_GPIO_OUT7.pin) |
+            (1 << HAL_GPIO_OUT8.pin));
+
+        HAL_gpio_out_mask(
+            (1 << HAL_GPIO_OUT0.pin) |
+            (1 << HAL_GPIO_OUT1.pin) |
+            (1 << HAL_GPIO_OUT2.pin) |
+            (1 << HAL_GPIO_OUT3.pin) |
+            (1 << HAL_GPIO_OUT4.pin) |
+            (1 << HAL_GPIO_OUT5.pin) |
+            (1 << HAL_GPIO_OUT6.pin) |
+            (1 << HAL_GPIO_OUT7.pin) |
+            (1 << HAL_GPIO_OUT8.pin));
+        return;
+    }
+
+    // Make the switched light output PIO0_9 an output and shut it off.
+    HAL_gpio_clear(HAL_GPIO_SWITCHED_LIGHT_OUTPUT);
+    HAL_gpio_out(HAL_GPIO_SWITCHED_LIGHT_OUTPUT);
+}
+
+
+// ****************************************************************************
 // SPI configuration:
 //     Configuration: CPOL = 0, CPHA = 0,
 //     We can send 6 bit frame lengths, so no need to pack light data!
@@ -148,19 +194,16 @@ static void send_light_data_to_tlc5940(void)
 // ****************************************************************************
 void init_lights(void)
 {
-    // Make the switched light output PIO0_9 an output and shut it off.
-    HAL_gpio_clear(HAL_GPIO_SWITCHED_LIGHT_OUTPUT);
-    HAL_gpio_out(HAL_GPIO_SWITCHED_LIGHT_OUTPUT);
-
     HAL_gpio_set(HAL_GPIO_BLANK);
     HAL_gpio_clear(HAL_GPIO_GSCLK);
 
-    HAL_gpio_out(HAL_GPIO_BLANK);
-    HAL_gpio_out(HAL_GPIO_GSCLK);
+    HAL_gpio_out_mask(
+            (1 << HAL_GPIO_BLANK.pin) |
+            (1 << HAL_GPIO_GSCLK.pin));
 
     HAL_spi_init();
 
-    send_light_data_to_tlc5940();
+    output_lights();
 
     HAL_gpio_clear(HAL_GPIO_BLANK);
     // Do this short function in-between clearing BLANK and setting GSCLK to
@@ -593,7 +636,7 @@ static void process_car_lights(void)
         }
     }
 
-    send_light_data_to_tlc5940();
+    output_lights();
     if (config.flags.slave_output) {
         HAL_putc(NULL, SLAVE_MAGIC_BYTE);
 
@@ -635,7 +678,7 @@ static void process_slave(void)
                 // and reset the state machine to wait for the next packet
                 if (state > 16) {
                     state = 0;
-                    send_light_data_to_tlc5940();
+                    output_lights();
                 }
             }
         }

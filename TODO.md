@@ -2,9 +2,9 @@
 # Mk4P Pinheader version of Mk4
 
 
-* LED driver for switching version
+DONE LED driver for switching version
 
-* Early init of GPIO controlled light outputs
+DONE Early init of GPIO controlled light outputs
 
 DONE Add new convenience flags to configurator
 

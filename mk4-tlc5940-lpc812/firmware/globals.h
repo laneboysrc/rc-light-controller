@@ -683,6 +683,7 @@ void reversing_setup_action(uint8_t ch3_clicks);
 
 void output_preprocessor(void);
 
+void init_gpio_lights(void);
 void init_lights(void);
 void process_lights(void);
 void next_light_sequence(void);

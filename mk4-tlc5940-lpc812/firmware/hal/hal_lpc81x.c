@@ -713,9 +713,10 @@ void HAL_spi_init(void)
 {
     HAL_gpio_set(HAL_GPIO_XLAT);
 
-    HAL_gpio_out(HAL_GPIO_SCK);
-    HAL_gpio_out(HAL_GPIO_SIN);
-    HAL_gpio_out(HAL_GPIO_XLAT);
+    HAL_gpio_out_mask(
+        (1 << HAL_GPIO_SCK.pin) |
+        (1 << HAL_GPIO_SIN.pin) |
+        (1 << HAL_GPIO_XLAT.pin));
 
     // Use 2 MHz SPI clock. 16 bytes take about 50 us to transmit.
     LPC_SPI0->DIV = (HAL_SYSTEM_CLOCK / 2000000) - 1;

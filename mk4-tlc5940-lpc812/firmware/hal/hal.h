@@ -128,6 +128,11 @@ static inline void HAL_gpio_out(const HAL_GPIO_T gpio)
     LPC_GPIO_PORT->DIR0 |= (1 << gpio.pin);
 }
 
+static inline void HAL_gpio_out_mask(const uint32_t mask)
+{
+    LPC_GPIO_PORT->DIR0 |= mask;
+}
+
 static inline void HAL_gpio_write(const HAL_GPIO_T gpio, bool value)
 {
     LPC_GPIO_PORT->W0[gpio.pin] = value;
@@ -140,12 +145,17 @@ static inline bool HAL_gpio_read(const HAL_GPIO_T gpio)
 
 static inline void HAL_gpio_set(const HAL_GPIO_T gpio)
 {
-    LPC_GPIO_PORT->W0[gpio.pin] = 1;
+    LPC_GPIO_PORT->SET0 = (1 << gpio.pin);
 }
 
 static inline void HAL_gpio_clear(const HAL_GPIO_T gpio)
 {
-    LPC_GPIO_PORT->W0[gpio.pin] = 0;
+    LPC_GPIO_PORT->CLR0 = (1 << gpio.pin);
+}
+
+static inline void HAL_gpio_clear_mask(const uint32_t mask)
+{
+    LPC_GPIO_PORT->CLR0 = mask;
 }
 
 static inline void HAL_gpio_toggle(const HAL_GPIO_T gpio)

@@ -178,6 +178,7 @@ int main(void)
     }
 
     HAL_hardware_init();
+    init_gpio_lights();
     load_persistent_storage();
 
     // Initialize the UART on the configured GPIO pins, which are adjusted
