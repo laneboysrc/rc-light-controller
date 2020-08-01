@@ -1,3 +1,26 @@
+
+# Documentation
+
+* Add Mk4P and Mk4S description
+* Add Mk4P and Mk4S images
+* Add Rev 3 image
+* Swap Pre-Processor and Servo reader (prefer Pre-Processor)
+* Describe how to deal with only two LED+ pads
+* Connection table: add Pre-Processor to ST/Rx
+* Add connecting LEDs in parallel
+* Move parallel and serial LED connection to an advanced topics section in the back
+* Add "resistor required" to the high current output
+* Add separate power supply for LEDs section
+* Add slave light controller section
+* Add TH/Tx to output pins section (rename from Servo out)
+* Split operating section into sub-sections
+* Configurator: default to online version
+* Configurator: add typical example (make special video?)
+* Light programs: move use-case examples to the front
+* Light programs: add link to example scripts
+* Specification: make table for all variants
+
+
 # Mk4S Switching version of Mk4
 # Mk4P Pinheader version of Mk4
 
