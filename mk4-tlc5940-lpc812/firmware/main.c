@@ -134,7 +134,7 @@ static void output_channel_diagnostics(void)
             st = channel[ST].normalized;
             th = channel[TH].normalized;
 
-            fprintf(STDOUT_DEBUG, "ST: %4d  TH: %4d\n",
+            printf("ST: %4d  TH: %4d\n",
                 channel[ST].normalized, channel[TH].normalized);
         }
 
@@ -152,7 +152,7 @@ static void output_channel_diagnostics(void)
             always sees the configuration information immediately after it
             is talking to the light controller.
              */
-            fprintf(STDOUT_DEBUG, "CONFIG %d %d %d %d %d %d %d %d %d\n",
+            printf("CONFIG %d %d %d %d %d %d %d %d %d\n",
                 config.flags2.multi_aux,
                 config.flags.ch3_is_momentary, config.flags.ch3_is_two_button,
                 config.aux_type, config.aux_function,
@@ -195,10 +195,21 @@ int main(void)
         global_flags.initializing = true;
     }
 
-    HAL_hardware_init(is_servo_reader, global_flags.servo_output_enabled, global_flags.uart_output_enabled);
+    HAL_hardware_init(is_servo_reader, global_flags.servo_output_enabled);
     load_persistent_storage();
     HAL_uart_init(config.baudrate);
-    init_printf(STDOUT, HAL_putc);
+
+
+    // The printf function is only used for diagnostics, so we default to
+    // STDOUT_DEBUG for the file pointer!
+    // If the diagnostics need to be disabled, we use NULL as file pointer
+    // (which we check for in HAL_putc)
+    if (global_flags.uart_output_enabled || (is_servo_reader && global_flags.servo_output_enabled)) {
+        init_printf(NULL, HAL_putc);
+    }
+    else {
+        init_printf(STDOUT_DEBUG, HAL_putc);
+    }
 
     // Wait for 100ms to have the supply settle down before initializing the
     // rest of the system. This is especially important for the TLC5940,
@@ -219,7 +230,7 @@ int main(void)
 
     next_tick = milliseconds + __SYSTICK_IN_MS;
 
-    fprintf(STDOUT_DEBUG, "\n\n**********\nLight controller v%d sw=%d\n", config.firmware_version, global_flags.switched_outputs);
+    printf("\n\n**********\nLight controller v%d sw=%d\n", config.firmware_version, global_flags.switched_outputs);
 
     while (1) {
         global_flags.gear_changed = 0;

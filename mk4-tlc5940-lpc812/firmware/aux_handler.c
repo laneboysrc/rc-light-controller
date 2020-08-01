@@ -52,7 +52,7 @@ static void process_click_timeout(void)
         return;                     // No: wait for more buttons
     }
 
-    fprintf(STDOUT_DEBUG, "click_timeout\n");
+    printf("click_timeout\n");
 
 
     // ####################################
@@ -143,7 +143,7 @@ static void process_click_timeout(void)
 // ****************************************************************************
 static void add_click(void)
 {
-    fprintf(STDOUT_DEBUG, "click\n");
+    printf("click\n");
 
     // If the winch is running any movement of CH3 immediately turns off
     // the winch (without waiting for click timeout!)

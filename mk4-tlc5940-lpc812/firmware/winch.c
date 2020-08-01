@@ -36,25 +36,25 @@ void winch_action(uint8_t ch3_clicks)
             // 1 click: winch in
             global_flags.winch_mode = WINCH_IN;
             winch_command_repeat_counter = 0;
-            // fprintf(STDOUT_DEBUG, "Winch in\n");
+            // printf("Winch in\n");
             break;
 
         case 2:
             // 2 click: winch out
             global_flags.winch_mode = WINCH_OUT;
             winch_command_repeat_counter = 0;
-            // fprintf(STDOUT_DEBUG, "Winch out\n");
+            // printf("Winch out\n");
             break;
 
         case 5:
             // 5 click: winch enabled/disabled toggle
             if (global_flags.winch_mode == WINCH_DISABLED) {
                 global_flags.winch_mode = WINCH_IDLE;
-                // fprintf(STDOUT_DEBUG, "Winch enabled\n");
+                // printf("Winch enabled\n");
             }
             else {
                 global_flags.winch_mode = WINCH_DISABLED;
-                // fprintf(STDOUT_DEBUG, "Winch disabled\n");
+                // printf("Winch disabled\n");
             }
             winch_command_repeat_counter = 0;
             break;
@@ -77,7 +77,7 @@ bool abort_winching(void)
         global_flags.winch_mode == WINCH_OUT) {
         global_flags.winch_mode = WINCH_IDLE;
         winch_command_repeat_counter = 0;
-        // fprintf(STDOUT_DEBUG, "Winch idle\n");
+        // printf("Winch idle\n");
         return true;
     }
     return false;

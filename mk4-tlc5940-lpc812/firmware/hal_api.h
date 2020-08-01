@@ -3,7 +3,7 @@
 extern uint32_t entropy;
 extern volatile uint32_t milliseconds;
 
-void HAL_hardware_init(bool is_servo_reader, bool servo_output_enabled, bool uart_output_enabled);
+void HAL_hardware_init(bool is_servo_reader, bool servo_output_enabled);
 void HAL_hardware_init_final(void);
 
 void HAL_service(void);

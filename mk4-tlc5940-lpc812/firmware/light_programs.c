@@ -337,7 +337,7 @@ static int16_t get_parameter_value(uint32_t instruction)
             return global_flags.gear;
 
         default:
-            fprintf(STDOUT_DEBUG, "UNKNOWN PARAMETER TYPE 0x%08x\n", type);
+            printf("UNKNOWN PARAMETER TYPE 0x%08x\n", type);
             return 0;
     }
 }
@@ -597,7 +597,7 @@ static void execute_program(
                 return;
 
             default:
-                fprintf(STDOUT_DEBUG, "UNKNOWN OPCODE 0x%02x\n", opcode);
+                printf("UNKNOWN OPCODE 0x%02x\n", opcode);
                 c->PC = program + FIRST_OPCODE_OFFSET;
                 c->event = 0;
                 return;

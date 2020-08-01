@@ -548,7 +548,7 @@ static void process_car_lights(void)
 
     if (light_switch_position != old_light_switch_position) {
         old_light_switch_position = light_switch_position;
-        fprintf(STDOUT_DEBUG, "light_switch_position %d\n", light_switch_position);
+        printf("light_switch_position %d\n", light_switch_position);
     }
 
 

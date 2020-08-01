@@ -28,8 +28,6 @@ static volatile const uint32_t persistent_data[HAL_NUMBER_OF_PERSISTENT_ELEMENTS
 
 volatile uint32_t milliseconds;
 
-static bool diagnostics_on_uart;
-
 static uint8_t receive_buffer[RECEIVE_BUFFER_SIZE];
 static volatile uint16_t read_index = 0;
 static volatile uint16_t write_index = 0;
@@ -67,14 +65,14 @@ void SysTick_handler(void)
 // ****************************************************************************
 void HardFault_handler(void)
 {
-    HAL_putc(NULL, 'H');
-    HAL_putc(NULL, '\n');
+    HAL_putc(((void *) 1), 'H');
+    HAL_putc(((void *) 1), '\n');
     while (1);
 }
 
 
 // ****************************************************************************
-void HAL_hardware_init(bool is_servo_reader, bool servo_output_enabled, bool uart_output_enabled)
+void HAL_hardware_init(bool is_servo_reader, bool servo_output_enabled)
 {
 #if HAL_SYSTEM_CLOCK != 12000000
 #error Clock initialization code expexts __SYSTEM_CLOCK to be set to 1200000
@@ -144,6 +142,7 @@ void HAL_hardware_init(bool is_servo_reader, bool servo_output_enabled, bool uar
     HAL_gpio_glitch_filter(HAL_GPIO_TH);
     HAL_gpio_glitch_filter(HAL_GPIO_AUX);
     HAL_gpio_glitch_filter(HAL_GPIO_AUX2);
+    HAL_gpio_glitch_filter(HAL_GPIO_AUX3);
 
 
     // ------------------------
@@ -154,24 +153,6 @@ void HAL_hardware_init(bool is_servo_reader, bool servo_output_enabled, bool uar
     // ------------------------
     // SysTick configuration 1000 Hz / 1 ms
     SysTick_Config((HAL_SYSTEM_CLOCK / 1000)- 1);
-
-
-    // ------------------------
-    // The UART Tx can be used for diagnostics output if it is not in use.
-    // The pin is in use when HAL gets passed "uart_output_enabled==true"
-    // (UART used for pre-processor, winch or slave output), or when we
-    // have a servo reader and the servo output is enabled.
-    //
-    // Or in other words: the UART can output diagnostics on the OUT pin
-    // when it is not in use, or the UART can output diagnostics on the TH/Tx
-    // pin when we the UART reader is in use and no UART output function is
-    // configured.
-    diagnostics_on_uart = !uart_output_enabled;
-    if (is_servo_reader) {
-        if (servo_output_enabled) {
-            diagnostics_on_uart = false;
-        }
-    }
 }
 
 
@@ -339,7 +320,7 @@ void UART0_irq_handler(void)
 void HAL_putc(void *p, char c)
 {
     // Ignore diagnostics requests if disabled
-    if (!diagnostics_on_uart  &&  p == STDOUT_DEBUG) {
+    if (p == NULL) {
         return;
     }
 

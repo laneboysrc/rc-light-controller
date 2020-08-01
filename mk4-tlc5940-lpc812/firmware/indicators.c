@@ -52,7 +52,7 @@ void set_blink_off(void)
 {
     indicator_state = NOT_NEUTRAL;
     if (global_flags.blink_indicator_left || global_flags.blink_indicator_right) {
-        fprintf(STDOUT_DEBUG, "indicator off\n");
+        printf("indicator off\n");
     }
 
     global_flags.blink_indicator_left = false;
@@ -67,7 +67,7 @@ void set_blink_left(void)
     indicator_state = BLINK_LEFT;
     global_flags.blink_indicator_left = true;
     global_flags.blink_indicator_right = false;
-    fprintf(STDOUT_DEBUG, "indicator left\n");
+    printf("indicator left\n");
 }
 
 
@@ -78,7 +78,7 @@ void set_blink_right(void)
     indicator_state = BLINK_RIGHT;
     global_flags.blink_indicator_left = false;
     global_flags.blink_indicator_right = true;
-    fprintf(STDOUT_DEBUG, "indicator right\n");
+    printf("indicator right\n");
 }
 
 
@@ -87,7 +87,7 @@ void toggle_hazard_lights(void)
 {
     synchronize_blinking();
     global_flags.blink_hazard = ~global_flags.blink_hazard;
-    fprintf(STDOUT_DEBUG, "hazard %d\n", global_flags.blink_hazard);
+    printf("hazard %d\n", global_flags.blink_hazard);
 }
 
 

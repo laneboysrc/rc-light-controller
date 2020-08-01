@@ -72,6 +72,6 @@ void write_persistent_storage(void)
     error_message = HAL_persistent_storage_write(new_data);
 
     if (error_message) {
-        fprintf(STDOUT_DEBUG, "ERROR: %s failed\n", error_message);
+        printf("ERROR: %s failed\n", error_message);
     }
 }

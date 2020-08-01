@@ -77,7 +77,7 @@ void set_gear(uint8_t new_gear) {
 
     global_flags.gear = new_gear;
     global_flags.gear_change_requested = true;
-    fprintf(STDOUT_DEBUG, "gear %d\n", global_flags.gear);
+    printf("gear %d\n", global_flags.gear);
     activate_gearbox_servo();
 }
 
@@ -123,7 +123,7 @@ void gearbox_action(uint8_t ch3_clicks)
 // ****************************************************************************
 static void diag(const char *s)
 {
-    fprintf(STDOUT_DEBUG, "servo setup %s\n", s);
+    printf("servo setup %s\n", s);
 }
 
 
