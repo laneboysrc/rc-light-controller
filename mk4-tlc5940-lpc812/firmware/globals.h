@@ -546,7 +546,14 @@ typedef struct {
         // multi-aux)
         unsigned int servo_output_enabled :1;
 
-        unsigned int reserved0 : 3;
+        // If set, require one more click than usual; This implies that 1 click
+        // has no function (except abort winching!).
+        // Use-case: Traxxas TRX4 where the gearbox and light controller share
+        // one channel. Then the user can switch "slow" to change the gear,
+        // and fast (2 or more clicks) to operate the lights.
+        unsigned int require_extra_click : 1;
+
+        unsigned int reserved0 : 2;
     } flags2;
 
     // Dark phase of the indicator. The blink_counter_value from config version

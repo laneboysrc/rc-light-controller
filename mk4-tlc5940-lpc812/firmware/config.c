@@ -54,6 +54,8 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
         .servo_on_out = true,
         .uart_diagnostics_enabled = true,
         .servo_output_enabled = true,
+
+        .require_extra_click = false,
     },
 
     .auto_brake_counter_value_forward_min = (500 / __SYSTICK_IN_MS),

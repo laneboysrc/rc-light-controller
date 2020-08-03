@@ -851,6 +851,38 @@
             </div>
           </div>
 
+          <h3>Click behaviour</h3>
+          <div class="advanced_feature">
+            <div>
+              <input type=number id="ch3_multi_click_timeout">
+              <label for="ch3_multi_click_timeout">timeout in ms before a &quot;click&quot; is accepted on CH3/AUX</label>
+            </div>
+            <div>
+              In order to be able to perform multiple functions on a single
+              CH3/AUX input, a method of multiple clicks -- similar to the
+              concept used on computers -- is employed.<br>
+              The timeout value determines how quickly the light controller reacts
+              to CH3/AUX. A low value means you must switch CH3/AUX quickly, but
+              also that the reaction of the function engages quickly. a high
+              value means you must wait longer until the light controller accepts
+              the input. 300 ms works well for the LANE Boys.
+            </div>
+          </div>
+
+          <div class="advanced_feature">
+            <div>
+              <input type="checkbox" id="require_extra_click">
+              <label for="require_extra_click">Require an extra CH3/AUX click</label>
+            </div>
+            <div>
+              If enabled, the user has to input an additional click. So for more lights, the user has to enter 2-clicks (instead of 1 click), and so on.
+              1-click has no function when the checkbox is checked (except abort winching!).
+              <br>
+              Use-case: Traxxas TRX-4 where the gearbox and light controller share
+              the same channel. Then the user can switch "slow" to change the gear,
+              and fast (2 or more clicks) to operate the lights.
+            </div>
+          </div>
 
           <h3>Servo input</h3>
           <div class="advanced_feature">
@@ -901,24 +933,6 @@
               before the light controller recognizes the car as being moving.
               If the values are set too low then brake and reverse lights may
               flicker when driving at very slow speeds.
-            </div>
-          </div>
-
-          <div class="advanced_feature">
-            <div>
-              <input type=number id="ch3_multi_click_timeout">
-              <label for="ch3_multi_click_timeout">timeout in ms before a &quot;click&quot; is accepted on CH3/AUX</label>
-            </div>
-
-            <div>
-              In order to be able to perform multiple functions on a single
-              CH3/AUX input, a method of multiple clicks -- similar to the
-              concept used on computers -- is employed.<br>
-              The timeout value determines how quickly the light controller reacts
-              to CH3/AUX. A low value means you must switch CH3/AUX quickly, but
-              also that the reaction of the function engages quickly. a high
-              value means you must wait longer until the light controller accepts
-              the input. 300 ms works well for the LANE Boys.
             </div>
           </div>
 

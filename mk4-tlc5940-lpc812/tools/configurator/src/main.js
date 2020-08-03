@@ -437,6 +437,7 @@ var app = (function () {
             new_config.gearbox_light_program_control = get_flag2(0x0008);
             new_config.light_program_servo_output = get_flag2(0x0010);
             new_config.indicators_while_driving = get_flag2(0x0020);
+            new_config.require_extra_click = get_flag2(0x20000);
 
             // The GPIO assignment is set whenever uart_tx_on_out (bit 9)
             // is set
@@ -1032,6 +1033,7 @@ var app = (function () {
         el.gearbox_light_program_control.checked = Boolean(config.gearbox_light_program_control);
         el.light_program_servo_output.checked = Boolean(config.light_program_servo_output);
         el.indicators_while_driving.checked = Boolean(config.indicators_while_driving);
+        el.require_extra_click.checked = Boolean(config.require_extra_click);
 
         // CH3/AUX type
         el.ch3[0].checked = true;
@@ -1406,7 +1408,7 @@ var app = (function () {
             flags2 |= (config.gearbox_light_program_control << 3);
             flags2 |= (config.light_program_servo_output << 4);
             flags2 |= (config.indicators_while_driving << 5);
-
+            flags2 |= (config.require_extra_click << 13);
 
             // Convenience flags for the output configuration
             let servo_enabled = false;
@@ -1888,6 +1890,7 @@ var app = (function () {
             config.light_program_servo_output = false;
             config.indicators_while_driving = false;
             config.winch_output = false;
+            config.require_extra_click = false;
         } else {
             update_boolean('preprocessor_output');
             update_boolean('slave_output');
@@ -1896,6 +1899,7 @@ var app = (function () {
             update_boolean('gearbox_light_program_control');
             update_boolean('light_program_servo_output');
             update_boolean('indicators_while_driving');
+            update_boolean('require_extra_click');
             if (el.preprocessor_output.checked || el.slave_output.checked) {
                 config.winch_output = Boolean(el.winch_enable.checked);
             }
@@ -2566,6 +2570,7 @@ var app = (function () {
             'light_program_servo_output', 'indicators_while_driving',
             'gearbox_light_program_control',
             'assign_uart_to_out', 'assign_servo_to_out',
+            'require_extra_click',
 
             'leds_clear',
 

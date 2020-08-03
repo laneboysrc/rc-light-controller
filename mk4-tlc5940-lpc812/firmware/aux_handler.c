@@ -54,6 +54,14 @@ static void process_click_timeout(void)
 
     printf("click_timeout\n");
 
+    // If require_extra_click is set, require one more click than usual.
+    // This implies that 1 click has no function (except abort winching!).
+    // Use-case: Traxxas TRX4 where the gearbox and light controller share
+    // one channel. Then the user can switch "slow" to change the gear,
+    // and fast (2 or more clicks) to operate the lights.
+    if (config.flags2.require_extra_click) {
+        --clicks;
+    }
 
     // ####################################
     // At this point we have detected one of more clicks and need to
