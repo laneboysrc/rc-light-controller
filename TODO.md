@@ -20,6 +20,13 @@
 * Light programs: add link to example scripts
 * Specification: make table for all variants
 
+# Light programs
+
+Implement a SKIP IF NOT function for reasier human reasoning.
+This can be done in the assembler by inverting the expression.
+No new command needed in the firmware.
+Call the new function just IF
+
 
 # Mk4S Switching version of Mk4
 # Mk4P Pinheader version of Mk4
