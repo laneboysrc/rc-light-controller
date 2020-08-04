@@ -1,4 +1,4 @@
-// Manual indicators on an analog stick on AUX2
+// Manual indicators on an analog stick on AUX2, with ST hold
 //
 // This light program implements indicators that are controlled
 // by an analog stick (e.g. left horizonal gimbal on a transmitter) that
@@ -7,6 +7,12 @@
 // The indicators blink as long as the stick is held in the direction.
 // When the stick is released they continue to blink for a certain
 // amount of time.
+//
+// The indicators keep blinking in the same direction if the steering input
+// is held in the same direction. So you can start the indicator by tapping
+// AUX2, keep driving the corner using the steering wheel, and the indicators
+// will only stop after you returned the steering to neutral (or the opposite
+// direction)
 //
 // Note that we also have to manually implement the hazard lights since
 // we are taking over the indicator LEDs.
@@ -95,22 +101,32 @@ lights-off:
     goto loop
 
 indicator-left:
+    // If the stick is held left continue blinking left regardless what
+    // the steering wheel does
+    skip if stick-position > STICK_LEFT_OFF
+    goto blink-left
+
     // If the stick has been moved to the far-right then turn the indicators
-    // off immediately
+    // off immediately, regardless what the steering wheel does
     skip if stick-position < STICK_RIGHT_ON
     goto turn-indicator-off
-    skip if steering-position < STICK_RIGHT_ON
-    goto turn-indicator-off
+
+    // If we reach here the stick has been moved to the center
 
     // If the steering is held left, then continue blinking
     skip if steering-position > STICK_LEFT_OFF
     goto blink-left
 
+    // If the stick has been moved to the far-right then turn the indicators
+    // off immediately,
+    skip if steering-position < STICK_RIGHT_ON
+    goto turn-indicator-off
+
     // If the stick has been moved to the center continue flashing
     // the indicators for a certain time
-    skip if stick-position < STICK_LEFT_OFF
-    goto left-indicator-delay
-    goto blink-left
+
+    // goto left-indicator-delay
+    // fall through
 
 left-indicator-delay:
     state = IND_LEFT_DELAY
@@ -122,22 +138,32 @@ turn-indicator-off:
     goto lights-off
 
 indicator-right:
-    // If the stick has been moved to the far-leften turn the indicators
-    // off immediately
+    // If the stick is held right continue blinking left regardless what
+    // the steering wheel does
+    skip if stick-position < STICK_RIGHT_OFF
+    goto blink-right
+
+    // If the stick has been moved to the far-left then turn the indicators
+    // off immediately, regardless what the steering wheel does
     skip if stick-position > STICK_LEFT_ON
     goto turn-indicator-off
-    skip if steering-position > STICK_LEFT_ON
-    goto turn-indicator-off
+
+    // If we reach here the stick has been moved to the center
 
     // If the steering is held right, then continue blinking
     skip if steering-position < STICK_RIGHT_OFF
-    goto blink-left
+    goto blink-right
+
+    // If the stick has been moved to the far-left then turn the indicators
+    // off immediately,
+    skip if steering-position > STICK_LEFT_ON
+    goto turn-indicator-off
 
     // If the stick has been moved to the center continue flashing
     // the indicators for a certain time
-    skip if stick-position > STICK_RIGHT_OFF
-    goto right-indicator-delay
-    goto blink-right
+
+    // goto left-indicator-delay
+    // fall through
 
 right-indicator-delay:
     state = IND_RIGHT_DELAY
