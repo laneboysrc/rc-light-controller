@@ -176,6 +176,12 @@ indicator-left-delay:
     skip if stick-position < STICK_RIGHT_ON
     goto turn-indicator-off
 
+    // If steering is held left (again) then continue blinking
+    skip if stick-position > STICK_LEFT_OFF
+    state = IND_LEFT
+    skip if steering-position > STICK_LEFT_OFF
+    state = IND_LEFT
+
     // Decrement the timeout (this code runs every 20 ms), if the
     // timeout has expired turn the indicator off
     timeout -= 20
@@ -188,6 +194,12 @@ indicator-right-delay:
     // off immediately
     skip if stick-position > STICK_LEFT_ON
     goto turn-indicator-off
+
+    // If steering is held right (again) then continue blinking
+    skip if stick-position < STICK_RIGHT_OFF
+    state = IND_RIGHT
+    skip if steering-position < STICK_RIGHT_OFF
+    state = IND_RIGHT
 
     // Decrement the timeout (this code runs every 20 ms), if the
     // timeout has expired turn the indicator off
