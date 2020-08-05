@@ -23,10 +23,10 @@
 
 # Light programs
 
-Implement a SKIP IF NOT function for reasier human reasoning.
-This can be done in the assembler by inverting the expression.
-No new command needed in the firmware.
-Call the new function just IF
+DONE Implement a SKIP IF NOT function for reasier human reasoning.
+    This can be done in the assembler by inverting the expression.
+    No new command needed in the firmware.
+    Call the new function just IF
 
 
 # Configurator

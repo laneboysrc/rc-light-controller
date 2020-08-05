@@ -1,0 +1,14 @@
+run always
+
+led x = led[7]
+led l = led[2]
+
+    if x == l
+    if x != l
+    if x > l
+    if x < l
+    if x >= l
+    if x <= l
+    sleep 1
+
+    end

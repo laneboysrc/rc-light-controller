@@ -1,0 +1,15 @@
+run always
+
+led x = led[9]
+var y
+global var z
+
+    if x == y
+    if x != y
+    if x > y
+    if x < z
+    if x >= z
+    if x <= z
+    sleep 1
+
+    end

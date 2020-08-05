@@ -1,0 +1,6 @@
+run always
+
+    if not hazard
+    sleep 1
+
+    end

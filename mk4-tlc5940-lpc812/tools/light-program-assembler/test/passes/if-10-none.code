@@ -1,0 +1,6 @@
+run always
+
+    if none hazard indicator-left indicator-right
+    sleep 1
+
+    end

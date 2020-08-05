@@ -137,6 +137,21 @@ var symbols = (function () {
         '<=': {'token': 'LE', 'opcode': 0x30000000},
     };
 
+    // Helper table to convert "if <test>" to the corresponding "skip if <test>"
+    // function.
+    var if_expressions = {
+        '>': '<=',
+        '<': '>=',
+        '==': '!=',
+        '!=': '==',
+        '>=': '<',
+        '<=': '>',
+        'any': 'none',
+        'none': 'any',
+        'is': 'not',
+        'not': 'is',
+    }
+
     var MODULE = 'SYMBOL';
 
 
@@ -338,6 +353,16 @@ var symbols = (function () {
 
 
     // *************************************************************************
+    var get_if_expression = function (name) {
+        if (if_expressions[name]) {
+            return get_reserved_word(if_expressions[name]);
+        }
+
+        parser.yy.logger.log(MODULE, 'FATAL', 'ASSERT: IF test expression ' + name + ' is not supported');
+    };
+
+
+    // *************************************************************************
     var get_leds_used = function () {
         return leds_used;
     };
@@ -415,6 +440,7 @@ var symbols = (function () {
         get_symbol: get_symbol,
         set_symbol: set_symbol,
         get_reserved_word: get_reserved_word,
+        get_if_expression: get_if_expression,
         get_number_of_light_switch_positions: get_number_of_light_switch_positions,
         add_to_leds_used: add_to_leds_used,
         set_leds_used: set_leds_used,

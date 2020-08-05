@@ -200,12 +200,14 @@ command
       }
   | SLEEP parameter
       { yy.emitter.emit(yy.symbols.get_reserved_word($1).opcode + $2, @1); }
-  | SKIP IF test_expression
+  | SKIP IF skip_if_expression
       { yy.emitter.emit($3, @1); }
+  | IF if_expression
+      { yy.emitter.emit($2, @1); }
   | expression
   ;
 
-test_expression
+skip_if_expression
   : VARIABLE test_operator parameter
       { $$ = yy.symbols.get_reserved_word($2).opcode +
           (yy.symbols.get_symbol($1).opcode * 65536) + $3;
@@ -232,6 +234,35 @@ test_expression
       }
   | NOT CAR_STATE
       { $$ = yy.symbols.get_reserved_word($1).opcode +
+          yy.symbols.get_symbol($2, "EXPECTING_CAR_STATE").opcode;
+      }
+  ;
+
+if_expression
+  : VARIABLE test_operator parameter
+      { $$ = yy.symbols.get_if_expression($2).opcode +
+          (yy.symbols.get_symbol($1).opcode * 65536) + $3;
+      }
+  | GLOBAL_VARIABLE test_operator parameter
+      { $$ = yy.symbols.get_if_expression($2).opcode +
+          (yy.symbols.get_symbol($1).opcode * 65536) + $3;
+      }
+  | LED_ID test_operator parameter
+      /* All LED relates tests have 0x02 set in the opcode */
+      { $$ = yy.symbols.get_if_expression($2).opcode +
+          INSTRUCTION_MODIFIER_LED +
+          (yy.symbols.get_symbol($1).opcode * 65536) + $3;
+      }
+  | ANY car_state_list
+      { $$ = yy.symbols.get_if_expression($1).opcode + $2; }
+  | NONE car_state_list
+      { $$ = yy.symbols.get_if_expression($1).opcode + $2; }
+  | IS CAR_STATE
+      { $$ = yy.symbols.get_if_expression($1).opcode +
+          yy.symbols.get_symbol($2, "EXPECTING_CAR_STATE").opcode;
+      }
+  | NOT CAR_STATE
+      { $$ = yy.symbols.get_if_expression($1).opcode +
           yy.symbols.get_symbol($2, "EXPECTING_CAR_STATE").opcode;
       }
   ;

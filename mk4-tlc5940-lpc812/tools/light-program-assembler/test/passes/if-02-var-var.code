@@ -1,0 +1,16 @@
+run always
+
+var x
+var y
+global var a
+global var b
+
+    if x == y
+    if x != y
+    if x > a
+    if a < y
+    if a >= b
+    if x <= y
+    sleep 1
+
+    end
