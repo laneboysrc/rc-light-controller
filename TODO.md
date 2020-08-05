@@ -31,7 +31,7 @@ DONE Implement a SKIP IF NOT function for reasier human reasoning.
 
 # Configurator
 
-Add light program size
+DONE Show light program size in bytes
 
 
 # Mk4S Switching version of Mk4

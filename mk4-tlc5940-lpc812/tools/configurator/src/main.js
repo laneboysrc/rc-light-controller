@@ -1209,6 +1209,9 @@ var app = (function () {
 
         try {
             var machine_code = parser.parse(light_programs);
+            var code_size = (25 + machine_code.instructions.length) * 4;
+            el.light_programs_size.textContent = "Code size: " + code_size + " Bytes";
+            el.light_programs_size.classList.remove('hidden');
             el.light_programs_ok.classList.remove('hidden');
             return machine_code;
         } catch (e) {
@@ -2575,7 +2578,7 @@ var app = (function () {
             'leds_clear',
 
             'config_light_programs', 'light_programs', 'light_programs_errors',
-            'light_programs_assembler', 'light_programs_ok',
+            'light_programs_assembler', 'light_programs_ok', 'light_programs_size',
 
             'config_advanced',
 
