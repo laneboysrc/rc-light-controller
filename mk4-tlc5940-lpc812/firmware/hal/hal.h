@@ -108,7 +108,7 @@ static const HAL_GPIO_T HAL_GPIO_BLANK = { .pin = 6 };
 // GPIOs for Mk4S
 static const HAL_GPIO_T HAL_GPIO_HARDWARE_CONFIG = { .pin = 14 };
 static const HAL_GPIO_T HAL_GPIO_OUT0 = { .pin = 17 };
-static const HAL_GPIO_T HAL_GPIO_OUT1 = { .pin = 6 };
+static const HAL_GPIO_T HAL_GPIO_OUT1 = { .pin = 3 };
 static const HAL_GPIO_T HAL_GPIO_OUT2 = { .pin = 2 };
 static const HAL_GPIO_T HAL_GPIO_OUT3 = { .pin = 16 };
 static const HAL_GPIO_T HAL_GPIO_OUT4 = { .pin = 7 };

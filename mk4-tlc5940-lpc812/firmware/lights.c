@@ -194,22 +194,30 @@ void init_gpio_lights(void) {
 // ****************************************************************************
 void init_lights(void)
 {
-    HAL_gpio_set(HAL_GPIO_BLANK);
-    HAL_gpio_clear(HAL_GPIO_GSCLK);
+    if (!global_flags.switched_outputs) {
+        HAL_gpio_set(HAL_GPIO_BLANK);
+        HAL_gpio_clear(HAL_GPIO_GSCLK);
 
-    HAL_gpio_out_mask(
-            (1 << HAL_GPIO_BLANK.pin) |
-            (1 << HAL_GPIO_GSCLK.pin));
+        HAL_gpio_out_mask(
+                (1 << HAL_GPIO_BLANK.pin) |
+                (1 << HAL_GPIO_GSCLK.pin));
 
-    HAL_spi_init();
+        HAL_spi_init();
+    }
 
     output_lights();
 
-    HAL_gpio_clear(HAL_GPIO_BLANK);
+    if (!global_flags.switched_outputs) {
+        HAL_gpio_clear(HAL_GPIO_BLANK);
+    }
+
     // Do this short function in-between clearing BLANK and setting GSCLK to
     // surely meet the setup time requirement of the TLC5940
     init_light_programs();
-    HAL_gpio_set(HAL_GPIO_GSCLK);
+
+    if (!global_flags.switched_outputs) {
+        HAL_gpio_set(HAL_GPIO_GSCLK);
+    }
 
     light_switch_position = config.initial_light_switch_position;
 }
