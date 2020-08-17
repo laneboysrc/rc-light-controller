@@ -1,6 +1,5 @@
 # Firmware
 
-* Slave: turn off shelf queen mode
 * Can we fix codemirror UTF-8 issues (e.g. umlauts don't work in config.txt)
 
 # GIT Cleanup

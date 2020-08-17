@@ -1894,6 +1894,7 @@ var app = (function () {
             config.indicators_while_driving = false;
             config.winch_output = false;
             config.require_extra_click = false;
+            config.shelf_queen_mode = false;
         } else {
             update_boolean('preprocessor_output');
             update_boolean('slave_output');
@@ -1909,6 +1910,7 @@ var app = (function () {
             else {
                 update_boolean('winch_output');
             }
+            update_boolean('shelf_queen_mode');
         }
 
         // CH3/AUX type
@@ -1966,7 +1968,6 @@ var app = (function () {
 
         update_time('blink_counter_value_dark');
         update_boolean('us_style_combined_lights');
-        update_boolean('shelf_queen_mode');
 
         update_int('aux_type');
         update_int('aux_function');
