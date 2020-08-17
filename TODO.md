@@ -1,3 +1,12 @@
+# Firmware
+
+* Fix SLAVE not working
+
+
+# GIT Cleanup
+
+* Move Mk1..Mk3 to a separate "legacy" branch
+
 
 # Documentation
 
