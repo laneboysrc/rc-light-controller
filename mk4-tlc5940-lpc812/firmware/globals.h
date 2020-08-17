@@ -5,8 +5,8 @@
 #include <stdbool.h>
 
 
-#define STDOUT ((void *) 0)
-#define STDOUT_DEBUG ((void *) 1)
+#define STDOUT ((void *) 1)
+#define STDOUT_DEBUG ((void *) 2)
 
 
 #define CONFIG_VERSION 2

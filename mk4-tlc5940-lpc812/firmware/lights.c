@@ -646,10 +646,10 @@ static void process_car_lights(void)
 
     output_lights();
     if (config.flags.slave_output) {
-        HAL_putc(NULL, SLAVE_MAGIC_BYTE);
+        HAL_putc(STDOUT, SLAVE_MAGIC_BYTE);
 
         for (i = 0; i < slave_leds.led_count ; i++) {
-            HAL_putc(NULL, gamma_table.gamma_table[light_actual[16 + i]] >> 2);
+            HAL_putc(STDOUT, gamma_table.gamma_table[light_actual[16 + i]] >> 2);
         }
     }
 }
