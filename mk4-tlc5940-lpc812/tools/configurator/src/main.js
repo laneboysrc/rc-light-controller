@@ -1589,7 +1589,8 @@ var app = (function () {
             let contentsString = String.fromCharCode.apply(null, new Uint8Array(contents));
 
             if (contentsString.match(json)) {
-                load_configuration_from_disk(contentsString);
+                var decoder = new TextDecoder("utf-8");
+                load_configuration_from_disk(decoder.decode(contents));
             }
             else if (contentsString.match(intelHex)) {
                 contents = hex_to_bin(contentsString);
