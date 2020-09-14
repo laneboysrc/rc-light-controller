@@ -33,6 +33,8 @@ DONE Implement a SKIP IF NOT function for reasier human reasoning.
     No new command needed in the firmware.
     Call the new function just IF
 
+DONE Document that some variables can not be used in *skip if*
+
 
 # Configurator
 
