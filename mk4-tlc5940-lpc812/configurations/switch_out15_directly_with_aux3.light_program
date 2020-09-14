@@ -1,0 +1,30 @@
+// Switch on the light bar (connected to OUT15S) with AUX3, independent
+// of the virtual light switch
+run always
+
+var aux_position
+led light_bar = led[15]
+
+loop_off:
+    // Turn the light bar off
+    light_bar = 0%
+    // Be friendly and wait for a short time, so that other light controller
+    // functions also get their turn
+    sleep 20
+    // Read the AUX3 value into a variable as the "skip if" instruction
+    // can not directly access AUX3
+    aux_position = aux3
+    // Like all other servo values, AUX3 goes from -100..0..+100. If the AUX3
+    // value goes above +30 we consider the switch turned on.
+    skip if aux_position > 30
+    goto loop_off
+
+loop_on:
+    light_bar = 100%
+    sleep 20
+    aux_position = aux3
+    // If the AUX3 value goes below 0 we consider the switch turned off.
+    skip if aux_position < 0
+    goto loop_on
+    goto loop_off
+end

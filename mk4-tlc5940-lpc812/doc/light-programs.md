@@ -1,32 +1,14 @@
 # Light programs
 
-Light programs are simple scripts that allow end-users to build custom light sequences that go beyond the fixed car related functions built into the MK4 TLC5940 LPC812 light controller.
+Light programs are simple scripts that allow end-users to build custom light sequences that go beyond the fixed car related functions built into the Mk4 Light Controller.
 
 Light programs can be triggered when the light controller goes into certain states of operation. For example, a light program can be written to flash a 3rd brake light whenever the brakes are enganged.
 
-Light programs are entered into the corresponding edit field in the light controller *configurator.html*.
+Light programs are entered into the corresponding edit field in the light controller [Configurator](https://laneboysrc.github.io/rc-light-controller/).
 
 A total number of 20 light programs can exist at a certain time.
 
-All light programs comprise of the following structure
-
-    run conditions
-
-    constants, variable and led declerations
-
-    statements (= the actual code)
-
-    end
-
-These constructs are described below in further detail.
-
-> **Important**
->
-> Every light program **must** end with an ``end`` statement. A new-line
-> must be present after the ``end`` statement.
-
-
-Here is an example of a light program:
+Here is a simple light program example:
 
     // ----------------------------------------------------------------------
     // Light up the main beam lights while the light controller is
@@ -51,8 +33,6 @@ Here is an example of a light program:
 
     end
 
-Light programs are line-based, meaning a single statement or decleration must be on the same source code line.
-
 Everything from ``//`` until the end of the line is considered as comment.
 
 The ``run when`` line describes the condition that the light controller must be in for the program to run. In this case the light program runs when the light controller is starting up (i.e. waiting a short time until power up until it reads the center points for steering and throttle channels).
@@ -68,16 +48,38 @@ The ``loop:`` statement defines a label that can be used to jump to from a ``got
 Then all LEDs are switched off, after which led[2] and led[3] are specifically set to fully on (100% brightness).
 
 The light program pauses then for one 20 ms period (``sleep 0``), which causes the LED values we assigned to be actually executed and other light controller functions to run.
-Without the sleep statement the light program would run for 50 internal instructions before being forcefully paused, which is unnecessary. After the 20 ms are over the ``goto`` statement is executed and the light program continues from the begin.
+Without the sleep statement the light program would run for 50 internal instructions before being forcefully paused, which is unnecessary. After the 20 ms are over, the ``goto`` statement is executed and the light program continues from the begin.
 
 The following sections explain all elements of the light program language in detail.
 
 
-## Comments and line continuation
+## Light program structure
+
+Light programs are **line-based**, meaning a single statement or decleration must be on the same source code line.
+
+All light programs comprise of the following structure
+
+    run conditions
+
+    constants, variable and led declerations
+
+    statements (= the actual code)
+
+    end
+
+These elements are described below in further detail.
+
+> **Important!**
+>
+> * Every light program **must** end with an ``end`` statement.
+> * A new-line must be present after the ``end`` statement.
+
+
+## Comments
 
 Everything behind ``//`` or ``;`` until the end of the line is considered a *comment*.
 
-Comments are useful for describing what the light program does. The comments are not stored into the light controller itself, but can be saved in the *configurator.html* through saving the current configuration.
+Comments are useful for describing what the light program does. The comments are not stored into the light controller itself, but can be saved in the *Configurator* through saving the configuration.
 
 Here is a valid light program showing various forms of comments:
 
@@ -104,9 +106,12 @@ Here is a valid light program showing various forms of comments:
 
         end
 
-While light programs are line-based, if the last character on a line is ``\`` the statement is assumed to be continued on the following line. This can be useful to prevent excessively long lines.
 
-The following shows a valid light program, but it is certainly not advisable to write like this:
+## Line continuation
+
+While light programs are line-based, if the last character on a line is ``\`` the statement is assumed to be continued on the following line. This can be useful to prevent excessively long lines in source code, making it more readable.
+
+The following shows a valid light program, but it is certainly _not advisable_ to write like this:
 
     run \
        when\
@@ -136,14 +141,14 @@ Light programs can assign human readable names to constants, variables, LEDs and
 
 Identifiers must start with a character ``a..z`` or ``A..Z`` and continue with a number of alphanumeric characters, ``-`` or ``_``. Identifiers are case sensitive.
 
-### Examples of valid identifiers
+**Examples of valid identifiers**
 
     testvariable
     var_with_underscore
     name-with-dash
     ThisOneHas1Number
 
-### Examples of invalid identifiers
+**Examples of invalid identifiers**
 
     3test       // does not start with a..zA..Z
     name&value  // & not allowed in identifiers
@@ -189,27 +194,27 @@ The syntax is as follows:
 
 ### Priority run conditions and events
 
-- no-signal
+- **no-signal**
 
-    The light program runs when the light controller does not receive a valid servo input signal.
+    The light program runs when the light controller does not receive a valid servo input signal on at least one of the input channels.
 
-- initializing
+- **initializing**
 
     The light program runs after startup while the light controller waits before reading center points of steering and throttle channels.
 
-- servo-output-setup-centre, servo-output-setup-left, servo-output-setup-right
+- **servo-output-setup-centre, servo-output-setup-left, servo-output-setup-right**
 
-    The light program runs when the respective setup function for the steering wheel servo or gearbox servo is triggered. Performing eight CH3-clicks starts servo setup. These run conditions can be used to drive the lights in a unique manner to guide the user through the servo setup.
+    The light program runs when the respective setup function for the steering wheel servo or gearbox servo is triggered. Performing **eight CH3-clicks** starts servo setup. These run conditions can be used to drive the lights in a unique manner to guide the user through the servo setup.
 
-- reversing-setup-steering, reversing-setup-throttle
+- **reversing-setup-steering, reversing-setup-throttle**
 
-    The light program runs when the servo reversing for the steering/throttle channel is engaged. Performing seven CH3-clicks starts steering and throttle reversing. These run conditions can be used to guide the user through the setup process.
+    The light program runs when the servo reversing for the steering/throttle channel is engaged. Performing **seven CH3-clicks** starts steering and throttle reversing. These run conditions can be used to guide the user through the setup process.
 
-- gear-changed
+- **gear-changed**
 
     This event fires whenever the gear is changed. It only applies when the light controller is configured to drive a 2-speed or 3-speed gearbox using a servo connected to the OUT/ISP ouptut. The run condition can be used to perform a short light animation, indicating to the user that the gear change occured.
 
-- shelf-queen-mode (firmware version 20 and later)
+- **shelf-queen-mode** (firmware version 20 and later)
 
     The light program runs when shelf queen mode has activated. Shelf queen
     mode is engaged when there is no receiver signal for more than 5 seconds. It simulates driving behaviour: turning lights on an off, braking, reversing, indicator and hazard usage.
@@ -217,32 +222,32 @@ The syntax is as follows:
 
 ### Run conditions
 
-- light-switch-position-0 .. light-switch-position-8
+- **light-switch-position-0 .. light-switch-position-8**
 
     The light program runs when the virtual light switch, which is incremented by one CH3-click and decremented by two CH3-clicks, is in the given postion.
 
-- neutral, forward, reversing, braking
+- **neutral, forward, reversing, braking**
 
     The light program runs when the throttle is in neutral, the car is driving forward, reversing, or is braking. Neutral, forward and reversing are mutually exclusive. Braking may be active when in parallel with the other states.
     The exact behaviour of these conditions depends on the ESC configuration of the light controller. For example, if the ESC type is configured as Forward/Brake only, then a light program with the condition``run when reversing`` will never execute.
 
-- indicator-left, indicator-right
+- **indicator-left, indicator-right**
 
     The light program runs when the left/right indicator (turn signal) is active. The indicators are engaged by having throttle and steering in neutral for one second, and then moving the steering either left or right.
 
-- hazard
+- **hazard**
 
     The light program runs when the hazard lights are active. The hazard lights can be toggled on/off with four CH3-clicks.
 
-- blink-flag
+- **blink-flag**
 
     The light program runs during the bright period of the blink timer used for indicators and hazard lights. By default the blink frequency is 1.5 Hz (320 ms half-period during which the blink-flag is set).
 
-- blink-left, blink-right
+- **blink-left, blink-right**
 
     The light program runs during the bright period of the respective left or right indicator light.
 
-- winch-disabled, winch-idle, winch-in, winch-out
+- **winch-disabled, winch-idle, winch-in, winch-out**
 
     The light program runs during the respective winch state. This applies if the light controller is configured to drive the [LANE Boys RC winch controller](https://github.com/laneboysrc/rc-winch-controller).
     The winch states are mutually exclusive.
@@ -282,6 +287,7 @@ The constants can then be used in the light program:
 
         end
 
+
 ## Declerations
 
 The decleration section defines the LEDs and variables used by the light program and assigns human readable names to them.
@@ -290,7 +296,7 @@ Variable and LED declerations can appear in any order in the decleration section
 
 ### Variable declerations
 
-Variables are storage locations that hold numeric values. In total all light programs can utilize up to 100 variables.
+Variables are storage locations that hold numeric values. In total all light programs together can utilize a total of 100 variables.
 
 Variables have a data type of *signed 16-bit integer*. This means that the range of numbers that can be stored is *-32768* to *32767*.
 
@@ -323,27 +329,27 @@ Light program 1 and 3 declare another global variable ``VARIABLE3``. Light progr
 
 There a few global variables predefined for all light programs:
 
-- clicks
+- **clicks**
 
     This variable is incremented every time six CH3-clicks are performed. Useful to control different sequences in a light program.
 
-- light-switch-position
+- **light-switch-position**
 
     This variable reflects the current position of the virtual light switch. It can be modified by light programs to turn the light switch to a specific position as well.
 
-- gear
+- **gear**
 
     If the configuration has the control of a gearbox servo enabled, this variable reflects the current gear. The light program can also change to a new gear. If an invalid
     gear number is assigned then the assignment is ignored and reverted back to the
     current gear once the light program execution yields.
 
-- servo
+- **servo**
 
     If Light Program Servo Control is enabled in the configuration, this variable
     can be used to read and set the current servo location in the range of -100
     (left endpoint) .. 0 (center) .. +100 (right endpoint). Values set outside
     this range are clamped to -100 or +100. Note that the endpoints and center
-    position can be adjusted in the light controller by performing 8 clicks.
+    position can be adjusted in the light controller by performing **eight CH3-clicks**.
     Refer to the light controller user manual for details.
 
 
@@ -381,9 +387,9 @@ A priority scheme has been implemented to clearly define which function has cont
 
     Normal car functions    (lowest priority)
 
-Light programs that have an event as run condition have the highest priority. Then follow light programs with priority run conditions. After that light programs with ordinary run conditions. If the LED is still available after this the normal car function assigned to it in the *configurator.html* is performed.
+Light programs that have an event as run condition have the highest priority. Then follow light programs with priority run conditions. After that light programs with ordinary run conditions. If the LED is still available after this the normal car function assigned to it in the *Configurator* is performed.
 
-Within the same priority group, the first light program specified in the light program source code gets access to the LED.
+Within the same priority group, the first active light program specified in the light program source code gets access to the LED.
 
 When a light program is active but one or more LED have been used already by another light program of higher priority, the light program will still continue to run but any setting of LED values and fade times will not be carried out.
 
@@ -419,7 +425,7 @@ Most statements support a variety of different arguments:
     x = servo       // Current servo position -100..0..+100,
                     //   only useful if light program servo control is enabled
 
-Note: aux, aux2 and aux3 are only available in firmware versions greater than 20, and only when a multi-aux-channel preprocessor hardware is used.s
+Note: aux, aux2 and aux3 are only available in firmware versions greater than 20, and only when a 5-channel Pre-Processor hardware is used.
 
 
 ### Assignments
@@ -486,7 +492,7 @@ The assigment operations for LEDs is limited: only immediate values or values st
 The brightness values are specified using values between 0 (LED is off) and 100 (LED is driven at the maximum current of 20 mA). For intermediate values, gamma correction is applied to adjust for the non-linearity of the human eye. The correction is done in a way that 50% is roughly half the perceived brightness of 100%.
 The gamma correction factor can be adjusted in the advanced configuration of the light controller.
 
-Beside specifying LEDs individually, the shortcut ``all leds`` allows assigning values to all declared LEDs.
+Beside specifying LEDs individually, the shortcut ``all leds`` allows assigning values to all *declared* LEDs.
 
     led LED1a = led[8]
     led LED1b = led[9]
@@ -511,7 +517,7 @@ If ``use all led`` is declared, then the ``all leds`` shortcut affects all LEDs 
 
 Labels are identifiers that mark locations in the light program that can be jumped to with the ``goto`` statement.
 
-Labels must appear on their own line. They do not perform any activity, nor do they consume memory. Labels comprise of an identifier followed by a ``:``.
+Labels must appear on their own line. They do not perform any activity, nor do they consume memory. Labels comprise of an identifier followed by a ``:`` (colon).
 
 Example:
 
@@ -612,9 +618,9 @@ Any valid light program statement can follow a ``skip if`` instruction.
 
     led l = led[7]
 
-        // Turn the LED off if throttle is below 80%, otherwise on
+        // Turn the LED off if pre-defined variable clicks is below 3, otherwise on
         l = 0
-        skip if throttle < 80
+        skip if clicks < 3
         l = 100
 
 However, care has to be taken with assignments to multiple LEDs:
@@ -623,9 +629,9 @@ However, care has to be taken with assignments to multiple LEDs:
     led l2 = led[8]
     led l3 = led[9]
 
-        // Turn the LED off if throttle is below 80%, otherwise on
+        // Turn the LED off if pre-defined variable clicks is below 3, otherwise on
         l1, l2, l3 = 0
-        skip if throttle < 80
+        skip if clicks < 3
         l1, l2, l3 = 100
 
 This will work fine as the LED assignment works on consecutive LEDs, which can be encoded in a single machine operation. However, if another user would modify this light program to use different, non-consecutive LEDs, thing go wrong:
@@ -634,9 +640,9 @@ This will work fine as the LED assignment works on consecutive LEDs, which can b
     led l2 = led[8]
     led l3 = led[9]
 
-        // Turn the LED off if throttle is below 80%, otherwise on
+        // Turn the LED off if pre-defined variable clicks is below 3, otherwise on
         l1, l2, l3 = 0
-        skip if throttle < 80
+        skip if clicks < 3
         l1, l2, l3 = 100        // This is no longer a single operation!
 
 The light program assembler translates this into the following statements:
@@ -645,18 +651,62 @@ The light program assembler translates this into the following statements:
     led l2 = led[8]
     led l3 = led[9]
 
-        // Turn the LED off if throttle is below 80%, otherwise on
+        // Turn the LED off if pre-defined variable clicks is below 3, otherwise on
         l1 = 0
         l2, l3 = 0
-        skip if throttle < 80
+        skip if clicks < 3
         l1 = 100
         l2, l3 = 100
 
-The behaviour would be incorrect as l2 and l3 will be always on and only l1 will be on when the throttle is greater or equal to 80.
+The behaviour would be incorrect as l2 and l3 will be always on and only l1 will be on when *clicks* is greater or equal to 3.
 The light program assembler will therefore generate an error message if multiple LEDs are assigned after a ``skip if`` statement.
 
 Note that this also applies to the ``all leds`` shortcut.
 
+#### Testing variables and LEDs
+
+The test condition of a ``skip if`` statement can use immediate values, variables, constants, or LEDs.
+
+All of the following are valid ``skip if`` statements:
+
+    var x
+    global var y
+    led light = led[7]
+    led light2 = led[2]
+
+        skip if x == 1
+        skip if y < 4
+        skip if clicks < 4      // Pre-defined variable *clicks*
+        skip if x != y
+        skip if x == light
+        skip if light > 50
+        skip if light2 < light
+
+Note that the left operand of the comparison is restricted to variables (both local and global) and LEDs.
+This means that the following are **not valid statements**:
+
+    var x
+    global var y
+    led light = led[7]
+    led light2 = led[2]
+
+        skip if 1 == x          // Left operand is *immediate*
+        skip if steering < 4    // Left operand is special item *steering*
+        skip if throttle > 80   // Left operand is special item *throttle*
+        skip if aux > 0         // Left operand is special item *aux*
+        skip if aux2 < -50      // Left operand is special item *aux2*
+        skip if aux3 > 20       // Left operand is special item *aux3*
+
+To work around this limitation, assign the item to a variable:
+
+    var switch
+
+        switch = aux            // Assign AUX value to variable
+        skip if switch > 50     // Now we can compare the value of AUX!
+        goto switch_is_on
+
+
+#### Testing *car state*
 
 The second form of the ``skip if`` statement allows to change program behaviour based on the *car state*.
 
@@ -670,54 +720,102 @@ The second form of the ``skip if`` statement allows to change program behaviour 
     skip if any hazard indicator-left indicator-right
     sleep 1
 
-    // skip if all specified car states is true
+    // skip if all specified car states are true
     skip if all hazard indicator-left indicator-right
     sleep 1
 
-    // skip if all of the specified car states is true (i.e. all are false)
+    // skip if none of the specified car states are true (i.e. all are false)
     skip if none hazard indicator-left indicator-right
     sleep 1
 
 The following car states can be tested using ``skip if`` statements:
 
 
-- light-switch-position-0 .. light-switch-position-8
+- **light-switch-position-0 .. light-switch-position-8**
 
     The virtual light switch position, which is incremented by one CH3-click and decremented by two CH3-clicks.
 
-- neutral, forward, reversing, braking
+- **neutral, forward, reversing, braking**
 
     The throttle is in neutral, the car is driving forward, reversing, or is braking.
 
-- indicator-left, indicator-right
+- **indicator-left, indicator-right**
 
     The left/right indicator (turn signal) is engaged.
 
-- hazard
+- **hazard**
 
     The hazard lights are engaged.
 
-- blink-flag
+- **blink-flag**
 
     The bright period of the blink timer used for indicators and hazard lights is active.
 
-- blink-left, blink-right
+- **blink-left, blink-right**
 
     The left/right indicator or hazard light is engaged and the blink timer is in the bright period.
 
-- winch-disabled, winch-idle, winch-in, winch-out
+- **winch-disabled, winch-idle, winch-in, winch-out**
 
     The state of the winch.
 
-- servo-output-setup-centre, servo-output-setup-left, servo-output-setup-right
+- **servo-output-setup-centre, servo-output-setup-left, servo-output-setup-right**
 
     The setup function for the steering wheel servo or gearbox servo is triggered.
 
-- reversing-setup-steering, reversing-setup-throttle
+- **reversing-setup-steering, reversing-setup-throttle**
 
     The servo reversing for the steering/throttle channel is engaged.
+
+#### The *if* statement
+
+For convenience the software that processes Light Programs also supports ``if`` statements.
+
+An ``if`` statement is the logical opposite of a ``skip if`` statement.
+For example:
+
+    led l = led[7]
+
+        // Turn the LED on if pre-defined variable clicks is 3 or more, otherwise off
+        l = 0
+        if clicks >= 3
+        l = 100
+
+has exactly the same behaviour as:
+
+    led l = led[7]
+
+        // Turn the LED off if pre-defined variable clicks is below 3, otherwise on
+        l = 0
+        skip if clicks < 3
+        l = 100
+
+However, the ``if`` statement may be easier to understand as ``skip if`` employs
+a negative logic: the next instruction is *not* executed if the condition is true.
+
+Implementation-wise, the light controller can only process ``skip if`` statements.
+Therefore, when light programs are processed during exporting of a new
+configuration, all ``if`` statements are converted into the
+corresponding ``skip if`` statement.
+
+The following table shows the conversion:
+
+
+if | skip if
+------------ | -------------
+if x == 1 | skip if x != 1
+if x != 2 | skip if x == 2
+if x > 3 | skip if x <= 3
+if x < 4 | skip if x >= 4
+if x >= 5 | skip if x < 5
+if x <= 6 | skip if x > 6
+if is hazard  | skip if not hazard
+if not hazard  | skip if is hazard
+if any indicator-left indicator-right | skip if none indicator-left indicator-right
+if none indicator-left indicator-right | skip if any indicator-left indicator-right
+(no equivalent ``if`` statement!) | skip if all indicator-left indicator-right
 
 
 ## The ``end`` statement
 
-Every light program **must** end with an ``end`` statement. A new-line must be added after the ``end`` statement, otherwise an error will be reported when the light program is processed by *configurator.html*.
+Every light program **must** end with an ``end`` statement. A new-line must be added after the ``end`` statement, otherwise an error will be reported when the light program is processed by the *Configurator*.
