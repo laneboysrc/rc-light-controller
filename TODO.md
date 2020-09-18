@@ -28,7 +28,7 @@ DONE Configurator: default to online version
 
 # Light programs
 
-* Add link to example scripts
+DONE Add link to example scripts
 
 DONE Implement a SKIP IF NOT function for reasier human reasoning.
     This can be done in the assembler by inverting the expression.

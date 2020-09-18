@@ -819,3 +819,15 @@ if none indicator-left indicator-right | skip if any indicator-left indicator-ri
 ## The ``end`` statement
 
 Every light program **must** end with an ``end`` statement. A new-line must be added after the ``end`` statement, otherwise an error will be reported when the light program is processed by the *Configurator*.
+
+
+# Example light programs
+
+The following page contains a number of light programs that you can incorporate in your own configuration or study to learn the light program language:
+
+https://github.com/laneboysrc/rc-light-controller/tree/master/mk4-tlc5940-lpc812/configurations
+
+The files ending with `.light_program` contain only light program scripts. They are simple text files that can be opened with any text editor.
+
+Files ending in `.txt` are configuration files that you can load into the [Configurator](https://laneboysrc.github.io/rc-light-controller/). Not all configurations may contain light programs, but some do.
+
