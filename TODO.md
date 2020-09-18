@@ -12,9 +12,9 @@
 DONE Swap Pre-Processor and Servo reader (prefer Pre-Processor)
 DONE Connection table: add Pre-Processor to ST/Rx
 * Describe how to deal with only two LED+ pads
-* Add connecting LEDs in parallel
 * Add separate power supply for LEDs section
 * Add light bar resistor calculation
+DONE Add connecting LEDs in parallel
 DONE Move parallel and serial LED connection to an advanced topics section in the back
 DONE Add "resistor required" to the high current output
 * Add slave light controller section
