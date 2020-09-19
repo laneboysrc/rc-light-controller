@@ -28,8 +28,8 @@
      inkscape:pageopacity="1"
      inkscape:pageshadow="2"
      inkscape:zoom="1.1431423"
-     inkscape:cx="476.77343"
-     inkscape:cy="379.92856"
+     inkscape:cx="342.49443"
+     inkscape:cy="376.42943"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -58,23 +58,23 @@
      id="layer1"
      transform="translate(0,-308.26772)">
     <image
-       sodipodi:absref="/home/laneboysrc/projects/rc-light-controller/doc/../../rc-light-controller.PRIVATE/configurations-for-customers/markus/scx10-chassis.jpg"
-       xlink:href="../../rc-light-controller.PRIVATE/configurations-for-customers/markus/scx10-chassis.jpg"
-       width="463"
-       height="264"
-       preserveAspectRatio="none"
-       id="image3505"
+       sodipodi:absref="/home/laneboysrc/projects/rc-light-controller/doc/src/.././../../rc-light-controller.PRIVATE/configurations-for-customers/markus/scx10-chassis.jpg"
+       xlink:href=".././../../rc-light-controller.PRIVATE/configurations-for-customers/markus/scx10-chassis.jpg"
+       y="734.90851"
        x="282.87164"
-       y="734.90851" />
-    <image
-       sodipodi:absref="/home/laneboysrc/projects/rc-light-controller/doc/../../rc-light-controller.PRIVATE/configurations-for-customers/markus/jeep-top-view.jpg"
-       xlink:href="../../rc-light-controller.PRIVATE/configurations-for-customers/markus/jeep-top-view.jpg"
-       width="563"
-       height="314"
+       id="image3505"
        preserveAspectRatio="none"
-       id="image3516"
+       height="264"
+       width="463" />
+    <image
+       sodipodi:absref="/home/laneboysrc/projects/rc-light-controller/doc/src/.././../../rc-light-controller.PRIVATE/configurations-for-customers/markus/jeep-top-view.jpg"
+       xlink:href=".././../../rc-light-controller.PRIVATE/configurations-for-customers/markus/jeep-top-view.jpg"
+       y="333.75235"
        x="246.86815"
-       y="333.75235" />
+       id="image3516"
+       preserveAspectRatio="none"
+       height="314"
+       width="563" />
     <image
        y="-618.68683"
        x="178.47609"
