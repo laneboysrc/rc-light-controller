@@ -11,9 +11,9 @@
 * Add Rev 3 image
 DONE Swap Pre-Processor and Servo reader (prefer Pre-Processor)
 DONE Connection table: add Pre-Processor to ST/Rx
-* Describe how to deal with only two LED+ pads
-* Add separate power supply for LEDs section
-* Add light bar resistor calculation
+DONE Describe how to deal with only two LED+ pads
+DONE Add separate power supply for LEDs section
+DONE Add light bar resistor calculation
 DONE Add connecting LEDs in parallel
 DONE Move parallel and serial LED connection to an advanced topics section in the back
 DONE Add "resistor required" to the high current output
@@ -23,6 +23,7 @@ DONE Split operating section into sub-sections
 DONE Configurator: default to online version
 * LPC81x_ISP: where to download?
 * Specification: make table for all variants
+DONE Add waterproofing info
 
 * Configurator: add typical example (make special video?)
 
