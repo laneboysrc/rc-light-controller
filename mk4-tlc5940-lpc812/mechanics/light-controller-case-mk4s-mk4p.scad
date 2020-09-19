@@ -6,7 +6,7 @@ $fn = 50;
 fudge = 0.05;
 fudge2 = 2 * fudge;
 
-gap = 0.5;
+gap = 0.3;
 
 wall_t = 1.5;
 bottom_t = 1;
@@ -35,6 +35,9 @@ hole_d = 1.7;                   // Determined through test prints, may not work 
 post1_pos = [9, 5, pcb_cutout_offset.z-fudge];
 post2_pos = [pcb.x-9, 5, pcb_cutout_offset.z-fudge];
 
+hole1_pos = post1_pos - [0, 0, bottom_t-fudge-0.3];
+hole2_pos = post2_pos - [0, 0, bottom_t-fudge-0.3];
+
 difference() {
     union() {
         difference() {
@@ -47,8 +50,8 @@ difference() {
         translate(post2_pos) post();
     }
     
-    translate(post1_pos) cylinder(d=hole_d, h=4*post_h1, center=true);
-    translate(post2_pos) cylinder(d=hole_d, h=4*post_h1, center=true);
+    translate(hole1_pos) cylinder(d=hole_d, h=2*post_h1);
+    translate(hole2_pos) cylinder(d=hole_d, h=2*post_h1);
 }
 
 module post() {
