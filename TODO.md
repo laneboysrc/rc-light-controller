@@ -18,7 +18,7 @@ DONE Add connecting LEDs in parallel
 DONE Move parallel and serial LED connection to an advanced topics section in the back
 DONE Add "resistor required" to the high current output
 DONE Add slave light controller section
-* Add TH/Tx to output pins section (rename from Servo out)
+DONE Add TH/Tx to output pins section (rename from Servo out)
 DONE Split operating section into sub-sections
 DONE Configurator: default to online version
 * LPC81x_ISP: where to download?
