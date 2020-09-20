@@ -22,7 +22,7 @@ DONE Add TH/Tx to output pins section (rename from Servo out)
 DONE Split operating section into sub-sections
 DONE Configurator: default to online version
 * LPC81x_ISP: where to download?
-* Specification: make table for all variants
+DONE Specification: make table for all variants
 DONE Add waterproofing info
 
 * Configurator: add typical example (make special video?)
