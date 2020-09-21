@@ -6,7 +6,7 @@
 
 # Documentation
 
-* Add Mk4P and Mk4S description
+DONE Add Mk4P and Mk4S description
 * Add Mk4P and Mk4S images
 * Add Rev 3 image
 DONE Swap Pre-Processor and Servo reader (prefer Pre-Processor)
