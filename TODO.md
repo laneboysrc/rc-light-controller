@@ -25,7 +25,7 @@ DONE LPC81x_ISP: where to download?
 DONE Specification: make table for all variants
 DONE Add waterproofing info
 
-* Configurator: add typical example (make special video?)
+DONE Configurator: add typical example (make special video?)
 
 # Light programs
 
