@@ -21,7 +21,7 @@ DONE Add slave light controller section
 DONE Add TH/Tx to output pins section (rename from Servo out)
 DONE Split operating section into sub-sections
 DONE Configurator: default to online version
-* LPC81x_ISP: where to download?
+DONE LPC81x_ISP: where to download?
 DONE Specification: make table for all variants
 DONE Add waterproofing info
 
