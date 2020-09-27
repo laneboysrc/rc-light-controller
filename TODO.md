@@ -1,8 +1,8 @@
 
 # GIT Cleanup
 
-* Move Mk1..Mk3 to a separate "legacy" branch
-
+DONE Move Mk1..Mk3 to a separate "legacy" branch
+* List obsolete branch in HARDWARE.md
 
 # Documentation
 

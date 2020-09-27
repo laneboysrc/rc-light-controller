@@ -53,8 +53,6 @@ Firmware and schematics for the different variants are included in this project,
 [The current MK4 variant](mk4-tlc5940-lpc812/) can drive **16 LEDs** with a **constant current**. It utilises an inexpensive **NXP ARM Cortex-M0 32-bit microcontroller**.
 The main advantage of this design is that it can be fully configured through a [web-based user interface](https://laneboysrc.github.io/rc-light-controller/). Firmware and configuration can be downloaded with a standard USB-to-serial converter, no proprietary tools required.
 
-Through the time the light controller went through several iterations.
-A detailed pro- and con- description of each variant can be found in the [hardware overview](doc/hardware-overview.md) document.
 
 
 ## Unable to build one yourself?
