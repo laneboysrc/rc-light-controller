@@ -6,9 +6,15 @@
 
 # Documentation
 
+* Update German version
+
 DONE Add Mk4P and Mk4S description
 * Add Mk4P and Mk4S images
 * Add Rev 3 image
+* Mk4P and Mk4S connectors
+* Synchronization issues when using 2 master
+* USB-to-Serial not recognized + Driver
+
 DONE Swap Pre-Processor and Servo reader (prefer Pre-Processor)
 DONE Connection table: add Pre-Processor to ST/Rx
 DONE Describe how to deal with only two LED+ pads
