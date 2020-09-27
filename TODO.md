@@ -3,6 +3,8 @@
 
 DONE Move Mk1..Mk3 to a separate "legacy" branch
 * List obsolete branch in HARDWARE.md
+* Link documentation to PDF, not github entry
+* Add documentation to gh-pages
 
 # Documentation
 
