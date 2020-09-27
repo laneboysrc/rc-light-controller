@@ -1,0 +1,102 @@
+// Backfire
+//
+// This script simulates backfire on a Turbo car.
+//
+// Studying a few YouTube videos it seems that backfire appears as follows
+//
+// * 40ms very bright
+// * 40ms mid bright
+// * 40ms off
+// * 40ms 25% bright
+// * 40ms off
+// * 40ms 25% bright
+//
+// The 25% flashes are random, sometimes none, sometimes 5. Sometimes one
+// is missing in the sequence.
+//
+// The above is valid for old Turbo racing cars.
+// On modern cars, these backfires seem to be artificially created artificially.
+// They are only once very short, controlled blip of flame.
+
+run always
+
+led exhaust_led = led[14]
+var th
+var th_max
+var th_trigger_backfire
+var random_fire
+var backfire_count
+var state
+
+const STATE_WAIT_FOR_TH = 0
+const STATE_WAIT_FOR_TH_BACKOFF = 1
+const STATE_BACKFIRE = 2
+
+const THROTTLE_TRIGGER = 70
+const THROTTLE_BACKOFF_DIFFERENCE = 30
+
+    // Initialize everything
+    state = STATE_WAIT_FOR_TH
+    fade exhaust_led stepsize 0
+    exhaust_led = 0
+
+loop:
+    sleep 20
+    th = throttle
+
+    if state == STATE_BACKFIRE
+    goto backfire
+    if state == STATE_WAIT_FOR_TH_BACKOFF
+    goto wait_for_th_backoff
+    // in all other cases, assume we are at the first state STATE_WAIT_FOR_TH
+
+wait_for_th:
+    skip if th > THROTTLE_TRIGGER
+    goto loop
+
+    th_max = th
+    state = STATE_WAIT_FOR_TH_BACKOFF
+    goto loop
+
+wait_for_th_backoff:
+    if th > th_max
+    th_max = th
+
+    th_trigger_backfire = th_max
+    th_trigger_backfire -= THROTTLE_BACKOFF_DIFFERENCE
+    if th < th_trigger_backfire
+    goto start_backfire
+    goto loop
+
+start_backfire:
+    state = STATE_BACKFIRE
+    backfire_count = 5
+    exhaust_led = 100;
+    sleep 40
+    exhaust_led = 0;
+    sleep 40
+
+    random_fire = random
+    random_fire &= 1
+    if random_fire == 1
+    exhaust_led = 50;
+    sleep 20
+    exhaust_led = 0;
+    sleep 40
+    goto loop
+
+backfire:
+    random_fire = random
+    random_fire &= 1
+    if random_fire == 1
+    exhaust_led = 25;
+    sleep 40
+    exhaust_led = 0;
+    sleep 40
+
+    backfire_count -= 1
+    if backfire_count <= 0
+    state = STATE_WAIT_FOR_TH
+    goto loop
+
+end

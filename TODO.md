@@ -51,6 +51,7 @@ DONE Move use-case examples to the front
 
 # Configurator
 
+* Remember last used config filename and hex filename?
 DONE Show light program size in bytes
 
 
