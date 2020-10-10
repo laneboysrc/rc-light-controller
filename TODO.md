@@ -20,10 +20,10 @@ DONE Move Mk1..Mk3 to a separate "legacy" branch
     * 2x Mk4P/S right side connector, one with jumper, one with batt lead
 
 * Make diagrams
-    * Two position switch
-    * Push button implementing Two position switch
-    * Two-position switch with up/down buttons
-    * Momentary push button
+    DONE Two position switch
+    DONE Push button implementing Two position switch
+    DONE Two-position switch with up/down buttons
+    DONE Momentary push button
 
 DONE Describe two position switch, push button, and how to find out
 DONE Mk4P and Mk4S power options
