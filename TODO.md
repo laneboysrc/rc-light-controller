@@ -1,3 +1,5 @@
+* Function to invert 15S (for turning off an external boost/buck converter)
+    * Make it work on the slave too!
 
 # GIT Cleanup
 
@@ -10,13 +12,27 @@ DONE Move Mk1..Mk3 to a separate "legacy" branch
 
 * Update German version
 
-DONE Add Mk4P and Mk4S description
-* Add Mk4P and Mk4S images
-* Add Rev 3 image
-* Mk4P and Mk4S connectors
-* Synchronization issues when using 2 master
-* USB-to-Serial not recognized + Driver
+* Make photos
+    * Mk4, Mk4P and Mk4S for intro
+    * Mk4P image
+    * Mk4S image
+    * Mk4P/S right side connector OUT/ISP
+    * 2x Mk4P/S right side connector, one with jumper, one with batt lead
 
+* Make diagrams
+    * Two position switch
+    * Push button implementing Two position switch
+    * Two-position switch with up/down buttons
+    * Momentary push button
+
+DONE Describe two position switch, push button, and how to find out
+DONE Mk4P and Mk4S power options
+DONE Mk4P and Mk4S connectors
+DONE Mk4P and Mk4S master slave and mixing S and P
+DONE Add Mk4P and Mk4S description
+DONE Synchronization issues when using 2 master
+DONE USB-to-Serial not recognized + Driver
+DONE Mk4S not dimmable
 DONE Swap Pre-Processor and Servo reader (prefer Pre-Processor)
 DONE Connection table: add Pre-Processor to ST/Rx
 DONE Describe how to deal with only two LED+ pads
@@ -51,6 +67,7 @@ DONE Move use-case examples to the front
 
 # Configurator
 
+* Append CR to end of light program (to prevent issue when CR is missing after END)
 * Remember last used config filename and hex filename?
 DONE Show light program size in bytes
 
