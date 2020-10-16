@@ -4,20 +4,18 @@
 # GIT Cleanup
 
 DONE Move Mk1..Mk3 to a separate "legacy" branch
-* List obsolete branch in HARDWARE.md
-* Link documentation to PDF, not github entry
-* Add documentation to gh-pages
+DONE List obsolete branch in HARDWARE.md
 
 # Documentation
 
-* Update German version
+DONE Update German version
 
-* Make photos
-    * Mk4, Mk4P and Mk4S for intro
-    * Mk4P image
-    * Mk4S image
-    * Mk4P/S right side connector OUT/ISP
-    * 2x Mk4P/S right side connector, one with jumper, one with batt lead
+DONE* Make photos
+    DONE Mk4, Mk4P and Mk4S for intro
+    DONE Mk4P image
+    DONE Mk4S image
+    DONE Mk4P/S right side connector OUT/ISP
+    DONE 2x Mk4P/S right side connector, one with jumper, one with batt lead
 
 * Make diagrams
     DONE Two position switch

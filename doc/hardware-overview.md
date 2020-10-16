@@ -5,17 +5,17 @@ Over time the DIY RC Light Controller hardware went through several iterations.
 The following sections describe the various variants in detail, list their unique features and provide pros and cons to allow you to make a decision which variant is best for your application.
 
 
+**Important: Older versions are avalable in the branch named [*obsolete*](https://github.com/laneboysrc/rc-light-controller/tree/obsolete) in this repository.**
+
 ## MK4 TLC5940 LPC812
 
-![MK4 light controller Rev 2](light-controller-mk4-tlc5940-lpc812-rev2.jpg)
-
-![MK4 light controller in various state of assembly](light-controller-mk4-tlc5940-lpc812.jpg)
+![MK4 light controller Rev 2](mk4-mk4p-mk4s-for-frontpage)
 
 This iteration makes use of NXP's LPC812 microcontroller. The LPC812 contains an ARM Cortex-M0+ 32-bit core, yet costs as little as the PIC microcontroller we used in earlier variants. The firmware is now written in C. It is compiled with the Open-Source GCC compiler. The LPC812 contains a ROM-based bootloader so firmware can be flashed by using a very low cost USB-to-serial converter (less than USD 3, including shipping, on eBay).
 
 One of the main issue for other people building earlier light controller variants was making changes to the firmware to suite their particular requirements. With the MK4 variant we have now a **web-based configuration tool** that allows anyone to adapt the light outputs to their desired functionality without having to modify source code.
 
-Like the MK2 variant, the TI TLC5940 LED driver IC is employed to drive the LEDs with a constant current. 16 LED outputs are available. The current, and therefore the LED brightness, can be adjust in 63 steps. Using a constant current means that no resistor is needed for the LEDs, and that the LEDs don't flicker as they would when they are driven by PWM signals. Humans don't see the flicker, but in videos the shutter speed of the camera often causes ugly blink effects when PWM dimming is employed.
+The TI TLC5940 LED driver IC is employed to drive the LEDs with a constant current. 16 LED outputs are available. The current, and therefore the LED brightness, can be adjust in 63 steps. Using a constant current means that no resistor is needed for the LEDs, and that the LEDs don't flicker as they would when they are driven by PWM signals. Humans don't see the flicker, but in videos the shutter speed of the camera often causes ugly blink effects when PWM dimming is employed.
 
 Based on feedback from users, the MK4 variant also now supports an option for a high-current switched light output. Such output is useful to drive an off-the-shelf roof light bar without modification.
 

@@ -2,35 +2,42 @@
 
 Realistic lighting of RC model cars using a standard 3-channel radio control system.
 
-![MK4 light controller revision 2 PCB](doc/light-controller-mk4-tlc5940-lpc812-rev2.jpg)
+![MK4 light controller revision 2 PCB](doc/mk4-mk4p-mk4s-for-frontpage.jpg)
 
-The following functions have been implemented:
+The light controller supports the following features, and more::
 
-- **Parking, Low-beam, High-beam** can be switched on/off manually using the AUX (CH3) channel
+- **16 LED outputs, constant-current** driven. Up to 20mA per output. Two light
+controllers can be cascaded for a total of 32 LED outputs.
+(Mk4 and Mk4P only)
 
-- **Brake and Reversing lights are automatically** controlled by monitoring the throttle channel. Brake lights automatically turn on for a short, random time when the throttle goes to neutral.
+- 1 high current non-dimmable **switched output** of up to **2A** to drive a roof light bar
+(Mk4S: 9 non-dimmable switched outputs)
 
-- It is possible to have **combined tail and brake light function** using a single LED through controlling the brightness of the LED.
+- **Parking, Low-beam, High-beam** and a roof **light bar** can be switched on/off manually from the transmitter
 
-- **Indicators only come on when you want to**. You have to stay in neutral for one seconds, then hold the steering left/right for one second before they engage. This way normal driving does not trigger the indicators.
+- **Brake** and **Reversing** lights are **automatically** controlled by monitoring the throttle channel. The brake lights now automatically turn on for a short, random time when the throttle goes to neutral.
 
-- Flashing **hazard lights** can be switched on/off using AUX/CH3
+- **Combined tail and brake light** function in a single LED through controlling the brightness of the LED. (Mk4 and Mk4P only)
 
-- **Programmable servo output** designed to drive a **steering wheel** or a figures head, or a 2-speed, 3-speed **gearbox**
+- **Indicators** only come on when you want to. You have to stay in neutral for one seconds, then hold the steering left/right for one second before they engage. This way normal driving does not trigger the indicators.
 
-- Automatic centre and end-point adjustment for all channels
+- **Hazard lights** can be switched on/off from the transmitter
 
-- **16 LEDs** can be driven by one light controller. Two controllers can be **daisy-chained for a maximum of 32 LEDs**.
+- **Programmable output** designed to drive a **steering wheel** or a figures head, or a
+**gearbox servo**
 
-- High current **switched output** of up to 2A to drive a roof **light bar**
+- Automatic center and end-point adjustment for steering and throttle channels
 
-- Light Programs for **custom light animations** like police lights, running lights ...
+- **16 LEDs** can be driven by one light controller. Two controllers can be **daisy-chained for up to 32 LEDs**.
+
+- **Light Programs for custom light animations** like police lights, running lights ...
 
 - Simulation of incandescent lights and faulty ground wiring
 
-- **Pre-processor** for easier wiring
+- Optional Pre-Processor for **easier wiring**
 
-- Up to 3 AUX channels when using the new 5-channel Pre-processor
+- **Up to 3 AUX channels** can control light functions when using the **5-channel Pre-
+Processor**
 
 - All functions can be **customized through a [web browser](https://laneboysrc.github.io/rc-light-controller/)**
 
@@ -43,6 +50,7 @@ An **introduction video** can be found at:
 
 You may also want to read the **[users guide](doc/light-controller-instructions-mk4.pdf)** to get a grasp of the full functionality of this light controller system.
 
+(Die [Bedieungsanleitung ist auch in Deutsch](doc/light-controller-instructions-mk4-deutsch.pdf) verfügbar)
 
 ## Hardware
 
