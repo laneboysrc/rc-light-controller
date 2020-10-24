@@ -553,7 +553,27 @@ typedef struct {
         // and fast (2 or more clicks) to operate the lights.
         unsigned int require_extra_click : 1;
 
-        unsigned int reserved0 : 2;
+        // By default (prefer_all_lights_off = 0) 3-clicks on AUX switch to
+        // the highest used light switch position.
+        // If we are already in the highest used light switch position then
+        // 3-clicks switch to light switch position 0
+        //
+        // When prefer_all_lights_off is set, then 3-cicks switches to
+        // light switch position 0.
+        // If we are already at light switch position 0, then 3-clicks switches
+        // to the highest used light switch position.
+        //
+        // This feature was added as per customer request
+        unsigned int prefer_all_lights_off : 1;
+
+        // Invert output OUT15S
+        // This was requested so that the light controller can control an
+        // external DC/DC converter with an enable function, hooked up to
+        // a light bar.
+        unsigned int invert_out15s : 1;
+
+        // All of flags2 used up!
+        // unsigned int reserved0 : 0;
     } flags2;
 
     // Dark phase of the indicator. The blink_counter_value from config version

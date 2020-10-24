@@ -148,7 +148,13 @@ static void output_lights(void)
     // The switched_light_output mirrors the output of LED15 onto the
     // dedicated output pin.
     // Fading is not applied. 0 turns the output off, any other value on.
-    HAL_gpio_write(HAL_GPIO_SWITCHED_LIGHT_OUTPUT, light_setpoint[15]);
+
+    if (config.flags2.invert_out15s) {
+        HAL_gpio_write(HAL_GPIO_SWITCHED_LIGHT_OUTPUT, !light_setpoint[15]);
+    }
+    else {
+        HAL_gpio_write(HAL_GPIO_SWITCHED_LIGHT_OUTPUT, light_setpoint[15]);
+    }
 }
 
 
@@ -244,7 +250,22 @@ void light_switch_down(void)
 // ****************************************************************************
 void toggle_light_switch(void)
 {
-    if (light_switch_position < (config.light_switch_positions - 1)) {
+    bool toggle_on = false;
+
+    if (config.flags2.prefer_all_lights_off) {
+        // Switch to the highest used light switch position only when we are
+        // at light switch position 0, otherwise switch to light switch
+        // position 0
+        toggle_on = light_switch_position == 0;
+    }
+    else {
+        // Switch to the highest used light switch position unless we are
+        // already in the highest used light switch position, otherwise
+        // switch to light switch position 0
+        toggle_on = light_switch_position < (config.light_switch_positions - 1);
+    }
+
+    if (toggle_on) {
         light_switch_position = config.light_switch_positions - 1;
     }
     else {

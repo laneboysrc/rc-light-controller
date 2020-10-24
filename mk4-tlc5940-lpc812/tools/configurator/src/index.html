@@ -269,7 +269,7 @@
           </div>
         </div>
 
-        <div id="config_baudrate">
+        <div id="config_baudrate" class="configuration">
           <h3>Baudrate</h3>
           <div>
             <select id="baudrate">
@@ -284,6 +284,24 @@
           Ensure that master and slave are using the same baudrate. Note that the
           winch controller and the pre-processor that is based on the Microchip
           PIC operate only at 34800 baud.
+        </div>
+
+        <div id="config_invert_out15s" class="configuration">
+          <h3>OUT15S control</h3>
+            <div>
+              <input type="checkbox" id="invert_out15s">
+              <label for="invert_out15s">Invert OUT15S</label>
+            </div>
+            <div class="info">
+              The switched light output OUT15S follows LED output OUT15. When OUT15 is on,
+              OUT15S is on as well, which means that the output pin is pulled to GND (supply minus).
+            </div>
+            <div class="info">
+              When this checkbox is enabled, the operation of OUT15S is inverted. This means when
+              OUT15 is on at any brightness, then OUT15S will be now off. But when OUT15 is off (value 0), then OUT15S will be on (pin pulled to GND).
+              <br>
+              This can be useful to control an external DC/DC converter with an enable pin.
+            </div>
         </div>
       </div>
 
@@ -881,6 +899,19 @@
               Use-case: Traxxas TRX-4 where the gearbox and light controller share
               the same channel. Then the user can switch "slow" to change the gear,
               and fast (2 or more clicks) to operate the lights.
+            </div>
+          </div>
+
+          <div class="advanced_feature">
+            <div>
+              <input type="checkbox" id="prefer_all_lights_off">
+              <label for="prefer_all_lights_off">Prefer all lights off</label>
+            </div>
+            <div>
+              If enabled, 3-clicks turns all lights off -- unless the lights are already off,
+              in which case the lights will be switched on to the highest used light switch position.
+              <br>
+              By default (checkbox off), 3-clicks will switch to the highest used light switch position -- except when the light switch is already at that highes position, in which case the lights will be switched off (light switch position 0)
             </div>
           </div>
 
