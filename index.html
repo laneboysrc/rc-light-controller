@@ -20829,7 +20829,7 @@ var app = (function () {
                 }
             }
 
-            if (config.mode == MASTER_WITH_SERVO_READER) {
+            if (config.mode == MODE.MASTER_WITH_SERVO_READER) {
                 if (!servo_enabled) {
                     flags2 |= (1 << 8); // uart_tx_on_out
                 }
@@ -22164,7 +22164,7 @@ document.addEventListener('DOMContentLoaded', function () {
         Please check out <a href="https://github.com/laneboysrc/rc-light-controller" target="_blank">https://github.com/laneboysrc/rc-light-controller</a> for a description of the RC Light Controller this tool belongs to.
         </div>
         <div>
-          Configurator version: 2020-10-24<br>
+          Configurator version: 2020-11-15<br>
           Firmware version: <span id="firmware_version"></span>
         </div>
 
