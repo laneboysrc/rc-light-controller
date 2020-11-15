@@ -1443,7 +1443,7 @@ var app = (function () {
                 }
             }
 
-            if (config.mode == MASTER_WITH_SERVO_READER) {
+            if (config.mode == MODE.MASTER_WITH_SERVO_READER) {
                 if (!servo_enabled) {
                     flags2 |= (1 << 8); // uart_tx_on_out
                 }
