@@ -663,7 +663,7 @@ Wire Wire Line
 	7150 3500 6550 3500
 NoConn ~ 6550 3000
 $Comp
-L Connector:USB_B_Micro J1
+L webusb-programmer-rescue:USB_B_Micro-Connector J1
 U 1 1 5E6F135C
 P 1200 3100
 F 0 "J1" H 1257 3567 50  0000 C CNN
