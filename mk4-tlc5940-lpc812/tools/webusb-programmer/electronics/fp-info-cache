@@ -1,4 +1,4 @@
-18693331835429951
+18698149606696271
 Battery
 BatteryHolder_Bulgin_BX0036_1xC
 Bulgin Battery Holder, BX0036, Battery Type C (https://www.bulgin.com/products/pub/media/bulgin/data/Battery_holders.pdf)
@@ -81717,3 +81717,24 @@ varistor SIOV
 0
 2
 2
+WLA_LED_reverse_mount
+LED_0805_2012Metric_reverse_mout
+LED SMD 0805 (2012 Metric), castellated end terminal, IPC_7351 nominal, (Body size source: https://docs.google.com/spreadsheets/d/1BsfQQcO9C6DZCsRaXUlFlo91Tg2WpOkGARC1WS5S8t0/edit?usp=sharing), generated with kicad-footprint-generator
+LED castellated
+0
+2
+2
+WLA_LED_reverse_mount
+LED_1204_reverse_mout
+LED SMD 1204
+LED reverse mount
+0
+2
+2
+WLA_pinheader
+PinHeader_1x06_P2.54mm_Flat
+
+
+0
+6
+6

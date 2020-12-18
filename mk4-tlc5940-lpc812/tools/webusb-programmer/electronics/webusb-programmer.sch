@@ -30,8 +30,9 @@ U 1 1 5E6F6F74
 P 5000 5700
 F 0 "D2" V 5039 5583 50  0000 R CNN
 F 1 "OK" V 4948 5583 50  0000 R CNN
-F 2 "LED_SMD:LED_0805_2012Metric_Castellated" H 5000 5700 50  0001 C CNN
-F 3 "~" H 5000 5700 50  0001 C CNN
+F 2 "WLA_LED_reverse_mount:LED_1204_reverse_mout" H 5000 5700 50  0001 C CNN
+F 3 "2011131907_TUOZHAN-TZ-P2-1204YGCTA1-1-5T" H 5000 5700 50  0001 C CNN
+F 4 "C91608" V 5000 5700 50  0001 C CNN "LCSC part number"
 	1    5000 5700
 	0    -1   -1   0   
 $EndComp
@@ -41,8 +42,9 @@ U 1 1 5E6F790B
 P 5600 5700
 F 0 "D3" V 5639 5582 50  0000 R CNN
 F 1 "BUSY" V 5548 5582 50  0000 R CNN
-F 2 "LED_SMD:LED_0805_2012Metric_Castellated" H 5600 5700 50  0001 C CNN
-F 3 "~" H 5600 5700 50  0001 C CNN
+F 2 "WLA_LED_reverse_mount:LED_1204_reverse_mout" H 5600 5700 50  0001 C CNN
+F 3 "2009041237_TUOZHAN-TZ-P2-1204-0TA1-1-5T" H 5600 5700 50  0001 C CNN
+F 4 "C779805" V 5600 5700 50  0001 C CNN "LCSC part number"
 	1    5600 5700
 	0    -1   -1   0   
 $EndComp
@@ -52,8 +54,9 @@ U 1 1 5E6F7DEF
 P 6200 5700
 F 0 "D4" V 6239 5583 50  0000 R CNN
 F 1 "ERROR" V 6148 5583 50  0000 R CNN
-F 2 "LED_SMD:LED_0805_2012Metric_Castellated" H 6200 5700 50  0001 C CNN
-F 3 "~" H 6200 5700 50  0001 C CNN
+F 2 "WLA_LED_reverse_mount:LED_1204_reverse_mout" H 6200 5700 50  0001 C CNN
+F 3 "1905151403_MEIHUA-MHS110KECT" H 6200 5700 50  0001 C CNN
+F 4 "C389527" V 6200 5700 50  0001 C CNN "LCSC part number"
 	1    6200 5700
 	0    -1   -1   0   
 $EndComp
@@ -63,8 +66,9 @@ U 1 1 5E6F89A9
 P 3300 6350
 F 0 "D1" V 3339 6233 50  0000 R CNN
 F 1 "MCU POWER" V 3248 6233 50  0000 R CNN
-F 2 "LED_SMD:LED_0805_2012Metric_Castellated" H 3300 6350 50  0001 C CNN
-F 3 "~" H 3300 6350 50  0001 C CNN
+F 2 "WLA_LED_reverse_mount:LED_1204_reverse_mout" H 3300 6350 50  0001 C CNN
+F 3 "2009041237_TUOZHAN-TZ-P2-1204WYS2-1-5T" H 3300 6350 50  0001 C CNN
+F 4 "C779804" V 3300 6350 50  0001 C CNN "LCSC part number"
 	1    3300 6350
 	0    -1   -1   0   
 $EndComp
@@ -74,8 +78,9 @@ U 1 1 5E6F8DF4
 P 9600 3400
 F 0 "D5" V 9639 3282 50  0000 R CNN
 F 1 "LC POWER" V 9548 3282 50  0000 R CNN
-F 2 "LED_SMD:LED_0805_2012Metric_Castellated" H 9600 3400 50  0001 C CNN
-F 3 "~" H 9600 3400 50  0001 C CNN
+F 2 "WLA_LED_reverse_mount:LED_1204_reverse_mout" H 9600 3400 50  0001 C CNN
+F 3 "2009041238_TUOZHAN-TZ-P2-1204BTS2-1-5T" H 9600 3400 50  0001 C CNN
+F 4 "C779807" V 9600 3400 50  0001 C CNN "LCSC part number"
 	1    9600 3400
 	0    -1   -1   0   
 $EndComp
@@ -91,11 +96,11 @@ F 3 "http://ww1.microchip.com/downloads/en/DeviceDoc/20005122B.pdf" H 2150 5650 
 	1    0    0    -1  
 $EndComp
 $Comp
-L Device:CP C2
+L Device:C C2
 U 1 1 5E6F9D7B
 P 2650 5950
 F 0 "C2" H 2768 5996 50  0000 L CNN
-F 1 "47u/6V3" H 2768 5905 50  0000 L CNN
+F 1 "10u" H 2768 5905 50  0000 L CNN
 F 2 "Capacitor_SMD:C_0805_2012Metric_Pad1.15x1.40mm_HandSolder" H 2688 5800 50  0001 C CNN
 F 3 "~" H 2650 5950 50  0001 C CNN
 	1    2650 5950
@@ -173,7 +178,7 @@ U 1 1 5E6FE83D
 P 10300 2650
 F 0 "J2" H 10272 2532 50  0000 R CNN
 F 1 "Light Controller" H 10272 2623 50  0000 R CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x06_P2.54mm_Vertical" H 10300 2650 50  0001 C CNN
+F 2 "WLA_pinheader:PinHeader_1x06_P2.54mm_Flat" H 10300 2650 50  0001 C CNN
 F 3 "~" H 10300 2650 50  0001 C CNN
 	1    10300 2650
 	-1   0    0    1   
@@ -390,39 +395,6 @@ Wire Wire Line
 	7550 2450 7550 2650
 Wire Wire Line
 	7550 2650 7750 2650
-$Comp
-L Device:R R8
-U 1 1 5E7657EA
-P 9750 2350
-F 0 "R8" V 9700 2150 50  0000 C CNN
-F 1 "1k" V 9700 2550 50  0000 C CNN
-F 2 "Resistor_SMD:R_0603_1608Metric_Pad1.05x0.95mm_HandSolder" V 9680 2350 50  0001 C CNN
-F 3 "~" H 9750 2350 50  0001 C CNN
-	1    9750 2350
-	0    1    1    0   
-$EndComp
-$Comp
-L Device:R R10
-U 1 1 5E76649B
-P 9750 2550
-F 0 "R10" V 9700 2350 50  0000 C CNN
-F 1 "1k" V 9700 2750 50  0000 C CNN
-F 2 "Resistor_SMD:R_0603_1608Metric_Pad1.05x0.95mm_HandSolder" V 9680 2550 50  0001 C CNN
-F 3 "~" H 9750 2550 50  0001 C CNN
-	1    9750 2550
-	0    1    1    0   
-$EndComp
-$Comp
-L Device:R R11
-U 1 1 5E76676C
-P 9750 2650
-F 0 "R11" V 9700 2450 50  0000 C CNN
-F 1 "1k" V 9700 2850 50  0000 C CNN
-F 2 "Resistor_SMD:R_0603_1608Metric_Pad1.05x0.95mm_HandSolder" V 9680 2650 50  0001 C CNN
-F 3 "~" H 9750 2650 50  0001 C CNN
-	1    9750 2650
-	0    1    1    0   
-$EndComp
 Wire Wire Line
 	9900 2650 10100 2650
 Wire Wire Line
@@ -452,18 +424,18 @@ Connection ~ 4050 3800
 Wire Wire Line
 	4050 3800 4050 3900
 Wire Wire Line
-	9600 2550 9300 2550
+	9500 2550 9200 2550
 Wire Wire Line
-	9300 2650 9600 2650
-Text Label 9300 2650 0    50   ~ 0
+	9200 2650 9500 2650
+Text Label 9200 2650 0    50   ~ 0
 TX
-Text Label 9300 2550 0    50   ~ 0
+Text Label 9200 2550 0    50   ~ 0
 RX
 Wire Wire Line
-	9300 2350 9600 2350
-Text Label 9300 2350 0    50   ~ 0
+	9200 2350 9500 2350
+Text Label 9200 2350 0    50   ~ 0
 ISP
-Text Label 9300 2750 0    50   ~ 0
+Text Label 9200 2750 0    50   ~ 0
 VLIGHT
 Wire Wire Line
 	6550 3100 7150 3100
@@ -668,8 +640,9 @@ U 1 1 5E6F135C
 P 1200 3100
 F 0 "J1" H 1257 3567 50  0000 C CNN
 F 1 "USB_B_Micro" H 1257 3476 50  0000 C CNN
-F 2 "USB:Mirco_USB_Type_B_eBay_AliExpress" H 1350 3050 50  0001 C CNN
+F 2 "USB:Mirco_USB_Type_B_LCSC_C40943" H 1350 3050 50  0001 C CNN
 F 3 "~" H 1350 3050 50  0001 C CNN
+F 4 "C40943" H 1200 3100 50  0001 C CNN "LCSC part number"
 	1    1200 3100
 	1    0    0    -1  
 $EndComp
@@ -694,58 +667,58 @@ SWDIO
 $Comp
 L Connector:TestPoint_Alt TP1
 U 1 1 5E719FC1
-P 9200 5000
-F 0 "TP1" V 9150 4950 50  0000 L CNN
-F 1 "SWDIO" V 9200 5200 50  0000 L CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x01_P2.54mm_Vertical" H 9400 5000 50  0001 C CNN
-F 3 "~" H 9400 5000 50  0001 C CNN
-	1    9200 5000
+P 9100 5350
+F 0 "TP1" V 9050 5300 50  0000 L CNN
+F 1 "SWDIO" V 9100 5550 50  0000 L CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x01_P2.54mm_Vertical" H 9300 5350 50  0001 C CNN
+F 3 "~" H 9300 5350 50  0001 C CNN
+	1    9100 5350
 	0    1    1    0   
 $EndComp
 $Comp
 L Connector:TestPoint_Alt TP2
 U 1 1 5E71A590
-P 9200 5150
-F 0 "TP2" V 9150 5100 50  0000 L CNN
-F 1 "SWCLK" V 9200 5350 50  0000 L CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x01_P2.54mm_Vertical" H 9400 5150 50  0001 C CNN
-F 3 "~" H 9400 5150 50  0001 C CNN
-	1    9200 5150
+P 9100 5500
+F 0 "TP2" V 9050 5450 50  0000 L CNN
+F 1 "SWCLK" V 9100 5700 50  0000 L CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x01_P2.54mm_Vertical" H 9300 5500 50  0001 C CNN
+F 3 "~" H 9300 5500 50  0001 C CNN
+	1    9100 5500
 	0    1    1    0   
 $EndComp
 $Comp
 L Connector:TestPoint_Alt TP3
 U 1 1 5E71A86D
-P 9200 5300
-F 0 "TP3" V 9150 5250 50  0000 L CNN
-F 1 "GND" V 9200 5500 50  0000 L CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x01_P2.54mm_Vertical" H 9400 5300 50  0001 C CNN
-F 3 "~" H 9400 5300 50  0001 C CNN
-	1    9200 5300
+P 9100 5650
+F 0 "TP3" V 9050 5600 50  0000 L CNN
+F 1 "GND" V 9100 5850 50  0000 L CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x01_P2.54mm_Vertical" H 9300 5650 50  0001 C CNN
+F 3 "~" H 9300 5650 50  0001 C CNN
+	1    9100 5650
 	0    1    1    0   
 $EndComp
 $Comp
 L power:GND #PWR021
 U 1 1 5E71B7BF
-P 9100 5450
-F 0 "#PWR021" H 9100 5200 50  0001 C CNN
-F 1 "GND" H 9105 5277 50  0000 C CNN
-F 2 "" H 9100 5450 50  0001 C CNN
-F 3 "" H 9100 5450 50  0001 C CNN
-	1    9100 5450
+P 9000 5800
+F 0 "#PWR021" H 9000 5550 50  0001 C CNN
+F 1 "GND" H 9005 5627 50  0000 C CNN
+F 2 "" H 9000 5800 50  0001 C CNN
+F 3 "" H 9000 5800 50  0001 C CNN
+	1    9000 5800
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	9200 5300 9100 5300
+	9100 5650 9000 5650
 Wire Wire Line
-	9100 5300 9100 5450
+	9000 5650 9000 5800
 Wire Wire Line
-	9200 5000 8350 5000
+	9100 5350 8250 5350
 Wire Wire Line
-	8350 5150 9200 5150
-Text Label 8350 5150 0    50   ~ 0
+	8250 5500 9100 5500
+Text Label 8250 5500 0    50   ~ 0
 SWCLK
-Text Label 8350 5000 0    50   ~ 0
+Text Label 8250 5350 0    50   ~ 0
 SWDIO
 $Comp
 L Device:R R5
@@ -829,25 +802,45 @@ Wire Wire Line
 Wire Wire Line
 	6550 2000 7150 2000
 NoConn ~ 6550 2100
-$Comp
-L Device:R R9
-U 1 1 5E80942C
-P 9750 2450
-F 0 "R9" V 9700 2250 50  0000 C CNN
-F 1 "1k" V 9700 2650 50  0000 C CNN
-F 2 "Resistor_SMD:R_0603_1608Metric_Pad1.05x0.95mm_HandSolder" V 9680 2450 50  0001 C CNN
-F 3 "~" H 9750 2450 50  0001 C CNN
-	1    9750 2450
-	0    1    1    0   
-$EndComp
 Wire Wire Line
 	9900 2450 10100 2450
 Wire Wire Line
-	9600 2450 9300 2450
-Text Label 9300 2450 0    50   ~ 0
+	9500 2450 9200 2450
+Text Label 9200 2450 0    50   ~ 0
 CH3
 Wire Wire Line
 	6550 2900 7150 2900
 Text Label 7150 2900 2    50   ~ 0
 CH3
+$Comp
+L Device:R_Pack04 RN1
+U 1 1 5FDCE5F9
+P 9700 2550
+F 0 "RN1" V 9283 2550 50  0000 C CNN
+F 1 "1k" V 9374 2550 50  0000 C CNN
+F 2 "Resistor_SMD:R_Array_Convex_4x0603" V 9975 2550 50  0001 C CNN
+F 3 "~" H 9700 2550 50  0001 C CNN
+	1    9700 2550
+	0    1    1    0   
+$EndComp
+Text Notes 1000 2350 0    50   ~ 0
+Important: for mechanical \nstability use a Micro-USB \nconnector that uses \nthrough-hole mountings.
+Text Notes 7650 4550 0    50   ~ 0
+The transistor shorts the power \nsupply of the light controller to\nground via 10 Ohms. \nThis discharges the large cap \nin the light controller, otherwise \nsubsequant programming \nattempts may fail as the MCU in \nthe light controller is still residually\npowered (when no firmware is \nflashed yet!)
+Text Notes 9750 5550 0    50   ~ 0
+MCU programming \nvia SWD
+Text Notes 7850 2300 0    50   ~ 0
+High-side power switch,\nactive low
+Text Notes 3450 6550 0    50   ~ 0
+White
+Text Notes 5150 5900 0    50   ~ 0
+Green
+Text Notes 5750 5900 0    50   ~ 0
+Yellow
+Text Notes 6350 5900 0    50   ~ 0
+Red
+Text Notes 9750 3600 0    50   ~ 0
+Blue
+Text Notes 1950 5350 0    50   ~ 0
+LCSC equivalent part:\nNanjing Micro One Elec\nME6209A33M3G\n
 $EndSCHEMATC
