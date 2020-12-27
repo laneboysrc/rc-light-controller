@@ -70,7 +70,7 @@ DONE Move use-case examples to the front
     * UART used up
     * UART not on TH/Tx
 DONE Append CR to end of light program (to prevent issue when CR is missing after END)
-* Remember last used config filename and hex filename?
+DONE Remember last used config filename and hex filename?
 DONE Show light program size in bytes
 
 

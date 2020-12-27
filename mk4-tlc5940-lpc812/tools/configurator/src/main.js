@@ -191,6 +191,10 @@ var app = (function () {
     let programming_active = false;
     let testing_active = false;
 
+    let default_firmware_filename = 'light_controller.hex';
+    let default_config_filename = 'light_controller.config.txt';
+
+
 
     var log = console;
     // let log = {
@@ -2096,16 +2100,16 @@ var app = (function () {
         if (el.hardware.value == 'mk4') {
             let hex = intel_hex.fromArray(firmware.data);
             blob = new Blob([hex], {type: 'text/plain;charset=utf-8'});
-            default_filename = 'light_controller.hex';
         }
 
         // Don't show prompt on nw.js where we have a proper file-save dialog
-        let filename = default_filename;
+        let filename = default_firmware_filename;
         if (typeof nw === 'undefined') {
-            filename = window.prompt('Filename for the firmware image:', default_filename);
+            filename = window.prompt('Filename for the firmware image:', default_firmware_filename);
         }
 
         if (filename !== null  &&  filename !== '') {
+            default_firmware_filename = filename;
             saveAs(blob, filename);
         }
     };
@@ -2123,13 +2127,13 @@ var app = (function () {
         });
 
         // Don't show prompt on nw.js where we have a proper file-save dialog
-        let default_filename = 'light_controller.config.txt';
-        let filename = default_filename;
+        let filename = default_config_filename;
         if (typeof nw === 'undefined') {
-            filename = window.prompt('Filename for the firmware image:', default_filename);
+            filename = window.prompt('Filename for the firmware image:', default_config_filename);
         }
 
         if (filename !== null  &&  filename !== '') {
+            default_config_filename = filename;
             saveAs(blob, filename);
         }
     };
