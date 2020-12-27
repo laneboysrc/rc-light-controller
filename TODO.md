@@ -1,5 +1,5 @@
-* Function to invert 15S (for turning off an external boost/buck converter)
-    * Make it work on the slave too!
+DONE Function to invert 15S (for turning off an external boost/buck converter)
+    DONE Make it work on the slave too!
 
 # GIT Cleanup
 
@@ -65,6 +65,10 @@ DONE Move use-case examples to the front
 
 # Configurator
 
+* Warning messages when configuration not suitable for Pre-Processor simulator
+    * Baudrate wrong
+    * UART use up
+    * UART not on TH/Tx
 * Append CR to end of light program (to prevent issue when CR is missing after END)
 * Remember last used config filename and hex filename?
 DONE Show light program size in bytes
