@@ -787,9 +787,14 @@ var app = (function () {
                     var menu_item = enabled_menu_items[i];
 
                     if (menu_item == page_name) {
-                        // if (page_name != 'testing' || !preprocessor_simulator_disabled) {
-                        button.disabled = false;
-                        // }
+                        if (page_name == 'tab_testing') {
+                            if (testing_enabled) {
+                                button.disabled = false;
+                            }
+                        }
+                        else {
+                            button.disabled = false;
+                        }
                         break;
                     }
                 }
@@ -2191,7 +2196,7 @@ var app = (function () {
     };
 
     // *************************************************************************
-    var select_page = function (selected_page) {
+    var select_page = async function (selected_page) {
         for (var index = 0; index < el.menu_buttons.length; index += 1) {
             var button = el.menu_buttons[index];
             var page_name = button.getAttribute('data');
@@ -2207,6 +2212,39 @@ var app = (function () {
                 }
             }
         }
+
+        if (selected_page == 'tab_testing') {
+            if (!testing_active) {
+                testing_active = true;
+                last_programming_failed = false;
+                if (programmer) {
+                    await programmer.send_command(CMD_OUT_ISP_TRISTATE);
+                    await programmer.send_command(CMD_CH3_TRISTATE);
+                    await programmer.send_command(CMD_DUT_POWER_ON);
+                    power_is_on = true;
+                }
+
+                simulator = new Preprocessor_simulator(programmer);
+                simulator_ui = new Preprocessor_simulator_ui(simulator);
+            }
+        }
+        else {
+            testing_active = false;
+            if (simulator) {
+                simulator.close();
+                simulator_ui.close();
+            }
+            simulator = undefined;
+            simulator_ui = undefined;
+
+            if (programmer && power_is_on) {
+                await programmer.send_command(CMD_DUT_POWER_OFF);
+                await programmer.send_command(CMD_OUT_ISP_LOW);
+                await programmer.send_command(CMD_CH3_LOW);
+                power_is_on = false;
+            }
+        }
+        update_programmer_ui();
 
         ui.refresh_editor();
     };
@@ -2454,7 +2492,7 @@ var app = (function () {
     var update_programmer_connection = async function (device_serial) {
         if (typeof device_serial === 'undefined') {
             is_connected = false;
-            // await select_page('tab_connection');
+            select_page('tab_programming');
         }
         else {
             is_connected = true;
@@ -2463,6 +2501,7 @@ var app = (function () {
         }
         last_programming_failed = false;
         update_programmer_ui();
+        update_ui();
     };
 
     // *************************************************************************

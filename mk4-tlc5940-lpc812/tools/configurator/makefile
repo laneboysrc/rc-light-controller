@@ -34,6 +34,7 @@ SOURCES += src/gamma.js
 SOURCES += src/lpc81x_isp.js
 SOURCES += src/main.js
 SOURCES += src/preprocessor-simulator.js
+SOURCES += src/preprocessor-simulator-ui.js
 SOURCES += src/templating.js
 SOURCES += src/ui.js
 SOURCES += src/webusb.js
