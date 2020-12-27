@@ -2226,6 +2226,13 @@ var app = (function () {
 
                 simulator = new Preprocessor_simulator(programmer);
                 simulator_ui = new Preprocessor_simulator_ui(simulator);
+
+                hide(document.querySelector('#error_baudrate'));
+                hide(document.querySelector('#error_testing'));
+                if (el.baudrate.selectedIndex == 0) {
+                    show(document.querySelector('#error_baudrate'));
+                    show(document.querySelector('#error_testing'));
+                }
             }
         }
         else {

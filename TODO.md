@@ -66,8 +66,8 @@ DONE Move use-case examples to the front
 # Configurator
 
 * Warning messages when configuration not suitable for Pre-Processor simulator
-    * Baudrate wrong
-    * UART use up
+    DONE Baudrate wrong
+    * UART used up
     * UART not on TH/Tx
 * Append CR to end of light program (to prevent issue when CR is missing after END)
 * Remember last used config filename and hex filename?
