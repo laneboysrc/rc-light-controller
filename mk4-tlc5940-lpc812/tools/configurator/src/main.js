@@ -2358,7 +2358,15 @@ var app = (function () {
         show(el.connection_info);
         show(el.webusb_disconnect_button);
         hide(el.webusb_connect_button);
-        // hide(el.webusb_programmer_info);
+
+        // Hide the error messages, since we are connected the can't be
+        // relevant ...
+        hide(document.querySelector('#error'));
+        hide(document.querySelector('#error_https'));
+        hide(document.querySelector('#error_webusb'));
+
+        // Also hide the info box, since the user knows about it already.
+        hide(el.webusb_programmer_info);
 
         if (programming_active) {
             programming_enabled = false;
