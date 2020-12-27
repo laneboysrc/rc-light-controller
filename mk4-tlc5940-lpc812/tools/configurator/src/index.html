@@ -1108,6 +1108,7 @@
           When using the <strong>USB-to-Serial adapter</strong>, please use the <strong>LPC81x_ISP tool</strong>
           described in the <a href="https://github.com/laneboysrc/rc-light-controller/blob/master/doc/light-controller-instructions-mk4.pdf">light controller manual</a>.
           </p>
+          <button id="close_webusb_programmer_info" title="Hide this message"><i class="fa fa-close"></i> Close</button>
         </div>
 
         <div id="error" class="box error hidden">
@@ -1134,9 +1135,9 @@
         </div>
 
         <div class="widebox configuration webusb_only">
+          <div><span id="connection_info" class="hidden"></span> <a id="webusb_disconnect_button" href="#">Disconnect</a></div>
           <button id="webusb_connect_button">Connect</button>
-          <button id="webusb_disconnect_button">Disconnect</button>
-          <div id="connection_info" class="hidden"></div>
+
         </div>
 
         <div class="widebox configuration webusb_only">

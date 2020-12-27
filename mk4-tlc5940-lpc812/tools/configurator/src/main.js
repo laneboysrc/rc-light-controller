@@ -2684,7 +2684,7 @@ var app = (function () {
             'aux3_type', 'aux3_function',
 
             'webusb_connect_button', 'webusb_disconnect_button',
-            'webusb_programmer_info',
+            'webusb_programmer_info', 'close_webusb_programmer_info',
             'connection_info', 'program', 'progress', 'status',
             // el.send_button = document.querySelector("#send");
             // el.send_text =  document.querySelector("#send-text");
@@ -2772,12 +2772,10 @@ var app = (function () {
             aux_type_changed_handler.bind({'type': el.aux3_type, 'fn': el.aux3_function})
         );
 
-        // el.webusb_pair.addEventListener('click', pair_usb_device);
+        el.close_webusb_programmer_info.addEventListener('click', function () {
+            hide(el.webusb_programmer_info);
+        });
 
-        // preprocessor_simulator = new preprocessor();
-
-        // discover_serial_ports();
-        // discover_usb_devices();
 
         init_assembler();
 
