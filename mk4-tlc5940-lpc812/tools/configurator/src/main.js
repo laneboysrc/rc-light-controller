@@ -2315,7 +2315,7 @@ var app = (function () {
     // *************************************************************************
     var update_programmer_ui = function () {
         if (!has_webusb) {
-            hide(document.querySelector('.body'));
+            document.querySelectorAll('.webusb_only').forEach(hide);
             return;
         }
 
@@ -2323,6 +2323,7 @@ var app = (function () {
             hide(el.connection_info);
             hide(el.webusb_disconnect_button);
             show(el.webusb_connect_button);
+            // show(el.webusb_programmer_info);
             programming_enabled = false;
             disable(el.program);
             testing_enabled = false;
@@ -2332,6 +2333,7 @@ var app = (function () {
         show(el.connection_info);
         show(el.webusb_disconnect_button);
         hide(el.webusb_connect_button);
+        // hide(el.webusb_programmer_info);
 
         if (programming_active) {
             programming_enabled = false;
@@ -2506,18 +2508,19 @@ var app = (function () {
 
     // *************************************************************************
     var init_programmer = async function () {
-        if (window.location.protocol != 'https:') {
-            if (window.location.protocol != 'http:' || window.location.hostname != 'localhost') {
-                show(document.querySelector('#error_https'));
-                show(document.querySelector('#error'));
-            }
-        }
 
         has_webusb = true;
         if (!navigator || !navigator.usb) {
             show(document.querySelector('#error_webusb'));
             show(document.querySelector('#error'));
             has_webusb = false;
+        }
+
+        if (has_webusb && window.location.protocol != 'https:') {
+            if (window.location.protocol != 'http:' || window.location.hostname != 'localhost') {
+                show(document.querySelector('#error_https'));
+                show(document.querySelector('#error'));
+            }
         }
 
         if (has_webusb) {
@@ -2656,6 +2659,7 @@ var app = (function () {
             'aux3_type', 'aux3_function',
 
             'webusb_connect_button', 'webusb_disconnect_button',
+            'webusb_programmer_info',
             'connection_info', 'program', 'progress', 'status',
             // el.send_button = document.querySelector("#send");
             // el.send_text =  document.querySelector("#send-text");

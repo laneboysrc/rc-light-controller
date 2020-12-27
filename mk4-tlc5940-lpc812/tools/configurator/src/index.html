@@ -1096,8 +1096,22 @@
 
 
       <div id="tab_programming" class="hidden">
+        <div id="webusb_programmer_info" class="widebox configuration">
+          <p>
+          This programming function <strong>only works with the WebUSB programmer</strong> shown below,
+          but not with the <strong>USB-to-Serial adapter</strong>.
+          </p>
+          <p>
+            <div class="webusb_programmer_image"></div>
+          </p>
+          <p>
+          When using the <strong>USB-to-Serial adapter</strong>, please use the <strong>LPC81x_ISP tool</strong>
+          described in the <a href="https://github.com/laneboysrc/rc-light-controller/blob/master/doc/light-controller-instructions-mk4.pdf">light controller manual</a>.
+          </p>
+        </div>
+
         <div id="error" class="box error hidden">
-          <h1 style="color: white">ATTENTION</h1>
+          <h1 style="color: white">Important</h1>
           <div id="error_https" class="hidden error_topic">
             <div>
               <strong>
@@ -1114,25 +1128,25 @@
           </div>
           <div id="error_webusb" class="hidden error_topic">
             <strong>
-              Please use a web browser that supports <a href="https://caniuse.com/#search=webusb">WebUSB</a>. A list of compatible browser can be found at <a href="https://caniuse.com/#search=webusb">https://caniuse.com/#search=webusb</a>
+              This web browser does not support the required <a href="https://caniuse.com/#search=webusb">WebUSB</a> function. A list of compatible browsers can be found at <a href="https://caniuse.com/#search=webusb">https://caniuse.com/#search=webusb</a>
             </strong>
           </div>
         </div>
 
-        <div class="widebox configuration">
+        <div class="widebox configuration webusb_only">
           <button id="webusb_connect_button">Connect</button>
           <button id="webusb_disconnect_button">Disconnect</button>
           <div id="connection_info" class="hidden"></div>
         </div>
 
-        <div class="widebox configuration">
+        <div class="widebox configuration webusb_only">
           <button id="program">Program</button>
           <div>
             <progress id="progress" max="100" value="0"></progress>
           </div>
         </div>
 
-        <div class="widebox response" id="diagnostics">
+        <div class="widebox response webusb_only" id="diagnostics">
           <span style="float: right; font-size: 0.75em">
               (newest on top)
           </span>
