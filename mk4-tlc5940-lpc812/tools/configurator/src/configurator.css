@@ -33,6 +33,13 @@ input, select, button {
   font-size: 1em;
 }
 
+input[type=range] {
+    display: block;
+    width: 100%;
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+}
+
 ul {
   margin-left: 20px;
 }
@@ -377,6 +384,10 @@ button.menu[disabled] {
 }
 
 
+#progress {
+  width: 100%;
+}
+
 
 .modal_dialog {
   position: absolute;
@@ -409,4 +420,26 @@ button.menu[disabled] {
 
 .align_right {
   float: right;
+}
+
+
+#status {
+  margin-top: 1em;
+  font-family: monospace;
+}
+
+.fail {
+  background: red;
+  color: white;
+  font-weight: 800;
+}
+
+.success {
+  background: green;
+  color: white;
+  font-weight: 800;
+}
+
+.expert {
+  color: gray;
 }

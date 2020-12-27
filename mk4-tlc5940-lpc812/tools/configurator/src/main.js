@@ -157,16 +157,40 @@ var app = (function () {
     //     ESC_FORWARD_BRAKE: 3
     // };
 
+    const MAX_UART_LOG_LINES = 20;
 
+    const CMD_DUT_POWER_OFF = 10;
+    const CMD_DUT_POWER_ON = 11;
+    const CMD_OUT_ISP_LOW = 20;
+    const CMD_OUT_ISP_HIGH = 21;
+    const CMD_OUT_ISP_TRISTATE = 22;
+    const CMD_CH3_LOW = 23;
+    const CMD_CH3_HIGH = 24;
+    const CMD_CH3_TRISTATE = 25;
+    const CMD_BAUDRATE_38400 = 30;
+    const CMD_BAUDRATE_115200 = 31;
+    const CMD_LED_OK_OFF = 40;
+    const CMD_LED_OK_ON = 41;
+    const CMD_LED_BUSY_OFF = 42;
+    const CMD_LED_BUSY_ON = 43;
+    const CMD_LED_ERROR_OFF = 44;
+    const CMD_LED_ERROR_ON = 45;
+    const CMD_PING = 99;
 
+    let firmware_image;
+    let log_stdin_running = false;
+    let is_connected = false;
+    let has_webusb = false;
+    let last_programming_failed = false;
+    let programmer;
+    let simulator_ui;
+    let simulator;
+    let power_is_on = false;
+    let programming_enabled = false;
+    let testing_enabled = false;
+    let programming_active = false;
+    let testing_active = false;
 
-    var has_uart = (typeof chrome !== 'undefined'  &&  chrome.serial);
-    var has_webusb = (typeof navigator.usb !== 'undefined');
-    var serial_ports = {'dummy': 'dummy'};
-    var number_of_serial_ports = 0;
-    var usb_devices = [];
-    // var preprocessor_simulator;
-    // var preprocessor_simulator_disabled = true;
 
     var log = console;
     // let log = {
@@ -177,7 +201,25 @@ var app = (function () {
     //     dir: () => {}
     // };
 
+    // *************************************************************************
+    var show = function (element) {
+        element.classList.remove('hidden');
+    };
 
+    // *************************************************************************
+    var hide = function (element) {
+        element.classList.add('hidden');
+    };
+
+    // *************************************************************************
+    var enable = function (element) {
+        element.disabled = false;
+    };
+
+    // *************************************************************************
+    var disable = function (element) {
+        element.disabled = true;
+    };
 
     // *************************************************************************
     var get_uint16 = function (data, offset) {
@@ -444,7 +486,7 @@ var app = (function () {
             // The GPIO assignment is set whenever uart_tx_on_out (bit 9)
             // is set
             new_config.assign_uart_to_out = get_flag2(0x0100);
-            console.log("flags2=0x" + flags2.toString(16));
+            log.log("flags2=0x" + flags2.toString(16));
 
             new_config.blink_counter_value_dark = get_uint16(data, offset + 68);
 
@@ -794,7 +836,7 @@ var app = (function () {
                 'config_leds',
                 'config_light_programs',
                 'config_advanced',
-                'testing',
+                'tab_programming',
                 'info',
             ]);
 
@@ -817,7 +859,8 @@ var app = (function () {
                 'config_leds',
                 'config_light_programs',
                 'config_advanced',
-                'testing',
+                'tab_programming',
+                'tab_testing',
                 'info',
             ]);
 
@@ -840,7 +883,8 @@ var app = (function () {
                 'config_leds',
                 'config_light_programs',
                 'config_advanced',
-                'testing',
+                'tab_programming',
+                'tab_testing',
                 'info',
             ]);
 
@@ -863,7 +907,7 @@ var app = (function () {
                 'config_leds',
                 'config_light_programs',
                 'config_advanced',
-                'testing',
+                'tab_programming',
                 'info',
             ]);
 
@@ -880,7 +924,7 @@ var app = (function () {
             update_menu_visibility([
                 'config_hardware',
                 'config_mode',
-                'testing',
+                'tab_programming',
                 'info',
             ]);
             break;
@@ -893,7 +937,8 @@ var app = (function () {
                 'config_mode',
                 'config_leds',
                 'config_light_programs',
-                'testing',
+                'tab_programming',
+                'tab_testing',
                 'info',
             ]);
 
@@ -910,6 +955,7 @@ var app = (function () {
             update_menu_visibility([
                 'config_hardware',
                 'config_mode',
+                'tab_programming',
             ]);
             break;
 
@@ -919,6 +965,7 @@ var app = (function () {
             update_menu_visibility([
                 'config_hardware',
                 'config_mode',
+                'tab_programming',
             ]);
             break;
 
@@ -928,6 +975,8 @@ var app = (function () {
             update_menu_visibility([
                 'config_hardware',
                 'config_mode',
+                'tab_programming',
+                'tab_testing',
             ]);
             break;
         }
@@ -1462,7 +1511,7 @@ var app = (function () {
                 flags2 |= (1 << 11); // config.uart_diagnostics_enabled
             }
 
-            console.log("flags2=0x" + flags2.toString(16));
+            log.log("flags2=0x" + flags2.toString(16));
             set_uint16(data, offset + 64, flags2);
 
             set_uint16(data, offset + 68, config.blink_counter_value_dark);
@@ -1477,10 +1526,10 @@ var app = (function () {
             // Pre-calculate AUX function for light switch handling hysteresis
             // and center values
             spacing = (200 / light_switch_positions);
-            console.log("light_switch_positions=" + light_switch_positions)
-            console.log("spacing=" + spacing)
+            log.log("light_switch_positions=" + light_switch_positions)
+            log.log("spacing=" + spacing)
             config.light_switch_hysteresis = Math.round(spacing / 4);
-            console.log("light_switch_hysteresis=" + config.light_switch_hysteresis)
+            log.log("light_switch_hysteresis=" + config.light_switch_hysteresis)
 
             set_uint8(data, offset + 85, config.light_switch_hysteresis);
 
@@ -1493,7 +1542,7 @@ var app = (function () {
                     config.light_switch_centers.push(
                         Math.round(-100 + (spacing / 2) + (i * spacing)));
                 }
-                console.log("light_switch_centers["+i+"] = "+config.light_switch_centers[i])
+                log.log("light_switch_centers["+i+"] = "+config.light_switch_centers[i])
                 set_int8(data, offset + 76 + i, config.light_switch_centers[i]);
             }
         }
@@ -1651,7 +1700,7 @@ var app = (function () {
                     config.aux2_function == null ||
                     config.aux3_function == null) {
 
-                console.log('WARNING: fixing corrupt configuration regarding aux_type and aux_function');
+                log.log('WARNING: fixing corrupt configuration regarding aux_type and aux_function');
                 config.aux_type = AUX_TYPE.AUX_TYPE_TWO_POSITION;
                 config.aux_function = AUX_FUNCTION.AUX_FUNCTION_MULTI_FUNCTION;
                 config.aux2_type = AUX_TYPE.AUX_TYPE_TWO_POSITION;
@@ -2160,15 +2209,6 @@ var app = (function () {
         }
 
         ui.refresh_editor();
-
-        // if (selected_page == 'testing') {
-        //     if (el.hardware.value == 'mk4') {
-        //         preprocessor_simulator.init(el.flash_serial_port.value, parseInt(el.baudrate.value, 10));
-        //     }
-        // }
-        // else {
-        //     preprocessor_simulator.disconnect();
-        // }
     };
 
     // *************************************************************************
@@ -2187,344 +2227,294 @@ var app = (function () {
         el.light_programs_ok.classList.add('hidden');
     };
 
-    // // *************************************************************************
-    // var update_visibility_from_ports = function () {
-    //     if (el.hardware.value == 'mk4') {
-    //         el.hardware_webusb.classList.add('hidden');
-
-    //         if (has_uart) {
-    //             el.hardware_uart.classList.remove('hidden');
-
-    //             if (number_of_serial_ports > 0) {
-    //                 el.flash.disabled = false;
-    //                 el.read.disabled = false;
-    //                 preprocessor_simulator_disabled = false;
-    //             }
-    //             else {
-    //                 el.flash.disabled = true;
-    //                 el.read.disabled = true;
-    //                 preprocessor_simulator_disabled = true;
-    //             }
-    //         }
-    //         else {
-    //             el.hardware_uart.classList.add('hidden');
-    //             el.flash.disabled = false;
-    //             el.read.disabled = false;
-    //             preprocessor_simulator_disabled = false;
-    //         }
-    //     }
-
-    //     update_section_visibility();
-    // };
-
-    // // *************************************************************************
-    // var discover_serial_ports = function () {
-    //     if (!has_uart) {
-    //         return;
-    //     }
-
-    //     chrome.serial.getDevices((ports) => {
-    //         let current_ports = {};
-    //         ports.forEach(port => {
-    //             current_ports[port.path] = port.displayName;
-    //         });
-
-    //         let changed = false;
-    //         // Check whether ports were added
-    //         for (let dev in current_ports) {
-    //             if (!serial_ports.hasOwnProperty(dev)) {
-    //                 changed = true;
-    //             }
-    //         }
-
-    //         // Check whether ports were removed
-    //         for (let dev in serial_ports) {
-    //             if (!current_ports.hasOwnProperty(dev)) {
-    //                 changed = true;
-    //             }
-    //         }
-
-    //         if (changed) {
-    //             serial_ports = current_ports;
-    //             let current_value = el.flash_serial_port.value;
-
-    //             // Clear the current options
-    //             while (el.flash_serial_port.options.length) {
-    //                 el.flash_serial_port.remove(0);
-    //             }
-
-    //             Object.keys(serial_ports).sort().forEach(path => {
-    //                 let name = serial_ports[path];
-    //                 let label = path + ' (' + name + ')';
-    //                 el.flash_serial_port.add(new Option(label, path));
-    //             });
-
-    //             number_of_serial_ports = el.flash_serial_port.options.length;
-
-    //             if (!number_of_serial_ports) {
-    //                 el.flash_serial_port.add(new Option('(no serial port found)', '0'));
-    //             }
-
-    //             if (serial_ports.hasOwnProperty(current_value)) {
-    //                 el.flash_serial_port.value = current_value;
-    //             }
-    //             else {
-    //                 el.flash_serial_port.selectedIndex = 0;
-    //             }
-
-    //             update_visibility_from_ports();
-    //         }
-
-    //         setTimeout(discover_serial_ports, 3000);
-    //     });
-    // };
-
-
-    // // *************************************************************************
-    // var update_usb_device_list = function () {
-    //     let current_value = el.flash_usb_device.value;
-    //     let previous_device_still_exists = false;
-
-    //     // Clear the current options
-    //     while (el.flash_usb_device.options.length) {
-    //         el.flash_usb_device.remove(0);
-    //     }
 
-    //     usb_devices.forEach(usb_device => {
-    //         let name = usb_device.device_.serialNumber;
-    //         let label = usb_device.device_.serialNumber;
-    //         el.flash_usb_device.add(new Option(label, name));
-
-    //         if (label == current_value) {
-    //             previous_device_still_exists = true;
-    //         }
-    //     });
-
-    //     let number_of_usb_devices = el.flash_usb_device.options.length;
-
-    //     if (!number_of_usb_devices) {
-    //         el.flash_usb_device.add(new Option('(press pair button to add a light controller)', '0'));
-    //     }
-
-    //     if (previous_device_still_exists) {
-    //         el.flash_usb_device.value = current_value;
-    //     }
-    //     else {
-    //         el.flash_usb_device.selectedIndex = 0;
-    //     }
-
-    //     update_visibility_from_ports();
-    // };
-
-
-    // // *************************************************************************
-    // var usb_device_connected = function (event) {
-    //     let device = event.device;
-
-    //     // log.log('usb_device_connected', device);
-
-    //     if (device.vendorId == 0x6666) {
-    //         if (device.productId == 0xcab1) {
-    //             let interfaces = dfu.findDeviceDfuInterfaces(device);
-    //             if (interfaces.length == 0) {
-    //                 return;
-    //             }
-    //             let dfu_device = new dfu.Device(device, interfaces[0]);
-    //             usb_devices.push(dfu_device);
-    //         }
-    //     }
-
-    //     update_usb_device_list();
-    // };
-
-
-    // // *************************************************************************
-    // var usb_device_disconnected = function (event) {
-    //     let device = event.device;
-
-    //     // log.log('usb_device_disconnected', device);
-
-    //     if (device.vendorId == 0x6666) {
-    //         if (device.productId == 0xcab1) {
-    //             for (let i = 0; i < usb_devices.length; i++) {
-    //                 let known_device = usb_devices[i];
-
-    //                 if (known_device.device_.serialNumber == device.serialNumber) {
-    //                     usb_devices.splice(i, 1);
-    //                 }
-    //             }
-    //         }
-    //     }
-
-    //     update_usb_device_list();
-    // };
-
-
-    // // *************************************************************************
-    // var discover_usb_devices = async function () {
-    //     if (!has_webusb) {
-    //         return;
-    //     }
-
-    //     el.hardware_webusb.classList.remove('hidden');
-
-    //     usb_devices = [];
-
-    //     let dfu_devices = await dfu.findAllDfuInterfaces();
-    //     if (dfu_devices.length) {
-    //         for (let dfu_device of dfu_devices) {
-    //             if (dfu_device.device_.vendorId == 0x6666) {
-    //                 if (dfu_device.device_.productId == 0xcab1) {
-    //                     usb_devices.push(dfu_device);
-    //                 }
-    //             }
-    //         }
-    //     }
-
-    //     update_usb_device_list();
-
-    //     navigator.usb.addEventListener('connect', usb_device_connected);
-    //     navigator.usb.addEventListener('disconnect', usb_device_disconnected);
-    // };
-
-
-    // // *************************************************************************
-    // var get_usb_device_by_serial_number = function (serial_number) {
-    //     for (let i = 0; i < usb_devices.length; i++) {
-    //         if (usb_devices[i].device_.serialNumber == serial_number) {
-    //             return usb_devices[i];
-    //         }
-    //     }
-
-    //     return null;
-    // };
-
-
-    // // *************************************************************************
-    // var pair_usb_device = async function () {
-    //     const filters = [{ 'vendorId': 0x6666, 'productId': 0xcab1 }];
-
-    //     let usb_device;
-    //     try {
-    //         usb_device = await navigator.usb.requestDevice({ 'filters': filters });
-    //     }
-    //     catch (error) {
-    //         log.log(error);
-    //         return;
-    //     }
-
-    //     let interfaces = dfu.findDeviceDfuInterfaces(usb_device);
-    //     if (interfaces.length == 0) {
-    //         log.log('The selected device does not have any USB DFU interfaces.');
-    //         return;
-    //     }
-
-    //     let dfu_device = new dfu.Device(usb_device, interfaces[0]);
-
-    //     // Only add device if we don't have it already
-    //     if (!get_usb_device_by_serial_number(dfu_device.device_.serialNumber)) {
-    //         usb_devices.push(dfu_device);
-    //         update_usb_device_list();
-    //     }
-    // };
-
-
-    // // *************************************************************************
-    // var flash = async function () {
-    //     let programmer;
-    //     let device;
-
-    //     let config = get_config();
-    //     assemble_firmware(config);
-
-    //     switch (el.hardware.value) {
-    //     case 'mk4':
-    //         programmer = new flash_lpc8xx(new chrome_uart());
-    //         device = el.flash_serial_port.value;
-    //         break;
-    //     }
-
-
-    //     el.flash_progress.value = 0;
-    //     el.flash_heading.textContent = 'Flashing ...';
-    //     el.flash_button.textContent = 'Cancel';
-    //     el.flash_button.disabled = false;
-    //     el.flash_message.textContent = '';
-    //     el.flash_message.classList.remove('error');
-    //     el.flash_dialog.classList.remove('hidden');
-    //     el.flash_progress.classList.remove('hidden');
-
-
-    //     programmer.onMessageCallback = function (message) {
-    //         el.flash_message.textContent = message;
-    //     };
-
-    //     programmer.onProgressCallback = function (progress) {
-    //         el.flash_progress.value = progress;
-    //     };
-
-    //     programmer.setCancelButtonEnabled = function (enabled) {
-    //         el.flash_button.disabled = enabled;
-    //     };
-
-    //     function button_pressed() {
-    //         programmer.cancel();
-    //         el.flash_dialog.classList.add('hidden');
-    //         el.flash_button.removeEventListener('click', button_pressed);
-    //     }
-
-    //     el.flash_button.addEventListener('click', button_pressed);
-
-    //     if (await programmer.flash(device, firmware.data)) {
-    //         el.flash_dialog.classList.add('hidden');
-    //         el.flash_button.removeEventListener('click', button_pressed);
-    //     }
-    //     else {
-    //         el.flash_button.textContent = 'Close';
-    //         el.flash_button.disabled = false;
-    //         el.flash_message.classList.add('error');
-    //     }
-    // };
-
-
-    // // *************************************************************************
-    // var read_firmware_from_flash = async function () {
-    //     el.flash_progress.value = 0;
-    //     el.flash_heading.textContent = 'Reading firmware ...';
-    //     el.flash_button.textContent = 'Cancel';
-    //     el.flash_button.disabled = false;
-    //     el.flash_message.textContent = '';
-    //     el.flash_message.classList.remove('error');
-    //     el.flash_dialog.classList.remove('hidden');
-    //     el.flash_progress.classList.add('hidden');
-
-    //     let mk4_isp = new flash_lpc8xx(new chrome_uart());
-
-    //     mk4_isp.onMessageCallback = function (message) {
-    //         el.flash_message.textContent = message;
-    //     };
-
-    //     function button_pressed() {
-    //         mk4_isp.cancel();
-    //         el.flash_dialog.classList.add('hidden');
-    //         el.flash_button.removeEventListener('click', button_pressed);
-    //     }
-
-    //     el.flash_button.addEventListener('click', button_pressed);
-
-    //     let bin = await mk4_isp.read_flash(el.flash_serial_port.value);
-    //     if (bin.length) {
-    //         el.flash_dialog.classList.add('hidden');
-    //         el.flash_button.removeEventListener('click', button_pressed);
-
-    //         load_firmware(bin);
-    //     }
-    //     else {
-    //         el.flash_button.textContent = 'Close';
-    //         el.flash_button.disabled = false;
-    //         el.flash_message.classList.add('error');
-    //     }
-    // };
+    var connect = async function (device) {
+        await programmer.open(device);
+        if (programmer.is_open) {
+            await programmer.send_command(CMD_DUT_POWER_OFF);
+            await programmer.send_command(CMD_OUT_ISP_LOW);
+            await programmer.send_command(CMD_CH3_LOW);
+            power_is_on = false;
+
+            const msg = 'Connected to Light Controller Programmer with serial number ' + programmer.serial_number;
+            log.log(msg);
+            update_programmer_connection(programmer.serial_number);
+            keep_programmer_alive();
+        }
+    };
+
+    // *************************************************************************
+    var keep_programmer_alive = async function () {
+        // Send a PING command to the programmer every one second.
+        // The programmer uses this command to see whether the host is still connected
+        // to it, as the USB stack does not provide any info when e.g. when the webpage
+        // with the programmer has been closed.
+        try {
+            await programmer.send_command(CMD_PING);
+        }
+        catch (e) {
+            return;
+        }
+        setTimeout(keep_programmer_alive, 1000);
+    };
+
+    // *************************************************************************
+    var disconnect = async function () {
+        await programmer.close();
+        update_programmer_connection();
+    };
+
+    // *************************************************************************
+    var onWebusbDeviceConnected = async function (device) {
+        connect(device);
+    };
+
+    // *************************************************************************
+    var onWebusbDeviceDisconnected = async function () {
+        update_programmer_connection();
+    };
+
+    // *************************************************************************
+    var update_programmer_ui = function () {
+        if (!has_webusb) {
+            hide(document.querySelector('.body'));
+            return;
+        }
+
+        if (!is_connected) {
+            hide(el.connection_info);
+            hide(el.webusb_disconnect_button);
+            show(el.webusb_connect_button);
+            programming_enabled = false;
+            disable(el.program);
+            testing_enabled = false;
+            return;
+        }
+
+        show(el.connection_info);
+        show(el.webusb_disconnect_button);
+        hide(el.webusb_connect_button);
+
+        if (programming_active) {
+            programming_enabled = false;
+            testing_enabled = false;
+            programmer.send_command(CMD_LED_OK_OFF);
+            programmer.send_command(CMD_LED_BUSY_ON);
+            programmer.send_command(CMD_LED_ERROR_OFF);
+        }
+        else if (testing_active) {
+            programmer.send_command(CMD_LED_OK_OFF);
+            programmer.send_command(CMD_LED_BUSY_ON);
+            programmer.send_command(CMD_LED_ERROR_OFF);
+        }
+        else {
+            programming_enabled = true;
+            testing_enabled = true;
+            programmer.send_command(CMD_LED_BUSY_OFF);
+            if (last_programming_failed) {
+                programmer.send_command(CMD_LED_OK_OFF);
+                programmer.send_command(CMD_LED_ERROR_ON);
+            }
+            else {
+                programmer.send_command(CMD_LED_OK_ON);
+                programmer.send_command(CMD_LED_ERROR_OFF);
+            }
+        }
+
+        if (programming_enabled && !programming_active) {
+            enable(el.program);
+        }
+        else {
+            disable(el.program);
+        }
+    };
+
+    // *************************************************************************
+    var programmer_log = function (msg, displayClass) {
+        const content = new Date(Date.now()).toISOString() + ' ' + msg;
+        const div = document.createElement('div');
+        div.textContent = content;
+        log.log("log: " + content);
+
+        if (displayClass) {
+            div.classList.add(displayClass);
+        }
+
+        if (el.status.firstChild) {
+            el.status.insertBefore(div, el.status.firstChild);
+            while (el.status.childElementCount > MAX_UART_LOG_LINES) {
+                el.status.removeChild(el.status.lastChild);
+            }
+        }
+        else {
+            el.status.appendChild(div);
+        }
+    };
+
+    // *************************************************************************
+    var delay = async function (milliseconds) {
+        await new Promise(resolve => {setTimeout(() => {resolve()}, milliseconds)});
+    }
+
+    // *************************************************************************
+    var progressCallback = function (progress) {
+        el.progress.value = progress * 100;
+    };
+
+
+    // *************************************************************************
+    var program = async function () {
+        // Update data based on UI
+        const data = get_config();
+
+        // Set ch3_is_local_switch always when UART input active
+        if (config_version !== 1) {
+            if (data.config.mode === MODE.MASTER_WITH_UART_READER || data.config.mode === MODE.STAND_ALONE) {
+                data.config.ch3_is_local_switch = true;
+            }
+        }
+
+        try {
+            assemble_firmware(data);
+        } catch (e) {
+            window.alert(
+                'Failed to assemble the firmware. Reason:\n\n' + e.message
+            );
+            return;
+        }
+
+        const firmware_image = firmware.data;
+
+
+        const isp = new flash_lpc8xx(programmer);
+        isp.messageCallback = programmer_log;
+        isp.progressCallback = progressCallback;
+
+        try {
+            programming_active = true;
+            last_programming_failed = false;
+            update_programmer_ui();
+            progressCallback(0);
+
+            programmer_log("Power-cycling the light controller ...");
+            await programmer.send_command(CMD_DUT_POWER_OFF);
+            await programmer.send_command(CMD_OUT_ISP_LOW);
+            await delay(200);
+            await programmer.send_command(CMD_DUT_POWER_ON);
+            power_is_on = true;
+            await delay(100);
+            progressCallback(0.02);
+            await isp.initialization_sequence();
+            await programmer.send_command(CMD_OUT_ISP_TRISTATE);
+
+            const flash_size = await isp.get_flash_size();
+            programmer_log("Flash size: " + flash_size / 1024 + " Kbytes");
+            if (firmware_image.length > flash_size) {
+                programmer_log('Firmware size (' + firmware_image.length + ') exceeds flash size (' + flash_size + ')', 'fail');
+                throw 'Firmware too large';
+            }
+
+            await isp.program(firmware_image);
+
+            // UPDATE: the code below is not needed anymore.
+            // Instead we added a MOSFET that pulls the supply voltage of the light
+            // controller low when it is powered off, bleeding off any voltage
+            // stored in the light controller.
+
+            // We let the downloaded isp_program run for 200 ms. This causes the voltage to
+            // drop off sharply after we switch it off. If we don't do this then
+            // the capacitor on the light controller stays at a low voltage, causing
+            // the MCU to not properly reset (most likely because the ISP isp_program does
+            // not use brown-out detection and maybe sleeps the CPU?)
+            // await programmer.reset_mcu();
+            // await delay(200);
+            programmer_log("SUCCESS: programming complete", "success");
+        }
+        catch(e) {
+            programmer_log(e);
+            progressCallback(0);
+            last_programming_failed = true;
+            programmer_log("ERROR: programming failed", "fail");
+        }
+        finally {
+            await programmer.send_command(CMD_DUT_POWER_OFF);
+            await programmer.send_command(CMD_OUT_ISP_LOW);
+            power_is_on = false;
+            // Wait 500 ms for the voltage to bled fully, otherwise when quickly
+            // switching to Pre-Processor simulator mode the MCU would still be in ISP
+            // state.
+            await delay(500);
+            programming_active = false;
+            update_programmer_ui();
+            el.program.focus();
+        }
+    };
+
+    // *************************************************************************
+    var update_programmer_connection = async function (device_serial) {
+        if (typeof device_serial === 'undefined') {
+            is_connected = false;
+            // await select_page('tab_connection');
+        }
+        else {
+            is_connected = true;
+            el.connection_info.textContent = 'Connected to Light Controller Programmer with serial number ' + device_serial;
+            // await select_page('tab_programming');
+        }
+        last_programming_failed = false;
+        update_programmer_ui();
+    };
+
+    // *************************************************************************
+    var init_programmer = async function () {
+        if (window.location.protocol != 'https:') {
+            if (window.location.protocol != 'http:' || window.location.hostname != 'localhost') {
+                show(document.querySelector('#error_https'));
+                show(document.querySelector('#error'));
+            }
+        }
+
+        has_webusb = true;
+        if (!navigator || !navigator.usb) {
+            show(document.querySelector('#error_webusb'));
+            show(document.querySelector('#error'));
+            has_webusb = false;
+        }
+
+        if (has_webusb) {
+            programmer = new WebUSB_programmer();
+            programmer.onConnectedCallback = onWebusbDeviceConnected;
+            programmer.onDisconnectedCallback = onWebusbDeviceDisconnected;
+        }
+
+        el.webusb_connect_button.addEventListener('click', connect);
+        el.webusb_disconnect_button.addEventListener('click', disconnect);
+
+        el.load.addEventListener('click', () => {el.load_input.click(); }, false);
+        el.load_input.addEventListener('change', load_file_from_disk, false);
+
+        el.program.addEventListener('click', () => { program() }, false);
+
+
+        // for (let index = 0; index < el.menu_buttons.length; index += 1) {
+        //     const button = el.menu_buttons[index];
+        //     button.addEventListener('click', async (event) => {
+        //         const selected_page = event.currentTarget.getAttribute('data');
+        //         await select_page(selected_page);
+        //     });
+        // }
+
+        // await select_page("tab_connection");
+        update_programmer_ui();
+
+        if (programmer) {
+            const available_devices = await programmer.get_available_devices();
+            if (available_devices.length) {
+                log.log('Paired USB devices: ', available_devices);
+                connect(available_devices[0]);
+            }
+        }
+    };
 
 
     // *************************************************************************
@@ -2593,6 +2583,8 @@ var app = (function () {
 
             'config_advanced',
 
+            'tab_programming', 'tab_testing',
+
             'auto_brake_lights_forward_enabled',
             'auto_brake_counter_value_forward_min',
             'auto_brake_counter_value_forward_max',
@@ -2624,6 +2616,30 @@ var app = (function () {
             'aux2_type', 'aux2_function',
             'aux3_type', 'aux3_function',
 
+            'webusb_connect_button', 'webusb_disconnect_button',
+            'connection_info', 'program', 'progress', 'status',
+            // el.send_button = document.querySelector("#send");
+            // el.send_text =  document.querySelector("#send-text");
+            // el.dut_power = document.querySelector("#dut-power");
+            // el.led_ok = document.querySelector("#led-ok");
+            // el.led_busy = document.querySelector("#led-busy");
+            // el.led_error = document.querySelector("#led-error");
+            // el.status = document.querySelector('#status');
+            // el.isp = document.querySelector('#isp');
+            // el.send_questionmark_button = document.querySelector('#send-questionmark');
+            // el.send_synchronized_button = document.querySelector('#send-synchronized');
+            // el.send_crystal_button = document.querySelector('#send-crystal');
+            // el.send_a0_button = document.querySelector('#send-a0');
+            // el.send_unlock_button = document.querySelector('#send-unlock');
+            // el.send_prepare_button = document.querySelector('#send-prepare');
+            // el.send_erase_button = document.querySelector('#send-erase');
+            // el.load = document.querySelector('#load');
+            // el.load_input = document.querySelector('#load-input');
+            // el.program = document.querySelector('#program');
+            // el.progress = document.querySelector('#progress');
+            // el.initialize = document.querySelector('#initialize');
+            // el.filename = document.querySelector('#filename');
+
         ].forEach(function (name) {
             el[name] = document.getElementById(name);
         });
@@ -2638,12 +2654,6 @@ var app = (function () {
         el.dual_output = document.getElementsByClassName('dual_output');
         el.dual_output_th = document.getElementsByClassName('dual_output_th');
         el.assign_servo_uart = document.getElementsByName('assign_servo_uart');
-
-        el.flash_dialog = document.querySelector('#flash_dialog');
-        el.flash_heading = el.flash_dialog.querySelector('.heading');
-        el.flash_progress = el.flash_dialog.querySelector('progress');
-        el.flash_message = el.flash_dialog.querySelector('#programming_message');
-        el.flash_button = el.flash_dialog.querySelector('button');
 
 
         set_led_feature_handler('leds_master', 'master');
@@ -2707,6 +2717,8 @@ var app = (function () {
         load_firmware(contents);
         load_default_configuration();
         hardware_changed();
+
+        init_programmer();
 
         select_page('config_hardware');
     };

@@ -21,8 +21,6 @@
 
   <script inline src="vendor/intel-hex/intel-hex.js"></script>
 
-  <script inline src="vendor/webdfu/dfu.js"></script>
-
   <script inline src="vendor/codemirror/lib/codemirror.js"></script>
   <script inline src="vendor/codemirror/addon/dialog/dialog.js"></script>
   <script inline src="vendor/codemirror/addon/selection/active-line.js"></script>
@@ -48,7 +46,11 @@
   <script inline src="config_preprocessor.js"></script>
 
   <script inline src="gamma.js"></script>
-  <script inline src="preprocessor_simulator.js"></script>
+
+  <script inline src="webusb.js"></script>
+  <script inline src="lpc81x_isp.js"></script>
+  <script inline src="preprocessor-simulator.js"></script>
+
   <script inline src="templating.js"></script>
   <!-- <script NOinline src="chrome_uart.js"></script> -->
   <!-- <script NOinline src="flash_lpc8xx.js"></script> -->
@@ -92,8 +94,8 @@
         <li><button data="config_leds"><i class="fa fa-lightbulb-o"></i><span class="menu-label">LED configuration</span></button></li>
         <li><button data="config_light_programs"><i class="fa fa-code"></i><span class="menu-label">Light programs</span></button></li>
         <li><button data="config_advanced"><i class="fa fa-cogs"></i><span class="menu-label">Advanced settings</span></button></li>
-        <li class="hidden"><button data="testing"><i class="fa fa-sliders"></i><span class="menu-label">Testing</span></button></li>
-        <li><button data="info"><i class="fa fa-info-circle"></i><span class="menu-label">Info</span></button></li>
+        <li><button data="tab_programming"><i class="fa fa-microchip"></i><span class="menu-label">Programming</span></button></li>
+        <li><button data="tab_testing"><i class="fa fa-sliders"></i><span class="menu-label">Testing</span></button></li>        <li><button data="info"><i class="fa fa-info-circle"></i><span class="menu-label">Info</span></button></li>
       </ul>
     </nav>
 
@@ -113,16 +115,6 @@
             <option value="mk4">Mk4 (NXP LPC812)</option>
           </select>
           <span id="hardware_image" class="mk4"></span>
-        </div>
-
-        <div id="hardware_uart" class="hidden">
-          Programming port:
-          <select id="flash_serial_port"></select>
-        </div>
-
-        <div id="hardware_webusb" class="hidden">
-          Device: <select id="flash_usb_device"></select>
-          <button id="webusb_pair">Pair</button>
         </div>
 
         <div class="info">
@@ -1101,11 +1093,55 @@
 
       </div>
 
-      <div id="testing" class="hidden">
-        <div id="webusb-connect" class="box configuration widebox hidden">
-          <button id="webusb-connect-button">Connect</button>
+
+      <div id="tab_programming" class="hidden">
+        <div id="error" class="box error hidden">
+          <h1 style="color: white">ATTENTION</h1>
+          <div id="error_https" class="hidden error_topic">
+            <div>
+              <strong>
+                Run this program from <a href="https://laneboysrc.github.io/rc-light-controller/">https://laneboysrc.github.io/rc-light-controller</a>
+              </strong>
+            </div>
+            <div>
+              <strong>
+                WebUSB does not work on <em>file:</em> or <em>http:</em> protocol (except when running on localhost)
+                <br>
+                For local testing use <em>python3 -m http.server</em> and browse to <em>http://localhost:8000</em>
+              </strong>
+            </div>
+          </div>
+          <div id="error_webusb" class="hidden error_topic">
+            <strong>
+              Please use a web browser that supports <a href="https://caniuse.com/#search=webusb">WebUSB</a>. A list of compatible browser can be found at <a href="https://caniuse.com/#search=webusb">https://caniuse.com/#search=webusb</a>
+            </strong>
+          </div>
         </div>
 
+        <div class="widebox configuration">
+          <button id="webusb_connect_button">Connect</button>
+          <button id="webusb_disconnect_button">Disconnect</button>
+          <div id="connection_info" class="hidden"></div>
+        </div>
+
+        <div class="widebox configuration">
+          <button id="program">Program</button>
+          <div>
+            <progress id="progress" max="100" value="0"></progress>
+          </div>
+        </div>
+
+        <div class="widebox response" id="diagnostics">
+          <span style="float: right; font-size: 0.75em">
+              (newest on top)
+          </span>
+          <h2>Diagnostic messages</h2>
+          <div id="status"></div>
+        </div>
+      </div>
+
+
+      <div id="tab_testing" class="hidden">
         <div class="preprocessor-page" id="preprocessor-simulator">
             <div class="column">
                 <div class="box configuration controls">
@@ -1113,33 +1149,85 @@
                     <div>
                         <input id="steering" type="range" min ="-100" max="100" step ="1" value ="0">
                         <div class="centered">
-                            <button id="steering-neutral">neutral</button>
+                            <button id="steering-neutral">center</button>
                         </div>
                     </div>
                     <h2>Throttle</h2>
                     <div>
                         <input id="throttle" type="range" min ="-100" max="100" step ="1" value ="0">
                         <div class="centered">
-                            <button id="throttle-neutral">neutral</button>
+                            <button id="throttle-neutral">center</button>
                         </div>
                     </div>
                 </div>
-            </div>
+                <div class='box configuration controls expert'>
+                    <h2>Expert settings</h2>
+                    <div>
+                        <input id='startup-mode' type='checkbox'> <label for='startup-mode'>Startup</label>
+                    </div>
+                    <div>
+                        <input id='no-signal' type='checkbox'> <label for='no-signal'>Simulate no signal</label>
+                    </div>
+                    <div>
+                      <label for='preprocessor-mode'>Pre-Processor protocol: </label> <select id='preprocessor-mode'>
+                          <option value='0'>Automatic</option>
+                          <option value='3'>3-channel</option>
+                          <option value='5'>5-channel</option>
+                      </select>
+                    </div>
+                </div>              </div>
 
-            <div class="column">
-                <div class="box configuration features">
-                    <div>
-                        <input id="startup-mode" type="checkbox"> <label for="startup-mode">Startup</label>
-                    </div>
-                </div>
-                <div class="box configuration features">
-                    <span style="float: right;">
-                        <input id="momentary" type="checkbox"> <label for="momentary">Momemtary</label>
+            <div class='column'>
+                <div class='box configuration controls'>
+                    <span style='float: right;'>
+                        <select id='aux-type'>
+                            <option value='0'>Two-position switch</option>
+                            <option value='1'>Two-position switch up/down</option>
+                            <option value='2'>Momentary</option>
+                            <option value='3' class='multi-aux'>Three-position switch</option>
+                            <option value='4' class='multi-aux'>Analog</option>
+                        </select>
                     </span>
-                    <h2>CH3 / AUX</h2>
-                    <div>
-                        <button id="ch3">CH3</button>
+                    <h2>AUX</h2>
+                    <div id='aux-function' class='function'></div>
+                    <div class='centered'>
+                        <button id='aux-toggle'>AUX</button>
                     </div>
+                    <input id='aux-slider' type='range' min ='-100' max='100' step ='1' value ='0'>
+                </div>
+                <div class='box configuration controls multi-aux'>
+                    <span style='float: right;'>
+                       <select id='aux2-type'>
+                            <option value='0'>Two-position switch</option>
+                            <option value='1'>Two-position switch up/down</option>
+                            <option value='2'>Momentary</option>
+                            <option value='3'>Three-position switch</option>
+                            <option value='4'>Analog</option>
+                        </select>
+                    </span>
+                    <h2>AUX2</h2>
+                    <div id='aux2-function' class='function'></div>
+                    <div class='centered'>
+                        <button id='aux2-toggle'>AUX2</button>
+                    </div>
+                    <input id='aux2-slider' type='range' min ='-100' max='100' step ='1' value ='0'>
+                </div>
+                <div class='box configuration controls multi-aux'>
+                    <span style='float: right;'>
+                        <select id='aux3-type'>
+                            <option value='0'>Two-position switch</option>
+                            <option value='1'>Two-position switch up/down</option>
+                            <option value='2'>Momentary</option>
+                            <option value='3'>Three-position switch</option>
+                            <option value='4'>Analog</option>
+                        </select>
+                    </span>
+                    <h2>AUX3</h2>
+                    <div id='aux3-function' class='function'></div>
+                    <div class='centered'>
+                        <button id='aux3-toggle'>AUX3</button>
+                    </div>
+                    <input id='aux3-slider' type='range' min ='-100' max='100' step ='1' value ='0'>
                 </div>
             </div>
         </div>
@@ -1152,6 +1240,7 @@
             <div class="message" id="diagnostics-messages"></div>
         </div>
       </div>
+
 
       <div id="info" class="box configuration hidden">
         <div>
@@ -1197,16 +1286,6 @@
     </div>
   </div>
 
-  <div id="flash_dialog" class="modal_dialog hidden">
-    <div class="frame box">
-      <div class="heading">Flashing</div>
-      <div>
-        <progress id="programming_progress" value="0" max="1"></progress>
-      </div>
-      <div id="programming_message">This is a modal dialog</div>
-      <div><button class="align_right">Close</button></div>
-    </div>
-  </div>
 
   <input type="file" id="load_input" style="display:none">
 

@@ -26,18 +26,17 @@ endif
 ###############################################################################
 # Source files
 SOURCES := src/index.html
-SOURCES += src/chrome_uart.js
-SOURCES += src/default_firmware_image_mk4.js
 SOURCES += src/config_hardware_test.js
 SOURCES += src/config_preprocessor.js
+SOURCES += src/configurator.css
+SOURCES += src/default_firmware_image_mk4.js
 SOURCES += src/gamma.js
-SOURCES += src/flash_lpc8xx.js
-SOURCES += src/flash_dfu.js
+SOURCES += src/lpc81x_isp.js
 SOURCES += src/main.js
-SOURCES += src/preprocessor_simulator.js
+SOURCES += src/preprocessor-simulator.js
 SOURCES += src/templating.js
 SOURCES += src/ui.js
-SOURCES += src/configurator.css
+SOURCES += src/webusb.js
 
 
 ###############################################################################
