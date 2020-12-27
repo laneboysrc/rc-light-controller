@@ -1255,6 +1255,10 @@ var app = (function () {
 
     // *************************************************************************
     var parse_light_program_code = function (light_programs) {
+        // Append a new-line to prevent error message when the newline
+        // is missting after the end statement
+        light_programs += '\n'
+
         el.light_programs_errors.classList.add('hidden');
         el.light_programs_ok.classList.add('hidden');
 
