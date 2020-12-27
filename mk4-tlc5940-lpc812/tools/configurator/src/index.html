@@ -535,7 +535,7 @@
         <h3 class="dual_output">UART output function</h3>
         <div class="radio_item dual_output">
           <input type="radio" name="output_th" value="0" id="dual_off">
-          <label for="single_off">(no output function)</label>
+          <label for="dual_off">(no output function)</label>
           <br>
           No signal on the pin assigned to the UART function.
         </div>
@@ -1165,6 +1165,17 @@
               can only work at 115200 Baud. Change the Baudrate temporarily for
               testing.
           </div>
+
+          <div id="error_uart_in_use" class="hidden error_topic">
+              The UART output is used in the configuration.
+              Diagnostics messages will not be shown.
+          </div>
+
+          <div id="error_uart_on_out_isp" class="hidden error_topic">
+              The UART output has been configured on the OUT/ISP pin.
+              Diagnostics messages will not be shown.
+          </div>
+
         </div>
 
         <div class="preprocessor-page" id="preprocessor-simulator">

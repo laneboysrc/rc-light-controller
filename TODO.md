@@ -65,10 +65,10 @@ DONE Move use-case examples to the front
 
 # Configurator
 
-* Warning messages when configuration not suitable for Pre-Processor simulator
+DONE Warning messages when configuration not suitable for Pre-Processor simulator
     DONE Baudrate wrong
-    * UART used up
-    * UART not on TH/Tx
+    DONE UART used up
+    DONE UART not on TH/Tx
 DONE Append CR to end of light program (to prevent issue when CR is missing after END)
 DONE Remember last used config filename and hex filename?
 DONE Show light program size in bytes

@@ -2235,10 +2235,20 @@ var app = (function () {
                 simulator = new Preprocessor_simulator(programmer);
                 simulator_ui = new Preprocessor_simulator_ui(simulator);
 
-                hide(document.querySelector('#error_baudrate'));
                 hide(document.querySelector('#error_testing'));
+                hide(document.querySelector('#error_baudrate'));
+                hide(document.querySelector('#error_uart_in_use'));
+                hide(document.querySelector('#error_uart_on_out_isp'));
                 if (el.baudrate.selectedIndex == 0) {
                     show(document.querySelector('#error_baudrate'));
+                    show(document.querySelector('#error_testing'));
+                }
+                else if (el.assign_uart_to_out.checked) {
+                    show(document.querySelector('#error_uart_on_out_isp'));
+                    show(document.querySelector('#error_testing'));
+                }
+                else if (!el.dual_off.checked) {
+                    show(document.querySelector('#error_uart_in_use'));
                     show(document.querySelector('#error_testing'));
                 }
             }
@@ -2630,7 +2640,7 @@ var app = (function () {
             'gearbox_servo_output', 'winch_output', 'winch_enable',
             'light_program_servo_output', 'indicators_while_driving',
             'gearbox_light_program_control',
-            'assign_uart_to_out', 'assign_servo_to_out',
+            'assign_uart_to_out', 'assign_servo_to_out', 'dual_off',
             'require_extra_click', 'prefer_all_lights_off', 'invert_out15s',
 
             'leds_clear',
