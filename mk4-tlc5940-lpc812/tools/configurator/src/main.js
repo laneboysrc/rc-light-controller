@@ -2570,11 +2570,7 @@ var app = (function () {
         el.webusb_connect_button.addEventListener('click', connect);
         el.webusb_disconnect_button.addEventListener('click', disconnect);
 
-        el.load.addEventListener('click', () => {el.load_input.click(); }, false);
-        el.load_input.addEventListener('change', load_file_from_disk, false);
-
         el.program.addEventListener('click', () => { program() }, false);
-
 
         // for (let index = 0; index < el.menu_buttons.length; index += 1) {
         //     const button = el.menu_buttons[index];
@@ -2744,10 +2740,7 @@ var app = (function () {
 
         el.config_output.addEventListener('change', update_section_visibility, false);
 
-        el.load.addEventListener('click', function () {
-            el.load_input.click();
-        }, false);
-
+        el.load.addEventListener('click', () => {el.load_input.click(); }, false);
         el.load_input.addEventListener('change', load_file_from_disk, false);
         el.save_config.addEventListener('click', save_configuration, false);
         el.save_firmware.addEventListener('click', save_firmware, false);
