@@ -2543,17 +2543,22 @@ var app = (function () {
     var init_programmer = async function () {
 
         has_webusb = true;
-        if (!navigator || !navigator.usb) {
-            show(document.querySelector('#error_webusb'));
-            show(document.querySelector('#error'));
-            has_webusb = false;
-        }
 
-        if (has_webusb && window.location.protocol != 'https:') {
+        // Important: check for HTTPS first!
+        // Otherwise the WebUSB message will be shown because the browser
+        // claims it does not support WebUSB when HTTP is used!
+        if (window.location.protocol != 'https:') {
             if (window.location.protocol != 'http:' || window.location.hostname != 'localhost') {
                 show(document.querySelector('#error_https'));
                 show(document.querySelector('#error'));
+                has_webusb = false;
             }
+        }
+
+        if (has_webusb &&  (!navigator || !navigator.usb)) {
+            show(document.querySelector('#error_webusb'));
+            show(document.querySelector('#error'));
+            has_webusb = false;
         }
 
         if (has_webusb) {
