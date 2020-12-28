@@ -2205,6 +2205,10 @@ var app = (function () {
 
     // *************************************************************************
     var select_page = async function (selected_page) {
+        if (programming_active) {
+            return;
+        }
+
         for (var index = 0; index < el.menu_buttons.length; index += 1) {
             var button = el.menu_buttons[index];
             var page_name = button.getAttribute('data');
@@ -2458,12 +2462,15 @@ var app = (function () {
 
         const firmware_image = firmware.data;
 
-
         const isp = new flash_lpc8xx(programmer);
         isp.messageCallback = programmer_log;
         isp.progressCallback = progressCallback;
 
+        let enabledButtons = document.querySelectorAll('button:not([disabled])')
+
         try {
+            enabledButtons.forEach(b => {b.disabled = true});
+
             programming_active = true;
             last_programming_failed = false;
             update_programmer_ui();
@@ -2518,6 +2525,7 @@ var app = (function () {
             // state.
             await delay(500);
             programming_active = false;
+            enabledButtons.forEach(b => {b.disabled = false});
             update_programmer_ui();
             el.program.focus();
         }
@@ -2695,27 +2703,6 @@ var app = (function () {
             'webusb_connect_button', 'webusb_disconnect_button',
             'webusb_programmer_info', 'close_webusb_programmer_info',
             'connection_info', 'program', 'progress', 'status',
-            // el.send_button = document.querySelector("#send");
-            // el.send_text =  document.querySelector("#send-text");
-            // el.dut_power = document.querySelector("#dut-power");
-            // el.led_ok = document.querySelector("#led-ok");
-            // el.led_busy = document.querySelector("#led-busy");
-            // el.led_error = document.querySelector("#led-error");
-            // el.status = document.querySelector('#status');
-            // el.isp = document.querySelector('#isp');
-            // el.send_questionmark_button = document.querySelector('#send-questionmark');
-            // el.send_synchronized_button = document.querySelector('#send-synchronized');
-            // el.send_crystal_button = document.querySelector('#send-crystal');
-            // el.send_a0_button = document.querySelector('#send-a0');
-            // el.send_unlock_button = document.querySelector('#send-unlock');
-            // el.send_prepare_button = document.querySelector('#send-prepare');
-            // el.send_erase_button = document.querySelector('#send-erase');
-            // el.load = document.querySelector('#load');
-            // el.load_input = document.querySelector('#load-input');
-            // el.program = document.querySelector('#program');
-            // el.progress = document.querySelector('#progress');
-            // el.initialize = document.querySelector('#initialize');
-            // el.filename = document.querySelector('#filename');
 
         ].forEach(function (name) {
             el[name] = document.getElementById(name);
