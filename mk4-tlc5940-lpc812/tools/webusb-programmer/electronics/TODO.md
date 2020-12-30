@@ -1,3 +1,9 @@
+# TODO for Rev 3 of the WebUSB programmer hardware
+
+* Increase reverse-mount LED hole to 2.1mm
+* Reduce holes for Micro-USB slightly (tbd how much)
+
+
 # TODO for Rev 2 of the WebUSB programmer hardware
 
 DONE Change Micro-USB connector to one that has through-hole mounts
