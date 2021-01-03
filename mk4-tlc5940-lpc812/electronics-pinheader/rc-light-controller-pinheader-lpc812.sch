@@ -4,7 +4,7 @@ EELAYER END
 $Descr A3 16535 11693
 encoding utf-8
 Sheet 1 1
-Title "DIY RC Light Controller Mk4 S"
+Title "DIY RC Light Controller Mk4 P"
 Date "2020-06-14"
 Rev "1"
 Comp "LANE Boys RC"
