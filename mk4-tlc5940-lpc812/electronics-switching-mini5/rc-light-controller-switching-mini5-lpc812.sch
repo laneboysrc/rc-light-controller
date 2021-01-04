@@ -214,7 +214,7 @@ Wire Wire Line
 Wire Wire Line
 	12400 3350 12400 3950
 Connection ~ 12400 3950
-Text Label 11450 3150 0    50   ~ 0
+Text Label 11450 4350 0    50   ~ 0
 OUT0
 Wire Wire Line
 	11800 3750 11450 3750
@@ -222,7 +222,7 @@ Text Label 11450 3750 0    50   ~ 0
 OUT1
 Wire Wire Line
 	11450 4350 11800 4350
-Text Label 11450 4350 0    50   ~ 0
+Text Label 11450 3150 0    50   ~ 0
 OUT2
 NoConn ~ 8750 6700
 Text Label 9400 7400 2    50   ~ 0
@@ -434,22 +434,20 @@ $EndComp
 Wire Wire Line
 	6200 6600 7350 6600
 Wire Wire Line
-	5950 6500 6600 6500
-Wire Wire Line
-	6600 6500 6600 7000
+	5950 6800 6600 6800
 Wire Wire Line
 	6600 7000 7350 7000
 Text Label 4300 7350 2    50   ~ 0
 OUT-ISP
 Text Label 4300 7050 2    50   ~ 0
 CH3
-Text Label 4850 6800 0    50   ~ 0
+Text Label 4850 6500 0    50   ~ 0
 ST-Rx-in
 Wire Wire Line
-	4850 6800 5550 6800
-Wire Wire Line
 	4850 6500 5550 6500
-Text Label 4850 6500 0    50   ~ 0
+Wire Wire Line
+	4850 6800 5550 6800
+Text Label 4850 6800 0    50   ~ 0
 TH-Tx-in
 $Comp
 L Connector_Generic:Conn_01x03 J1
@@ -731,8 +729,34 @@ Wire Wire Line
 	3250 6500 3250 7050
 NoConn ~ 5550 6600
 Wire Wire Line
-	6200 6600 6200 6800
+	6200 6600 6200 6500
 Wire Wire Line
-	6200 6800 5950 6800
+	6200 6500 5950 6500
 NoConn ~ 5950 6600
+Wire Wire Line
+	6600 6800 6600 7000
+$Comp
+L power:GND #PWR?
+U 1 1 5FF80AFD
+P 13150 4700
+F 0 "#PWR?" H 13150 4450 50  0001 C CNN
+F 1 "GND" H 13155 4527 50  0000 C CNN
+F 2 "" H 13150 4700 50  0001 C CNN
+F 3 "" H 13150 4700 50  0001 C CNN
+	1    13150 4700
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	13450 4250 13150 4250
+Wire Wire Line
+	13150 4250 13150 4700
+Wire Wire Line
+	13300 4050 13300 4350
+Wire Wire Line
+	13300 4350 13450 4350
+Connection ~ 13300 4050
+Wire Wire Line
+	13450 4450 12750 4450
+Text Label 12750 4450 0    50   ~ 0
+VIN
 $EndSCHEMATC
