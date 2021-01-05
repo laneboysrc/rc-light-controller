@@ -1,0 +1,103 @@
+// This light program allows a 3-position switch
+// to switch the hazard lights in such a way that
+// the hazards are off in center, but on in either
+// of the left and right end positions
+
+// This light progrma runs only during the 'bright'
+// period of the indicators. In the dark period
+// the light program does not affect the LEDs, and
+// therefore the indicators will be off.
+run when blink-flag
+
+// Due to the way light programs work, we have to
+// 'take over' all LEDs and implement hazard and
+// indicators manually. Note that this means that
+// the brightness values in the table are also
+// meaningless!
+led indicator-front-l = led[6]
+led indicator-front-r = led[7]
+led indicator-rear-l = led[12]
+led indicator-rear-r = led[13]
+
+// Here you can adjust the brightness. It applies
+// to all indicator LEDs defined above
+const BRIGHTNESS = 100
+
+// Temporary variable that we need to read the AUX3
+// value, because a "skip if" or "if" statement
+// can not test AUX3
+var value
+
+// Helper constants and variables to implement a
+// hysteresis on AUX3
+const THRESHOLD_VALUE_HIGH = 30
+const THRESHOLD_VALUE_LOW = 20
+
+var threshold_high
+var threshold_low
+
+
+// When the light program runs for the first time, the
+// threshold variable is set to '0'. We set it to the
+// initial THRESHOLD_VALUE_HIGH value we actually want.
+// On sub-sequent runs of the light program, the variable
+// stays untouched.
+if threshold_high == 0
+threshold_high = THRESHOLD_VALUE_HIGH
+
+loop:
+    // Calculate the negative threshold: low = 0 - high
+    threshold_low = 0
+    threshold_low -= threshold_high
+
+    // Implement the normal hazard function (4-clicks on CH3,
+    // or hazard function assigned to AUX2)
+    if is hazard
+    goto hazard
+
+    // Our manual hazard switch on AUX3:
+    // We first read the AUX3 value into a local variable,
+    // so that we can test its value using an 'if' statement.
+    // The value range is -100..0..+100. For the hazard lights
+    // to come on, we need the switch to be set to greater
+    // than 30 or lower than -30. In the range between -30..0..+30
+    // the hazard lights stay off.
+    //
+    // We also implement a hysteresis: When the hazard lights
+    // are active, we reduce the threshold so that AUX3 has to
+    // go further down before the hazards switch back off
+    value = aux3
+    if value > threshold_high
+    goto hazard
+    if value < threshold_low
+    goto hazard
+
+    if is indicator-left
+    goto left
+
+    if is indicator-right
+    goto right
+
+all_off:
+    threshold_high = THRESHOLD_VALUE_HIGH
+    indicator-front-l, indicator-front-r, \
+        indicator-rear-l, indicator-rear-r = 0
+    goto loop
+
+left:
+    indicator-front-l, indicator-rear-l = BRIGHTNESS
+    indicator-front-r, indicator-rear-r = 0
+    goto loop
+
+right:
+    indicator-front-l, indicator-rear-l = BRIGHTNESS
+    indicator-front-r, indicator-rear-r = 0
+    goto loop
+
+hazard:
+    threshold_high = THRESHOLD_VALUE_LOW
+    indicator-front-l, indicator-front-r, \
+        indicator-rear-l, indicator-rear-r = BRIGHTNESS
+    goto loop
+
+end
