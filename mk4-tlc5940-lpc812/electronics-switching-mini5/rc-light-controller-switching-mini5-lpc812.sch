@@ -46,21 +46,21 @@ $EndComp
 $Comp
 L Device:Q_NMOS_GSD T1
 U 1 1 8692C711
-P 12000 3150
-F 0 "T1" H 11850 3300 59  0000 L BNN
-F 1 "PMV30UN" H 12100 3150 59  0001 L BNN
-F 2 "Package_TO_SOT_SMD:SOT-23" H 12000 3150 50  0001 C CNN
-F 3 "https://assets.nexperia.com/documents/data-sheet/PMV30UN.pdf" H 12000 3150 50  0001 C CNN
-	1    12000 3150
+P 12300 2300
+F 0 "T1" H 12150 2450 59  0000 L BNN
+F 1 "PMV30UN" H 12400 2300 59  0001 L BNN
+F 2 "Package_TO_SOT_SMD:SOT-23" H 12300 2300 50  0001 C CNN
+F 3 "https://assets.nexperia.com/documents/data-sheet/PMV30UN.pdf" H 12300 2300 50  0001 C CNN
+	1    12300 2300
 	1    0    0    -1  
 $EndComp
-Text Notes 6500 8550 0    56   ~ 0
+Text Notes 7400 8500 0    56   ~ 0
 Special pins:\nPIO0_0  (19)   ISP UART RX\nPIO0_4  ( 5)   ISP UART TX\nPIO0_5  ( 4)   RESET\nPIO0_10 ( 9)   Open drain\nPIO0_11 ( 8)   Open drain\nPIO0_2  ( 7)   SWDIO\nPIO0_3  ( 6)   SWCLK
-Text Notes 1200 3800 0    85   ~ 0
+Text Notes 1100 4250 0    85   ~ 0
 Input connectors
 Text Notes 3250 1450 0    85   ~ 0
 Voltage regulator
-Text Notes 7650 5150 0    85   ~ 0
+Text Notes 8050 4450 0    85   ~ 0
 Microcontroller
 Text Notes 2000 2700 0    59   ~ 0
 X7R or X5R
@@ -68,9 +68,9 @@ Text Notes 1300 2350 0    59   ~ 0
 Input voltage range:\n4 ... 10V
 Text Notes 4950 2300 0    59   ~ 0
 LDO: \nMCP1702, MCP1703,\nME6209A33M3G
-Text Notes 6500 5900 0    59   ~ 0
+Text Notes 6900 5200 0    59   ~ 0
 NXP LPC812\nARM Cortex-M0\n16K Flash, 4K RAM\nTSSOP-20
-Text Notes 11600 5500 0    56   ~ 0
+Text Notes 11900 4650 0    56   ~ 0
 N-Channel MOSFET\nSOT23 package\ne.g. PMV16UN, PMV30UN, \nSI2302. AO3400, DMN2075U-7
 Wire Wire Line
 	4650 2100 4650 2500
@@ -93,23 +93,23 @@ Polymer
 $Comp
 L power:GND #PWR0101
 U 1 1 5CCABD51
-P 1850 8450
-F 0 "#PWR0101" H 1850 8200 50  0001 C CNN
-F 1 "GND" H 1855 8277 50  0000 C CNN
-F 2 "" H 1850 8450 50  0001 C CNN
-F 3 "" H 1850 8450 50  0001 C CNN
-	1    1850 8450
+P 1750 8900
+F 0 "#PWR0101" H 1750 8650 50  0001 C CNN
+F 1 "GND" H 1755 8727 50  0000 C CNN
+F 2 "" H 1750 8900 50  0001 C CNN
+F 3 "" H 1750 8900 50  0001 C CNN
+	1    1750 8900
 	1    0    0    -1  
 $EndComp
 $Comp
 L power:GND #PWR0103
 U 1 1 5CCAC0F7
-P 8050 7800
-F 0 "#PWR0103" H 8050 7550 50  0001 C CNN
-F 1 "GND" H 8055 7627 50  0000 C CNN
-F 2 "" H 8050 7800 50  0001 C CNN
-F 3 "" H 8050 7800 50  0001 C CNN
-	1    8050 7800
+P 8450 7100
+F 0 "#PWR0103" H 8450 6850 50  0001 C CNN
+F 1 "GND" H 8455 6927 50  0000 C CNN
+F 2 "" H 8450 7100 50  0001 C CNN
+F 3 "" H 8450 7100 50  0001 C CNN
+	1    8450 7100
 	1    0    0    -1  
 $EndComp
 $Comp
@@ -146,155 +146,153 @@ F 3 "" H 4650 2900 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	8050 7700 8050 7800
-Text Notes 11300 2700 0    85   ~ 0
+	8450 7000 8450 7100
+Text Notes 11600 1850 0    85   ~ 0
 LED driver and outputs
-Text Label 6750 6600 0    50   ~ 0
+Text Label 7150 5900 0    50   ~ 0
 ST-RX
-Text Label 6750 7000 0    50   ~ 0
+Text Label 7150 6300 0    50   ~ 0
 TH-TX
 Wire Wire Line
-	9400 6900 8750 6900
-Text Label 9400 6900 2    50   ~ 0
+	9800 6200 9150 6200
+Text Label 9800 6200 2    50   ~ 0
 OUT-ISP
 Wire Wire Line
-	9400 7000 8750 7000
+	9800 6300 9150 6300
 $Comp
 L MCU_NXP_LPC:LPC812M101JDH20 U1
 U 1 1 5EE5F15A
-P 8050 7000
-F 0 "U1" H 7550 7650 50  0000 C CNN
-F 1 "LPC812M101JDH20" H 8450 7650 50  0000 C CNN
-F 2 "Package_SO:TSSOP-20_4.4x6.5mm_P0.65mm" H 9050 7700 50  0001 C CNN
-F 3 "http://www.nxp.com/documents/data_sheet/LPC81XM.pdf" H 8050 6500 50  0001 C CNN
-	1    8050 7000
+P 8450 6300
+F 0 "U1" H 7950 6950 50  0000 C CNN
+F 1 "LPC812M101JDH20" H 8850 6950 50  0000 C CNN
+F 2 "Package_SO:TSSOP-20_4.4x6.5mm_P0.65mm" H 9450 7000 50  0001 C CNN
+F 3 "http://www.nxp.com/documents/data_sheet/LPC81XM.pdf" H 8450 5800 50  0001 C CNN
+	1    8450 6300
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	8050 5500 8050 5700
+	8450 4800 8450 5000
 $Comp
 L Device:Q_NMOS_GSD T2
 U 1 1 5EEDFD3A
-P 12000 3750
-F 0 "T2" H 11850 3900 59  0000 L BNN
-F 1 "PMV30UN" H 12100 3750 59  0001 L BNN
-F 2 "Package_TO_SOT_SMD:SOT-23" H 12000 3750 50  0001 C CNN
-F 3 "https://assets.nexperia.com/documents/data-sheet/PMV30UN.pdf" H 12000 3750 50  0001 C CNN
-	1    12000 3750
+P 12300 2900
+F 0 "T2" H 12150 3050 59  0000 L BNN
+F 1 "PMV30UN" H 12400 2900 59  0001 L BNN
+F 2 "Package_TO_SOT_SMD:SOT-23" H 12300 2900 50  0001 C CNN
+F 3 "https://assets.nexperia.com/documents/data-sheet/PMV30UN.pdf" H 12300 2900 50  0001 C CNN
+	1    12300 2900
 	1    0    0    -1  
 $EndComp
 $Comp
 L Device:Q_NMOS_GSD T3
 U 1 1 5EEE0AF7
-P 12000 4350
-F 0 "T3" H 11850 4500 59  0000 L BNN
-F 1 "PMV30UN" H 12100 4350 59  0001 L BNN
-F 2 "Package_TO_SOT_SMD:SOT-23" H 12000 4350 50  0001 C CNN
-F 3 "https://assets.nexperia.com/documents/data-sheet/PMV30UN.pdf" H 12000 4350 50  0001 C CNN
-	1    12000 4350
+P 12300 3500
+F 0 "T3" H 12150 3650 59  0000 L BNN
+F 1 "PMV30UN" H 12400 3500 59  0001 L BNN
+F 2 "Package_TO_SOT_SMD:SOT-23" H 12300 3500 50  0001 C CNN
+F 3 "https://assets.nexperia.com/documents/data-sheet/PMV30UN.pdf" H 12300 3500 50  0001 C CNN
+	1    12300 3500
 	1    0    0    -1  
 $EndComp
 $Comp
 L power:GND #PWR01
 U 1 1 5EEF5842
-P 12400 4700
-F 0 "#PWR01" H 12400 4450 50  0001 C CNN
-F 1 "GND" H 12405 4527 50  0000 C CNN
-F 2 "" H 12400 4700 50  0001 C CNN
-F 3 "" H 12400 4700 50  0001 C CNN
-	1    12400 4700
+P 12700 3850
+F 0 "#PWR01" H 12700 3600 50  0001 C CNN
+F 1 "GND" H 12705 3677 50  0000 C CNN
+F 2 "" H 12700 3850 50  0001 C CNN
+F 3 "" H 12700 3850 50  0001 C CNN
+	1    12700 3850
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	12100 4550 12400 4550
+	12400 3700 12700 3700
 Wire Wire Line
-	12100 3950 12400 3950
+	12400 3100 12700 3100
 Wire Wire Line
-	12400 3950 12400 4550
+	12700 3100 12700 3700
 Wire Wire Line
-	12400 3350 12400 3950
-Connection ~ 12400 3950
-Text Label 11450 4350 0    50   ~ 0
+	12700 2500 12700 3100
+Connection ~ 12700 3100
+Text Label 11750 3500 0    50   ~ 0
 OUT0
 Wire Wire Line
-	11800 3750 11450 3750
-Text Label 11450 3750 0    50   ~ 0
+	12100 2900 11750 2900
+Text Label 11750 2900 0    50   ~ 0
 OUT1
 Wire Wire Line
-	11450 4350 11800 4350
-Text Label 11450 3150 0    50   ~ 0
+	11750 3500 12100 3500
+Text Label 11750 2300 0    50   ~ 0
 OUT2
-NoConn ~ 8750 6700
-Text Label 9400 7400 2    50   ~ 0
+NoConn ~ 9150 6000
+Text Label 9800 6700 2    50   ~ 0
 OUT0
-Text Label 6750 6900 0    50   ~ 0
+Text Label 7150 6200 0    50   ~ 0
 OUT1
-Text Label 6750 6800 0    50   ~ 0
+Text Label 7150 6100 0    50   ~ 0
 OUT2
-NoConn ~ 7350 7100
-Text Label 3800 4700 2    50   ~ 0
-LED+
-Text Notes 5450 4400 0    59   ~ 0
+NoConn ~ 7750 6400
+Text Notes 14000 4650 0    59   ~ 0
 VIN1 is physically close to LED+.\nThis allows two modes of operation:\n1) when VIN1 is conntected to LED+\nvia a jumper, then the LEDs are \npowered from the receiver.\n2) A separate power supply can be \nconnected to LED+ (and the nearby GND),\ne.g. for higher voltages
-Text Label 2850 4300 2    50   ~ 0
+Text Label 2750 4750 2    50   ~ 0
 ST-Rx-in
-Text Label 2850 4400 2    50   ~ 0
+Text Label 2750 4850 2    50   ~ 0
 VIN
-Text Label 13300 2850 0    50   ~ 0
+Text Label 13600 2000 0    50   ~ 0
 LED+
-Text Label 9400 7000 2    50   ~ 0
-CH3
+Text Label 9800 6300 2    50   ~ 0
+AUX
 Wire Wire Line
-	6750 6800 7350 6800
+	7150 6100 7750 6100
 Wire Wire Line
-	12100 3350 12400 3350
+	12400 2500 12700 2500
 Wire Wire Line
-	11450 3150 11800 3150
+	11750 2300 12100 2300
 Wire Wire Line
-	9400 7400 8750 7400
+	9800 6700 9150 6700
 Wire Wire Line
-	6750 6900 7350 6900
-NoConn ~ 7350 7200
+	7150 6200 7750 6200
+NoConn ~ 7750 6700
 $Comp
 L Device:C C3
 U 1 1 5F2418F7
-P 8350 5850
-F 0 "C3" H 8465 5896 50  0000 L CNN
-F 1 "100n" H 8465 5805 50  0000 L CNN
-F 2 "Capacitor_SMD:C_0603_1608Metric" H 8388 5700 50  0001 C CNN
-F 3 "~" H 8350 5850 50  0001 C CNN
-	1    8350 5850
+P 8750 5150
+F 0 "C3" H 8865 5196 50  0000 L CNN
+F 1 "100n" H 8865 5105 50  0000 L CNN
+F 2 "Capacitor_SMD:C_0603_1608Metric" H 8788 5000 50  0001 C CNN
+F 3 "~" H 8750 5150 50  0001 C CNN
+	1    8750 5150
 	1    0    0    -1  
 $EndComp
 $Comp
 L power:GND #PWR03
 U 1 1 5F2421F0
-P 8350 6050
-F 0 "#PWR03" H 8350 5800 50  0001 C CNN
-F 1 "GND" H 8355 5877 50  0000 C CNN
-F 2 "" H 8350 6050 50  0001 C CNN
-F 3 "" H 8350 6050 50  0001 C CNN
-	1    8350 6050
+P 8750 5350
+F 0 "#PWR03" H 8750 5100 50  0001 C CNN
+F 1 "GND" H 8755 5177 50  0000 C CNN
+F 2 "" H 8750 5350 50  0001 C CNN
+F 3 "" H 8750 5350 50  0001 C CNN
+	1    8750 5350
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	8350 6000 8350 6050
+	8750 5300 8750 5350
 Wire Wire Line
-	8350 5700 8050 5700
-Connection ~ 8050 5700
+	8750 5000 8450 5000
+Connection ~ 8450 5000
 Wire Wire Line
-	8050 5700 8050 6300
+	8450 5000 8450 5600
 Wire Wire Line
 	4050 2100 4650 2100
 $Comp
 L power:+3V3 #+3V01
 U 1 1 5F1CA21E
-P 8050 5500
-F 0 "#+3V01" H 8050 5500 50  0001 C CNN
-F 1 "+3V3" H 7900 5650 59  0000 L BNN
-F 2 "" H 8050 5500 50  0001 C CNN
-F 3 "" H 8050 5500 50  0001 C CNN
-	1    8050 5500
+P 8450 4800
+F 0 "#+3V01" H 8450 4800 50  0001 C CNN
+F 1 "+3V3" H 8300 4950 59  0000 L BNN
+F 2 "" H 8450 4800 50  0001 C CNN
+F 3 "" H 8450 4800 50  0001 C CNN
+	1    8450 4800
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
@@ -315,70 +313,70 @@ F 3 "" H 2650 2550 50  0001 C CNN
 	1    2650 2550
 	1    0    0    -1  
 $EndComp
-Text Notes 10000 7350 0    50   ~ 0
+Text Notes 10400 6650 0    50   ~ 0
 PIO0_14 serves as detection whether \nthe hardware has the TLC5940 or is the switching version. \nFor TLC5940 it must be left floating (pull-up).\nFor switching version it must be pulled to GND.
 $Comp
 L power:GND #PWR0102
 U 1 1 5F1DE1FF
-P 9900 7300
-F 0 "#PWR0102" H 9900 7050 50  0001 C CNN
-F 1 "GND" H 9905 7127 50  0000 C CNN
-F 2 "" H 9900 7300 50  0001 C CNN
-F 3 "" H 9900 7300 50  0001 C CNN
-	1    9900 7300
+P 10300 6600
+F 0 "#PWR0102" H 10300 6350 50  0001 C CNN
+F 1 "GND" H 10305 6427 50  0000 C CNN
+F 2 "" H 10300 6600 50  0001 C CNN
+F 3 "" H 10300 6600 50  0001 C CNN
+	1    10300 6600
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	8750 7100 9900 7100
+	9150 6400 10300 6400
 Wire Wire Line
-	9900 7100 9900 7300
+	10300 6400 10300 6600
 $Comp
 L Connector_Generic:Conn_01x09 J3
 U 1 1 5FF85660
-P 13650 4050
-F 0 "J3" H 13568 3525 50  0000 C CNN
-F 1 "Pinheader straight 1x06" H 13650 4500 50  0000 C CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x09_P2.54mm_Vertical" H 13650 4050 50  0001 C CNN
-F 3 "~" H 13650 4050 50  0001 C CNN
-	1    13650 4050
+P 13950 3200
+F 0 "J3" H 13868 2675 50  0000 C CNN
+F 1 "Pinheader straight 1x06" H 13950 3650 50  0000 C CNN
+F 2 "rc-light-controller-tlc5940-lpc812:PinHeader_1x09_P2.54mm_Vertical_nosilk" H 13950 3200 50  0001 C CNN
+F 3 "~" H 13950 3200 50  0001 C CNN
+	1    13950 3200
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	12400 4550 12400 4700
-Connection ~ 12400 4550
+	12700 3700 12700 3850
+Connection ~ 12700 3700
 Wire Wire Line
-	12100 4150 13450 4150
+	12400 3300 13750 3300
 Wire Wire Line
-	12100 3550 12950 3550
+	12400 2700 13250 2700
 Wire Wire Line
-	12950 3550 12950 3950
+	13250 2700 13250 3100
 Wire Wire Line
-	12950 3950 13450 3950
+	13250 3100 13750 3100
 Wire Wire Line
-	12100 2950 13050 2950
+	12400 2100 13350 2100
 Wire Wire Line
-	13050 3750 13450 3750
+	13350 2900 13750 2900
 Wire Wire Line
-	13050 2950 13050 3750
+	13350 2100 13350 2900
 Wire Wire Line
-	13300 2850 13300 3650
+	13600 2000 13600 2800
 Wire Wire Line
-	13300 3650 13450 3650
+	13600 2800 13750 2800
 Wire Wire Line
-	13300 3650 13300 3850
+	13600 2800 13600 3000
 Wire Wire Line
-	13300 3850 13450 3850
-Connection ~ 13300 3650
+	13600 3000 13750 3000
+Connection ~ 13600 2800
 Wire Wire Line
-	13300 3850 13300 4050
+	13600 3000 13600 3200
 Wire Wire Line
-	13300 4050 13450 4050
-Connection ~ 13300 3850
-NoConn ~ 7350 6700
-NoConn ~ 8750 7200
-NoConn ~ 8750 7300
-NoConn ~ 7350 7300
-NoConn ~ 8750 6600
+	13600 3200 13750 3200
+Connection ~ 13600 3000
+NoConn ~ 7750 6000
+NoConn ~ 9150 6500
+NoConn ~ 9150 6600
+NoConn ~ 7750 6600
+NoConn ~ 9150 5900
 $Comp
 L power:PWR_FLAG #FLG0102
 U 1 1 5FFE4BED
@@ -423,340 +421,346 @@ $EndComp
 $Comp
 L Device:R_Pack04 RN1
 U 1 1 5FF24B18
-P 5750 6600
-F 0 "RN1" V 5333 6600 50  0000 C CNN
-F 1 "1k" V 5424 6600 50  0000 C CNN
-F 2 "Resistor_SMD:R_Array_Convex_4x0603" V 6025 6600 50  0001 C CNN
-F 3 "~" H 5750 6600 50  0001 C CNN
-	1    5750 6600
+P 6150 5900
+F 0 "RN1" V 5733 5900 50  0000 C CNN
+F 1 "1k" V 5824 5900 50  0000 C CNN
+F 2 "Resistor_SMD:R_Array_Convex_4x0603" V 6425 5900 50  0001 C CNN
+F 3 "~" H 6150 5900 50  0001 C CNN
+	1    6150 5900
 	0    -1   -1   0   
 $EndComp
 Wire Wire Line
-	6200 6600 7350 6600
+	6900 5900 7750 5900
 Wire Wire Line
-	5950 6800 6600 6800
+	6350 5900 6750 5900
 Wire Wire Line
-	6600 7000 7350 7000
-Text Label 4300 7350 2    50   ~ 0
+	6750 6300 7750 6300
+Text Label 4200 7600 2    50   ~ 0
 OUT-ISP
-Text Label 4300 7050 2    50   ~ 0
-CH3
-Text Label 4850 6500 0    50   ~ 0
+Text Label 4200 7500 2    50   ~ 0
+AUX
+Text Label 5250 5800 0    50   ~ 0
 ST-Rx-in
 Wire Wire Line
-	4850 6500 5550 6500
+	5250 5800 5950 5800
 Wire Wire Line
-	4850 6800 5550 6800
-Text Label 4850 6800 0    50   ~ 0
+	5250 5900 5950 5900
+Text Label 5250 5900 0    50   ~ 0
 TH-Tx-in
 $Comp
 L Connector_Generic:Conn_01x03 J1
 U 1 1 5FF3C085
-P 1550 4400
-F 0 "J1" H 1468 4075 50  0000 C CNN
-F 1 "Conn_01x03" H 1468 4166 50  0000 C CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical" H 1550 4400 50  0001 C CNN
-F 3 "~" H 1550 4400 50  0001 C CNN
-	1    1550 4400
+P 1450 4850
+F 0 "J1" H 1368 4525 50  0000 C CNN
+F 1 "Conn_01x03" H 1368 4616 50  0000 C CNN
+F 2 "rc-light-controller-tlc5940-lpc812:PinHeader_1x03_P2.54mm_Vertical_nosilk" H 1450 4850 50  0001 C CNN
+F 3 "~" H 1450 4850 50  0001 C CNN
+	1    1450 4850
 	-1   0    0    1   
 $EndComp
 $Comp
 L Connector_Generic:Conn_01x03 J2
 U 1 1 5FF3EA5B
-P 1550 4950
-F 0 "J2" H 1468 4625 50  0000 C CNN
-F 1 "Conn_01x03" H 1468 4716 50  0000 C CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical" H 1550 4950 50  0001 C CNN
-F 3 "~" H 1550 4950 50  0001 C CNN
-	1    1550 4950
+P 1450 5400
+F 0 "J2" H 1368 5075 50  0000 C CNN
+F 1 "Conn_01x03" H 1368 5166 50  0000 C CNN
+F 2 "rc-light-controller-tlc5940-lpc812:PinHeader_1x03_P2.54mm_Vertical_nosilk" H 1450 5400 50  0001 C CNN
+F 3 "~" H 1450 5400 50  0001 C CNN
+	1    1450 5400
 	-1   0    0    1   
 $EndComp
 $Comp
 L Connector_Generic:Conn_01x03 J4
 U 1 1 5FF3EF14
-P 1550 5500
-F 0 "J4" H 1468 5175 50  0000 C CNN
-F 1 "Conn_01x03" H 1468 5266 50  0000 C CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical" H 1550 5500 50  0001 C CNN
-F 3 "~" H 1550 5500 50  0001 C CNN
-	1    1550 5500
+P 1450 5950
+F 0 "J4" H 1368 5625 50  0000 C CNN
+F 1 "Conn_01x03" H 1368 5716 50  0000 C CNN
+F 2 "rc-light-controller-tlc5940-lpc812:PinHeader_1x03_P2.54mm_Vertical_nosilk" H 1450 5950 50  0001 C CNN
+F 3 "~" H 1450 5950 50  0001 C CNN
+	1    1450 5950
 	-1   0    0    1   
 $EndComp
 $Comp
 L Connector_Generic:Conn_01x03 J5
 U 1 1 5FF3F40C
-P 1550 6050
-F 0 "J5" H 1468 5725 50  0000 C CNN
-F 1 "Conn_01x03" H 1468 5816 50  0000 C CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical" H 1550 6050 50  0001 C CNN
-F 3 "~" H 1550 6050 50  0001 C CNN
-	1    1550 6050
+P 1450 6500
+F 0 "J5" H 1368 6175 50  0000 C CNN
+F 1 "Conn_01x03" H 1368 6266 50  0000 C CNN
+F 2 "rc-light-controller-tlc5940-lpc812:PinHeader_1x03_P2.54mm_Vertical_nosilk" H 1450 6500 50  0001 C CNN
+F 3 "~" H 1450 6500 50  0001 C CNN
+	1    1450 6500
 	-1   0    0    1   
 $EndComp
 $Comp
 L Connector_Generic:Conn_01x03 J6
 U 1 1 5FF48E1C
-P 1550 6600
-F 0 "J6" H 1468 6275 50  0000 C CNN
-F 1 "Conn_01x03" H 1468 6366 50  0000 C CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical" H 1550 6600 50  0001 C CNN
-F 3 "~" H 1550 6600 50  0001 C CNN
-	1    1550 6600
+P 1450 7050
+F 0 "J6" H 1368 6725 50  0000 C CNN
+F 1 "Conn_01x03" H 1368 6816 50  0000 C CNN
+F 2 "rc-light-controller-tlc5940-lpc812:PinHeader_1x03_P2.54mm_Vertical_nosilk" H 1450 7050 50  0001 C CNN
+F 3 "~" H 1450 7050 50  0001 C CNN
+	1    1450 7050
 	-1   0    0    1   
 $EndComp
 $Comp
 L Connector_Generic:Conn_01x03 J7
 U 1 1 5FF48FCE
-P 1550 7150
-F 0 "J7" H 1468 6825 50  0000 C CNN
-F 1 "Conn_01x03" H 1468 6916 50  0000 C CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical" H 1550 7150 50  0001 C CNN
-F 3 "~" H 1550 7150 50  0001 C CNN
-	1    1550 7150
+P 1450 7600
+F 0 "J7" H 1368 7275 50  0000 C CNN
+F 1 "Conn_01x03" H 1368 7366 50  0000 C CNN
+F 2 "rc-light-controller-tlc5940-lpc812:PinHeader_1x03_P2.54mm_Vertical_nosilk" H 1450 7600 50  0001 C CNN
+F 3 "~" H 1450 7600 50  0001 C CNN
+	1    1450 7600
 	-1   0    0    1   
 $EndComp
 $Comp
 L Connector_Generic:Conn_01x03 J8
 U 1 1 5FF48FD8
-P 1550 7700
-F 0 "J8" H 1468 7375 50  0000 C CNN
-F 1 "Conn_01x03" H 1468 7466 50  0000 C CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical" H 1550 7700 50  0001 C CNN
-F 3 "~" H 1550 7700 50  0001 C CNN
-	1    1550 7700
+P 1450 8150
+F 0 "J8" H 1368 7825 50  0000 C CNN
+F 1 "Conn_01x03" H 1368 7916 50  0000 C CNN
+F 2 "rc-light-controller-tlc5940-lpc812:PinHeader_1x03_P2.54mm_Vertical_nosilk" H 1450 8150 50  0001 C CNN
+F 3 "~" H 1450 8150 50  0001 C CNN
+	1    1450 8150
 	-1   0    0    1   
 $EndComp
 $Comp
 L Connector_Generic:Conn_01x03 J9
 U 1 1 5FF48FE2
-P 1550 8250
-F 0 "J9" H 1468 7925 50  0000 C CNN
-F 1 "Conn_01x03" H 1468 8016 50  0000 C CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical" H 1550 8250 50  0001 C CNN
-F 3 "~" H 1550 8250 50  0001 C CNN
-	1    1550 8250
+P 1450 8700
+F 0 "J9" H 1368 8375 50  0000 C CNN
+F 1 "Conn_01x03" H 1368 8466 50  0000 C CNN
+F 2 "rc-light-controller-tlc5940-lpc812:PinHeader_1x03_P2.54mm_Vertical_nosilk" H 1450 8700 50  0001 C CNN
+F 3 "~" H 1450 8700 50  0001 C CNN
+	1    1450 8700
 	-1   0    0    1   
 $EndComp
 Wire Wire Line
-	1750 4500 1850 4500
+	1650 4950 1750 4950
 Wire Wire Line
-	1850 4500 1850 5050
-Connection ~ 1850 8350
+	1750 4950 1750 5500
+Connection ~ 1750 8800
 Wire Wire Line
-	1850 8350 1850 8450
+	1750 8800 1750 8900
 Wire Wire Line
-	1750 7800 1850 7800
-Connection ~ 1850 7800
+	1650 8250 1750 8250
+Connection ~ 1750 8250
 Wire Wire Line
-	1850 7800 1850 8350
+	1750 8250 1750 8800
 Wire Wire Line
-	1750 7250 1850 7250
-Connection ~ 1850 7250
+	1650 7700 1750 7700
+Connection ~ 1750 7700
 Wire Wire Line
-	1850 7250 1850 7800
+	1750 7700 1750 8250
 Wire Wire Line
-	1750 6700 1850 6700
-Connection ~ 1850 6700
+	1650 7150 1750 7150
+Connection ~ 1750 7150
 Wire Wire Line
-	1850 6700 1850 7250
+	1750 7150 1750 7700
 Wire Wire Line
-	1750 6150 1850 6150
-Connection ~ 1850 6150
+	1650 6600 1750 6600
+Connection ~ 1750 6600
 Wire Wire Line
-	1850 6150 1850 6700
+	1750 6600 1750 7150
 Wire Wire Line
-	1750 5600 1850 5600
-Connection ~ 1850 5600
+	1650 6050 1750 6050
+Connection ~ 1750 6050
 Wire Wire Line
-	1850 5600 1850 6150
+	1750 6050 1750 6600
 Wire Wire Line
-	1750 5050 1850 5050
-Connection ~ 1850 5050
+	1650 5500 1750 5500
+Connection ~ 1750 5500
 Wire Wire Line
-	1850 5050 1850 5600
+	1750 5500 1750 6050
 Wire Wire Line
-	1750 4400 1950 4400
+	1650 4850 1850 4850
 Wire Wire Line
-	1750 8350 1850 8350
+	1650 8800 1750 8800
 Wire Wire Line
-	1750 8250 1950 8250
+	1650 8700 1850 8700
 Wire Wire Line
-	1950 8250 1950 7700
-Connection ~ 1950 4400
+	1850 8700 1850 8150
+Connection ~ 1850 4850
 Wire Wire Line
-	1950 4400 2850 4400
+	1850 4850 2750 4850
 Wire Wire Line
-	1750 4950 1950 4950
-Connection ~ 1950 4950
+	1650 5400 1850 5400
+Connection ~ 1850 5400
 Wire Wire Line
-	1950 4950 1950 4400
+	1850 5400 1850 4850
 Wire Wire Line
-	1750 5500 1950 5500
-Connection ~ 1950 5500
+	1650 5950 1850 5950
+Connection ~ 1850 5950
 Wire Wire Line
-	1950 5500 1950 4950
+	1850 5950 1850 5400
 Wire Wire Line
-	1750 6050 1950 6050
-Connection ~ 1950 6050
+	1650 6500 1850 6500
+Connection ~ 1850 6500
 Wire Wire Line
-	1950 6050 1950 5500
+	1850 6500 1850 5950
 Wire Wire Line
-	1750 6600 1950 6600
-Connection ~ 1950 6600
+	1650 7050 1850 7050
+Connection ~ 1850 7050
 Wire Wire Line
-	1950 6600 1950 6050
+	1850 7050 1850 6500
 Wire Wire Line
-	1750 7150 1950 7150
-Connection ~ 1950 7150
+	1650 7600 1850 7600
+Connection ~ 1850 7600
 Wire Wire Line
-	1950 7150 1950 6600
+	1850 7600 1850 7050
 Wire Wire Line
-	1750 7700 1950 7700
-Connection ~ 1950 7700
+	1650 8150 1850 8150
+Connection ~ 1850 8150
 Wire Wire Line
-	1950 7700 1950 7150
+	1850 8150 1850 7600
 Wire Wire Line
-	2850 4300 2050 4300
+	2750 4750 1950 4750
 Wire Wire Line
-	2850 5400 2050 5400
+	2750 5850 1950 5850
 Wire Wire Line
-	1750 4850 2050 4850
+	1650 5300 1950 5300
 Wire Wire Line
-	2050 4850 2050 4300
-Connection ~ 2050 4300
+	1950 5300 1950 4750
+Connection ~ 1950 4750
 Wire Wire Line
-	2050 4300 1750 4300
+	1950 4750 1650 4750
 Wire Wire Line
-	1750 5950 2050 5950
+	1650 6400 1950 6400
 Wire Wire Line
-	2050 5950 2050 5400
-Connection ~ 2050 5400
+	1950 6400 1950 5850
+Connection ~ 1950 5850
 Wire Wire Line
-	2050 5400 1750 5400
-Text Label 2850 5400 2    50   ~ 0
+	1950 5850 1650 5850
+Text Label 2750 5850 2    50   ~ 0
 TH-Tx-in
-Text Label 2850 6500 2    50   ~ 0
-CH3-in
-Text Label 2850 7050 2    50   ~ 0
+Text Label 2750 6950 2    50   ~ 0
+AUX-in
+Text Label 2750 7500 2    50   ~ 0
 AUX2-in
-Text Label 2850 7600 2    50   ~ 0
+Text Label 2750 8050 2    50   ~ 0
 AUX3-in
-Text Label 2850 8150 2    50   ~ 0
+Text Label 2750 8600 2    50   ~ 0
 OUT-ISP-in
 $Comp
 L Device:R_Pack04 RN2
 U 1 1 5FFCB31F
-P 3600 7150
-F 0 "RN2" V 3183 7150 50  0000 C CNN
-F 1 "1k" V 3274 7150 50  0000 C CNN
-F 2 "Resistor_SMD:R_Array_Convex_4x0603" V 3875 7150 50  0001 C CNN
-F 3 "~" H 3600 7150 50  0001 C CNN
-	1    3600 7150
+P 3500 7600
+F 0 "RN2" V 3083 7600 50  0000 C CNN
+F 1 "1k" V 3174 7600 50  0000 C CNN
+F 2 "Resistor_SMD:R_Array_Convex_4x0603" V 3775 7600 50  0001 C CNN
+F 3 "~" H 3500 7600 50  0001 C CNN
+	1    3500 7600
 	0    -1   -1   0   
 $EndComp
 Wire Wire Line
-	1750 7600 3150 7600
+	1650 8050 3050 8050
 Wire Wire Line
-	3800 7050 4300 7050
+	3700 7500 4200 7500
 Wire Wire Line
-	4300 7150 3800 7150
-Text Label 4300 7150 2    50   ~ 0
+	4200 7600 3700 7600
+Text Label 4200 7700 2    50   ~ 0
 AUX2
-Text Label 4300 7250 2    50   ~ 0
+Text Label 4200 7800 2    50   ~ 0
 AUX3
 Wire Wire Line
-	7350 7400 6750 7400
-Text Label 6750 7400 0    50   ~ 0
+	7750 6500 7150 6500
+Text Label 7150 6500 0    50   ~ 0
 AUX2
-Text Label 9400 6800 2    50   ~ 0
+Text Label 9800 6100 2    50   ~ 0
 AUX3
 $Comp
 L Device:R R1
 U 1 1 5FFE7AD9
-P 8950 7650
-F 0 "R1" H 9020 7696 50  0000 L CNN
-F 1 "100k" H 9020 7605 50  0000 L CNN
-F 2 "Resistor_SMD:R_0603_1608Metric" V 8880 7650 50  0001 C CNN
-F 3 "~" H 8950 7650 50  0001 C CNN
-	1    8950 7650
+P 9350 6950
+F 0 "R1" H 9420 6996 50  0000 L CNN
+F 1 "100k" H 9420 6905 50  0000 L CNN
+F 2 "Resistor_SMD:R_0603_1608Metric" V 9280 6950 50  0001 C CNN
+F 3 "~" H 9350 6950 50  0001 C CNN
+	1    9350 6950
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	8950 7500 8950 6800
+	9350 6800 9350 6100
 Wire Wire Line
-	8750 6800 8950 6800
-Connection ~ 8950 6800
+	9150 6100 9350 6100
+Connection ~ 9350 6100
 Wire Wire Line
-	8950 6800 9400 6800
+	9350 6100 9800 6100
 $Comp
 L power:GND #PWR02
 U 1 1 5FFEE6F8
-P 8950 7900
-F 0 "#PWR02" H 8950 7650 50  0001 C CNN
-F 1 "GND" H 8955 7727 50  0000 C CNN
-F 2 "" H 8950 7900 50  0001 C CNN
-F 3 "" H 8950 7900 50  0001 C CNN
-	1    8950 7900
+P 9350 7200
+F 0 "#PWR02" H 9350 6950 50  0001 C CNN
+F 1 "GND" H 9355 7027 50  0000 C CNN
+F 2 "" H 9350 7200 50  0001 C CNN
+F 3 "" H 9350 7200 50  0001 C CNN
+	1    9350 7200
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	8950 7800 8950 7900
+	9350 7100 9350 7200
 Wire Wire Line
-	3400 8150 3400 7350
+	1650 8600 3150 8600
 Wire Wire Line
-	1750 8150 3400 8150
+	1650 6950 3150 6950
 Wire Wire Line
-	1750 6500 3250 6500
+	4200 7700 3700 7700
 Wire Wire Line
-	4300 7250 3800 7250
+	4200 7800 3700 7800
+NoConn ~ 6350 6000
+NoConn ~ 5950 6000
 Wire Wire Line
-	4300 7350 3800 7350
-NoConn ~ 5950 6700
-NoConn ~ 5550 6700
+	1650 7500 2800 7500
 Wire Wire Line
-	1750 7050 2900 7050
+	2800 7500 2800 7700
 Wire Wire Line
-	2900 7050 2900 7150
+	2800 7700 3300 7700
 Wire Wire Line
-	2900 7150 3400 7150
+	3050 7800 3300 7800
 Wire Wire Line
-	3150 7600 3150 7250
+	3150 7500 3300 7500
 Wire Wire Line
-	3150 7250 3400 7250
+	3150 6950 3150 7500
+NoConn ~ 5950 6100
 Wire Wire Line
-	3250 7050 3400 7050
+	6900 5900 6900 5800
 Wire Wire Line
-	3250 6500 3250 7050
-NoConn ~ 5550 6600
+	6900 5800 6350 5800
+NoConn ~ 6350 6100
 Wire Wire Line
-	6200 6600 6200 6500
-Wire Wire Line
-	6200 6500 5950 6500
-NoConn ~ 5950 6600
-Wire Wire Line
-	6600 6800 6600 7000
+	6750 5900 6750 6300
 $Comp
-L power:GND #PWR?
+L power:GND #PWR0107
 U 1 1 5FF80AFD
-P 13150 4700
-F 0 "#PWR?" H 13150 4450 50  0001 C CNN
-F 1 "GND" H 13155 4527 50  0000 C CNN
-F 2 "" H 13150 4700 50  0001 C CNN
-F 3 "" H 13150 4700 50  0001 C CNN
-	1    13150 4700
+P 13450 3850
+F 0 "#PWR0107" H 13450 3600 50  0001 C CNN
+F 1 "GND" H 13455 3677 50  0000 C CNN
+F 2 "" H 13450 3850 50  0001 C CNN
+F 3 "" H 13450 3850 50  0001 C CNN
+	1    13450 3850
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	13450 4250 13150 4250
+	13750 3400 13450 3400
 Wire Wire Line
-	13150 4250 13150 4700
+	13450 3400 13450 3850
 Wire Wire Line
-	13300 4050 13300 4350
+	13600 3200 13600 3500
 Wire Wire Line
-	13300 4350 13450 4350
-Connection ~ 13300 4050
+	13600 3500 13750 3500
+Connection ~ 13600 3200
 Wire Wire Line
-	13450 4450 12750 4450
-Text Label 12750 4450 0    50   ~ 0
+	13750 3600 13050 3600
+Text Label 13050 3600 0    50   ~ 0
 VIN
+Wire Wire Line
+	3050 8050 3050 7800
+Wire Wire Line
+	3150 8600 3150 7600
+Wire Wire Line
+	3150 7600 3300 7600
+Text Notes 6000 7300 0    50   ~ 0
+We are using PIO0_6 instead of \nPIO0_8 for AUX2 so that in the \nfuture we could make a \n9-output Mk4S with 5-channel input.\n\nWhen switching hardware is detected \n(PIO0_14 is GND) then the software will\nuse PIO0_6 for AUX2, otherwise PIO0_8
+Text Notes 3550 8300 0    50   ~ 0
+Note: Resistor assignment according\nto what is easiest for the layout
 $EndSCHEMATC

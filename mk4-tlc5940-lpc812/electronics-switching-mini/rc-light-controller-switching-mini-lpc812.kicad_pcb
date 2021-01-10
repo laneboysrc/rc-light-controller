@@ -2,7 +2,7 @@
 
   (general
     (thickness 1.6)
-    (drawings 25)
+    (drawings 27)
     (tracks 106)
     (zones 0)
     (modules 12)
@@ -273,6 +273,7 @@
     (descr "TSSOP, 20 Pin (JEDEC MO-153 Var AC https://www.jedec.org/document_search?search_api_views_fulltext=MO-153), generated with kicad-footprint-generator ipc_gullwing_generator.py")
     (tags "TSSOP SO")
     (path /5EE5F15A)
+    (solder_paste_margin -0.0254)
     (attr smd)
     (fp_text reference U1 (at 0 -4.2 90) (layer F.SilkS) hide
       (effects (font (size 1 1) (thickness 0.15)))
@@ -610,6 +611,12 @@
     )
   )
 
+  (gr_text + (at 112.0396 94.3612) (layer F.SilkS) (tstamp 5FFAA0DC)
+    (effects (font (size 0.762 0.762) (thickness 0.1905)))
+  )
+  (gr_text . (at 114.9112 85.034) (layer F.SilkS) (tstamp 5FFAA0DA)
+    (effects (font (size 2 2) (thickness 0.4)))
+  )
   (gr_text JLCJLCJLCJLC (at 108.8 85.2) (layer F.SilkS)
     (effects (font (size 0.8 0.8) (thickness 0.15)))
   )
