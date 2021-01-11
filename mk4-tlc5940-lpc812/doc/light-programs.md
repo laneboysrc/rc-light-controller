@@ -39,7 +39,7 @@ The ``run when`` line describes the condition that the light controller must be 
 
 ``use all leds`` declares that no other light controller function shall control any of the LEDs while this light program is running. The lines ``led ... = led[y]`` assign human readable names to light outputs 2 and 3.
 
-This ends the decleration section.
+This ends the declaration section.
 
 The ``loop:`` statement defines a label that can be used to jump to from a ``goto`` instruction.
 
@@ -55,13 +55,13 @@ The following sections explain all elements of the light program language in det
 
 ## Light program structure
 
-Light programs are **line-based**, meaning a single statement or decleration must be on the same source code line.
+Light programs are **line-based**, meaning a single statement or declaration must be on the same source code line.
 
 All light programs comprise of the following structure
 
     run conditions
 
-    constants, variable and led declerations
+    constants, variable and led declarations
 
     statements (= the actual code)
 
@@ -92,13 +92,13 @@ Here is a valid light program showing various forms of comments:
         sleep 1     // Sleep for 1 ms. Actually will sleep for about 20ms...
     pos1:
         sleep 2     // Sleep for 2ms // Comment in comment
-        goto forward_decleration
+        goto forward_declaration
         ; Also semicolons can be used for comments
     pos2:               ; This is a comment at a label
         sleep 3
         goto pos1
 
-    forward_decleration:
+    forward_declaration:
         sleep 4
     //pos2:
     ;  pos2:
@@ -161,15 +161,15 @@ Identifiers must start with a character ``a..z`` or ``A..Z`` and continue with a
 
 There are several types of *run conditions*:
 
-* Events
+* **Events**
 
     Events are single-shot actions that can trigger execution of a light program. At the moment the only event supported by the light controller is "gear changed". Events have the highest priority of all *run conditions*.
 
-* Priority run conditions
+* **Priority run conditions**
 
     These run conditions take precendence over ordinary run coditions.
 
-* Run conditions
+* **Run conditions**
 
     Ordinary conditions like forward, braking, indicators, etc.
 
@@ -252,6 +252,12 @@ The syntax is as follows:
     The light program runs during the respective winch state. This applies if the light controller is configured to drive the [LANE Boys RC winch controller](https://github.com/laneboysrc/rc-winch-controller).
     The winch states are mutually exclusive.
 
+- **program-state-0 .. program-state-4**
+
+    The light program runs when the value of the global variable with the same name is not 0 (zero).
+    This allows light programs to trigger other light programs.
+    For more information please refer to the section near the end of this document.
+
 
 ## Constants
 
@@ -288,17 +294,20 @@ The constants can then be used in the light program:
         end
 
 
-## Declerations
+## Declarations
 
-The decleration section defines the LEDs and variables used by the light program and assigns human readable names to them.
+The declaration section defines the LEDs and variables used by the light program and assigns human readable names to them.
 
-Variable and LED declerations can appear in any order in the decleration section.
+Variable and LED declarations can appear in any order in the declaration section.
 
-### Variable declerations
+### Variable declaration
 
 Variables are storage locations that hold numeric values. In total all light programs together can utilize a total of 100 variables.
 
 Variables have a data type of *signed 16-bit integer*. This means that the range of numbers that can be stored is *-32768* to *32767*.
+
+All variables (local, global and pre-defined) are initialized to `0` when the light controller starts
+
 
 A variable is created by declaring its identifier:
 
@@ -325,9 +334,9 @@ Light program 3:
 Light programs 1 and 2 share the global variable ``i_am_global``.
 Light program 1 and 3 declare another global variable ``VARIABLE3``. Light program 2 also declares ``VARIABLE3``, but as local variable, so in this example ``VARIABLE3`` of light program 2 is a separate, private storage location from the global ``VARIABLE3`` shared by light programs 1 and 3.
 
-### Predefined variables
+### Pre-defined variables
 
-There a few global variables predefined for all light programs:
+There a few global variables pre-defined for all light programs:
 
 - **clicks**
 
@@ -352,10 +361,15 @@ There a few global variables predefined for all light programs:
     position can be adjusted in the light controller by performing **eight CH3-clicks**.
     Refer to the light controller user manual for details.
 
+- **program-state-0 .. program-state-4**
 
-### LED declerations
+    These variables allow software-triggering of light programs. Each of them
+    has an associated run condition, for example ``run when program-state-3``.
+    The light program runs when the variable has a value other than 0.
 
-LED declerations serve two purpose:
+### LED declarations
+
+LED declarations serve two purpose:
 
 - They define which LEDs are used by the light program, preventing lower priority light programs and car functions to overwrite the LED brightness while the light program is running.
 
@@ -526,13 +540,13 @@ Example:
         sleep 1
     pos1:
         sleep 2
-        goto forward_decleration
+        goto forward_declaration
 
     pos2:
         sleep 3
         goto pos1
 
-    forward_decleration:
+    forward_declaration:
         sleep 4
         goto pos2
 
@@ -790,13 +804,9 @@ has exactly the same behaviour as:
         skip if clicks < 3
         l = 100
 
-However, the ``if`` statement may be easier to understand as ``skip if`` employs
-a negative logic: the next instruction is *not* executed if the condition is true.
+However, the ``if`` statement may be easier to understand as ``skip if`` employs a negative logic: the next instruction is *not* executed if the condition is true.
 
-Implementation-wise, the light controller can only process ``skip if`` statements.
-Therefore, when light programs are processed during exporting of a new
-configuration, all ``if`` statements are converted into the
-corresponding ``skip if`` statement.
+Implementation-wise, the light controller can only process ``skip if`` statements. Therefore, when light programs are processed during exporting of a new configuration, all ``if`` statements are converted into the corresponding ``skip if`` statement.
 
 The following table shows the conversion:
 
@@ -819,6 +829,57 @@ if none indicator-left indicator-right | skip if any indicator-left indicator-ri
 ## The ``end`` statement
 
 Every light program **must** end with an ``end`` statement. A new-line must be added after the ``end`` statement, otherwise an error will be reported when the light program is processed by the *Configurator*.
+
+
+## Having a light program trigger another light program
+
+Sometimes we want to control LEDs only when a certain condition is met, even though no corresponding run condition is available.
+
+For example, we may want to flash headlamps when we push a button on the transmitter. The button may trigger AUX2 on the light controller.
+
+Unfortunately there is no run condition that triggers off AUX2.
+
+We could make a light program with the run condition ``run always``, but that would mean that we also have to include logic to turn on the headlamps at the correct light switch position, as the LEDs are not assigned to the light program and no longer perform the original car function.
+
+There is a better way though:
+
+We create a short light program with the condition ``run always``. In this light program we check whether AUX2 has a value greater than 50. If yes, then we set the pre-defined global variable ``program-state-0`` to ``1``; if no, we set it to ``0``.
+
+We can now create a second light program with the run condition ``run when program-state-0``. In this light program we take over the headlamps, and turn them on. Now only when AUX2 is pressed, the headlamps are controlled by the light program, but if AUX2 is released then the normal light functions assigned in the configurator are active.
+
+    // ----------------------------------------------------------------------
+    // Headlight-flasher using a momentary button on AUX2
+    // ----------------------------------------------------------------------
+    run always
+
+    // Temporary variable as we can not test AUX2 in a skip if statement
+    var aux-value
+
+    loop:
+        // Read the AUX2 value
+        aux-value = aux2
+
+        // Set program-state-0 to 1 if AUX2 is greater than 50, otherwise set
+        // it to 0
+        program-state-0 = 0
+        if aux-value > 50
+        program-state-0 = 1
+
+        // Process other light controller functions and start over
+        sleep 40
+        goto loop
+
+    end
+
+    // ----------------------------------------------------------------------
+    run when program-state-0
+
+    led headlamp-l = led[4]
+    led headlamp-r = led[5]
+
+        headlamp-l, headlamp-r = 100
+
+    end
 
 
 # Example light programs
