@@ -154,6 +154,10 @@
 
 // ****************************************************************************
 typedef enum {
+    // These run conditions align with LIGHT_PROGRAM_CAR_STATE_T so that in the
+    // implementation we can build one and copy the data to the other one
+    // before extending them with the unique values
+
     RUN_WHEN_LIGHT_SWITCH_POSITION   = (1 << 0),     // Bits 0..8
     RUN_WHEN_LIGHT_SWITCH_POSITION_1 = (1 << 1),
     RUN_WHEN_LIGHT_SWITCH_POSITION_2 = (1 << 2),
@@ -180,6 +184,14 @@ typedef enum {
     RUN_WHEN_WINCH_IDLE              = (1 << 20),
     RUN_WHEN_WINCH_IN                = (1 << 21),
     RUN_WHEN_WINCH_OUT               = (1 << 22),
+
+    // End of defines that are shared with LIGHT_PROGRAM_CAR_STATE_T
+
+    RUN_WHEN_PROGRAM_STATE_0         = (1 << 24),
+    RUN_WHEN_PROGRAM_STATE_1         = (1 << 25),
+    RUN_WHEN_PROGRAM_STATE_2         = (1 << 26),
+    RUN_WHEN_PROGRAM_STATE_3         = (1 << 27),
+    RUN_WHEN_PROGRAM_STATE_4         = (1 << 28),
 
     // RUN_ALWAYS                    = (1 << 31)
     // Enums are of type integer, so 1<<31 isn't an allowed value as it is
@@ -210,6 +222,9 @@ typedef enum {
 
 // ****************************************************************************
 typedef enum {
+    // These run conditions align with LIGHT_PROGRAM_RUN_STATE_T so that in the
+    // implementation we can build one and copy the data to the other one
+    // before extending them with the unique values
     CAR_STATE_LIGHT_SWITCH_POSITION     = (1 << 0),     // Bits 0..8
     CAR_STATE_LIGHT_SWITCH_POSITION_1   = (1 << 1),
     CAR_STATE_LIGHT_SWITCH_POSITION_2   = (1 << 2),
@@ -236,6 +251,8 @@ typedef enum {
     CAR_STATE_WINCH_IDLE                = (1 << 20),
     CAR_STATE_WINCH_IN                  = (1 << 21),
     CAR_STATE_WINCH_OUT                 = (1 << 22),
+
+    // End of defines that are shared with LIGHT_PROGRAM_RUN_STATE_T
 
     // 1 bit still free ...
 

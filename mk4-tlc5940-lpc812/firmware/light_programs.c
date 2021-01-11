@@ -107,6 +107,11 @@
 #define GLOBAL_VAR_LIGHT_SWITCH_POSITION 1
 #define GLOBAL_VAR_GEAR 2
 #define GLOBAL_VAR_SERVO 3
+#define GLOBAL_VAR_PROGRAM_STATE_0 4
+#define GLOBAL_VAR_PROGRAM_STATE_1 5
+#define GLOBAL_VAR_PROGRAM_STATE_2 6
+#define GLOBAL_VAR_PROGRAM_STATE_3 7
+#define GLOBAL_VAR_PROGRAM_STATE_4 8
 
 typedef struct {
     const uint32_t *PC;
@@ -190,8 +195,7 @@ static void load_light_program_environment(void)
         }
     }
 
-    run_state = RUN_ALWAYS;
-    run_state |= (RUN_WHEN_LIGHT_SWITCH_POSITION << light_switch_position);
+    run_state = (RUN_WHEN_LIGHT_SWITCH_POSITION << light_switch_position);
     if (global_flags.forward) {
         run_state |= RUN_WHEN_FORWARD;
     }
@@ -246,9 +250,9 @@ static void load_light_program_environment(void)
     }
 
 
-    // car_state is run_state (minus run-always) plus some of the priority
-    // run conditions mixed in
-    car_state = run_state & ~RUN_ALWAYS;
+    // car_state is the same as the above run_state values, plus some of the
+    // priority run conditions mixed in
+    car_state = run_state;
     if (global_flags.servo_output_setup == SERVO_OUTPUT_SETUP_CENTRE) {
         car_state |= CAR_STATE_SERVO_OUTPUT_SETUP_CENTRE;
     }
@@ -264,6 +268,25 @@ static void load_light_program_environment(void)
     if (global_flags.reversing_setup & REVERSING_SETUP_THROTTLE) {
         car_state |= CAR_STATE_REVERSING_SETUP_THROTTLE;
     }
+
+
+    // Add the unique entries to run_state
+    if (var[GLOBAL_VAR_PROGRAM_STATE_0]) {
+        run_state |= RUN_WHEN_PROGRAM_STATE_0;
+    }
+    if (var[GLOBAL_VAR_PROGRAM_STATE_1]) {
+        run_state |= RUN_WHEN_PROGRAM_STATE_1;
+    }
+    if (var[GLOBAL_VAR_PROGRAM_STATE_2]) {
+        run_state |= RUN_WHEN_PROGRAM_STATE_2;
+    }
+    if (var[GLOBAL_VAR_PROGRAM_STATE_3]) {
+        run_state |= RUN_WHEN_PROGRAM_STATE_3;
+    }
+    if (var[GLOBAL_VAR_PROGRAM_STATE_4]) {
+        run_state |= RUN_WHEN_PROGRAM_STATE_4;
+    }
+    run_state |= RUN_ALWAYS;
 }
 
 

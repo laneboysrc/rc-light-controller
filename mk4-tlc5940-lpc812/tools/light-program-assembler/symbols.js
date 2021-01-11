@@ -43,6 +43,12 @@ var symbols = (function () {
         'winch-in': {'token': 'RUN_CONDITION', 'opcode': (1 << 21)},
         'winch-out': {'token': 'RUN_CONDITION', 'opcode': (1 << 22)},
 
+        'program-state-0': {'token': 'RUN_CONDITION', 'opcode': (1 << 24)},
+        'program-state-1': {'token': 'RUN_CONDITION', 'opcode': (1 << 25)},
+        'program-state-2': {'token': 'RUN_CONDITION', 'opcode': (1 << 26)},
+        'program-state-3': {'token': 'RUN_CONDITION', 'opcode': (1 << 27)},
+        'program-state-4': {'token': 'RUN_CONDITION', 'opcode': (1 << 28)},
+
         'no-signal': {'token': 'PRIORITY_RUN_CONDITION', 'opcode': (1 << 0)},
         'initializing': {'token': 'PRIORITY_RUN_CONDITION', 'opcode': (1 << 1)},
         'servo-output-setup-centre': {'token': 'PRIORITY_RUN_CONDITION', 'opcode': (1 << 2)},
@@ -422,6 +428,16 @@ var symbols = (function () {
         add_symbol('gear', 'GLOBAL_VARIABLE', next_variable_index);
         next_variable_index += 1;
         add_symbol('servo', 'GLOBAL_VARIABLE', next_variable_index);
+        next_variable_index += 1;
+        add_symbol('program-state-0', 'GLOBAL_VARIABLE', next_variable_index);
+        next_variable_index += 1;
+        add_symbol('program-state-1', 'GLOBAL_VARIABLE', next_variable_index);
+        next_variable_index += 1;
+        add_symbol('program-state-2', 'GLOBAL_VARIABLE', next_variable_index);
+        next_variable_index += 1;
+        add_symbol('program-state-3', 'GLOBAL_VARIABLE', next_variable_index);
+        next_variable_index += 1;
+        add_symbol('program-state-4', 'GLOBAL_VARIABLE', next_variable_index);
         next_variable_index += 1;
     };
 
