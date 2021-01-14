@@ -609,6 +609,14 @@ typedef struct {
     int8_t light_switch_centers[9];
     int8_t light_switch_hysteresis;
 
+    // Advanced config for the threshold for the AUX 2-position and
+    // 3-position functions
+    int8_t aux_centre_threshold_low;
+    int8_t aux_centre_threshold_high;
+    int8_t aux_left_centre_threshold_low;
+    int8_t aux_left_centre_threshold_high;
+    int8_t aux_centre_right_threshold_low;
+    int8_t aux_centre_right_threshold_high;
 
 } LIGHT_CONTROLLER_CONFIG_T;
 

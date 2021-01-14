@@ -234,7 +234,7 @@ static void hazard(CHANNEL_T *c, struct AUX_FLAGS *f, AUX_TYPE_T type)
     // needs special handling for momentary functions
 
     if (f->last_state) {
-        if (c->normalized < -AUX_HYSTERESIS) {
+        if (c->normalized < config.aux_centre_threshold_low) {
             f->last_state = false;
             if (global_flags.blink_hazard && type != MOMENTARY) {
                 toggle_hazard_lights();
@@ -242,7 +242,7 @@ static void hazard(CHANNEL_T *c, struct AUX_FLAGS *f, AUX_TYPE_T type)
         }
     }
     else {
-        if (c->normalized > AUX_HYSTERESIS) {
+        if (c->normalized > config.aux_centre_threshold_high) {
             f->last_state = true;
             if (!global_flags.blink_hazard || type == MOMENTARY) {
                 toggle_hazard_lights();
@@ -268,35 +268,29 @@ static void servo(CHANNEL_T *c)
 // ****************************************************************************
 static void manual_indicators(CHANNEL_T *c, struct AUX_FLAGS *f)
 {
-    // Hysteresis for the two switching points of a 3-position switch
-#define AUX_VALUE1_LOW (-(33 - AUX_HYSTERESIS))
-#define AUX_VALUE1_HIGH (-(33 + AUX_HYSTERESIS))
-#define AUX_VALUE2_LOW (33 - AUX_HYSTERESIS)
-#define AUX_VALUE2_HIGH (33 + AUX_HYSTERESIS)
-
     int16_t new_value = f->last_value;
 
     if (f->last_value == -100) {
-        if (c->normalized > AUX_VALUE2_HIGH) {
+        if (c->normalized > config.aux_centre_right_threshold_high) {
             new_value = 100;
         }
-        else if (c->normalized > AUX_VALUE1_LOW) {
+        else if (c->normalized > config.aux_left_centre_threshold_high) {
             new_value = 0;
         }
     }
     else if (f->last_value == 0) {
-        if (c->normalized > AUX_VALUE2_HIGH) {
+        if (c->normalized > config.aux_centre_right_threshold_high) {
             new_value = 100;
         }
-        else if (c->normalized < AUX_VALUE1_HIGH) {
+        else if (c->normalized < config.aux_left_centre_threshold_low) {
             new_value = -100;
         }
     }
     else if (f->last_value == 100) {
-        if (c->normalized < AUX_VALUE1_HIGH) {
+        if (c->normalized < config.aux_left_centre_threshold_low) {
             new_value = -100;
         }
-        else if (c->normalized < AUX_VALUE2_LOW) {
+        else if (c->normalized < config.aux_centre_right_threshold_low) {
             new_value = 0;
         }
     }

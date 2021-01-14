@@ -226,10 +226,18 @@ var app = (function () {
     };
 
     // *************************************************************************
+    var get_int8 = function (data, offset) {
+        let value = data[offset];
+        if (value > 127) {
+            value -= 256;
+        }
+        return value;
+    };
+
+    // *************************************************************************
     var get_uint16 = function (data, offset) {
         return (data[offset + 1] * 256) + data[offset];
     };
-
 
     // *************************************************************************
     var get_uint32 = function (data, offset) {
@@ -516,6 +524,24 @@ var app = (function () {
             new_config.aux2_function = AUX_FUNCTION.AUX_FUNCTION_NOT_USED;
             new_config.aux3_type = AUX_TYPE.AUX_TYPE_TWO_POSITION;
             new_config.aux3_function = AUX_FUNCTION.AUX_FUNCTION_NOT_USED;
+        }
+
+        if (new_config.firmware_version >= 33) {
+            new_config.aux_centre_threshold_low = get_int8(data, offset + 86);
+            new_config.aux_centre_threshold_high = get_int8(data, offset + 87);
+            new_config.aux_left_centre_threshold_low = get_int8(data, offset + 88);
+            new_config.aux_left_centre_threshold_high = get_int8(data, offset + 89);
+            new_config.aux_centre_right_threshold_low = get_int8(data, offset + 90);
+            new_config.aux_centre_right_threshold_high = get_int8(data, offset + 91);
+        }
+        else {
+            // Set some defaults
+            new_config.aux_centre_threshold_low = -10;
+            new_config.aux_centre_threshold_high = 10;
+            new_config.aux_left_centre_threshold_low = -40;
+            new_config.aux_left_centre_threshold_high = -30;
+            new_config.aux_centre_right_threshold_low = 30;
+            new_config.aux_centre_right_threshold_high = 40;
         }
 
         return new_config;
@@ -1146,6 +1172,12 @@ var app = (function () {
 
         el.centre_threshold_low.value = config.centre_threshold_low;
         el.centre_threshold_high.value = config.centre_threshold_high;
+        el.aux_centre_threshold_low.value = config.aux_centre_threshold_low;
+        el.aux_centre_threshold_high.value = config.aux_centre_threshold_high;
+        el.aux_left_centre_threshold_low.value = config.aux_left_centre_threshold_low;
+        el.aux_left_centre_threshold_high.value = config.aux_left_centre_threshold_high;
+        el.aux_centre_right_threshold_low.value = config.aux_centre_right_threshold_low;
+        el.aux_centre_right_threshold_high.value = config.aux_centre_right_threshold_high;
         el.initial_endpoint_delta.value = config.initial_endpoint_delta;
 
         el.ch3_multi_click_timeout.value =
@@ -1558,6 +1590,16 @@ var app = (function () {
                 log.log("light_switch_centers["+i+"] = "+config.light_switch_centers[i])
                 set_int8(data, offset + 76 + i, config.light_switch_centers[i]);
             }
+        }
+
+        // Handle addition of 5-ch AUX thresholds
+        if (config.firmware_version >= 33) {
+            set_int8(data, offset + 86, config.aux_centre_threshold_low);
+            set_int8(data, offset + 87, config.aux_centre_threshold_high);
+            set_int8(data, offset + 88, config.aux_left_centre_threshold_low);
+            set_int8(data, offset + 89, config.aux_left_centre_threshold_high);
+            set_int8(data, offset + 90, config.aux_centre_right_threshold_low);
+            set_int8(data, offset + 91, config.aux_centre_right_threshold_high);
         }
     };
 
@@ -2049,6 +2091,13 @@ var app = (function () {
         update_int('aux3_function');
 
         update_boolean('assign_uart_to_out');
+
+        update_int('aux_centre_threshold_low');
+        update_int('aux_centre_threshold_high');
+        update_int('aux_left_centre_threshold_low');
+        update_int('aux_left_centre_threshold_high');
+        update_int('aux_centre_right_threshold_low');
+        update_int('aux_centre_right_threshold_high');
 
         if (config.mode === MODE.SLAVE) {
             // Force gamma to 1.0 in slave mode as the gamma correction is
@@ -2685,6 +2734,9 @@ var app = (function () {
             'blink_threshold',
 
             'centre_threshold_low', 'centre_threshold_high',
+            'aux_centre_threshold_low', 'aux_centre_threshold_high',
+            'aux_left_centre_threshold_low', 'aux_left_centre_threshold_high',
+            'aux_centre_right_threshold_low', 'aux_centre_right_threshold_high',
             'initial_endpoint_delta', 'ch3_multi_click_timeout',
             'winch_command_repeat_time','no_signal_timeout', 'shelf_queen_mode',
 

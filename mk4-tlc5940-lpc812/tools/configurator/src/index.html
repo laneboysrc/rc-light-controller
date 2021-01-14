@@ -962,6 +962,45 @@
 
           <div class="advanced_feature">
             <div>
+              <input type=number id="aux_centre_threshold_low">
+              <label for="aux_centre_threshold_low"> .. </label>
+              <input type=number id="aux_centre_threshold_high">
+              <label for="aux_centre_threshold_high">threshold low/high for two-position AUX function</label>
+            </div>
+
+            <div>
+              When using a 5-channel Pre-Processor, this value determines
+              the switching point and hysteresis for 2-position AUX functions
+              (e.g. hazard lights on/off)<br>
+              Valid range: -100..+100
+            </div>
+          </div>
+
+          <div class="advanced_feature">
+            <div>
+              <input type=number id="aux_left_centre_threshold_low">
+              <label for="aux_left_centre_threshold_low"> .. </label>
+              <input type=number id="aux_left_centre_threshold_high">
+              <label for="aux_left_centre_threshold_high">threshold low/high for left-to-centre of a three-position AUX function</label>
+            </div>
+            <div>
+              <input type=number id="aux_centre_right_threshold_low">
+              <label for="aux_centre_right_threshold_low"> .. </label>
+              <input type=number id="aux_centre_right_threshold_high">
+              <label for="aux_centre_right_threshold_low">threshold low/high for centre-to-right of a three-position AUX function</label>
+            </div>
+            <div>
+              When using a 5-channel Pre-Processor, this value determines
+              the switching point and hysteresis for the left-to-centre and
+              centre-to-right transition of 3-position AUX functions
+              (e.g. manual indicators on/off).<br>
+              Valid range: -100..+100<br>
+              Important: the values for left-to-centre must be lower than centre-to-right.
+            </div>
+          </div>
+
+          <div class="advanced_feature">
+            <div>
               <input type=number id="servo_pulse_min">
               <label for="servo_pulse_min"> .. </label>
               <input type=number id="servo_pulse_max">

@@ -108,6 +108,13 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
 
     .light_switch_centers = {-80, -40, 0, 40, 80, 0, 0, 0, 0},
     .light_switch_hysteresis = 40 / 4,
+
+    .aux_centre_threshold_low = -10,
+    .aux_centre_threshold_high = 10,
+    .aux_left_centre_threshold_low = -40,
+    .aux_left_centre_threshold_high = -30,
+    .aux_centre_right_threshold_low = 30,
+    .aux_centre_right_threshold_high = 40,
 };
 
 
