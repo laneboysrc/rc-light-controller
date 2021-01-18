@@ -147,7 +147,7 @@ F 3 "" H 4650 2900 50  0001 C CNN
 $EndComp
 Wire Wire Line
 	8450 7000 8450 7100
-Text Notes 11600 1850 0    85   ~ 0
+Text Notes 11600 1150 0    85   ~ 0
 LED driver and outputs
 Text Label 7150 5900 0    50   ~ 0
 ST-RX
@@ -232,14 +232,10 @@ OUT1
 Text Label 7150 6100 0    50   ~ 0
 OUT2
 NoConn ~ 7750 6400
-Text Notes 14000 4650 0    59   ~ 0
-VIN1 is physically close to LED+.\nThis allows two modes of operation:\n1) when VIN1 is conntected to LED+\nvia a jumper, then the LEDs are \npowered from the receiver.\n2) A separate power supply can be \nconnected to LED+ (and the nearby GND),\ne.g. for higher voltages
 Text Label 2750 4750 2    50   ~ 0
 ST-Rx-in
 Text Label 2750 4850 2    50   ~ 0
 VIN
-Text Label 13600 2000 0    50   ~ 0
-LED+
 Text Label 9800 6300 2    50   ~ 0
 AUX
 Wire Wire Line
@@ -331,14 +327,14 @@ Wire Wire Line
 Wire Wire Line
 	10300 6400 10300 6600
 $Comp
-L Connector_Generic:Conn_01x09 J3
+L Connector_Generic:Conn_01x08 J3
 U 1 1 5FF85660
-P 13950 3200
-F 0 "J3" H 13868 2675 50  0000 C CNN
-F 1 "Pinheader straight 1x06" H 13950 3650 50  0000 C CNN
-F 2 "rc-light-controller-tlc5940-lpc812:PinHeader_1x09_P2.54mm_Vertical_nosilk" H 13950 3200 50  0001 C CNN
-F 3 "~" H 13950 3200 50  0001 C CNN
-	1    13950 3200
+P 13950 3000
+F 0 "J3" H 13868 2475 50  0000 C CNN
+F 1 "Pinheader straight 1x08" H 14250 2350 50  0000 C CNN
+F 2 "rc-light-controller-tlc5940-lpc812:PinHeader_1x08_P2.54mm_Vertical_nosilk" H 13950 3000 50  0001 C CNN
+F 3 "~" H 13950 3000 50  0001 C CNN
+	1    13950 3000
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
@@ -374,7 +370,6 @@ Wire Wire Line
 Connection ~ 13600 3000
 NoConn ~ 7750 6000
 NoConn ~ 9150 6500
-NoConn ~ 9150 6600
 NoConn ~ 7750 6600
 NoConn ~ 9150 5900
 $Comp
@@ -729,29 +724,7 @@ Wire Wire Line
 NoConn ~ 6350 6100
 Wire Wire Line
 	6750 5900 6750 6300
-$Comp
-L power:GND #PWR0107
-U 1 1 5FF80AFD
-P 13450 3850
-F 0 "#PWR0107" H 13450 3600 50  0001 C CNN
-F 1 "GND" H 13455 3677 50  0000 C CNN
-F 2 "" H 13450 3850 50  0001 C CNN
-F 3 "" H 13450 3850 50  0001 C CNN
-	1    13450 3850
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	13750 3400 13450 3400
-Wire Wire Line
-	13450 3400 13450 3850
-Wire Wire Line
-	13600 3200 13600 3500
-Wire Wire Line
-	13600 3500 13750 3500
-Connection ~ 13600 3200
-Wire Wire Line
-	13750 3600 13050 3600
-Text Label 13050 3600 0    50   ~ 0
+Text Label 13600 2000 0    50   ~ 0
 VIN
 Wire Wire Line
 	3050 8050 3050 7800
@@ -763,4 +736,39 @@ Text Notes 6000 7300 0    50   ~ 0
 We are using PIO0_6 instead of \nPIO0_8 for AUX2 so that in the \nfuture we could make a \n9-output Mk4S with 5-channel input.\n\nWhen switching hardware is detected \n(PIO0_14 is GND) then the software will\nuse PIO0_6 for AUX2, otherwise PIO0_8
 Text Notes 3550 8300 0    50   ~ 0
 Note: Resistor assignment according\nto what is easiest for the layout
+$Comp
+L Device:Q_NMOS_GSD T4
+U 1 1 60061D05
+P 12300 1650
+F 0 "T4" H 12150 1800 59  0000 L BNN
+F 1 "PMV30UN" H 12400 1650 59  0001 L BNN
+F 2 "Package_TO_SOT_SMD:SOT-23" H 12300 1650 50  0001 C CNN
+F 3 "https://assets.nexperia.com/documents/data-sheet/PMV30UN.pdf" H 12300 1650 50  0001 C CNN
+	1    12300 1650
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	11750 1650 12100 1650
+Text Label 11750 1650 0    50   ~ 0
+OUT3
+Wire Wire Line
+	12400 1850 12700 1850
+Wire Wire Line
+	12700 1850 12700 2500
+Connection ~ 12700 2500
+Wire Wire Line
+	13600 3200 13600 3400
+Wire Wire Line
+	13600 3400 13750 3400
+Connection ~ 13600 3200
+Wire Wire Line
+	13750 2700 13450 2700
+Wire Wire Line
+	13450 2700 13450 1450
+Wire Wire Line
+	13450 1450 12400 1450
+Wire Wire Line
+	9800 6600 9150 6600
+Text Label 9800 6600 2    50   ~ 0
+OUT3
 $EndSCHEMATC
