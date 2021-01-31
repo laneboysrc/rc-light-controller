@@ -336,7 +336,19 @@ Light program 1 and 3 declare another global variable ``VARIABLE3``. Light progr
 
 ### Pre-defined variables
 
-There a few global variables pre-defined for all light programs:
+The light controller pre-defined a few global variables, accessible by all light programs:
+
+- **steering**
+
+    This variable reflects the state of the steering input (ST/Rx). Its range is from -100 .. 0 .. +100.
+
+- **throttle**
+
+    This variable reflects the state of the throttle (accelerator, TH/Tx) input. Its range is from -100 .. 0 .. +100.
+
+- **aux, aux2, aux3**
+
+    This variable reflects the state of the CH3 (AUX), AUX2 and AUX3 inputs respectively. The range is from -100 .. 0 .. +100.
 
 - **clicks**
 
@@ -367,6 +379,12 @@ There a few global variables pre-defined for all light programs:
     has an associated run condition, for example ``run when program-state-3``.
     The light program runs when the variable has a value other than 0.
 
+> **Important**:
+>
+> Do not write to *steering*, *throttle*, *aux*, *aux2* and *aux3*. Those variables should be considered read-only; write operations may have undeterministic effects on light program execution.
+>
+> *aux*, *aux2* and *aux3* are only usable in conjunction with the 5-channel Pre-Processor.
+
 ### LED declarations
 
 LED declarations serve two purpose:
@@ -378,9 +396,9 @@ LED declarations serve two purpose:
 LEDs are declared as follows:
 
     use all leds
-    led identifier = led[0]
+    led license_plate_light = led[0]
+    led dashboard-light = led[1]
     led slave_led_15 = led[31]
-    led yet-another-led = led[1]
 
 ``use all leds`` gives the light program control of all LEDs. This is useful for light programs that intend to take over all LEDs during special run conditions such as ``initializing`` or ``no-signal``.
 
@@ -407,7 +425,7 @@ Within the same priority group, the first active light program specified in the 
 
 When a light program is active but one or more LED have been used already by another light program of higher priority, the light program will still continue to run but any setting of LED values and fade times will not be carried out.
 
-It is therefore important for light programs to be implemented with awareness that higher priority light programs may re-assign LED brightness and fade values (see later sections). As such every light program should always set fade and light values and not rely that it has set a certain value earlier, as the values may have been overwritten by another light program executing at higher priority.
+It is therefore important for light programs to be implemented with awareness that higher priority light programs may re-assign LED brightness and fade values (see later sections). As such every light program should always set fade and light values in a loop and not rely that it has set a certain value earlier, as the values may have been overwritten by another light program executing at higher priority.
 
 
 ## Statements
@@ -439,7 +457,7 @@ Most statements support a variety of different arguments:
     x = servo       // Current servo position -100..0..+100,
                     //   only useful if light program servo control is enabled
 
-Note: aux, aux2 and aux3 are only available in firmware versions greater than 20, and only when a 5-channel Pre-Processor hardware is used.
+Note: aux, aux2 and aux3 are only available when a 5-channel Pre-Processor hardware is used.
 
 
 ### Assignments
@@ -695,6 +713,8 @@ All of the following are valid ``skip if`` statements:
         skip if x == light
         skip if light > 50
         skip if light2 < light
+        skip if steering > -30  // Test Steering channel
+        skip if aux2 < 80       // Test AUX2 channel
 
 Note that the left operand of the comparison is restricted to variables (both local and global) and LEDs.
 This means that the following are **not valid statements**:
@@ -705,19 +725,7 @@ This means that the following are **not valid statements**:
     led light2 = led[2]
 
         skip if 1 == x          // Left operand is *immediate*
-        skip if steering < 4    // Left operand is special item *steering*
-        skip if throttle > 80   // Left operand is special item *throttle*
-        skip if aux > 0         // Left operand is special item *aux*
-        skip if aux2 < -50      // Left operand is special item *aux2*
-        skip if aux3 > 20       // Left operand is special item *aux3*
 
-To work around this limitation, assign the item to a variable:
-
-    var switch
-
-        switch = aux            // Assign AUX value to variable
-        skip if switch > 50     // Now we can compare the value of AUX!
-        goto switch_is_on
 
 
 #### Testing *car state*
@@ -852,17 +860,11 @@ We can now create a second light program with the run condition ``run when progr
     // ----------------------------------------------------------------------
     run always
 
-    // Temporary variable as we can not test AUX2 in a skip if statement
-    var aux-value
-
     loop:
-        // Read the AUX2 value
-        aux-value = aux2
-
         // Set program-state-0 to 1 if AUX2 is greater than 50, otherwise set
         // it to 0
         program-state-0 = 0
-        if aux-value > 50
+        if aux2 > 50
         program-state-0 = 1
 
         // Process other light controller functions and start over
