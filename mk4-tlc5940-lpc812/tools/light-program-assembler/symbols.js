@@ -99,13 +99,9 @@ var symbols = (function () {
         'abs': {'token': 'ABS', 'opcode': 0x40000000},
         'all': {'token': 'ALL', 'opcode': 0x80000000},
         'any': {'token': 'ANY', 'opcode': 0x60000000},
-        'aux': {'token': 'AUX'},
-        'aux2': {'token': 'AUX2'},
-        'aux3': {'token': 'AUX3'},
         'const': {'token': 'CONST'},
         'end': {'token': 'END', 'opcode': 0xfe000000},
         'fade': {'token': 'FADE', 'opcode': 0x04000000},
-        // 'gear': {'token': 'GEAR'},
         'global': {'token': 'GLOBAL'},
         'goto': {'token': 'GOTO', 'opcode': 0x01000000},
         'if': {'token': 'IF'},
@@ -119,9 +115,7 @@ var symbols = (function () {
         'run': {'token': 'RUN'},
         'skip': {'token': 'SKIP'},
         'sleep': {'token': 'SLEEP', 'opcode': 0x06000000},
-        'steering': {'token': 'STEERING'},
         'stepsize': {'token': 'STEPSIZE'},
-        'throttle': {'token': 'THROTTLE'},
         'use': {'token': 'USE'},
         'var': {'token': 'VAR'},
         'when': {'token': 'WHEN'},
@@ -410,6 +404,27 @@ var symbols = (function () {
 
     // *************************************************************************
     var reset = function () {
+        var i;
+
+        // Note that the order is important and must match the defines in
+        // the firmware light_programs.c!
+        var global_variables = [
+            'clicks',
+            'light-switch-position',
+            'gear',
+            'servo',
+            'program-state-0',
+            'program-state-1',
+            'program-state-2',
+            'program-state-3',
+            'program-state-4',
+            'steering',
+            'throttle',
+            'aux',
+            'aux2',
+            'aux3'
+        ];
+
         symbol_table = [];
         forward_declaration_table = [];
         next_variable_index = 0;
@@ -421,24 +436,11 @@ var symbols = (function () {
             parser.yy.parse_state = 'UNKNOWN_PARSE_STATE';
         }
 
-        add_symbol('clicks', 'GLOBAL_VARIABLE', next_variable_index);
-        next_variable_index += 1;
-        add_symbol('light-switch-position', 'GLOBAL_VARIABLE', next_variable_index);
-        next_variable_index += 1;
-        add_symbol('gear', 'GLOBAL_VARIABLE', next_variable_index);
-        next_variable_index += 1;
-        add_symbol('servo', 'GLOBAL_VARIABLE', next_variable_index);
-        next_variable_index += 1;
-        add_symbol('program-state-0', 'GLOBAL_VARIABLE', next_variable_index);
-        next_variable_index += 1;
-        add_symbol('program-state-1', 'GLOBAL_VARIABLE', next_variable_index);
-        next_variable_index += 1;
-        add_symbol('program-state-2', 'GLOBAL_VARIABLE', next_variable_index);
-        next_variable_index += 1;
-        add_symbol('program-state-3', 'GLOBAL_VARIABLE', next_variable_index);
-        next_variable_index += 1;
-        add_symbol('program-state-4', 'GLOBAL_VARIABLE', next_variable_index);
-        next_variable_index += 1;
+        // Reserve all global variables by adding them to the symbol table.
+        for (i = 0; i < global_variables.length; i += 1) {
+            add_symbol(global_variables[i], 'GLOBAL_VARIABLE', next_variable_index);
+            next_variable_index += 1;
+        }
     };
 
 

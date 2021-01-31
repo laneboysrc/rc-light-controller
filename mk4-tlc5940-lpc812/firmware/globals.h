@@ -132,12 +132,13 @@
 #define PARAMETER_TYPE_VARIABLE 0
 #define PARAMETER_TYPE_LED 1
 #define PARAMETER_TYPE_RANDOM 2
-#define PARAMETER_TYPE_STEERING 3
-#define PARAMETER_TYPE_THROTTLE 4
-#define PARAMETER_TYPE_GEAR 5           // Note: not used from version 24 onwards, replaced with global variable!
-#define PARAMETER_TYPE_AUX 6
-#define PARAMETER_TYPE_AUX2 7
-#define PARAMETER_TYPE_AUX3 8
+// #define PARAMETER_TYPE_STEERING 3
+// #define PARAMETER_TYPE_THROTTLE 4
+// Note: not used from version 24 onwards, replaced with global variable!
+// #define PARAMETER_TYPE_GEAR 5
+// #define PARAMETER_TYPE_AUX 6
+// #define PARAMETER_TYPE_AUX2 7
+// #define PARAMETER_TYPE_AUX3 8
 
 
 // Offset of special position within every light program

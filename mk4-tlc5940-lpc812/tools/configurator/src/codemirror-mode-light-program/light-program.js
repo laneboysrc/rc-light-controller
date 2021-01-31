@@ -16,6 +16,9 @@
     var directives = {
       "abs": "operator",
       "all": "qualifier",
+      "aux": "built-in",
+      "aux2": "built-in",
+      "aux3": "built-in",
       "clicks": "built-in",
       "const": "def",
       "end": "keyword",

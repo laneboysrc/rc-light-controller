@@ -1,0 +1,14 @@
+run always
+
+    skip if steering <= 30
+    sleep 1
+    skip if throttle >= -30
+    sleep 1
+    skip if aux >= -30
+    sleep 1
+    skip if aux2 <= 30
+    sleep 1
+    skip if aux3 <= 20
+    sleep 1
+
+    end

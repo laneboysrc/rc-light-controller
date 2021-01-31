@@ -100,12 +100,6 @@ var disassembler = (function () {
     var PARAMETER_TYPE_VARIABLE = 0;
     var PARAMETER_TYPE_LED = 1;
     var PARAMETER_TYPE_RANDOM = 2;
-    var PARAMETER_TYPE_STEERING = 3;
-    var PARAMETER_TYPE_THROTTLE = 4;
-    // var PARAMETER_TYPE_GEAR = 5;
-    var PARAMETER_TYPE_AUX = 6;
-    var PARAMETER_TYPE_AUX2 = 7;
-    var PARAMETER_TYPE_AUX3 = 8;
 
     var RUN_WHEN_NORMAL_OPERATION           = 0;
     var RUN_WHEN_NO_SIGNAL                  = (1 << 0);
@@ -182,6 +176,45 @@ var disassembler = (function () {
 
         variables[index][current_program] = 1;
     };
+
+
+    // *************************************************************************
+    var decode_predefined_variables = function (index) {
+        switch (index) {
+            case 0:
+                return 'clicks';
+            case 1:
+                return 'light-switch-position';
+            case 2:
+                return'gear';
+            case 3:
+                return'servo';
+            case 4:
+                return 'program-state-0';
+            case 5:
+                return 'program-state-1';
+            case 6:
+                return 'program-state-2';
+            case 7:
+                return 'program-state-3';
+            case 8:
+                return 'program-state-4';
+            case 9:
+                return 'steering';
+            case 10:
+                return 'throttle';
+            case 11:
+                return 'aux';
+            case 12:
+                return 'aux2';
+            case 13:
+                return 'aux3';
+            default:
+                break;
+        }
+
+        return '';
+    }
 
 
     // *************************************************************************
@@ -377,12 +410,11 @@ var disassembler = (function () {
 
         switch (parameter_type) {
         case PARAMETER_TYPE_VARIABLE:
-            if (index === 0) {
-                return 'clicks';
+            var name = decode_predefined_variables(index);
+            if (name != '') {
+                return name;
             }
-            if (index === 1) {
-                return 'light-switch-position';
-            }
+
             set_variable_used(index, current_program);
             return 'var' + index;
 
@@ -391,24 +423,6 @@ var disassembler = (function () {
 
         case PARAMETER_TYPE_RANDOM:
             return 'random';
-
-        case PARAMETER_TYPE_STEERING:
-            return 'steering';
-
-        case PARAMETER_TYPE_THROTTLE:
-            return 'throttle';
-
-        // case PARAMETER_TYPE_GEAR:
-        //     return 'gear';
-
-        case PARAMETER_TYPE_AUX:
-            return 'aux';
-
-        case PARAMETER_TYPE_AUX2:
-            return 'aux2';
-
-        case PARAMETER_TYPE_AUX3:
-            return 'aux3';
 
         default:
             return 'ERROR: unknown parameter type ' + parameter_type;
@@ -421,15 +435,12 @@ var disassembler = (function () {
         var result = '';
 
         index = (instruction >> 16) & 0xff;
-        if (index === 0) {
-            result = 'clicks ' + operator + ' ';
-        } else if (index === 1) {
-            result = 'light-switch-position ' + operator + ' ';
-        } else if (index === 2) {
-            result = 'gear ' + operator + ' ';
-        } else if (index === 3) {
-            result = 'servo ' + operator + ' ';
-        } else {
+
+        var name = decode_predefined_variables(index);
+        if (name != '') {
+            result = name + ' ' + operator + ' ';
+        }
+        else {
             set_variable_used(index, current_program);
             result = 'var' + index + ' ' + operator + ' ';
         }
@@ -468,35 +479,15 @@ var disassembler = (function () {
 
         switch (parameter_type) {
         case PARAMETER_TYPE_VARIABLE:
-            if (index === 0) {
-                return 'clicks';
-            }
-            if (index === 1) {
-                return 'light-switch-position';
+            var name = decode_predefined_variables(index);
+            if (name != '') {
+                return name;
             }
             set_variable_used(index, current_program);
             return 'var' + index;
 
         case PARAMETER_TYPE_LED:
             return 'led' + index;
-
-        case PARAMETER_TYPE_STEERING:
-            return 'steering';
-
-        case PARAMETER_TYPE_THROTTLE:
-            return 'throttle';
-
-        // case PARAMETER_TYPE_GEAR:
-        //     return 'gear';
-
-        case PARAMETER_TYPE_AUX:
-            return 'aux';
-
-        case PARAMETER_TYPE_AUX2:
-            return 'aux2';
-
-        case PARAMETER_TYPE_AUX3:
-            return 'aux3';
 
         default:
             return 'ERROR: unknown parameter type ' + parameter_type;
@@ -514,11 +505,11 @@ var disassembler = (function () {
         } else {
             var index = (instruction >> 16) & 0xff;
 
-            if (index === 0) {
-                left = 'clicks';
-            } else if (index === 1) {
-                left = 'light-switch-position';
-            } else {
+            var name = decode_predefined_variables(index);
+            if (name != '') {
+                left = name;
+            }
+            else {
                 set_variable_used(index, current_program);
                 left = 'var' + index;
             }

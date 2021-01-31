@@ -6,9 +6,31 @@
   <script src="../disassembler.js"></script>
 </head>
 <body>
-  <div>
-    Disassembled code:
-  </div>
+  <h1>Instructions (HEX):</h1>
+
+  <textarea id="source" style="width: 100%; height: 200px;">
+        0x00000000,
+        0x80000000,
+        0x00000000,
+        0x3109001e,
+        0x07000001,
+        0x290affe2,
+        0x07000001,
+        0x290bffe2,
+        0x07000001,
+        0x310c001e,
+        0x07000001,
+        0x310d0014,
+        0x07000001,
+        0x2d020001,
+        0x07000001,
+        0xfe000000,
+
+        0xff000000,
+  </textarea>
+  <button id="go">Disassemble</button>
+
+  <h1>Disassembled code:</h1>
   <pre id="code"></pre>
 
   <script>
@@ -182,9 +204,23 @@
 
     ];
 
-    d = disassembler;
-    code = d.disassemble(instructions);
-    document.getElementById("code").innerHTML = code;
+    document.getElementById("go").addEventListener("click", function () {
+        d = disassembler;
+
+        let opcodes = document.getElementById("source").value.split(',')
+
+        opcode_numbers = [];
+        for (let i = 0; i < opcodes.length; i++) {
+            let o = opcodes[i].trim();
+            let on = parseInt(o);
+            opcode_numbers.push(on);
+        }
+
+        code = d.disassemble(opcode_numbers);
+        document.getElementById("code").innerHTML = code;
+    });
+
+
   </script>
 </body>
 </html>

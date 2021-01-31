@@ -112,6 +112,11 @@
 #define GLOBAL_VAR_PROGRAM_STATE_2 6
 #define GLOBAL_VAR_PROGRAM_STATE_3 7
 #define GLOBAL_VAR_PROGRAM_STATE_4 8
+#define GLOBAL_VAR_STEERING 9
+#define GLOBAL_VAR_THROTTLE 10
+#define GLOBAL_VAR_AUX 11
+#define GLOBAL_VAR_AUX2 12
+#define GLOBAL_VAR_AUX3 13
 
 typedef struct {
     const uint32_t *PC;
@@ -163,6 +168,15 @@ void next_light_sequence(void)
 	++var[GLOBAL_VAR_CLICKS];
 }
 
+// ****************************************************************************
+static void load_read_only_global_variables(void)
+{
+    var[GLOBAL_VAR_STEERING] = channel[ST].normalized;
+    var[GLOBAL_VAR_THROTTLE] = channel[TH].normalized;
+    var[GLOBAL_VAR_AUX] = channel[AUX].normalized;
+    var[GLOBAL_VAR_AUX2] = channel[AUX2].normalized;
+    var[GLOBAL_VAR_AUX3] = channel[AUX3].normalized;
+}
 
 // ****************************************************************************
 static void load_light_program_environment(void)
@@ -287,6 +301,9 @@ static void load_light_program_environment(void)
         run_state |= RUN_WHEN_PROGRAM_STATE_4;
     }
     run_state |= RUN_ALWAYS;
+
+
+    load_read_only_global_variables();
 }
 
 
@@ -299,6 +316,10 @@ static void limit_variables(void)
     if (var[GLOBAL_VAR_LIGHT_SWITCH_POSITION] > config.light_switch_positions) {
         var[GLOBAL_VAR_LIGHT_SWITCH_POSITION] = config.light_switch_positions;
     }
+
+    // Reload read-only global variables so that if a light program destroyed
+    // them, the other light programs are not affected.
+    load_read_only_global_variables();
 }
 
 
@@ -340,24 +361,6 @@ static int16_t get_parameter_value(uint32_t instruction)
 
         case PARAMETER_TYPE_RANDOM:
             return (int16_t)random_min_max(1, 0xffff);
-
-        case PARAMETER_TYPE_STEERING:
-            return channel[ST].normalized;
-
-        case PARAMETER_TYPE_THROTTLE:
-            return channel[TH].normalized;
-
-        case PARAMETER_TYPE_AUX:
-            return channel[AUX].normalized;
-
-        case PARAMETER_TYPE_AUX2:
-            return channel[AUX2].normalized;
-
-        case PARAMETER_TYPE_AUX3:
-            return channel[AUX3].normalized;
-
-        case PARAMETER_TYPE_GEAR:
-            return global_flags.gear;
 
         default:
             printf("UNKNOWN PARAMETER TYPE 0x%08x\n", type);
