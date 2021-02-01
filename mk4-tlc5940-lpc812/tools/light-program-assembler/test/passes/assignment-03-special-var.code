@@ -11,4 +11,6 @@ var x
     servo = -42
     servo = clicks
 
+    hazard = 1
+
 end

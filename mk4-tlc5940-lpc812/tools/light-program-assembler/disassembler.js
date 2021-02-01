@@ -209,6 +209,8 @@ var disassembler = (function () {
                 return 'aux2';
             case 13:
                 return 'aux3';
+            case 14:
+                return 'hazard';
             default:
                 break;
         }

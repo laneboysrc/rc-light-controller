@@ -422,7 +422,8 @@ var symbols = (function () {
             'throttle',
             'aux',
             'aux2',
-            'aux3'
+            'aux3',
+            'hazard',
         ];
 
         symbol_table = [];

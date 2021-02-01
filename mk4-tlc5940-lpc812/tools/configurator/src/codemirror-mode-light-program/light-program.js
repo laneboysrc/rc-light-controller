@@ -26,6 +26,7 @@
       "gear": "built-in",
       "global": "keyword",
       "goto": "keyword",
+      "hazard": "built-in",
       "if": "keyword",
       "led": "def",
       "leds": "qualifier",

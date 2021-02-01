@@ -117,6 +117,7 @@
 #define GLOBAL_VAR_AUX 11
 #define GLOBAL_VAR_AUX2 12
 #define GLOBAL_VAR_AUX3 13
+#define GLOBAL_VAR_HAZARD 14
 
 typedef struct {
     const uint32_t *PC;
@@ -304,6 +305,10 @@ static void load_light_program_environment(void)
 
 
     load_read_only_global_variables();
+
+    // Set hazard to an unused value to be able to detect when a light program
+    // has changed it.
+    var[GLOBAL_VAR_HAZARD] = -1;
 }
 
 
@@ -710,6 +715,17 @@ uint32_t process_light_programs(void)
     set_servo_position(var[GLOBAL_VAR_SERVO]);
     if (config.flags2.gearbox_light_program_control) {
         set_gear(var[GLOBAL_VAR_GEAR]);
+    }
+
+    if (var[GLOBAL_VAR_HAZARD] == 0) {
+        if (global_flags.blink_hazard) {
+            toggle_hazard_lights();
+        }
+    }
+    else if (var[GLOBAL_VAR_HAZARD] == 1) {
+        if (!global_flags.blink_hazard) {
+            toggle_hazard_lights();
+        }
     }
 
     return leds_used;

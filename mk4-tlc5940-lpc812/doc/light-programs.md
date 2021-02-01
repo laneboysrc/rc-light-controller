@@ -338,14 +338,6 @@ Light program 1 and 3 declare another global variable ``VARIABLE3``. Light progr
 
 The light controller pre-defined a few global variables, accessible by all light programs:
 
-- **steering**
-
-    This variable reflects the state of the steering input (ST/Rx). Its range is from -100 .. 0 .. +100.
-
-- **throttle**
-
-    This variable reflects the state of the throttle (accelerator, TH/Tx) input. Its range is from -100 .. 0 .. +100.
-
 - **aux, aux2, aux3**
 
     This variable reflects the state of the CH3 (AUX), AUX2 and AUX3 inputs respectively. The range is from -100 .. 0 .. +100.
@@ -354,15 +346,27 @@ The light controller pre-defined a few global variables, accessible by all light
 
     This variable is incremented every time six CH3-clicks are performed. Useful to control different sequences in a light program.
 
-- **light-switch-position**
-
-    This variable reflects the current position of the virtual light switch. It can be modified by light programs to turn the light switch to a specific position as well.
-
 - **gear**
 
     If the configuration has the control of a gearbox servo enabled, this variable reflects the current gear. The light program can also change to a new gear. If an invalid
     gear number is assigned then the assignment is ignored and reverted back to the
     current gear once the light program execution yields.
+
+- **hazard**
+
+    Writing to this variable allows light programs to turn the hazard lights on or off.
+    Write a value of *1* to switch the hazard lights on, or *0* to turn the hazard lights off.
+    This variable should not be used as write-only variable, when reading its value it is undeterministic. If you want to execute light programs instructions based on whether hazard lights are active or not, then use the *hazard* car state (see below).
+
+- **light-switch-position**
+
+    This variable reflects the current position of the virtual light switch. It can be modified by light programs to turn the light switch to a specific position as well.
+
+- **program-state-0 .. program-state-4**
+
+    These variables allow software-triggering of light programs. Each of them
+    has an associated run condition, for example ``run when program-state-3``.
+    The light program runs when the variable has a value other than 0.
 
 - **servo**
 
@@ -373,15 +377,17 @@ The light controller pre-defined a few global variables, accessible by all light
     position can be adjusted in the light controller by performing **eight CH3-clicks**.
     Refer to the light controller user manual for details.
 
-- **program-state-0 .. program-state-4**
+- **steering**
 
-    These variables allow software-triggering of light programs. Each of them
-    has an associated run condition, for example ``run when program-state-3``.
-    The light program runs when the variable has a value other than 0.
+    This variable reflects the state of the steering input (ST/Rx). Its range is from -100 .. 0 .. +100.
+
+- **throttle**
+
+    This variable reflects the state of the throttle (accelerator, TH/Tx) input. Its range is from -100 .. 0 .. +100.
 
 > **Important**:
 >
-> Do not write to *steering*, *throttle*, *aux*, *aux2* and *aux3*. Those variables should be considered read-only; write operations may have undeterministic effects on light program execution.
+> Do not write to *steering*, *throttle*, *aux*, *aux2* and *aux3*. Those variables should be considered read-only; write operations may have undeterministic effects on other light programs using these variables.
 >
 > *aux*, *aux2* and *aux3* are only usable in conjunction with the 5-channel Pre-Processor.
 
