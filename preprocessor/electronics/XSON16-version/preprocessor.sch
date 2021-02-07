@@ -5,8 +5,8 @@ $Descr A4 11693 8268
 encoding utf-8
 Sheet 1 1
 Title "Pre-processor for RC Light Controller"
-Date "2019-07-12"
-Rev "3.0"
+Date "2021-02-07"
+Rev "4.0"
 Comp "LANE Boys RC"
 Comment1 "XSON16 package due to TSSOP16 shortage in 2021"
 Comment2 ""
@@ -345,7 +345,7 @@ ST_IN
 Text Label 3750 6400 0    60   ~ 0
 3V3
 Wire Wire Line
-	2850 3900 4150 3900
+	2850 3900 4600 3900
 $Comp
 L power:PWR_FLAG #FLG013
 U 1 1 58C7863F
@@ -391,12 +391,12 @@ Wire Wire Line
 $Comp
 L Device:R_Pack04 RN1
 U 1 1 601F9E94
-P 4350 3900
-F 0 "RN1" V 3933 3900 50  0000 C CNN
-F 1 "1K" V 4024 3900 50  0000 C CNN
-F 2 "Resistor_SMD:R_Array_Convex_4x0603" V 4625 3900 50  0001 C CNN
-F 3 "~" H 4350 3900 50  0001 C CNN
-	1    4350 3900
+P 4800 3900
+F 0 "RN1" V 4383 3900 50  0000 C CNN
+F 1 "1K" V 4474 3900 50  0000 C CNN
+F 2 "Resistor_SMD:R_Array_Convex_4x0603" V 5075 3900 50  0001 C CNN
+F 3 "~" H 4800 3900 50  0001 C CNN
+	1    4800 3900
 	0    1    1    0   
 $EndComp
 Wire Wire Line
@@ -406,31 +406,31 @@ Wire Wire Line
 Wire Wire Line
 	3950 2950 3950 3800
 Wire Wire Line
-	3950 3800 4150 3800
+	3950 3800 4600 3800
 Connection ~ 3450 2950
 Wire Wire Line
-	4050 3700 4150 3700
+	4050 3700 4600 3700
 Wire Wire Line
 	4050 1950 4050 3700
 Wire Wire Line
-	4150 4000 3500 4000
+	4600 4000 3500 4000
 Text Label 3650 4000 0    50   ~ 0
 LIGHT_OUT
 Wire Wire Line
-	4550 3700 5150 3700
-Text Label 5150 3700 2    50   ~ 0
+	5000 3700 5600 3700
+Text Label 5600 3700 2    50   ~ 0
 ST
 Wire Wire Line
-	4550 3800 5150 3800
-Text Label 5150 3800 2    50   ~ 0
+	5000 3800 5600 3800
+Text Label 5600 3800 2    50   ~ 0
 TH
 Wire Wire Line
-	4550 3900 5150 3900
-Text Label 5150 3900 2    50   ~ 0
+	5000 3900 5600 3900
+Text Label 5600 3900 2    50   ~ 0
 AUX
 Wire Wire Line
-	4550 4000 5150 4000
-Text Label 5150 4000 2    50   ~ 0
+	5000 4000 5600 4000
+Text Label 5600 4000 2    50   ~ 0
 LIGHT
 Wire Wire Line
 	3150 6400 3750 6400

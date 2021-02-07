@@ -5,8 +5,8 @@ $Descr A4 11693 8268
 encoding utf-8
 Sheet 1 1
 Title "Pre-processor for RC Light Controller"
-Date "2019-07-12"
-Rev "3.0"
+Date "2021-02-07"
+Rev "2.0"
 Comp "LANE Boys RC"
 Comment1 "Support for 3 AUX channels"
 Comment2 "XSON16 package due to TSSOP16 shortage in 2021"
@@ -347,8 +347,6 @@ Text Label 2650 1800 0    50   ~ 0
 ST_IN
 Text Label 7200 2750 0    50   ~ 0
 LIGHT_OUT
-Text Label 9800 4100 0    60   ~ 0
-3V3
 $Comp
 L Device:R R1
 U 1 1 58C77CC2
