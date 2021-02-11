@@ -14,12 +14,12 @@ Comment3 ""
 Comment4 ""
 $EndDescr
 $Comp
-L MCU_NXP_LPC:LPC812M101JTB16 U2
+L MCU_NXP_LPC:LPC812M101JDH20 U2
 U 1 1 58AF9BA8
 P 4850 2550
 F 0 "U2" H 4750 2650 10  0001 C CNN
-F 1 "LPC812M101JTB16_XSON16" H 5550 3100 60  0000 C CNN
-F 2 "Package_SON:NXP_XSON-16" H 4750 2650 60  0001 C CNN
+F 1 "LPC812M101JDH20" H 5550 3200 60  0000 C CNN
+F 2 "Package_SO:TSSOP-20_4.4x6.5mm_P0.65mm" H 4750 2650 60  0001 C CNN
 F 3 "" H 4750 2650 60  0000 C CNN
 	1    4850 2550
 	1    0    0    -1  
@@ -137,12 +137,12 @@ $EndComp
 $Comp
 L power:+3V3 #PWR04
 U 1 1 58AFA135
-P 4850 1850
-F 0 "#PWR04" H 4850 1700 50  0001 C CNN
-F 1 "+3V3" H 4850 1990 50  0000 C CNN
-F 2 "" H 4850 1850 50  0000 C CNN
-F 3 "" H 4850 1850 50  0000 C CNN
-	1    4850 1850
+P 4850 1750
+F 0 "#PWR04" H 4850 1600 50  0001 C CNN
+F 1 "+3V3" H 4850 1890 50  0000 C CNN
+F 2 "" H 4850 1750 50  0000 C CNN
+F 3 "" H 4850 1750 50  0000 C CNN
+	1    4850 1750
 	1    0    0    -1  
 $EndComp
 $Comp
@@ -233,8 +233,6 @@ Wire Wire Line
 	9800 4000 9800 4100
 Connection ~ 9800 4100
 Wire Wire Line
-	4850 1850 4850 1950
-Wire Wire Line
 	2100 1900 1850 1900
 Wire Wire Line
 	2100 1200 2100 1350
@@ -299,18 +297,12 @@ Wire Wire Line
 Wire Wire Line
 	1850 1800 2450 1800
 Wire Wire Line
-	3050 1800 3050 2250
-Wire Wire Line
 	1850 2800 2450 2800
 Wire Wire Line
-	3050 2800 3050 2650
-Wire Wire Line
 	7200 2750 8000 2750
-NoConn ~ 5550 2450
 NoConn ~ 5550 2250
 NoConn ~ 4150 2350
 NoConn ~ 4150 2450
-NoConn ~ 4150 2550
 NoConn ~ 4150 2750
 NoConn ~ 4150 2850
 Wire Wire Line
@@ -339,40 +331,14 @@ Wire Wire Line
 Wire Wire Line
 	2400 1350 2100 1350
 Connection ~ 2100 1350
-Text Label 2650 3750 0    50   ~ 0
+Text Label 2900 3750 2    50   ~ 0
 AUX_IN
-Text Label 2650 2800 0    50   ~ 0
+Text Label 2900 2800 2    50   ~ 0
 TH_IN
-Text Label 2650 1800 0    50   ~ 0
+Text Label 2900 1800 2    50   ~ 0
 ST_IN
 Text Label 7200 2750 0    50   ~ 0
 LIGHT_OUT
-$Comp
-L Device:R R1
-U 1 1 58C77CC2
-P 3300 2250
-F 0 "R1" V 3380 2250 50  0000 C CNN
-F 1 "1K" V 3300 2250 50  0000 C CNN
-F 2 "Resistor_SMD:R_0603_1608Metric_Pad1.05x0.95mm_HandSolder" V 3230 2250 50  0001 C CNN
-F 3 "" H 3300 2250 50  0001 C CNN
-	1    3300 2250
-	0    1    1    0   
-$EndComp
-$Comp
-L Device:R R2
-U 1 1 58C77D77
-P 3300 2650
-F 0 "R2" V 3380 2650 50  0000 C CNN
-F 1 "1K" V 3300 2650 50  0000 C CNN
-F 2 "Resistor_SMD:R_0603_1608Metric_Pad1.05x0.95mm_HandSolder" V 3230 2650 50  0001 C CNN
-F 3 "" H 3300 2650 50  0001 C CNN
-	1    3300 2650
-	0    1    1    0   
-$EndComp
-Wire Wire Line
-	3050 2250 3150 2250
-Wire Wire Line
-	3050 2650 3150 2650
 $Comp
 L power:PWR_FLAG #FLG013
 U 1 1 58C7863F
@@ -408,9 +374,9 @@ Wire Wire Line
 Wire Wire Line
 	1950 2500 1950 3000
 Wire Wire Line
-	2450 1800 3050 1800
+	2450 1800 2900 1800
 Wire Wire Line
-	2450 2800 3050 2800
+	2450 2800 2900 2800
 Wire Wire Line
 	2100 1350 2100 1900
 Wire Wire Line
@@ -430,8 +396,6 @@ Wire Wire Line
 	2100 4350 1850 4350
 Wire Wire Line
 	1950 4450 1850 4450
-Text Label 2650 4250 0    50   ~ 0
-AUX2_IN
 Connection ~ 2100 3850
 $Comp
 L Connector_Generic:Conn_01x03 P8
@@ -449,7 +413,7 @@ Wire Wire Line
 Wire Wire Line
 	1950 4950 1850 4950
 Connection ~ 1950 4950
-Text Label 2650 4750 0    50   ~ 0
+Text Label 2900 4750 2    50   ~ 0
 AUX3_IN
 Wire Wire Line
 	1950 4950 1950 5500
@@ -498,27 +462,24 @@ Wire Wire Line
 Wire Wire Line
 	8900 4400 8900 4600
 Wire Wire Line
-	4850 3150 4850 3300
+	4850 3250 4850 3300
 Wire Wire Line
-	3450 2650 4150 2650
+	3600 2550 4150 2550
 Wire Wire Line
-	6250 2350 5550 2350
-NoConn ~ 5550 2550
+	6250 2350 5950 2350
 Wire Wire Line
-	5550 2650 5950 2650
-Wire Wire Line
-	3450 2250 4150 2250
-Text Label 6250 2750 2    50   ~ 0
+	3600 2150 4150 2150
+Text Label 6250 2450 2    50   ~ 0
 LIGHT
-Text Label 3600 2250 0    50   ~ 0
+Text Label 3600 2150 0    50   ~ 0
 ST
-Text Label 3600 2650 0    50   ~ 0
+Text Label 3600 2550 0    50   ~ 0
 TH
-Text Label 6250 2850 2    50   ~ 0
+Text Label 6250 2550 2    50   ~ 0
 AUX
-Text Label 6250 2350 2    50   ~ 0
+Text Label 3600 2950 0    50   ~ 0
 AUX2
-Text Label 6250 2650 2    50   ~ 0
+Text Label 6250 2350 2    50   ~ 0
 AUX3
 $Comp
 L Device:R_Pack04 RN1
@@ -532,32 +493,15 @@ F 3 "~" H 4750 4250 50  0001 C CNN
 	0    1    1    0   
 $EndComp
 Wire Wire Line
-	5950 2650 6250 2650
-Connection ~ 5950 2650
+	4000 4050 4550 4050
 Wire Wire Line
-	5550 2750 6250 2750
+	1850 3750 2900 3750
 Wire Wire Line
-	5950 2650 5950 2950
+	4000 4150 4550 4150
 Wire Wire Line
-	5550 2850 6250 2850
+	1850 4750 2900 4750
 Wire Wire Line
-	3650 3750 3650 4050
-Wire Wire Line
-	3650 4050 4550 4050
-Wire Wire Line
-	1850 3750 3650 3750
-Wire Wire Line
-	3650 4250 3650 4150
-Wire Wire Line
-	3650 4150 4550 4150
-Wire Wire Line
-	1850 4250 3650 4250
-Wire Wire Line
-	3750 4250 3750 4750
-Wire Wire Line
-	1850 4750 3750 4750
-Wire Wire Line
-	3750 4250 4550 4250
+	4000 4250 4550 4250
 Wire Wire Line
 	4550 4350 4000 4350
 Text Label 5500 4350 2    50   ~ 0
@@ -578,4 +522,65 @@ Text Label 5500 4150 2    50   ~ 0
 AUX2
 Text Label 5500 4250 2    50   ~ 0
 AUX3
+NoConn ~ 4150 2250
+NoConn ~ 4150 2650
+Wire Wire Line
+	4150 2950 3600 2950
+NoConn ~ 5550 2150
+Connection ~ 5950 2350
+Wire Wire Line
+	5950 2350 5550 2350
+Wire Wire Line
+	5950 2350 5950 2950
+Wire Wire Line
+	5550 2450 6250 2450
+Wire Wire Line
+	5550 2550 6250 2550
+NoConn ~ 5550 2650
+NoConn ~ 5550 2750
+NoConn ~ 5550 2950
+NoConn ~ 5550 2850
+$Comp
+L Device:R_Pack04 RN2
+U 1 1 6028CA7F
+P 4750 5000
+F 0 "RN2" V 4333 5000 50  0000 C CNN
+F 1 "R_Pack04" V 4424 5000 50  0000 C CNN
+F 2 "Resistor_SMD:R_Array_Convex_4x0603" V 5025 5000 50  0001 C CNN
+F 3 "~" H 4750 5000 50  0001 C CNN
+	1    4750 5000
+	0    1    1    0   
+$EndComp
+Text Label 4000 4050 0    50   ~ 0
+AUX_IN
+Wire Wire Line
+	1850 4250 2900 4250
+Text Label 2900 4250 2    50   ~ 0
+AUX2_IN
+Text Label 4000 4150 0    50   ~ 0
+AUX2_IN
+Text Label 4000 4250 0    50   ~ 0
+AUX3_IN
+Wire Wire Line
+	4000 5000 4550 5000
+Wire Wire Line
+	4000 5100 4550 5100
+NoConn ~ 4550 4900
+NoConn ~ 4550 4800
+NoConn ~ 4950 4900
+NoConn ~ 4950 4800
+Wire Wire Line
+	5500 5000 4950 5000
+Wire Wire Line
+	5500 5100 4950 5100
+Text Label 4000 5000 0    50   ~ 0
+ST_IN
+Text Label 4000 5100 0    50   ~ 0
+TH_IN
+Text Label 5500 5000 2    50   ~ 0
+ST
+Text Label 5500 5100 2    50   ~ 0
+TH
+Wire Wire Line
+	4850 1750 4850 1850
 $EndSCHEMATC

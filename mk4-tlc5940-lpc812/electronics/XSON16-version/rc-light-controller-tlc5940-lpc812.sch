@@ -5,7 +5,7 @@ $Descr A3 16535 11693
 encoding utf-8
 Sheet 1 1
 Title "DIY RC Light Controller Mk4 Rev4"
-Date "2019-05-01"
+Date "2021-02-11"
 Rev "4"
 Comp "LANE Boys RC"
 Comment1 "laneboysrc@gmail.com"
@@ -542,7 +542,7 @@ LDO: Microchip \nMCP1702 or MCP1703
 Text Notes 4150 6750 0    59   ~ 0
 X5R or X7R
 Text Notes 6800 8400 0    59   ~ 0
-NXP LPC812\nARM Cortex-M0\n16K Flash, 4K RAM\nTSSOP-16
+NXP LPC812\nARM Cortex-M0\n16K Flash, 4K RAM\nXSON-16
 Text Notes 9950 7300 0    85   ~ 0
 Switched output\nfor light bar or similar
 Text Notes 11200 8600 0    56   ~ 0
