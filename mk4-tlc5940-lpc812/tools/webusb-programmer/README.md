@@ -1,12 +1,7 @@
- ./inline-media.py index.html >../../../../gh-pages/programmer.html
-
-
-WORK IN PROGRESS -- DO NOT USE!
-
 This is a programmer for the NXP LPC812 micro-controller, using the ISP (serial) protocol.
 A Microchip (Atmel) ATSAMD21 MCU is used.
 
-It connects to a PC or Android phone via USB and uses WebUSB (available in Chrom, Opera and Edge browsers) to communicate with a web app.
+It connects to a PC or Android phone via USB and uses WebUSB (available in Chrome, Opera and Edge browsers) to communicate with a web app.
 
 
 # Design goals
@@ -16,7 +11,7 @@ It connects to a PC or Android phone via USB and uses WebUSB (available in Chrom
 - Custom WebUSB protocol using simple IN and OUT endpoints
 - Be able to extend the protocol for use as Pre-Processor simulator
 - Multiple LED indicating state
-
+- USB DFU compatible bootloader for firmware upgrade
 
 # Architecture considerations
 
@@ -35,10 +30,10 @@ It connects to a PC or Android phone via USB and uses WebUSB (available in Chrom
         - Commands can return data if necessary (using controlTransferIn)
             - Note that a command must be either out or in (SET or GET), it is not possible to use the same command with different directions
     - Commands:
-        - OUT/ISP state: low, high, tri-state
-        - DUT power: on, off
-        - Baudrate
-        - LEDs on, off
+        - SET OUT/ISP state: low, high, tri-state
+        - SET DUT power: on, off
+        - SET Baudrate
+        - SET LEDs on, off
 
 - LEDs
     - System power
@@ -51,17 +46,16 @@ It connects to a PC or Android phone via USB and uses WebUSB (available in Chrom
 # Hardware
 
 - SAMD21E15A
-- Micro-USB connector
-- LDO 3V3, 1uF on input, 47uF + some 100n on output
+- Micro-USB connector with through-hole mounting tabs for physical strength
+- LDO 3V3, 1uF on input, 10uF + some 100n on output
 - STMPS2141 high-side power switch, active low
 - Light controller is powered from 5V
 - 5 LEDs
-    - USB power: green
-    - Light controller power: green
+    - USB power: white
+    - Light controller power: blue
     - OK: green
     - Busy: amber
     - Error: red
 - 6-pin header for light controller
     - Pin-out like Light controller or like USB-to-Serial?
-- All pins series resistors for protection
-    - How about OUT/ISP?
+- All pins have 1K series resistors for protection

@@ -29,7 +29,7 @@ BOOTLOADER_BIN := ../bootloader/build/bootloader.bin
 PRINTF_SOURCE_PATH := ../../../firmware/libs/printf
 
 MKDIR_P := mkdir -p
-FLASH_TOOL := openocd -l build/openocd.log -f board/atmel_samr21_xplained_pro.cfg
+# FLASH_TOOL := openocd -l build/openocd.log -f board/atmel_samr21_xplained_pro.cfg
 DFU_UTIL := dfu-util
 TERMINAL_PROGRAM := miniterm /dev/ttyACM0 115200
 
@@ -38,6 +38,7 @@ TERMINAL_PROGRAM := miniterm /dev/ttyACM0 115200
 SOURCE_PATH := .
 
 SOURCES += $(SOURCE_PATH)/main.c
+SOURCES += $(SOURCE_PATH)/commands.c
 SOURCES += $(SOURCE_PATH)/ring_buffer.c
 SOURCES += hal/hal_samd21.c
 SOURCES += hal/startup_samd21.c
@@ -173,10 +174,13 @@ echosize: $(TARGET_ELF)
 list: $(BUILD_DIR) $(OBJECTS:.o=.lst)
 
 # Invoke the tool to program the microcontroller
+# We are using the Black Magic Probe (running on a STM32F103 "Bluepill") via GDB
 program: $(TARGET_ELF_WITH_BOOTLOADER)
 	@echo [PROGRAM] $<
 	$(ECHO)$(GDB) -nx -quiet -batch -command gdb.flash.script
-	#	$(ECHO) $(FLASH_TOOL) -c "init; reset halt ; at91samd bootloader 0; reset halt ; flash write_image $< ; at91samd bootloader 8192; reset ; exit"
+
+# Alternative: use OpenOCD for flashing
+#	$(ECHO) $(FLASH_TOOL) -c "init; reset halt ; at91samd bootloader 0; reset halt ; flash write_image $< ; at91samd bootloader 8192; reset ; exit"
 
 flash: program
 
@@ -187,13 +191,13 @@ dfu-util: $(TARGET_BIN)
 
 # Set/clear the fuses that protect the bootloader from being accidentally
 # overwritten
-lock-bootloader:
-	$(ECHO) $(FLASH_TOOL) -c "init ; reset halt ; at91samd bootloader 8192; reset ; exit"
-	$(ECHO) sleep 1
+# lock-bootloader:
+# 	$(ECHO) $(FLASH_TOOL) -c "init ; reset halt ; at91samd bootloader 8192; reset ; exit"
+# 	$(ECHO) sleep 1
 
-unlock-bootloader:
-	$(ECHO) $(FLASH_TOOL) -c "init ; reset halt ; at91samd bootloader 0; reset ; exit"
-	$(ECHO) sleep 1
+# unlock-bootloader:
+# 	$(ECHO) $(FLASH_TOOL) -c "init ; reset halt ; at91samd bootloader 0; reset ; exit"
+# 	$(ECHO) sleep 1
 
 # Invoke a tool for UART communication
 terminal:
@@ -204,14 +208,16 @@ clean:
 	@echo [RM] $(BUILD_DIR)
 	$(ECHO) $(RM) -rf $(BUILD_DIR)
 
-# debug: $(TARGET_ELF_WITH_BOOTLOADER) unlock-bootloader
-# $(ECHO) $(GDB) -q -ex "target extended-remote | $(FLASH_TOOL) -c \"gdb_port pipe\"" -ex "load" --tui $<
-
+# Debug using the Black Magic Probe (running on a STM32F103 "Bluepill") via GDB
 debug: $(TARGET_ELF_WITH_BOOTLOADER)
 	$(ECHO) $(GDB) -nx -quiet -command gdb.debug.script
 
+# Alternative: use OpenOCD for debugging
+# debug: $(TARGET_ELF_WITH_BOOTLOADER) unlock-bootloader
+# $(ECHO) $(GDB) -q -ex "target extended-remote | $(FLASH_TOOL) -c \"gdb_port pipe\"" -ex "load" --tui $<
 
 
-.PHONY : all clean debug echosize list program flash dfu-util lock-bootloader unlock-bootloader terminal default_firmware_image preprocessor-simulator
+
+.PHONY : all clean debug echosize list program flash dfu-util terminal
 
 -include $(wildcard $(BUILD_DIR)/*.d)

@@ -18,6 +18,9 @@ typedef struct {
 
 static const gpio_t GPIO_USB_DM = { .group = 0, .pin = 24, .mux = PORT_PMUX_PMUXE_G_Val };
 static const gpio_t GPIO_USB_DP = { .group = 0, .pin = 25, .mux = PORT_PMUX_PMUXE_G_Val };
+
+// Two LED outputs are supported for different hardware. They perform the same
+// function.
 static const gpio_t GPIO_LED = { .group = 0, .pin = 1 };
 static const gpio_t GPIO_LED2 = { .group = 0, .pin = 17 };
 
@@ -77,10 +80,7 @@ static inline void gpio_toggle(const gpio_t gpio)
 
 #ifdef ENABLE_UART_DIAGNOSTICS
 
-// Note: this outputs the UART on the TH pin, using SERCOM3
-// static const gpio_t GPIO_TXD = { .group = 0, .pin = 18, .mux = PORT_PMUX_PMUXE_D_Val, .txpo = 1 };
-
-// Note: this outputs the UART on the OUT pin, using SERCOM3
+// Note: this outputs the UART on the ST/Rx pin (light controller!) of the hardware, using SERCOM3
 static const gpio_t GPIO_TXD = { .group = 0, .pin = 22, .mux = PORT_PMUX_PMUXE_C_Val, .txpo = 0 };
 
 // ****************************************************************************
