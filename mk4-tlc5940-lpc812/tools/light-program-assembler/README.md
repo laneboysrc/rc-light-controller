@@ -1,7 +1,6 @@
 # Light program assembler
 
-Light programs are simple programs that are interpreted by the LANE Boys RC
-light controller (MK4 TLC5940 LPC812 version).
+Light programs are simple programs that are interpreted by the LANE Boys RC light controller (Mk4 TLC5940 LPC812 version).
 
 ## Build instructions
 

@@ -5,11 +5,9 @@ The command line tools are writing in [Python](http://www.python.org/).
 
 ## preprocessor-reader.py
 
-Reads and displays the output of the preprocessor (= a small microcontroller that is designed to be embedded in your receiver. This microcontroller outputs a single serial signal containing information for steering, servo and AUX channels. By using a preprocessor the light controller can be connected with a single servo extension wire.)
+Reads and displays the output of the preprocessor (= a small microcontroller that interfaces with your receiver. This microcontroller outputs a single serial signal containing information for steering, servo and AUX channels. By using a preprocessor the light controller can be connected with a single servo extension wire.)
 
 Used for debugging and testing the preprocessor.
-
-**NOTE:** Modify the source code for baudrates other than 38400 BAUD.
 
 
 ## preprocessor-simulator.py
@@ -27,6 +25,11 @@ Keyboard shortcuts:
   Startup-mode signals the light controller that the preprocessor is initializing and not ready for operation yet.
 
 - **c**: Perform a CH3/AUX "click". Easier than hitting the on-screen button with the mouse.
+
+
+## slave-reader.py
+
+This utility reads the slave output of an RC light controller and displays it in human readable form.
 
 
 ## test-slave.py
