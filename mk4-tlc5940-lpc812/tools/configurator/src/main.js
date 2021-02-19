@@ -57,6 +57,7 @@ var app = (function () {
     var TEST = 'Hardware test';
     var PREPROCESSOR = 'Pre-processor';
     var PREPROCESSOR_5CH = 'Pre-processor 5ch';
+    var PREPROCESSOR_5CH_S = 'Pre-processor 5ch S';
 
     var MODE = {
         0: MASTER_WITH_SERVO_READER,
@@ -64,6 +65,7 @@ var app = (function () {
         2: MASTER_WITH_CPPM_READER,
         3: SLAVE,
         4: STAND_ALONE,
+        95: PREPROCESSOR_5CH_S,
         96: PREPROCESSOR_5CH,
         97: PREPROCESSOR,
         98: MASTER_WITH_UART_READER_5CH,
@@ -75,6 +77,7 @@ var app = (function () {
         MASTER_WITH_UART_READER_5CH: 98,
         PREPROCESSOR: 97,
         PREPROCESSOR_5CH: 96,
+        PREPROCESSOR_5CH_S: 95,
         SLAVE: 3,
         STAND_ALONE: 4,
         TEST: 99
@@ -741,6 +744,10 @@ var app = (function () {
             config.mode = new_mode;
             break;
 
+        case MODE.PREPROCESSOR_5CH_S:
+            config.multi_aux = true;
+            config.mode = MODE.MASTER_WITH_SERVO_READER;
+
         case MODE.MASTER_WITH_UART_READER_5CH:
             config.multi_aux = true;
             config.mode = MODE.MASTER_WITH_UART_READER;
@@ -767,10 +774,21 @@ var app = (function () {
         }
 
         function show_mode_info(element) {
-            var all_info_paragraphs = [el.mode_master_uart, el.mode_master_uart_5ch,
-                el.mode_master_cppm, el.mode_slave, el.mode_stand_alone, el.mode_test,
-                el.mode_preprocessor_5ch, el.mode_preprocessor, el.mode_master_servo];
+            var all_info_paragraphs = [
+                el.mode_master_cppm,
+                el.mode_master_servo,
+                el.mode_master_uart,
+                el.mode_master_uart_5ch,
+                el.mode_preprocessor,
+                el.mode_preprocessor_5ch,
+                el.mode_preprocessor_5ch_s,
+                el.mode_slave,
+                el.mode_stand_alone,
+                el.mode_test,
+            ];
+
             var i;
+
             for (i = 0; i < all_info_paragraphs.length; i += 1) {
                 if (all_info_paragraphs[i] === element) {
                     all_info_paragraphs[i].classList.remove('hidden');
@@ -1002,6 +1020,29 @@ var app = (function () {
                 'config_mode',
                 'tab_programming',
             ]);
+            break;
+
+        case MODE.PREPROCESSOR_5CH_S:
+            show_mode_info(el.mode_preprocessor_5ch_s);
+
+            update_menu_visibility([
+                'config_hardware',
+                'config_mode',
+                'config_esc',
+                'config_ch3',
+                'config_output',
+                'config_leds',
+                'config_light_programs',
+                'config_advanced',
+                'tab_programming',
+                'info',
+            ]);
+
+            show(el.single_output);
+            hide(el.dual_output);
+            hide([el.aux_3ch]);
+            show([el.multi_aux]);
+            set_name(el.dual_output_th, 'output_out');
             break;
 
         case MODE.TEST:
@@ -2692,6 +2733,7 @@ var app = (function () {
             'mode_stand_alone',
             'mode_preprocessor',
             'mode_preprocessor_5ch',
+            'mode_preprocessor_5ch_s',
             'mode_test',
 
             'config_baudrate', 'baudrate',

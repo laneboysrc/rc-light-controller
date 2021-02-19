@@ -154,6 +154,7 @@
             <option value="3">Slave</option>
             <option value="97">Pre-processor</option>
             <option value="96" class="v2_show">Pre-processor 5ch</option>
+            <option value="95" class="v2_show">Pre-processor 5ch with switching outputs</option>
             <option value="4" class="v2_show">Stand-alone mode</option>
             <option value="99">Hardware test</option>
           </select>
@@ -194,9 +195,9 @@
           <div>
             The light controller does not read servo signals directly, but from a
             <em>pre-processor</em>. This particular mode requires what we call
-            <em>multi-aux pre-processor</em> that is capable of reading up
+            <em>5-channel pre-processor</em> that is capable of reading up
             to five servo channels from a receiver.
-            The <em>pre-processor</em> reads the servo signals and converts them
+            The <em>5-channel  pre-processor</em> reads the servo signals and converts them
             into a serial data stream so that the light controller can be
             connected with a single servo extension cable.
           </div>
@@ -251,8 +252,13 @@
         <div id="mode_preprocessor_5ch" class="info">
           <div>
             Choosing this mode creates a firmware that is suitable for flashing
-            into the <em>multi-aux pre-processor hardware</em> that supports
-            up to 5 servo inputs.
+            into the <em>5-channel pre-processor hardware</em>.
+          </div>
+        </div>
+        <div id="mode_preprocessor_5ch_s" class="info">
+          <div>
+            Choosing this mode creates a firmware that is suitable for flashing
+            into the <em>5-channel pre-processor hardware with integrated switching outputs</em>.
           </div>
         </div>
         <div id="mode_test" class="info">
