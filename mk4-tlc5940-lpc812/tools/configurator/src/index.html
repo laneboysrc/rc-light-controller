@@ -104,7 +104,7 @@
       <div id="config_hardware" class="box configuration hidden">
         <h1><span id="logo"></span> RC Light Controller configuration tool</h1>
         <div>
-        Please check out <a href="https://github.com/laneboysrc/rc-light-controller" target="_blank">https://github.com/laneboysrc/rc-light-controller</a> for a description of the RC Light Controller this tool belongs to.
+        This tool is part of the LANE Boys RC Light Controller documented at <a href="https://github.com/laneboysrc/rc-light-controller" target="_blank">https://github.com/laneboysrc/rc-light-controller</a>.
         </div>
         <div>
           Configurator version: #{this.date}<br>
@@ -148,8 +148,8 @@
         <div>
           <select id="mode">
             <option value="0">Master, servo inputs</option>
-            <option value="1">Master, pre-processor input</option>
-            <option value="98" class="v2_show" >Master, 5ch pre-processor input</option>
+            <option value="1">Master, Pre-Processor input</option>
+            <option value="98" class="v2_show" >Master, 5ch Pre-Processor input</option>
             <option value="2" class="v2_hide">Master, CPPM input</option>
             <option value="3">Slave</option>
             <option value="97">Pre-processor</option>
@@ -170,36 +170,47 @@
         <div id="mode_master_uart" class="info">
           <div>
             The light controller does not read servo signals directly, but from a
-            <em>pre-processor</em>. The <em>pre-processor</em> is a
-            microcontroller directly built into the receiver. It reads the servo
+            <em>Pre-Processor</em>. The <em>Pre-Processor</em> is a
+            small, separate circuit board that reads the servo
             signals and converts them into a serial data stream so that the light
             controller can be connected with a single servo extension cable. This
             simplifies wiring of a RC car, especially when the light controller
             resides on the body while the receiver is mounted on the chassis.
           </div>
           <div>
-            For more information on the pre-processor please refer to the user
+            For more information on the Pre-Processor please refer to the user
             manual and blog articles:
             <ul>
               <li><a href="https://github.com/laneboysrc/rc-light-controller/raw/master/doc/light-controller-instructions-mk4-tlc5940-lpc812.pdf" target="_blank">Mk4 Light Controller documentation</a> (PDF)
-              <li><a href="http://laneboysrc.blogspot.com/2012/12/pre-processor-for-diy-rc-light.html" target="_blank">Pre-processor for the DIY RC Light controller</a></li>
-              <li><a href="http://laneboysrc.blogspot.com/2013/01/pre-processor-miniaturization.html" target="_blank">pre-processor miniaturization</a></li>
+              <li><a href="http://laneboysrc.blogspot.com/2012/12/Pre-Processor-for-diy-rc-light.html" target="_blank">Pre-processor for the DIY RC Light controller</a></li>
+              <li><a href="http://laneboysrc.blogspot.com/2013/01/Pre-Processor-miniaturization.html" target="_blank">Pre-Processor miniaturization</a></li>
             </ul>
           </div>
           <div>
-            The output from the <em>pre-processor</em> must be connected to the
+            The output from the <em>Pre-Processor</em> must be connected to the
             <strong>ST/Rx</strong> input of the light controller.
           </div>
         </div>
         <div id="mode_master_uart_5ch" class="info">
           <div>
             The light controller does not read servo signals directly, but from a
-            <em>pre-processor</em>. This particular mode requires what we call
-            <em>5-channel pre-processor</em> that is capable of reading up
+            <em>Pre-Processor</em>. This particular mode requires the
+            <em>5-channel Pre-Processor</em> circuit board, which is capable of reading up
             to five servo channels from a receiver.
-            The <em>5-channel  pre-processor</em> reads the servo signals and converts them
-            into a serial data stream so that the light controller can be
+            The <em>5-channel Pre-Processor</em> combines the servo signals into
+            a serial data stream so that the light controller can be
             connected with a single servo extension cable.
+          </div>
+          <div>
+            For more information on the 5-channel Pre-Processor please refer to the user
+            manual:
+            <ul>
+              <li><a href="https://github.com/laneboysrc/rc-light-controller/raw/master/doc/light-controller-instructions-mk4-tlc5940-lpc812.pdf" target="_blank">Mk4 Light Controller documentation</a> (PDF)
+            </ul>
+          </div>
+          <div>
+            The output from the <em>5-channel Pre-Processor</em> must be connected to the
+            <strong>ST/Rx</strong> input of the light controller.
           </div>
         </div>
         <div id="mode_master_cppm" class="info">
@@ -246,19 +257,19 @@
         <div id="mode_preprocessor" class="info">
           <div>
             Choosing this mode creates a firmware that is suitable for flashing
-            into the <em>pre-processor hardware</em>.
+            into the <em>Pre-Processor hardware</em>.
           </div>
         </div>
         <div id="mode_preprocessor_5ch" class="info">
           <div>
             Choosing this mode creates a firmware that is suitable for flashing
-            into the <em>5-channel pre-processor hardware</em>.
+            into the <em>5-channel Pre-Processor hardware</em>.
           </div>
         </div>
         <div id="mode_preprocessor_5ch_s" class="info">
           <div>
             Choosing this mode creates a firmware that is suitable for flashing
-            into the <em>5-channel pre-processor hardware with integrated switching outputs</em>.
+            into the <em>5-channel Pre-Processor hardware with integrated switching outputs</em>.
           </div>
         </div>
         <div id="mode_test" class="info">
@@ -278,10 +289,10 @@
           </div>
           <br>
           The baudrate for serial input/output functions. This applies to the
-          pre-processor input and output, the slave input and output, and the winch controller.
+          Pre-Processor input and output, the slave input and output, and the winch controller.
           <br>
           Ensure that master and slave are using the same baudrate. Note that the
-          winch controller and the pre-processor that is based on the Microchip
+          winch controller and the Pre-Processor that is based on the Microchip
           PIC operate only at 34800 baud.
         </div>
 
