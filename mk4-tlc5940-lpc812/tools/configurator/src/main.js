@@ -747,6 +747,7 @@ var app = (function () {
         case MODE.PREPROCESSOR_5CH_S:
             config.multi_aux = true;
             config.mode = MODE.MASTER_WITH_SERVO_READER;
+            break;
 
         case MODE.MASTER_WITH_UART_READER_5CH:
             config.multi_aux = true;
@@ -2879,6 +2880,7 @@ var app = (function () {
 
     // *************************************************************************
     return {
+        config: config,
         el: el,
         load: load_firmware,
         init: init

@@ -97,6 +97,9 @@ static const HAL_GPIO_T HAL_GPIO_PIN11 = { .pin = 11 };
 static const HAL_GPIO_T HAL_GPIO_AUX2 = { .pin = 8, .iocon = &LPC_IOCON->PIO0_8 };
 static const HAL_GPIO_T HAL_GPIO_AUX3 = { .pin = 11, .iocon = &LPC_IOCON->PIO0_11 };
 
+// GPIOs for 5-channel Pre-processor with switching outputs
+static const HAL_GPIO_T HAL_GPIO_AUX2_S = { .pin = 6, .iocon = &LPC_IOCON->PIO0_6 };
+
 // GPIOs for original Mk4 and Mk4P
 static const HAL_GPIO_T HAL_GPIO_SWITCHED_LIGHT_OUTPUT = { .pin = 9 };
 static const HAL_GPIO_T HAL_GPIO_SCK = { .pin = 2 };

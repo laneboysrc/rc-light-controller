@@ -34,10 +34,10 @@ static volatile uint16_t write_index = 0;
 
 static volatile bool new_raw_channel_data = false;
 
+static uint8_t aux2_pin;
 static volatile bool aux3_active = false;
 static volatile uint32_t aux2_aux3_timeout;
 static uint32_t raw_data[5];
-
 
 /* ****************************************************************************
 SCT Timer usage
@@ -123,6 +123,7 @@ void HAL_hardware_init(void)
     HAL_gpio_glitch_filter(HAL_GPIO_TH);
     HAL_gpio_glitch_filter(HAL_GPIO_AUX);
     HAL_gpio_glitch_filter(HAL_GPIO_AUX2);
+    HAL_gpio_glitch_filter(HAL_GPIO_AUX2_S);
     HAL_gpio_glitch_filter(HAL_GPIO_AUX3);
 
 
@@ -541,11 +542,14 @@ void HAL_servo_reader_init(void)
         }
     }
 
+    // If we are using the 5-channel Pre-Processor with switching outputs, we
+    // have to use a different pin for AUX2
+    aux2_pin = HAL_gpio_read(HAL_GPIO_HARDWARE_CONFIG) ? HAL_GPIO_AUX2.pin : HAL_GPIO_AUX2_S.pin;
+
     // We keep AUX2 in CTIN_0 as it is a lone value in PINASSIGN5. We can
     // therefore easily swap AUX2 and AUX3 without having to worry of other
     // fields in the register.
-
-    LPC_SWM->PINASSIGN5 = (HAL_GPIO_AUX2.pin << 24) |   // CTIN_0
+    LPC_SWM->PINASSIGN5 = (aux2_pin << 24) |            // CTIN_0
                           (0xff << 16) |                // SPI1_SSEL
                           (0xff << 8) |                 // SPI1_MISO
                           (0xff << 0);                  // SPI1_MOSI
@@ -586,7 +590,7 @@ static void swap_aux2_aux3(void)
     }
     else {
         aux3_active  = false;
-        LPC_SWM->PINASSIGN5 = (HAL_GPIO_AUX2.pin << 24) |   // CTIN_0
+        LPC_SWM->PINASSIGN5 = (aux2_pin << 24) |   // CTIN_0
                               (0xff << 16) |                // SPI1_SSEL
                               (0xff << 8) |                 // SPI1_MISO
                               (0xff << 0);                  // SPI1_MOSI
