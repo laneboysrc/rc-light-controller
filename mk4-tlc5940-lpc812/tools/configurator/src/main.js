@@ -1141,6 +1141,9 @@ var app = (function () {
         if (config.multi_aux && config.mode === MODE.MASTER_WITH_UART_READER) {
             el.mode.value = MODE.MASTER_WITH_UART_READER_5CH;
         }
+        else if (config.multi_aux && config.mode === MODE.MASTER_WITH_SERVO_READER) {
+            el.mode.value = MODE.PREPROCESSOR_5CH_S;
+        }
         else {
             el.mode.value = config.mode;
         }
@@ -2291,7 +2294,9 @@ var app = (function () {
 
         local_leds = clear_leds();
         slave_leds = clear_leds();
-        update_ui();
+
+        update_led_fields();
+        update_led_feature_usage();
     };
 
     // *************************************************************************
@@ -2385,7 +2390,7 @@ var app = (function () {
         el.light_programs_ok.classList.add('hidden');
     };
 
-
+    // *************************************************************************
     var connect = async function (device) {
         await programmer.open(device);
         if (programmer.is_open) {
@@ -2626,16 +2631,17 @@ var app = (function () {
     var update_programmer_connection = async function (device_serial) {
         if (typeof device_serial === 'undefined') {
             is_connected = false;
-            select_page('tab_programming');
+            if (testing_active) {
+                select_page('tab_programming');
+            }
         }
         else {
             is_connected = true;
             el.connection_info.textContent = 'Connected to Light Controller Programmer with serial number ' + device_serial;
-            // await select_page('tab_programming');
         }
         last_programming_failed = false;
         update_programmer_ui();
-        update_ui();
+        update_section_visibility();
     };
 
     // *************************************************************************
