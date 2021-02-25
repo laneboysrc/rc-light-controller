@@ -103,12 +103,14 @@
     <div class="page" id="main">
       <div id="config_hardware" class="box configuration hidden">
         <h1><span id="logo"></span> RC Light Controller configuration tool</h1>
+
+        <div>
+          Configurator version: <strong>#{this.date}</strong><br>
+          Firmware version: <strong><span id="firmware_version"></span></strong>
+        </div>
+
         <div>
         This tool is part of the LANE Boys RC Light Controller documented at <a href="https://github.com/laneboysrc/rc-light-controller" target="_blank">https://github.com/laneboysrc/rc-light-controller</a>.
-        </div>
-        <div>
-          Configurator version: #{this.date}<br>
-          Firmware version: <span id="firmware_version"></span>
         </div>
 
         <div>
@@ -118,26 +120,40 @@
           <span id="hardware_image" class="mk4"></span>
         </div>
 
+        <div>
+          For more information please refer to the user manual:
+          <br>
+          <a href="https://laneboysrc.github.io/rc-light-controller/light-controller-instructions-mk4.pdf" target="_blank">Mk4 Light Controller documentation</a> (PDF)
+          <br>
+          <a href="https://laneboysrc.github.io/rc-light-controller/light-controller-instructions-mk4-deutsch.pdf" target="_blank">Mk4 Light Controller Anleitung</a> (Deutsch, PDF)
+        </div>
+
         <div class="info">
+          <h2>Quick start</h2>
           <div>
-            This tool has the light controller firmware already embedded. Using
-            the menu on the left you can adjust the configuration according to
-            your needs.
+            Using the menu on the left you can adjust the configuration to suit
+            your vehicle and RC system.
           </div>
           <div>
-            After you are done, you can save the firmware image. It will appear
-            in the download folder of your web browser.
+            After you are done, you can save the firmware image, which will have
+            the selected configuration embedded. The firmware will be stored in
+            the download folder of your web browser.
+          </div>
+          <div>
+            Flash the firmware into the light controller as described in the
+            light controller user manual.
           </div>
           <div>
             You can also save the configuration into a text file, which
-            can be loaded at a later point in time, e.g. to make further tweaks.
+            can be loaded at a later point in time; for example to make
+            further tweaks.
           </div>
           <div>
-            <strong>It is advisable that you always keep a copy of the saved
-            configuration.</strong> While it is possible to retrieve all settings
-            from a firmware image, some data like variable names and comments
-            in light programs are lost as they are not placed into the firmware
-            image.
+            <strong>It is advisable that you always save a copy of the
+            configuration for future reference.</strong> While it is possible
+            to retrieve all settings from a firmware image, some data like
+            variable names and comments in light programs are lost as they are
+            not stored into the firmware.
           </div>
         </div>
       </div>
@@ -152,9 +168,9 @@
             <option value="98" class="v2_show" >Master, 5ch Pre-Processor input</option>
             <option value="2" class="v2_hide">Master, CPPM input</option>
             <option value="3">Slave</option>
-            <option value="97">Pre-processor</option>
-            <option value="96" class="v2_show">Pre-processor 5ch</option>
-            <option value="95" class="v2_show">Pre-processor 5ch with switching outputs</option>
+            <option value="97">Pre-Processor</option>
+            <option value="96" class="v2_show">Pre-Processor 5ch</option>
+            <option value="95" class="v2_show">Pre-Processor 5ch with switching outputs</option>
             <option value="4" class="v2_show">Stand-alone mode</option>
             <option value="99">Hardware test</option>
           </select>
@@ -169,31 +185,23 @@
         </div>
         <div id="mode_master_uart" class="info">
           <div>
-            The light controller does not read servo signals directly, but from a
+            In this mode, the light controller does not read servo signals directly, but from a
             <em>Pre-Processor</em>. The <em>Pre-Processor</em> is a
-            small, separate circuit board that reads the servo
-            signals and converts them into a serial data stream so that the light
-            controller can be connected with a single servo extension cable. This
-            simplifies wiring of a RC car, especially when the light controller
-            resides on the body while the receiver is mounted on the chassis.
+            small, separate circuit board that connects to the receiver and
+            converts the servo signals into a serial data stream. The light
+            controller can be connected to the <em>Pre-Processor</em> with a single
+            servo extension cable. This simplifies wiring of a RC car, especially
+            when the light controller resides on the body while the receiver is
+            mounted on the chassis.
           </div>
           <div>
-            For more information on the Pre-Processor please refer to the user
-            manual and blog articles:
-            <ul>
-              <li><a href="https://github.com/laneboysrc/rc-light-controller/raw/master/doc/light-controller-instructions-mk4-tlc5940-lpc812.pdf" target="_blank">Mk4 Light Controller documentation</a> (PDF)
-              <li><a href="http://laneboysrc.blogspot.com/2012/12/Pre-Processor-for-diy-rc-light.html" target="_blank">Pre-processor for the DIY RC Light controller</a></li>
-              <li><a href="http://laneboysrc.blogspot.com/2013/01/Pre-Processor-miniaturization.html" target="_blank">Pre-Processor miniaturization</a></li>
-            </ul>
-          </div>
-          <div>
-            The output from the <em>Pre-Processor</em> must be connected to the
+            The <strong>Light</strong> output from the <em>Pre-Processor</em> must be connected to the
             <strong>ST/Rx</strong> input of the light controller.
           </div>
         </div>
         <div id="mode_master_uart_5ch" class="info">
           <div>
-            The light controller does not read servo signals directly, but from a
+            In this mode, the light controller does not read servo signals directly, but from a
             <em>Pre-Processor</em>. This particular mode requires the
             <em>5-channel Pre-Processor</em> circuit board, which is capable of reading up
             to five servo channels from a receiver.
@@ -202,15 +210,9 @@
             connected with a single servo extension cable.
           </div>
           <div>
-            For more information on the 5-channel Pre-Processor please refer to the user
-            manual:
-            <ul>
-              <li><a href="https://github.com/laneboysrc/rc-light-controller/raw/master/doc/light-controller-instructions-mk4-tlc5940-lpc812.pdf" target="_blank">Mk4 Light Controller documentation</a> (PDF)
-            </ul>
-          </div>
-          <div>
-            The output from the <em>5-channel Pre-Processor</em> must be connected to the
-            <strong>ST/Rx</strong> input of the light controller.
+            The <strong>Light</strong> output from the <em>5-channel Pre-Processor</em>
+            must be connected to the <strong>ST/Rx</strong> input of the
+            light controller.
           </div>
         </div>
         <div id="mode_master_cppm" class="info">
@@ -229,7 +231,7 @@
           <div>
             In case more than 16 LEDs are required, it is possible to daisy-chain
             two light controllers. One needs to be configured as <em>master</em>
-            and have the <em>slave output</em> activated, the other one
+            and have the <em>Slave output</em> activated, the other one
             must be configured as <em>slave</em>, for a total of 32 LEDs.
           </div>
           <div>
@@ -257,25 +259,30 @@
         <div id="mode_preprocessor" class="info">
           <div>
             Choosing this mode creates a firmware that is suitable for flashing
-            into the <em>Pre-Processor hardware</em>.
+            into the <em>Pre-Processor</em>.
           </div>
         </div>
         <div id="mode_preprocessor_5ch" class="info">
           <div>
             Choosing this mode creates a firmware that is suitable for flashing
-            into the <em>5-channel Pre-Processor hardware</em>.
+            into the <em>5-channel Pre-Processor</em>.
           </div>
         </div>
         <div id="mode_preprocessor_5ch_s" class="info">
           <div>
             Choosing this mode creates a firmware that is suitable for flashing
-            into the <em>5-channel Pre-Processor hardware with integrated switching outputs</em>.
+            into the <em>5-channel Pre-Processor with integrated switching outputs</em>.
+          </div>
+          <div>
+            <strong>Important:</strong> In most cases you will want to configure
+            the light controller output in the <em>Output functions</em> tab
+            either for <em>Slave output</em> or <em>Pre-Processor output</em>.
           </div>
         </div>
         <div id="mode_test" class="info">
           <div>
             Generates a firmware image suitable for hardware test. As soon as
-            power is applied the LEDs flash in certain patterns.
+            power is applied, the LEDs flash in test sequence.
           </div>
         </div>
 
@@ -291,9 +298,7 @@
           The baudrate for serial input/output functions. This applies to the
           Pre-Processor input and output, the slave input and output, and the winch controller.
           <br>
-          Ensure that master and slave are using the same baudrate. Note that the
-          winch controller and the Pre-Processor that is based on the Microchip
-          PIC operate only at 34800 baud.
+          Ensure that master and slave are using the same baudrate.
         </div>
 
         <div id="config_invert_out15s" class="configuration">
@@ -469,11 +474,44 @@
             </select>
           </div>
           <br>
+          <hr>
+          <br>
+          <div>
+            <strong>Not used:</strong> Use this setting if you want to use this
+            AUX input within a light program, instead of one of the pre-defined
+            functions.
+          </div>
+          <br>
           <div>
             <strong>Multi-function:</strong> 1-click is &quot;more lights&quot;; 2-clicks
             is &quot;less lights&quot;; 3-clicks
             is &quot;toggle lights on/off&quot;; 4-clicks
             is &quot;hazard lights on/off&quot; ...
+          </div>
+          <br>
+          <div>
+            <strong>Servo control:</strong> Control a servo connected to the light
+            controller output from this AUX channel. Note that the servo end points,
+            center position and reversing can be adjusted using 7-clicks.
+            <br>
+            This function is only applicable when <em>Steering wheel servo ouput</em>
+            is enabled in the <em>Output functions</em> tab.
+          </div>
+          <br>
+          <div>
+            <strong>Indicators:</strong> Manually control the indicators. Disables
+            the automatic indicator functionality of the light controller.
+          </div>
+          <br>
+          <div>
+            <strong>Hazard lights on/off:</strong> Manually control hazard lights.
+          </div>
+          <br>
+          <div>
+            <strong>Light switch:</strong> Control the virtual light switch, as
+            configured in the <em>LED configuration</em> tab, directly from
+            an AUX channel. Your AUX channel should have at least as many positions
+            as you have light switch positions in use.
           </div>
           <br>
           <div>
@@ -1161,7 +1199,7 @@
           </p>
           <p>
           When using the <strong>USB-to-Serial adapter</strong>, please use the <strong>LPC81x_ISP tool</strong>
-          described in the <a target="_blank" href="https://github.com/laneboysrc/rc-light-controller/blob/master/doc/light-controller-instructions-mk4.pdf">light controller manual</a>.
+          described in the <a target="_blank" href="https://laneboysrc.github.io/rc-light-controller/light-controller-instructions-mk4.pdf">light controller manual</a>.
           </p>
           <button id="close_webusb_programmer_info" title="Hide this message"><i class="fa fa-close"></i> Close</button>
         </div>
