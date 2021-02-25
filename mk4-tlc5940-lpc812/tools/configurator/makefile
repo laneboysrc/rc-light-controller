@@ -62,13 +62,4 @@ clean:
 	@echo [RM] $(BUILD_DIR)
 	$(ECHO) $(RM) -r $(BUILD_DIR)
 
-# debug: $(TARGET)
-# 	@echo [NW.JS debug]
-# 	$(ECHO) ./node_modules/.bin/nwbuild -p linux64 -v 0.31.5 --flavor sdk --cacheDir ./cache/ -r .
-
-# release: COMPRESS=--compress
-release: $(TARGET)
-
-
-
-.PHONY : all clean debug release
+.PHONY : all clean
