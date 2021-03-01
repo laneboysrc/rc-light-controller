@@ -1,4 +1,4 @@
-.DEFAULT_GOAL := test
+.DEFAULT_GOAL := test-reassembly
 
 
 ###############################################################################
@@ -78,7 +78,7 @@ test: $(TARGET_BIN)
 	$(ECHO) [TEST] $<
 	$(QUIET) $(TEST_RUNNER) ./$<
 
-test-reassembly: $(TARGET_BIN)
+test-reassembly: $(TARGET_BIN) test
 	$(ECHO) [TEST ASM-DASM-ASM] $<
 	$(QUIET) test/run-test-reassembly.sh ./$< $(DISASSEMBLER)
 

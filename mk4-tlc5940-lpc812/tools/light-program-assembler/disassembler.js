@@ -135,6 +135,11 @@ var disassembler = (function () {
     var RUN_WHEN_WINCH_IDLE                 = (1 << 20);
     var RUN_WHEN_WINCH_IN                   = (1 << 21);
     var RUN_WHEN_WINCH_OUT                  = (1 << 22);
+    var RUN_WHEN_PROGRAM_STATE_0            = (1 << 24);
+    var RUN_WHEN_PROGRAM_STATE_1            = (1 << 25);
+    var RUN_WHEN_PROGRAM_STATE_2            = (1 << 26);
+    var RUN_WHEN_PROGRAM_STATE_3            = (1 << 27);
+    var RUN_WHEN_PROGRAM_STATE_4            = (1 << 28);
 
     var RUN_ALWAYS                          = 0x80000000;
 
@@ -334,6 +339,21 @@ var disassembler = (function () {
         }
         if (instruction & RUN_WHEN_WINCH_OUT) {
             asm[offset++].decleration = 'run when winch-out';
+        }
+        if (instruction & RUN_WHEN_PROGRAM_STATE_0) {
+            asm[offset++].decleration = 'run when program-state-0';
+        }
+        if (instruction & RUN_WHEN_PROGRAM_STATE_1) {
+            asm[offset++].decleration = 'run when program-state-1';
+        }
+        if (instruction & RUN_WHEN_PROGRAM_STATE_2) {
+            asm[offset++].decleration = 'run when program-state-2';
+        }
+        if (instruction & RUN_WHEN_PROGRAM_STATE_3) {
+            asm[offset++].decleration = 'run when program-state-3';
+        }
+        if (instruction & RUN_WHEN_PROGRAM_STATE_4) {
+            asm[offset++].decleration = 'run when program-state-4';
         }
     };
 

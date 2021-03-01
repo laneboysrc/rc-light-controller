@@ -1,0 +1,19 @@
+run when program-state-0
+program-state-1 = 1
+end
+
+run when program-state-1
+program-state-2 = 1
+end
+
+run when program-state-2
+program-state-3 = 1
+end
+
+run when program-state-3
+program-state-4 = 1
+end
+
+run when program-state-4
+program-state-0 = 1
+end
