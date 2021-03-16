@@ -646,4 +646,47 @@ Text Notes 8100 6450 0    50   ~ 0
 The LEDs are conneced at the cathode\nto prevent them from lighting\nup after power up before the software\ncan initialize the ports (pull-up by default)
 Text Notes 5300 2600 0    50   ~ 0
 (Output cap on MCU)
+$Comp
+L Connector:TestPoint TP1
+U 1 1 6050C7A0
+P 5700 4150
+F 0 "TP1" V 5654 4338 50  0000 L CNN
+F 1 " " V 5745 4338 50  0000 L CNN
+F 2 "WLA_pinheader:TestPoint_THTPad_1.0x1.0mm_Drill0.5mm_nosilk" H 5900 4150 50  0001 C CNN
+F 3 "~" H 5900 4150 50  0001 C CNN
+	1    5700 4150
+	0    1    1    0   
+$EndComp
+$Comp
+L Connector:TestPoint TP2
+U 1 1 6050F171
+P 5700 4350
+F 0 "TP2" V 5654 4538 50  0000 L CNN
+F 1 " " V 5745 4538 50  0000 L CNN
+F 2 "WLA_pinheader:TestPoint_THTPad_1.0x1.0mm_Drill0.5mm_nosilk" H 5900 4350 50  0001 C CNN
+F 3 "~" H 5900 4350 50  0001 C CNN
+	1    5700 4350
+	0    1    1    0   
+$EndComp
+$Comp
+L power:+3V3 #PWR017
+U 1 1 605104D2
+P 5500 4000
+F 0 "#PWR017" H 5500 3850 50  0001 C CNN
+F 1 "+3V3" H 5515 4173 50  0000 C CNN
+F 2 "" H 5500 4000 50  0001 C CNN
+F 3 "" H 5500 4000 50  0001 C CNN
+	1    5500 4000
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	5500 4000 5500 4150
+Wire Wire Line
+	5500 4150 5700 4150
+Text Label 5250 4350 0    50   ~ 0
+USB-DP
+Wire Wire Line
+	5250 4350 5700 4350
+Text Notes 6100 4350 0    50   ~ 0
+Put a 10K resistor accross those \npoints while power on to start \nthe bootloader
 $EndSCHEMATC
