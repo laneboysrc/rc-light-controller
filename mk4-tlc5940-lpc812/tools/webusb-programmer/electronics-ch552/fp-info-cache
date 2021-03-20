@@ -1,4 +1,4 @@
-18783318213777594
+18784934440481594
 Battery
 BatteryHolder_Bulgin_BX0036_1xC
 Bulgin Battery Holder, BX0036, Battery Type C (https://www.bulgin.com/products/pub/media/bulgin/data/Battery_holders.pdf)
@@ -81705,6 +81705,13 @@ varistor SIOV
 2
 WLA_LED_reverse_mount
 LED_1204_reverse_mout
+LED SMD 1204
+LED reverse mount
+0
+2
+2
+WLA_LED_reverse_mount
+LED_1204_side_mout
 LED SMD 1204
 LED reverse mount
 0
