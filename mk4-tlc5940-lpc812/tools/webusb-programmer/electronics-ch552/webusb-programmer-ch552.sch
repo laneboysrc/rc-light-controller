@@ -16,49 +16,49 @@ $EndDescr
 $Comp
 L Device:LED D2
 U 1 1 5E6F6F74
-P 8050 5300
-F 0 "D2" V 8089 5183 50  0000 R CNN
-F 1 "OK" V 7998 5183 50  0000 R CNN
-F 2 "WLA_LED_reverse_mount:LED_1204_reverse_mout" H 8050 5300 50  0001 C CNN
-F 3 "2011131907_TUOZHAN-TZ-P2-1204YGCTA1-1-5T" H 8050 5300 50  0001 C CNN
-F 4 "C91608" V 8050 5300 50  0001 C CNN "LCSC part number"
-	1    8050 5300
+P 3750 2450
+F 0 "D2" V 3789 2333 50  0000 R CNN
+F 1 "OK" V 3698 2333 50  0000 R CNN
+F 2 "WLA_LED_reverse_mount:LED_1204_reverse_mout" H 3750 2450 50  0001 C CNN
+F 3 "2011131907_TUOZHAN-TZ-P2-1204YGCTA1-1-5T" H 3750 2450 50  0001 C CNN
+F 4 "C91608" V 3750 2450 50  0001 C CNN "LCSC part number"
+	1    3750 2450
 	0    -1   -1   0   
 $EndComp
 $Comp
 L Device:LED D3
 U 1 1 5E6F790B
-P 8650 5300
-F 0 "D3" V 8689 5182 50  0000 R CNN
-F 1 "BUSY" V 8598 5182 50  0000 R CNN
-F 2 "WLA_LED_reverse_mount:LED_1204_reverse_mout" H 8650 5300 50  0001 C CNN
-F 3 "2009041237_TUOZHAN-TZ-P2-1204-0TA1-1-5T" H 8650 5300 50  0001 C CNN
-F 4 "C779805" V 8650 5300 50  0001 C CNN "LCSC part number"
-	1    8650 5300
+P 4350 2450
+F 0 "D3" V 4389 2332 50  0000 R CNN
+F 1 "BUSY" V 4298 2332 50  0000 R CNN
+F 2 "WLA_LED_reverse_mount:LED_1204_reverse_mout" H 4350 2450 50  0001 C CNN
+F 3 "2009041237_TUOZHAN-TZ-P2-1204-0TA1-1-5T" H 4350 2450 50  0001 C CNN
+F 4 "C779805" V 4350 2450 50  0001 C CNN "LCSC part number"
+	1    4350 2450
 	0    -1   -1   0   
 $EndComp
 $Comp
 L Device:LED D4
 U 1 1 5E6F7DEF
-P 9250 5300
-F 0 "D4" V 9289 5183 50  0000 R CNN
-F 1 "ERROR" V 9198 5183 50  0000 R CNN
-F 2 "WLA_LED_reverse_mount:LED_1204_reverse_mout" H 9250 5300 50  0001 C CNN
-F 3 "1905151403_MEIHUA-MHS110KECT" H 9250 5300 50  0001 C CNN
-F 4 "C389527" V 9250 5300 50  0001 C CNN "LCSC part number"
-	1    9250 5300
+P 4950 2450
+F 0 "D4" V 4989 2333 50  0000 R CNN
+F 1 "ERROR" V 4898 2333 50  0000 R CNN
+F 2 "WLA_LED_reverse_mount:LED_1204_reverse_mout" H 4950 2450 50  0001 C CNN
+F 3 "1905151403_MEIHUA-MHS110KECT" H 4950 2450 50  0001 C CNN
+F 4 "C389527" V 4950 2450 50  0001 C CNN "LCSC part number"
+	1    4950 2450
 	0    -1   -1   0   
 $EndComp
 $Comp
 L Device:LED D5
 U 1 1 5E6F89A9
-P 9800 5300
-F 0 "D5" V 9839 5183 50  0000 R CNN
-F 1 "MCU POWER" V 9748 5183 50  0000 R CNN
-F 2 "WLA_LED_reverse_mount:LED_1204_reverse_mout" H 9800 5300 50  0001 C CNN
-F 3 "2009041237_TUOZHAN-TZ-P2-1204WYS2-1-5T" H 9800 5300 50  0001 C CNN
-F 4 "C779804" V 9800 5300 50  0001 C CNN "LCSC part number"
-	1    9800 5300
+P 5500 2450
+F 0 "D5" V 5539 2333 50  0000 R CNN
+F 1 "MCU POWER" V 5448 2333 50  0000 R CNN
+F 2 "WLA_LED_reverse_mount:LED_1204_reverse_mout" H 5500 2450 50  0001 C CNN
+F 3 "2009041237_TUOZHAN-TZ-P2-1204WYS2-1-5T" H 5500 2450 50  0001 C CNN
+F 4 "C779804" V 5500 2450 50  0001 C CNN "LCSC part number"
+	1    5500 2450
 	0    -1   -1   0   
 $EndComp
 $Comp
@@ -152,12 +152,12 @@ Wire Wire Line
 $Comp
 L power:GND #PWR015
 U 1 1 5E73F918
-P 9800 5700
-F 0 "#PWR015" H 9800 5450 50  0001 C CNN
-F 1 "GND" H 9805 5527 50  0000 C CNN
-F 2 "" H 9800 5700 50  0001 C CNN
-F 3 "" H 9800 5700 50  0001 C CNN
-	1    9800 5700
+P 5500 2850
+F 0 "#PWR015" H 5500 2600 50  0001 C CNN
+F 1 "GND" H 5505 2677 50  0000 C CNN
+F 2 "" H 5500 2850 50  0001 C CNN
+F 3 "" H 5500 2850 50  0001 C CNN
+	1    5500 2850
 	1    0    0    -1  
 $EndComp
 NoConn ~ 1500 3300
@@ -239,23 +239,23 @@ USB-DM
 $Comp
 L power:+3V3 #PWR012
 U 1 1 5E788A3B
-P 9800 4300
-F 0 "#PWR012" H 9800 4150 50  0001 C CNN
-F 1 "+3V3" H 9815 4473 50  0000 C CNN
-F 2 "" H 9800 4300 50  0001 C CNN
-F 3 "" H 9800 4300 50  0001 C CNN
-	1    9800 4300
+P 5500 1450
+F 0 "#PWR012" H 5500 1300 50  0001 C CNN
+F 1 "+3V3" H 5515 1623 50  0000 C CNN
+F 2 "" H 5500 1450 50  0001 C CNN
+F 3 "" H 5500 1450 50  0001 C CNN
+	1    5500 1450
 	1    0    0    -1  
 $EndComp
 $Comp
 L Device:C C2
 U 1 1 5E7914FA
-P 3500 5300
-F 0 "C2" H 3615 5346 50  0000 L CNN
-F 1 "100n" H 3615 5255 50  0000 L CNN
-F 2 "Capacitor_SMD:C_0603_1608Metric" H 3538 5150 50  0001 C CNN
-F 3 "~" H 3500 5300 50  0001 C CNN
-	1    3500 5300
+P 4500 5300
+F 0 "C2" H 4615 5346 50  0000 L CNN
+F 1 "100n" H 4615 5255 50  0000 L CNN
+F 2 "Capacitor_SMD:C_0603_1608Metric" H 4538 5150 50  0001 C CNN
+F 3 "~" H 4500 5300 50  0001 C CNN
+	1    4500 5300
 	1    0    0    -1  
 $EndComp
 $Comp
@@ -271,11 +271,11 @@ F 3 "" H 3500 5500 50  0001 C CNN
 $EndComp
 Wire Wire Line
 	3500 5450 3500 5500
-Text Label 8050 5900 1    50   ~ 0
+Text Label 3750 3050 1    50   ~ 0
 OK
-Text Label 8650 5900 1    50   ~ 0
+Text Label 4350 3050 1    50   ~ 0
 BUSY
-Text Label 9250 5900 1    50   ~ 0
+Text Label 4950 3050 1    50   ~ 0
 ERROR
 Wire Wire Line
 	8100 1650 8600 1650
@@ -323,30 +323,6 @@ Connection ~ 1200 3550
 Wire Wire Line
 	1200 3550 1200 3600
 $Comp
-L Transistor_FET:BSS138 Q1
-U 1 1 5E77A5F9
-P 8500 2300
-F 0 "Q1" H 8704 2346 50  0000 L CNN
-F 1 "PMV30UN" H 8704 2255 50  0000 L CNN
-F 2 "Package_TO_SOT_SMD:SOT-23" H 8700 2225 50  0001 L CIN
-F 3 "https://www.fairchildsemi.com/datasheets/BS/BSS138.pdf" H 8500 2300 50  0001 L CNN
-	1    8500 2300
-	1    0    0    -1  
-$EndComp
-$Comp
-L power:GND #PWR06
-U 1 1 5E7943C7
-P 8600 2550
-F 0 "#PWR06" H 8600 2300 50  0001 C CNN
-F 1 "GND" H 8605 2377 50  0000 C CNN
-F 2 "" H 8600 2550 50  0001 C CNN
-F 3 "" H 8600 2550 50  0001 C CNN
-	1    8600 2550
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	8600 2500 8600 2550
-$Comp
 L Device:R R1
 U 1 1 5E7997E9
 P 8600 1900
@@ -358,18 +334,14 @@ F 3 "~" H 8600 1900 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	8600 2050 8600 2100
-Wire Wire Line
 	8600 1750 8600 1650
 Connection ~ 8600 1650
 Wire Wire Line
 	8600 1650 9150 1650
 Text Label 5950 6300 2    50   ~ 0
 SHORT
-Text Label 7950 2300 0    50   ~ 0
+Text Label 8200 2300 0    50   ~ 0
 SHORT
-Wire Wire Line
-	7950 2300 8300 2300
 Wire Wire Line
 	5350 6400 5950 6400
 Wire Wire Line
@@ -396,16 +368,16 @@ $EndComp
 Text Notes 1000 2350 0    50   ~ 0
 Important: for mechanical \nstability use a Micro-USB \nconnector that uses \nthrough-hole mountings.
 Text Notes 7200 3450 0    50   ~ 0
-The transistor shorts the power \nsupply of the light controller to\nground via 10 Ohms. \nThis discharges the large cap \nin the light controller, otherwise \nsubsequant programming \nattempts may fail as the MCU in \nthe light controller is still residually\npowered (when no firmware is \nflashed yet!)
+The IO pin shorts the power \nsupply of the light controller to\nground via 10 Ohms. \nThis discharges the large cap \nin the light controller, otherwise \nsubsequant programming \nattempts may fail as the MCU in \nthe light controller is still residually\npowered (when no firmware is \nflashed yet!)
 Text Notes 7400 1200 0    50   ~ 0
 High-side power switch,\nactive low
-Text Notes 9950 5500 0    50   ~ 0
+Text Notes 5650 2650 0    50   ~ 0
 White
-Text Notes 8200 5500 0    50   ~ 0
+Text Notes 3900 2650 0    50   ~ 0
 Green
-Text Notes 8800 5500 0    50   ~ 0
+Text Notes 4500 2650 0    50   ~ 0
 Yellow
-Text Notes 9400 5500 0    50   ~ 0
+Text Notes 5100 2650 0    50   ~ 0
 Red
 Text Notes 9300 2500 0    50   ~ 0
 Blue
@@ -434,8 +406,6 @@ Wire Wire Line
 	3500 5150 3500 5100
 Wire Wire Line
 	3500 5100 3850 5100
-Wire Wire Line
-	3850 5100 3850 5700
 Wire Wire Line
 	4150 5700 4150 5100
 $Comp
@@ -476,217 +446,164 @@ $EndComp
 Wire Wire Line
 	4000 7250 4000 6900
 Wire Wire Line
-	9800 5450 9800 5700
+	5500 2600 5500 2850
 Wire Wire Line
-	9250 5450 9250 5900
+	4950 2600 4950 3050
 Wire Wire Line
-	8650 5450 8650 5900
+	4350 2600 4350 3050
 Wire Wire Line
-	8050 5450 8050 5900
+	3750 2600 3750 3050
 $Comp
 L Device:R R6
 U 1 1 5E6FD675
-P 9800 4900
-F 0 "R6" H 9870 4946 50  0000 L CNN
-F 1 "1k8" H 9870 4855 50  0000 L CNN
-F 2 "Resistor_SMD:R_0603_1608Metric_Pad1.05x0.95mm_HandSolder" V 9730 4900 50  0001 C CNN
-F 3 "~" H 9800 4900 50  0001 C CNN
-	1    9800 4900
+P 5500 2050
+F 0 "R6" H 5570 2096 50  0000 L CNN
+F 1 "1k8" H 5570 2005 50  0000 L CNN
+F 2 "Resistor_SMD:R_0603_1608Metric_Pad1.05x0.95mm_HandSolder" V 5430 2050 50  0001 C CNN
+F 3 "~" H 5500 2050 50  0001 C CNN
+	1    5500 2050
 	1    0    0    -1  
 $EndComp
 $Comp
 L Device:R R5
 U 1 1 5E6FC0B8
-P 9250 4900
-F 0 "R5" H 9320 4946 50  0000 L CNN
-F 1 "1k2" H 9320 4855 50  0000 L CNN
-F 2 "Resistor_SMD:R_0603_1608Metric_Pad1.05x0.95mm_HandSolder" V 9180 4900 50  0001 C CNN
-F 3 "~" H 9250 4900 50  0001 C CNN
-	1    9250 4900
-	1    0    0    -1  
-$EndComp
-$Comp
-L Device:R R4
-U 1 1 5E6FBCF2
-P 8650 4900
-F 0 "R4" H 8720 4946 50  0000 L CNN
-F 1 "1k2" H 8720 4855 50  0000 L CNN
-F 2 "Resistor_SMD:R_0603_1608Metric_Pad1.05x0.95mm_HandSolder" V 8580 4900 50  0001 C CNN
-F 3 "~" H 8650 4900 50  0001 C CNN
-	1    8650 4900
+P 4950 2050
+F 0 "R5" H 5020 2096 50  0000 L CNN
+F 1 "1k2" H 5020 2005 50  0000 L CNN
+F 2 "Resistor_SMD:R_0603_1608Metric_Pad1.05x0.95mm_HandSolder" V 4880 2050 50  0001 C CNN
+F 3 "~" H 4950 2050 50  0001 C CNN
+	1    4950 2050
 	1    0    0    -1  
 $EndComp
 $Comp
 L Device:R R3
 U 1 1 5E6FABAC
-P 8050 4900
-F 0 "R3" H 8120 4946 50  0000 L CNN
-F 1 "2k7" H 8120 4855 50  0000 L CNN
-F 2 "Resistor_SMD:R_0603_1608Metric_Pad1.05x0.95mm_HandSolder" V 7980 4900 50  0001 C CNN
-F 3 "~" H 8050 4900 50  0001 C CNN
-	1    8050 4900
+P 3750 2050
+F 0 "R3" H 3820 2096 50  0000 L CNN
+F 1 "2k7" H 3820 2005 50  0000 L CNN
+F 2 "Resistor_SMD:R_0603_1608Metric_Pad1.05x0.95mm_HandSolder" V 3680 2050 50  0001 C CNN
+F 3 "~" H 3750 2050 50  0001 C CNN
+	1    3750 2050
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	8050 5050 8050 5150
+	3750 2200 3750 2300
 Wire Wire Line
-	8650 5050 8650 5150
+	4950 2200 4950 2250
 Wire Wire Line
-	9250 5050 9250 5150
+	5500 2200 5500 2300
 Wire Wire Line
-	9800 5050 9800 5150
+	3750 1700 3750 1900
 Wire Wire Line
-	8050 4550 8050 4750
+	4950 1700 4950 1900
 Wire Wire Line
-	8650 4550 8650 4750
+	5500 1450 5500 1700
+Connection ~ 5500 1700
 Wire Wire Line
-	9250 4550 9250 4750
+	5500 1700 5500 1900
+Connection ~ 4950 1700
 Wire Wire Line
-	9800 4300 9800 4550
-Wire Wire Line
-	8050 4550 8650 4550
-Connection ~ 9800 4550
-Wire Wire Line
-	9800 4550 9800 4750
-Connection ~ 8650 4550
-Wire Wire Line
-	8650 4550 9250 4550
-Connection ~ 9250 4550
-Wire Wire Line
-	9250 4550 9800 4550
-Wire Wire Line
-	4150 5100 3850 5100
-Connection ~ 3850 5100
-$Comp
-L Regulator_Linear:MCP1703A-3302_SOT23 U2
-U 1 1 6051EC9F
-P 4650 2350
-F 0 "U2" H 4650 2592 50  0000 C CNN
-F 1 "MCP1703A-3302_SOT23" H 4650 2501 50  0000 C CNN
-F 2 "Package_TO_SOT_SMD:SOT-23W" H 4650 2550 50  0001 C CNN
-F 3 "http://ww1.microchip.com/downloads/en/DeviceDoc/20005122B.pdf" H 4650 2300 50  0001 C CNN
-	1    4650 2350
-	1    0    0    -1  
-$EndComp
+	4950 1700 5500 1700
 $Comp
 L Device:C C1
 U 1 1 605205A6
-P 3800 2600
-F 0 "C1" H 3915 2646 50  0000 L CNN
-F 1 "1u" H 3915 2555 50  0000 L CNN
-F 2 "Capacitor_SMD:C_0603_1608Metric" H 3838 2450 50  0001 C CNN
-F 3 "~" H 3800 2600 50  0001 C CNN
-	1    3800 2600
+P 3500 5300
+F 0 "C1" H 3615 5346 50  0000 L CNN
+F 1 "1u" H 3615 5255 50  0000 L CNN
+F 2 "Capacitor_SMD:C_0603_1608Metric" H 3538 5150 50  0001 C CNN
+F 3 "~" H 3500 5300 50  0001 C CNN
+	1    3500 5300
 	1    0    0    -1  
 $EndComp
-$Comp
-L power:+5V #PWR04
-U 1 1 60521399
-P 3800 2100
-F 0 "#PWR04" H 3800 1950 50  0001 C CNN
-F 1 "+5V" H 3815 2273 50  0000 C CNN
-F 2 "" H 3800 2100 50  0001 C CNN
-F 3 "" H 3800 2100 50  0001 C CNN
-	1    3800 2100
-	1    0    0    -1  
-$EndComp
-$Comp
-L power:+3V3 #PWR05
-U 1 1 60521E45
-P 5500 2100
-F 0 "#PWR05" H 5500 1950 50  0001 C CNN
-F 1 "+3V3" H 5515 2273 50  0000 C CNN
-F 2 "" H 5500 2100 50  0001 C CNN
-F 3 "" H 5500 2100 50  0001 C CNN
-	1    5500 2100
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	3800 2100 3800 2350
-Wire Wire Line
-	3800 2350 4350 2350
-Connection ~ 3800 2350
-Wire Wire Line
-	4950 2350 5500 2350
-Wire Wire Line
-	5500 2350 5500 2100
-Wire Wire Line
-	3800 2350 3800 2450
-$Comp
-L power:GND #PWR09
-U 1 1 6053052C
-P 3800 2900
-F 0 "#PWR09" H 3800 2650 50  0001 C CNN
-F 1 "GND" H 3805 2727 50  0000 C CNN
-F 2 "" H 3800 2900 50  0001 C CNN
-F 3 "" H 3800 2900 50  0001 C CNN
-	1    3800 2900
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	3800 2750 3800 2900
-$Comp
-L power:GND #PWR010
-U 1 1 60534472
-P 4650 2900
-F 0 "#PWR010" H 4650 2650 50  0001 C CNN
-F 1 "GND" H 4655 2727 50  0000 C CNN
-F 2 "" H 4650 2900 50  0001 C CNN
-F 3 "" H 4650 2900 50  0001 C CNN
-	1    4650 2900
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	4650 2900 4650 2650
-Text Notes 4150 1700 0    50   ~ 0
-LCSC equivalent part:\nNanjing Micro One Elec\nME6209A33M3G
-Text Notes 4450 5200 0    50   ~ 0
-We don't use the internal LDO \nbecause we want to work all I/O \nports at 3.3V.
-Text Notes 8100 6450 0    50   ~ 0
-The LEDs are conneced at the cathode\nto prevent them from lighting\nup after power up before the software\ncan initialize the ports (pull-up by default)
-Text Notes 5300 2600 0    50   ~ 0
-(Output cap on MCU)
+Text Notes 3800 3900 0    50   ~ 0
+The LEDs are conneced at the cathode\nto prevent them from lighting\nup after power up before the software\ncan initialize the ports (pull-up by default)\nError and Busy use the same resistor value, \nand since they never light up together we \ncan share one resistor. Ok (green) is much\nbrighter so needs its own resistor.
 $Comp
 L Connector:TestPoint TP1
 U 1 1 6050C7A0
-P 5700 4150
-F 0 "TP1" V 5654 4338 50  0000 L CNN
-F 1 " " V 5745 4338 50  0000 L CNN
-F 2 "WLA_pinheader:TestPoint_THTPad_1.0x1.0mm_Drill0.5mm_nosilk" H 5900 4150 50  0001 C CNN
-F 3 "~" H 5900 4150 50  0001 C CNN
-	1    5700 4150
+P 8300 5250
+F 0 "TP1" V 8254 5438 50  0000 L CNN
+F 1 " " V 8345 5438 50  0000 L CNN
+F 2 "WLA_pinheader:TestPoint_THTPad_1.0x1.0mm_Drill0.5mm_nosilk" H 8500 5250 50  0001 C CNN
+F 3 "~" H 8500 5250 50  0001 C CNN
+	1    8300 5250
 	0    1    1    0   
 $EndComp
 $Comp
 L Connector:TestPoint TP2
 U 1 1 6050F171
-P 5700 4350
-F 0 "TP2" V 5654 4538 50  0000 L CNN
-F 1 " " V 5745 4538 50  0000 L CNN
-F 2 "WLA_pinheader:TestPoint_THTPad_1.0x1.0mm_Drill0.5mm_nosilk" H 5900 4350 50  0001 C CNN
-F 3 "~" H 5900 4350 50  0001 C CNN
-	1    5700 4350
+P 8300 5450
+F 0 "TP2" V 8254 5638 50  0000 L CNN
+F 1 " " V 8345 5638 50  0000 L CNN
+F 2 "WLA_pinheader:TestPoint_THTPad_1.0x1.0mm_Drill0.5mm_nosilk" H 8500 5450 50  0001 C CNN
+F 3 "~" H 8500 5450 50  0001 C CNN
+	1    8300 5450
 	0    1    1    0   
 $EndComp
 $Comp
 L power:+3V3 #PWR017
 U 1 1 605104D2
-P 5500 4000
-F 0 "#PWR017" H 5500 3850 50  0001 C CNN
-F 1 "+3V3" H 5515 4173 50  0000 C CNN
-F 2 "" H 5500 4000 50  0001 C CNN
-F 3 "" H 5500 4000 50  0001 C CNN
-	1    5500 4000
+P 8100 5100
+F 0 "#PWR017" H 8100 4950 50  0001 C CNN
+F 1 "+3V3" H 8115 5273 50  0000 C CNN
+F 2 "" H 8100 5100 50  0001 C CNN
+F 3 "" H 8100 5100 50  0001 C CNN
+	1    8100 5100
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	5500 4000 5500 4150
+	8100 5100 8100 5250
 Wire Wire Line
-	5500 4150 5700 4150
-Text Label 5250 4350 0    50   ~ 0
+	8100 5250 8300 5250
+Text Label 7850 5450 0    50   ~ 0
 USB-DP
 Wire Wire Line
-	5250 4350 5700 4350
-Text Notes 6100 4350 0    50   ~ 0
+	7850 5450 8300 5450
+Text Notes 8700 5450 0    50   ~ 0
 Put a 10K resistor accross those \npoints while power on to start \nthe bootloader
+Wire Wire Line
+	4150 5100 4500 5100
+Wire Wire Line
+	4500 5100 4500 5150
+$Comp
+L power:GND #PWR0101
+U 1 1 6056195B
+P 4500 5500
+F 0 "#PWR0101" H 4500 5250 50  0001 C CNN
+F 1 "GND" H 4505 5327 50  0000 C CNN
+F 2 "" H 4500 5500 50  0001 C CNN
+F 3 "" H 4500 5500 50  0001 C CNN
+	1    4500 5500
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	4500 5450 4500 5500
+Wire Wire Line
+	8600 2050 8600 2300
+Wire Wire Line
+	8200 2300 8600 2300
+Wire Wire Line
+	3750 1700 4950 1700
+Wire Wire Line
+	4950 2250 4350 2250
+Connection ~ 4950 2250
+Wire Wire Line
+	4950 2250 4950 2300
+Wire Wire Line
+	4350 2250 4350 2300
+$Comp
+L power:+5V #PWR?
+U 1 1 605A6E18
+P 3850 4950
+F 0 "#PWR?" H 3850 4800 50  0001 C CNN
+F 1 "+5V" H 3865 5123 50  0000 C CNN
+F 2 "" H 3850 4950 50  0001 C CNN
+F 3 "" H 3850 4950 50  0001 C CNN
+	1    3850 4950
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	3850 4950 3850 5100
+Connection ~ 3850 5100
+Wire Wire Line
+	3850 5100 3850 5700
 $EndSCHEMATC
