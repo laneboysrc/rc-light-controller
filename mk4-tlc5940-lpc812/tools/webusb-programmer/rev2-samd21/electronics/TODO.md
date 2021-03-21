@@ -1,7 +1,7 @@
-# TODO for Rev 3 of the WebUSB programmer hardware
+# Issues found when building Rev 2
 
-* Increase reverse-mount LED hole to 2.1mm
-* Reduce holes for Micro-USB slightly (tbd how much)
+* Reverse-mount LED hole needs to be increased to 2.1mm
+* Micro-USB hole size should be 1mm, way too large in Rev 2 (issue caused by wrong datahseet being used)
 
 
 # TODO for Rev 2 of the WebUSB programmer hardware
