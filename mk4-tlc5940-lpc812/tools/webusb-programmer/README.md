@@ -1,61 +1,16 @@
 This is a programmer for the NXP LPC812 micro-controller, using the ISP (serial) protocol.
-A Microchip (Atmel) ATSAMD21 MCU is used.
 
 It connects to a PC or Android phone via USB and uses WebUSB (available in Chrome, Opera and Edge browsers) to communicate with a web app.
 
-
-# Design goals
-
-- Reset a connected light controller through switching its power supply
-- OUT/ISP pin can be pulled-low for programming and released for running
-- Custom WebUSB protocol using simple IN and OUT endpoints
-- Be able to extend the protocol for use as Pre-Processor simulator
-- Multiple LED indicating state
-- USB DFU compatible bootloader for firmware upgrade
-
-# Architecture considerations
-
-- We don't want to put too much protocol details in the MCU
-    - Which means we should separate the serial interface to the MCU from the control interface that controls power switching, OUT/ISP switching etc.
-
-- UART interface
-    - OUT endpoints sends data to Light Controller (Tx on the programmer)
-    - IN endpoint sends data received from Light Controller (Rx on the programmer)
-
-- Controler interface
-    - We will be using USB control transfers
-        - Type will be set to VENDOR
-        - Request will be set to 72
-        - wValue will contain the command
-        - Commands can return data if necessary (using controlTransferIn)
-            - Note that a command must be either out or in (SET or GET), it is not possible to use the same command with different directions
-    - Commands:
-        - SET OUT/ISP state: low, high, tri-state
-        - SET DUT power: on, off
-        - SET Baudrate
-        - SET LEDs on, off
-
-- LEDs
-    - System power
-    - Light controller power
-    - Ok (green)
-    - Busy (amber)
-    - Error (red)
+The great thing about this programmer is that no driver or software needs to be installed. Just connect the WebUSB programmer to the PC, load the Light Controller Configurator in the web browser, and program your light controller.
 
 
-# Hardware
+The current revision is REV3. It uses an inexpensive CH552G microcontroller from WCH that has an 8051 core and USB device capability. The BOM has been reduced to the minimum so that long-term we can provide the WebUSB programmers instead of USB-to-Serial adapters.
 
-- SAMD21E15A
-- Micro-USB connector with through-hole mounting tabs for physical strength
-- LDO 3V3, 1uF on input, 10uF + some 100n on output
-- STMPS2141 high-side power switch, active low
-- Light controller is powered from 5V
-- 5 LEDs
-    - USB power: white
-    - Light controller power: blue
-    - OK: green
-    - Busy: amber
-    - Error: red
-- 6-pin header for light controller
-    - Pin-out like Light controller or like USB-to-Serial?
-- All pins have 1K series resistors for protection
+In REV1 and REV2 a Microchip (Atmel) ATSAMD21 MCU was used, as we had stock of these. However, this is quite an expensive MCU (at least ten times the price of the CH552!), and needs additional peripheral electronics like an LDO. And it uses a 0.5mm QFN package which requires a stencil, solderpaste and reflow equipment.
+
+REV1 used a surface mount Micro-USB connector (because we had it in stock). However, several people broke the connector as it is mechanically not very robust. Furthermore, the white LED with its soft diffuser is also fragile and can get damaged when handling or shipping.
+
+In REV2 we changed the Micro-USB connector to one with through-hole mounting tabs, and use "reverse mount" LEDs (actually side view LEDs abused in a reverse mount fashion). REV2 worked fine except that the footprint for the Micro-USB connector is not optimal and the hole for the LEDs is slightly too small.
+
+
