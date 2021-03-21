@@ -5,8 +5,8 @@ $Descr A4 11693 8268
 encoding utf-8
 Sheet 1 1
 Title "WebUSB Programmer for Light Controller Mk4"
-Date "2021-03-15"
-Rev "1"
+Date "2021-03-21"
+Rev "3"
 Comp "LANE Boys RC"
 Comment1 ""
 Comment2 ""
