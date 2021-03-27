@@ -13,4 +13,3 @@ REV1 used a surface mount Micro-USB connector (because we had it in stock). Howe
 
 In REV2 we changed the Micro-USB connector to one with through-hole mounting tabs, and use "reverse mount" LEDs (actually side view LEDs abused in a reverse mount fashion). REV2 worked fine except that the footprint for the Micro-USB connector is not optimal and the hole for the LEDs is slightly too small.
 
-
