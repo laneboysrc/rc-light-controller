@@ -2399,9 +2399,11 @@ var app = (function () {
             await programmer.send_command(CMD_CH3_LOW);
             power_is_on = false;
 
-            const msg = 'Connected to Light Controller Programmer with serial number ' + programmer.serial_number;
+            const version = `${programmer.deviceVersionMajor}.${programmer.deviceVersionMinor}${programmer.deviceVersionSubminor}`;
+
+            const msg = `Connected to Light Controller Programmer v${version} with serial number ${programmer.serial_number}`;
             log.log(msg);
-            update_programmer_connection(programmer.serial_number);
+            update_programmer_connection(programmer);
             keep_programmer_alive();
         }
     };
@@ -2628,8 +2630,8 @@ var app = (function () {
     };
 
     // *************************************************************************
-    var update_programmer_connection = async function (device_serial) {
-        if (typeof device_serial === 'undefined') {
+    var update_programmer_connection = async function (programmer) {
+        if (typeof programmer.serial_number === 'undefined') {
             is_connected = false;
             if (testing_active) {
                 select_page('tab_programming');
@@ -2637,7 +2639,11 @@ var app = (function () {
         }
         else {
             is_connected = true;
-            el.connection_info.textContent = 'Connected to Light Controller Programmer with serial number ' + device_serial;
+
+            const device = programmer.active_device;
+            const version = `${device.deviceVersionMajor}.${device.deviceVersionMinor}${device.deviceVersionSubminor}`;
+
+            el.connection_info.textContent = `Connected to Light Controller Programmer v${version} with serial number ${programmer.serial_number}`;
         }
         last_programming_failed = false;
         update_programmer_ui();
