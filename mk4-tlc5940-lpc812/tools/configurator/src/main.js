@@ -2631,7 +2631,7 @@ var app = (function () {
 
     // *************************************************************************
     var update_programmer_connection = async function (programmer) {
-        if (typeof programmer.serial_number === 'undefined') {
+        if (typeof programmer === 'undefined') {
             is_connected = false;
             if (testing_active) {
                 select_page('tab_programming');
