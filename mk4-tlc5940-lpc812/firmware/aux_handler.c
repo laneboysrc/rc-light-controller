@@ -70,9 +70,9 @@ static void process_click_timeout(void)
     if (global_flags.servo_output_setup != SERVO_OUTPUT_SETUP_OFF) {
         servo_output_setup_action(clicks);
     }
-    else if (global_flags.winch_mode != WINCH_DISABLED) {
-        winch_action(clicks);
-    }
+    // else if (global_flags.winch_mode != WINCH_DISABLED) {
+    //     winch_action(clicks);
+    // }
     else if (global_flags.reversing_setup != REVERSING_SETUP_OFF) {
         reversing_setup_action(clicks);
     }
@@ -115,11 +115,11 @@ static void process_click_timeout(void)
                 toggle_hazard_lights();
                 break;
 
-            case 5:
-                // --------------------------
-                // 5 clicks: Arm/disarm the winch
-                winch_action(clicks);
-                break;
+            // case 5:
+            //     // --------------------------
+            //     // 5 clicks: Arm/disarm the winch
+            //     winch_action(clicks);
+            //     break;
 
             case 6:
                 // --------------------------
@@ -155,11 +155,11 @@ static void add_click(void)
 
     // If the winch is running any movement of CH3 immediately turns off
     // the winch (without waiting for click timeout!)
-    if (abort_winching()) {
-        // If winching was aborted disable this series of clicks by setting
-        // the click count to an unused high value
-        clicks = IGNORE_CLICK_COUNT;
-    }
+    // if (abort_winching()) {
+    //     // If winching was aborted disable this series of clicks by setting
+    //     // the click count to an unused high value
+    //     clicks = IGNORE_CLICK_COUNT;
+    // }
 
     ++clicks;
     click_counter = config.ch3_multi_click_timeout;
@@ -210,13 +210,13 @@ static void multi_function(CHANNEL_T *c, struct AUX_FLAGS *f, AUX_TYPE_T type)
                     add_click();
                 }
                 else {
-                    // If the winch is running any movement of AUX immediately
-                    // turns off the winch (without waiting for click timeout!)
-                    if (abort_winching()) {
-                        // If winching was aborted disable this series of clicks
-                        // by setting the click count to an unused high value
-                        clicks = IGNORE_CLICK_COUNT;
-                    }
+                    // // If the winch is running any movement of AUX immediately
+                    // // turns off the winch (without waiting for click timeout!)
+                    // if (abort_winching()) {
+                    //     // If winching was aborted disable this series of clicks
+                    //     // by setting the click count to an unused high value
+                    //     clicks = IGNORE_CLICK_COUNT;
+                    // }
                 }
             }
             else {
@@ -428,7 +428,7 @@ static void handle_aux_channel(CHANNEL_T *c, struct AUX_FLAGS *f, AUX_TYPE_T typ
             disable_outputs(c);
             break;
 
-        case WINCH:
+        // case WINCH:
         case GEARBOX:
         case NOT_USED:
         default:

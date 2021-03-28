@@ -25,7 +25,7 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
         // one servo output (steering wheel or gearbox servo)
         .slave_output = false,
         .preprocessor_output = false,
-        .winch_output = false,
+        // .winch_output = false,
         .steering_wheel_servo_output = true,
         .gearbox_servo_output = false,
 
@@ -83,7 +83,7 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
 
     .ch3_multi_click_timeout = (500 / __SYSTICK_IN_MS),
 
-    .winch_command_repeat_time = (1000 / __SYSTICK_IN_MS),
+    // .winch_command_repeat_time = (1000 / __SYSTICK_IN_MS),
 
     .baudrate = 115200,
     .no_signal_timeout = (500 / __SYSTICK_IN_MS),

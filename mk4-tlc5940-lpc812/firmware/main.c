@@ -241,7 +241,7 @@ int main(void)
         process_shelf_queen_mode();
 
         process_servo_output();
-        process_winch();
+        // process_winch();
         process_lights();
         output_preprocessor();
         output_channel_diagnostics();

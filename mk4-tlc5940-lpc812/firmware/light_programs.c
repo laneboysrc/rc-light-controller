@@ -245,24 +245,24 @@ static void load_light_program_environment(void)
             run_state |= RUN_WHEN_BLINK_RIGHT;
         }
     }
-    switch (global_flags.winch_mode) {
-        case WINCH_IDLE:
-            run_state |= RUN_WHEN_WINCH_IDLE;
-            break;
+    // switch (global_flags.winch_mode) {
+    //     case WINCH_IDLE:
+    //         run_state |= RUN_WHEN_WINCH_IDLE;
+    //         break;
 
-        case WINCH_IN:
-            run_state |= RUN_WHEN_WINCH_IN;
-            break;
+    //     case WINCH_IN:
+    //         run_state |= RUN_WHEN_WINCH_IN;
+    //         break;
 
-        case WINCH_OUT:
-            run_state |= RUN_WHEN_WINCH_OUT;
-            break;
+    //     case WINCH_OUT:
+    //         run_state |= RUN_WHEN_WINCH_OUT;
+    //         break;
 
-        case WINCH_DISABLED:
-        default:
-            run_state |= RUN_WHEN_WINCH_DISABLERD;
-            break;
-    }
+    //     case WINCH_DISABLED:
+    //     default:
+    //         run_state |= RUN_WHEN_WINCH_DISABLERD;
+    //         break;
+    // }
 
 
     // car_state is the same as the above run_state values, plus some of the

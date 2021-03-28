@@ -181,10 +181,10 @@ typedef enum {
     RUN_WHEN_BLINK_LEFT              = (1 << 17),
     RUN_WHEN_BLINK_RIGHT             = (1 << 18),
 
-    RUN_WHEN_WINCH_DISABLERD         = (1 << 19),
-    RUN_WHEN_WINCH_IDLE              = (1 << 20),
-    RUN_WHEN_WINCH_IN                = (1 << 21),
-    RUN_WHEN_WINCH_OUT               = (1 << 22),
+    // RUN_WHEN_WINCH_DISABLERD         = (1 << 19),
+    // RUN_WHEN_WINCH_IDLE              = (1 << 20),
+    // RUN_WHEN_WINCH_IN                = (1 << 21),
+    // RUN_WHEN_WINCH_OUT               = (1 << 22),
 
     // End of defines that are shared with LIGHT_PROGRAM_CAR_STATE_T
 
@@ -248,10 +248,10 @@ typedef enum {
     CAR_STATE_BLINK_LEFT                = (1 << 17),
     CAR_STATE_BLINK_RIGHT               = (1 << 18),
 
-    CAR_STATE_WINCH_DISABLERD           = (1 << 19),
-    CAR_STATE_WINCH_IDLE                = (1 << 20),
-    CAR_STATE_WINCH_IN                  = (1 << 21),
-    CAR_STATE_WINCH_OUT                 = (1 << 22),
+    // CAR_STATE_WINCH_DISABLERD           = (1 << 19),
+    // CAR_STATE_WINCH_IDLE                = (1 << 20),
+    // CAR_STATE_WINCH_IN                  = (1 << 21),
+    // CAR_STATE_WINCH_OUT                 = (1 << 22),
 
     // End of defines that are shared with LIGHT_PROGRAM_RUN_STATE_T
 
@@ -349,12 +349,12 @@ typedef enum {
 
 
 // ****************************************************************************
-typedef enum {
-    WINCH_DISABLED = 0,
-    WINCH_IDLE = 0x01,
-    WINCH_IN = 0x02,
-    WINCH_OUT = 0x04
-} WINCH_T;
+// typedef enum {
+//     WINCH_DISABLED = 0,
+//     WINCH_IDLE = 0x01,
+//     WINCH_IN = 0x02,
+//     WINCH_OUT = 0x04
+// } WINCH_T;
 
 
 // ****************************************************************************
@@ -372,7 +372,7 @@ typedef enum {
     NOT_USED = 0,
     MULTI_FUNCTION = 1,
     GEARBOX = 2,
-    WINCH = 3,
+    // WINCH = 3,
     SERVO = 4,
     INDICATORS = 5,
     HAZARD = 6,
@@ -403,7 +403,8 @@ typedef struct {
     unsigned int gear_changed : 1;          // Set for one mainloop when a new gear was selected
     unsigned int gear : 2;
 
-    unsigned int winch_mode : 3;
+    // unsigned int winch_mode : 3;
+    unsigned int reserved0 : 3;             // previously used for the winch
 
     unsigned int shelf_queen_mode : 1;      // Set when car driving is simulated
 
@@ -457,7 +458,8 @@ typedef struct {
         // output)
         unsigned int slave_output : 1;
         unsigned int preprocessor_output : 1;
-        unsigned int winch_output : 1;
+        // unsigned int winch_output : 1;
+        unsigned int reserved1 : 1;     // previously winch output
         unsigned int steering_wheel_servo_output : 1;
         unsigned int gearbox_servo_output : 1;
 
@@ -505,7 +507,9 @@ typedef struct {
     uint16_t initial_light_switch_position;
     uint16_t initial_endpoint_delta;
     uint16_t ch3_multi_click_timeout;
-    uint16_t winch_command_repeat_time;
+
+    // uint16_t winch_command_repeat_time;
+    uint16_t reserved2;     // previously used for the winch
 
     uint32_t baudrate;
     uint16_t no_signal_timeout;
@@ -732,9 +736,9 @@ void set_servo_pulse(uint16_t value);
 void set_servo_position(int16_t value);
 
 
-void process_winch(void);
-void winch_action(uint8_t ch3_clicks);
-bool abort_winching(void);
+// void process_winch(void);
+// void winch_action(uint8_t ch3_clicks);
+// bool abort_winching(void);
 
 void process_channel_reversing_setup(void);
 void reversing_setup_action(uint8_t ch3_clicks);
