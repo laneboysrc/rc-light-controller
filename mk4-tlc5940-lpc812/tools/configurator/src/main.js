@@ -435,7 +435,7 @@ var app = (function () {
 
         new_config.slave_output = get_flag(0x0001);
         new_config.preprocessor_output = get_flag(0x0002);
-        new_config.winch_output = get_flag(0x0004);
+        // new_config.winch_output = get_flag(0x0004);
         new_config.steering_wheel_servo_output = get_flag(0x0008);
         new_config.gearbox_servo_output = get_flag(0x0010);
         // reserved = get_flag(0x0020);
@@ -475,7 +475,7 @@ var app = (function () {
         new_config.initial_light_switch_position = get_uint16(data, offset + 36);
         new_config.initial_endpoint_delta = get_uint16(data, offset + 38);
         new_config.ch3_multi_click_timeout = get_uint16(data, offset + 40);
-        new_config.winch_command_repeat_time = get_uint16(data, offset + 42);
+        // new_config.winch_command_repeat_time = get_uint16(data, offset + 42);
 
         new_config.baudrate = get_uint32(data, offset + 44);
         new_config.no_signal_timeout = get_uint16(data, offset + 48);
@@ -1079,14 +1079,14 @@ var app = (function () {
         ensure_one_is_checked('output_th');
         ensure_one_is_checked('assign_servo_uart');
 
-        if (el.preprocessor_output.checked || el.slave_output.checked) {
-            el.winch_output.classList.add('hidden');
-            el.winch_enable.classList.remove('hidden');
-        }
-        else {
-            el.winch_output.classList.remove('hidden');
-            el.winch_enable.classList.add('hidden');
-        }
+        // if (el.preprocessor_output.checked || el.slave_output.checked) {
+        //     el.winch_output.classList.add('hidden');
+        //     el.winch_enable.classList.remove('hidden');
+        // }
+        // else {
+        //     el.winch_output.classList.remove('hidden');
+        //     el.winch_enable.classList.add('hidden');
+        // }
 
         if (el.slave_output.checked) {
             el.leds_slave.classList.remove('hidden');
@@ -1172,8 +1172,8 @@ var app = (function () {
         el.esc[config.esc_mode].checked = true;
 
         // Output functions
-        el.winch_output.checked = Boolean(config.winch_output);
-        el.winch_enable.checked = Boolean(config.winch_output);
+        // el.winch_output.checked = Boolean(config.winch_output);
+        // el.winch_enable.checked = Boolean(config.winch_output);
         el.gearbox_servo_output.checked = Boolean(config.gearbox_servo_output);
         el.steering_wheel_servo_output.checked = Boolean(config.steering_wheel_servo_output);
         el.preprocessor_output.checked = Boolean(config.preprocessor_output);
@@ -1251,8 +1251,8 @@ var app = (function () {
 
         el.ch3_multi_click_timeout.value =
             config.ch3_multi_click_timeout * SYSTICK_IN_MS;
-        el.winch_command_repeat_time.value =
-            config.winch_command_repeat_time * SYSTICK_IN_MS;
+        // el.winch_command_repeat_time.value =
+        //     config.winch_command_repeat_time * SYSTICK_IN_MS;
         el.no_signal_timeout.value =
             config.no_signal_timeout * SYSTICK_IN_MS;
 
@@ -1526,7 +1526,7 @@ var app = (function () {
         var flags = 0;
         flags |= (config.slave_output << 0);
         flags |= (config.preprocessor_output << 1);
-        flags |= (config.winch_output << 2);
+        // flags |= (config.winch_output << 2);
         flags |= (config.steering_wheel_servo_output << 3);
         flags |= (config.gearbox_servo_output << 4);
         // flags |= (reserved << 5);
@@ -1561,7 +1561,9 @@ var app = (function () {
         set_uint16(data, offset + 36, config.initial_light_switch_position);
         set_uint16(data, offset + 38, config.initial_endpoint_delta);
         set_uint16(data, offset + 40, config.ch3_multi_click_timeout);
-        set_uint16(data, offset + 42, config.winch_command_repeat_time);
+
+        // set_uint16(data, offset + 42, config.winch_command_repeat_time);
+        set_uint16(data, offset + 42, 0);
 
         set_uint32(data, offset + 44, config.baudrate);
         set_uint16(data, offset + 48, config.no_signal_timeout);
@@ -1626,7 +1628,8 @@ var app = (function () {
                 }
             }
 
-            if (!config.slave_output && !config.preprocessor_output && !config.winch_output) {
+            // if (!config.slave_output && !config.preprocessor_output && !config.winch_output) {
+            if (!config.slave_output && !config.preprocessor_output) {
                 flags2 |= (1 << 11); // config.uart_diagnostics_enabled
             }
 
@@ -2077,7 +2080,7 @@ var app = (function () {
             config.gearbox_light_program_control = false;
             config.light_program_servo_output = false;
             config.indicators_while_driving = false;
-            config.winch_output = false;
+            // config.winch_output = false;
             config.require_extra_click = false;
             config.prefer_all_lights_off = false;
             config.shelf_queen_mode = false;
@@ -2097,12 +2100,12 @@ var app = (function () {
             update_boolean('reverse_aux2');
             update_boolean('reverse_aux3');
             update_boolean('invert_out15s');
-            if (el.preprocessor_output.checked || el.slave_output.checked) {
-                config.winch_output = Boolean(el.winch_enable.checked);
-            }
-            else {
-                update_boolean('winch_output');
-            }
+            // if (el.preprocessor_output.checked || el.slave_output.checked) {
+            //     config.winch_output = Boolean(el.winch_enable.checked);
+            // }
+            // else {
+            //     update_boolean('winch_output');
+            // }
             update_boolean('shelf_queen_mode');
         }
 
@@ -2147,7 +2150,7 @@ var app = (function () {
         update_int('initial_endpoint_delta');
 
         update_time('ch3_multi_click_timeout');
-        update_time('winch_command_repeat_time');
+        // update_time('winch_command_repeat_time');
         update_time('no_signal_timeout');
         update_int('number_of_gears');
         update_time('gearbox_servo_active_time');
@@ -2794,7 +2797,8 @@ var app = (function () {
             'reverse_st', 'reverse_th', 'reverse_aux', 'reverse_aux2', 'reverse_aux3',
 
             'slave_output', 'preprocessor_output', 'steering_wheel_servo_output',
-            'gearbox_servo_output', 'winch_output', 'winch_enable',
+            'gearbox_servo_output',
+            // 'winch_output', 'winch_enable',
             'light_program_servo_output', 'indicators_while_driving',
             'gearbox_light_program_control',
             'assign_uart_to_out', 'assign_servo_to_out', 'dual_off',
@@ -2829,7 +2833,8 @@ var app = (function () {
             'aux_left_centre_threshold_low', 'aux_left_centre_threshold_high',
             'aux_centre_right_threshold_low', 'aux_centre_right_threshold_high',
             'initial_endpoint_delta', 'ch3_multi_click_timeout',
-            'winch_command_repeat_time','no_signal_timeout', 'shelf_queen_mode',
+            // 'winch_command_repeat_time',
+            'no_signal_timeout', 'shelf_queen_mode',
 
             'number_of_gears','gearbox_servo_active_time','gearbox_servo_idle_time',
 

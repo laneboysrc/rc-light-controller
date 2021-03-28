@@ -297,7 +297,7 @@
           </div>
           <br>
           The baudrate for serial input/output functions. This applies to the
-          Pre-Processor input and output, the slave input and output, and the winch controller.
+          Pre-Processor input and output, and the slave input and output.
           <br>
           Ensure that master and slave are using the same baudrate.
         </div>
@@ -648,14 +648,6 @@
           and CH3/AUX signals as serial data stream. This function can be
           useful for connecting custom hardware to the light controller.
         </div>
-        <div class="radio_item">
-          <input class="dual_output_th" type="radio" name="output_out" value="5" id="winch_output">
-          <input class="dual_output_th" type="checkbox" name="winch_enable" value="5" id="winch_enable">
-          <label for="winch_enable">Winch output</label>
-          <br>
-          Enables control of the
-          <a href="https://github.com/laneboysrc/rc-winch-controller" target="_blank">LANE Boys RC winch controller</a><br>
-        </div>
       </div>
 
 
@@ -974,7 +966,7 @@
             </div>
             <div>
               If enabled, the user has to input an additional click. So for more lights, the user has to enter 2-clicks (instead of 1 click), and so on.
-              1-click has no function when the checkbox is checked (except abort winching!).
+              1-click has no function when the checkbox is checked.
               <br>
               Use-case: Traxxas TRX-4 where the gearbox and light controller share
               the same channel. Then the user can switch "slow" to change the gear,
@@ -1155,22 +1147,6 @@
               when the &quot;no servo signal&quot; condition applies for more than 5 seconds.
             </div>
           </div>
-
-          <h3>Winch output</h3>
-          <div class="advanced_feature">
-            <div>
-              <input type=number id="winch_command_repeat_time">
-              <label for="winch_command_repeat_time">winch command repeat time in ms</label>
-            </div>
-
-            <div>
-             This setting only applies to the
-             <a href="https://github.com/laneboysrc/rc-winch-controller" target="_blank">LANE Boys RC winch controller</a><br>
-             The value determines how often the winch commands are sent to the
-             winch controller.
-            </div>
-          </div>
-
 
           <h3>Gearbox servo output</h3>
           <div class="advanced_feature">
