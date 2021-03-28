@@ -460,6 +460,7 @@ typedef struct {
         unsigned int winch_output : 1;
         unsigned int steering_wheel_servo_output : 1;
         unsigned int gearbox_servo_output : 1;
+
         unsigned int reserved0 : 1;
 
         unsigned int ch3_is_local_switch : 1;
@@ -470,8 +471,12 @@ typedef struct {
 
         unsigned int ch3_is_two_button : 1;
 
-        // Not used; was prepared for MK5 but not implemented!
-        unsigned int local_switch_is_momentary : 1;
+        // Channel reversing via the configurator. Added in config v2 firmware v35
+        unsigned int reverse_st : 1;
+        unsigned int reverse_th : 1;
+        unsigned int reverse_aux : 1;
+        unsigned int reverse_aux2 : 1;
+        unsigned int reverse_aux3 : 1;
     } flags;
 
     uint16_t auto_brake_counter_value_forward_min;

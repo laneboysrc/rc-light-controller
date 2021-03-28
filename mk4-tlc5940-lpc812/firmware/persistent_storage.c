@@ -35,8 +35,8 @@ void load_persistent_storage(void)
     const volatile uint32_t *persistent_data = HAL_persistent_storage_read();
 
     defaults[OFFSET_VERSION] = PERSISTENT_DATA_VERSION;
-    defaults[OFFSET_STEERING_REVERSED] = false;
-    defaults[OFFSET_THROTTLE_REVERSED] = false;
+    defaults[OFFSET_STEERING_REVERSED] = config.flags.reverse_st;
+    defaults[OFFSET_THROTTLE_REVERSED] = config.flags.reverse_th;
     defaults[OFFSET_SERVO_LEFT] = 1000;
     defaults[OFFSET_SERVO_CENTRE] = 1500;
     defaults[OFFSET_SERVO_RIGHT] = 2000;
@@ -50,6 +50,9 @@ void load_persistent_storage(void)
 
     channel[ST].reversed = ptr[OFFSET_STEERING_REVERSED];
     channel[TH].reversed = ptr[OFFSET_THROTTLE_REVERSED];
+    channel[AUX].reversed = config.flags.reverse_aux;
+    channel[AUX2].reversed = config.flags.reverse_aux2;
+    channel[AUX3].reversed = config.flags.reverse_aux3;
     servo_output_endpoint.left = ptr[OFFSET_SERVO_LEFT];
     servo_output_endpoint.centre = ptr[OFFSET_SERVO_CENTRE];
     servo_output_endpoint.right = ptr[OFFSET_SERVO_RIGHT];

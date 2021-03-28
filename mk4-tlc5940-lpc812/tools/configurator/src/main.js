@@ -445,6 +445,12 @@ var app = (function () {
         new_config.auto_brake_lights_reverse_enabled = get_flag(0x0200);
         new_config.ch3_is_two_button = get_flag(0x0400);
 
+        new_config.reverse_st = get_flag(0x0800);
+        new_config.reverse_th = get_flag(0x1000);
+        new_config.reverse_aux = get_flag(0x2000);
+        new_config.reverse_aux2 = get_flag(0x4000);
+        new_config.reverse_aux3 = get_flag(0x8000);
+
         new_config.auto_brake_counter_value_forward_min =
             get_uint16(data, offset + 8);
         new_config.auto_brake_counter_value_forward_max =
@@ -886,6 +892,7 @@ var app = (function () {
                 'config_mode',
                 'config_esc',
                 'config_ch3',
+                'config_reversing',
                 'config_output',
                 'config_leds',
                 'config_light_programs',
@@ -898,6 +905,7 @@ var app = (function () {
             hide(el.dual_output);
             show([el.aux_3ch]);
             hide([el.multi_aux]);
+            hide([el.channel_reversing_multi_aux]);
             set_name(el.dual_output_th, 'output_out');
             break;
 
@@ -909,6 +917,7 @@ var app = (function () {
                 'config_mode',
                 'config_esc',
                 'config_ch3',
+                'config_reversing',
                 'config_output',
                 'config_leds',
                 'config_light_programs',
@@ -922,6 +931,7 @@ var app = (function () {
             show(el.dual_output);
             show([el.aux_3ch]);
             hide([el.multi_aux]);
+            hide([el.channel_reversing_multi_aux]);
             set_name(el.dual_output_th, 'output_th');
             break;
 
@@ -933,6 +943,7 @@ var app = (function () {
                 'config_mode',
                 'config_esc',
                 'config_ch3',
+                'config_reversing',
                 'config_output',
                 'config_leds',
                 'config_light_programs',
@@ -946,6 +957,7 @@ var app = (function () {
             show(el.dual_output);
             hide([el.aux_3ch]);
             show([el.multi_aux]);
+            show([el.channel_reversing_multi_aux]);
             set_name(el.dual_output_th, 'output_th');
             break;
 
@@ -957,6 +969,7 @@ var app = (function () {
                 'config_mode',
                 'config_esc',
                 'config_ch3',
+                'config_reversing',
                 'config_output',
                 'config_leds',
                 'config_light_programs',
@@ -969,6 +982,7 @@ var app = (function () {
             show(el.dual_output);
             show([el.aux_3ch]);
             hide([el.multi_aux]);
+            hide([el.channel_reversing_multi_aux]);
             set_name(el.dual_output_th, 'output_th');
             break;
 
@@ -1000,6 +1014,7 @@ var app = (function () {
             show(el.dual_output);
             show([el.aux_3ch]);
             hide([el.multi_aux]);
+            hide([el.channel_reversing_multi_aux]);
             set_name(el.dual_output_th, 'output_th');
             break;
 
@@ -1031,6 +1046,7 @@ var app = (function () {
                 'config_mode',
                 'config_esc',
                 'config_ch3',
+                'config_reversing',
                 'config_output',
                 'config_leds',
                 'config_light_programs',
@@ -1043,6 +1059,7 @@ var app = (function () {
             hide(el.dual_output);
             hide([el.aux_3ch]);
             show([el.multi_aux]);
+            hide([el.channel_reversing_multi_aux]);
             set_name(el.dual_output_th, 'output_out');
             break;
 
@@ -1177,6 +1194,13 @@ var app = (function () {
         } else if (config.ch3_is_two_button) {
             el.ch3[1].checked = true;
         }
+
+        // Channel reversing
+        el.reverse_st.checked = Boolean(config.reverse_st);
+        el.reverse_th.checked = Boolean(config.reverse_th);
+        el.reverse_aux.checked = Boolean(config.reverse_aux);
+        el.reverse_aux2.checked = Boolean(config.reverse_aux2);
+        el.reverse_aux3.checked = Boolean(config.reverse_aux3);
 
         // Baudrate
         el.baudrate.selectedIndex = BAUDRATES[config.baudrate];
@@ -1511,6 +1535,11 @@ var app = (function () {
         flags |= (config.auto_brake_lights_forward_enabled << 8);
         flags |= (config.auto_brake_lights_reverse_enabled << 9);
         flags |= (config.ch3_is_two_button << 10);
+        flags |= (config.reverse_st << 11);
+        flags |= (config.reverse_th << 12);
+        flags |= (config.reverse_aux << 13);
+        flags |= (config.reverse_aux2 << 14);
+        flags |= (config.reverse_aux3 << 15);
         set_uint32(data, offset + 4, flags);
 
         set_uint16(data, offset + 8,  config.auto_brake_counter_value_forward_min);
@@ -2062,6 +2091,11 @@ var app = (function () {
             update_boolean('indicators_while_driving');
             update_boolean('require_extra_click');
             update_boolean('prefer_all_lights_off');
+            update_boolean('reverse_st');
+            update_boolean('reverse_th');
+            update_boolean('reverse_aux');
+            update_boolean('reverse_aux2');
+            update_boolean('reverse_aux3');
             update_boolean('invert_out15s');
             if (el.preprocessor_output.checked || el.slave_output.checked) {
                 config.winch_output = Boolean(el.winch_enable.checked);
@@ -2755,7 +2789,9 @@ var app = (function () {
             'config_ch3',
             'config_output',
 
-            'aux_3ch', 'multi_aux',
+            'aux_3ch', 'multi_aux', 'channel_reversing_multi_aux',
+
+            'reverse_st', 'reverse_th', 'reverse_aux', 'reverse_aux2', 'reverse_aux3',
 
             'slave_output', 'preprocessor_output', 'steering_wheel_servo_output',
             'gearbox_servo_output', 'winch_output', 'winch_enable',

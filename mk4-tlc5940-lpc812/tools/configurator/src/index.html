@@ -91,6 +91,7 @@
         <li><button data="config_mode"><i class="fa fa-wrench"></i><span class="menu-label">Operating mode</span></button></li>
         <li><button data="config_esc"><i class="fa fa-car"></i><span class="menu-label">ESC type</span></button></li>
         <li><button data="config_ch3"><i class="fa fa-toggle-on"></i><span class="menu-label">CH3/AUX configuration</span></button></li>
+        <li><button data="config_reversing"><i class="fa fa-arrows-h"></i><span class="menu-label">Reversing</span></button></li>
         <li><button data="config_output"><i class="fa fa-external-link"></i><span class="menu-label">Output functions</span></button></li>
         <li><button data="config_leds"><i class="fa fa-lightbulb-o"></i><span class="menu-label">LED configuration</span></button></li>
         <li><button data="config_light_programs"><i class="fa fa-code"></i><span class="menu-label">Light programs</span></button></li>
@@ -300,24 +301,6 @@
           <br>
           Ensure that master and slave are using the same baudrate.
         </div>
-
-        <div id="config_invert_out15s" class="configuration">
-          <h3>OUT15S control</h3>
-            <div>
-              <input type="checkbox" id="invert_out15s">
-              <label for="invert_out15s">Invert OUT15S</label>
-            </div>
-            <div class="info">
-              The switched light output OUT15S follows LED output OUT15. When OUT15 is on,
-              OUT15S is on as well, which means that the output pin is pulled to GND (supply minus).
-            </div>
-            <div class="info">
-              When this checkbox is enabled, the operation of OUT15S is inverted. This means when
-              OUT15 is on at any brightness, then OUT15S will be now off. But when OUT15 is off (value 0), then OUT15S will be on (pin pulled to GND).
-              <br>
-              This can be useful to control an external DC/DC converter with an enable pin.
-            </div>
-        </div>
       </div>
 
 
@@ -522,6 +505,55 @@
           </div>
         </div>
       </div>
+
+      <div id="config_reversing" class="box configuration hidden">
+        <h2>Channel reversing</h2>
+        <div>
+          <input type="checkbox" id="reverse_st">
+          <label for="reverse_st">Reverse ST (Steering)</label>
+        </div>
+        <div>
+          <input type="checkbox" id="reverse_th">
+          <label for="reverse_th">Reverse TH (Throttle)</label>
+        </div>
+
+        <div id="channel_reversing_multi_aux" class="configuration">
+          <div>
+            <input type="checkbox" id="reverse_aux">
+            <label for="reverse_aux">Reverse CH3/AUX</label>
+          </div>
+          <div>
+            <input type="checkbox" id="reverse_aux2">
+            <label for="reverse_aux2">Reverse AUX2</label>
+          </div>
+          <div>
+            <input type="checkbox" id="reverse_aux3">
+            <label for="reverse_aux3">Reverse AUX3</label>
+          </div>
+        </div>
+
+        <div class="info">
+          Note that steering and throttle reversing can also be configured from the transmitter once the light controller is installed, by entering 7-clicks on CH3/AUX. For more details please refer to the <a href="https://laneboysrc.github.io/rc-light-controller/light-controller-instructions-mk4.pdf" target="_blank">Mk4 Light Controller documentation</a> (PDF).
+        </div>
+
+
+        <h2 class="space_before">OUT15S control</h2>
+        <div>
+          <input type="checkbox" id="invert_out15s">
+          <label for="invert_out15s">Invert OUT15S</label>
+        </div>
+        <div class="info">
+          The switched light output OUT15S follows LED output OUT15. When OUT15 is on,
+          OUT15S is on as well, which means that the output pin is pulled to GND (supply minus).
+        </div>
+        <div class="info">
+          When this checkbox is enabled, the operation of OUT15S is inverted. This means when
+          OUT15 is on at any brightness, then OUT15S will be now off. But when OUT15 is off (value 0), then OUT15S will be on (pin pulled to GND).
+          <br>
+          This can be useful to control an external DC/DC converter with an enable pin.
+        </div>
+      </div>
+
 
 
       <div id="config_output" class="box configuration hidden">

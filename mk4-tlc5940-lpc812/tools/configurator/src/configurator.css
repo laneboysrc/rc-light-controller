@@ -118,6 +118,10 @@ button.menu i {
   font-weight: bold;
 }
 
+.space_before {
+  margin-top: 1em;
+}
+
 @media (min-width: 1023px) {
   nav {
     /*flex: 0 0 12em;*/
