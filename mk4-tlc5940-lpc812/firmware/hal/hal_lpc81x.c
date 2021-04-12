@@ -720,6 +720,7 @@ void HAL_spi_init(void)
     HAL_gpio_out_mask(
         (1 << HAL_GPIO_SCK.pin) |
         (1 << HAL_GPIO_SIN.pin) |
+        (1 << HAL_GPIO_SIN_LPC832.pin) |
         (1 << HAL_GPIO_XLAT.pin));
 
     // Use 2 MHz SPI clock. 16 bytes take about 50 us to transmit.
@@ -744,10 +745,19 @@ void HAL_spi_init(void)
                           (0xff << 8) |
                           (0xff << 0);
 
-    LPC_SWM->PINASSIGN4 = (0xff << 24) |
-                          (HAL_GPIO_XLAT.pin << 16) |       // XLAT (SSEL)
-                          (0xff << 8) |
-                          (HAL_GPIO_SIN.pin << 0);          // SIN (MOSI)
+    // SIN is on a different pin on the LPC832 MCU!
+    if (LPC_SYSCON->DEVICE_ID != 0x8322) {
+        LPC_SWM->PINASSIGN4 = (0xff << 24) |
+                              (HAL_GPIO_XLAT.pin << 16) |       // XLAT (SSEL)
+                              (0xff << 8) |
+                              (HAL_GPIO_SIN.pin << 0);          // SIN (MOSI)
+    }
+    else {
+        LPC_SWM->PINASSIGN4 = (0xff << 24) |
+                              (HAL_GPIO_XLAT.pin << 16) |       // XLAT (SSEL)
+                              (0xff << 8) |
+                              (HAL_GPIO_SIN_LPC832.pin << 0);   // SIN (MOSI)
+    }
 }
 
 

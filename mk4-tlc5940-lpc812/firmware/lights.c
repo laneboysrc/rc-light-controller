@@ -202,10 +202,12 @@ void init_lights(void)
 {
     if (!global_flags.switched_outputs) {
         HAL_gpio_set(HAL_GPIO_BLANK);
+        HAL_gpio_set(HAL_GPIO_BLANK_LPC832);
         HAL_gpio_clear(HAL_GPIO_GSCLK);
 
         HAL_gpio_out_mask(
                 (1 << HAL_GPIO_BLANK.pin) |
+                (1 << HAL_GPIO_BLANK_LPC832.pin) |
                 (1 << HAL_GPIO_GSCLK.pin));
 
         HAL_spi_init();
@@ -215,6 +217,7 @@ void init_lights(void)
 
     if (!global_flags.switched_outputs) {
         HAL_gpio_clear(HAL_GPIO_BLANK);
+        HAL_gpio_clear(HAL_GPIO_BLANK_LPC832);
     }
 
     // Do this short function in-between clearing BLANK and setting GSCLK to

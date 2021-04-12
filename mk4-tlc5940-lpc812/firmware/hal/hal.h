@@ -45,7 +45,7 @@ typedef struct {
 // PIO0_5   (4,  RESET)         NC
 // PIO0_6   (18)                TLC5940 BLANK
 // PIO0_7   (17)                TLC5940 SIN
-// PIO0_8   (14, XTALIN)        NC
+// PIO0_8   (14, XTALIN)        AUX2 input
 // PIO0_9   (13, XTALOUT)       Switched light output (for driving a load via a MOSFET)
 // PIO0_10  (9,  Open drain)    NC
 // PIO0_11  (8,  Open drain)    AUX3 input
@@ -57,6 +57,34 @@ typedef struct {
 // PIO0_17  (1)                 NC
 // GND      (13)
 // 3.3V     (12)
+//
+//
+// Mk4P LPC832 IO pins: (LPC832 in TSSOP20 package)
+//
+//          NOTE: LPC832 MCU instead of LPC812
+//
+// PIO0_0   (19, TDO, ISP-Rx)   Steering input / Rx
+// PIO0_1   (12, TDI)           TLC5940 GSCLK
+// PIO0_2   (8,  TMS, SWDIO)    TLC5940 SCLK
+// PIO0_3   (7,  TCK, SWCLK)    TLC5940 XLAT
+// PIO0_4   (6,  TRST, ISP-Tx)  Throttle input / Tx
+// PIO0_5   (5,  RESET)         NC
+// PIO0_6                       (was TLC5940 BLANK)
+// PIO0_7                       (was TLC5940 SIN)
+// PIO0_8   (14, XTALIN)        was AUX2 input
+// PIO0_9   (13, XTALOUT)       Switched light output (for driving a load via a MOSFET)
+// PIO0_10  (10, Open drain)    NC
+// PIO0_11  (9,  Open drain)    AUX3 input
+// PIO0_12  (4,  ISP-entry)     OUT / ISP
+// PIO0_13  (3)                 AUX input
+// PIO0_14  (20)                Hardware detection, must be floating (or high)
+// PIO0_15  (11)                TLC5940 BLANK
+// PIO0_17  (2)                 NC
+// PIO0_23  (1)                 TLC5940 SIN
+// GND      (13)
+// 3.3V     (12)
+// VREFN    (17)
+// VREFP    (18)
 //
 //
 // Mk4S IO pins: (LPC812 in TSSOP20 package)
@@ -107,6 +135,10 @@ static const HAL_GPIO_T HAL_GPIO_SIN = { .pin = 7 };
 static const HAL_GPIO_T HAL_GPIO_XLAT = { .pin = 3 };
 static const HAL_GPIO_T HAL_GPIO_GSCLK = { .pin = 1 };
 static const HAL_GPIO_T HAL_GPIO_BLANK = { .pin = 6 };
+
+// GPIOs for original Mk4 and Mk4P with LPC832
+static const HAL_GPIO_T HAL_GPIO_BLANK_LPC832 = { .pin = 15 };
+static const HAL_GPIO_T HAL_GPIO_SIN_LPC832 = { .pin = 23 };
 
 // GPIOs for Mk4S
 static const HAL_GPIO_T HAL_GPIO_HARDWARE_CONFIG = { .pin = 14 };
