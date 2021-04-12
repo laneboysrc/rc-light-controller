@@ -621,10 +621,10 @@ F 3 "" H 1350 4000 50  0001 C CNN
 	1    0    0    1   
 $EndComp
 $Comp
-L rc-light-controller-tlc5940-lpc812-eagle-import:R-EU_R0603 R6
+L rc-light-controller-tlc5940-lpc812-eagle-import:R-EU_R0603 R5
 U 1 1 5049E5A2
 P 2450 4000
-F 0 "R6" H 2300 4059 59  0000 L BNN
+F 0 "R5" H 2300 4059 59  0000 L BNN
 F 1 "1k" H 2300 3870 59  0000 L BNN
 F 2 "Resistor_SMD:R_0603_1608Metric" H 2450 4000 50  0001 C CNN
 F 3 "" H 2450 4000 50  0001 C CNN

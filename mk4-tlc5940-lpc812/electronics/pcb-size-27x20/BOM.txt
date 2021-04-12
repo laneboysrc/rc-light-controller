@@ -8,7 +8,7 @@ R1    2k0        R-EU_R0603        R0603             RESISTOR 1%, Determines max
 R2    1k         R-EU_R0603        R0603             RESISTOR
 R3    1k         R-EU_R0603        R0603             RESISTOR
 R4    1k         R-EU_R0603        R0603             RESISTOR
-R6    1k         R-EU_R0603        R0603             RESISTOR
+R5    1k         R-EU_R0603        R0603             RESISTOR
 T1               DMN2075U-7        SOT-23            Optional for switching light output! MOS FET, N-Channel, Logic level; Alternatives: NXP PMV30UN, SI2302
 U$1   3V3        MCP1703T-3302E/CB SOT-23A           Microchip, Low Quiescent Current LDO Regulator, Alternate part: MCP1702T-3302E/CB
 U$2   LPC812     LPC812M101JDH16   TSSOP16           NXP, ARM Cortex-M0 microcontroller, 16 Kbytes flash, 4 Kbytes RAM
