@@ -136,6 +136,9 @@ void HAL_hardware_init(void)
     // Configure SCTimer globally for two 16-bit counters
     LPC_SCT->CONFIG = 0;
 
+    // Toggle peripheral reset for SCT
+    LPC_SYSCON->PRESETCTRL &= ~(1 << 8);
+    LPC_SYSCON->PRESETCTRL |=  (1 << 8);
 
     // ------------------------
     // SysTick configuration 1000 Hz / 1 ms
@@ -444,7 +447,7 @@ void HAL_servo_output_init(uint8_t pin)
     LPC_SCT->OUT[1].CLR = (1 << 5);        // Event 5 will clear CTOUT_1
 
     if (is_lpc832) {
-        LPC_SWM->PINASSIGN8 = (0xff << 24) |            // I2C_SDA
+        LPC_SWM->PINASSIGN8 = (0xff << 24) |            // CTOUT_4
                               (0xff << 16) |            // CTOUT_3
                               (0xff << 8) |             // CTOUT_2
                               (pin << 0);               // CTOUT_1
@@ -565,11 +568,9 @@ void HAL_servo_reader_init(void)
     // fields in the register.
     if (is_lpc832) {
         LPC_SWM->PINASSIGN6 = (aux2_pin << 24) |            // CTIN_0
-                              (0xff << 16) |                // SPI1_SSEL
-                              (0xff << 8) |                 // SPI1_MISO
-                              (0xff << 0);                  // SPI1_MOSI
-
-
+                              (0xff << 16) |                // SPI1_SSEL1
+                              (0xff << 8) |                 // SPI1_SSEL0
+                              (0xff << 0);                  // SPI1_MISO
 
         LPC_SWM->PINASSIGN7 = (0xff << 24) |                // CTOUT_0
                               (HAL_GPIO_AUX.pin << 16) |    // CTIN_3
@@ -581,8 +582,6 @@ void HAL_servo_reader_init(void)
                               (0xff << 16) |                // SPI1_SSEL
                               (0xff << 8) |                 // SPI1_MISO
                               (0xff << 0);                  // SPI1_MOSI
-
-
 
         LPC_SWM->PINASSIGN6 = (0xff << 24) |                // CTOUT_0
                               (HAL_GPIO_AUX.pin << 16) |    // CTIN_3
