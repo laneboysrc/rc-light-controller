@@ -39,6 +39,8 @@ static volatile bool aux3_active = false;
 static volatile uint32_t aux2_aux3_timeout;
 static uint32_t raw_data[5];
 
+static bool is_lpc832;
+
 /* ****************************************************************************
 SCT Timer usage
 
@@ -77,6 +79,9 @@ void HAL_hardware_init(void)
 #if HAL_SYSTEM_CLOCK != 12000000
 #error Clock initialization code expexts __SYSTEM_CLOCK to be set to 1200000
 #endif
+
+    // Flag that allows us to check whether we deal with LPC832 or LPC812
+    is_lpc832 = (LPC_SYSCON->DEVICE_ID == 0x8322);
 
     // Turn on brown-out detection and reset
     LPC_SYSCON->BODCTRL = (1 << 4) | (1 << 2) | (3 << 0);
@@ -438,10 +443,19 @@ void HAL_servo_output_init(uint8_t pin)
     LPC_SCT->OUT[1].SET = (1 << 4);        // Event 4 will set CTOUT_1
     LPC_SCT->OUT[1].CLR = (1 << 5);        // Event 5 will clear CTOUT_1
 
-    LPC_SWM->PINASSIGN7 = (0xff << 24) |            // I2C_SDA
-                          (0xff << 16) |            // CTOUT_3
-                          (0xff << 8) |             // CTOUT_2
-                          (pin << 0);               // CTOUT_1
+    if (is_lpc832) {
+        LPC_SWM->PINASSIGN8 = (0xff << 24) |            // I2C_SDA
+                              (0xff << 16) |            // CTOUT_3
+                              (0xff << 8) |             // CTOUT_2
+                              (pin << 0);               // CTOUT_1
+    }
+    else {
+        LPC_SWM->PINASSIGN7 = (0xff << 24) |            // I2C_SDA
+                              (0xff << 16) |            // CTOUT_3
+                              (0xff << 8) |             // CTOUT_2
+                              (pin << 0);               // CTOUT_1
+    }
+
 
     LPC_SCT->CTRL_H &= ~(1 << 2);          // Start the SCTimer H
 }
@@ -549,17 +563,32 @@ void HAL_servo_reader_init(void)
     // We keep AUX2 in CTIN_0 as it is a lone value in PINASSIGN5. We can
     // therefore easily swap AUX2 and AUX3 without having to worry of other
     // fields in the register.
-    LPC_SWM->PINASSIGN5 = (aux2_pin << 24) |            // CTIN_0
-                          (0xff << 16) |                // SPI1_SSEL
-                          (0xff << 8) |                 // SPI1_MISO
-                          (0xff << 0);                  // SPI1_MOSI
+    if (is_lpc832) {
+        LPC_SWM->PINASSIGN6 = (aux2_pin << 24) |            // CTIN_0
+                              (0xff << 16) |                // SPI1_SSEL
+                              (0xff << 8) |                 // SPI1_MISO
+                              (0xff << 0);                  // SPI1_MOSI
 
 
 
-    LPC_SWM->PINASSIGN6 = (0xff << 24) |                // CTOUT_0
-                          (HAL_GPIO_AUX.pin << 16) |    // CTIN_3
-                          (HAL_GPIO_TH.pin << 8) |      // CTIN_2
-                          (HAL_GPIO_ST.pin << 0);       // CTIN_1
+        LPC_SWM->PINASSIGN7 = (0xff << 24) |                // CTOUT_0
+                              (HAL_GPIO_AUX.pin << 16) |    // CTIN_3
+                              (HAL_GPIO_TH.pin << 8) |      // CTIN_2
+                              (HAL_GPIO_ST.pin << 0);       // CTIN_1
+    }
+    else {
+        LPC_SWM->PINASSIGN5 = (aux2_pin << 24) |            // CTIN_0
+                              (0xff << 16) |                // SPI1_SSEL
+                              (0xff << 8) |                 // SPI1_MISO
+                              (0xff << 0);                  // SPI1_MOSI
+
+
+
+        LPC_SWM->PINASSIGN6 = (0xff << 24) |                // CTOUT_0
+                              (HAL_GPIO_AUX.pin << 16) |    // CTIN_3
+                              (HAL_GPIO_TH.pin << 8) |      // CTIN_2
+                              (HAL_GPIO_ST.pin << 0);       // CTIN_1
+    }
 
 
     LPC_SCT->CTRL_L &= ~(1 << 2);               // Start the SCTimer L
@@ -582,18 +611,34 @@ static void swap_aux2_aux3(void)
 
     if (!aux3_active) {
         aux3_active = true;
-        LPC_SWM->PINASSIGN5 = (HAL_GPIO_AUX3.pin << 24) |   // CTIN_0
-                              (0xff << 16) |                // SPI1_SSEL
-                              (0xff << 8) |                 // SPI1_MISO
-                              (0xff << 0);                  // SPI1_MOSI
+        if (is_lpc832) {
+            LPC_SWM->PINASSIGN6 = (HAL_GPIO_AUX3.pin << 24) |   // CTIN_0
+                                  (0xff << 16) |                // SPI1_SSEL
+                                  (0xff << 8) |                 // SPI1_MISO
+                                  (0xff << 0);                  // SPI1_MOSI
+        }
+        else {
+            LPC_SWM->PINASSIGN5 = (HAL_GPIO_AUX3.pin << 24) |   // CTIN_0
+                                  (0xff << 16) |                // SPI1_SSEL
+                                  (0xff << 8) |                 // SPI1_MISO
+                                  (0xff << 0);                  // SPI1_MOSI
+        }
 
     }
     else {
         aux3_active  = false;
-        LPC_SWM->PINASSIGN5 = (aux2_pin << 24) |   // CTIN_0
-                              (0xff << 16) |                // SPI1_SSEL
-                              (0xff << 8) |                 // SPI1_MISO
-                              (0xff << 0);                  // SPI1_MOSI
+        if (is_lpc832) {
+            LPC_SWM->PINASSIGN6 = (aux2_pin << 24) |            // CTIN_0
+                                  (0xff << 16) |                // SPI1_SSEL
+                                  (0xff << 8) |                 // SPI1_MISO
+                                  (0xff << 0);                  // SPI1_MOSI
+        }
+        else {
+            LPC_SWM->PINASSIGN5 = (aux2_pin << 24) |            // CTIN_0
+                                  (0xff << 16) |                // SPI1_SSEL
+                                  (0xff << 8) |                 // SPI1_MISO
+                                  (0xff << 0);                  // SPI1_MOSI
+        }
     }
 
     // Generate intererupt on rising edge
@@ -746,17 +791,17 @@ void HAL_spi_init(void)
                           (0xff << 0);
 
     // SIN is on a different pin on the LPC832 MCU!
-    if (LPC_SYSCON->DEVICE_ID != 0x8322) {
+    if (is_lpc832) {
         LPC_SWM->PINASSIGN4 = (0xff << 24) |
                               (HAL_GPIO_XLAT.pin << 16) |       // XLAT (SSEL)
                               (0xff << 8) |
-                              (HAL_GPIO_SIN.pin << 0);          // SIN (MOSI)
+                              (HAL_GPIO_SIN_LPC832.pin << 0);   // SIN (MOSI)
     }
     else {
         LPC_SWM->PINASSIGN4 = (0xff << 24) |
                               (HAL_GPIO_XLAT.pin << 16) |       // XLAT (SSEL)
                               (0xff << 8) |
-                              (HAL_GPIO_SIN_LPC832.pin << 0);   // SIN (MOSI)
+                              (HAL_GPIO_SIN.pin << 0);          // SIN (MOSI)
     }
 }
 
