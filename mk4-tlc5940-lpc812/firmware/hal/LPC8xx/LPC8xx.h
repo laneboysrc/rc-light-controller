@@ -182,8 +182,8 @@ typedef struct
   __IO uint32_t PDSLEEPCFG;             /*!< Offset: 0x230 Power-down states in Deep-sleep mode (R/W) */
   __IO uint32_t PDAWAKECFG;             /*!< Offset: 0x234 Power-down states after wake-up (R/W) */
   __IO uint32_t PDRUNCFG;               /*!< Offset: 0x238 Power-down configuration Register (R/W) */
-       uint32_t RESERVED14[110];
-  __I  uint32_t DEVICE_ID;              /*!< Offset: 0x3F4 Device ID (R/ ) */
+       uint32_t RESERVED14[111];
+  __I  uint32_t DEVICE_ID;              /*!< Offset: 0x3F8 Device ID (R/ ) */
 } LPC_SYSCON_TypeDef;
 /*@}*/ /* end of group LPC8xx_SYSCON */
 
