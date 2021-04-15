@@ -136,9 +136,6 @@ void HAL_hardware_init(void)
     // Configure SCTimer globally for two 16-bit counters
     LPC_SCT->CONFIG = 0;
 
-    // Toggle peripheral reset for SCT
-    LPC_SYSCON->PRESETCTRL &= ~(1 << 8);
-    LPC_SYSCON->PRESETCTRL |=  (1 << 8);
 
     // ------------------------
     // SysTick configuration 1000 Hz / 1 ms
@@ -459,8 +456,11 @@ void HAL_servo_output_init(uint8_t pin)
                               (pin << 0);               // CTOUT_1
     }
 
-
     LPC_SCT->CTRL_H &= ~(1 << 2);          // Start the SCTimer H
+
+    // LPC832: OUT.SET and OUT.CLR only work when both L and H counters
+    // are running!
+    LPC_SCT->CTRL_L &= ~(1 << 2);          // Start the SCTimer L
 }
 
 

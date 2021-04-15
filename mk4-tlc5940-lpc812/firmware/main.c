@@ -222,6 +222,11 @@ int main(void)
     printf("\n\n**********\nLight controller v%d sw=%d\n", config.firmware_version, global_flags.switched_outputs);
 
     while (1) {
+        if (LPC_SCT->EVFLAG) {
+            printf("0x%02x 0x%02x\n", (uint8_t) LPC_SCT->EVFLAG, (uint8_t) LPC_SCT->OUTPUT);
+            LPC_SCT->EVFLAG = 0x00ff;
+        }
+
         global_flags.gear_changed = 0;
         if (global_flags.gear_change_requested) {
             global_flags.gear_change_requested = 0;
