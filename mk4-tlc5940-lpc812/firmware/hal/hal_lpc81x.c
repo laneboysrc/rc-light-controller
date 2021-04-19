@@ -41,6 +41,14 @@ static uint32_t raw_data[5];
 
 static bool is_lpc832;
 
+typedef struct {                            /*!< (@ 0x4002c020) INMUX Structure          */
+  __IO uint32_t INP[4];                     /*!< (@ 0x40024000) Input mux registers 0..3 */
+} LPC_INMUX_TypeDef;
+#define LPC_INMUX_BASE      (LPC_APB0_BASE + 0x2c020)
+#define LPC_INMUX           ((LPC_INMUX_TypeDef *) LPC_INMUX_BASE)
+
+
+
 /* ****************************************************************************
 SCT Timer usage
 
@@ -151,6 +159,11 @@ void HAL_hardware_init_final(void)
 
     // IMPORTANT: SWM needs to stay enabled so that we can dynamically change
     // CTIN_0 to capture multiple AUX channels!
+
+    // LPC832: OUT.SET and OUT.CLR only work when both L and H counters
+    // are running!
+    LPC_SCT->CTRL_H &= ~(1 << 2);          // Start the SCTimer H
+    LPC_SCT->CTRL_L &= ~(1 << 2);          // Start the SCTimer L
 }
 
 
@@ -455,12 +468,6 @@ void HAL_servo_output_init(uint8_t pin)
                               (0xff << 8) |             // CTOUT_2
                               (pin << 0);               // CTOUT_1
     }
-
-    LPC_SCT->CTRL_H &= ~(1 << 2);          // Start the SCTimer H
-
-    // LPC832: OUT.SET and OUT.CLR only work when both L and H counters
-    // are running!
-    LPC_SCT->CTRL_L &= ~(1 << 2);          // Start the SCTimer L
 }
 
 
@@ -576,6 +583,13 @@ void HAL_servo_reader_init(void)
                               (HAL_GPIO_AUX.pin << 16) |    // CTIN_3
                               (HAL_GPIO_TH.pin << 8) |      // CTIN_2
                               (HAL_GPIO_ST.pin << 0);       // CTIN_1
+
+        // The LPC832 has an additional SCT input multiplexer that we need
+        // to initialize to the CTIN_0 .. CTIN_3
+        LPC_INMUX->INP[0] = 0x0;
+        LPC_INMUX->INP[1] = 0x1;
+        LPC_INMUX->INP[2] = 0x2;
+        LPC_INMUX->INP[3] = 0x3;
     }
     else {
         LPC_SWM->PINASSIGN5 = (aux2_pin << 24) |            // CTIN_0
@@ -590,7 +604,8 @@ void HAL_servo_reader_init(void)
     }
 
 
-    LPC_SCT->CTRL_L &= ~(1 << 2);               // Start the SCTimer L
+
+    // LPC_SCT->CTRL_L &= ~(1 << 2);               // Start the SCTimer L
 
     NVIC_EnableIRQ(SCT_IRQn);
 }
