@@ -2631,7 +2631,15 @@ var app = (function () {
 
             await isp.program(firmware_image);
 
-            // UPDATE: the code below is not needed anymore.
+            await programmer.send_command(CMD_DUT_POWER_OFF);
+
+            // UPDATE WebUSB programmer Rev3: in rev 3 we use a 100 Ohm resistor
+            // on a GPIO port to drain the light controller. This is not as
+            // fast as the 10 Ohm and MOSFET in rev 2, so we have to re-introduce
+            // a delay.
+            await delay(800);
+
+            // UPDATE WebUSB programmer Rev2: the code below is not needed anymore.
             // Instead we added a MOSFET that pulls the supply voltage of the light
             // controller low when it is powered off, bleeding off any voltage
             // stored in the light controller.
