@@ -219,7 +219,7 @@ int main(void)
 
     next_tick = milliseconds + __SYSTICK_IN_MS;
 
-    printf("\n\n**********\nLight controller v%d sw=%d\n", config.firmware_version, global_flags.switched_outputs);
+    printf("\n\n******\nLight controller v%d sw=%d LPC8%c2\n", config.firmware_version, global_flags.switched_outputs, is_lpc832 ? '3' : '1');
 
     while (1) {
         global_flags.gear_changed = 0;

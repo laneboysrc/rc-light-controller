@@ -39,7 +39,23 @@ static volatile bool aux3_active = false;
 static volatile uint32_t aux2_aux3_timeout;
 static uint32_t raw_data[5];
 
-static bool is_lpc832;
+
+// ****************************************************************************
+// LPC832 specific functionality
+//
+// The LPC832 has DMA and an additional MUX register for the SCT inputs,
+// which is not in the LPC8xx.h file we are using.
+// The output functions of the SCTimer also only work when both L/H timers are
+// enabled on LPC832, while on LPC812 just enableing the H timer was
+// sufficient.
+//
+// Also that the PINASSIGN registers are different on LPC832.
+//
+// UART and SPI are basically the same.
+//
+// We use the flag is_lpc832 to handle these differences at run-time.
+// ****************************************************************************
+bool is_lpc832;
 
 typedef struct {                            /*!< (@ 0x4002c020) INMUX Structure          */
   __IO uint32_t INP[4];                     /*!< (@ 0x40024000) Input mux registers 0..3 */
@@ -381,49 +397,61 @@ volatile const uint32_t *HAL_persistent_storage_read(void)
 // ****************************************************************************
 const char *HAL_persistent_storage_write(const uint32_t *new_data)
 {
-    unsigned int param[5];
+    // NOTE: on LPC832 cmd and result can not be the same memory, despite
+    // the user manual Rev 1.1. stating
+    //
+    //      The user can reuse the command table for results by passing
+    //      the same pointer in both registers, r0 and r1.
+    //
+    // When we do this, then regardless of the command the return status
+    // is always INVALID_COMMAND (1).
+    //
+    // Sharing cmd and result was fine on LPC812, but apparently not on LPC832.
 
-    param[0] = 50;
-    param[1] = ((unsigned int)persistent_data) >> 10;
-    param[2] = ((unsigned int)persistent_data) >> 10;
+    unsigned int cmd[5];
+    unsigned int result[5];
+
+    cmd[0] = 50;
+    cmd[1] = ((unsigned int)persistent_data) >> 10;
+    cmd[2] = ((unsigned int)persistent_data) >> 10;
     __disable_irq();
-    iap_entry(param, param);
+    iap_entry(cmd, result);
     __enable_irq();
-    if (param[0] != 0) {
-        return "prepare sector";
+    if (result[0] != 0) {
+        return "prep sec";
     }
 
-    param[0] = 59;  // Erase page command
-    param[1] = ((unsigned int)persistent_data) >> 6;
-    param[2] = ((unsigned int)persistent_data) >> 6;
-    param[3] = HAL_SYSTEM_CLOCK / 1000;
+    cmd[0] = 59;  // Erase page command
+    cmd[1] = ((unsigned int)persistent_data) >> 6;
+    cmd[2] = ((unsigned int)persistent_data) >> 6;
+    cmd[3] = HAL_SYSTEM_CLOCK / 1000;
     __disable_irq();
-    iap_entry(param, param);
+    iap_entry(cmd, result);
     __enable_irq();
-    if (param[0] != 0) {
-        return "erase page";
+    if (result[0] != 0) {
+        return "clr pg";
     }
 
-    param[0] = 50;
-    param[1] = ((unsigned int)persistent_data) >> 10;
-    param[2] = ((unsigned int)persistent_data) >> 10;
+    cmd[0] = 50;
+    cmd[1] = ((unsigned int)persistent_data) >> 10;
+    cmd[2] = ((unsigned int)persistent_data) >> 10;
     __disable_irq();
-    iap_entry(param, param);
+    iap_entry(cmd, result);
     __enable_irq();
-    if (param[0] != 0) {
-        return "prepare sector";
+    if (result[0] != 0) {
+        return "prep sec";
     }
 
-    param[0] = 51;  // Copy RAM to Flash command
-    param[1] = (unsigned int)persistent_data;
-    param[2] = (unsigned int)new_data;
-    param[3] = 64;
-    param[4] = HAL_SYSTEM_CLOCK / 1000;
+    cmd[0] = 51;  // Copy RAM to Flash command
+    cmd[1] = (unsigned int)persistent_data;
+    cmd[2] = (unsigned int)new_data;
+    cmd[3] = 64;
+    cmd[4] = HAL_SYSTEM_CLOCK / 1000;
     __disable_irq();
-    iap_entry(param, param);
+    iap_entry(cmd, result);
     __enable_irq();
-    if (param[0] != 0) {
-        return "copy RAM to flash";
+    if (result[0] != 0) {
+        return "write";
     }
 
     return NULL;
@@ -457,16 +485,16 @@ void HAL_servo_output_init(uint8_t pin)
     LPC_SCT->OUT[1].CLR = (1 << 5);        // Event 5 will clear CTOUT_1
 
     if (is_lpc832) {
-        LPC_SWM->PINASSIGN8 = (0xff << 24) |            // CTOUT_4
-                              (0xff << 16) |            // CTOUT_3
-                              (0xff << 8) |             // CTOUT_2
-                              (pin << 0);               // CTOUT_1
+        LPC_SWM->PINASSIGN8 = (0xff << 24) |    // CTOUT_4
+                              (0xff << 16) |    // CTOUT_3
+                              (0xff << 8) |     // CTOUT_2
+                              (pin << 0);       // CTOUT_1
     }
     else {
-        LPC_SWM->PINASSIGN7 = (0xff << 24) |            // I2C_SDA
-                              (0xff << 16) |            // CTOUT_3
-                              (0xff << 8) |             // CTOUT_2
-                              (pin << 0);               // CTOUT_1
+        LPC_SWM->PINASSIGN7 = (0xff << 24) |    // I2C_SDA
+                              (0xff << 16) |    // CTOUT_3
+                              (0xff << 8) |     // CTOUT_2
+                              (pin << 0);       // CTOUT_1
     }
 }
 
@@ -602,10 +630,6 @@ void HAL_servo_reader_init(void)
                               (HAL_GPIO_TH.pin << 8) |      // CTIN_2
                               (HAL_GPIO_ST.pin << 0);       // CTIN_1
     }
-
-
-
-    // LPC_SCT->CTRL_L &= ~(1 << 2);               // Start the SCTimer L
 
     NVIC_EnableIRQ(SCT_IRQn);
 }
@@ -804,19 +828,12 @@ void HAL_spi_init(void)
                           (0xff << 8) |
                           (0xff << 0);
 
-    // SIN is on a different pin on the LPC832 MCU!
-    if (is_lpc832) {
-        LPC_SWM->PINASSIGN4 = (0xff << 24) |
-                              (HAL_GPIO_XLAT.pin << 16) |       // XLAT (SSEL)
-                              (0xff << 8) |
-                              (HAL_GPIO_SIN_LPC832.pin << 0);   // SIN (MOSI)
-    }
-    else {
-        LPC_SWM->PINASSIGN4 = (0xff << 24) |
-                              (HAL_GPIO_XLAT.pin << 16) |       // XLAT (SSEL)
-                              (0xff << 8) |
-                              (HAL_GPIO_SIN.pin << 0);          // SIN (MOSI)
-    }
+    // SIN is on a different pin on the LPC832 based hardware!
+    LPC_SWM->PINASSIGN4 = (0xff << 24) |
+                          (HAL_GPIO_XLAT.pin << 16) |                   // XLAT (SSEL)
+                          (0xff << 8) |
+                          (is_lpc832 ? (HAL_GPIO_SIN_LPC832.pin << 0)   // SIN (MOSI)
+                                     : (HAL_GPIO_SIN.pin << 0));
 }
 
 
