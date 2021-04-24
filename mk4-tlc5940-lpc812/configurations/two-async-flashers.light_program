@@ -1,0 +1,120 @@
+// #########################################################
+// Light program that switches a function based on AUX2.
+// A hysteresis is supported to prevent potential on/off
+// flickering when using analog controls.
+run always
+
+// Hysteresis for AUX2 detection: the channel
+// must go above THRESHOLD_ON to switch the
+// function on, and then must drop below
+// THRESHOLD_OFF to switch the function back
+// off.
+// Note that AUX2 can have values from -100 .. +100.
+const THRESHOLD_ON = 50
+const THRESHOLD_OFF = 30
+
+loop:
+    if aux2 > THRESHOLD_ON
+    program-state-0 = 1
+    if aux2 < THRESHOLD_OFF
+    program-state-0 = 0
+
+    goto loop
+end
+
+// #########################################################
+// Warning flasher according to https://youtu.be/VbThvCcIye0
+run when program-state-0
+
+led flasher = led[6]
+
+// The light flashes 5 times at each period
+const FLASH_COUNT = 5
+
+// The light is 500 ms off, then flashes FLASH_COUNT
+// times with 67 ms ON and 33 ms OFF.
+const TIME_DARK = 500
+const TIME_ON = 67
+const TIME_OFF = 33
+
+// Brightness values for the on and off phase
+const BRIGHTNESS_OFF = 0
+const BRIGHTNESS_ON = 100
+
+// Variable to count the number of flashes
+var count
+
+    // Initialize with the flash count
+    count = FLASH_COUNT
+
+loop:
+    // Make one flash
+    flasher = BRIGHTNESS_ON
+    sleep TIME_ON
+    flasher = BRIGHTNESS_OFF
+    sleep TIME_OFF
+
+    // Decrement the flash counter. If the counter is
+    // not zero proceed with the next flash
+    count -= 1
+    if count > 0
+    goto loop
+
+    // All FLASH_COUNT flashes done: reload the counter
+    // and keep the flasher dark for a while, then
+    // we restart the flashes
+    count = FLASH_COUNT
+    sleep TIME_DARK
+    goto loop
+end
+
+// #########################################################
+// Warning flasher according to https://youtu.be/VbThvCcIye0
+//
+// NOTE: this is basically a duplicate from the above.
+// However, we are using a differen LED output and TIME_DARK
+// is slightly different to give the asynchronous effect
+// shown in the video.
+run when program-state-0
+
+led flasher = led[7]
+
+// The light flashes 5 times at each period
+const FLASH_COUNT = 5
+
+// The light is 500 ms off, then flashes FLASH_COUNT
+// times with 67 ms ON and 33 ms OFF.
+const TIME_DARK = 480
+const TIME_ON = 67
+const TIME_OFF = 33
+
+// Brightness values for the on and off phase
+const BRIGHTNESS_OFF = 0
+const BRIGHTNESS_ON = 100
+
+// Variable to count the number of flashes
+var count
+
+    // Initialize with the flash count
+    count = FLASH_COUNT
+
+loop:
+    // Make one flash
+    flasher = BRIGHTNESS_ON
+    sleep TIME_ON
+    flasher = BRIGHTNESS_OFF
+    sleep TIME_OFF
+
+    // Decrement the flash counter. If the counter is
+    // not zero proceed with the next flash
+    count -= 1
+    if count > 0
+    goto loop
+
+    // All FLASH_COUNT flashes done: reload the counter
+    // and keep the flasher dark for a while, then
+    // we restart the flashes
+    count = FLASH_COUNT
+    sleep TIME_DARK
+    goto loop
+end
