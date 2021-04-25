@@ -215,12 +215,11 @@ var ui = (function () {
 
     // *************************************************************************
     var init_tooltips = function () {
-        function set_tooltip(element_name, help_text) {
-            var i;
-            var element = document.getElementsByName(element_name);
+        function set_tooltip(name, help_text) {
+            const elements = document.querySelectorAll(`[data-tooltip="${name}"]`);
 
-            for (i = 0; i < element.length; i += 1) {
-                element[i].title = help_text;
+            for (let i = 0; i < elements.length; i += 1) {
+                elements[i].title = help_text;
             }
         }
 

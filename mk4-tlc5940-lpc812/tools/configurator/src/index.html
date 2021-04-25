@@ -1,5 +1,5 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -87,17 +87,18 @@
 
     <nav class="menu box">
       <ul>
-        <li><button data="config_hardware"><i class="fa fa-hdd-o"></i><span class="menu-label">Hardware</span></button></li>
-        <li><button data="config_mode"><i class="fa fa-wrench"></i><span class="menu-label">Operating mode</span></button></li>
-        <li><button data="config_esc"><i class="fa fa-car"></i><span class="menu-label">ESC type</span></button></li>
-        <li><button data="config_ch3"><i class="fa fa-toggle-on"></i><span class="menu-label">CH3/AUX configuration</span></button></li>
-        <li><button data="config_reversing"><i class="fa fa-arrows-h"></i><span class="menu-label">Reversing</span></button></li>
-        <li><button data="config_output"><i class="fa fa-external-link"></i><span class="menu-label">Output functions</span></button></li>
-        <li><button data="config_leds"><i class="fa fa-lightbulb-o"></i><span class="menu-label">LED configuration</span></button></li>
-        <li><button data="config_light_programs"><i class="fa fa-code"></i><span class="menu-label">Light programs</span></button></li>
-        <li><button data="config_advanced"><i class="fa fa-cogs"></i><span class="menu-label">Advanced settings</span></button></li>
-        <li><button data="tab_programming"><i class="fa fa-microchip"></i><span class="menu-label">Programming</span></button></li>
-        <li><button data="tab_testing"><i class="fa fa-sliders"></i><span class="menu-label">Testing</span></button></li>        <li><button data="info"><i class="fa fa-info-circle"></i><span class="menu-label">Info</span></button></li>
+        <li><button data-page="config_hardware"><i class="fa fa-hdd-o"></i><span class="menu-label">Hardware</span></button></li>
+        <li><button data-page="config_mode"><i class="fa fa-wrench"></i><span class="menu-label">Operating mode</span></button></li>
+        <li><button data-page="config_esc"><i class="fa fa-car"></i><span class="menu-label">ESC type</span></button></li>
+        <li><button data-page="config_ch3"><i class="fa fa-toggle-on"></i><span class="menu-label">CH3/AUX configuration</span></button></li>
+        <li><button data-page="config_reversing"><i class="fa fa-arrows-h"></i><span class="menu-label">Reversing</span></button></li>
+        <li><button data-page="config_output"><i class="fa fa-external-link"></i><span class="menu-label">Output functions</span></button></li>
+        <li><button data-page="config_leds"><i class="fa fa-lightbulb-o"></i><span class="menu-label">LED configuration</span></button></li>
+        <li><button data-page="config_light_programs"><i class="fa fa-code"></i><span class="menu-label">Light programs</span></button></li>
+        <li><button data-page="config_advanced"><i class="fa fa-cogs"></i><span class="menu-label">Advanced settings</span></button></li>
+        <li><button data-page="tab_programming"><i class="fa fa-microchip"></i><span class="menu-label">Programming</span></button></li>
+        <li><button data-page="tab_testing"><i class="fa fa-sliders"></i><span class="menu-label">Testing</span></button></li>
+        <li><button data-page="info"><i class="fa fa-info-circle"></i><span class="menu-label">Info</span></button></li>
       </ul>
     </nav>
 
@@ -628,7 +629,7 @@
         </div>
         <div class="radio_item">
           <input class="dual_output_th" type="radio" name="output_out" value="1" id="slave_output">
-          <label for="slave_ouput">Slave output</label>
+          <label for="slave_output">Slave output</label>
           <br>
           By using a second light controller configured as <em>slave</em>
           a total of 32 LEDs can be controlled. A single cable must be run
@@ -673,29 +674,29 @@
               <tbody>
                 <tr class="odd">
                   <th></th>
-                  <th name="help_led_always_on" rowspan="2">Always on</th>
-                  <th name="help_led_light_switch" colspan="9">Light switch position</th>
-                  <th name="help_led_tail"></th>
-                  <th name="help_led_brake"></th>
-                  <th name="help_led_reverse"></th>
-                  <th name="help_led_indicator" colspan="2">Indicator</th>
+                  <th data-tooltip="help_led_always_on" rowspan="2">Always on</th>
+                  <th data-tooltip="help_led_light_switch" colspan="9">Light switch position</th>
+                  <th data-tooltip="help_led_tail"></th>
+                  <th data-tooltip="help_led_brake"></th>
+                  <th data-tooltip="help_led_reverse"></th>
+                  <th data-tooltip="help_led_indicator" colspan="2">Indicator</th>
                 </tr>
                 <tr class="odd">
                   <th>LED</th>
-                  <th name="help_led_light_switch">0</th>
-                  <th name="help_led_light_switch">1</th>
-                  <th name="help_led_light_switch">2</th>
-                  <th name="help_led_light_switch">3</th>
-                  <th name="help_led_light_switch">4</th>
-                  <th name="help_led_light_switch">5</th>
-                  <th name="help_led_light_switch">6</th>
-                  <th name="help_led_light_switch">7</th>
-                  <th name="help_led_light_switch">8</th>
-                  <th name="help_led_tail">Tail</th>
-                  <th name="help_led_brake">Brake</th>
-                  <th name="help_led_reverse">Reverse</th>
-                  <th name="help_led_indicator">left</th>
-                  <th name="help_led_indicator">right</th>
+                  <th data-tooltip="help_led_light_switch">0</th>
+                  <th data-tooltip="help_led_light_switch">1</th>
+                  <th data-tooltip="help_led_light_switch">2</th>
+                  <th data-tooltip="help_led_light_switch">3</th>
+                  <th data-tooltip="help_led_light_switch">4</th>
+                  <th data-tooltip="help_led_light_switch">5</th>
+                  <th data-tooltip="help_led_light_switch">6</th>
+                  <th data-tooltip="help_led_light_switch">7</th>
+                  <th data-tooltip="help_led_light_switch">8</th>
+                  <th data-tooltip="help_led_tail">Tail</th>
+                  <th data-tooltip="help_led_brake">Brake</th>
+                  <th data-tooltip="help_led_reverse">Reverse</th>
+                  <th data-tooltip="help_led_indicator">left</th>
+                  <th data-tooltip="help_led_indicator">right</th>
                 </tr>
 
                 <!-- LED rows will be inserted here -->
@@ -710,29 +711,29 @@
               <table class="led_table">
                 <tr class="odd">
                   <th></th>
-                  <th name="help_led_always_on" rowspan="2">Always on</th>
-                  <th name="help_led_light_switch" colspan="9">Light switch position</th>
-                  <th name="help_led_tail"></th>
-                  <th name="help_led_brake"></th>
-                  <th name="help_led_reverse"></th>
-                  <th name="help_led_indicator" colspan="2">Indicator</th>
+                  <th data-tooltip="help_led_always_on" rowspan="2">Always on</th>
+                  <th data-tooltip="help_led_light_switch" colspan="9">Light switch position</th>
+                  <th data-tooltip="help_led_tail"></th>
+                  <th data-tooltip="help_led_brake"></th>
+                  <th data-tooltip="help_led_reverse"></th>
+                  <th data-tooltip="help_led_indicator" colspan="2">Indicator</th>
                 </tr>
                 <tr class="odd">
                   <th>LED</th>
-                  <th name="help_led_light_switch">0</th>
-                  <th name="help_led_light_switch">1</th>
-                  <th name="help_led_light_switch">2</th>
-                  <th name="help_led_light_switch">3</th>
-                  <th name="help_led_light_switch">4</th>
-                  <th name="help_led_light_switch">5</th>
-                  <th name="help_led_light_switch">6</th>
-                  <th name="help_led_light_switch">7</th>
-                  <th name="help_led_light_switch">8</th>
-                  <th name="help_led_tail">Tail</th>
-                  <th name="help_led_brake">Brake</th>
-                  <th name="help_led_reverse">Reverse</th>
-                  <th name="help_led_indicator">left</th>
-                  <th name="help_led_indicator">right</th>
+                  <th data-tooltip="help_led_light_switch">0</th>
+                  <th data-tooltip="help_led_light_switch">1</th>
+                  <th data-tooltip="help_led_light_switch">2</th>
+                  <th data-tooltip="help_led_light_switch">3</th>
+                  <th data-tooltip="help_led_light_switch">4</th>
+                  <th data-tooltip="help_led_light_switch">5</th>
+                  <th data-tooltip="help_led_light_switch">6</th>
+                  <th data-tooltip="help_led_light_switch">7</th>
+                  <th data-tooltip="help_led_light_switch">8</th>
+                  <th data-tooltip="help_led_tail">Tail</th>
+                  <th data-tooltip="help_led_brake">Brake</th>
+                  <th data-tooltip="help_led_reverse">Reverse</th>
+                  <th data-tooltip="help_led_indicator">left</th>
+                  <th data-tooltip="help_led_indicator">right</th>
                 </tr>
 
                 <!-- LED rows will be inserted here -->
@@ -1202,9 +1203,7 @@
           <p>
           This programming function <strong>only works with the WebUSB programmer</strong> shown below.
           </p>
-          <p>
-            <div class="webusb_programmer_image"></div>
-          </p>
+          <div class="webusb_programmer_image"></div>
           <p>
           When using the <strong>USB-to-Serial adapter</strong>, please use the <strong>LPC81x_ISP tool</strong>
           described in the <a target="_blank" href="https://laneboysrc.github.io/rc-light-controller/light-controller-instructions-mk4.pdf">light controller manual</a>.
@@ -1248,7 +1247,7 @@
           </div>
         </div>
 
-        <div class="widebox response webusb_only" id="diagnostics">
+        <div class="widebox response webusb_only">
           <span style="float: right; font-size: 0.75em">
               (newest on top)
           </span>
@@ -1370,7 +1369,7 @@
             </div>
         </div>
 
-        <div class="widebox response" id="diagnostics">
+        <div class="widebox response">
             <span style="float: right; font-size: 0.75em">
                 (newest on top)
             </span>
@@ -1434,25 +1433,25 @@
   LED configuration
   -->
   <script id="led_row_template" type="text/html-template">
-    <tr class="led_config <%=even_odd%>" name="help_click_to_change">
-      <th name="help_toggle_features"><%=led_number%> <i class="spanner fa fa-wrench"></i></th>
+    <tr class="led_config <%=even_odd%>" data-tooltip="help_click_to_change">
+      <th data-tooltip="help_toggle_features"><%=led_number%> <i class="spanner fa fa-wrench"></i></th>
       <td></td> <td></td> <td></td> <td></td> <td></td> <td></td>
       <td></td> <td></td> <td></td> <td></td> <td></td> <td></td>
       <td></td> <td></td> <td></td>
     </tr>
-    <tr name="help_incandescent" class="<%=even_odd%> led_features <%=prefix%><%=led_index%>features hidden">
+    <tr data-tooltip="help_incandescent" class="<%=even_odd%> led_features <%=prefix%><%=led_index%>features hidden">
       <td colspan="16">
         <div>
           Incandescent light bulb simulation: <input type="number" min="0" max="100" class="incandescent" id="<%=prefix%><%=led_index%>incandescent"> % change per 20 ms
         </div>
       </td>
     </tr>
-    <tr name="help_weak_ground" class="<%=even_odd%> led_features <%=prefix%><%=led_index%>features hidden" >
+    <tr data-tooltip="help_weak_ground" class="<%=even_odd%> led_features <%=prefix%><%=led_index%>features hidden" >
       <td colspan="16">
         Weak ground simulation: <input type="number" min="0" max="100" class="weak_ground" id="<%=prefix%><%=led_index%>weak_ground"> % reduction
       </td>
     </tr>
-    <tr name="help_weak_ground" class="<%=even_odd%> led_features <%=prefix%><%=led_index%>features hidden">
+    <tr data-tooltip="help_weak_ground" class="<%=even_odd%> led_features <%=prefix%><%=led_index%>features hidden">
       <td colspan="2"></td>
       <td><input type="checkbox" class="checkbox" id="<%=prefix%><%=led_index%>checkbox0"></td>
       <td><input type="checkbox" class="checkbox" id="<%=prefix%><%=led_index%>checkbox1"></td>

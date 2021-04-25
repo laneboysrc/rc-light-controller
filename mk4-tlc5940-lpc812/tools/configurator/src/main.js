@@ -834,7 +834,7 @@ var app = (function () {
         function update_menu_visibility(enabled_menu_items) {
             for (var j = 0; j < el.menu_buttons.length; j += 1) {
                 var button = el.menu_buttons[j];
-                var page_name = button.getAttribute('data');
+                var page_name = button.getAttribute('data-page');
 
                 button.disabled = true;
 
@@ -2344,7 +2344,7 @@ var app = (function () {
 
         for (var index = 0; index < el.menu_buttons.length; index += 1) {
             var button = el.menu_buttons[index];
-            var page_name = button.getAttribute('data');
+            var page_name = button.getAttribute('data-page');
             var page = document.querySelector('#' + page_name);
             if (page) {
                 if (page_name == selected_page) {
@@ -2731,7 +2731,7 @@ var app = (function () {
         // for (let index = 0; index < el.menu_buttons.length; index += 1) {
         //     const button = el.menu_buttons[index];
         //     button.addEventListener('click', async (event) => {
-        //         const selected_page = event.currentTarget.getAttribute('data');
+        //         const selected_page = event.currentTarget.getAttribute('data-page');
         //         await select_page(selected_page);
         //     });
         // }
@@ -2906,7 +2906,7 @@ var app = (function () {
         for (var index = 0; index < el.menu_buttons.length; index += 1) {
             var button = el.menu_buttons[index];
             button.addEventListener('click', function (event) {
-                var selected_page = event.currentTarget.getAttribute('data');
+                var selected_page = event.currentTarget.getAttribute('data-page');
                 select_page(selected_page);
             });
         }
