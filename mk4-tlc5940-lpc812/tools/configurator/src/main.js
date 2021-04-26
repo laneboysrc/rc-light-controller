@@ -1376,7 +1376,7 @@ var app = (function () {
 
         try {
             var machine_code = parser.parse(light_programs);
-            var code_size = (25 + machine_code.instructions.length) * 4;
+            var code_size = (machine_code.number_of_programs + machine_code.instructions.length) * 4;
             el.light_programs_size.textContent = "Code size: " + code_size + " Bytes";
             el.light_programs_size.classList.remove('hidden');
             el.light_programs_ok.classList.remove('hidden');
@@ -1692,9 +1692,9 @@ var app = (function () {
             light_switch_positions = machine_code.light_switch_positions;
         }
 
-        var first_program_offset = 4 + (4 * MAX_LIGHT_PROGRAMS);
+        var first_program_offset = 4 + (4 * machine_code.number_of_programs);
 
-        var code_size = 4 + (4 * MAX_LIGHT_PROGRAMS) +
+        var code_size = 4 + (4 * machine_code.number_of_programs) +
             (4 * machine_code.instructions.length);
 
         // Create an array with length code_size. We could use
@@ -1706,7 +1706,7 @@ var app = (function () {
         }
 
         set_uint32(code, 0, machine_code.number_of_programs);
-        for (i = 0; i < MAX_LIGHT_PROGRAMS; i += 1) {
+        for (i = 0; i < machine_code.number_of_programs; i += 1) {
             offset = 0;
             if (i < machine_code.number_of_programs) {
                 offset = first_program_offset;
