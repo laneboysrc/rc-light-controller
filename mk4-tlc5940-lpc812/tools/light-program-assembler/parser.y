@@ -36,6 +36,8 @@ var MODULE = "LEX";
 parse_entity
   : programs EOF
     { return yy.emitter.output_programs(); }
+  | EOF
+    { return yy.emitter.output_programs(); }
   ;
 
 programs
