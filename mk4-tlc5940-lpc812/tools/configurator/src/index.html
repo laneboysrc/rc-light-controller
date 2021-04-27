@@ -1,8 +1,7 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <title>RC Light Controller configuration tool</title>
@@ -672,31 +671,49 @@
           <div>
             <table class="led_table">
               <tbody>
+                <tr class="even">
+                  <th class="led_tab_car" colspan="3">Car functions</th>
+                  <th class="led_tab_diagnostics" colspan="3">Diagnostics</th>
+                  <th></th>
+                </tr>
                 <tr class="odd">
                   <th></th>
-                  <th data-tooltip="help_led_always_on" rowspan="2">Always on</th>
-                  <th data-tooltip="help_led_light_switch" colspan="9">Light switch position</th>
-                  <th data-tooltip="help_led_tail"></th>
-                  <th data-tooltip="help_led_brake"></th>
-                  <th data-tooltip="help_led_reverse"></th>
-                  <th data-tooltip="help_led_indicator" colspan="2">Indicator</th>
+                  <th class="led_table_car" data-tooltip="help_led_always_on" rowspan="2">Always on</th>
+                  <th class="led_table_car" data-tooltip="help_led_light_switch" colspan="9">Light switch position</th>
+                  <th class="led_table_car" data-tooltip="help_led_tail"></th>
+                  <th class="led_table_car" data-tooltip="help_led_brake"></th>
+                  <th class="led_table_car" data-tooltip="help_led_reverse"></th>
+                  <th class="led_table_car" data-tooltip="help_led_indicator" colspan="2">Indicator</th>
+
+                  <th class="led_table_diagnostics"></th>
+                  <th class="led_table_diagnostics"></th>
+                  <th class="led_table_diagnostics" colspan="2">Reversing</th>
+                  <th class="led_table_diagnostics" colspan="3">Servo output</th>
                 </tr>
                 <tr class="odd">
                   <th>LED</th>
-                  <th data-tooltip="help_led_light_switch">0</th>
-                  <th data-tooltip="help_led_light_switch">1</th>
-                  <th data-tooltip="help_led_light_switch">2</th>
-                  <th data-tooltip="help_led_light_switch">3</th>
-                  <th data-tooltip="help_led_light_switch">4</th>
-                  <th data-tooltip="help_led_light_switch">5</th>
-                  <th data-tooltip="help_led_light_switch">6</th>
-                  <th data-tooltip="help_led_light_switch">7</th>
-                  <th data-tooltip="help_led_light_switch">8</th>
-                  <th data-tooltip="help_led_tail">Tail</th>
-                  <th data-tooltip="help_led_brake">Brake</th>
-                  <th data-tooltip="help_led_reverse">Reverse</th>
-                  <th data-tooltip="help_led_indicator">left</th>
-                  <th data-tooltip="help_led_indicator">right</th>
+                  <th class="led_table_car" data-tooltip="help_led_light_switch">0</th>
+                  <th class="led_table_car" data-tooltip="help_led_light_switch">1</th>
+                  <th class="led_table_car" data-tooltip="help_led_light_switch">2</th>
+                  <th class="led_table_car" data-tooltip="help_led_light_switch">3</th>
+                  <th class="led_table_car" data-tooltip="help_led_light_switch">4</th>
+                  <th class="led_table_car" data-tooltip="help_led_light_switch">5</th>
+                  <th class="led_table_car" data-tooltip="help_led_light_switch">6</th>
+                  <th class="led_table_car" data-tooltip="help_led_light_switch">7</th>
+                  <th class="led_table_car" data-tooltip="help_led_light_switch">8</th>
+                  <th class="led_table_car" data-tooltip="help_led_tail">Tail</th>
+                  <th class="led_table_car" data-tooltip="help_led_brake">Brake</th>
+                  <th class="led_table_car" data-tooltip="help_led_reverse">Reverse</th>
+                  <th class="led_table_car" data-tooltip="help_led_indicator">left</th>
+                  <th class="led_table_car" data-tooltip="help_led_indicator">right</th>
+
+                  <th class="led_table_diagnostics" data-tooltip="help_led_initializing">Initializing</th>
+                  <th class="led_table_diagnostics" data-tooltip="help_led_no_signal">No signal</th>
+                  <th class="led_table_diagnostics" data-tooltip="help_led_reversing_st">steering</th>
+                  <th class="led_table_diagnostics" data-tooltip="help_led_reversing_th">throttle</th>
+                  <th class="led_table_diagnostics" data-tooltip="help_led_servo_left">left</th>
+                  <th class="led_table_diagnostics" data-tooltip="help_led_servo_centre">centre</th>
+                  <th class="led_table_diagnostics" data-tooltip="help_led_servo_right">right</th>
                 </tr>
 
                 <!-- LED rows will be inserted here -->
@@ -1434,10 +1451,22 @@
   -->
   <script id="led_row_template" type="text/html-template">
     <tr class="led_config <%=even_odd%>" data-tooltip="help_click_to_change">
-      <th data-tooltip="help_toggle_features"><%=led_number%> <i class="spanner fa fa-wrench"></i></th>
-      <td></td> <td></td> <td></td> <td></td> <td></td> <td></td>
-      <td></td> <td></td> <td></td> <td></td> <td></td> <td></td>
-      <td></td> <td></td> <td></td>
+      <th data-tooltip="help_toggle_features"><%=led_number%> <i class="spanner led_table_car fa fa-wrench"></i></th>
+      <td class="led_table_car"></td>
+      <td class="led_table_car"></td>
+      <td class="led_table_car"></td>
+      <td class="led_table_car"></td>
+      <td class="led_table_car"></td>
+      <td class="led_table_car"></td>
+      <td class="led_table_car"></td>
+      <td class="led_table_car"></td>
+      <td class="led_table_car"></td>
+      <td class="led_table_car"></td>
+      <td class="led_table_car"></td>
+      <td class="led_table_car"></td>
+      <td class="led_table_car"></td>
+      <td class="led_table_car"></td>
+      <td class="led_table_car"></td>
     </tr>
     <tr data-tooltip="help_incandescent" class="<%=even_odd%> led_features <%=prefix%><%=led_index%>features hidden">
       <td colspan="16">
