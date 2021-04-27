@@ -107,7 +107,7 @@ var ui = (function () {
             var spanner;
 
             for (led = 0; led < led_rows.length; led += 1) {
-                fields = led_rows[led].getElementsByTagName('td');
+                fields = led_rows[led].querySelectorAll('td.led_table_car');
                 for (i = 0; i < fields.length; i += 1) {
                     fields[i].id = prefix + led + 'field' + i;
                     fields[i].addEventListener('click',
