@@ -152,6 +152,7 @@
 #define START_LED(x) (x << 16)
 #define STOP_LED(x) (x << 8)
 
+typedef uint8_t LED_T;
 
 // ****************************************************************************
 typedef enum {
@@ -628,13 +629,15 @@ typedef struct {
     int8_t aux_centre_right_threshold_low;
     int8_t aux_centre_right_threshold_high;
 
+    // Brightness value for LED table driven diagnostics
+    LED_T diagnostics_brightness;
+
 } LIGHT_CONTROLLER_CONFIG_T;
 
 
 // ****************************************************************************
 // Definitions for the various light configuration structures
 
-typedef uint8_t LED_T;
 
 typedef struct {    // 4-bytes packed (2 bits free)
     // Simulation of incandescent lights
@@ -663,7 +666,7 @@ typedef struct {    // 4-bytes packed (2 bits free)
 // multiple functions to a single LED (such as brake and tail light function)
 // and the software will "mix" the final color value.
 
-typedef struct {    // 20-bytes packed (1 byte free)
+typedef struct {    // 20-bytes packed (all used up)
     LIGHT_FEATURE_T features;
 
     LED_T always_on;
@@ -673,6 +676,14 @@ typedef struct {    // 20-bytes packed (1 byte free)
     LED_T reversing_light;
     LED_T indicator_left;
     LED_T indicator_right;
+
+    unsigned int no_signal : 1;
+    unsigned int initializing : 1;
+    unsigned int servo_output_setup_centre : 1;
+    unsigned int servo_output_setup_left : 1;
+    unsigned int servo_output_setup_right : 1;
+    unsigned int rerversing_setup_steering : 1;
+    unsigned int rerversing_setup_throttle : 1;
 } CAR_LIGHT_T;
 
 
@@ -754,6 +765,11 @@ void light_switch_down(void);
 void toggle_light_switch(void);
 
 void process_shelf_queen_mode(void);
+
+void init_light_programs(void);
+void process_light_program_events(void);
+uint32_t process_light_programs(void);
+uint8_t get_priority_run_state(void);
 
 
 uint16_t random_min_max(uint16_t min, uint16_t max);

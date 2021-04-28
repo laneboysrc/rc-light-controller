@@ -12,7 +12,7 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
         .version = CONFIG_VERSION
     },
 
-    .firmware_version = 36,
+    .firmware_version = 37,
 
     .mode = MASTER_WITH_UART_READER,
     .esc_mode = ESC_FORWARD_BRAKE_REVERSE_TIMEOUT,
@@ -115,6 +115,8 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
     .aux_left_centre_threshold_high = -30,
     .aux_centre_right_threshold_low = 30,
     .aux_centre_right_threshold_high = 40,
+
+    .diagnostics_brightness = 255,
 };
 
 

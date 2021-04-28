@@ -169,6 +169,7 @@ void next_light_sequence(void)
 	++var[GLOBAL_VAR_CLICKS];
 }
 
+
 // ****************************************************************************
 static void load_read_only_global_variables(void)
 {
@@ -179,35 +180,46 @@ static void load_read_only_global_variables(void)
     var[GLOBAL_VAR_AUX3] = channel[AUX3].normalized;
 }
 
+
+// ****************************************************************************
+uint8_t get_priority_run_state(void)
+{
+    uint8_t result = 0;
+
+    if (global_flags.no_signal) {
+        result |= RUN_WHEN_NO_SIGNAL;
+    }
+    if (global_flags.initializing) {
+        result |= RUN_WHEN_INITIALIZING;
+    }
+    if (global_flags.servo_output_setup == SERVO_OUTPUT_SETUP_CENTRE) {
+        result |= RUN_WHEN_SERVO_OUTPUT_SETUP_CENTRE;
+    }
+    if (global_flags.servo_output_setup == SERVO_OUTPUT_SETUP_LEFT) {
+        result |= RUN_WHEN_SERVO_OUTPUT_SETUP_LEFT;
+    }
+    if (global_flags.servo_output_setup == SERVO_OUTPUT_SETUP_RIGHT) {
+        result |= RUN_WHEN_SERVO_OUTPUT_SETUP_RIGHT;
+    }
+    if (global_flags.reversing_setup & REVERSING_SETUP_STEERING) {
+        result |= RUN_WHEN_REVERSING_SETUP_STEERING;
+    }
+    if (global_flags.reversing_setup & REVERSING_SETUP_THROTTLE) {
+        result |= RUN_WHEN_REVERSING_SETUP_THROTTLE;
+    }
+
+    return result;
+}
+
+
 // ****************************************************************************
 static void load_light_program_environment(void)
 {
-    priority_run_state = 0;
     if (global_flags.shelf_queen_mode) {
-        priority_run_state |= RUN_WHEN_SHELF_QUEEN_MODE;
+        priority_run_state = RUN_WHEN_SHELF_QUEEN_MODE;
     }
     else {
-        if (global_flags.no_signal) {
-            priority_run_state |= RUN_WHEN_NO_SIGNAL;
-        }
-        if (global_flags.initializing) {
-            priority_run_state |= RUN_WHEN_INITIALIZING;
-        }
-        if (global_flags.servo_output_setup == SERVO_OUTPUT_SETUP_CENTRE) {
-            priority_run_state |= RUN_WHEN_SERVO_OUTPUT_SETUP_CENTRE;
-        }
-        if (global_flags.servo_output_setup == SERVO_OUTPUT_SETUP_LEFT) {
-            priority_run_state |= RUN_WHEN_SERVO_OUTPUT_SETUP_LEFT;
-        }
-        if (global_flags.servo_output_setup == SERVO_OUTPUT_SETUP_RIGHT) {
-            priority_run_state |= RUN_WHEN_SERVO_OUTPUT_SETUP_RIGHT;
-        }
-        if (global_flags.reversing_setup & REVERSING_SETUP_STEERING) {
-            priority_run_state |= RUN_WHEN_REVERSING_SETUP_STEERING;
-        }
-        if (global_flags.reversing_setup & REVERSING_SETUP_THROTTLE) {
-            priority_run_state |= RUN_WHEN_REVERSING_SETUP_THROTTLE;
-        }
+        priority_run_state = get_priority_run_state();
     }
 
     run_state = (RUN_WHEN_LIGHT_SWITCH_POSITION << light_switch_position);

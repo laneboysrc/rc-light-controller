@@ -114,10 +114,6 @@ LED_T light_actual[MAX_LIGHTS];
 uint8_t max_change_per_systick[MAX_LIGHTS];
 
 
-extern void init_light_programs(void);
-extern void process_light_program_events(void);
-extern uint32_t process_light_programs(void);
-
 
 // ****************************************************************************
 static void output_lights(void)
