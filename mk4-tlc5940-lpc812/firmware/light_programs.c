@@ -144,7 +144,7 @@ uint32_t process_light_programs(void);
 
 
 // ****************************************************************************
-static void reset_program(int n)
+static void reset_program(unsigned int n)
 {
     cpu[n].PC = light_programs.start[n] + FIRST_OPCODE_OFFSET;
     cpu[n].timer = 0;
@@ -155,7 +155,7 @@ static void reset_program(int n)
 // ****************************************************************************
 void init_light_programs(void)
 {
-    int i;
+    unsigned int i;
 
     for (i = 0; i < light_programs.number_of_programs; i++) {
         reset_program(i);
@@ -653,7 +653,7 @@ static void execute_program(
 void process_light_program_events(void)
 {
     if (global_flags.gear_changed) {
-        int i;
+        unsigned int i;
         for (i = 0; i < light_programs.number_of_programs; i++) {
             if (*(light_programs.start[i] + PRIORITY_STATE_OFFSET)
                 & RUN_WHEN_GEAR_CHANGED) {
@@ -669,7 +669,7 @@ void process_light_program_events(void)
 // ****************************************************************************
 uint32_t process_light_programs(void)
 {
-    int i;
+    unsigned int i;
     uint32_t leds_used;
 
     leds_used = 0;

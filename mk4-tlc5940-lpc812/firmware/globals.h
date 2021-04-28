@@ -299,9 +299,9 @@ typedef struct {
 // ****************************************************************************
 typedef struct {
     MAGIC_T magic;
-    int number_of_programs;
-    const uint32_t *start[MAX_LIGHT_PROGRAMS];
-    uint32_t programs[80];
+    uint8_t number_of_programs;
+    const uint32_t *start[4];
+    uint32_t programs[54];
 } LIGHT_PROGRAMS_T;
 
 
