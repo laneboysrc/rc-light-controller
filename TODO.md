@@ -12,6 +12,10 @@
     - The configurator recent change already implements it
     - Now only the global.h structure and the C output of light-program-assembler need to change
 
+* Remove old/dead code from configurator
+    - ui.js init_led_features()
+
+* Update WebUSB programmer image
 
 # Mk4P and Mk4S
 

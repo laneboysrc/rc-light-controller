@@ -5,6 +5,9 @@ var ui = (function () {
     var editor;
     var light_program_errors = [];
 
+    let current_tab = 0;
+    const tab_classes = ['led_table_car', 'led_table_diagnostics'];
+
     // *************************************************************************
     var led_feature_click_handler = function (e) {
         var features_rows = document.getElementsByClassName(e.target.name);
@@ -110,14 +113,17 @@ var ui = (function () {
                 fields = led_rows[led].querySelectorAll('td.led_table_car');
                 for (i = 0; i < fields.length; i += 1) {
                     fields[i].id = prefix + led + 'field' + i;
-                    fields[i].addEventListener('click',
-                        led_config_click_handler, true);
+                    fields[i].addEventListener('click', led_config_click_handler, true);
+                }
+
+                fields = led_rows[led].querySelectorAll('td.led_table_diagnostics input');
+                for (i = 0; i < fields.length; i += 1) {
+                    fields[i].id = prefix + led + 'diag' + i;
                 }
 
                 spanner = led_rows[led].getElementsByClassName('spanner')[0];
                 spanner.name = prefix + led + 'features';
-                spanner.addEventListener('click',
-                    led_feature_click_handler, true);
+                spanner.addEventListener('click', led_feature_click_handler, true);
             }
         }
 
@@ -157,6 +163,33 @@ var ui = (function () {
         init_led_feature('leds_slave', 'slave');
     };
 
+
+    // *************************************************************************
+    var update_tab_visibility = function () {
+        // Support wrap around through simply incrementing and decrementing
+        // current_tab before calling this function.
+        if (current_tab < 0) {
+            current_tab = tab_classes.length - 1;
+        }
+        if (current_tab >= tab_classes.length) {
+            current_tab = 0;
+        }
+
+        for (let i = 0; i < tab_classes.length; i++) {
+            const elements = document.getElementsByClassName(tab_classes[i]);
+            for (let j = 0; j < elements.length; j++) {
+                const e = elements[j]
+                if (i === current_tab) {
+                    e.classList.remove('hidden');
+                }
+                else {
+                    e.classList.add('hidden');
+                }
+            }
+        }
+    }
+
+
     // *************************************************************************
     var clear_led_tables = function () {
         var i;
@@ -168,6 +201,7 @@ var ui = (function () {
             row.parentNode.removeChild(row);
         }
     };
+
 
     // *************************************************************************
     var init_led_tables = function () {
@@ -406,6 +440,7 @@ var ui = (function () {
         init_tooltips();
         init_editor();
         init_keyhandler();
+        update_tab_visibility();
     };
 
 

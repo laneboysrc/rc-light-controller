@@ -117,7 +117,7 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
     .aux_centre_right_threshold_high = 40,
 
     .diagnostics_brightness = 255,
-    .diagnostics_mask = 0x7f;
+    .diagnostics_mask = 0x7f,
 };
 
 

@@ -681,21 +681,17 @@ typedef struct {    // 20-bytes packed (all used up)
     LED_T indicator_left;
     LED_T indicator_right;
 
-    union {
-        uint8_t byte;
-
-        // Note that this order is the same as defined in
-        // LIGHT_PROGRAM_PRIORITY_STATE_T, so that we can use those to test against.
-        struct {
-            unsigned int no_signal : 1;
-            unsigned int initializing : 1;
-            unsigned int servo_output_setup_centre : 1;
-            unsigned int servo_output_setup_left : 1;
-            unsigned int servo_output_setup_right : 1;
-            unsigned int rerversing_setup_steering : 1;
-            unsigned int rerversing_setup_throttle : 1;
-        } flags;
-    } diagnostics;
+    // Diagnostics is a bit field with the same order as defined in
+    // LIGHT_PROGRAM_PRIORITY_STATE_T, so that we can use those to test against.
+    //     unsigned int no_signal : 1;
+    //     unsigned int initializing : 1;
+    //     unsigned int servo_output_setup_centre : 1;
+    //     unsigned int servo_output_setup_left : 1;
+    //     unsigned int servo_output_setup_right : 1;
+    //     unsigned int rerversing_setup_steering : 1;
+    //     unsigned int rerversing_setup_throttle : 1;
+    //
+    uint8_t diagnostics;
 
 } CAR_LIGHT_T;
 
