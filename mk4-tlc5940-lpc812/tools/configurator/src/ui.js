@@ -9,6 +9,20 @@ var ui = (function () {
     const tab_classes = ['led_table_car', 'led_table_diagnostics'];
 
     // *************************************************************************
+    var tab_next_handler = function (e) {
+        current_tab += 1;
+        update_tab_visibility();
+    };
+
+
+    // *************************************************************************
+    var tab_previous_handler = function (e) {
+        current_tab -= 1;
+        update_tab_visibility();
+    };
+
+
+    // *************************************************************************
     var led_feature_click_handler = function (e) {
         var features_rows = document.getElementsByClassName(e.target.name);
         var visible = !features_rows[0].classList.contains('hidden');
@@ -127,8 +141,18 @@ var ui = (function () {
             }
         }
 
+
         init_led_section('leds_master', 'master');
         init_led_section('leds_slave', 'slave');
+
+        let tab_buttons = document.getElementsByClassName('tab-next');
+        for (let i = 0; i < tab_buttons.length; i += 1) {
+            tab_buttons[i].addEventListener('click', tab_next_handler, true);
+        }
+        tab_buttons = document.getElementsByClassName('tab-previous');
+        for (let i = 0; i < tab_buttons.length; i += 1) {
+            tab_buttons[i].addEventListener('click', tab_previous_handler, true);
+        }
     };
 
 
