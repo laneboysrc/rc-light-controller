@@ -631,6 +631,10 @@ typedef struct {
 
     // Brightness value for LED table driven diagnostics
     LED_T diagnostics_brightness;
+    // Mask to indicate which diagnostics functions (no-signal, initializing, ...)
+    // are actually used in the table. The order is as defined for
+    // LIGHT_PROGRAM_PRIORITY_STATE_T
+    uint8_t diagnostics_mask;
 
 } LIGHT_CONTROLLER_CONFIG_T;
 

@@ -112,6 +112,7 @@ uint8_t light_switch_position;
 LED_T light_setpoint[MAX_LIGHTS];
 LED_T light_actual[MAX_LIGHTS];
 uint8_t max_change_per_systick[MAX_LIGHTS];
+static uint8_t diagnostics;
 
 
 
@@ -572,6 +573,18 @@ static void process_light(const CAR_LIGHT_T *light, LED_T *led, uint8_t *limit)
 
     *limit = light->features.max_change_per_systick;
 
+    // Handle the diagnostics functions like initializing, no-signal etc.
+    // If one of them is active than it takes priority over everything else.
+    if (diagnostics) {
+        if (diagnostics & light->diagnostics.byte) {
+            *led = config.diagnostics_brightness;
+        }
+        else {
+            *led = 0;
+        }
+        return;
+    }
+
     set_car_light(&result, light, ALWAYS_ON);
 
     mix_car_light(&result, light, LIGHT_SWITCH_POSITION + light_switch_position);
@@ -622,6 +635,9 @@ static void process_car_lights(void)
         printf("light_switch_position %d\n", light_switch_position);
     }
 
+    // Prepare the utilized and active diagnostics flags (no-signal, initializing ...)
+    // so they can be used in process_light()
+    diagnostics = get_priority_run_state() & config.diagnostics_mask;
 
     // Handle LEDs connected to the TLC5940 locally
     for (i = 0; i < local_leds.led_count ; i++) {
