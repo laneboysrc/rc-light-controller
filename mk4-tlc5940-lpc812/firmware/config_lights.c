@@ -29,26 +29,45 @@ const CAR_LIGHT_ARRAY_T local_leds = {
         // LED 2    Main beam
         {   .light_switch_position[2] = 255,
             .light_switch_position[3] = 255,
-            .light_switch_position[4] = 255
+            .light_switch_position[4] = 255,
+
+            .diagnostics.flags.initializing = 1,
         },
 
         // LED 3    Main beam
         {   .light_switch_position[2] = 255,
             .light_switch_position[3] = 255,
-            .light_switch_position[4] = 255
+            .light_switch_position[4] = 255,
+
+            .diagnostics.flags.initializing = 1,
         },
 
         // LED 4    High beam
-        {.light_switch_position[3] = 255, .light_switch_position[4] = 255},
+        {   .light_switch_position[3] = 255,
+            .light_switch_position[4] = 255,
+            .diagnostics.flags.rerversing_setup_throttle = 1
+        },
 
         // LED 5    High beam
-        {.light_switch_position[3] = 255, .light_switch_position[4] = 255},
+        {   .light_switch_position[3] = 255,
+            .light_switch_position[4] = 255,
+            .diagnostics.flags.rerversing_setup_throttle = 1
+        },
 
         // LED 6    Indicator front left
-        {.indicator_left = 255},
+        {   .indicator_left = 255,
+            .diagnostics.flags.no_signal = 1,
+            .diagnostics.flags.rerversing_setup_steering = 1,
+            .diagnostics.flags.servo_output_setup_left = 1,
+            .diagnostics.flags.servo_output_setup_centre = 1
+        },
 
         // LED 7    Indicator front right
-        {.indicator_right = 255},
+        {   .indicator_right = 255,
+            .diagnostics.flags.no_signal = 1,
+            .diagnostics.flags.servo_output_setup_right = 1,
+            .diagnostics.flags.servo_output_setup_centre = 1
+        },
 
         // LED 8    Brake/tail light
         {.tail_light = 84, .brake_light = 255},
@@ -63,10 +82,17 @@ const CAR_LIGHT_ARRAY_T local_leds = {
         {.reversing_light = 255},
 
         // LED 12   Indicator rear left
-        {.indicator_left = 255},
+        {   .indicator_left = 255,
+            .diagnostics.flags.rerversing_setup_steering = 1,
+            .diagnostics.flags.servo_output_setup_left = 1,
+            .diagnostics.flags.servo_output_setup_centre = 1
+        },
 
         // LED 13   Indicator rear right
-        {.indicator_right = 255},
+        {   .indicator_right = 255,
+            .diagnostics.flags.servo_output_setup_right = 1,
+            .diagnostics.flags.servo_output_setup_centre = 1
+        },
 
         // LED 14   3rd brake light
         {.brake_light = 255},
