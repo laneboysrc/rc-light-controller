@@ -370,6 +370,28 @@ var ui = (function () {
             'LED and enter 20% reduction, and tick the checkbox in the ' +
             'left indicator column. The tail light LED will now dim by 20% ' +
             'whenever the left indicator light is on.');
+
+        set_tooltip('help_led_initializing',
+            'Define which LEDs light up after power-on of the light ' +
+            'controller, when the light controller deterines center position ' +
+            'for steering and throttle channels.');
+
+        set_tooltip('help_led_no_signal',
+            'Define which LEDs light up when the light controller does not ' +
+            'receive any valid servo signal.');
+
+        set_tooltip('help_led_reversing',
+            'Once installed in the car, you can reverse the direction of ' +
+            'steering and throttle channels if necessary by performing ' +
+            '7-clicks (refer to the user manual for details).\n' +
+            ' Define which LED patterns to show during this activity.');
+
+        set_tooltip('help_led_servo_setup',
+            'When you connect a servo to the light controller output, you ' +
+            'can configure center, left and right endpoints of the servo ' +
+            'independently\n' +
+            '(8-clicks; refer to the user manual for details).\n' +
+            'Define which LED patterns to show during this setup.');
     };
 
 

@@ -661,6 +661,9 @@
           The background of the icon turns orange when advanced features are in use.
         </div>
         <div>
+          You can configure <em>car functions</em> and light up LEDs for <em>diagnostics</em> purpose, for example when there is no signal being received. Use the <em>arrow symbols</em> <i class="fa fa-arrow-circle-left tab-previous"></i> <i class="fa fa-arrow-circle-right tab-next"></i> next to car functions or diagnostics to change between them.
+        </div>
+        <div>
           <strong>Hover the mouse over individual items</strong> to see an explaination about their function.
         </div>
         <div>
@@ -669,11 +672,13 @@
         <div id="leds_master">
           <h3>Master</h3>
           <div>
+            <div class="diagnostics-container">
+                <i class="fa fa-arrow-circle-left tab-previous"></i>
+                <span class="led_table_car">Car functions</span><span class="led_table_diagnostics">Diagnostics</span>
+                <i class="fa fa-arrow-circle-right tab-next"></i>
+            </div>
             <table class="led_table">
               <tbody>
-                <tr class="even">
-                  <th class="led_tab_car" colspan="6"><i class="fa fa-arrow-circle-left tab-previous"></i> <span class="led_table_car">Car functions</span><span class="led_table_diagnostics">Diagnostics</span> <i class="fa fa-arrow-circle-right tab-next"></th>
-                </tr>
                 <tr class="odd">
                   <th></th>
                   <th class="led_table_car" data-tooltip="help_led_always_on" rowspan="2">Always on</th>
@@ -683,10 +688,10 @@
                   <th class="led_table_car" data-tooltip="help_led_reverse"></th>
                   <th class="led_table_car" data-tooltip="help_led_indicator" colspan="2">Indicator</th>
 
-                  <th class="led_table_diagnostics"></th>
-                  <th class="led_table_diagnostics"></th>
-                  <th class="led_table_diagnostics" colspan="2">Reversing</th>
-                  <th class="led_table_diagnostics" colspan="3">Servo output</th>
+                  <th class="led_table_diagnostics" data-tooltip="help_led_initializing"></th>
+                  <th class="led_table_diagnostics" data-tooltip="help_led_no_signal"></th>
+                  <th class="led_table_diagnostics" colspan="2" data-tooltip="help_led_reversing">Reversing</th>
+                  <th class="led_table_diagnostics" colspan="3" data-tooltip="help_led_servo_setup">Servo output</th>
                 </tr>
                 <tr class="odd">
                   <th>LED</th>
@@ -707,11 +712,11 @@
 
                   <th class="led_table_diagnostics" data-tooltip="help_led_initializing">Initializing</th>
                   <th class="led_table_diagnostics" data-tooltip="help_led_no_signal">No signal</th>
-                  <th class="led_table_diagnostics" data-tooltip="help_led_reversing_st">steering</th>
-                  <th class="led_table_diagnostics" data-tooltip="help_led_reversing_th">throttle</th>
-                  <th class="led_table_diagnostics" data-tooltip="help_led_servo_left">left</th>
-                  <th class="led_table_diagnostics" data-tooltip="help_led_servo_centre">centre</th>
-                  <th class="led_table_diagnostics" data-tooltip="help_led_servo_right">right</th>
+                  <th class="led_table_diagnostics" data-tooltip="help_led_reversing">steering</th>
+                  <th class="led_table_diagnostics" data-tooltip="help_led_reversing">throttle</th>
+                  <th class="led_table_diagnostics" data-tooltip="help_led_servo_setup">left</th>
+                  <th class="led_table_diagnostics" data-tooltip="help_led_servo_setup">centre</th>
+                  <th class="led_table_diagnostics" data-tooltip="help_led_servo_setup">right</th>
                 </tr>
 
                 <!-- LED rows will be inserted here -->
@@ -724,11 +729,13 @@
         <div id="leds_slave">
           <h3>Slave</h3>
           <div>
+            <div class="diagnostics-container">
+                <i class="fa fa-arrow-circle-left tab-previous"></i>
+                <span class="led_table_car">Car functions</span><span class="led_table_diagnostics">Diagnostics</span>
+                <i class="fa fa-arrow-circle-right tab-next"></i>
+            </div>
             <table class="led_table">
               <tbody>
-                <tr class="even">
-                  <th class="led_tab_car" colspan="6"><i class="fa fa-arrow-circle-left tab-previous"></i> <span class="led_table_car">Car functions</span><span class="led_table_diagnostics">Diagnostics</span> <i class="fa fa-arrow-circle-right tab-next"></th>
-                </tr>
                 <tr class="odd">
                   <th></th>
                   <th class="led_table_car" data-tooltip="help_led_always_on" rowspan="2">Always on</th>
@@ -738,10 +745,10 @@
                   <th class="led_table_car" data-tooltip="help_led_reverse"></th>
                   <th class="led_table_car" data-tooltip="help_led_indicator" colspan="2">Indicator</th>
 
-                  <th class="led_table_diagnostics"></th>
-                  <th class="led_table_diagnostics"></th>
-                  <th class="led_table_diagnostics" colspan="2">Reversing</th>
-                  <th class="led_table_diagnostics" colspan="3">Servo output</th>
+                  <th class="led_table_diagnostics" data-tooltip="help_led_initializing"></th>
+                  <th class="led_table_diagnostics" data-tooltip="help_led_no_signal"></th>
+                  <th class="led_table_diagnostics" colspan="2" data-tooltip="help_led_reversing">Reversing</th>
+                  <th class="led_table_diagnostics" colspan="3" data-tooltip="help_led_servo_setup">Servo output</th>
                 </tr>
                 <tr class="odd">
                   <th>LED</th>
@@ -762,11 +769,11 @@
 
                   <th class="led_table_diagnostics" data-tooltip="help_led_initializing">Initializing</th>
                   <th class="led_table_diagnostics" data-tooltip="help_led_no_signal">No signal</th>
-                  <th class="led_table_diagnostics" data-tooltip="help_led_reversing_st">steering</th>
-                  <th class="led_table_diagnostics" data-tooltip="help_led_reversing_th">throttle</th>
-                  <th class="led_table_diagnostics" data-tooltip="help_led_servo_left">left</th>
-                  <th class="led_table_diagnostics" data-tooltip="help_led_servo_centre">centre</th>
-                  <th class="led_table_diagnostics" data-tooltip="help_led_servo_right">right</th>
+                  <th class="led_table_diagnostics" data-tooltip="help_led_reversing">steering</th>
+                  <th class="led_table_diagnostics" data-tooltip="help_led_reversing">throttle</th>
+                  <th class="led_table_diagnostics" data-tooltip="help_led_servo_setup">left</th>
+                  <th class="led_table_diagnostics" data-tooltip="help_led_servo_setup">centre</th>
+                  <th class="led_table_diagnostics" data-tooltip="help_led_servo_setup">right</th>
                 </tr>
 
                 <!-- LED rows will be inserted here -->

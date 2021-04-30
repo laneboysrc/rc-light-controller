@@ -461,3 +461,15 @@ button.menu[disabled] {
   text-align: left;
   font-size: 1.0em;
 }
+
+.diagnostics-container {
+  margin-top: 0.5em;
+}
+
+.diagnostics-container span {
+  display: inline-block;
+  width: 8em;
+  text-align: center;
+  font-size: 1.0em;
+  font-weight: bold;
+}
