@@ -31,7 +31,7 @@ const CAR_LIGHT_ARRAY_T local_leds = {
             .light_switch_position[3] = 255,
             .light_switch_position[4] = 255,
 
-            .diagnostics = RUN_WHEN_NO_SIGNAL,
+            .diagnostics = RUN_WHEN_INITIALIZING,
         },
 
         // LED 3    Main beam
@@ -39,7 +39,7 @@ const CAR_LIGHT_ARRAY_T local_leds = {
             .light_switch_position[3] = 255,
             .light_switch_position[4] = 255,
 
-            .diagnostics = RUN_WHEN_NO_SIGNAL,
+            .diagnostics = RUN_WHEN_INITIALIZING,
         },
 
         // LED 4    High beam

@@ -381,6 +381,8 @@ var app = (function () {
             led.indicator_left = data[offset + 17];
             led.indicator_right = data[offset + 18];
 
+            led.diagnostics = data[offset + 19];
+
             return led;
         }
 
@@ -627,9 +629,7 @@ var app = (function () {
         }
 
         function set_led_feature(prefix, led_number, field_suffix, value) {
-            var cell = document.getElementById(prefix + led_number +
-                field_suffix
-            );
+            var cell = document.getElementById(prefix + led_number + field_suffix);
 
             if (cell.type === 'checkbox') {
                 cell.checked = Boolean(value);
@@ -678,6 +678,11 @@ var app = (function () {
                 set_led_feature(prefix, i, 'checkbox11', led.weak_reversing_light);
                 set_led_feature(prefix, i, 'checkbox12', led.weak_indicator_left);
                 set_led_feature(prefix, i, 'checkbox13', led.weak_indicator_right);
+
+                // Handle all 7 diagnostics bits
+                for (let j = 0; j <= 6; j++) {
+                    set_led_feature(prefix, i, 'diag'+j, led.diagnostics & (1 << j));
+                }
             }
         }
 
@@ -1481,6 +1486,8 @@ var app = (function () {
             set_uint8(data, offset + 17, led_object.indicator_left);
             set_uint8(data, offset + 18, led_object.indicator_right);
 
+            set_uint8(data, offset + 19, led_object.diagnostics);
+
             if (led_object.light_switch_position0) { positions = 1; }
             if (led_object.light_switch_position1) { positions = 2; }
             if (led_object.light_switch_position2) { positions = 3; }
@@ -1979,6 +1986,14 @@ var app = (function () {
                 led.weak_reversing_light = get_led_feature(prefix, i, 'checkbox11');
                 led.weak_indicator_left = get_led_feature(prefix, i, 'checkbox12');
                 led.weak_indicator_right = get_led_feature(prefix, i, 'checkbox13');
+
+                // Handle all 7 diagnostics bits
+                led.diagnostics = 0;
+                for (let j = 0; j <= 6; j++) {
+                    if (get_led_feature(prefix, i, 'diag'+j)) {
+                        led.diagnostics |= (1 << j);
+                    }
+                }
             }
         }
 
@@ -2319,6 +2334,8 @@ var app = (function () {
                 led.reversing_light = 0;
                 led.indicator_left = 0;
                 led.indicator_right = 0;
+
+                led.diagnostics = 0;
 
                 return led;
             }

@@ -2,6 +2,8 @@
 
 * AUX2/3 2-pos and 3-pos switch for direct gear control
 
+* FIX CONFIGURATOR DISASSEMBLER ISSUE WITH DYNAMIC TABLE!
+
 * Make no-signal, initializing, etc configurable via a table
     - Tab based: `car functions` and `diagnostics`
     - Checkbox per diagnostics function
@@ -16,6 +18,8 @@
     - ui.js init_led_features()
 
 * Update WebUSB programmer image
+
+
 
 # Mk4P and Mk4S
 

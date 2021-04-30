@@ -132,7 +132,25 @@ var ui = (function () {
 
                 fields = led_rows[led].querySelectorAll('td.led_table_diagnostics input');
                 for (i = 0; i < fields.length; i += 1) {
-                    fields[i].id = prefix + led + 'diag' + i;
+                    // The field order in the HTML is different than the
+                    // bit-field in led.diagnostics
+                    // We therefore have to apply some mapping. We would break
+                    // backwards compatibility if we re-arrange the
+                    // led.diagnostics order (dicdated by PRIORITY_RUN_CONDITION)
+
+                    // The index is the UI index, the output is the index within
+                    // the led.diagnostics bit field
+                    const diag_ui_map = [
+                        1,  // RUN_WHEN_INITIALIZING
+                        0,  // RUN_WHEN_NO_SIGNAL
+                        5,  // RUN_WHEN_REVERSING_SETUP_STEERING
+                        6,  // RUN_WHEN_REVERSING_SETUP_THROTTLE
+                        3,  // RUN_WHEN_SERVO_OUTPUT_SETUP_LEFT
+                        2,  // RUN_WHEN_SERVO_OUTPUT_SETUP_CENTRE
+                        4,  // RUN_WHEN_SERVO_OUTPUT_SETUP_RIGH
+                    ];
+
+                    fields[i].id = prefix + led + 'diag' + diag_ui_map[i];
                 }
 
                 spanner = led_rows[led].getElementsByClassName('spanner')[0];
