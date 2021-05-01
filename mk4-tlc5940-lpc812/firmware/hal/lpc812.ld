@@ -22,6 +22,8 @@ SECTIONS
         *(.text*)
         *(.rodata)
         *(.rodata.*)
+        *(.rel.*)
+        *(.igot.*)
         KEEP(*(.init))
         KEEP(*(.fini))
 

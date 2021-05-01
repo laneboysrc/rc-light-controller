@@ -299,8 +299,11 @@ typedef struct {
 // ****************************************************************************
 typedef struct {
     MAGIC_T magic;
-    uint8_t number_of_programs;
-    uint32_t programs[1];
+    uint32_t number_of_programs;
+    // Important: the reserved address/opcode slots must not be too small
+    // (e.g. 0) otherwise some weird optimization causes light programs
+    // to fail at run time.
+    uint32_t programs[400];
 } LIGHT_PROGRAMS_T;
 
 
