@@ -555,6 +555,13 @@ var app = (function () {
             new_config.aux_centre_right_threshold_high = 40;
         }
 
+        if (new_config.firmware_version >= 37) {
+            new_config.diagnostics_brightness = data[offset + 92];
+        }
+        else {
+            new_config.diagnostics_brightness = 255;
+        }
+
         return new_config;
     };
 
@@ -1212,6 +1219,7 @@ var app = (function () {
 
         // LEDs
         update_led_fields();
+        el.diagnostics_brightness.value = Math.round(config.diagnostics_brightness * 100 / 255);
 
         // Update advanced settings
         el.auto_brake_lights_forward_enabled.checked =
@@ -1514,11 +1522,12 @@ var app = (function () {
 
 
     // *************************************************************************
-    var assemble_configuration = function (config) {
+    var assemble_configuration = function (configuration) {
         var data = firmware.data;
         var offset = firmware.offset[SECTION_CONFIG];
         var i;
         var spacing;
+        const config = configuration.config;
 
         log.log('config.mode: ' + config.mode);
         log.log('config_version: ' + config_version);
@@ -1685,6 +1694,24 @@ var app = (function () {
             set_int8(data, offset + 90, config.aux_centre_right_threshold_low);
             set_int8(data, offset + 91, config.aux_centre_right_threshold_high);
         }
+
+        if (config.firmware_version >= 37) {
+            set_uint8(data, offset + 92, config.diagnostics_brightness);
+
+            // Calculate the diagnostics_mask that allows the light controller
+            // to determine if a diagnostics function is used at all.
+            let diagnostics_mask = 0;
+            for (i = 0; i < configuration.local_leds.led_count; i += 1) {
+                diagnostics_mask |= configuration.local_leds[i].diagnostics;
+            }
+            if (configuration.slave_output) {
+                for (i = 0; i < configuration.slave_leds.led_count; i += 1) {
+                    diagnostics_mask |= configuration.slave_leds[i].diagnostics;
+                }
+            }
+            console.log('diagnostics_mask=' + diagnostics_mask);
+            set_uint8(data, offset + 93, diagnostics_mask);
+        }
     };
 
 
@@ -1748,7 +1775,7 @@ var app = (function () {
         assemble_gamma(configuration.gamma);
 
         // This has to be last so we can do light_switch_positions
-        assemble_configuration(configuration.config);
+        assemble_configuration(configuration);
     };
 
 
@@ -1830,6 +1857,10 @@ var app = (function () {
                 config.aux2_function = AUX_FUNCTION.AUX_FUNCTION_NOT_USED;
                 config.aux3_type = AUX_TYPE.AUX_TYPE_TWO_POSITION;
                 config.aux3_function = AUX_FUNCTION.AUX_FUNCTION_NOT_USED;
+            }
+
+            if (config.firmware_version < 37) {
+                config.diagnostics_brightness = 255;
             }
 
             if (config.aux_type == null ||
@@ -2044,6 +2075,9 @@ var app = (function () {
             gamma_object[key] = g;
         }
 
+        function update_led(key) {
+            config[key] = Math.round(parseInt(el[key].value, 10) * 255 / 100);
+        }
 
         log.log('config.mode: ' + config.mode);
         log.log('config_version: ' + config_version);
@@ -2195,6 +2229,8 @@ var app = (function () {
         update_int('aux_left_centre_threshold_high');
         update_int('aux_centre_right_threshold_low');
         update_int('aux_centre_right_threshold_high');
+
+        update_led('diagnostics_brightness');
 
         if (config.mode === MODE.SLAVE) {
             // Force gamma to 1.0 in slave mode as the gamma correction is
@@ -2812,7 +2848,7 @@ var app = (function () {
             'mode_test',
 
             'config_baudrate', 'baudrate',
-            'config_leds', 'leds_master', 'leds_slave',
+            'config_leds', 'leds_master', 'leds_slave', 'diagnostics_brightness',
             'config_esc',
             'config_ch3',
             'config_output',
