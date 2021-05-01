@@ -421,6 +421,9 @@ var app = (function () {
 
         new_config.firmware_version = data[offset];
 
+        log.log('config_version: ' + config_version);
+        log.log('config.firmware_version: ' + new_config.firmware_version);
+
         new_config.mode = data[offset + 1];
         new_config.esc_mode = data[offset + 2];
 
@@ -489,11 +492,6 @@ var app = (function () {
         new_config.servo_pulse_max = get_uint16(data, offset + 58);
         new_config.startup_time = get_uint16(data, offset + 60);
 
-        log.log('config.mode: ' + new_config.mode);
-        log.log('config.multi_aux: ' + new_config.multi_aux);
-        log.log('config_version: ' + config_version);
-        log.log('config.firmware_version: ' + new_config.firmware_version);
-
         if (new_config.firmware_version >= 20) {
             // config_version 2 settings
             new_config.multi_aux = get_flag2(0x0001);
@@ -509,7 +507,6 @@ var app = (function () {
             // The GPIO assignment is set whenever uart_tx_on_out (bit 9)
             // is set
             new_config.assign_uart_to_out = get_flag2(0x0100);
-            log.log("flags2=0x" + flags2.toString(16));
 
             new_config.blink_counter_value_dark = get_uint16(data, offset + 68);
 
@@ -562,6 +559,8 @@ var app = (function () {
             new_config.diagnostics_brightness = 255;
         }
 
+        log.log('config.mode: ' + new_config.mode);
+        log.log('config.multi_aux: ' + new_config.multi_aux);
         return new_config;
     };
 
@@ -1727,8 +1726,7 @@ var app = (function () {
 
         var first_program_offset = 4 + (4 * machine_code.number_of_programs);
 
-        var code_size = 4 + (4 * machine_code.number_of_programs) +
-            (4 * machine_code.instructions.length);
+        var code_size = first_program_offset + (4 * machine_code.instructions.length);
 
         // Create an array with length code_size. We could use
         // 'new Array(code_size)', but JSLint doesn't like that as Array could
@@ -1740,22 +1738,20 @@ var app = (function () {
 
         set_uint32(code, 0, machine_code.number_of_programs);
         for (i = 0; i < machine_code.number_of_programs; i += 1) {
-            offset = 0;
-            if (i < machine_code.number_of_programs) {
-                offset = first_program_offset;
-                offset += firmware.offset[SECTION_LIGHT_PROGRAMS];
-                offset += machine_code.start_offset[i] * 4;
-            }
+            offset = firmware.offset[SECTION_LIGHT_PROGRAMS];
+            offset += first_program_offset;
+            offset += machine_code.start_offset[i] * 4;
             set_uint32(code, 4 + (4 * i), offset);
         }
 
         for (i = 0; i < machine_code.instructions.length; i += 1) {
-            set_uint32(code, first_program_offset + (4 * i),
-                machine_code.instructions[i]);
+            set_uint32(code, first_program_offset + (4 * i), machine_code.instructions[i]);
         }
 
         data = firmware.data;
         offset = firmware.offset[SECTION_LIGHT_PROGRAMS];
+
+        console.log()
 
         firmware.data = data.slice(0, offset).concat(code);
     };
@@ -1860,6 +1856,15 @@ var app = (function () {
                 config.aux3_type = AUX_TYPE.AUX_TYPE_TWO_POSITION;
                 config.aux3_function = AUX_FUNCTION.AUX_FUNCTION_NOT_USED;
             }
+
+            // if (config.firmware_version < 33) {
+            //     new_config.aux_centre_threshold_low = -10;
+            //     new_config.aux_centre_threshold_high = 10;
+            //     new_config.aux_left_centre_threshold_low = -40;
+            //     new_config.aux_left_centre_threshold_high = -30;
+            //     new_config.aux_centre_right_threshold_low = 30;
+            //     new_config.aux_centre_right_threshold_high = 40;
+            // }
 
             if (config.firmware_version < 37) {
                 config.diagnostics_brightness = 255;
@@ -2491,7 +2496,8 @@ var app = (function () {
             await programmer.send_command(CMD_CH3_LOW);
             power_is_on = false;
 
-            const version = `${programmer.deviceVersionMajor}.${programmer.deviceVersionMinor}${programmer.deviceVersionSubminor}`;
+            const device = programmer.active_device;
+            const version = `${device.deviceVersionMajor}.${device.deviceVersionMinor}${device.deviceVersionSubminor}`;
 
             const msg = `Connected to Light Controller Programmer v${version} with serial number ${programmer.serial_number}`;
             log.log(msg);

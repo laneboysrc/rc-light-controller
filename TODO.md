@@ -1,5 +1,8 @@
 # Configurator
 
+* Fix issue with built-in configurations showing ERROR in set_uint8 ...
+    - issue is that we use assemble_configuration() on an old, incomplete JSON
+
 DONE Update WebUSB programmer image
 
 DONE Add 'Whats new' section to info
