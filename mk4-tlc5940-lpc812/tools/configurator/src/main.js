@@ -1838,6 +1838,8 @@ var app = (function () {
             light_programs = data.light_programs;
             gamma_object = data.gamma;
 
+            log.log('load_configuration_from_disk() firmware_version: ' + config.firmware_version);
+
             // Extend the configuration generated for config_version 1
             // Since config_version is not saved in the JSON we use the
             // firmware_version to check. firmware_version <20 means
@@ -1857,14 +1859,14 @@ var app = (function () {
                 config.aux3_function = AUX_FUNCTION.AUX_FUNCTION_NOT_USED;
             }
 
-            // if (config.firmware_version < 33) {
-            //     new_config.aux_centre_threshold_low = -10;
-            //     new_config.aux_centre_threshold_high = 10;
-            //     new_config.aux_left_centre_threshold_low = -40;
-            //     new_config.aux_left_centre_threshold_high = -30;
-            //     new_config.aux_centre_right_threshold_low = 30;
-            //     new_config.aux_centre_right_threshold_high = 40;
-            // }
+            if (config.firmware_version < 33) {
+                config.aux_centre_threshold_low = -10;
+                config.aux_centre_threshold_high = 10;
+                config.aux_left_centre_threshold_low = -40;
+                config.aux_left_centre_threshold_high = -30;
+                config.aux_centre_right_threshold_low = 30;
+                config.aux_centre_right_threshold_high = 40;
+            }
 
             if (config.firmware_version < 37) {
                 config.diagnostics_brightness = 255;
@@ -1891,6 +1893,7 @@ var app = (function () {
             firmware = parse_firmware_structure(hex_to_bin(default_firmware_image_mk4));
             config.firmware_version = default_firmware_version;
         } catch (err) {
+            log.error(err);
             window.alert(
                 'Failed to load configuration.\n' +
                     'File may not be a light controller configuration file (JSON format)'
