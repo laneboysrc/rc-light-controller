@@ -299,11 +299,12 @@ typedef struct {
 // ****************************************************************************
 typedef struct {
     MAGIC_T magic;
-    uint32_t number_of_programs;
-    // Important: the reserved address/opcode slots must not be too small
-    // (e.g. 0) otherwise some weird optimization causes light programs
-    // to fail at run time.
-    uint32_t programs[400];
+    // Important: these need to be declared volatile as otherwise the compiler
+    // may use the compile-time values (= no light program) to optimize code
+    // away, and then light programs added by the configurator don't work
+    // anymore!
+    volatile uint32_t number_of_programs;
+    volatile uint32_t programs[1];
 } LIGHT_PROGRAMS_T;
 
 
