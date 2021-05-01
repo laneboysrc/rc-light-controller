@@ -1,6 +1,6 @@
 # Configurator
 
-* Update WebUSB programmer image
+DONE Update WebUSB programmer image
 
 DONE Add 'Whats new' section to info
 
@@ -19,11 +19,6 @@ DONE Light programs: combine `start` and `programs` for fully dynamic flash memo
     DONE FIX CONFIGURATOR DISASSEMBLER ISSUE WITH DYNAMIC TABLE!
 
 DONE Remove WebUSB programmer console log
-
-# Documentation
-
-* Update WebUSB programmer image
-* Proof-read again (saw some issues in the operating section)
 
 
 # Mk4P and Mk4S
