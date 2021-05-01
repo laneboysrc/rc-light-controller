@@ -25,6 +25,7 @@ class WebUSB_programmer {
   TEST_EP_IN = 2;
   EP_SIZE = 64;
 
+
   constructor() {
     this.active_device = undefined;
     this.stdin_buffer = '';
@@ -32,13 +33,23 @@ class WebUSB_programmer {
     this.connectedCallback = null;
     this.disconnectedCallback = null;
 
+    this.logger = {
+      'info': function () {},
+      'log': function () {},
+      'error': function () {},
+      'warn': function () {},
+    };
+    if (window.location.hash == '#webusb') {
+      this.logger = console;
+    }
+
     navigator.usb.addEventListener('connect', this._webusb_device_connected.bind(this));
     navigator.usb.addEventListener('disconnect', this._webusb_device_disconnected.bind(this));
   }
 
   _webusb_device_connected(connection_event) {
     const device = connection_event.device;
-    console.log('USB device connected:', device);
+    this.logger.log('USB device connected:', device);
     if (!this.active_device) {
       if (device && device.vendorId == this.VENDOR_ID && device.productId == this.PRODUCT_ID) {
         if (this.connectedCallback) {
@@ -49,7 +60,7 @@ class WebUSB_programmer {
   }
 
   async _webusb_device_disconnected(connection_event) {
-    console.log('USB device disconnected:', connection_event);
+    this.logger.log('USB device disconnected:', connection_event);
     const disconnected_device = connection_event.device;
     if (this.active_device &&  disconnected_device == this.active_device) {
       await this.close();
@@ -89,14 +100,14 @@ class WebUSB_programmer {
       device = await navigator.usb.requestDevice({ 'filters': filters });
     }
     catch (e) {
-      console.log("requestDevice() failed: " + e);
+      this.logger.log("requestDevice() failed: " + e);
     }
 
     return device;
   }
 
   async open(device) {
-    console.log("open()", device);
+    this.logger.log("open()", device);
 
     // If none given, show the request device dialog
     if (!device || !device.open) {
@@ -116,7 +127,7 @@ class WebUSB_programmer {
       await device.claimInterface(this.TEST_INTERFACE);
     }
     catch (e) {
-      console.error('Failed to open the device', e);
+      this.logger.error('Failed to open the device', e);
       return;
     }
 
@@ -147,14 +158,14 @@ class WebUSB_programmer {
           const value = decoder.decode(result.data);
 
           this.stdin_buffer += value;
-          console.log('USB R: ' + this._make_crlf_visible(value));
+          this.logger.log('USB R: ' + this._make_crlf_visible(value));
         }
         else {
-          console.info('_background_receive transferIn() failed:', result.status);
+          this.logger.info('_background_receive transferIn() failed:', result.status);
         }
       }
       catch (e) {
-        console.info('_background_receive transferIn() exception:', e);
+        this.logger.info('_background_receive transferIn() exception:', e);
         return;
       }
     }
@@ -209,10 +220,10 @@ class WebUSB_programmer {
 
     let result = await this.active_device.controlTransferOut(setup);
     if (result.status != "ok") {
-      console.log("send_command(" + cmd + ") FAIL: " + result.staus);
+      this.logger.log("send_command(" + cmd + ") FAIL: " + result.staus);
     }
     else {
-      console.log("send_command(" + cmd + ") OK");
+      this.logger.log("send_command(" + cmd + ") OK");
     }
   }
 
@@ -221,10 +232,10 @@ class WebUSB_programmer {
 
     if (!dont_log) {
       if (data instanceof Uint8Array) {
-        console.log('USB W: <data len=' + data.length + '>');
+        this.logger.log('USB W: <data len=' + data.length + '>');
       }
       else {
-        console.log('USB W: ' + this._make_crlf_visible(data));
+        this.logger.log('USB W: ' + this._make_crlf_visible(data));
         data = this._string2arraybuffer(data);
       }
     }
@@ -235,11 +246,11 @@ class WebUSB_programmer {
       try {
         const result = await this.active_device.transferOut(this.TEST_EP_OUT, bytes);
         if (result.status != 'ok') {
-          console.error('transferOut() failed:', result.status);
+          this.logger.error('transferOut() failed:', result.status);
         }
       }
       catch (e) {
-        console.error('transferOut() exception:', e);
+        this.logger.error('transferOut() exception:', e);
         return;
       }
 

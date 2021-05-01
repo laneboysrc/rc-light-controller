@@ -175,38 +175,6 @@ var ui = (function () {
 
 
     // *************************************************************************
-    var init_led_features = function () {
-
-        function init_led_feature(section, prefix) {
-            // var elements;
-            // var led_section = document.getElementById(section);
-            // var led_rows = led_section.getElementsByClassName('led_features');
-            // var led;
-            // var i;
-
-            // for (led = 0; led < led_rows.length; led += 1) {
-            //     led_rows[led].id = prefix + led + 'features';
-            //     led_rows[led].classList.add('hidden');
-
-            //     elements = led_rows[led].getElementsByClassName('incandescent');
-            //     elements[0].id = prefix + led + 'incandescent';
-
-            //     elements = led_rows[led].getElementsByClassName('weak_ground');
-            //     elements[0].id = prefix + led + 'weak_ground';
-
-            //     elements = led_rows[led].getElementsByClassName('checkbox');
-            //     for (i = 0; i < elements.length; i += 1) {
-            //         elements[i].id = prefix + led + 'checkbox' + i;
-            //     }
-            // }
-        }
-
-        init_led_feature('leds_master', 'master');
-        init_led_feature('leds_slave', 'slave');
-    };
-
-
-    // *************************************************************************
     var update_tab_visibility = function () {
         // Support wrap around through simply incrementing and decrementing
         // current_tab before calling this function.

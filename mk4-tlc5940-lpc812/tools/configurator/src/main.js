@@ -568,14 +568,13 @@ var app = (function () {
 
     // *************************************************************************
     var disassemble_light_programs = function () {
-        var data = firmware.data;
-        var offset = firmware.offset[SECTION_LIGHT_PROGRAMS];
-        var first_program_offset = offset + 4 + (4 * MAX_LIGHT_PROGRAMS);
+        const data = firmware.data;
+        const offset = firmware.offset[SECTION_LIGHT_PROGRAMS];
+        const number_of_programs = data[offset];
 
-        //var number_of_programs = get_uint32(data, offset);
+        const first_program_offset = offset + 4 + (4 * number_of_programs);
 
-        var instructions =
-            uint8_array_to_uint32(data.slice(first_program_offset));
+        const instructions = uint8_array_to_uint32(data.slice(first_program_offset));
 
         return disassembler.disassemble(instructions);
     };
