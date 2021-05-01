@@ -1425,43 +1425,62 @@
       </div>
 
 
-      <div id="info" class="box configuration hidden">
-        <div>
-          This tool would not have been possible without these awesome software components:
+      <div id="info" class="hidden">
+        <div class="box configuration">
+          <h2>What's new</h2>
+          <div><strong>2021-05-01 Firmware 2.37</strong></div>
+          <ul class="change-history">
+            <li>
+              The LED configuration for no-signal, initializing and other light controller internal <strong>diagnostics functions are now table driven</strong>.<br>
+              Originally they were implemented using light programs. These still continue to function, but the table driven approach is easier for users and also reduces memory size.
+            </li>
+            <li>
+              <strong>Save code space</strong> by making the the light programs start offset table dynamic in side. This is an internal change and has no impact on users.
+            </li>
+            <li>
+              Detailed <strong>WebUSB diagnostics</strong> in the browser console is now <strong>off</strong> by default. WebUSB diagnostics can be enabled by appending <em>#webusb</em> to the Configurator URL.
+            </li>
+          </ul>
         </div>
-        <div>
-          <strong>CodeMirror</strong> <a href="http://codemirror.net/" target="_blank">http://codemirror.net/</a><br>
-          A text editor in JavaScript. Very easy to use, yet extremely powerful.
-          With little effort I could build custom syntax highlighting, and
-          had error messages after the assembly process shown in the gutter.
-        </div>
-        <div>
-          <strong>JISON</strong> <a href="https://zaach.github.io/jison/docs/" target="_blank">https://zaach.github.io/jison/docs/</a><br>
-          Parser and scanner generator for JavaScript. It was very easy to adapt
-          a prototype written in Bison/Flex to JISON.
-        </div>
-        <div>
-          <strong>FileSaver.js</strong> <a href="https://github.com/eligrey/FileSaver.js/" target="_blank"></a><br>
-          Allowed us to save generated JSON and Intel-hex files from within the
-          browser.
-        </div>
-        <div>
-          <strong>node.js</strong> <a href="http://nodejs.org" target="_blank">http://nodejs.org</a><br>
-          Fantastic to have the same code work in the browser, and with the help
-          of node.js also be able to use from the command-line.
-        </div>
-        <div>
-          <strong>Font Awesome</strong> <a href="https://fontawesome.com/" target="_blank">https://fontawesome.com/</a><br>
-          Beautiful and easy-to-use vector icons.
-        </div>
-        <div>
-          <strong>intel-hex</strong> <a href="https://github.com/bminer/intel-hex.js" target="_blank">https://github.com/bminer/intel-hex.js</a><br>
-          Good starting point for parsing Intel-hex files. I made it
-          browser-compatible and added the missing write functions.
-        </div>
-        <div>
-          <strong>Simple JavaScript Templating</strong> <a href="http://ejohn.org/" target="_blank">http://ejohn.org/</a><br>
-          As the name says: a very simple templating engine.
+        <div class="box configuration">
+          <h2>Credits</h2>
+          <div>
+            This tool would not have been possible without these awesome software components:
+          </div>
+          <div>
+            <strong>CodeMirror</strong> <a href="http://codemirror.net/" target="_blank">http://codemirror.net/</a><br>
+            A text editor in JavaScript. Very easy to use, yet extremely powerful.
+            With little effort I could build custom syntax highlighting, and
+            had error messages after the assembly process shown in the gutter.
+          </div>
+          <div>
+            <strong>JISON</strong> <a href="https://zaach.github.io/jison/docs/" target="_blank">https://zaach.github.io/jison/docs/</a><br>
+            Parser and scanner generator for JavaScript. It was very easy to adapt
+            a prototype written in Bison/Flex to JISON.
+          </div>
+          <div>
+            <strong>FileSaver.js</strong> <a href="https://github.com/eligrey/FileSaver.js/" target="_blank"></a><br>
+            Allowed us to save generated JSON and Intel-hex files from within the
+            browser.
+          </div>
+          <div>
+            <strong>node.js</strong> <a href="http://nodejs.org" target="_blank">http://nodejs.org</a><br>
+            Fantastic to have the same code work in the browser, and with the help
+            of node.js also be able to use from the command-line.
+          </div>
+          <div>
+            <strong>Font Awesome</strong> <a href="https://fontawesome.com/" target="_blank">https://fontawesome.com/</a><br>
+            Beautiful and easy-to-use vector icons.
+          </div>
+          <div>
+            <strong>intel-hex</strong> <a href="https://github.com/bminer/intel-hex.js" target="_blank">https://github.com/bminer/intel-hex.js</a><br>
+            Good starting point for parsing Intel-hex files. I made it
+            browser-compatible and added the missing write functions.
+          </div>
+          <div>
+            <strong>Simple JavaScript Templating</strong> <a href="http://ejohn.org/" target="_blank">http://ejohn.org/</a><br>
+            As the name says: a very simple templating engine.
+          </div>
         </div>
       </div>
 

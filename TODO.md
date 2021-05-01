@@ -1,8 +1,10 @@
 # Configurator
 
-* Add 'Whats new' section to info
+* Update WebUSB programmer image
 
-* Make no-signal, initializing, etc configurable via a table
+DONE Add 'Whats new' section to info
+
+DONE Make no-signal, initializing, etc configurable via a table
     DONE Tab based: `car functions` and `diagnostics`
     DONE Checkbox per diagnostics function
     DONE 1 brightness field for all LEDs/diagnostics functions
@@ -11,14 +13,17 @@
     DONE Add tooltips
     DONE Clear all leds should clear diagnostics
 
-* Light programs: combine `start` and `programs` for fully dynamic flash memory use
+DONE Light programs: combine `start` and `programs` for fully dynamic flash memory use
     DONE The light_programs code can handle it already
     DONE Change global.h structure and the C output of light-program-assembler need to change
     DONE FIX CONFIGURATOR DISASSEMBLER ISSUE WITH DYNAMIC TABLE!
 
-* Update WebUSB programmer image
-
 DONE Remove WebUSB programmer console log
+
+# Documentation
+
+* Update WebUSB programmer image
+* Proof-read again (saw some issues in the operating section)
 
 
 # Mk4P and Mk4S

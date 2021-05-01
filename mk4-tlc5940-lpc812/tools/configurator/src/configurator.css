@@ -473,3 +473,7 @@ button.menu[disabled] {
   font-size: 1.0em;
   font-weight: bold;
 }
+
+.change-history li {
+  margin-bottom: 0.5em;
+}
