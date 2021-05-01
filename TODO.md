@@ -13,11 +13,8 @@
 
 * Light programs: combine `start` and `programs` for fully dynamic flash memory use
     DONE The light_programs code can handle it already
-    - Change global.h structure and the C output of light-program-assembler need to change
+    DONE Change global.h structure and the C output of light-program-assembler need to change
     DONE FIX CONFIGURATOR DISASSEMBLER ISSUE WITH DYNAMIC TABLE!
-
-* Remove old/dead code from configurator
-    - ui.js init_led_features()
 
 * Update WebUSB programmer image
 

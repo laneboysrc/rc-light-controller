@@ -150,3 +150,20 @@ const GAMMA_TABLE_T gamma_table = {
         248, 250, 251, 253, 255
     }
 };
+
+
+
+// ****************************************************************************
+__attribute__ ((section(".light_programs")))
+const LIGHT_PROGRAMS_T light_programs = {
+    .magic = {
+        .magic_value = ROM_MAGIC,
+        .type = LIGHT_PROGRAMS,
+        .version = CONFIG_VERSION
+    },
+
+    .number_of_programs = 0,
+    .programs = {
+        0xff000000,     // END OF LIGHT PROGRAMS marker
+    }
+};

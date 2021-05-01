@@ -1786,7 +1786,10 @@ var app = (function () {
         // sourcecode with comments and original variable names.
         // This is achieved by running 'make defaul_firmware_image' in
         // the firmware/tlc5940-lpc812 directory.
-        light_programs = default_light_program;
+        light_programs = '';
+        if (typeof default_light_program !== 'undefined') {
+            light_programs = default_light_program;
+        }
 
         el.light_programs.value = light_programs;
         ui.update_editor();

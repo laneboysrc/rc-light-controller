@@ -146,7 +146,7 @@ uint32_t process_light_programs(void);
 // ****************************************************************************
 static void reset_program(unsigned int n)
 {
-    cpu[n].PC = light_programs.start[n] + FIRST_OPCODE_OFFSET;
+    cpu[n].PC = (uint32_t *)light_programs.programs[n] + FIRST_OPCODE_OFFSET;
     cpu[n].timer = 0;
     cpu[n].event = 0;
 }
@@ -655,7 +655,7 @@ void process_light_program_events(void)
     if (global_flags.gear_changed) {
         unsigned int i;
         for (i = 0; i < light_programs.number_of_programs; i++) {
-            if (*(light_programs.start[i] + PRIORITY_STATE_OFFSET)
+            if (*((uint32_t *)light_programs.programs[i] + PRIORITY_STATE_OFFSET)
                 & RUN_WHEN_GEAR_CHANGED) {
                 reset_program(i);
                 cpu[i].event = 1;
@@ -683,14 +683,14 @@ uint32_t process_light_programs(void)
     // Run all programs that were triggered by an event
     for (i = 0; i < light_programs.number_of_programs; i++) {
         if (cpu[i].event) {
-            execute_program(light_programs.start[i], &cpu[i], &leds_used);
+            execute_program((uint32_t *)light_programs.programs[i], &cpu[i], &leds_used);
             limit_variables();
         }
     }
 
     // Run all priority programs where the light controller state matches
     for (i = 0; i < light_programs.number_of_programs; i++) {
-        if (*(light_programs.start[i] + PRIORITY_STATE_OFFSET) == RUN_WHEN_NORMAL_OPERATION) {
+        if (*((uint32_t *)light_programs.programs[i] + PRIORITY_STATE_OFFSET) == RUN_WHEN_NORMAL_OPERATION) {
             continue;
         }
 
@@ -698,8 +698,8 @@ uint32_t process_light_programs(void)
             continue;
         }
 
-        if (*(light_programs.start[i] + PRIORITY_STATE_OFFSET) & priority_run_state) {
-            execute_program(light_programs.start[i], &cpu[i], &leds_used);
+        if (*((uint32_t *)light_programs.programs[i] + PRIORITY_STATE_OFFSET) & priority_run_state) {
+            execute_program((uint32_t *)light_programs.programs[i], &cpu[i], &leds_used);
             limit_variables();
         }
         else {
@@ -709,12 +709,12 @@ uint32_t process_light_programs(void)
 
     // Run all non-event and non-priority programs
     for (i = 0; i < light_programs.number_of_programs; i++) {
-        if (*(light_programs.start[i] + PRIORITY_STATE_OFFSET) != RUN_WHEN_NORMAL_OPERATION) {
+        if (*((uint32_t *)light_programs.programs[i] + PRIORITY_STATE_OFFSET) != RUN_WHEN_NORMAL_OPERATION) {
             continue;
         }
 
-        if (*(light_programs.start[i] + RUN_STATE_OFFSET) & run_state) {
-            execute_program(light_programs.start[i], &cpu[i], &leds_used);
+        if (*((uint32_t *)light_programs.programs[i] + RUN_STATE_OFFSET) & run_state) {
+            execute_program((uint32_t *)light_programs.programs[i], &cpu[i], &leds_used);
             limit_variables();
         }
         else {

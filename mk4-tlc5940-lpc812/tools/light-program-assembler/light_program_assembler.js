@@ -46,16 +46,13 @@ function make_c_output(source_name, output_file, programs) {
         '\n' +
         '    .number_of_programs = ';
 
-    var part1b =
-        ',\n' +
-        '    .start = {\n';
+    var part1b = ',\n';
 
-    var part2 = '        &light_programs.programs[';
+    var part2 = '        (uint32_t) &light_programs.programs[';
 
     var part2b = '],\n';
 
     var part3 =
-        '    },\n' +
         '\n' +
         '    .programs = {\n';
 
@@ -84,14 +81,13 @@ function make_c_output(source_name, output_file, programs) {
     fs.writeSync(output_file, number_of_programs.toString());
     fs.writeSync(output_file, part1b);
 
+    fs.writeSync(output_file, part3);
     for (i = 0; i < number_of_programs; i += 1) {
         fs.writeSync(output_file, part2);
-        fs.writeSync(output_file, start_offset[i].toString());
+        fs.writeSync(output_file, (start_offset[i] + number_of_programs).toString());
         fs.writeSync(output_file, part2b);
     }
-
-    fs.writeSync(output_file, part3);
-
+    fs.writeSync(output_file, '\n');
     for (i = 0; i < instructions.length; i += 1) {
         fs.writeSync(output_file, part4);
         fs.writeSync(output_file, hex(instructions[i]));

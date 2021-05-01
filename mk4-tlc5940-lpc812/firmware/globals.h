@@ -300,8 +300,7 @@ typedef struct {
 typedef struct {
     MAGIC_T magic;
     uint8_t number_of_programs;
-    const uint32_t *start[4];
-    uint32_t programs[54];
+    uint32_t programs[1];
 } LIGHT_PROGRAMS_T;
 
 

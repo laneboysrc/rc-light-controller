@@ -1,3 +1,11 @@
+// This was the original light program that handles initialization, no-signal
+// etc up to firmware version 37.
+//
+// As of firmware version 37 these light programs are no longer needed as
+// those functions are now table-driven.
+
+
+
 // These light programs provide generic functionality desired in most
 // light controller installations.
 //

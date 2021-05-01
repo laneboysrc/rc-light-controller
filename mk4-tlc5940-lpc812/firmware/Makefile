@@ -32,7 +32,6 @@ FLASH_TOOL := lpc81x_isp.py --wait --run --flash
 TERMINAL_PROGRAM := miniterm.py /dev/ttyUSB0 115200
 PREPROCESSOR_SIMULATOR := $(GENERIC_TOOL_PATH)preprocessor-simulator.py -b 115200
 CONFIGURATION_VALIDATION_TOOL := $(TOOL_PATH)validate_image_file.py
-LIGHT_PROGRAM_ASSEMBLER_PATH := $(TOOL_PATH)light-program-assembler
 DEFAULT_FIRMWARE_IMAGE_JS := $(TOOL_PATH)configurator/src/default_firmware_image_mk4.js
 TEXT2JS := $(TOOL_PATH)text2js.py
 
@@ -55,11 +54,9 @@ SOURCES += servo_output.c
 SOURCES += servo_reader.c
 SOURCES += shelf_queen_mode.c
 SOURCES += uart_reader.c
-# SOURCES += winch.c
 SOURCES += libs/printf/printf.c
 SOURCES += hal/startup_lpc81x.c
 SOURCES += hal/hal_lpc81x.c
-SOURCES += $(BUILD_DIR)/config_light_programs.c
 
 INCLUDES := -I.
 INCLUDES += -I./hal
@@ -99,13 +96,12 @@ CFLAGS += $(INCLUDES) $(DEFINES)
 LDFLAGS = $(CPU_FLAGS)
 LDFLAGS += -Wl,-T,$(LINKER_SCRIPT)
 LDFLAGS += -Wl,--warn-common
-# LDFLAGS += -Wl,-nostdlib
-# LDFLAGS += -Wl,-nostartfiles
 LDFLAGS += -Wl,--gc-sections
 LDFLAGS += -Wl,-Os
 LDFLAGS += -Wl,-Map=$(TARGET_MAP) -Wl,--cref
 
 LINKER_SCRIPT := hal/lpc812.ld
+
 
 ###############################################################################
 # TARGET and object file setup
@@ -118,24 +114,6 @@ TARGET_MAP := $(addprefix $(BUILD_DIR)/, $(TARGET).map)
 
 $(OBJECTS): $(DEPENDENCIES)
 $(TARGET_MAP): $(TARGET_ELF)
-
-###############################################################################
-# Plumbing for rules
-# vpath %.c $(SOURCE_DIRS)
-
-# $(shell $(MKDIR_P) $(BUILD_DIR))   # Always create the build directory
-
-# define compile-objects
-# $1/%.o: %.c
-# 	@echo [CC] $$<
-# 	$(ECHO) $(CC) $(CFLAGS) -c $$< -o $$@
-
-# $1/%.lst: %.c
-# 	@echo [LIST] $$<
-# 	$(ECHO) $(CC) -c -g -Wa,-adlhn $(CFLAGS) $$< -o /dev/null > $$@
-# endef
-
-# $(foreach bdir, $(BUILD_DIR), $(eval $(call compile-objects,$(bdir))))
 
 
 ###############################################################################
@@ -172,17 +150,9 @@ echosize: $(TARGET_ELF)
 	$(ECHO) $(SIZE) $(TARGET_ELF)
 	-@echo ''
 
-$(BUILD_DIR)/config_light_programs.o: $(BUILD_DIR)/config_light_programs.c
-
-$(BUILD_DIR)/config_light_programs.c: $(DEFAULT_LIGHT_PROGRAM)
-	@echo [ASM] $@
-	$(ECHO) cd $(LIGHT_PROGRAM_ASSEMBLER_PATH) && $(MAKE) run RUN_OPTIONS="--include-name -o $(abspath $(BUILD_DIR)/config_light_programs.c) $(abspath $(DEFAULT_LIGHT_PROGRAM))"
-
 default_firmware_image: $(TARGET_HEX)
 	@echo [TEXT2JS] $<
 	$(ECHO) $(TEXT2JS) $< default_firmware_image_mk4 >$(DEFAULT_FIRMWARE_IMAGE_JS)
-	@echo [TEXT2JS] $(DEFAULT_LIGHT_PROGRAM)
-	$(ECHO) $(TEXT2JS) $(DEFAULT_LIGHT_PROGRAM) default_light_program >>$(DEFAULT_FIRMWARE_IMAGE_JS)
 
 # Create list files that include C code as well as Assembler
 list: $(BUILD_DIR) $(OBJECTS:.o=.lst)
