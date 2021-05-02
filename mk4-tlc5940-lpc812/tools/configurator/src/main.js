@@ -254,6 +254,7 @@ var app = (function () {
     var set_uint8 = function (data, offset, value) {
         value = parseInt(value, 10);
         if (isNaN(value)) {
+            debugger
             log.log('ERROR in set_uint8 when setting offset ' + offset +
                 ': value="' + value + '"');
             value = 0;
@@ -1840,54 +1841,9 @@ var app = (function () {
 
             log.log('load_configuration_from_disk() firmware_version: ' + config.firmware_version);
 
-            // Extend the configuration generated for config_version 1
-            // Since config_version is not saved in the JSON we use the
-            // firmware_version to check. firmware_version <20 means
-            // config_version 1
-            if (config.firmware_version < 20) {
-                config.multi_aux = false;
-                config.shelf_queen_mode = true;
-                config.us_style_combined_lights = true;
-
-                config.blink_counter_value_dark = config.blink_counter_value;
-
-                config.aux_type = AUX_TYPE.AUX_TYPE_TWO_POSITION;
-                config.aux_function = AUX_FUNCTION.AUX_FUNCTION_MULTI_FUNCTION;
-                config.aux2_type = AUX_TYPE.AUX_TYPE_TWO_POSITION;
-                config.aux2_function = AUX_FUNCTION.AUX_FUNCTION_NOT_USED;
-                config.aux3_type = AUX_TYPE.AUX_TYPE_TWO_POSITION;
-                config.aux3_function = AUX_FUNCTION.AUX_FUNCTION_NOT_USED;
-            }
-
-            if (config.firmware_version < 33) {
-                config.aux_centre_threshold_low = -10;
-                config.aux_centre_threshold_high = 10;
-                config.aux_left_centre_threshold_low = -40;
-                config.aux_left_centre_threshold_high = -30;
-                config.aux_centre_right_threshold_low = 30;
-                config.aux_centre_right_threshold_high = 40;
-            }
-
-            if (config.firmware_version < 37) {
-                config.diagnostics_brightness = 255;
-            }
-
-            if (config.aux_type == null ||
-                    config.aux2_type == null ||
-                    config.aux3_type == null ||
-                    config.aux_function == null ||
-                    config.aux2_function == null ||
-                    config.aux3_function == null) {
-
-                log.log('WARNING: fixing corrupt configuration regarding aux_type and aux_function');
-                config.aux_type = AUX_TYPE.AUX_TYPE_TWO_POSITION;
-                config.aux_function = AUX_FUNCTION.AUX_FUNCTION_MULTI_FUNCTION;
-                config.aux2_type = AUX_TYPE.AUX_TYPE_TWO_POSITION;
-                config.aux2_function = AUX_FUNCTION.AUX_FUNCTION_NOT_USED;
-                config.aux3_type = AUX_TYPE.AUX_TYPE_TWO_POSITION;
-                config.aux3_function = AUX_FUNCTION.AUX_FUNCTION_NOT_USED;
-            }
-
+            upgrade_config(config);
+            upgrade_leds(local_leds);
+            upgrade_leds(slave_leds);
 
             // Use the current firmware when loading a configuration file
             firmware = parse_firmware_structure(hex_to_bin(default_firmware_image_mk4));
@@ -2044,6 +2000,68 @@ var app = (function () {
 
 
     // *************************************************************************
+    var upgrade_config = function (config) {
+        // Extend the configuration generated for config_version 1
+        // Since config_version is not saved in the JSON we use the
+        // firmware_version to check. firmware_version <20 means
+        // config_version 1
+        if (config.firmware_version < 20) {
+            config.multi_aux = false;
+            config.shelf_queen_mode = true;
+            config.us_style_combined_lights = true;
+
+            config.blink_counter_value_dark = config.blink_counter_value;
+
+            config.aux_type = AUX_TYPE.AUX_TYPE_TWO_POSITION;
+            config.aux_function = AUX_FUNCTION.AUX_FUNCTION_MULTI_FUNCTION;
+            config.aux2_type = AUX_TYPE.AUX_TYPE_TWO_POSITION;
+            config.aux2_function = AUX_FUNCTION.AUX_FUNCTION_NOT_USED;
+            config.aux3_type = AUX_TYPE.AUX_TYPE_TWO_POSITION;
+            config.aux3_function = AUX_FUNCTION.AUX_FUNCTION_NOT_USED;
+        }
+
+        if (config.firmware_version < 33) {
+            config.aux_centre_threshold_low = -10;
+            config.aux_centre_threshold_high = 10;
+            config.aux_left_centre_threshold_low = -40;
+            config.aux_left_centre_threshold_high = -30;
+            config.aux_centre_right_threshold_low = 30;
+            config.aux_centre_right_threshold_high = 40;
+        }
+
+        if (config.firmware_version < 37) {
+            config.diagnostics_brightness = 255;
+        }
+
+        if (config.aux_type == null ||
+                config.aux2_type == null ||
+                config.aux3_type == null ||
+                config.aux_function == null ||
+                config.aux2_function == null ||
+                config.aux3_function == null) {
+
+            log.log('WARNING: fixing corrupt configuration regarding aux_type and aux_function');
+            config.aux_type = AUX_TYPE.AUX_TYPE_TWO_POSITION;
+            config.aux_function = AUX_FUNCTION.AUX_FUNCTION_MULTI_FUNCTION;
+            config.aux2_type = AUX_TYPE.AUX_TYPE_TWO_POSITION;
+            config.aux2_function = AUX_FUNCTION.AUX_FUNCTION_NOT_USED;
+            config.aux3_type = AUX_TYPE.AUX_TYPE_TWO_POSITION;
+            config.aux3_function = AUX_FUNCTION.AUX_FUNCTION_NOT_USED;
+        }
+    };
+
+    // *************************************************************************
+    var upgrade_leds = function (led_source) {
+        for (let i = 0; i < led_source.led_count; i += 1) {
+            let led = led_source[i];
+
+            if (!led.hasOwnProperty('diagnostics')) {
+                led.diagnostics = 0;
+            }
+        }
+    };
+
+    // *************************************************************************
     var get_config = function () {
         var i;
 
@@ -2089,6 +2107,15 @@ var app = (function () {
             config[key] = Math.round(parseInt(el[key].value, 10) * 255 / 100);
         }
 
+        function upgrade_legacy_configuration(configuration) {
+            upgrade_config(configuration.config);
+            upgrade_leds(configuration.local_leds);
+            upgrade_leds(configuration.slave_leds);
+            // Patch firmware version
+            configuration.config.firmware_version = config.firmware_version;
+            configuration.config.baudrate = config.baudrate;
+        }
+
         log.log('config.mode: ' + config.mode);
         log.log('config_version: ' + config_version);
         log.log('config.firmware_version: ' + config.firmware_version);
@@ -2101,20 +2128,16 @@ var app = (function () {
         // If the test firmware is requested return the special configuration
         // that is stored as part of this tool.
         if (parseInt(el.mode.value, 10) === MODE.TEST) {
-            // Patch firmware version
-            hardware_test_configuration.config.firmware_version = config.firmware_version;
-            hardware_test_configuration.config.baudrate = config.baudrate;
+            upgrade_legacy_configuration(hardware_test_configuration);
             return hardware_test_configuration;
         }
         else if (parseInt(el.mode.value, 10) === MODE.PREPROCESSOR) {
-            preprocessor_configuration.config.firmware_version = config.firmware_version;
-            preprocessor_configuration.config.baudrate = config.baudrate;
+            upgrade_legacy_configuration(preprocessor_configuration);
             preprocessor_configuration.config.multi_aux = false;
             return preprocessor_configuration;
         }
         else if (parseInt(el.mode.value, 10) === MODE.PREPROCESSOR_5CH) {
-            preprocessor_configuration.config.firmware_version = config.firmware_version;
-            preprocessor_configuration.config.baudrate = config.baudrate;
+            upgrade_legacy_configuration(preprocessor_configuration);
             preprocessor_configuration.config.multi_aux = true;
             return preprocessor_configuration;
         }
