@@ -4,7 +4,7 @@ The pre-processor converts steering, throttle and AUX/CH3 signals into a single 
 
 This makes it very convenient when removing the body shell from the chassis: only one cable needs to be unplugged.
 
-![Pre-processor circuit board rendering](electronics/preprocessor-render.jpg)
+![Pre-processor circuit board rendering](electronics-3ch/preprocessor-render.jpg)
 
 The pre-processor PCB also acts as "Y-cable" for steering and throttle. Use short male-to-male servo extensions to connect the pre-processor to your receiver, and plug the servo and ESC into the two extra ports on the pre-processor.
 
@@ -17,10 +17,10 @@ If the baud rate is configured to 38400, the pre-processor is also compatible wi
 The PCB and schematics design was done in [KiCad EDA](http://kicad-pcb.org/)
 
 
-3-channel Pre-Processor: [electronics/](electronics/)
+3-channel Pre-Processor: [electronics-3ch/](electronics-3ch/)
 
-5-channel Pre-Processor: [electronics-multi-aux/](electronics-multi-aux/)
+5-channel Pre-Processor: [electronics-5ch/](electronics-5ch/)
 
-5-channel Pre-Processor/switching light controller combination (4 switched LED outputs): [electronics-multi-aux-switching/](electronics-multi-aux-switching/)
+5-channel Pre-Processor/switching light controller combination (4 switched LED outputs): [electronics-5ch-switching/](electronics-5ch-switching/)
 
 
