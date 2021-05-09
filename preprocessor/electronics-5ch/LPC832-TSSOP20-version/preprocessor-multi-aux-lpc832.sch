@@ -5,7 +5,7 @@ $Descr A4 11693 8268
 encoding utf-8
 Sheet 1 1
 Title "Pre-processor for RC Light Controller"
-Date "2021-04-11"
+Date "2021-05-09"
 Rev "3"
 Comp "LANE Boys RC"
 Comment1 "Support for 3 AUX channels"
@@ -439,8 +439,8 @@ F 3 "" H 6150 3300 50  0000 C CNN
 $EndComp
 Wire Wire Line
 	6150 3150 6150 3300
-Text Notes 2600 7000 0    50   ~ 0
-Light Controller pin usage:\nPIO0_0   (16, TDO, ISP-Rx)   Steering input / Rx\nPIO0_1   (9,  TDI)           TLC5940 GSCLK\nPIO0_2   (6,  TMS, SWDIO)    TLC5940 SCLK\nPIO0_3   (5,  TCK, SWCLK)    TLC5940 XLAT\nPIO0_4   (4,  TRST, ISP-Tx)  Throttle input / Tx\nPIO0_5   (3,  RESET)         NC (test point)\nPIO0_6   (15)                TLC5940 BLANK\nPIO0_7   (14)                TLC5940 SIN\nPIO0_8   (11, XTALIN)        ===> AUX2\nPIO0_9   (10, XTALOUT)       Switched light output (for driving a load via a MOSFET)\nPIO0_10  (8,  Open drain)    NC\nPIO0_11  (7,  Open drain)    ===> AUX3 (100K pull-down)\nPIO0_12  (2,  ISP-entry)     OUT / ISP\nPIO0_13  (1)                 CH3 input\n
+Text Notes 2950 7600 0    50   ~ 0
+LPC832 pin usage:\nPIO0_0   (19, TDO, ISP-Rx)   Steering input / Rx\nPIO0_1   (12, TDI)           (TLC5940 GSCLK)\nPIO0_2   (8,  TMS, SWDIO)    (TLC5940 SCLK)\nPIO0_3   (7,  TCK, SWCLK)    (TLC5940 XLAT)\nPIO0_4   (6,  TRST, ISP-Tx)  Throttle input / Tx\nPIO0_5   (5,  RESET)         NC\nPIO0_6                       (was TLC5940 BLANK)\nPIO0_7                       (was TLC5940 SIN)\nPIO0_8   (14, XTALIN)        AUX2 input\nPIO0_9   (13, XTALOUT)       (Switched light output)\nPIO0_10  (10, Open drain)    NC\nPIO0_11  (9,  Open drain)    AUX3 input\nPIO0_12  (4,  ISP-entry)     OUT / ISP\nPIO0_13  (3)                 AUX input\nPIO0_14  (20)                Hardware detection, must be floating (or high)\nPIO0_15  (11)                (TLC5940 BLANK)\nPIO0_17  (2)                 NC\nPIO0_23  (1)                 (TLC5940 SIN)\nGND      (13)\n3.3V     (12)\nVREFN    (17)\nVREFP    (18)\n
 Text Notes 6300 3200 0    50   ~ 0
 Pull-down required because \nPIO0_11 is open drain!
 Wire Wire Line
