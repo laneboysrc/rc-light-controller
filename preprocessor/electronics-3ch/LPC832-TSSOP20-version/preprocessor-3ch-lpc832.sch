@@ -5,10 +5,10 @@ $Descr A4 11693 8268
 encoding utf-8
 Sheet 1 1
 Title "Pre-processor for RC Light Controller"
-Date "2021-02-11"
-Rev "5"
+Date "2021-05-10"
+Rev "6"
 Comp "LANE Boys RC"
-Comment1 "TSSOP20 package due to TSSOP16 shortage in 2021"
+Comment1 "Using LPC832-TSSOP20 due to LPC812-TSSOP16 shortage in 2021"
 Comment2 ""
 Comment3 ""
 Comment4 ""

@@ -6,7 +6,7 @@ encoding utf-8
 Sheet 1 1
 Title "Pre-processor for RC Light Controller"
 Date "2021-05-09"
-Rev "3"
+Rev "M3"
 Comp "LANE Boys RC"
 Comment1 "Support for 3 AUX channels"
 Comment2 "LPC832 version due to LPC812 shortage in 2021"
