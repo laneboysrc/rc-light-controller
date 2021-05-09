@@ -6,9 +6,7 @@
 // LED patterns:
 // - Running sequence, 300ms intervals, group of 4 LEDs
 // - LEDs are never off, but very dim
-//
-// Future improvements (requires firmware update):
-// - test input signals (flash all LEDs when any input changes)
+
 
 run always
 
@@ -38,22 +36,69 @@ var led_high_value
     led_high_value = 100
 
 loop:
-  l0, l1, l2, l3, l4, l5, l6, l7, l8, l9, l10, l11, l12, l13, l14, l15 = led_low_value
-    l0, l4, l8, l12 = led_high_value
+  l0, l1, l2, l3, l4, l5, l6, l7, l8, l9, l10, l11, l12, l13, l14 = led_low_value
+    l15 = 0
+    l0, l4, l8, l12, l15 = led_high_value
     sleep pause_time
 
-  l0, l1, l2, l3, l4, l5, l6, l7, l8, l9, l10, l11, l12, l13, l14, l15 = led_low_value
+  l0, l1, l2, l3, l4, l5, l6, l7, l8, l9, l10, l11, l12, l13, l14 = led_low_value
+    l15 = 0
     l1, l5, l9, l13 = led_high_value
     sleep pause_time
 
-  l0, l1, l2, l3, l4, l5, l6, l7, l8, l9, l10, l11, l12, l13, l14, l15 = led_low_value
+  l0, l1, l2, l3, l4, l5, l6, l7, l8, l9, l10, l11, l12, l13, l14 = led_low_value
+    l15 = 0
     l2, l6, l10, l14= led_high_value
     sleep pause_time
 
-  l0, l1, l2, l3, l4, l5, l6, l7, l8, l9, l10, l11, l12, l13, l14, l15 = led_low_value
+  l0, l1, l2, l3, l4, l5, l6, l7, l8, l9, l10, l11, l12, l13, l14 = led_low_value
+    l15 = 0
     l3, l7, l11, l15 = led_high_value
     sleep pause_time
 
     goto loop
 
-  end
+end
+
+// Cycle the servo output between left - center - right - center ...
+run always
+const SERVO_PAUSE_TIME = 300
+
+loop:
+  sleep SERVO_PAUSE_TIME
+    servo = -33
+
+  sleep SERVO_PAUSE_TIME
+    servo = -66
+
+  sleep SERVO_PAUSE_TIME
+    servo = -100
+
+  sleep SERVO_PAUSE_TIME
+    servo = -66
+
+  sleep SERVO_PAUSE_TIME
+    servo = -33
+
+  sleep SERVO_PAUSE_TIME
+    servo = 0
+
+  sleep SERVO_PAUSE_TIME
+    servo = 33
+
+  sleep SERVO_PAUSE_TIME
+    servo = 66
+
+  sleep SERVO_PAUSE_TIME
+    servo = 100
+
+  sleep SERVO_PAUSE_TIME
+    servo = 66
+
+  sleep SERVO_PAUSE_TIME
+    servo = 33
+
+  sleep SERVO_PAUSE_TIME
+    servo = 0
+    goto loop
+end

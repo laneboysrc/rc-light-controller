@@ -1,17 +1,22 @@
 {
   "config": {
-    "firmware_version": 32,
+    "firmware_version": 37,
     "mode": 1,
     "esc_mode": 0,
     "slave_output": false,
     "preprocessor_output": false,
-    "winch_output": false,
-    "steering_wheel_servo_output": false,
+    "steering_wheel_servo_output": true,
     "gearbox_servo_output": false,
     "ch3_is_local_switch": false,
     "ch3_is_momentary": false,
     "auto_brake_lights_forward_enabled": true,
     "auto_brake_lights_reverse_enabled": true,
+    "ch3_is_two_button": false,
+    "reverse_st": false,
+    "reverse_th": false,
+    "reverse_aux": false,
+    "reverse_aux2": false,
+    "reverse_aux3": false,
     "auto_brake_counter_value_forward_min": 25,
     "auto_brake_counter_value_forward_max": 125,
     "auto_brake_counter_value_reverse_min": 25,
@@ -28,8 +33,7 @@
     "light_switch_positions": 5,
     "initial_light_switch_position": 0,
     "initial_endpoint_delta": 250,
-    "ch3_multi_click_timeout": 15,
-    "winch_command_repeat_time": 50,
+    "ch3_multi_click_timeout": 25,
     "baudrate": 115200,
     "no_signal_timeout": 25,
     "number_of_gears": 2,
@@ -38,10 +42,16 @@
     "servo_pulse_min": 600,
     "servo_pulse_max": 2500,
     "startup_time": 100,
-    "ch3_is_two_button": false,
     "multi_aux": false,
     "shelf_queen_mode": true,
     "us_style_combined_lights": true,
+    "gearbox_light_program_control": false,
+    "light_program_servo_output": false,
+    "indicators_while_driving": false,
+    "require_extra_click": false,
+    "prefer_all_lights_off": false,
+    "invert_out15s": false,
+    "assign_uart_to_out": false,
     "blink_counter_value_dark": 17,
     "aux_type": 0,
     "aux_function": 1,
@@ -49,18 +59,13 @@
     "aux2_function": 0,
     "aux3_type": 0,
     "aux3_function": 0,
-    "gearbox_light_program_control": false,
-    "light_program_servo_output": true,
-    "indicators_while_driving": false,
-    "require_extra_click": false,
-    "prefer_all_lights_off": false,
-    "reverse_st": false,
-    "reverse_th": false,
-    "reverse_aux": false,
-    "reverse_aux2": false,
-    "reverse_aux3": false,
-    "invert_out15s": false,
-    "assign_uart_to_out": false,
+    "aux_centre_threshold_low": -10,
+    "aux_centre_threshold_high": 10,
+    "aux_left_centre_threshold_low": -40,
+    "aux_left_centre_threshold_high": -30,
+    "aux_centre_right_threshold_low": 30,
+    "aux_centre_right_threshold_high": 40,
+    "diagnostics_brightness": 255,
     "light_switch_hysteresis": 10,
     "light_switch_centers": [
       -80,
@@ -106,7 +111,8 @@
       "brake_light": 0,
       "reversing_light": 0,
       "indicator_left": 0,
-      "indicator_right": 0
+      "indicator_right": 0,
+      "diagnostics": 0
     },
     "1": {
       "max_change_per_systick": 0,
@@ -139,7 +145,8 @@
       "brake_light": 0,
       "reversing_light": 0,
       "indicator_left": 0,
-      "indicator_right": 0
+      "indicator_right": 0,
+      "diagnostics": 0
     },
     "2": {
       "max_change_per_systick": 0,
@@ -172,7 +179,8 @@
       "brake_light": 0,
       "reversing_light": 0,
       "indicator_left": 0,
-      "indicator_right": 0
+      "indicator_right": 0,
+      "diagnostics": 2
     },
     "3": {
       "max_change_per_systick": 0,
@@ -205,7 +213,8 @@
       "brake_light": 0,
       "reversing_light": 0,
       "indicator_left": 0,
-      "indicator_right": 0
+      "indicator_right": 0,
+      "diagnostics": 2
     },
     "4": {
       "max_change_per_systick": 0,
@@ -238,7 +247,8 @@
       "brake_light": 0,
       "reversing_light": 0,
       "indicator_left": 0,
-      "indicator_right": 0
+      "indicator_right": 0,
+      "diagnostics": 64
     },
     "5": {
       "max_change_per_systick": 0,
@@ -271,7 +281,8 @@
       "brake_light": 0,
       "reversing_light": 0,
       "indicator_left": 0,
-      "indicator_right": 0
+      "indicator_right": 0,
+      "diagnostics": 64
     },
     "6": {
       "max_change_per_systick": 0,
@@ -304,7 +315,8 @@
       "brake_light": 0,
       "reversing_light": 0,
       "indicator_left": 255,
-      "indicator_right": 0
+      "indicator_right": 0,
+      "diagnostics": 45
     },
     "7": {
       "max_change_per_systick": 0,
@@ -337,7 +349,8 @@
       "brake_light": 0,
       "reversing_light": 0,
       "indicator_left": 0,
-      "indicator_right": 255
+      "indicator_right": 255,
+      "diagnostics": 21
     },
     "8": {
       "max_change_per_systick": 0,
@@ -370,7 +383,8 @@
       "brake_light": 255,
       "reversing_light": 0,
       "indicator_left": 0,
-      "indicator_right": 0
+      "indicator_right": 0,
+      "diagnostics": 0
     },
     "9": {
       "max_change_per_systick": 0,
@@ -403,7 +417,8 @@
       "brake_light": 255,
       "reversing_light": 0,
       "indicator_left": 0,
-      "indicator_right": 0
+      "indicator_right": 0,
+      "diagnostics": 0
     },
     "10": {
       "max_change_per_systick": 0,
@@ -436,7 +451,8 @@
       "brake_light": 0,
       "reversing_light": 255,
       "indicator_left": 0,
-      "indicator_right": 0
+      "indicator_right": 0,
+      "diagnostics": 0
     },
     "11": {
       "max_change_per_systick": 0,
@@ -469,7 +485,8 @@
       "brake_light": 0,
       "reversing_light": 255,
       "indicator_left": 0,
-      "indicator_right": 0
+      "indicator_right": 0,
+      "diagnostics": 0
     },
     "12": {
       "max_change_per_systick": 0,
@@ -502,7 +519,8 @@
       "brake_light": 0,
       "reversing_light": 0,
       "indicator_left": 255,
-      "indicator_right": 0
+      "indicator_right": 0,
+      "diagnostics": 44
     },
     "13": {
       "max_change_per_systick": 0,
@@ -535,7 +553,8 @@
       "brake_light": 0,
       "reversing_light": 0,
       "indicator_left": 0,
-      "indicator_right": 255
+      "indicator_right": 255,
+      "diagnostics": 20
     },
     "14": {
       "max_change_per_systick": 0,
@@ -568,7 +587,8 @@
       "brake_light": 255,
       "reversing_light": 0,
       "indicator_left": 0,
-      "indicator_right": 0
+      "indicator_right": 0,
+      "diagnostics": 0
     },
     "15": {
       "max_change_per_systick": 0,
@@ -601,7 +621,8 @@
       "brake_light": 0,
       "reversing_light": 0,
       "indicator_left": 0,
-      "indicator_right": 0
+      "indicator_right": 0,
+      "diagnostics": 0
     },
     "led_count": 16
   },
@@ -625,10 +646,10 @@
       "weak_indicator_right": false,
       "always_on": 0,
       "light_switch_position0": 0,
-      "light_switch_position1": 0,
-      "light_switch_position2": 0,
-      "light_switch_position3": 0,
-      "light_switch_position4": 0,
+      "light_switch_position1": 255,
+      "light_switch_position2": 255,
+      "light_switch_position3": 255,
+      "light_switch_position4": 255,
       "light_switch_position5": 0,
       "light_switch_position6": 0,
       "light_switch_position7": 0,
@@ -637,7 +658,8 @@
       "brake_light": 0,
       "reversing_light": 0,
       "indicator_left": 0,
-      "indicator_right": 0
+      "indicator_right": 0,
+      "diagnostics": 0
     },
     "1": {
       "max_change_per_systick": 0,
@@ -658,10 +680,10 @@
       "weak_indicator_right": false,
       "always_on": 0,
       "light_switch_position0": 0,
-      "light_switch_position1": 0,
-      "light_switch_position2": 0,
-      "light_switch_position3": 0,
-      "light_switch_position4": 0,
+      "light_switch_position1": 255,
+      "light_switch_position2": 255,
+      "light_switch_position3": 255,
+      "light_switch_position4": 255,
       "light_switch_position5": 0,
       "light_switch_position6": 0,
       "light_switch_position7": 0,
@@ -670,7 +692,8 @@
       "brake_light": 0,
       "reversing_light": 0,
       "indicator_left": 0,
-      "indicator_right": 0
+      "indicator_right": 0,
+      "diagnostics": 0
     },
     "2": {
       "max_change_per_systick": 0,
@@ -692,9 +715,9 @@
       "always_on": 0,
       "light_switch_position0": 0,
       "light_switch_position1": 0,
-      "light_switch_position2": 0,
-      "light_switch_position3": 0,
-      "light_switch_position4": 0,
+      "light_switch_position2": 255,
+      "light_switch_position3": 255,
+      "light_switch_position4": 255,
       "light_switch_position5": 0,
       "light_switch_position6": 0,
       "light_switch_position7": 0,
@@ -703,7 +726,8 @@
       "brake_light": 0,
       "reversing_light": 0,
       "indicator_left": 0,
-      "indicator_right": 0
+      "indicator_right": 0,
+      "diagnostics": 0
     },
     "3": {
       "max_change_per_systick": 0,
@@ -725,9 +749,9 @@
       "always_on": 0,
       "light_switch_position0": 0,
       "light_switch_position1": 0,
-      "light_switch_position2": 0,
-      "light_switch_position3": 0,
-      "light_switch_position4": 0,
+      "light_switch_position2": 255,
+      "light_switch_position3": 255,
+      "light_switch_position4": 255,
       "light_switch_position5": 0,
       "light_switch_position6": 0,
       "light_switch_position7": 0,
@@ -736,7 +760,8 @@
       "brake_light": 0,
       "reversing_light": 0,
       "indicator_left": 0,
-      "indicator_right": 0
+      "indicator_right": 0,
+      "diagnostics": 0
     },
     "4": {
       "max_change_per_systick": 0,
@@ -759,8 +784,8 @@
       "light_switch_position0": 0,
       "light_switch_position1": 0,
       "light_switch_position2": 0,
-      "light_switch_position3": 0,
-      "light_switch_position4": 0,
+      "light_switch_position3": 255,
+      "light_switch_position4": 255,
       "light_switch_position5": 0,
       "light_switch_position6": 0,
       "light_switch_position7": 0,
@@ -769,7 +794,8 @@
       "brake_light": 0,
       "reversing_light": 0,
       "indicator_left": 0,
-      "indicator_right": 0
+      "indicator_right": 0,
+      "diagnostics": 0
     },
     "5": {
       "max_change_per_systick": 0,
@@ -792,8 +818,8 @@
       "light_switch_position0": 0,
       "light_switch_position1": 0,
       "light_switch_position2": 0,
-      "light_switch_position3": 0,
-      "light_switch_position4": 0,
+      "light_switch_position3": 255,
+      "light_switch_position4": 255,
       "light_switch_position5": 0,
       "light_switch_position6": 0,
       "light_switch_position7": 0,
@@ -802,7 +828,8 @@
       "brake_light": 0,
       "reversing_light": 0,
       "indicator_left": 0,
-      "indicator_right": 0
+      "indicator_right": 0,
+      "diagnostics": 0
     },
     "6": {
       "max_change_per_systick": 0,
@@ -834,8 +861,9 @@
       "tail_light": 0,
       "brake_light": 0,
       "reversing_light": 0,
-      "indicator_left": 0,
-      "indicator_right": 0
+      "indicator_left": 255,
+      "indicator_right": 0,
+      "diagnostics": 0
     },
     "7": {
       "max_change_per_systick": 0,
@@ -868,7 +896,8 @@
       "brake_light": 0,
       "reversing_light": 0,
       "indicator_left": 0,
-      "indicator_right": 0
+      "indicator_right": 255,
+      "diagnostics": 0
     },
     "8": {
       "max_change_per_systick": 0,
@@ -897,11 +926,12 @@
       "light_switch_position6": 0,
       "light_switch_position7": 0,
       "light_switch_position8": 0,
-      "tail_light": 0,
-      "brake_light": 0,
+      "tail_light": 84,
+      "brake_light": 255,
       "reversing_light": 0,
       "indicator_left": 0,
-      "indicator_right": 0
+      "indicator_right": 0,
+      "diagnostics": 0
     },
     "9": {
       "max_change_per_systick": 0,
@@ -930,11 +960,12 @@
       "light_switch_position6": 0,
       "light_switch_position7": 0,
       "light_switch_position8": 0,
-      "tail_light": 0,
-      "brake_light": 0,
+      "tail_light": 84,
+      "brake_light": 255,
       "reversing_light": 0,
       "indicator_left": 0,
-      "indicator_right": 0
+      "indicator_right": 0,
+      "diagnostics": 0
     },
     "10": {
       "max_change_per_systick": 0,
@@ -965,9 +996,10 @@
       "light_switch_position8": 0,
       "tail_light": 0,
       "brake_light": 0,
-      "reversing_light": 0,
+      "reversing_light": 255,
       "indicator_left": 0,
-      "indicator_right": 0
+      "indicator_right": 0,
+      "diagnostics": 0
     },
     "11": {
       "max_change_per_systick": 0,
@@ -998,9 +1030,10 @@
       "light_switch_position8": 0,
       "tail_light": 0,
       "brake_light": 0,
-      "reversing_light": 0,
+      "reversing_light": 255,
       "indicator_left": 0,
-      "indicator_right": 0
+      "indicator_right": 0,
+      "diagnostics": 0
     },
     "12": {
       "max_change_per_systick": 0,
@@ -1032,8 +1065,9 @@
       "tail_light": 0,
       "brake_light": 0,
       "reversing_light": 0,
-      "indicator_left": 0,
-      "indicator_right": 0
+      "indicator_left": 255,
+      "indicator_right": 0,
+      "diagnostics": 0
     },
     "13": {
       "max_change_per_systick": 0,
@@ -1066,7 +1100,8 @@
       "brake_light": 0,
       "reversing_light": 0,
       "indicator_left": 0,
-      "indicator_right": 0
+      "indicator_right": 255,
+      "diagnostics": 0
     },
     "14": {
       "max_change_per_systick": 0,
@@ -1096,10 +1131,11 @@
       "light_switch_position7": 0,
       "light_switch_position8": 0,
       "tail_light": 0,
-      "brake_light": 0,
+      "brake_light": 255,
       "reversing_light": 0,
       "indicator_left": 0,
-      "indicator_right": 0
+      "indicator_right": 0,
+      "diagnostics": 0
     },
     "15": {
       "max_change_per_systick": 0,
@@ -1123,7 +1159,7 @@
       "light_switch_position1": 0,
       "light_switch_position2": 0,
       "light_switch_position3": 0,
-      "light_switch_position4": 0,
+      "light_switch_position4": 255,
       "light_switch_position5": 0,
       "light_switch_position6": 0,
       "light_switch_position7": 0,
@@ -1132,12 +1168,13 @@
       "brake_light": 0,
       "reversing_light": 0,
       "indicator_left": 0,
-      "indicator_right": 0
+      "indicator_right": 0,
+      "diagnostics": 0
     },
     "led_count": 16
   },
   "gamma": {
     "gamma_value": "1.8"
   },
-  "light_programs": "// This light program serves as production test.\n// \n// The LED behaviour was inspired by Mikes Electric Stuff video:\n// https://www.youtube.com/watch?v=cQWnLOCGpXM\n//\n// LED patterns:\n// - Running sequence, 300ms intervals, group of 4 LEDs\n// - LEDs are never off, but very dim\n\n\nrun always\n\nled l0 = led[0]\nled l1 = led[1]\nled l2 = led[2]\nled l3 = led[3]\nled l4 = led[4]\nled l5 = led[5]\nled l6 = led[6]\nled l7 = led[7]\nled l8 = led[8]\nled l9 = led[9]\nled l10 = led[10]\nled l11 = led[11]\nled l12 = led[12]\nled l13 = led[13]\nled l14 = led[14]\nled l15 = led[15]\n\nvar pause_time\nvar led_low_value\nvar led_high_value\n\n\tpause_time = 300\n    led_low_value = 15\n    led_high_value = 100\n\nloop:\n\tl0, l1, l2, l3, l4, l5, l6, l7, l8, l9, l10, l11, l12, l13, l14 = led_low_value\n    l15 = 0\n    l0, l4, l8, l12 = led_high_value\n    sleep pause_time\n\n\tl0, l1, l2, l3, l4, l5, l6, l7, l8, l9, l10, l11, l12, l13, l14 = led_low_value\n    l15 = 0\n    l1, l5, l9, l13 = led_high_value\n    sleep pause_time\n\n\tl0, l1, l2, l3, l4, l5, l6, l7, l8, l9, l10, l11, l12, l13, l14 = led_low_value\n    l15 = 0\n    l2, l6, l10, l14= led_high_value\n    sleep pause_time\n\t\n\tl0, l1, l2, l3, l4, l5, l6, l7, l8, l9, l10, l11, l12, l13, l14 = led_low_value\n    l15 = 0\n    l3, l7, l11, l15 = led_high_value\n    sleep pause_time\n\t\n    goto loop\n    \nend\n\n// Cycle the servo output between left - center - right - center ...\nrun always\nconst SERVO_PAUSE_TIME = 300\n\nloop:\n\tsleep SERVO_PAUSE_TIME\n    servo = -33\n\n\tsleep SERVO_PAUSE_TIME\n    servo = -66\n\n\tsleep SERVO_PAUSE_TIME\n    servo = -100\n\n\tsleep SERVO_PAUSE_TIME\n    servo = -66\n\n\tsleep SERVO_PAUSE_TIME\n    servo = -33\n\n\tsleep SERVO_PAUSE_TIME\n    servo = 0\n\n\tsleep SERVO_PAUSE_TIME\n    servo = 33\n\n\tsleep SERVO_PAUSE_TIME\n    servo = 66\n\n\tsleep SERVO_PAUSE_TIME\n    servo = 100\n\n\tsleep SERVO_PAUSE_TIME\n    servo = 66\n\n\tsleep SERVO_PAUSE_TIME\n    servo = 33\n\n\tsleep SERVO_PAUSE_TIME\n    servo = 0\n    goto loop\nend\n"
+  "light_programs": "// This light program serves as production test.\n//\n// The LED behaviour was inspired by Mikes Electric Stuff video:\n// https://www.youtube.com/watch?v=cQWnLOCGpXM\n//\n// LED patterns:\n// - Running sequence, 300ms intervals, group of 4 LEDs\n// - LEDs are never off, but very dim\n\n\nrun always\n\nled l0 = led[0]\nled l1 = led[1]\nled l2 = led[2]\nled l3 = led[3]\nled l4 = led[4]\nled l5 = led[5]\nled l6 = led[6]\nled l7 = led[7]\nled l8 = led[8]\nled l9 = led[9]\nled l10 = led[10]\nled l11 = led[11]\nled l12 = led[12]\nled l13 = led[13]\nled l14 = led[14]\nled l15 = led[15]\n\nvar pause_time\nvar led_low_value\nvar led_high_value\n\n  pause_time = 300\n    led_low_value = 15\n    led_high_value = 100\n\nloop:\n  l0, l1, l2, l3, l4, l5, l6, l7, l8, l9, l10, l11, l12, l13, l14 = led_low_value\n    l15 = 0\n    l0, l4, l8, l12, l15 = led_high_value\n    sleep pause_time\n\n  l0, l1, l2, l3, l4, l5, l6, l7, l8, l9, l10, l11, l12, l13, l14 = led_low_value\n    l15 = 0\n    l1, l5, l9, l13 = led_high_value\n    sleep pause_time\n\n  l0, l1, l2, l3, l4, l5, l6, l7, l8, l9, l10, l11, l12, l13, l14 = led_low_value\n    l15 = 0\n    l2, l6, l10, l14= led_high_value\n    sleep pause_time\n\n  l0, l1, l2, l3, l4, l5, l6, l7, l8, l9, l10, l11, l12, l13, l14 = led_low_value\n    l15 = 0\n    l3, l7, l11, l15 = led_high_value\n    sleep pause_time\n\n    goto loop\n\nend\n\n// Cycle the servo output between left - center - right - center ...\nrun always\nconst SERVO_PAUSE_TIME = 300\n\nloop:\n  sleep SERVO_PAUSE_TIME\n    servo = -33\n\n  sleep SERVO_PAUSE_TIME\n    servo = -66\n\n  sleep SERVO_PAUSE_TIME\n    servo = -100\n\n  sleep SERVO_PAUSE_TIME\n    servo = -66\n\n  sleep SERVO_PAUSE_TIME\n    servo = -33\n\n  sleep SERVO_PAUSE_TIME\n    servo = 0\n\n  sleep SERVO_PAUSE_TIME\n    servo = 33\n\n  sleep SERVO_PAUSE_TIME\n    servo = 66\n\n  sleep SERVO_PAUSE_TIME\n    servo = 100\n\n  sleep SERVO_PAUSE_TIME\n    servo = 66\n\n  sleep SERVO_PAUSE_TIME\n    servo = 33\n\n  sleep SERVO_PAUSE_TIME\n    servo = 0\n    goto loop\nend\n"
 }
