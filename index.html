@@ -20317,9 +20317,17 @@ var app = (function () {
         const data = firmware.data;
         const offset = firmware.offset[SECTION_LIGHT_PROGRAMS];
         const number_of_programs = data[offset];
+        let first_program_offset;
 
-        const first_program_offset = offset + 4 + (4 * number_of_programs);
-
+        if (number_of_programs) {
+            first_program_offset = get_uint32(data, offset + 4);
+            log.log('number_of_programs=' + number_of_programs);
+            log.log('first_program_offset=' + first_program_offset);
+            log.log('offset='+ offset);
+        }
+        else {
+            first_program_offset = offset + 4 + (4 * number_of_programs);
+        }
         const instructions = uint8_array_to_uint32(data.slice(first_program_offset));
 
         return disassembler.disassemble(instructions);
@@ -21096,6 +21104,7 @@ var app = (function () {
             firmware = parse_firmware_structure(firmware_image);
             parse_firmware_binary();
         } catch (e) {
+            log.error(e);
             window.alert(
                 'Unable to load Intel-hex formatted firmware image:\n' + e
             );
@@ -22839,7 +22848,7 @@ document.addEventListener('DOMContentLoaded', function () {
         <h1><span id="logo"></span> RC Light Controller configuration tool</h1>
 
         <div>
-          Configurator version: <strong>2021-05-02</strong><br>
+          Configurator version: <strong>2021-05-11</strong><br>
           Firmware version: <strong><span id="firmware_version"></span></strong>
         </div>
 
@@ -24161,6 +24170,12 @@ document.addEventListener('DOMContentLoaded', function () {
       <div id="info" class="hidden">
         <div class="box configuration">
           <h2>What's new</h2>
+          <div><strong>2021-05-11 Firmware 2.37</strong></div>
+          <ul class="change-history">
+            <li>
+              Fix import of old .HEX files
+            </li>
+          </ul>
           <div><strong>2021-05-01 Firmware 2.37</strong></div>
           <ul class="change-history">
             <li>
