@@ -571,9 +571,17 @@ var app = (function () {
         const data = firmware.data;
         const offset = firmware.offset[SECTION_LIGHT_PROGRAMS];
         const number_of_programs = data[offset];
+        let first_program_offset;
 
-        const first_program_offset = offset + 4 + (4 * number_of_programs);
-
+        if (number_of_programs) {
+            first_program_offset = get_uint32(data, offset + 4);
+            log.log('number_of_programs=' + number_of_programs);
+            log.log('first_program_offset=' + first_program_offset);
+            log.log('offset='+ offset);
+        }
+        else {
+            first_program_offset = offset + 4 + (4 * number_of_programs);
+        }
         const instructions = uint8_array_to_uint32(data.slice(first_program_offset));
 
         return disassembler.disassemble(instructions);
@@ -1350,6 +1358,7 @@ var app = (function () {
             firmware = parse_firmware_structure(firmware_image);
             parse_firmware_binary();
         } catch (e) {
+            log.error(e);
             window.alert(
                 'Unable to load Intel-hex formatted firmware image:\n' + e
             );
