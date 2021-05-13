@@ -19332,9 +19332,14 @@ var ui = (function () {
             var blur_cell = e.target.parentNode;
 
             var newValue = parseInt(input.value, 10);
-            if (isNaN(newValue)  ||  !isFinite(newValue) ||
-                    newValue < input.min  ||  newValue > input.max) {
+            if (isNaN(newValue)  ||  !isFinite(newValue)) {
                 newValue = originalValue;
+            }
+            else if (newValue < input.min) {
+                newValue = parseInt(input.min, 10);
+            }
+            else if (newValue > input.max) {
+                newValue = parseInt(input.max, 10);
             }
 
             while (blur_cell.firstChild) {
@@ -22848,7 +22853,7 @@ document.addEventListener('DOMContentLoaded', function () {
         <h1><span id="logo"></span> RC Light Controller configuration tool</h1>
 
         <div>
-          Configurator version: <strong>2021-05-11</strong><br>
+          Configurator version: <strong>2021-05-13</strong><br>
           Firmware version: <strong><span id="firmware_version"></span></strong>
         </div>
 
@@ -24170,12 +24175,21 @@ document.addEventListener('DOMContentLoaded', function () {
       <div id="info" class="hidden">
         <div class="box configuration">
           <h2>What's new</h2>
+
+          <div><strong>2021-05-13 Firmware 2.37</strong></div>
+          <ul class="change-history">
+            <li>
+              Limit LED table value to 0..100 when entering larger numbers, instead of discarding the entry.
+            </li>
+          </ul>
+
           <div><strong>2021-05-11 Firmware 2.37</strong></div>
           <ul class="change-history">
             <li>
               Fix import of old .HEX files
             </li>
           </ul>
+
           <div><strong>2021-05-01 Firmware 2.37</strong></div>
           <ul class="change-history">
             <li>
@@ -24189,6 +24203,7 @@ document.addEventListener('DOMContentLoaded', function () {
               Detailed <strong>WebUSB diagnostics</strong> in the browser console is now <strong>off</strong> by default. WebUSB diagnostics can be enabled by appending <em>#webusb</em> to the Configurator URL.
             </li>
           </ul>
+
         </div>
         <div class="box configuration">
           <h2>Credits</h2>
