@@ -54,7 +54,9 @@ You may also want to read the **[users guide](doc/light-controller-instructions-
 
 ## Hardware
 
-Firmware and schematics for the different variants are included in this project, please consult the sub-folders of the respective variant.
+Firmware and schematics for the different variants are included in this project.
+
+Over the years, the light controller went through various iterations. The document [doc/hardware-overview.md](doc/hardware-overview.md) explains the history of development.
 
 ![MK4 light controller in various state of assembly](doc/light-controller-mk4-tlc5940-lpc812.jpg)
 

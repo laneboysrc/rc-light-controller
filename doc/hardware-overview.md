@@ -9,7 +9,7 @@ The following sections describe the various variants in detail, list their uniqu
 
 ## MK4 TLC5940 LPC812
 
-![MK4 light controller Rev 2](mk4-mk4p-mk4s-for-frontpage)
+![MK4 light controller Rev 2](mk4-mk4p-mk4s-for-frontpage.jpg)
 
 This iteration makes use of NXP's LPC812 microcontroller. The LPC812 contains an ARM Cortex-M0+ 32-bit core, yet costs as little as the PIC microcontroller we used in earlier variants. The firmware is now written in C. It is compiled with the Open-Source GCC compiler. The LPC812 contains a ROM-based bootloader so firmware can be flashed by using a very low cost USB-to-serial converter (less than USD 3, including shipping, on eBay).
 
