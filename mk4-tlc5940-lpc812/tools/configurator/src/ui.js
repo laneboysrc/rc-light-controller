@@ -74,9 +74,14 @@ var ui = (function () {
             var blur_cell = e.target.parentNode;
 
             var newValue = parseInt(input.value, 10);
-            if (isNaN(newValue)  ||  !isFinite(newValue) ||
-                    newValue < input.min  ||  newValue > input.max) {
+            if (isNaN(newValue)  ||  !isFinite(newValue)) {
                 newValue = originalValue;
+            }
+            else if (newValue < input.min) {
+                newValue = parseInt(input.min, 10);
+            }
+            else if (newValue > input.max) {
+                newValue = parseInt(input.max, 10);
             }
 
             while (blur_cell.firstChild) {
