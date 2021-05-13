@@ -354,9 +354,9 @@ The light controller pre-defined a few global variables, accessible by all light
 
 - **hazard**
 
-    Writing to this variable allows light programs to turn the hazard lights on or off.
+    *Writing* to this variable allows light programs to turn the hazard lights on or off.
     Write a value of *1* to switch the hazard lights on, or *0* to turn the hazard lights off.
-    This variable should not be used as write-only variable, when reading its value it is undeterministic. If you want to execute light programs instructions based on whether hazard lights are active or not, then use the *hazard* car state (see below).
+    This variable should be used as **write-only variable**; when reading its value it is undeterministic. If you want to execute light programs instructions based on whether hazard lights are active or not, then use the *hazard* car state (see below).
 
 - **light-switch-position**
 
