@@ -123,6 +123,12 @@ void HAL_hardware_init(void)
     // ------------------------
     // IO configuration
 
+    // Enable reset, all other special functions disabled
+    // NOTE: this is required on LPC812
+    // LPC832 works without it, and also has other PINENABLE bit usage
+    if (!is_lpc832) {
+        LPC_SWM->PINENABLE0 = 0xffffffbf;
+    }
 
     // Make the open drain ports PIO0_10, PIO0_11 outputs and pull to ground
     // to prevent them from floating.
