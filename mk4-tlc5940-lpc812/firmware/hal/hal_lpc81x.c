@@ -123,8 +123,6 @@ void HAL_hardware_init(void)
     // ------------------------
     // IO configuration
 
-    // Enable reset, all other special functions disabled
-    LPC_SWM->PINENABLE0 = 0xffffffbf;
 
     // Make the open drain ports PIO0_10, PIO0_11 outputs and pull to ground
     // to prevent them from floating.
