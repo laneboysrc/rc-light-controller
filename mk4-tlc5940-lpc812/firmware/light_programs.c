@@ -566,7 +566,7 @@ static void execute_program(
             case OPCODE_SLEEP:
             case OPCODE_SLEEP_I:
                 parameter = get_parameter_value(instruction);
-                c->timer = (parameter > 0) ? (parameter / 20) : 0;
+                c->timer = (parameter > 0) ? (parameter / __SYSTICK_IN_MS) : 0;
                 return;
 
             case OPCODE_GOTO:
