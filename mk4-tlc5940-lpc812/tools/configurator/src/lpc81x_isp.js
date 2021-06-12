@@ -266,7 +266,7 @@ class flash_lpc8xx {
       0x04, 0x00, 0xfa, 0x05, 0x0c, 0xed, 0x00, 0xe0
     ]);
 
-    await this.send_command('W ' + RAM_ADDRESS + ' ' + reset_program.length);
+    await this.send_command('W ' + this.RAM_ADDRESS + ' ' + reset_program.length);
     await this.uart.write(reset_program);
 
     // Unlock the Go command
@@ -274,7 +274,7 @@ class flash_lpc8xx {
 
     // Run the isp_program from RAM. Note that this command does not respond with
     // COMMAND_SUCCESS as it directly executes.
-    await this.uart.write('G ' + RAM_ADDRESS + ' T\r\n');
+    await this.uart.write('G ' + this.RAM_ADDRESS + ' T\r\n');
   }
 
   set onMessageCallback(fn) {
