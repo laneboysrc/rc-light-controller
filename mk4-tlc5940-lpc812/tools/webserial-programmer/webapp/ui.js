@@ -184,8 +184,6 @@ async function program() {
     update_ui();
     progressCallback(0);
 
-    log("Power-cycling the light controller ...");
-    progressCallback(0.02);
     await isp.initialization_sequence();
 
     const part_id = await isp.read_part_id();
