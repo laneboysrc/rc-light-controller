@@ -2,24 +2,6 @@
 
 const MAX_UART_LOG_LINES = 20;
 
-const CMD_DUT_POWER_OFF = 10;
-const CMD_DUT_POWER_ON = 11;
-const CMD_OUT_ISP_LOW = 20;
-const CMD_OUT_ISP_HIGH = 21;
-const CMD_OUT_ISP_TRISTATE = 22;
-const CMD_CH3_LOW = 23;
-const CMD_CH3_HIGH = 24;
-const CMD_CH3_TRISTATE = 25;
-const CMD_BAUDRATE_38400 = 30;
-const CMD_BAUDRATE_115200 = 31;
-const CMD_LED_OK_OFF = 40;
-const CMD_LED_OK_ON = 41;
-const CMD_LED_BUSY_OFF = 42;
-const CMD_LED_BUSY_ON = 43;
-const CMD_LED_ERROR_OFF = 44;
-const CMD_LED_ERROR_ON = 45;
-const CMD_PING = 99;
-
 const MENU_CONNECTION = 0;
 const MENU_PROGRAMMING = 1;
 
@@ -30,7 +12,6 @@ let is_connected = false;
 let has_webserial = false;
 let last_programming_failed = false;
 let programmer;
-let power_is_on = false;
 
 const el = {};
 
@@ -39,27 +20,12 @@ el.menu_buttons = document.querySelectorAll('nav button');
 el.connect_button = document.querySelector("#connect_button");
 el.disconnect_button = document.querySelector("#disconnect_button");
 el.connection_info = document.querySelector("#connection_info");
-el.send_button = document.querySelector("#send");
-el.send_text =  document.querySelector("#send-text");
-el.dut_power = document.querySelector("#dut-power");
-el.led_ok = document.querySelector("#led-ok");
-el.led_busy = document.querySelector("#led-busy");
-el.led_error = document.querySelector("#led-error");
-el.status = document.querySelector('#status');
-el.isp = document.querySelector('#isp');
-el.send_questionmark_button = document.querySelector('#send-questionmark');
-el.send_synchronized_button = document.querySelector('#send-synchronized');
-el.send_crystal_button = document.querySelector('#send-crystal');
-el.send_a0_button = document.querySelector('#send-a0');
-el.send_unlock_button = document.querySelector('#send-unlock');
-el.send_prepare_button = document.querySelector('#send-prepare');
-el.send_erase_button = document.querySelector('#send-erase');
 el.load = document.querySelector('#load');
 el.load_input = document.querySelector('#load-input');
 el.program = document.querySelector('#program');
 el.progress = document.querySelector('#progress');
-el.initialize = document.querySelector('#initialize');
 el.filename = document.querySelector('#filename');
+el.status = document.querySelector('#status');
 
 
 function log(msg, displayClass) {
@@ -120,23 +86,11 @@ function update_ui() {
   if (programming_active) {
     disable(el.load);
     disable(el.menu_buttons[MENU_CONNECTION]);
-    // programmer.send_command(CMD_LED_OK_OFF);
-    // programmer.send_command(CMD_LED_BUSY_ON);
-    // programmer.send_command(CMD_LED_ERROR_OFF);
   }
   else {
     enable(el.load);
     enable(el.menu_buttons[MENU_CONNECTION]);
     enable(el.menu_buttons[MENU_PROGRAMMING]);
-    // programmer.send_command(CMD_LED_BUSY_OFF);
-    if (last_programming_failed) {
-      // programmer.send_command(CMD_LED_OK_OFF);
-      // programmer.send_command(CMD_LED_ERROR_ON);
-    }
-    else {
-      // programmer.send_command(CMD_LED_OK_ON);
-      // programmer.send_command(CMD_LED_ERROR_OFF);
-    }
   }
 
   if (firmware_image && !programming_active) {
@@ -231,15 +185,8 @@ async function program() {
     progressCallback(0);
 
     log("Power-cycling the light controller ...");
-    // await programmer.send_command(CMD_DUT_POWER_OFF);
-    // await programmer.send_command(CMD_OUT_ISP_LOW);
-    // await delay(200);
-    // await programmer.send_command(CMD_DUT_POWER_ON);
-    // power_is_on = true;
-    // await delay(100);
     progressCallback(0.02);
     await isp.initialization_sequence();
-    // await programmer.send_command(CMD_OUT_ISP_TRISTATE);
 
     const part_id = await isp.read_part_id();
     log("MCU part number: " + part_id.part_name);
@@ -270,9 +217,6 @@ async function program() {
     log("ERROR: programming failed", "fail");
   }
   finally {
-    // await programmer.send_command(CMD_DUT_POWER_OFF);
-    // await programmer.send_command(CMD_OUT_ISP_LOW);
-    power_is_on = false;
     programming_active = false;
     update_ui();
     el.program.focus();
@@ -337,11 +281,6 @@ async function select_page(selected_page) {
 async function connect(device) {
   await programmer.open(device);
   if (programmer.is_open) {
-    // await programmer.send_command(CMD_DUT_POWER_OFF);
-    // await programmer.send_command(CMD_OUT_ISP_LOW);
-    // await programmer.send_command(CMD_CH3_LOW);
-    power_is_on = false;
-
     const msg = 'Connected to USB-to-serial adapter ' + programmer.serial_number;
     console.log(msg);
     update_programmer_connection(programmer.serial_number);
