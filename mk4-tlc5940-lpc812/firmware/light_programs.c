@@ -186,12 +186,15 @@ uint8_t get_priority_run_state(void)
 {
     uint8_t result = 0;
 
+    // NO SIGNAL and INITIALIZING are mutually exclusive with any other
+    // priority condition. NO SIGNAL has the top priority
     if (global_flags.no_signal) {
-        result |= RUN_WHEN_NO_SIGNAL;
+        return RUN_WHEN_NO_SIGNAL;
     }
     if (global_flags.initializing) {
-        result |= RUN_WHEN_INITIALIZING;
+        return RUN_WHEN_INITIALIZING;
     }
+
     if (global_flags.servo_output_setup == SERVO_OUTPUT_SETUP_CENTRE) {
         result |= RUN_WHEN_SERVO_OUTPUT_SETUP_CENTRE;
     }
