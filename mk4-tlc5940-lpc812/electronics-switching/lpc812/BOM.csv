@@ -8,4 +8,4 @@ J2 J3 ,2,"Pinheader straight 1x06","rc-light-controller-tlc5940-lpc812:PinHeader
 RN1 ,1,"1k x4","Resistor_SMD:R_Array_Convex_4x0603","https://datasheet.lcsc.com/szlcsc/1810311812_UNI-ROYAL-Uniroyal-Elec-4D03WGJ0102T5E_C20197.pdf"
 T1 T2 T3 T4 T5 T6 T7 T9 T8 ,9,"PMV30UN","Package_TO_SOT_SMD:SOT-23","https://assets.nexperia.com/documents/data-sheet/PMV30UN.pdf"
 U1 ,1,"LPC812M101JDH20","Package_SO:TSSOP-20_4.4x6.5mm_P0.65mm","http://www.nxp.com/documents/data_sheet/LPC81XM.pdf"
-U2 ,1,"3V3","Package_TO_SOT_SMD:SOT-23W",""
+U2 ,1,"MCP1703A-3302","Package_TO_SOT_SMD:SOT-23W",""
