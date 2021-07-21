@@ -127,7 +127,9 @@ static void output_lights(void)
         HAL_gpio_write(HAL_GPIO_OUT1, light_setpoint[1]);
         HAL_gpio_write(HAL_GPIO_OUT2, light_setpoint[2]);
         HAL_gpio_write(HAL_GPIO_OUT3, light_setpoint[3]);
+        HAL_gpio_write(HAL_GPIO_OUT3_LPC832, light_setpoint[3]);
         HAL_gpio_write(HAL_GPIO_OUT4, light_setpoint[4]);
+        HAL_gpio_write(HAL_GPIO_OUT4_LPC832, light_setpoint[4]);
         HAL_gpio_write(HAL_GPIO_OUT5, light_setpoint[5]);
         HAL_gpio_write(HAL_GPIO_OUT6, light_setpoint[6]);
         HAL_gpio_write(HAL_GPIO_OUT7, light_setpoint[7]);
@@ -163,7 +165,9 @@ void init_gpio_lights(void) {
             (1 << HAL_GPIO_OUT1.pin) |
             (1 << HAL_GPIO_OUT2.pin) |
             (1 << HAL_GPIO_OUT3.pin) |
+            (1 << HAL_GPIO_OUT3_LPC832.pin) |
             (1 << HAL_GPIO_OUT4.pin) |
+            (1 << HAL_GPIO_OUT4_LPC832.pin) |
             (1 << HAL_GPIO_OUT5.pin) |
             (1 << HAL_GPIO_OUT6.pin) |
             (1 << HAL_GPIO_OUT7.pin) |
@@ -174,7 +178,9 @@ void init_gpio_lights(void) {
             (1 << HAL_GPIO_OUT1.pin) |
             (1 << HAL_GPIO_OUT2.pin) |
             (1 << HAL_GPIO_OUT3.pin) |
+            (1 << HAL_GPIO_OUT3_LPC832.pin) |
             (1 << HAL_GPIO_OUT4.pin) |
+            (1 << HAL_GPIO_OUT4_LPC832.pin) |
             (1 << HAL_GPIO_OUT5.pin) |
             (1 << HAL_GPIO_OUT6.pin) |
             (1 << HAL_GPIO_OUT7.pin) |

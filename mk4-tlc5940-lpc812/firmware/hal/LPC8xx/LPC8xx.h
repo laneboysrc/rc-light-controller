@@ -283,8 +283,11 @@ typedef struct
 typedef struct {
   __IO uint8_t B0[18];                   /*!< (@ 0xA0000000) Byte pin registers port 0 */
   __I  uint16_t RESERVED0[2039];
-  __IO uint32_t W0[18];                  /*!< (@ 0xA0001000) Word pin registers port 0 */
-       uint32_t RESERVED1[1006];
+//  __IO uint32_t W0[18];                  /*!< (@ 0xA0001000) Word pin registers port 0 */
+//       uint32_t RESERVED1[1006];
+// WLA: for compatibility with LPC832 declare all 32 port pins
+  __IO uint32_t W0[32];                  /*!< (@ 0xA0001000) Word pin registers port 0 */
+       uint32_t RESERVED1[992];
   __IO uint32_t DIR0;                          /* 0x2000 */
        uint32_t RESERVED2[31];
   __IO uint32_t MASK0;                                  /* 0x2080 */

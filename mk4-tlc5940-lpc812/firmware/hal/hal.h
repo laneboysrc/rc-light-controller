@@ -90,7 +90,7 @@ typedef struct {
 // Mk4S IO pins: (LPC812 in TSSOP20 package)
 //
 // PIO0_0   (19, TDO, ISP-Rx)   Steering input / Rx
-// PIO0_1   (12,  TDI)          OUT7
+// PIO0_1   (12, TDI)           OUT7
 // PIO0_2   (7,  TMS, SWDIO)    OUT2
 // PIO0_3   (6,  TCK, SWCLK)    OUT1
 // PIO0_4   (5,  TRST, ISP-Tx)  Throttle input / Tx
@@ -109,6 +109,32 @@ typedef struct {
 // PIO0_17  (1)                 OUT0
 // GND      (13)
 // 3.3V     (12)
+//
+//
+// Mk4S LPC832 IO pins: (LPC832 in TSSOP20 package)
+//
+// PIO0_0   (19, TDO, ISP-Rx)   Steering input / Rx
+// PIO0_1   (12, TDI)           OUT7
+// PIO0_2   (8,  TMS, SWDIO)    OUT2
+// PIO0_3   (7,  TCK, SWCLK)    OUT1
+// PIO0_4   (6,  TRST, ISP-Tx)  Throttle input / Tx
+// PIO0_5   (5,  RESET)         OUT4 (changed compared to LPC812 Mk4S)
+// PIO0_6
+// PIO0_7
+// PIO0_8   (14, XTALIN)        OUT5
+// PIO0_9   (13, XTALOUT)       OUT6
+// PIO0_10  (10, Open drain)    NC
+// PIO0_11  (9,  Open drain)    NC
+// PIO0_12  (4,  ISP-entry)     OUT / ISP
+// PIO0_13  (3)                 AUX input
+// PIO0_14  (20)                Hardware detection, must be GND!
+// PIO0_15  (11)                OUT8
+// PIO0_17  (2)                 OUT0
+// PIO0_23  (1)                 OUT3 (changed compared to LPC812 Mk4S)
+// GND      (13)
+// 3.3V     (12)
+// VREFN    (17)
+// VREFP    (18)
 // ****************************************************************************
 
 static const uint8_t HAL_GPIO_NO_PIN = 0xff;
@@ -136,7 +162,7 @@ static const HAL_GPIO_T HAL_GPIO_XLAT = { .pin = 3 };
 static const HAL_GPIO_T HAL_GPIO_GSCLK = { .pin = 1 };
 static const HAL_GPIO_T HAL_GPIO_BLANK = { .pin = 6 };
 
-// GPIOs for original Mk4 and Mk4P with LPC832
+// GPIOs for Mk4 and Mk4P with LPC832
 static const HAL_GPIO_T HAL_GPIO_BLANK_LPC832 = { .pin = 15 };
 static const HAL_GPIO_T HAL_GPIO_SIN_LPC832 = { .pin = 23 };
 
@@ -151,6 +177,13 @@ static const HAL_GPIO_T HAL_GPIO_OUT5 = { .pin = 8 };
 static const HAL_GPIO_T HAL_GPIO_OUT6 = { .pin = 9 };
 static const HAL_GPIO_T HAL_GPIO_OUT7 = { .pin = 1 };
 static const HAL_GPIO_T HAL_GPIO_OUT8 = { .pin = 15 };
+
+// GPIOs for Mk4S with LPC832
+// Note that GPIO 5 and 23 are not used in the LPC812 Mk4S at all, so we
+// can safely always output them (for Mk4S) regardless of which switch
+// is used
+static const HAL_GPIO_T HAL_GPIO_OUT3_LPC832 = { .pin = 23 };
+static const HAL_GPIO_T HAL_GPIO_OUT4_LPC832 = { .pin = 5 };
 
 
 static inline void HAL_gpio_in(const HAL_GPIO_T gpio)
