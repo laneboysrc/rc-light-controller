@@ -581,14 +581,17 @@ static void process_light(const CAR_LIGHT_T *light, LED_T *led, uint8_t *limit)
 
     // Handle the diagnostics functions like initializing, no-signal etc.
     // If one of them is active than it takes priority over everything else.
-    if (diagnostics) {
-        if (diagnostics & light->diagnostics) {
-            *led = config.diagnostics_brightness;
+    // The diagnostics are disabled in shelf queen mode
+    if (!global_flags.shelf_queen_mode ) {
+        if (diagnostics) {
+            if (diagnostics & light->diagnostics) {
+                *led = config.diagnostics_brightness;
+            }
+            else {
+                *led = 0;
+            }
+            return;
         }
-        else {
-            *led = 0;
-        }
-        return;
     }
 
     set_car_light(&result, light, ALWAYS_ON);
