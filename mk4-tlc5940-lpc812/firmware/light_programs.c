@@ -333,8 +333,8 @@ static void limit_variables(void)
     if (var[GLOBAL_VAR_LIGHT_SWITCH_POSITION] < 0) {
         var[GLOBAL_VAR_LIGHT_SWITCH_POSITION] = 0;
     }
-    if (var[GLOBAL_VAR_LIGHT_SWITCH_POSITION] > config.light_switch_positions) {
-        var[GLOBAL_VAR_LIGHT_SWITCH_POSITION] = config.light_switch_positions;
+    if (var[GLOBAL_VAR_LIGHT_SWITCH_POSITION] >= config.light_switch_positions) {
+        var[GLOBAL_VAR_LIGHT_SWITCH_POSITION] = config.light_switch_positions - 1;
     }
 
     // Reload read-only global variables so that if a light program destroyed
