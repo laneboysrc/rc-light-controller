@@ -474,7 +474,7 @@ F 3 "~" H 3500 5300 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 Text Notes 3550 1400 0    50   ~ 0
-The LEDs are conneced at the cathode\nto prevent them from lighting\nup after power up before the software\ncan initialize the ports (pull-up by default)\nError and Busy use the same resistor value, \nand since they never light up together we \ncan share one resistor. Ok (green) is much\nbrighter so needs its own resistor.
+The LEDs are conneced at the cathode\nto prevent them from lighting\nup after power up before the software\ncan initialize the ports (pull-up by default)\nError and Busy use the same resistor value, \nand since they never light up together we \ncan share one resistor. Ok (green) behaves\ndifferently so needs its own resistor.
 $Comp
 L Connector:TestPoint TP1
 U 1 1 6050C7A0
@@ -577,7 +577,7 @@ L Device:R R3
 U 1 1 5E6FABAC
 P 3750 2050
 F 0 "R3" H 3820 2096 50  0000 L CNN
-F 1 "2k7" H 3820 2005 50  0000 L CNN
+F 1 "180" H 3820 2005 50  0000 L CNN
 F 2 "Resistor_SMD:R_0603_1608Metric_Pad1.05x0.95mm_HandSolder" V 3680 2050 50  0001 C CNN
 F 3 "~" H 3750 2050 50  0001 C CNN
 	1    3750 2050
