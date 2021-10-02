@@ -1,0 +1,15 @@
+run always
+
+loop:
+    sleep 0
+    if light-switch-position > 1
+    goto do_steering
+
+    servo = 0
+    goto loop
+
+do_steering:
+    servo = steering
+    goto loop
+
+end
