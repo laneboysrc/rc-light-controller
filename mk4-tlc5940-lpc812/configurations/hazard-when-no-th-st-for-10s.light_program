@@ -45,7 +45,7 @@ idle_mode:
     mode = 0
 
     // Still in idle: flash the hazard lights
-    goto hazard
+    goto hazard_on
 
 
 // ------------------
@@ -72,7 +72,7 @@ test_idle:
     // Since we are take over the indicators, we have to make their normal indicator and
     // hazard function work manually again!
     skip if not hazard
-    goto hazard
+    goto hazard_on
     skip if not blink-left
     goto blink_left
     skip if not blink-right
@@ -80,7 +80,7 @@ test_idle:
     left_f, right_f = 0
     goto loop
 
-hazard:
+hazard_on:
     left_f = 100%
     skip if is blink-flag
     left_f = 0
