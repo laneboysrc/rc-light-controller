@@ -1,104 +1,79 @@
 run always
-
-    led left_f = led[6]
-    led right_f = led[7]
-
     // 0: normal mode when car is driving
     // 1: hazard lights are on because steering and throttle have been in neutral for 10s
     var mode
+    const MODE_NORMAL = 0
+    const MODE_CAR_IS_IDLE = 1
 
     // Increments every 20 ms when st + th are in neutral.
     // Used for the 10s timer
     var count
 
-    // Helper variable because *steering* can not be directly used in skip if
-    var st
-
+    const LOOP_REPETITION_TIME = 20
+    const IDLE_TIMEOUT = 500    // 10000 ms divided by 20 ms loop repetition time
 
     // Initialization
-    mode = 0
+    mode = MODE_NORMAL
     count = 0
 
 loop:
     // Loop timing is 20 ms
-    sleep 20
+    sleep LOOP_REPETITION_TIME
 
-    // Fetch the current steering value into a local variable so we can
-    // test with skip if
-    st = steering
-
-        skip if mode != 0
+    if mode == MODE_NORMAL
     goto normal_mode
+    if mode == MODE_CAR_IS_IDLE
+    goto idle_mode
 
-// ------------------
-idle_mode:
-    // If we are not longer in neutral, switch back to normal mode
-    skip if is neutral
-    mode = 0
-
-    // If steering is > 20%, switch back to normal mode
-    skip if st < 20
-    mode = 0
-
-    // If steering is < -20%, switch back to normal mode
-    skip if st > -20
-    mode = 0
-
-    // Still in idle: flash the hazard lights
-    goto hazard_on
+    // This should never happen, just in case ...
+    mode = MODE_NORMAL
+    goto loop
 
 
 // ------------------
 normal_mode:
     // If we are not in neutral, reset the timeout counter
-    skip if is neutral
+    if not neutral
     count = 0
 
     // If the steering is >20 or <-20 then reset the timeout counter
-    skip if st <= 20
-    goto clear_count
-    skip if st >= -20
-clear_count:
+    if steering > 20
+    count = 0
+    if steering < -20
     count = 0
 
 test_idle:
     // Increment the timeout counter (every 20ms because that is our sleep above!)
     count += 1
 
-    // If the 10 seconds have expired we switch to mode 1
-    skip if count < 500     // 10000 ms divided by 20 ms loop repetition time
-    mode = 1
-
-    // Since we are take over the indicators, we have to make their normal indicator and
-    // hazard function work manually again!
-    skip if not hazard
-    goto hazard_on
-    skip if not blink-left
-    goto blink_left
-    skip if not blink-right
-    goto blink_right
-    left_f, right_f = 0
+    // Has the 10 second timeout expired?
+    if count < IDLE_TIMEOUT
     goto loop
 
-hazard_on:
-    left_f = 100%
-    skip if is blink-flag
-    left_f = 0
-    right_f = 100%
-    skip if is blink-flag
-    right_f = 0
+    // Yes, the 10 seconds have expired! We switch to mode CAR_IS_IDLE and turn
+    // the hazard lights on
+    mode = MODE_CAR_IS_IDLE
+    hazard = 1
     goto loop
 
-blink_left:
-    left_f = 100%
-    skip if is blink-flag
-    left_f = 0
-    goto loop
+// ------------------
+idle_mode:
+    // If we are not longer in neutral, switch back to normal mode
+    if not neutral
+    mode = MODE_NORMAL
 
-blink_right:
-    right_f = 100%
-    skip if is blink-flag
-    right_f = 0
+    // If steering is > 20%, switch back to normal mode
+    if steering > 20
+    mode = MODE_NORMAL
+
+    // If steering is < -20%, switch back to normal mode
+    if steering < -20
+    mode = MODE_NORMAL
+
+    // If we set the mode to 0 above then we turn off the hazard light
+    if mode == MODE_NORMAL
+    hazard = 0
+
     goto loop
 
 end
