@@ -127,7 +127,7 @@ indicator:
     skip if indicator-direction != 1
     goto indicator-right
     skip if indicator-direction != 2
-    goto hazard
+    goto hazard_active
     goto indicator
 
 indicator-left:
@@ -150,14 +150,14 @@ indicator-right:
     goto indicator-right
     goto main-loop
 
-hazard:
+hazard_active:
     indicator-front-l, indicator-front-r, indicator-rear-r, indicator-rear-l = 100%
     sleep 320
     indicator-front-l, indicator-front-r, indicator-rear-r, indicator-rear-l = 0%
     sleep 320
     delay-time -= 1
     skip if delay-time <= 0
-    goto hazard
+    goto hazard_active
     goto main-loop
 
 

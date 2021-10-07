@@ -53,7 +53,7 @@ loop:
     // Implement the normal hazard function (4-clicks on CH3,
     // or hazard function assigned to AUX2)
     if is hazard
-    goto hazard
+    goto hazard_active
 
     // Our manual hazard switch on AUX3:
     // We first read the AUX3 value into a local variable,
@@ -68,9 +68,9 @@ loop:
     // go further down before the hazards switch back off
     value = aux3
     if value > threshold_high
-    goto hazard
+    goto hazard_active
     if value < threshold_low
-    goto hazard
+    goto hazard_active
 
     if is indicator-left
     goto left
@@ -94,7 +94,7 @@ right:
     indicator-front-r, indicator-rear-r = 0
     goto loop
 
-hazard:
+hazard_active:
     threshold_high = THRESHOLD_VALUE_LOW
     indicator-front-l, indicator-front-r, \
         indicator-rear-l, indicator-rear-r = BRIGHTNESS

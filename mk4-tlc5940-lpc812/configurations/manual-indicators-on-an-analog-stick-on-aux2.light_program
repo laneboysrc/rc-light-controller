@@ -61,7 +61,7 @@ loop:
     // If the hazard lights are on we always blink them regardless
     // of the indicator state.
     skip if not hazard
-    goto hazard
+    goto hazard_active
 
     skip if state != IND_OFF
     goto indicator-off
@@ -176,7 +176,7 @@ blink-right:
     indicator-front-r, indicator-rear-r = BRIGHTNESS
     goto loop
 
-hazard:
+hazard_active:
     skip if is blink-flag
     goto lights-off
     goto hazard-on
