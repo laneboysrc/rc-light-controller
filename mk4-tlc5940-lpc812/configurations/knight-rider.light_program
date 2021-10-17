@@ -1,0 +1,108 @@
+run always
+
+led l1 = led[0]     // Right-most LED (left-most when viewed from the front)
+led l2 = led[1]
+led l3 = led[2]
+led l4 = led[3]
+led l5 = led[4]
+led l6 = led[5]
+led l7 = led[6]
+led l8 = led[7]     // Left-most LED
+
+const DELAY = 100   // 100 ms delay between LEDs coming on
+
+const BRIGHT = 100  // Bright and dark value for the LED
+const DARK = 0
+
+const FADE_BRIGHT = 20      // LEDs come on faster than dimming
+const FADE_DARK = 5         // LEDs fade out slowly
+
+loop:
+    fade l2 stepsize FADE_DARK
+    l2 = DARK;
+    fade l1 stepsize FADE_BRIGHT
+    l1 = BRIGHT
+    sleep DELAY
+
+    fade l1 stepsize FADE_DARK
+    l1 = DARK;
+    fade l2 stepsize FADE_BRIGHT
+    l2 = BRIGHT
+    sleep DELAY
+
+    fade l2 stepsize FADE_DARK
+    l2 = DARK;
+    fade l3 stepsize FADE_BRIGHT
+    l3 = BRIGHT
+    sleep DELAY
+
+    fade l3 stepsize FADE_DARK
+    l3 = DARK;
+    fade l4 stepsize FADE_BRIGHT
+    l4 = BRIGHT
+    sleep DELAY
+
+    fade l4 stepsize FADE_DARK
+    l4 = DARK;
+    fade l5 stepsize FADE_BRIGHT
+    l5 = BRIGHT
+    sleep DELAY
+
+    fade l5 stepsize FADE_DARK
+    l5 = DARK;
+    fade l6 stepsize FADE_BRIGHT
+    l6 = BRIGHT
+    sleep DELAY
+
+    fade l6 stepsize FADE_DARK
+    l6 = DARK;
+    fade l7 stepsize FADE_BRIGHT
+    l7 = BRIGHT
+    sleep DELAY
+
+    fade l7 stepsize FADE_DARK
+    l7 = DARK;
+    fade l8 stepsize FADE_BRIGHT
+    l8 = BRIGHT
+    sleep DELAY
+
+    fade l8 stepsize FADE_DARK
+    l8 = DARK;
+    fade l7 stepsize FADE_BRIGHT
+    l7 = BRIGHT
+    sleep DELAY
+
+    fade l7 stepsize FADE_DARK
+    l7 = DARK;
+    fade l6 stepsize FADE_BRIGHT
+    l6 = BRIGHT
+    sleep DELAY
+
+    fade l6 stepsize FADE_DARK
+    l6 = DARK;
+    fade l5 stepsize FADE_BRIGHT
+    l5 = BRIGHT
+    sleep DELAY
+
+
+    fade l5 stepsize FADE_DARK
+    l5 = DARK;
+    fade l4 stepsize FADE_BRIGHT
+    l4 = BRIGHT
+    sleep DELAY
+
+    fade l4 stepsize FADE_DARK
+    l4 = DARK;
+    fade l3 stepsize FADE_BRIGHT
+    l3 = BRIGHT
+    sleep DELAY
+
+    fade l3 stepsize FADE_DARK
+    l3 = DARK;
+    fade l2 stepsize FADE_BRIGHT
+    l2 = BRIGHT
+    sleep DELAY
+
+    goto loop
+
+end
