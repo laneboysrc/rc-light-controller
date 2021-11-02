@@ -30,13 +30,13 @@ __sbit __at(GPIO_ADDRESS_LED_BUSY | GPIO_PIN_LED_BUSY) LED_BUSY;
 #define GPIO_PIN_LED_ERROR (5)
 __sbit __at(GPIO_ADDRESS_LED_ERROR | GPIO_PIN_LED_ERROR) LED_ERROR;
 
-#define GPIO_ADDRESS_SHORT (P3_ADDR)
-#define GPIO_PIN_SHORT (2)
-__sbit __at(GPIO_ADDRESS_SHORT | GPIO_PIN_SHORT) PIN_SHORT;
+#define GPIO_ADDRESS_POWER_INB (P3_ADDR)
+#define GPIO_PIN_POWER_INB (2)
+__sbit __at(GPIO_ADDRESS_POWER_INB | GPIO_PIN_POWER_INB) PIN_POWER_INB;
 
-#define GPIO_ADDRESS_POWER (P1_ADDR)
-#define GPIO_PIN_POWER (4)
-__sbit __at(GPIO_ADDRESS_POWER | GPIO_PIN_POWER) PIN_POWER;
+#define GPIO_ADDRESS_POWER_INA (P1_ADDR)
+#define GPIO_PIN_POWER_INA (4)
+__sbit __at(GPIO_ADDRESS_POWER_INA | GPIO_PIN_POWER_INA) PIN_POWER_INA;
 
 
 #define GPIO_ADDRESS_CH3 (P1_ADDR)
@@ -92,6 +92,19 @@ static __bit watchdog_enabled;
 static uint16_t watchdog_timeout;
 
 
+
+// ****************************************************************************
+static void delay_ms(uint8_t ms)
+{
+    while (ms) {
+        if (systick) {
+            systick = false;
+            --ms;
+        }
+    }
+}
+
+
 // ****************************************************************************
 static void WATCHDOG_reset(void)
 {
@@ -114,8 +127,11 @@ static void WATCHDOG_service(void)
     watchdog_enabled = false;
 
     // Watchdog expired: turn the power to the light controller off
-    PIN_POWER = 1;
-    PIN_SHORT = 0;
+    // Switch to Hi-Z first, then to L to short the light controller power supply
+    PIN_POWER_INA = 0;
+    PIN_POWER_INB = 0;
+    delay_ms(1);
+    PIN_POWER_INA = 1;
 
     // Turn the LEDs off
     LED_OK = LED_OFF;
@@ -137,17 +153,20 @@ bool COMMAND_handler(uint8_t value)
 {
     switch (value) {
         case CMD_DUT_POWER_ON:
-            PIN_SHORT = 1;
-            PIN_POWER = 0;
+            PIN_POWER_INA = 0;  // Hi-Z
+            PIN_POWER_INB = 0;
 
             // Switch the TX and RX back to UART
             TXD = 1;
             RXD = 1;
             REN = 1;
+
+            PIN_POWER_INB = 1;  // OUTB = high (a few us later)
             break;
 
         case CMD_DUT_POWER_OFF:
-            PIN_POWER = 1;
+            PIN_POWER_INA = 0;
+            PIN_POWER_INB = 0;
 
             // Switch the UART TX and RX to GPIO output  and set it to low, so that
             // we don't power the light controller via the ST/RX pin!
@@ -155,7 +174,7 @@ bool COMMAND_handler(uint8_t value)
             TXD = 0;
             RXD = 0;
 
-            PIN_SHORT = 0;
+            PIN_POWER_INA = 1;  // OUTB = low (a few us later)
             break;
 
         case CMD_LED_OK_ON:
@@ -414,18 +433,6 @@ static void SYSTICK_service(void)
 
 
 // ****************************************************************************
-static void delay_ms(uint8_t ms)
-{
-    while (ms) {
-        if (systick) {
-            systick = false;
-            --ms;
-        }
-    }
-}
-
-
-// ****************************************************************************
 static void GPIO_init(void)
 {
     /*
@@ -448,8 +455,11 @@ static void GPIO_init(void)
     LED_BUSY = LED_OFF;
     LED_ERROR = LED_OFF;
 
-    PIN_POWER = 1;
-    PIN_SHORT = 0;
+    // After reset the IOs are H/H, and OUTB is therefore L.
+    // We transition into the second OUTB = L state by switching first
+    // INB to L, and then INA to H (which it should be already, but still...)
+    PIN_POWER_INB = 0;
+    PIN_POWER_INA = 1;
 
     // Switch all light controller pins including UART TX and RX to low, so
     // that we don't power the light controller via the IO pins!
