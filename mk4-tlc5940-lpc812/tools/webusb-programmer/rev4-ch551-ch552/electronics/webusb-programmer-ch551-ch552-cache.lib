@@ -226,11 +226,11 @@ X GND 1 0 0 0 D 50 50 1 1 W N
 ENDDRAW
 ENDDEF
 #
-# wla-atsamd21_CH552G
+# wla-project-specific-components_CH552G
 #
-DEF wla-atsamd21_CH552G U 0 40 Y Y 1 F N
+DEF wla-project-specific-components_CH552G U 0 40 Y Y 1 F N
 F0 "U" 1250 650 50 H V R CNN
-F1 "wla-atsamd21_CH552G" -1600 650 50 H V L CNN
+F1 "wla-project-specific-components_CH552G" -1600 650 50 H V L CNN
 F2 "Package_SO:SO-16_3.9x9.9mm_P1.27mm" -1600 -50 50 H I C CNN
 F3 "" -1600 -50 50 H I C CNN
 DRAW
@@ -254,11 +254,11 @@ X P1.1/T2EX/CAP2/TIN1/VBUS2/AIN0 9 -1700 300 100 R 50 50 1 1 B
 ENDDRAW
 ENDDEF
 #
-# wla-atsamd21_TC118S
+# wla-project-specific-components_TC118S
 #
-DEF wla-atsamd21_TC118S U 0 40 Y Y 1 F N
+DEF wla-project-specific-components_TC118S U 0 40 Y Y 1 F N
 F0 "U" -250 300 50 H V C CNN
-F1 "wla-atsamd21_TC118S" 350 -350 50 H V C CNN
+F1 "wla-project-specific-components_TC118S" 350 -350 50 H V C CNN
 F2 "Package_SO:SOP-8_3.9x4.9mm_P1.27mm" 0 0 50 H I C CNN
 F3 "" 0 0 50 H I C CNN
 DRAW

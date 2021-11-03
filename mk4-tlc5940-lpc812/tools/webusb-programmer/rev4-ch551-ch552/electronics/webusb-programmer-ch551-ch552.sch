@@ -297,7 +297,7 @@ Red
 Text Notes 9400 2650 0    50   ~ 0
 Blue
 $Comp
-L wla-atsamd21:CH552G U2
+L wla-project-specific-components:CH552G U2
 U 1 1 604D2755
 P 3800 6050
 F 0 "U2" H 2250 6700 50  0000 C CNN
@@ -524,7 +524,7 @@ Text Label 4100 3450 1    50   ~ 0
 Text Label 3500 3450 1    50   ~ 0
 ~OK
 $Comp
-L wla-atsamd21:TC118S U1
+L wla-project-specific-components:TC118S U1
 U 1 1 6180984C
 P 7300 1700
 F 0 "U1" H 7600 2000 50  0000 C CNN
