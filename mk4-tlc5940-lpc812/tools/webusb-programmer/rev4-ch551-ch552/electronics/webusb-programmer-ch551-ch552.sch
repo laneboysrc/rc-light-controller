@@ -363,10 +363,10 @@ Wire Wire Line
 Wire Wire Line
 	5250 3000 5250 3250
 $Comp
-L Device:R R5
+L Device:R R4
 U 1 1 5E6FD675
 P 5250 2450
-F 0 "R5" H 5320 2496 50  0000 L CNN
+F 0 "R4" H 5320 2496 50  0000 L CNN
 F 1 "1k8" H 5320 2405 50  0000 L CNN
 F 2 "Resistor_SMD:R_0603_1608Metric_Pad1.05x0.95mm_HandSolder" V 5180 2450 50  0001 C CNN
 F 3 "~" H 5250 2450 50  0001 C CNN
@@ -395,7 +395,7 @@ F 3 "~" H 3300 4950 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 Text Notes 3300 1800 0    50   ~ 0
-The LEDs are conneced at the cathode\nto prevent them from lighting\nup after power up before the software\ncan initialize the ports (pull-up by default)\nError and Busy use the same resistor value, \nand since they never light up together we \ncan share one resistor. \nOK (green) behaves differently so needs \nits own resistor.
+The LEDs are conneced at the cathode\nto prevent them from lighting\nup after power up before the software\ncan initialize the ports (pull-up by default)\nError and Busy use the same resistor value, \nand since they never light up together we \ncan share one resistor. \nOK (green) uses a different technology \nso needs its own resistor.
 $Comp
 L Connector:TestPoint TP1
 U 1 1 6050C7A0
@@ -490,10 +490,10 @@ Wire Wire Line
 Wire Wire Line
 	3500 2600 3500 2700
 $Comp
-L Device:R R3
+L Device:R R2
 U 1 1 5E6FABAC
 P 3500 2450
-F 0 "R3" H 3570 2496 50  0000 L CNN
+F 0 "R2" H 3570 2496 50  0000 L CNN
 F 1 "180" H 3570 2405 50  0000 L CNN
 F 2 "Resistor_SMD:R_0603_1608Metric_Pad1.05x0.95mm_HandSolder" V 3430 2450 50  0001 C CNN
 F 3 "~" H 3500 2450 50  0001 C CNN
@@ -501,10 +501,10 @@ F 3 "~" H 3500 2450 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L Device:R R4
+L Device:R R3
 U 1 1 5E6FC0B8
 P 4700 2450
-F 0 "R4" H 4770 2496 50  0000 L CNN
+F 0 "R3" H 4770 2496 50  0000 L CNN
 F 1 "1k2" H 4770 2405 50  0000 L CNN
 F 2 "Resistor_SMD:R_0603_1608Metric_Pad1.05x0.95mm_HandSolder" V 4630 2450 50  0001 C CNN
 F 3 "~" H 4700 2450 50  0001 C CNN
@@ -534,8 +534,6 @@ F 3 "LCSC C88308" H 7300 1700 50  0001 C CNN
 	1    7300 1700
 	1    0    0    -1  
 $EndComp
-Wire Wire Line
-	7750 1800 8300 1800
 NoConn ~ 7750 1600
 $Comp
 L power:GND #PWR04
@@ -581,27 +579,16 @@ INB
 Text Notes 7500 3100 0    50   ~ 0
 Motor driver IC used\nas power switch for \nthe light controller\n\nINA INB OUTA OUTB \nL    L  Hi-Z  Hi-Z\nH    L   H    L\nL    H   L    H\nH    H   L    L
 $Comp
-L Device:R R2
+L Device:R R1
 U 1 1 5E6FD03E
 P 9250 2050
-F 0 "R2" H 9320 2096 50  0000 L CNN
+F 0 "R1" H 9320 2096 50  0000 L CNN
 F 1 "1k8" H 9320 2005 50  0000 L CNN
 F 2 "Resistor_SMD:R_0603_1608Metric_Pad1.05x0.95mm_HandSolder" V 9180 2050 50  0001 C CNN
 F 3 "~" H 9250 2050 50  0001 C CNN
 	1    9250 2050
 	1    0    0    -1  
 $EndComp
-$Comp
-L Device:R R1
-U 1 1 6183E54C
-P 8450 1800
-F 0 "R1" H 8520 1846 50  0000 L CNN
-F 1 "1R" H 8520 1755 50  0000 L CNN
-F 2 "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder" V 8380 1800 50  0001 C CNN
-F 3 "~" H 8450 1800 50  0001 C CNN
-	1    8450 1800
-	0    1    1    0   
-$EndComp
 Wire Wire Line
-	8600 1800 9250 1800
+	7750 1800 9250 1800
 $EndSCHEMATC
