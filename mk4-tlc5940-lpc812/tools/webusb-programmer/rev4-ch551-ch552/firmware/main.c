@@ -40,10 +40,12 @@ __sbit __at(GPIO_ADDRESS_POWER_INA | GPIO_PIN_POWER_INA) PIN_POWER_INA;
 
 
 #define GPIO_ADDRESS_CH3 (P1_ADDR)
+#define GPIO_DIR_PU_CH3 (P1_DIR_PU)
 #define GPIO_PIN_CH3 (6)
 __sbit __at(GPIO_ADDRESS_CH3 | GPIO_PIN_CH3) PIN_CH3;
 
 #define GPIO_ADDRESS_ISP (P1_ADDR)
+#define GPIO_DIR_PU_ISP (P1_DIR_PU)
 #define GPIO_PIN_ISP (7)
 __sbit __at(GPIO_ADDRESS_ISP | GPIO_PIN_ISP) PIN_ISP;
 
@@ -203,32 +205,32 @@ bool COMMAND_handler(uint8_t value)
 
         case CMD_OUT_ISP_LOW:
             PIN_ISP = 0;
-            P3_DIR_PU |= (1 << GPIO_PIN_ISP);   // Open drain output with pull-up
+            GPIO_DIR_PU_ISP |= (1 << GPIO_PIN_ISP);   // Open drain output with pull-up
             break;
 
         case CMD_OUT_ISP_HIGH:
             PIN_ISP = 1;
-            P3_DIR_PU |= (1 << GPIO_PIN_ISP);   // Open drain output with pull-up
+            GPIO_DIR_PU_ISP |= (1 << GPIO_PIN_ISP);   // Open drain output with pull-up
             break;
 
         case CMD_OUT_ISP_TRISTATE:
             PIN_ISP = 1;
-            P3_DIR_PU &= ~(1 << GPIO_PIN_ISP);  // High-impedance input mode
+            GPIO_DIR_PU_ISP &= ~(1 << GPIO_PIN_ISP);  // High-impedance input mode
             break;
 
         case CMD_CH3_LOW:
             PIN_CH3 = 0;
-            P3_DIR_PU |= (1 << GPIO_PIN_CH3);   // Open drain output with pull-up
+            GPIO_DIR_PU_CH3 |= (1 << GPIO_PIN_CH3);   // Open drain output with pull-up
             break;
 
         case CMD_CH3_HIGH:
             PIN_CH3 = 1;
-            P3_DIR_PU |= (1 << GPIO_PIN_CH3);   // Open drain output with pull-up
+            GPIO_DIR_PU_CH3 |= (1 << GPIO_PIN_CH3);   // Open drain output with pull-up
             break;
 
         case CMD_CH3_TRISTATE:
             PIN_CH3 = 1;
-            P3_DIR_PU &= ~(1 << GPIO_PIN_CH3);  // High-impedance input mode
+            GPIO_DIR_PU_CH3 &= ~(1 << GPIO_PIN_CH3);  // High-impedance input mode
             break;
 
         case CMD_BAUDRATE_38400:
@@ -258,7 +260,7 @@ static void UART0_init(void)
     SM1 = 1;
     SM2 = 0;
 
-    PCON != SMOD;   // Enable "fast mode" (256 - fsys / 16 / baudrate)
+    PCON |= SMOD;   // Enable "fast mode" (256 - fsys / 16 / baudrate)
 
     // IMPORTANT: do not enable UART receiver at this point, only when we
     // are ready to talk to the light controller!
@@ -438,7 +440,7 @@ static void GPIO_init(void)
     /*
 
         P1.1    Busy LED        Open drain w/ pull-up       active low
-        P1.4    Power           Push/pull output            active low
+        P1.4    INA             Push/pull output            to motor driver
         P1.5    Error LED       Open drain w/ pull-up       active low
         P1.6    CH3             Push/pull output / Hi-Z
         P1.7    OUT/ISP         Push/pull output / Hi-Z
@@ -446,7 +448,7 @@ static void GPIO_init(void)
         P3.0    RX              Push/pull output / Open drain w/ pull-up
         P3.1    TX              Push/pull output
 
-        P3.2    SHORT           Push/pull output            active low
+        P3.2    INB             Push/pull output            to motor driver
         P3.3    OK LED          Open drain w/ pull-up       active low
 
     */
