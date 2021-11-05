@@ -15,7 +15,7 @@ __code uint8_t device_descriptor[] = {
     EP0_SIZE,           // bMaxPacketSize0
     USB_W(0x6666),      // idVendor
     USB_W(0xcab7),      // idProduct
-    USB_W(0x0301),      // bcdDevice 3.01 (device-specific version number)
+    USB_W(0x0401),      // bcdDevice 4.01 (device-specific version number)
     USB_STRING_MANUFACTURER, // iManufacturer
     USB_STRING_PRODUCT, // iProduct
     USB_STRING_SERIAL,  // iSerial
