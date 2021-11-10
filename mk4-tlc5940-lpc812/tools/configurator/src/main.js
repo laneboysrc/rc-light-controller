@@ -2453,6 +2453,11 @@ var app = (function () {
             }
         }
 
+        if (selected_page == 'tab_programming') {
+            el.program.focus();
+        }
+
+
         if (selected_page == 'tab_testing') {
             if (!testing_active) {
                 testing_active = true;
