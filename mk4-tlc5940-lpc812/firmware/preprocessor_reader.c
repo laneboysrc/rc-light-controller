@@ -10,7 +10,7 @@
 #include <globals.h>
 
 
-#define SLAVE_MAGIC_BYTE 0x87
+#define MAGIC_BYTE 0x87
 #define CONSECUTIVE_BYTE_COUNTS 3
 
 
@@ -26,7 +26,7 @@ typedef enum {
 
 
 // ****************************************************************************
-void init_uart_reader(void)
+void init_preprocessor_reader(void)
 {
     // Nothing to do
 }
@@ -84,7 +84,7 @@ void read_preprocessor(void)
 
     uint8_t uart_byte;
 
-    if (config.mode == SLAVE) {
+    if (config.mode == SLAVE || config.mode == IBUS) {
         return;
     }
 
@@ -105,7 +105,7 @@ void read_preprocessor(void)
         // times.
         // If we receive the MAGIC value we know it is the first byte, so we
         // can kick off the state machine.
-        if (uart_byte == SLAVE_MAGIC_BYTE) {
+        if (uart_byte == MAGIC_BYTE) {
             state = STATE_STEERING;
             return;
         }

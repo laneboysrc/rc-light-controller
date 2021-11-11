@@ -54,6 +54,7 @@ var app = (function () {
     var MASTER_WITH_CPPM_READER = 'Master, CPPM input';
     var SLAVE = 'Slave';
     var STAND_ALONE = 'Stand alone';
+    var MASTER_WITH_IBUS_READER = 'Master, i-Bus input';
     var TEST = 'Hardware test';
     var PREPROCESSOR = 'Pre-processor';
     var PREPROCESSOR_5CH = 'Pre-processor 5ch';
@@ -65,6 +66,7 @@ var app = (function () {
         2: MASTER_WITH_CPPM_READER,
         3: SLAVE,
         4: STAND_ALONE,
+        5: MASTER_WITH_IBUS_READER,
         95: PREPROCESSOR_5CH_S,
         96: PREPROCESSOR_5CH,
         97: PREPROCESSOR,
@@ -72,6 +74,7 @@ var app = (function () {
         99: TEST,
 
         MASTER_WITH_CPPM_READER: 2,
+        MASTER_WITH_IBUS_READER: 5,
         MASTER_WITH_SERVO_READER: 0,
         MASTER_WITH_UART_READER: 1,
         MASTER_WITH_UART_READER_5CH: 98,
@@ -782,6 +785,11 @@ var app = (function () {
         case MODE.PREPROCESSOR_5CH_S:
             config.multi_aux = true;
             config.mode = MODE.MASTER_WITH_SERVO_READER;
+            break;
+
+        case MODE.MASTER_WITH_IBUS_READER:
+            config.multi_aux = true;
+            config.mode = new_mode;
             break;
 
         case MODE.MASTER_WITH_UART_READER_5CH:
@@ -2357,7 +2365,9 @@ var app = (function () {
 
         // Set ch3_is_local_switch always when UART input active
         if (config_version !== 1) {
-            if (data.config.mode === MODE.MASTER_WITH_UART_READER || data.config.mode === MODE.STAND_ALONE) {
+            if (data.config.mode === MODE.MASTER_WITH_UART_READER ||
+                 data.config.mode === MODE.MASTER_WITH_IBUS_READER ||
+                  data.config.mode === MODE.STAND_ALONE) {
                 data.config.ch3_is_local_switch = true;
             }
         }
@@ -2733,7 +2743,9 @@ var app = (function () {
 
         // Set ch3_is_local_switch always when UART input active
         if (config_version !== 1) {
-            if (data.config.mode === MODE.MASTER_WITH_UART_READER || data.config.mode === MODE.STAND_ALONE) {
+            if (data.config.mode === MODE.MASTER_WITH_UART_READER ||
+                 data.config.mode === MODE.MASTER_WITH_IBUS_READER ||
+                  data.config.mode === MODE.STAND_ALONE) {
                 data.config.ch3_is_local_switch = true;
             }
         }

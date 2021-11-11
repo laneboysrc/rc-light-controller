@@ -211,7 +211,8 @@ int main(void)
     while (milliseconds <  100);
 
     init_servo_reader();
-    init_uart_reader();
+    init_preprocessor_reader();
+    init_ibus_reader();
     init_servo_output();
 
     init_lights();
@@ -233,6 +234,7 @@ int main(void)
         global_flags.new_channel_data = false;
         read_all_servo_channels();
         read_preprocessor();
+        read_ibus();
         process_aux();
         process_drive_mode();
         process_indicators();
