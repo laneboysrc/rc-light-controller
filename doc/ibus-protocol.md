@@ -21,7 +21,7 @@ Anyway, the Light Controller supports i-Bus protocol with the following understa
     * 1 byte packet length
     * 1 byte packet ID
     * Up to 28 bytes of payload
-    * 2 bytes checksum
+    * 2 bytes checksum (little-endian uint16_t)
 * The packet ID for servo packets is 0x40
 * The checksum is the sum of all bytes (!) XOR 0xffff
 * The servo payload is as follows:

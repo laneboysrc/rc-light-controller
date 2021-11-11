@@ -15,7 +15,7 @@ is designed with the following assumptions:
 * Checksum is the sum of all bytes (!) XOR 0xffff
 
 We only support channels 1 to 5; we assume the user can assign the desired
-functionsto those channels in the transmitter.
+functions to those channels in the transmitter.
 
  *****************************************************************************/
 #include <stdint.h>
@@ -23,6 +23,7 @@ functionsto those channels in the transmitter.
 
 #include <hal.h>
 #include <globals.h>
+#include <printf.h>
 
 #define MIN_SERVO_PACKET_LENGTH (6)
 #define MAX_SERVO_PACKET_LENGTH (32)
@@ -47,6 +48,7 @@ static void discard_from_buffer(void)
 static bool process_buffer(uint32_t *out)
 {
     uint16_t checksum;
+    uint16_t excepted_checksum;
 
     while (buffer_index) {
         // Servo packets must be even length. If it is odd length it cannot be
@@ -83,12 +85,13 @@ static bool process_buffer(uint32_t *out)
             return false;;
         }
 
+        excepted_checksum = *(uint16_t *)(&buffer[buffer_index-2]);
         checksum = 0;
         for (uint8_t i = 0; i < buffer_index - 2; i++) {
             checksum += buffer[i];
         }
         checksum ^= 0xffff;
-        if (checksum == *(uint16_t *)(&buffer[buffer_index-2])) {
+        if (checksum == excepted_checksum) {
             // Checksum matches!
 
             // Populate the output servo values, ensure we discard the
@@ -105,6 +108,7 @@ static bool process_buffer(uint32_t *out)
         }
 
         // Checksum wrong: Discard the first byte and re-check
+        printf("i-Bus checksum wrong: expected: 0x%04x actual: 0x%04x\n", excepted_checksum, checksum);
         discard_from_buffer();
     }
 

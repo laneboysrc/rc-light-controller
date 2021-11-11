@@ -94,6 +94,7 @@ class Preprocessor_simulator_ui {
     this.el.preprocessor_mode.value = 0;
     this.config_3ch = this.simulator.config_manual_3ch;
     this.config_5ch = this.simulator.config_manual_5ch;
+    this.config_ibus = this.simulator.config_manual_ibus;
     this.config_auto = this.simulator.config_default;
     this.config_changed(this.config_auto);
 
@@ -306,6 +307,10 @@ class Preprocessor_simulator_ui {
         this.config_changed(this.config_5ch);
         break;
 
+      case 95:
+        this.config_changed(this.config_ibus);
+        break;
+
       case 0:
       default:
         this.config_changed(this.config_auto);
@@ -466,6 +471,7 @@ class Preprocessor_simulator_ui {
     this.aux_type_changed(this.el.aux[this.AUX3]);
 
     this.simulator.channel_changed(s.MULTI_AUX, this.config[s.MULTI_AUX] ? 1 : 0);
+    this.simulator.channel_changed(s.IBUS, this.config[s.IBUS] ? 1 : 0);
   }
 
   log_testing(msg, displayClass) {

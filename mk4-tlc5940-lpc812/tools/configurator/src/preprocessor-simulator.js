@@ -16,12 +16,12 @@ The uart object must support the following functions:
 The preprocessor-simulator object provides the following methods:
 
   channel_changed(channel, value)
-    channel: one of ST, TH, AUX, AUX2, AUX3, STARTUP_MODE, NO_SIGNAL and
-             MULTI_AUX
+    channel: one of ST, TH, AUX, AUX2, AUX3, STARTUP_MODE, NO_SIGNAL,
+             MULTI_AUX and IBUS
              Together they determine the output of the Pre-Processor simulator
              as sent to the light controller
     value: the value to set <channel> to. For servo channels this is
-           -100..0..+100. For STARTUP_MODE, NO_SIGNAL and MULTI_AUX it is
+           -100..0..+100. For STARTUP_MODE, NO_SIGNAL, MULTI_AUX and IBUS it is
            0 (off) or 1 (on)`
 
   set onMessageCallback(fn)
@@ -53,6 +53,7 @@ class Preprocessor_simulator {
   STARTUP_MODE = 'STARTUP_MODE';
   NO_SIGNAL = 'NO_SIGNAL';
   MULTI_AUX = 'MULTI_AUX';
+  IBUS = 'IBUS';
 
   AUX_TYPE = 'AUX_TYPE';
   AUX_TYPE_TWO_POSITION = 0;
@@ -76,7 +77,7 @@ class Preprocessor_simulator {
   CONFIG_TYPE_AUTO = 'AUTO';
   CONFIG_TYPE_MANUAL = 'MANUAL';
 
-  SLAVE_MAGIC_BYTE = 0x87;
+  MAGIC_BYTE = 0x87;
 
   constructor(uart) {
     this.uart = uart;
@@ -104,6 +105,7 @@ class Preprocessor_simulator {
     this.reader_active = false;
     this.transmitter_active = false;
   }
+
 
   async _reader() {
     console.log('Preprocessor_simulator.reader() start');
@@ -133,72 +135,26 @@ class Preprocessor_simulator {
   }
 
   async _transmitter() {
-      let st = this.channels[this.ST];
-      if (st < 0) {
-          st = 256 + st;
-      }
+    let data;
 
-      let th = this.channels[this.TH];
-      if (th < 0) {
-          th = 256 + th;
-      }
+    if (this.channels[this.IBUS]) {
+      data = this._build_ibus_packet();
+    }
+    else {
+      data = this._build_preprocessor_packet();
+    }
 
-      let aux = this.channels[this.AUX];
-      if (aux < 0) {
-          aux = 256 + aux;
-      }
+    try {
+      this.uart.write(data, 'dont-log');
+    }
+    catch (e) {
+        console.error('uart.write exception:', e);
+        return;
+    }
 
-      let aux2 = this.channels[this.AUX2];
-      if (aux2 < 0) {
-          aux2 = 256 + aux2;
-      }
-
-      let aux3 = this.channels[this.AUX3];
-      if (aux3 < 0) {
-          aux3 = 256 + aux3;
-      }
-
-      let mode_byte = 0;
-      if (this.channels[this.AUX] > 0) {
-          mode_byte += 0x01;
-      }
-      if (this.channels[this.STARTUP_MODE]) {
-          mode_byte += 0x10;
-      }
-      if (this.channels[this.MULTI_AUX]) {
-          mode_byte += 0x08;
-      }
-
-      let data;
-      if (this.channels[this.MULTI_AUX]) {
-        data = new Uint8Array(7);
-        data[0] = this.SLAVE_MAGIC_BYTE;
-        data[1] = st;
-        data[2] = th;
-        data[3] = mode_byte;
-        data[4] = aux;
-        data[5] = aux2;
-        data[6] = aux3;
-      }
-      else {
-        data = new Uint8Array(4);
-        data[0] = this.SLAVE_MAGIC_BYTE;
-        data[1] = st;
-        data[2] = th;
-        data[3] = mode_byte;
-      }
-
-      try {
-        this.uart.write(data, 'dont-log');
-      }
-      catch (e) {
-          console.error('uart.write exception:', e);
-          return;
-      }
-
-      if (this.transmitter_active) {
-        setTimeout(this._transmitter.bind(this), 20);
-      }
+    if (this.transmitter_active) {
+      setTimeout(this._transmitter.bind(this), 20);
+    }
   }
 
   channel_changed(channel, value) {
@@ -225,6 +181,109 @@ class Preprocessor_simulator {
     this.messageCallback = fn;
   }
 
+  _build_preprocessor_packet() {
+    let data;
+
+    let st = this.channels[this.ST];
+    if (st < 0) {
+        st = 256 + st;
+    }
+
+    let th = this.channels[this.TH];
+    if (th < 0) {
+        th = 256 + th;
+    }
+
+    let aux = this.channels[this.AUX];
+    if (aux < 0) {
+        aux = 256 + aux;
+    }
+
+    let aux2 = this.channels[this.AUX2];
+    if (aux2 < 0) {
+        aux2 = 256 + aux2;
+    }
+
+    let aux3 = this.channels[this.AUX3];
+    if (aux3 < 0) {
+        aux3 = 256 + aux3;
+    }
+
+    let mode_byte = 0;
+    if (this.channels[this.AUX] > 0) {
+        mode_byte += 0x01;
+    }
+    if (this.channels[this.STARTUP_MODE]) {
+        mode_byte += 0x10;
+    }
+    if (this.channels[this.MULTI_AUX]) {
+        mode_byte += 0x08;
+    }
+
+    if (this.channels[this.MULTI_AUX]) {
+      data = new Uint8Array(7);
+      data[0] = this.MAGIC_BYTE;
+      data[1] = st;
+      data[2] = th;
+      data[3] = mode_byte;
+      data[4] = aux;
+      data[5] = aux2;
+      data[6] = aux3;
+    }
+    else {
+      data = new Uint8Array(4);
+      data[0] = this.MAGIC_BYTE;
+      data[1] = st;
+      data[2] = th;
+      data[3] = mode_byte;
+    }
+
+    return data;
+  }
+
+  _channel_to_us(value) {
+    return 1500 + (value * 5);
+  }
+
+  _build_ibus_packet() {
+    const data = new Uint8Array(32);
+    let ch;
+
+    data[0] = 32;
+    data[1] = 0x40;
+
+    ch = this._channel_to_us(this.channels[this.ST]);
+    data[2] = ch & 0xff;
+    data[3] = ch >> 8;
+
+    ch = this._channel_to_us(this.channels[this.TH]);
+    data[4] = ch & 0xff;
+    data[5] = ch >> 8;
+
+    ch = this._channel_to_us(this.channels[this.AUX]);
+    data[6] = ch & 0xff;
+    data[7] = ch >> 8;
+
+    ch = this._channel_to_us(this.channels[this.AUX2]);
+    data[8] = ch & 0xff;
+    data[9] = ch >> 8;
+
+    ch = this._channel_to_us(this.channels[this.AUX3]);
+    data[10] = ch & 0xff;
+    data[11] = ch >> 8;
+
+
+    let checksum = 0;
+    for (let i = 0; i < data[0] - 2; i++) {
+      checksum += data[i];
+    }
+    checksum ^= 0xffff;
+
+    data[30] = checksum & 0xff;
+    data[31] = checksum >> 8;
+
+    return data;
+  }
 
   _parse_config(msg) {
     if (msg == this.last_received_config) {
@@ -358,6 +417,7 @@ class Preprocessor_simulator {
     const config = {};
     config[this.CONFIG_TYPE] = this.CONFIG_TYPE_DEFAULT;
     config[this.MULTI_AUX] = false;
+    config[this.IBUS] = false;
     config[this.AUX] = {};
     config[this.AUX][this.AUX_TYPE] = this.AUX_TYPE_TWO_POSITION;
     config[this.AUX][this.AUX_FUNCTION] = this.AUX_FUNCTION_MULTI_FUNCTION;
@@ -374,6 +434,7 @@ class Preprocessor_simulator {
     const config = {};
     config[this.CONFIG_TYPE] = this.CONFIG_TYPE_MANUAL;
     config[this.MULTI_AUX] = false;
+    config[this.IBUS] = false;
     config[this.AUX] = {};
     config[this.AUX][this.AUX_TYPE] = this.AUX_TYPE_TWO_POSITION;
     config[this.AUX][this.AUX_FUNCTION] = this.AUX_FUNCTION_MULTI_FUNCTION;
@@ -390,6 +451,24 @@ class Preprocessor_simulator {
     const config = {};
     config[this.CONFIG_TYPE] = this.CONFIG_TYPE_MANUAL;
     config[this.MULTI_AUX] = true;
+    config[this.IBUS] = false;
+    config[this.AUX] = {};
+    config[this.AUX][this.AUX_TYPE] = this.AUX_TYPE_TWO_POSITION;
+    config[this.AUX][this.AUX_FUNCTION] = this.AUX_FUNCTION_MULTI_FUNCTION;
+    config[this.AUX2] = {};
+    config[this.AUX2][this.AUX_TYPE] = this.AUX_TYPE_ANALOG;
+    config[this.AUX2][this.AUX_FUNCTION] = this.AUX_FUNCTION_NOT_USED;
+    config[this.AUX3] = {};
+    config[this.AUX3][this.AUX_TYPE] = this.AUX_TYPE_ANALOG;
+    config[this.AUX3][this.AUX_FUNCTION] = this.AUX_FUNCTION_NOT_USED;
+    return config;
+  }
+
+  get config_manual_ibus() {
+    const config = {};
+    config[this.CONFIG_TYPE] = this.CONFIG_TYPE_MANUAL;
+    config[this.MULTI_AUX] = true;
+    config[this.IBUS] = true;
     config[this.AUX] = {};
     config[this.AUX][this.AUX_TYPE] = this.AUX_TYPE_TWO_POSITION;
     config[this.AUX][this.AUX_FUNCTION] = this.AUX_FUNCTION_MULTI_FUNCTION;
