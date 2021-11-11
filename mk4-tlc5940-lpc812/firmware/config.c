@@ -14,7 +14,8 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
 
     .firmware_version = 46,
 
-    .mode = MASTER_WITH_UART_READER,
+    // .mode = MASTER_WITH_UART_READER,
+    .mode = MASTER_WITH_IBUS_READER,
     .esc_mode = ESC_FORWARD_BRAKE_REVERSE_TIMEOUT,
 
     .flags = {
@@ -38,7 +39,8 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
     },
 
     .flags2 = {
-        .multi_aux = false,
+        .multi_aux = true,
+        // .multi_aux = false,
         .shelf_queen_mode = true,
         .us_style_combined_lights = true,
         .gearbox_light_program_control = false,

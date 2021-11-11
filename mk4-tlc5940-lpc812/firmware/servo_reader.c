@@ -107,19 +107,27 @@ void read_all_servo_channels(void)
 {
     uint32_t raw_data[5];
 
-    if (config.mode != MASTER_WITH_SERVO_READER) {
-        return;
-    }
-
     if (global_flags.systick) {
         if (servo_reader_timer) {
             --servo_reader_timer;
         }
     }
 
-    if (!HAL_servo_reader_get_new_channels(raw_data)) {
+    if (config.mode == MASTER_WITH_SERVO_READER) {
+        if (!HAL_servo_reader_get_new_channels(raw_data)) {
+            return;
+        }
+    }
+    else if (config.mode == MASTER_WITH_IBUS_READER) {
+        if (!ibus_reader_get_new_channels(raw_data)) {
+            return;
+        }
+    }
+    else {
+        // Neither SERVO READER or IBUS READER: bail out!
         return;
     }
+
 
     channel[ST].raw_data = raw_data[0];
     channel[TH].raw_data = raw_data[1];

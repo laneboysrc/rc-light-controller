@@ -12,7 +12,7 @@ is designed with the following assumptions:
 * The minimum servo packet length must be 6 bytes
   (payload count, packet ID, checksum, 2 bytes for 1 channel)
 * The servo packet length must be even
-
+* Checksum is the sum of all bytes (!) XOR 0xffff
 
 We only support channels 1 to 5; we assume the user can assign the desired
 functionsto those channels in the transmitter.
@@ -34,28 +34,25 @@ static uint8_t buffer_index = 0;
 
 
 // ****************************************************************************
-static void discard_from_buffer(uint8_t n)
+static void discard_from_buffer(void)
 {
-    // Safety first ...
-    if (n > buffer_index) {
-        n = buffer_index;
-    }
-
-    memmove(&buffer[0], &buffer[n], sizeof(buffer) - n);
-    buffer_index -= n;
+    memmove(&buffer[0], &buffer[1], sizeof(buffer) - 1);
+    --buffer_index;
 }
 
 
 // ****************************************************************************
 // Check the buffer whether it contains a valid i-Bus servo packet.
 // Data that does not belong in a valid packet is immediately discarded.
-static void process_buffer(void)
+static bool process_buffer(uint32_t *out)
 {
+    uint16_t checksum;
+
     while (buffer_index) {
         // Servo packets must be even length. If it is odd length it cannot be
         // a valid packet so discard the length byte.
         if (buffer[0] & 1) {
-            discard_from_buffer(1);
+            discard_from_buffer();
             // After we discard the byte, we check the buffer again
             continue;
         }
@@ -63,13 +60,13 @@ static void process_buffer(void)
         // Servo packets cannot be larger than MAX_SERVO_PACKET_LENGTH bytes
         // Servo packets cannot be smaller than MIN_SERVO_PACKET_LENGTH bytes
         if (buffer[0] > MAX_SERVO_PACKET_LENGTH || buffer[0] < MIN_SERVO_PACKET_LENGTH) {
-            discard_from_buffer(1);
+            discard_from_buffer();
             continue;
         }
 
         // If we only have one byte in the buffer we bail out and wait
         if (buffer_index < 2) {
-            return;
+            return false;
         }
 
         // More than one byte in the buffer: check that the packet ID is
@@ -77,37 +74,49 @@ static void process_buffer(void)
         if (buffer[1] != SBUS_SERVO_PACKET_ID) {
             // Discard the first byte (length) and re-check the remaining
             // data.
-            discard_from_buffer(1);
+            discard_from_buffer();
             continue;
         }
 
         // Wait until we received the whole packet
         if (buffer_index != buffer[0]) {
-            return;
+            return false;;
         }
 
-        // Full packet received!
-        // Check the checksum
-        discard_from_buffer(buffer_index);
+        checksum = 0;
+        for (uint8_t i = 0; i < buffer_index - 2; i++) {
+            checksum += buffer[i];
+        }
+        checksum ^= 0xffff;
+        if (checksum == *(uint16_t *)(&buffer[buffer_index-2])) {
+            // Checksum matches!
+
+            // Populate the output servo values, ensure we discard the
+            // upper 4 bits that are used for the 18 channel i-Bus extension
+            out[0] = *(uint16_t *)(&buffer[2]) & 0xfff;
+            out[1] = *(uint16_t *)(&buffer[4]) & 0xfff;
+            out[2] = *(uint16_t *)(&buffer[6]) & 0xfff;
+            out[3] = *(uint16_t *)(&buffer[8]) & 0xfff;
+            out[4] = *(uint16_t *)(&buffer[10]) & 0xfff;
+
+            // Discard the buffer, we don't need it anymore
+            buffer_index = 0;
+            return true;
+        }
+
+        // Checksum wrong: Discard the first byte and re-check
+        discard_from_buffer();
     }
+
+    return false;
 }
 
 
 // ****************************************************************************
-void init_ibus_reader(void)
-{
-    // Nothing to do
-}
-
-
-// ****************************************************************************
-void read_ibus(void)
+bool ibus_reader_get_new_channels(uint32_t *out)
 {
     uint8_t uart_byte;
-
-    if (config.mode != IBUS) {
-        return;
-    }
+    bool result = false;
 
     while (HAL_getchar_pending()) {
         uart_byte = HAL_getchar();
@@ -115,7 +124,11 @@ void read_ibus(void)
         // We can always add the byte into the buffer because the process_buffer
         // function ensures that the buffer never overflows.
         buffer[buffer_index++] = uart_byte;
-        process_buffer();
+        if (process_buffer(out)) {
+            result = true;
+        }
     }
+
+    return result;
 }
 

@@ -433,7 +433,7 @@ typedef enum {
     DISABLED,                   // MASTER_WITH_CPPM_READER => NOT SUPPORTED ANYMORE!
     SLAVE,
     STAND_ALONE,
-    IBUS,
+    MASTER_WITH_IBUS_READER,
 } MASTER_MODE_T;
 
 
@@ -743,11 +743,11 @@ void write_persistent_storage(void);
 void init_servo_reader(void);
 void read_all_servo_channels(void);
 
+bool ibus_reader_get_new_channels(uint32_t *out);
+
 void init_preprocessor_reader(void);
 void read_preprocessor(void);
 
-void init_ibus_reader(void);
-void read_ibus(void);
 
 void process_aux(void);
 

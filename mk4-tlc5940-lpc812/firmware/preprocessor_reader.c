@@ -84,7 +84,7 @@ void read_preprocessor(void)
 
     uint8_t uart_byte;
 
-    if (config.mode == SLAVE || config.mode == IBUS) {
+    if (config.mode == SLAVE || config.mode == MASTER_WITH_IBUS_READER) {
         return;
     }
 

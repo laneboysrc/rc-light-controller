@@ -212,7 +212,6 @@ int main(void)
 
     init_servo_reader();
     init_preprocessor_reader();
-    init_ibus_reader();
     init_servo_output();
 
     init_lights();
@@ -232,9 +231,10 @@ int main(void)
         service_systick();
 
         global_flags.new_channel_data = false;
+
         read_all_servo_channels();
         read_preprocessor();
-        read_ibus();
+
         process_aux();
         process_drive_mode();
         process_indicators();
