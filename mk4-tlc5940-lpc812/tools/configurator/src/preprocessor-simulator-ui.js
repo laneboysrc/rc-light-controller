@@ -358,7 +358,10 @@ class Preprocessor_simulator_ui {
 
       // Backup the current manual config
       if (this.config[s.CONFIG_TYPE] != s.CONFIG_TYPE_AUTO) {
-        if (this.config[s.MULTI_AUX]) {
+        if (this.config[s.IBUS]) {
+          this.config_ibus = this._deep_clone(this.config);
+        }
+        else if (this.config[s.MULTI_AUX]) {
           this.config_5ch = this._deep_clone(this.config);
         }
         else {

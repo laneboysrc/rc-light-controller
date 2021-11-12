@@ -94,10 +94,14 @@ class Preprocessor_simulator {
     this.config = this.config_default;
 
     this.configChangedCallback = undefined;
+    this.messageCallback = console.info;
+
+    this.pp_message_sent = false;
+    this.ibus_message_sent = false;
 
     this.reader_active = true;
-    this.transmitter_active = true;
     this._reader();
+    this.transmitter_active = true;
     this._transmitter();
   }
 
@@ -123,11 +127,13 @@ class Preprocessor_simulator {
       if (line) {
         if (line.startsWith('CONFIG')) {
           this._parse_config(line);
+
+          // Force sending of active protocol information
+          this.pp_message_sent = false;
+          this.ibus_message_sent = false;
         }
 
-        if (this.messageCallback) {
-          this.messageCallback(line);
-        }
+        this.messageCallback(line);
       }
     }
 
@@ -138,9 +144,19 @@ class Preprocessor_simulator {
     let data;
 
     if (this.channels[this.IBUS]) {
+      if (!this.ibus_message_sent) {
+        this.ibus_message_sent = true;
+        this.pp_message_sent = false;
+        this.messageCallback('i-Bus protocol active');
+      }
       data = this._build_ibus_packet();
     }
     else {
+      if (!this.pp_message_sent) {
+        this.pp_message_sent = true;
+        this.ibus_message_sent = false;
+        this.messageCallback('Pre-Processor protocol active');
+      }
       data = this._build_preprocessor_packet();
     }
 
@@ -168,6 +184,8 @@ class Preprocessor_simulator {
 
     if (this.channels[this.NO_SIGNAL]) {
       this.transmitter_active = false;
+      this.pp_message_sent = false;
+      this.ibus_message_sent = false;
     }
     else {
       if (!this.transmitter_active) {
@@ -341,8 +359,15 @@ class Preprocessor_simulator {
 
     this.config[this.CONFIG_TYPE] = this.CONFIG_TYPE_AUTO;
 
-    if ((values[1] != '0')) {
+    if (values[1] != '0') {
       this.config[this.MULTI_AUX] = true;
+
+      if (values[1] == '2') {
+        this.config[this.IBUS] = true;
+      }
+      else {
+        this.config[this.IBUS] = false;
+      }
 
       this.config[this.AUX][this.AUX_TYPE] = values[4];
       this.config[this.AUX2][this.AUX_TYPE] = values[6];
