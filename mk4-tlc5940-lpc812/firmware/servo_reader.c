@@ -103,6 +103,16 @@ static void initialize_channel(CHANNEL_T *c) {
 
 
 // ****************************************************************************
+static void normalize_all_channels(void) {
+    uint8_t index;
+
+    for (index = 0; index < 5; index++) {
+        normalize_channel(&channel[index]);
+    }
+}
+
+
+// ****************************************************************************
 void read_all_servo_channels(void)
 {
     uint32_t raw_data[5];
@@ -131,9 +141,7 @@ void read_all_servo_channels(void)
 
     channel[ST].raw_data = raw_data[0];
     channel[TH].raw_data = raw_data[1];
-    if (!config.flags.ch3_is_local_switch) {
-        channel[AUX].raw_data = raw_data[2];
-    }
+    channel[AUX].raw_data = raw_data[2];
     channel[AUX2].raw_data = raw_data[3];
     channel[AUX3].raw_data = raw_data[4];
 
@@ -145,30 +153,18 @@ void read_all_servo_channels(void)
 
         case WAIT_FOR_TIMEOUT:
             if (servo_reader_timer == 0) {
+                servo_reader_state = NORMAL_OPERATION;
+                global_flags.initializing = false;
+
                 initialize_channel(&channel[ST]);
                 initialize_channel(&channel[TH]);
-                normalize_channel(&channel[AUX]);
-                if (config.flags2.multi_aux) {
-                    normalize_channel(&channel[AUX2]);
-                    normalize_channel(&channel[AUX3]);
-                }
-
-                servo_reader_state = NORMAL_OPERATION;
-                global_flags.initializing = 0;
+                break;
             }
             global_flags.new_channel_data = true;
             break;
 
         case NORMAL_OPERATION:
-            normalize_channel(&channel[ST]);
-            normalize_channel(&channel[TH]);
-            if (!config.flags.ch3_is_local_switch) {
-                normalize_channel(&channel[AUX]);
-            }
-            if (config.flags2.multi_aux) {
-                normalize_channel(&channel[AUX2]);
-                normalize_channel(&channel[AUX3]);
-            }
+            normalize_all_channels();
             global_flags.new_channel_data = true;
             break;
 

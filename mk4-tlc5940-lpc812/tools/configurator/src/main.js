@@ -998,6 +998,32 @@ var app = (function () {
             set_name(el.dual_output_th, 'output_th');
             break;
 
+        case MODE.MASTER_WITH_IBUS_READER:
+            show_mode_info(el.mode_master_ibus);
+
+            update_menu_visibility([
+                'config_hardware',
+                'config_mode',
+                'config_esc',
+                'config_ch3',
+                'config_reversing',
+                'config_output',
+                'config_leds',
+                'config_light_programs',
+                'config_advanced',
+                'tab_programming',
+                'tab_testing',
+                'info',
+            ]);
+
+            hide(el.single_output);
+            show(el.dual_output);
+            hide([el.aux_3ch]);
+            show([el.multi_aux]);
+            show([el.channel_reversing_multi_aux]);
+            set_name(el.dual_output_th, 'output_th');
+            break;
+
         case MODE.MASTER_WITH_CPPM_READER:
             show_mode_info(el.mode_master_cppm);
 

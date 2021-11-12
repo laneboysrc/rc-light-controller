@@ -118,12 +118,6 @@ static void check_no_signal(void)
 // ****************************************************************************
 static void output_channel_diagnostics(void)
 {
-    static bool send_config = true;
-
-    if (global_flags.no_signal) {
-        send_config = true;
-    }
-
     if (global_flags.new_channel_data) {
         static int16_t st = 999;
         static int16_t th = 999;
@@ -134,32 +128,59 @@ static void output_channel_diagnostics(void)
             st = channel[ST].normalized;
             th = channel[TH].normalized;
 
-            printf("ST: %4d  TH: %4d\n",
-                channel[ST].normalized, channel[TH].normalized);
-        }
-
-        if (send_config) {
-            send_config = false;
-
-            /*
-            Send AUX configuration values to allow the preprocessor-simulator
-            to adjust its functionality automatically -- which is pretty
-            important as otherwise it is easy to mess up with all the
-            different AUX switch types
-
-            We send the configuration once after a no_signal event, and after
-            power on. In practice this means that the preprocessor-simulator
-            always sees the configuration information immediately after it
-            is talking to the light controller.
-             */
-            printf("CONFIG %d %d %d %d %d %d %d %d %d\n",
-                config.flags2.multi_aux,
-                config.flags.ch3_is_momentary, config.flags.ch3_is_two_button,
-                config.aux_type, config.aux_function,
-                config.aux2_type, config.aux2_function,
-                config.aux3_type, config.aux3_function);
+            printf("ST=%d TH=%d\n", st, th);
         }
     }
+}
+
+
+// ****************************************************************************
+/*
+Send AUX configuration values to allow the preprocessor-simulator
+to adjust its functionality automatically -- which is pretty
+important as otherwise it is easy to mess up with all the
+different AUX switch types
+
+We send the configuration once after a no_signal event, and after
+power on. In practice this means that the preprocessor-simulator
+always sees the configuration information immediately after it
+is talking to the light controller.
+
+We send the config when we received anything from the UART
+ */
+static void output_config(void)
+{
+    static bool send_config = true;
+    static bool signal_seen = false;
+
+    // Set send_config only when once, until we seen a valid servo signal
+    // again. Otherwise we send a CONFIG way too often
+    if (global_flags.no_signal) {
+        if (signal_seen) {
+            signal_seen = false;
+            send_config = true;
+        }
+    }
+    else {
+        signal_seen = true;
+    }
+
+    if (!send_config) {
+        return;
+    }
+
+    if (!HAL_getchar_pending()) {
+        return;
+    }
+
+    send_config = false;
+
+    printf("CONFIG %d %d %d %d %d %d %d %d %d\n",
+        config.flags2.multi_aux,
+        config.flags.ch3_is_momentary, config.flags.ch3_is_two_button,
+        config.aux_type, config.aux_function,
+        config.aux2_type, config.aux2_function,
+        config.aux3_type, config.aux3_function);
 }
 
 
@@ -232,6 +253,7 @@ int main(void)
 
         global_flags.new_channel_data = false;
 
+        output_config();
         read_all_servo_channels();
         read_preprocessor();
 

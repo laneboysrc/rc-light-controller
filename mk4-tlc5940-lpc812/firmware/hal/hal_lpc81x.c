@@ -19,7 +19,7 @@ extern unsigned int _ram;
 extern unsigned int _stacktop;
 
 
-#define RECEIVE_BUFFER_SIZE (16)        // Must be modulo 2 for speed
+#define RECEIVE_BUFFER_SIZE (64)        // Must be modulo 2 for speed
 #define RECEIVE_BUFFER_INDEX_MASK (RECEIVE_BUFFER_SIZE - 1)
 
 
@@ -710,7 +710,8 @@ bool HAL_servo_reader_get_new_channels(uint32_t *out)
     new_raw_channel_data = false;
     out[0] = raw_data[0] >> 1;
     out[1] = raw_data[1] >> 1;
-    out[2] = raw_data[2] >> 1;
+    // Only output AUX if it is not configured as local switch
+    out[2] = (config.flags.ch3_is_local_switch) ? 1500 : (raw_data[2] >> 1);
     out[3] = raw_data[3] >> 1;
     out[4] = raw_data[4] >> 1;
     return true;
