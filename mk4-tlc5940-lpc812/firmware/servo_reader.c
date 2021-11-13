@@ -22,11 +22,13 @@ static uint32_t servo_reader_timer;
 // ****************************************************************************
 void init_servo_reader(void)
 {
+#ifdef ENABLE_SERVO_READER
     if (config.mode != MASTER_WITH_SERVO_READER) {
         return;
     }
 
     HAL_servo_reader_init();
+#endif
 }
 
 
@@ -124,15 +126,19 @@ void read_all_servo_channels(void)
     }
 
     if (config.mode == MASTER_WITH_SERVO_READER) {
+#ifdef ENABLE_SERVO_READER
         if (!HAL_servo_reader_get_new_channels(raw_data)) {
             return;
         }
+#endif
     }
+#ifdef ENABLE_IBUS_READER
     else if (config.mode == MASTER_WITH_IBUS_READER) {
         if (!ibus_reader_get_new_channels(raw_data)) {
             return;
         }
     }
+#endif
     else {
         // Neither SERVO READER or IBUS READER: bail out!
         return;

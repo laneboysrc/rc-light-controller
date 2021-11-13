@@ -240,7 +240,9 @@ int main(void)
     while (milliseconds <  100);
 
     init_servo_reader();
+#ifdef ENABLE_PREPROCESSOR_READER
     init_preprocessor_reader();
+#endif
     init_servo_output();
 
     init_lights();
@@ -263,7 +265,9 @@ int main(void)
 
         output_config();
         read_all_servo_channels();
+#ifdef ENABLE_PREPROCESSOR_READER
         read_preprocessor();
+#endif
 
         process_aux();
         process_drive_mode();
