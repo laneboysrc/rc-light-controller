@@ -54,7 +54,7 @@ static bool process_buffer(uint32_t *out)
         // Servo packets must be even length. If it is odd length it cannot be
         // a valid packet so discard the length byte.
         if (buffer[0] & 1) {
-            printf("i-Bus: servo packet length odd");
+            // printf("i-Bus: servo packet length odd");
             discard_from_buffer();
             // After we discard the byte, we check the buffer again
             continue;
@@ -63,7 +63,7 @@ static bool process_buffer(uint32_t *out)
         // Servo packets cannot be larger than MAX_SERVO_PACKET_LENGTH bytes
         // Servo packets cannot be smaller than MIN_SERVO_PACKET_LENGTH bytes
         if (buffer[0] > MAX_SERVO_PACKET_LENGTH || buffer[0] < MIN_SERVO_PACKET_LENGTH) {
-            printf("i-Bus: servo packet length wrong");
+            // printf("i-Bus: servo packet length wrong");
             discard_from_buffer();
             continue;
         }
@@ -76,7 +76,7 @@ static bool process_buffer(uint32_t *out)
         // More than one byte in the buffer: check that the packet ID is
         // a servo packet as we are only interested in those.
         if (buffer[1] != SBUS_SERVO_PACKET_ID) {
-            printf("i-Bus: not a servo packet");
+            // printf("i-Bus: not a servo packet");
             // Discard the first byte (length) and re-check the remaining
             // data.
             discard_from_buffer();
@@ -112,11 +112,11 @@ static bool process_buffer(uint32_t *out)
 
         // Checksum wrong: Discard the first byte and re-check
         printf("i-Bus checksum wrong: expected: 0x%04x actual: 0x%04x\n", excepted_checksum, checksum);
-        printf("i-Bus packet: ");
-        for (uint8_t i = 0; i < buffer[0]; i++) {
-            printf("%02x ", buffer[i]);
-        }
-        printf("\n");
+        // printf("i-Bus packet: ");
+        // for (uint8_t i = 0; i < buffer[0]; i++) {
+        //     printf("%02x ", buffer[i]);
+        // }
+        // printf("\n");
 
 
         discard_from_buffer();

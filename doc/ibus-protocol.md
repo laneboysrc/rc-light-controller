@@ -64,6 +64,19 @@ Anyway, the Light Controller supports i-Bus protocol with the following understa
 0x20 0x40 0xdc 0x05 0xdb 0x05 0xef 0x03 0xdd 0x05 0xd0 0x07 0xd0 0x07 0xdc 0x05 0xdc 0x05 0xdc 0x05 0xdc 0x05 0xdc 0x05 0xdc 0x05 0xdc 0x05 0xdc 0x05 0x54 0xf3
 ```
 
+We have received a capture from a Saleae logic analyzer from a kind light controller user.
+
+*i-bus_capture_from_flysky_receiver_saleae_format.sal*
+Is the captured file, can be opened in the Saleae "logic" tool.
+
+*i-bus_capture_from_actual_receiver_in_salee_format.bin*
+Contains the i-Bus serial communication exported by "logic" in "binary format". See https://support.saleae.com/faq/technical-faq/binary-export-format-logic-2 for information how to decode this format.
+
+*i-bus_decoder_for_saleae_format.py* is a tool that decodes the binary format expecting a UART signal at 115200 BAUD n-8-1
+
+*i-bus_decoded_packets.py_or_js* is the result of running *i-bus_capture_from_actual_receiver_in_salee_format.bin* through *i-bus_decoder_for_saleae_format.py*. It contains the i-Bus packets as captured from the FlySky receiver. It has movement data on the first 4 channels.
+
+
 ## Open points:
 
 * Is the servo packet always 32 bytes long, or can there be less servo data if the transmitter supports less than 14 channels?
