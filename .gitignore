@@ -11,9 +11,5 @@ firmware/*.map
 electronics/*.?#*
 electronics/rc-light-controller/*.b#*
 electronics/rc-light-controller/*.s#*
-arduino-open-source-lights/
-datasheets/
-TLU-01/
-PPM_protocol.bmp
 *.sublime-workspace
 gh-pages
