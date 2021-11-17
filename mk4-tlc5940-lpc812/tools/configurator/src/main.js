@@ -580,7 +580,14 @@ var app = (function () {
             log.log('offset='+ offset);
         }
         else {
-            first_program_offset = offset + 4 + (4 * number_of_programs);
+            // This code looks completely wrong, because at this stage
+            // number_of_programs is always 0. Some left-over from before
+            // we made the light program offset table dynamic?
+            //
+            // first_program_offset = offset + 4 + (4 * number_of_programs);
+
+            // If there is no light program, we return an empty string.
+            return '';
         }
         const instructions = uint8_array_to_uint32(data.slice(first_program_offset));
 
