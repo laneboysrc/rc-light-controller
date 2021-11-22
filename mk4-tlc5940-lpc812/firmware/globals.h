@@ -383,7 +383,8 @@ typedef enum {
     INDICATORS = 5,
     HAZARD = 6,
     LIGHT_SWITCH = 7,
-    DISABLE_OUTPUTS = 8
+    DISABLE_OUTPUTS = 8,
+    SHELF_QUEEN_MODE = 9
 } AUX_FUNCTION_T;
 
 
@@ -779,6 +780,7 @@ void light_switch_down(void);
 void toggle_light_switch(void);
 
 void process_shelf_queen_mode(void);
+void set_shelf_queen_mode(bool state);
 
 void init_light_programs(void);
 void process_light_program_events(void);

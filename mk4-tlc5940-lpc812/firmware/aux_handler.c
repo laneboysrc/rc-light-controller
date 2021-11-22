@@ -166,7 +166,6 @@ static void add_click(void)
 }
 
 
-
 // ****************************************************************************
 static void multi_function(CHANNEL_T *c, struct AUX_FLAGS *f, AUX_TYPE_T type)
 {
@@ -245,13 +244,12 @@ static void on_off_function(CHANNEL_T *c, struct AUX_FLAGS *f, AUX_TYPE_T type,
     else {
         if (c->normalized > config.aux_centre_threshold_high) {
             f->last_state = true;
-
-            // This unusual construct allows us to toggle or turn the function
-            // on, depending on the switch type being momentary or not.
             if (type != MOMENTARY) {
-                current_state = OFF;
+                set_function(ON);
             }
-            set_function(!current_state);
+            else {
+                set_function(!current_state);
+            }
         }
     }
 }
@@ -275,30 +273,21 @@ static void manual_indicators(CHANNEL_T *c, struct AUX_FLAGS *f)
 {
     int16_t new_value = f->last_value;
 
-    if (f->last_value == -100) {
-        if (c->normalized > config.aux_centre_right_threshold_high) {
-            new_value = 100;
-        }
-        else if (c->normalized > config.aux_left_centre_threshold_high) {
-            new_value = 0;
-        }
+    if (c->normalized > config.aux_centre_right_threshold_high) {
+        new_value = 100;
     }
-    else if (f->last_value == 0) {
-        if (c->normalized > config.aux_centre_right_threshold_high) {
-            new_value = 100;
-        }
-        else if (c->normalized < config.aux_left_centre_threshold_low) {
-            new_value = -100;
-        }
+    else if (c->normalized < config.aux_left_centre_threshold_low) {
+        new_value = -100;
     }
-    else if (f->last_value == 100) {
-        if (c->normalized < config.aux_left_centre_threshold_low) {
-            new_value = -100;
-        }
-        else if (c->normalized < config.aux_centre_right_threshold_low) {
-            new_value = 0;
-        }
+    else if (f->last_value == -100 &&
+             c->normalized > config.aux_left_centre_threshold_high) {
+        new_value = 0;
     }
+    else if (f->last_value == 100 &&
+             c->normalized < config.aux_centre_right_threshold_low) {
+        new_value = 0;
+    }
+
 
     if (new_value != f->last_value) {
         f->last_value = new_value;
@@ -431,6 +420,10 @@ static void handle_aux_channel(CHANNEL_T *c, struct AUX_FLAGS *f, AUX_TYPE_T typ
 
         case DISABLE_OUTPUTS:
             disable_outputs(c);
+            break;
+
+        case SHELF_QUEEN_MODE:
+            on_off_function(c, f, type, set_shelf_queen_mode, global_flags.shelf_queen_mode);
             break;
 
         // case WINCH:

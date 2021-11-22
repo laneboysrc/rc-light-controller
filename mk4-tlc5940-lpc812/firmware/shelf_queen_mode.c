@@ -138,26 +138,30 @@ static void next_action(void)
 
 
 // ****************************************************************************
+void set_shelf_queen_mode(bool state)
+{
+    global_flags.shelf_queen_mode = state;
+}
+
+
+// ****************************************************************************
 void process_shelf_queen_mode(void)
 {
-    if (!config.flags2.shelf_queen_mode) {
-        return;
-    }
-
-    if (!global_flags.no_signal) {
-        global_flags.shelf_queen_mode = false;
-        shelf_queen_mode_timeout = SHELF_QUEEN_MODE_TIMEOUT;
-        return;
-    }
-
     if (!global_flags.systick) {
         return;
     }
 
-    if (shelf_queen_mode_timeout) {
-        --shelf_queen_mode_timeout;
-        if (shelf_queen_mode_timeout == 0) {
-            global_flags.shelf_queen_mode = true;
+    if (config.flags2.shelf_queen_mode) {
+        if (!global_flags.no_signal) {
+            global_flags.shelf_queen_mode = false;
+            shelf_queen_mode_timeout = SHELF_QUEEN_MODE_TIMEOUT;
+        }
+
+        else if (shelf_queen_mode_timeout) {
+            --shelf_queen_mode_timeout;
+            if (shelf_queen_mode_timeout == 0) {
+                global_flags.shelf_queen_mode = true;
+            }
         }
     }
 
