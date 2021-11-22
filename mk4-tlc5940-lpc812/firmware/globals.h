@@ -18,6 +18,8 @@
 #define UNUSED(x) ((void)(x))
 #endif
 
+#define OFF false
+#define ON true
 
 // The ROM_MAGIC marker is used to identify the location of ROM constants when
 // parsing a light controller binary by an external tool
@@ -744,7 +746,7 @@ void process_drive_mode(void);
 void throttle_neutral(void);
 
 void process_indicators(void);
-void toggle_hazard_lights(void);
+void set_hazard_lights(bool state);
 void set_blink_off(void);
 void set_blink_left(void);
 void set_blink_right(void);

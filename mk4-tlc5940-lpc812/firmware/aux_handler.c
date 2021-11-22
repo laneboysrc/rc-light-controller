@@ -112,7 +112,7 @@ static void process_click_timeout(void)
             case 4:
                 // --------------------------
                 // 4 clicks: Hazard lights on/off
-                toggle_hazard_lights();
+                set_hazard_lights(!global_flags.blink_hazard);
                 break;
 
             // case 5:
@@ -236,16 +236,19 @@ static void hazard(CHANNEL_T *c, struct AUX_FLAGS *f, AUX_TYPE_T type)
     if (f->last_state) {
         if (c->normalized < config.aux_centre_threshold_low) {
             f->last_state = false;
-            if (global_flags.blink_hazard && type != MOMENTARY) {
-                toggle_hazard_lights();
+            if (type != MOMENTARY) {
+                set_hazard_lights(OFF);
             }
         }
     }
     else {
         if (c->normalized > config.aux_centre_threshold_high) {
             f->last_state = true;
-            if (!global_flags.blink_hazard || type == MOMENTARY) {
-                toggle_hazard_lights();
+            if (type == MOMENTARY) {
+                set_hazard_lights(!global_flags.blink_hazard);
+            }
+            else {
+                set_hazard_lights(ON);
             }
         }
     }

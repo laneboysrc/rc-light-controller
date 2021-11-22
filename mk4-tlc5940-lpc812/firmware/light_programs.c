@@ -733,14 +733,10 @@ uint32_t process_light_programs(void)
     }
 
     if (var[GLOBAL_VAR_HAZARD] == 0) {
-        if (global_flags.blink_hazard) {
-            toggle_hazard_lights();
-        }
+        set_hazard_lights(OFF);
     }
     else if (var[GLOBAL_VAR_HAZARD] == 1) {
-        if (!global_flags.blink_hazard) {
-            toggle_hazard_lights();
-        }
+        set_hazard_lights(ON);
     }
 
     return leds_used;

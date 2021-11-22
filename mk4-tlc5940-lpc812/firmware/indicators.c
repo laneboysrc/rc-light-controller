@@ -89,10 +89,10 @@ void set_blink_right(void)
 
 
 // ****************************************************************************
-void toggle_hazard_lights(void)
+void set_hazard_lights(bool state)
 {
     synchronize_blinking();
-    global_flags.blink_hazard = ~global_flags.blink_hazard;
+    global_flags.blink_hazard = state;
     printf("hazard %d\n", global_flags.blink_hazard);
 }
 

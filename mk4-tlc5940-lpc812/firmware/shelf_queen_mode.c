@@ -60,7 +60,7 @@ static void indicator(void)
 
         case 3:
         default:
-            toggle_hazard_lights();
+            set_hazard_lights(ON);
             break;
     }
 
@@ -104,7 +104,7 @@ static void next_action(void)
         return;
     }
     else if (global_flags.blink_hazard) {
-        toggle_hazard_lights();
+        set_hazard_lights(OFF);
         delay_time = random_min_max(500/__SYSTICK_IN_MS, 4000/__SYSTICK_IN_MS);
         return;
     }
