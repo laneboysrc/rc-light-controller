@@ -228,28 +228,30 @@ static void multi_function(CHANNEL_T *c, struct AUX_FLAGS *f, AUX_TYPE_T type)
 
 
 // ****************************************************************************
-static void hazard(CHANNEL_T *c, struct AUX_FLAGS *f, AUX_TYPE_T type)
+static void on_off_function(CHANNEL_T *c, struct AUX_FLAGS *f, AUX_TYPE_T type,
+    void(*set_function)(bool state), bool current_state)
 {
-    // On/off control for the hazard lights, works with all AUX types but
+    // On/off control (e.g. for the hazard lights), works with all AUX types but
     // needs special handling for momentary functions
 
     if (f->last_state) {
         if (c->normalized < config.aux_centre_threshold_low) {
             f->last_state = false;
             if (type != MOMENTARY) {
-                set_hazard_lights(OFF);
+                set_function(OFF);
             }
         }
     }
     else {
         if (c->normalized > config.aux_centre_threshold_high) {
             f->last_state = true;
-            if (type == MOMENTARY) {
-                set_hazard_lights(!global_flags.blink_hazard);
+
+            // This unusual construct allows us to toggle or turn the function
+            // on, depending on the switch type being momentary or not.
+            if (type != MOMENTARY) {
+                current_state = OFF;
             }
-            else {
-                set_hazard_lights(ON);
-            }
+            set_function(!current_state);
         }
     }
 }
@@ -412,7 +414,7 @@ static void handle_aux_channel(CHANNEL_T *c, struct AUX_FLAGS *f, AUX_TYPE_T typ
             break;
 
         case HAZARD:
-            hazard(c, f, type);
+            on_off_function(c, f, type, set_hazard_lights, global_flags.blink_hazard);
             break;
 
         case SERVO:
