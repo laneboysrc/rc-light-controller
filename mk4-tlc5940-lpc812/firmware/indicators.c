@@ -48,11 +48,17 @@ static void synchronize_blinking(void)
 
 
 // ****************************************************************************
+void print_insidcator_state(const char *s) {
+    printf("indicator %s\n", s);
+}
+
+
+// ****************************************************************************
 void set_blink_off(void)
 {
     indicator_state = NOT_NEUTRAL;
     if (global_flags.blink_indicator_left || global_flags.blink_indicator_right) {
-        printf("indicator off\n");
+        print_insidcator_state("off");
     }
 
     global_flags.blink_indicator_left = false;
@@ -67,7 +73,7 @@ void set_blink_left(void)
     indicator_state = BLINK_LEFT;
     global_flags.blink_indicator_left = true;
     global_flags.blink_indicator_right = false;
-    printf("indicator left\n");
+    print_insidcator_state("left");
 }
 
 
@@ -78,7 +84,7 @@ void set_blink_right(void)
     indicator_state = BLINK_RIGHT;
     global_flags.blink_indicator_left = false;
     global_flags.blink_indicator_right = true;
-    printf("indicator right\n");
+    print_insidcator_state("right");
 }
 
 
