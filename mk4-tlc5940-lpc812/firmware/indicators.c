@@ -48,7 +48,7 @@ static void synchronize_blinking(void)
 
 
 // ****************************************************************************
-void print_insidcator_state(const char *s) {
+static void print_insidcator_state(const char *s) {
     printf("indicator %s\n", s);
 }
 
