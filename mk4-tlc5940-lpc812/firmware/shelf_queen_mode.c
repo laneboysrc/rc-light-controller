@@ -167,7 +167,7 @@ void process_shelf_queen_mode(void)
 
         if (last_auto_shelf_queen_mode != auto_shelf_queen_mode) {
             last_auto_shelf_queen_mode = auto_shelf_queen_mode;
-            global_flags.shelf_queen_mode = auto_shelf_queen_mode;
+            set_shelf_queen_mode(auto_shelf_queen_mode);
         }
     }
 
