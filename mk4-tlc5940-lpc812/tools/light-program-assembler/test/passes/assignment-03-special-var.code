@@ -12,5 +12,6 @@ var x
     servo = clicks
 
     hazard = 1
+    shelf-queen-mode = 0
 
 end

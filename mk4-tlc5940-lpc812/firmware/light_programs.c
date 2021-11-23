@@ -118,6 +118,9 @@
 #define GLOBAL_VAR_AUX2 12
 #define GLOBAL_VAR_AUX3 13
 #define GLOBAL_VAR_HAZARD 14
+// From shelf queen mode onwards we store the globals from the back, so that
+// loading old .HEX files does not interfere.
+#define GLOBAL_VAR_SHELF_QUEEN_MODE 99
 
 typedef struct {
     const uint32_t *PC;
@@ -321,9 +324,10 @@ static void load_light_program_environment(void)
 
     load_read_only_global_variables();
 
-    // Set hazard to an unused value to be able to detect when a light program
-    // has changed it.
+    // Set hazard and shelf queen mode to an unused value to be able to detect
+    // when a light program has changed it.
     var[GLOBAL_VAR_HAZARD] = -1;
+    var[GLOBAL_VAR_SHELF_QUEEN_MODE] = -1;
 }
 
 
@@ -737,6 +741,13 @@ uint32_t process_light_programs(void)
     }
     else if (var[GLOBAL_VAR_HAZARD] == 1) {
         set_hazard_lights(ON);
+    }
+
+    if (var[GLOBAL_VAR_SHELF_QUEEN_MODE] == 0) {
+        set_shelf_queen_mode(OFF);
+    }
+    else if (var[GLOBAL_VAR_SHELF_QUEEN_MODE] == 1) {
+        set_shelf_queen_mode(ON);
     }
 
     return leds_used;

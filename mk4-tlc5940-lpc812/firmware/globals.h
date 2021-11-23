@@ -384,7 +384,6 @@ typedef enum {
     HAZARD = 6,
     LIGHT_SWITCH = 7,
     DISABLE_OUTPUTS = 8,
-    SHELF_QUEEN_MODE = 9
 } AUX_FUNCTION_T;
 
 

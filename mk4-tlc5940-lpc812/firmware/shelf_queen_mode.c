@@ -13,7 +13,9 @@
 #define COMMAND_REVERSE 4
 #define COMMAND_MAX 4
 
-static uint16_t shelf_queen_mode_timeout = SHELF_QUEEN_MODE_TIMEOUT;
+static bool auto_shelf_queen_mode;
+static bool last_auto_shelf_queen_mode;
+static uint16_t auto_shelf_queen_mode_timeout = SHELF_QUEEN_MODE_TIMEOUT;
 
 static uint16_t delay_time;
 
@@ -153,15 +155,19 @@ void process_shelf_queen_mode(void)
 
     if (config.flags2.shelf_queen_mode) {
         if (!global_flags.no_signal) {
-            global_flags.shelf_queen_mode = false;
-            shelf_queen_mode_timeout = SHELF_QUEEN_MODE_TIMEOUT;
+            auto_shelf_queen_mode = false;
+            auto_shelf_queen_mode_timeout = SHELF_QUEEN_MODE_TIMEOUT;
+        }
+        else if (auto_shelf_queen_mode_timeout) {
+            --auto_shelf_queen_mode_timeout;
+            if (auto_shelf_queen_mode_timeout == 0) {
+                auto_shelf_queen_mode = true;
+            }
         }
 
-        else if (shelf_queen_mode_timeout) {
-            --shelf_queen_mode_timeout;
-            if (shelf_queen_mode_timeout == 0) {
-                global_flags.shelf_queen_mode = true;
-            }
+        if (last_auto_shelf_queen_mode != auto_shelf_queen_mode) {
+            last_auto_shelf_queen_mode = auto_shelf_queen_mode;
+            global_flags.shelf_queen_mode = auto_shelf_queen_mode;
         }
     }
 

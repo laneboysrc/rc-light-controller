@@ -377,6 +377,11 @@ The light controller pre-defined a few global variables, accessible by all light
     position can be adjusted in the light controller by performing **eight CH3-clicks**.
     Refer to the light controller user manual for details.
 
+- **shelf-queen-mode**
+
+    *Writing* to this variable allows light programs to turn the shelf queen mode (a kind of show car mode where the light controller simulates lights as if the car would be driving) on or off.
+    This variable should be used as **write-only variable**; when reading its value it is undeterministic. If you want to execute light programs instructions based on whether shelf queen mode is active or not, then use the *shelf-queen-mode* priority run condition (see above).
+
 - **steering**
 
     This variable reflects the state of the steering input (ST/Rx). Its range is from -100 .. 0 .. +100.

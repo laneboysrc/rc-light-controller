@@ -442,6 +442,10 @@ var symbols = (function () {
             add_symbol(global_variables[i], 'GLOBAL_VARIABLE', next_variable_index);
             next_variable_index += 1;
         }
+
+        // From shelf queen mode onwards we put the globals at the end so that
+        // importing old .HEX files does not confuse the situation
+        add_symbol('shelf-queen-mode', 'GLOBAL_VARIABLE', 99);
     };
 
 

@@ -227,17 +227,16 @@ static void multi_function(CHANNEL_T *c, struct AUX_FLAGS *f, AUX_TYPE_T type)
 
 
 // ****************************************************************************
-static void on_off_function(CHANNEL_T *c, struct AUX_FLAGS *f, AUX_TYPE_T type,
-    void(*set_function)(bool state), bool current_state)
+static void hazard(CHANNEL_T *c, struct AUX_FLAGS *f, AUX_TYPE_T type)
 {
-    // On/off control (e.g. for the hazard lights), works with all AUX types but
+    // On/off control for the hazard lights, works with all AUX types but
     // needs special handling for momentary functions
 
     if (f->last_state) {
         if (c->normalized < config.aux_centre_threshold_low) {
             f->last_state = false;
             if (type != MOMENTARY) {
-                set_function(OFF);
+                set_hazard_lights(OFF);
             }
         }
     }
@@ -245,10 +244,10 @@ static void on_off_function(CHANNEL_T *c, struct AUX_FLAGS *f, AUX_TYPE_T type,
         if (c->normalized > config.aux_centre_threshold_high) {
             f->last_state = true;
             if (type != MOMENTARY) {
-                set_function(ON);
+                set_hazard_lights(ON);
             }
             else {
-                set_function(!current_state);
+                set_hazard_lights(!global_flags.blink_hazard);
             }
         }
     }
@@ -403,7 +402,7 @@ static void handle_aux_channel(CHANNEL_T *c, struct AUX_FLAGS *f, AUX_TYPE_T typ
             break;
 
         case HAZARD:
-            on_off_function(c, f, type, set_hazard_lights, global_flags.blink_hazard);
+            hazard(c, f, type);
             break;
 
         case SERVO:
@@ -420,10 +419,6 @@ static void handle_aux_channel(CHANNEL_T *c, struct AUX_FLAGS *f, AUX_TYPE_T typ
 
         case DISABLE_OUTPUTS:
             disable_outputs(c);
-            break;
-
-        case SHELF_QUEEN_MODE:
-            on_off_function(c, f, type, set_shelf_queen_mode, global_flags.shelf_queen_mode);
             break;
 
         // case WINCH:
