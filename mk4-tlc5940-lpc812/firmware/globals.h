@@ -388,35 +388,41 @@ typedef enum {
 
 
 // ****************************************************************************
+// IMPORTANT: the order of the GLOBAL_FLAGS_T structure has been "optimized"
+// manually for minimal code side. Moving elements around or changing the
+// "alignment" of bit fields can add more than 68 Bytes in code!
+//
 typedef struct {
+    unsigned int servo_output_setup : 3;
+
     unsigned int systick : 1;               // Set for one mainloop every 20 ms
     unsigned int new_channel_data : 1;      // Set for one mainloop every time servo pulses were received
 
-    unsigned int no_signal : 1;
     unsigned int initializing : 1;
-    unsigned int servo_output_setup : 3;
-    unsigned int reversing_setup : 2;
+    unsigned int no_signal : 1;
 
     unsigned int blink_flag : 1;            // Toggles with 1.5 Hz
     unsigned int blink_hazard : 1;          // Hazard lights active
     unsigned int blink_indicator_left : 1;  // Left indicator active
     unsigned int blink_indicator_right : 1; // Right indicator active
+
     unsigned int forward : 1;               // Set when the car is driving forward
     unsigned int braking : 1;               // Set when the brakes are enganged
     unsigned int reversing : 1;             // Set when the car is reversing
 
-    unsigned int gear_change_requested : 1; // Set until the next mainloop to synchronize gear_changed event
-    unsigned int gear_changed : 1;          // Set for one mainloop when a new gear was selected
-    unsigned int gear : 2;
-
-    // unsigned int winch_mode : 3;
-    unsigned int reserved0 : 3;             // previously used for the winch
+    unsigned int reserved0 : 2;
 
     unsigned int shelf_queen_mode : 1;      // Set when car driving is simulated
-
     unsigned int outputs_disabled : 1;      // Set when all LED outputs should be disabled
-
     unsigned int switched_outputs : 1;      // Set when this is a light controller with 9 switched outputs (Mk4S)
+
+    unsigned int gear_changed : 1;          // Set for one mainloop when a new gear was selected
+    unsigned int gear : 2;
+    unsigned int gear_change_requested : 1; // Set until the next mainloop to synchronize gear_changed event
+
+    unsigned int reserved1 : 1;
+
+    unsigned int reversing_setup : 2;
 } GLOBAL_FLAGS_T;
 
 
