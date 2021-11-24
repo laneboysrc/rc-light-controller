@@ -148,7 +148,7 @@ void process_drive_mode(void)
         }
     }
 
-    if (global_flags.new_channel_data) {
+    if (global_flags.new_channel_data && !global_flags.shelf_queen_mode) {
         // Initialization as the compile complains that config.* is not static.
         if (throttle_threshold == 0xffff) {
             throttle_threshold = config.centre_threshold_high;

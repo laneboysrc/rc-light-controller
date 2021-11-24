@@ -125,7 +125,7 @@ void process_indicators(void)
         }
     }
 
-    if (!global_flags.new_channel_data) {
+    if (!global_flags.new_channel_data || global_flags.shelf_queen_mode) {
         return;
     }
 

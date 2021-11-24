@@ -450,7 +450,7 @@ void process_aux(void)
         }
     }
 
-    if (global_flags.new_channel_data) {
+    if (global_flags.new_channel_data && !global_flags.shelf_queen_mode) {
         if (!initialized) {
             initialized = true;
             aux_flags[0].last_state = (channel[AUX].normalized > 0) ? true : false;
