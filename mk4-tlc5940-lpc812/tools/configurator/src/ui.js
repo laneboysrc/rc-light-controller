@@ -65,6 +65,12 @@ var ui = (function () {
             features[i].classList.add('hidden');
         }
 
+        // Show all LED names
+        const led_names = document.querySelectorAll('.led_config .led_name');
+        for (let led_name of led_names) {
+            led_name.classList.remove('hidden');
+        }
+
         // If the led_feature row where the spanner is clicked is currently
         // closed, then open it.
         if (current_led_feature_hidden) {
@@ -77,6 +83,9 @@ var ui = (function () {
             for (let i = 0; i < features_rows.length; i++) {
                 features_rows[i].classList.remove('hidden');
             }
+
+            // Hide the LED name (since we have the edit field visible)
+            document.querySelector('#' + prefix + led_id + 'name').classList.add('hidden');
         }
     };
 

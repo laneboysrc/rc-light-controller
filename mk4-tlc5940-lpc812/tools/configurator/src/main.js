@@ -1403,6 +1403,20 @@ var app = (function () {
         symbols.reset();
         emitter.reset();
 
+
+        // Add symbols for the LED names
+        function add_led_symbols(led_source, offset) {
+            for (let led_id = 0; led_id < led_source.led_count; led_id++) {
+                const led = led_source[led_id];
+                if (led.name !== '') {
+                    symbols.add_led_name(led.name, offset + led_id);
+                }
+            }
+
+        }
+        add_led_symbols(local_leds, 0);
+        add_led_symbols(slave_leds, 16);
+
         ui.update_errors([]);
 
         try {

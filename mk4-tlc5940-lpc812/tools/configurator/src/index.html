@@ -686,7 +686,7 @@
             <table class="led_table">
               <tbody>
                 <tr class="odd">
-                  <th></th>
+                  <th class="wide"></th>
                   <th class="led_table_car" data-tooltip="help_led_always_on" rowspan="2">Always on</th>
                   <th class="led_table_car" data-tooltip="help_led_light_switch" colspan="9">Light switch position</th>
                   <th class="led_table_car" data-tooltip="help_led_tail"></th>
@@ -700,7 +700,7 @@
                   <th class="led_table_diagnostics" colspan="3" data-tooltip="help_led_servo_setup">Servo output</th>
                 </tr>
                 <tr class="odd">
-                  <th>LED</th>
+                  <th class="wide">LED</th>
                   <th class="led_table_car" data-tooltip="help_led_light_switch">0</th>
                   <th class="led_table_car" data-tooltip="help_led_light_switch">1</th>
                   <th class="led_table_car" data-tooltip="help_led_light_switch">2</th>
@@ -743,7 +743,7 @@
             <table class="led_table">
               <tbody>
                 <tr class="odd">
-                  <th></th>
+                  <th class="wide"></th>
                   <th class="led_table_car" data-tooltip="help_led_always_on" rowspan="2">Always on</th>
                   <th class="led_table_car" data-tooltip="help_led_light_switch" colspan="9">Light switch position</th>
                   <th class="led_table_car" data-tooltip="help_led_tail"></th>
@@ -757,7 +757,7 @@
                   <th class="led_table_diagnostics" colspan="3" data-tooltip="help_led_servo_setup">Servo output</th>
                 </tr>
                 <tr class="odd">
-                  <th>LED</th>
+                  <th class="wide">LED</th>
                   <th class="led_table_car" data-tooltip="help_led_light_switch">0</th>
                   <th class="led_table_car" data-tooltip="help_led_light_switch">1</th>
                   <th class="led_table_car" data-tooltip="help_led_light_switch">2</th>
@@ -1572,7 +1572,7 @@
   -->
   <script id="led_row_template" type="text/html-template">
     <tr class="led_config <%=even_odd%>" data-tooltip="help_click_to_change">
-      <th data-tooltip="help_toggle_features">
+      <th class="wide" data-tooltip="help_toggle_features">
         <%=led_number%> <i class="spanner led_table_car fa fa-wrench"></i>
         <div class="led_name" id="<%=prefix%><%=led_index%>name"></div>
       </th>

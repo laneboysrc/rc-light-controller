@@ -256,9 +256,13 @@ button.menu[disabled] {
 .led_table td, .led_table th {
   text-align: center;
   vertical-align: middle;
-  width: 6.25%;
+  width: 6%;
   height: 2em;
   cursor: default;
+}
+
+.led_table .wide {
+  width: 10%;
 }
 
 .led_table .even td, .led_table .even th {
