@@ -118,13 +118,24 @@ parser.yy = {
 emitter.set_parser(parser);
 symbols.set_parser(parser);
 
+
 program
     .version('1.0.0')
     .usage('[options] <source>')
     .option('-o, --output <value>', 'Output file. If omitted, output is printed to stdout.')
     .option('-i, --include-name', 'Include the source file name in the output as comment.')
+    .option('-t, --test-led-names', 'Add LED names that are required for the test harness')
     .option('-v, --verbose', 'Verbose output. Specify multiple times for more output.', increaseVerbosity, 0)
     .parse(process.argv);
+
+
+if (program.testLedNames) {
+    // The automated test files require LED names 'test1' to 'test4' being defined
+    symbols.add_led_name('test1', 1);
+    symbols.add_led_name('test2', 2);
+    symbols.add_led_name('test3', 3);
+    symbols.add_led_name('test4', 4);
+}
 
 var sources = program.args;
 

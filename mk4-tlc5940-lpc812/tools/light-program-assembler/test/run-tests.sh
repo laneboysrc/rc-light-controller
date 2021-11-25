@@ -10,7 +10,7 @@ run_test() {
     echo "Running test ${testcase##$DIR/} ..."
     echo "$dut $testcase" > $logfile
     echo "" >> $logfile
-    $dut $testcase >>$logfile 2>&1
+    $dut -vvv -t $testcase >>$logfile 2>&1
 }
 
 

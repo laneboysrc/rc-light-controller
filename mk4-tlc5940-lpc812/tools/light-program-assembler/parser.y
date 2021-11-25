@@ -318,6 +318,11 @@ single_led
       { yy.emitter.add_led_to_list(yy.symbols.get_symbol($1).opcode, @1); }
   | LED '[' NUMBER ']'
       { yy.symbols.add_to_leds_used($3); yy.emitter.add_led_to_list($3, @3); }
+  | LED '[' LED_NAME ']'
+      { let led_number = yy.symbols.get_symbol($3).opcode;
+        yy.symbols.add_to_leds_used(led_number);
+        yy.emitter.add_led_to_list(led_number, @3);
+      }
   ;
 
 led_assignment_parameter

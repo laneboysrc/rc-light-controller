@@ -397,6 +397,18 @@ var symbols = (function () {
 
 
     // *************************************************************************
+    var add_led_name = function (name, led_number) {
+        let s = get_symbol(name);
+        if (s.token !== 'UNDECLARED_SYMBOL') {
+            parser.yy.logger.log(MODULE, 'WARNING', 'Ignoring LED name "' + name + '", it is already declared as ' + s.token);
+            return;
+        }
+
+        add_symbol(name, 'LED_NAME', led_number);
+    };
+
+
+    // *************************************************************************
     var get_number_of_light_switch_positions = function () {
         return number_of_light_switch_positions;
     };
@@ -466,6 +478,7 @@ var symbols = (function () {
         get_if_expression: get_if_expression,
         get_number_of_light_switch_positions: get_number_of_light_switch_positions,
         add_to_leds_used: add_to_leds_used,
+        add_led_name: add_led_name,
         set_leds_used: set_leds_used,
         get_leds_used: get_leds_used,
         get_forward_declerations: get_forward_declerations,

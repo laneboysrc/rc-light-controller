@@ -10,9 +10,9 @@ dasm=$2
 run_test() {
 	testcase=$1
     echo "Running test ${testcase##$DIR/} ..."
-    $dut $testcase >$logfile
+    $dut -vvv -t $testcase >$logfile 2>/dev/null
     $dasm <$logfile >$logfile2
-    $dut $logfile2 >$logfile3
+    $dut -vvv -t $logfile2 >$logfile3 2>/dev/null
 }
 
 
