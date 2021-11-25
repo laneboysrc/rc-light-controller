@@ -3058,17 +3058,17 @@ var app = (function () {
 
 
     // *************************************************************************
-    var dump = function () {
+    var get_data = function () {
         return {
             config: config,
-            local_leds: local_leds,
+            master_leds: local_leds,
             slave_leds: slave_leds,
         };
     }
 
     // *************************************************************************
     return {
-        dump: dump,
+        get_data: get_data,
         el: el,
         load: load_firmware,
         init: init

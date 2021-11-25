@@ -21,20 +21,60 @@ var ui = (function () {
         update_tab_visibility();
     };
 
+    // *************************************************************************
+    var led_prefix_and_id_parser = function (led_string) {
+        const [prefix] = led_string.split(/\d/, 1);
+        const led_id = parseInt(led_string.substr(prefix.length));
+        return [prefix, led_id];
+    }
+
+    // *************************************************************************
+    var load_led_name = function (prefix, led_id) {
+        const leds = app.get_data()[prefix + '_leds'];
+        const led = leds[led_id];
+        return led.name;
+    }
+
+    // *************************************************************************
+    var save_led_name = function (prefix, led_id, new_name) {
+        const leds = app.get_data()[prefix + '_leds'];
+        const led = leds[led_id];
+        led.name = new_name;
+    }
 
     // *************************************************************************
     var led_feature_click_handler = function (e) {
-        var features_rows = document.getElementsByClassName(e.target.name);
-        var visible = !features_rows[0].classList.contains('hidden');
-        var i;
+        const features_rows = document.getElementsByClassName(e.target.name);
+        const current_led_feature_hidden = features_rows[0].classList.contains('hidden');
 
+        // Close all led_feature rows
         var features = document.getElementsByClassName('led_features');
-        for (i = 0; i < features.length; i += 1) {
+        for (let i = 0; i < features.length; i += 1) {
+            if (!features[i].classList.contains('hidden')) {
+                const name_input = features[i].querySelector('input.led_name');
+                if (name_input) {
+                    // Save the edited LED name
+                    const [prefix, led_id] = led_prefix_and_id_parser(name_input.id);
+                    const edit_field = document.querySelector('#' + prefix + led_id + 'name_input');
+                    const label_field = document.querySelector('#' + prefix + led_id + 'name');
+                    save_led_name(prefix, led_id, edit_field.value);
+                    label_field.textContent = edit_field.value;
+                }
+            }
+
             features[i].classList.add('hidden');
         }
 
-        if (!visible) {
-            for (i = 0; i < features_rows.length; i++) {
+        // If the led_feature row where the spanner is clicked is currently
+        // closed, then open it.
+        if (current_led_feature_hidden) {
+            // Load the current LED name into the edit field
+            const [prefix, led_id] = led_prefix_and_id_parser(e.target.name);
+            const edit_field = document.querySelector('#' + prefix + led_id + 'name_input');
+            edit_field.value = load_led_name(prefix, led_id);
+
+            // Unhide the led_feature rows
+            for (let i = 0; i < features_rows.length; i++) {
                 features_rows[i].classList.remove('hidden');
             }
         }
@@ -365,6 +405,10 @@ var ui = (function () {
             'independently\n' +
             '(8-clicks; refer to the user manual for details).\n' +
             'Define which LED patterns to show during this setup.');
+
+        set_tooltip('help_led_name',
+            'You can give LEDs a name so that their function is easier ' +
+            'to recognize.\nThese names can also be used in light programs.');
     };
 
 
