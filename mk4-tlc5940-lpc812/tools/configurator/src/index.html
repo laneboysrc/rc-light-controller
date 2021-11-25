@@ -1572,7 +1572,10 @@
   -->
   <script id="led_row_template" type="text/html-template">
     <tr class="led_config <%=even_odd%>" data-tooltip="help_click_to_change">
-      <th data-tooltip="help_toggle_features"><%=led_number%> <i class="spanner led_table_car fa fa-wrench"></i></th>
+      <th data-tooltip="help_toggle_features">
+        <%=led_number%> <i class="spanner led_table_car fa fa-wrench"></i>
+        <div class="led_name" id="<%=prefix%><%=led_index%>name"></div>
+      </th>
       <td class="led_table_car"></td>
       <td class="led_table_car"></td>
       <td class="led_table_car"></td>
@@ -1598,14 +1601,16 @@
       <td class="led_table_diagnostics"><input type="checkbox" class="checkbox"></td>
     </tr>
     <tr data-tooltip="help_incandescent" class="<%=even_odd%> led_features <%=prefix%><%=led_index%>features hidden">
-      <td colspan="16">
+      <td colspan="2"><input type="text" class="led_name" id="<%=prefix%><%=led_index%>name_input"></td>
+      <td colspan="14">
         <div>
           Incandescent light bulb simulation: <input type="number" min="0" max="100" class="incandescent" id="<%=prefix%><%=led_index%>incandescent"> % change per 20 ms
         </div>
       </td>
     </tr>
     <tr data-tooltip="help_weak_ground" class="<%=even_odd%> led_features <%=prefix%><%=led_index%>features hidden" >
-      <td colspan="16">
+      <td colspan="2"></td>
+      <td colspan="14">
         Weak ground simulation: <input type="number" min="0" max="100" class="weak_ground" id="<%=prefix%><%=led_index%>weak_ground"> % reduction
       </td>
     </tr>

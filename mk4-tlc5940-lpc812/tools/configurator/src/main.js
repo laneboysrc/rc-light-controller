@@ -383,6 +383,7 @@ var app = (function () {
             led.indicator_right = data[offset + 18];
 
             led.diagnostics = data[offset + 19];
+            led.name = '';
 
             return led;
         }
@@ -665,6 +666,8 @@ var app = (function () {
 
             for (i = 0; i < led_source.led_count; i += 1) {
                 led = led_source[i];
+
+                document.getElementById(prefix + i + 'name').textContent = led.name;
 
                 set_led_field(prefix, i, 0, led.always_on);
                 set_led_field(prefix, i, 1, led.light_switch_position0);
@@ -2074,6 +2077,9 @@ var app = (function () {
             if (!led.hasOwnProperty('diagnostics')) {
                 led.diagnostics = 0;
             }
+            if (!led.hasOwnProperty('name')) {
+                led.name = '';
+            }
         }
     };
 
@@ -2375,7 +2381,7 @@ var app = (function () {
         // Clear LED master and slave configuration to allow starting with a
         // clear slate
 
-        function clear_leds() {
+        function _clear_leds() {
 
             var result = {};
             var led_count = 16;
@@ -2421,6 +2427,7 @@ var app = (function () {
                 led.indicator_right = 0;
 
                 led.diagnostics = 0;
+                led.name = '';
 
                 return led;
             }
@@ -2431,8 +2438,8 @@ var app = (function () {
             return result;
         }
 
-        local_leds = clear_leds();
-        slave_leds = clear_leds();
+        local_leds = _clear_leds();
+        slave_leds = _clear_leds();
 
         update_led_fields();
         update_led_feature_usage();
@@ -3051,8 +3058,17 @@ var app = (function () {
 
 
     // *************************************************************************
+    var dump = function () {
+        return {
+            config: config,
+            local_leds: local_leds,
+            slave_leds: slave_leds,
+        };
+    }
+
+    // *************************************************************************
     return {
-        config: config,
+        dump: dump,
         el: el,
         load: load_firmware,
         init: init
