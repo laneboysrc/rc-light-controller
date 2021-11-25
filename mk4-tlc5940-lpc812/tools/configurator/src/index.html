@@ -1601,7 +1601,12 @@
       <td class="led_table_diagnostics"><input type="checkbox" class="checkbox"></td>
     </tr>
     <tr data-tooltip="help_incandescent" class="<%=even_odd%> led_features <%=prefix%><%=led_index%>features hidden">
-      <td colspan="2"><input type="text" class="led_name" id="<%=prefix%><%=led_index%>name_input"></td>
+      <td colspan="2" class="led_name">
+        <div>
+          LED name:
+        </div>
+        <input type="text" class="led_name" id="<%=prefix%><%=led_index%>name_input">
+      </td>
       <td colspan="14">
         <div>
           Incandescent light bulb simulation: <input type="number" min="0" max="100" class="incandescent" id="<%=prefix%><%=led_index%>incandescent"> % change per 20 ms

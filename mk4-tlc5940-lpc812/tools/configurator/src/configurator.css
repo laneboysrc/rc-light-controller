@@ -286,6 +286,16 @@ button.menu[disabled] {
 }
 
 
+.led_table td.led_name {
+  text-align: left;
+  padding: 0 0.5em;
+  font-size: 0.8em;
+}
+
+.led_table input.led_name {
+  width: 100%;
+}
+
 
 .advanced_feature {
   padding-top: 1em;
