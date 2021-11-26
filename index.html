@@ -727,9 +727,13 @@ button.menu[disabled] {
 .led_table td, .led_table th {
   text-align: center;
   vertical-align: middle;
-  width: 6.25%;
+  width: 6%;
   height: 2em;
   cursor: default;
+}
+
+.led_table .wide {
+  width: 10%;
 }
 
 .led_table .even td, .led_table .even th {
@@ -756,6 +760,15 @@ button.menu[disabled] {
   width: 3.5em;
 }
 
+
+.led_table td.led_name {
+  text-align: left;
+  font-size: 0.8em;
+}
+
+.led_table input.led_name {
+  width: 100%;
+}
 
 
 .advanced_feature {
@@ -11649,12 +11662,12 @@ if (typeof exports !== "undefined") {
   }
 */
 var parser = (function(){
-var o=function(k,v,o,l){for(o=o||{},l=k.length;l--;o[k[l]]=v);return o},$V0=[1,11],$V1=[1,19],$V2=[1,24],$V3=[1,21],$V4=[1,36],$V5=[1,25],$V6=[1,26],$V7=[1,27],$V8=[1,28],$V9=[1,38],$Va=[1,22],$Vb=[1,29],$Vc=[1,30],$Vd=[1,35],$Ve=[1,31],$Vf=[1,32],$Vg=[1,33],$Vh=[1,41],$Vi=[2,27,28,29,30,33,34,37,38,42,44,45,48,51,53,54,59],$Vj=[2,16,27,28,29,30,33,34,37,38,42,44,45,48,51,53,54,59],$Vk=[1,53],$Vl=[1,54],$Vm=[2,7,28,29,34,38,42,44,45,48,51,53,54,59],$Vn=[1,55],$Vo=[1,70],$Vp=[1,79],$Vq=[1,76],$Vr=[1,78],$Vs=[1,77],$Vt=[1,80],$Vu=[1,81],$Vv=[1,92],$Vw=[1,93],$Vx=[1,94],$Vy=[1,95],$Vz=[1,96],$VA=[1,97],$VB=[1,98],$VC=[1,99],$VD=[1,100],$VE=[1,101],$VF=[31,47],$VG=[31,47,76],$VH=[1,111],$VI=[1,112],$VJ=[5,16],$VK=[1,134],$VL=[1,135],$VM=[1,136],$VN=[1,137],$VO=[1,138],$VP=[1,139],$VQ=[1,143],$VR=[29,32,48,50,59,77],$VS=[8,19,20],$VT=[8,20,23],$VU=[1,180],$VV=[8,64];
+var o=function(k,v,o,l){for(o=o||{},l=k.length;l--;o[k[l]]=v);return o},$V0=[1,11],$V1=[1,19],$V2=[1,24],$V3=[1,21],$V4=[1,36],$V5=[1,25],$V6=[1,26],$V7=[1,27],$V8=[1,28],$V9=[1,38],$Va=[1,22],$Vb=[1,29],$Vc=[1,30],$Vd=[1,35],$Ve=[1,31],$Vf=[1,32],$Vg=[1,33],$Vh=[1,41],$Vi=[2,27,28,29,30,33,34,37,38,42,44,45,48,51,53,54,59],$Vj=[2,16,27,28,29,30,33,34,37,38,42,44,45,48,51,53,54,59],$Vk=[1,53],$Vl=[1,54],$Vm=[2,7,28,29,34,38,42,44,45,48,51,53,54,59],$Vn=[1,55],$Vo=[1,70],$Vp=[1,79],$Vq=[1,76],$Vr=[1,78],$Vs=[1,77],$Vt=[1,80],$Vu=[1,81],$Vv=[1,92],$Vw=[1,93],$Vx=[1,94],$Vy=[1,95],$Vz=[1,96],$VA=[1,97],$VB=[1,98],$VC=[1,99],$VD=[1,100],$VE=[1,101],$VF=[31,47],$VG=[31,47,76],$VH=[1,111],$VI=[1,112],$VJ=[5,16],$VK=[1,135],$VL=[1,136],$VM=[1,137],$VN=[1,138],$VO=[1,139],$VP=[1,140],$VQ=[1,144],$VR=[29,32,48,50,59,78],$VS=[8,19,20],$VT=[8,20,23],$VU=[1,182],$VV=[8,64];
 var parser = {trace: function trace () { },
 yy: {},
-symbols_: {"error":2,"parse_entity":3,"programs":4,"EOF":5,"program":6,"END":7,"NEWLINE":8,"condition_lines":9,"decleration_lines":10,"code_lines":11,"priority_run_condition_lines":12,"run_condition_lines":13,"run_always_condition_line":14,"priority_run_condition_line":15,"RUN":16,"WHEN":17,"priority_run_conditions":18,"PRIORITY_RUN_CONDITION":19,"OR":20,"run_condition_line":21,"run_conditions":22,"RUN_CONDITION":23,"RUN_CONDITION_ALWAYS":24,"decleration_line":25,"decleration":26,"VAR":27,"UNDECLARED_SYMBOL":28,"GLOBAL_VARIABLE":29,"CONST":30,"=":31,"NUMBER":32,"GLOBAL":33,"LED":34,"[":35,"]":36,"USE":37,"ALL":38,"LEDS":39,"code_line":40,":":41,"LABEL":42,"command":43,"GOTO":44,"FADE":45,"leds":46,"STEPSIZE":47,"VARIABLE":48,"%":49,"CONSTANT":50,"SLEEP":51,"parameter":52,"SKIP":53,"IF":54,"skip_if_expression":55,"if_expression":56,"expression":57,"test_operator":58,"LED_ID":59,"ANY":60,"car_state_list":61,"NONE":62,"IS":63,"CAR_STATE":64,"NOT":65,"EQ":66,"NE":67,"GT":68,"LT":69,"GE":70,"LE":71,"assignment_operator":72,"led_assignment_parameter":73,"led_list":74,"single_led":75,",":76,"RANDOM":77,"ADD_ASSIGN":78,"SUB_ASSIGN":79,"MUL_ASSIGN":80,"DIV_ASSIGN":81,"AND_ASSIGN":82,"OR_ASSIGN":83,"XOR_ASSIGN":84,"MOD_ASSIGN":85,"ABS":86,"$accept":0,"$end":1},
-terminals_: {2:"error",5:"EOF",7:"END",8:"NEWLINE",16:"RUN",17:"WHEN",19:"PRIORITY_RUN_CONDITION",20:"OR",23:"RUN_CONDITION",24:"RUN_CONDITION_ALWAYS",27:"VAR",28:"UNDECLARED_SYMBOL",29:"GLOBAL_VARIABLE",30:"CONST",31:"=",32:"NUMBER",33:"GLOBAL",34:"LED",35:"[",36:"]",37:"USE",38:"ALL",39:"LEDS",41:":",42:"LABEL",44:"GOTO",45:"FADE",47:"STEPSIZE",48:"VARIABLE",49:"%",50:"CONSTANT",51:"SLEEP",53:"SKIP",54:"IF",59:"LED_ID",60:"ANY",62:"NONE",63:"IS",64:"CAR_STATE",65:"NOT",66:"EQ",67:"NE",68:"GT",69:"LT",70:"GE",71:"LE",76:",",77:"RANDOM",78:"ADD_ASSIGN",79:"SUB_ASSIGN",80:"MUL_ASSIGN",81:"DIV_ASSIGN",82:"AND_ASSIGN",83:"OR_ASSIGN",84:"XOR_ASSIGN",85:"MOD_ASSIGN",86:"ABS"},
-productions_: [0,[3,2],[3,1],[4,3],[4,4],[6,3],[6,2],[9,1],[9,1],[9,1],[12,1],[12,2],[15,4],[18,1],[18,2],[18,3],[13,1],[13,2],[21,4],[22,1],[22,2],[22,3],[14,3],[10,1],[10,2],[25,2],[26,2],[26,2],[26,2],[26,4],[26,2],[26,3],[26,3],[26,3],[26,7],[26,2],[26,3],[11,1],[11,2],[11,1],[40,3],[40,2],[40,3],[40,2],[40,2],[40,2],[43,2],[43,2],[43,4],[43,4],[43,4],[43,5],[43,4],[43,2],[43,3],[43,2],[43,1],[55,3],[55,3],[55,3],[55,2],[55,2],[55,2],[55,2],[55,2],[56,3],[56,3],[56,3],[56,2],[56,2],[56,2],[56,2],[58,1],[58,1],[58,1],[58,1],[58,1],[58,1],[61,1],[61,2],[57,3],[57,3],[57,3],[46,2],[46,1],[74,1],[74,3],[75,1],[75,4],[73,1],[73,2],[73,1],[73,1],[73,1],[52,1],[52,1],[52,1],[52,1],[52,1],[52,1],[72,1],[72,1],[72,1],[72,1],[72,1],[72,1],[72,1],[72,1],[72,1],[72,2]],
+symbols_: {"error":2,"parse_entity":3,"programs":4,"EOF":5,"program":6,"END":7,"NEWLINE":8,"condition_lines":9,"decleration_lines":10,"code_lines":11,"priority_run_condition_lines":12,"run_condition_lines":13,"run_always_condition_line":14,"priority_run_condition_line":15,"RUN":16,"WHEN":17,"priority_run_conditions":18,"PRIORITY_RUN_CONDITION":19,"OR":20,"run_condition_line":21,"run_conditions":22,"RUN_CONDITION":23,"RUN_CONDITION_ALWAYS":24,"decleration_line":25,"decleration":26,"VAR":27,"UNDECLARED_SYMBOL":28,"GLOBAL_VARIABLE":29,"CONST":30,"=":31,"NUMBER":32,"GLOBAL":33,"LED":34,"[":35,"]":36,"USE":37,"ALL":38,"LEDS":39,"code_line":40,":":41,"LABEL":42,"command":43,"GOTO":44,"FADE":45,"leds":46,"STEPSIZE":47,"VARIABLE":48,"%":49,"CONSTANT":50,"SLEEP":51,"parameter":52,"SKIP":53,"IF":54,"skip_if_expression":55,"if_expression":56,"expression":57,"test_operator":58,"LED_ID":59,"ANY":60,"car_state_list":61,"NONE":62,"IS":63,"CAR_STATE":64,"NOT":65,"EQ":66,"NE":67,"GT":68,"LT":69,"GE":70,"LE":71,"assignment_operator":72,"led_assignment_parameter":73,"led_list":74,"single_led":75,",":76,"LED_NAME":77,"RANDOM":78,"ADD_ASSIGN":79,"SUB_ASSIGN":80,"MUL_ASSIGN":81,"DIV_ASSIGN":82,"AND_ASSIGN":83,"OR_ASSIGN":84,"XOR_ASSIGN":85,"MOD_ASSIGN":86,"ABS":87,"$accept":0,"$end":1},
+terminals_: {2:"error",5:"EOF",7:"END",8:"NEWLINE",16:"RUN",17:"WHEN",19:"PRIORITY_RUN_CONDITION",20:"OR",23:"RUN_CONDITION",24:"RUN_CONDITION_ALWAYS",27:"VAR",28:"UNDECLARED_SYMBOL",29:"GLOBAL_VARIABLE",30:"CONST",31:"=",32:"NUMBER",33:"GLOBAL",34:"LED",35:"[",36:"]",37:"USE",38:"ALL",39:"LEDS",41:":",42:"LABEL",44:"GOTO",45:"FADE",47:"STEPSIZE",48:"VARIABLE",49:"%",50:"CONSTANT",51:"SLEEP",53:"SKIP",54:"IF",59:"LED_ID",60:"ANY",62:"NONE",63:"IS",64:"CAR_STATE",65:"NOT",66:"EQ",67:"NE",68:"GT",69:"LT",70:"GE",71:"LE",76:",",77:"LED_NAME",78:"RANDOM",79:"ADD_ASSIGN",80:"SUB_ASSIGN",81:"MUL_ASSIGN",82:"DIV_ASSIGN",83:"AND_ASSIGN",84:"OR_ASSIGN",85:"XOR_ASSIGN",86:"MOD_ASSIGN",87:"ABS"},
+productions_: [0,[3,2],[3,1],[4,3],[4,4],[6,3],[6,2],[9,1],[9,1],[9,1],[12,1],[12,2],[15,4],[18,1],[18,2],[18,3],[13,1],[13,2],[21,4],[22,1],[22,2],[22,3],[14,3],[10,1],[10,2],[25,2],[26,2],[26,2],[26,2],[26,4],[26,2],[26,3],[26,3],[26,3],[26,7],[26,2],[26,3],[11,1],[11,2],[11,1],[40,3],[40,2],[40,3],[40,2],[40,2],[40,2],[43,2],[43,2],[43,4],[43,4],[43,4],[43,5],[43,4],[43,2],[43,3],[43,2],[43,1],[55,3],[55,3],[55,3],[55,2],[55,2],[55,2],[55,2],[55,2],[56,3],[56,3],[56,3],[56,2],[56,2],[56,2],[56,2],[58,1],[58,1],[58,1],[58,1],[58,1],[58,1],[61,1],[61,2],[57,3],[57,3],[57,3],[46,2],[46,1],[74,1],[74,3],[75,1],[75,4],[75,4],[73,1],[73,2],[73,1],[73,1],[73,1],[52,1],[52,1],[52,1],[52,1],[52,1],[52,1],[72,1],[72,1],[72,1],[72,1],[72,1],[72,1],[72,1],[72,1],[72,1],[72,2]],
 performAction: function anonymous(yytext, yyleng, yylineno, yy, yystate /* action[1] */, $$ /* vstack */, _$ /* lstack */) {
 /* this == yyval */
 
@@ -11844,39 +11857,45 @@ case 88:
  yy.symbols.add_to_leds_used($$[$0-1]); yy.emitter.add_led_to_list($$[$0-1], _$[$0-1]); 
 break;
 case 89:
- this.$ = INSTRUCTION_MODIFIER_IMMEDIATE + (Number($$[$0]) & 0xff); 
+ let led_number = yy.symbols.get_symbol($$[$0-1]).opcode;
+        yy.symbols.add_to_leds_used(led_number);
+        yy.emitter.add_led_to_list(led_number, _$[$0-1]);
+      
 break;
 case 90:
- this.$ = INSTRUCTION_MODIFIER_IMMEDIATE + (Number($$[$0-1]) & 0xff); 
+ this.$ = INSTRUCTION_MODIFIER_IMMEDIATE + (Number($$[$0]) & 0xff); 
 break;
 case 91:
+ this.$ = INSTRUCTION_MODIFIER_IMMEDIATE + (Number($$[$0-1]) & 0xff); 
+break;
+case 92:
  this.$ = INSTRUCTION_MODIFIER_IMMEDIATE + (yy.symbols.get_symbol($$[$0]).opcode & 0xff); 
 break;
-case 92: case 93:
+case 93: case 94:
  this.$ = yy.symbols.get_symbol($$[$0]).opcode; 
 break;
-case 94:
+case 95:
  this.$ = INSTRUCTION_MODIFIER_IMMEDIATE + (Number($$[$0]) & 0xffff); 
 break;
-case 95:
+case 96:
  this.$ = INSTRUCTION_MODIFIER_IMMEDIATE + (yy.symbols.get_symbol($$[$0]).opcode & 0xffff); 
 break;
-case 96: case 97:
+case 97: case 98:
  this.$ = (PARAMETER_TYPE_VARIABLE * 256) + yy.symbols.get_symbol($$[$0]).opcode; 
 break;
-case 98:
+case 99:
  this.$ = (PARAMETER_TYPE_LED * 256) + yy.symbols.get_symbol($$[$0]).opcode; 
 break;
-case 99:
+case 100:
  this.$ = (PARAMETER_TYPE_RANDOM * 256); 
 break;
-case 109:
+case 110:
  this.$ = "ABS" 
 break;
 }
 },
-table: [{3:1,4:2,5:[1,3],6:4,9:5,12:6,13:7,14:8,15:9,16:$V0,21:10},{1:[3]},{5:[1,12],6:13,9:5,12:6,13:7,14:8,15:9,16:$V0,21:10},{1:[2,2]},{7:[1,14]},{2:$V1,10:15,11:16,25:17,26:20,27:$V2,28:$V3,29:$V4,30:$V5,33:$V6,34:$V7,37:$V8,38:$V9,40:18,42:$Va,43:23,44:$Vb,45:$Vc,46:37,48:$Vd,51:$Ve,53:$Vf,54:$Vg,57:34,59:$Vh,74:39,75:40},o($Vi,[2,7],{15:42,16:[1,43]}),o($Vi,[2,8],{21:44,16:[1,45]}),o($Vi,[2,9]),o($Vj,[2,10]),o($Vj,[2,16]),{17:[1,47],24:[1,46]},{1:[2,1]},{7:[1,48]},{8:[1,49]},{2:$V1,11:50,25:51,26:20,27:$V2,28:$V3,29:$V4,30:$V5,33:$V6,34:$V7,37:$V8,38:$V9,40:18,42:$Va,43:23,44:$Vb,45:$Vc,46:37,48:$Vd,51:$Ve,53:$Vf,54:$Vg,57:34,59:$Vh,74:39,75:40},{2:$Vk,7:[2,6],28:$V3,29:$V4,34:$Vl,38:$V9,40:52,42:$Va,43:23,44:$Vb,45:$Vc,46:37,48:$Vd,51:$Ve,53:$Vf,54:$Vg,57:34,59:$Vh,74:39,75:40},o($Vi,[2,23]),o($Vm,[2,37]),o($Vm,[2,39],{8:$Vn}),{8:[1,56]},{2:[1,58],41:[1,57]},{2:[1,60],41:[1,59]},{8:[1,61]},{2:[1,64],28:[1,62],29:[1,63]},{2:[1,66],28:[1,65]},{27:[1,67]},{2:[1,69],28:[1,68],35:$Vo},{38:[1,71]},{28:[1,73],42:[1,72]},{34:$Vl,38:$V9,46:74,59:$Vh,74:39,75:40},{29:$Vp,32:$Vq,48:$Vr,50:$Vs,52:75,59:$Vt,77:$Vu},{54:[1,82]},{29:[1,85],48:[1,84],56:83,59:[1,86],60:[1,87],62:[1,88],63:[1,89],65:[1,90]},{8:[2,56]},{31:$Vv,72:91,78:$Vw,79:$Vx,80:$Vy,81:$Vz,82:$VA,83:$VB,84:$VC,85:$VD,86:$VE},{31:$Vv,72:102,78:$Vw,79:$Vx,80:$Vy,81:$Vz,82:$VA,83:$VB,84:$VC,85:$VD,86:$VE},{31:[1,103]},{39:[1,104]},o($VF,[2,84],{76:[1,105]}),o($VG,[2,85]),o($VG,[2,87]),o($Vj,[2,11]),{17:[1,106]},o($Vj,[2,17]),{17:[1,107]},{8:[1,108]},{18:109,19:$VH,22:110,23:$VI},{8:[1,113]},o($VJ,[2,3]),{2:$Vk,7:[2,5],28:$V3,29:$V4,34:$Vl,38:$V9,40:52,42:$Va,43:23,44:$Vb,45:$Vc,46:37,48:$Vd,51:$Ve,53:$Vf,54:$Vg,57:34,59:$Vh,74:39,75:40},o($Vi,[2,24]),o($Vm,[2,38]),{8:$Vn},{35:$Vo},o($Vm,[2,45]),o($Vi,[2,25]),{8:[1,114]},o($Vm,[2,41]),{8:[1,115]},o($Vm,[2,43]),o($Vm,[2,44]),{8:[2,26]},{8:[2,27]},{8:[2,28]},{31:[1,116]},{8:[2,30]},{2:[1,119],28:[1,117],29:[1,118]},{31:[1,120]},{8:[2,35]},{32:[1,121]},{39:[1,122]},{8:[2,46]},{8:[2,47]},{47:[1,123]},{8:[2,53]},{8:[2,94]},{8:[2,95]},{8:[2,96]},{8:[2,97]},{8:[2,98]},{8:[2,99]},{29:[1,126],38:[1,129],48:[1,125],55:124,59:[1,127],60:[1,128],62:[1,130],63:[1,131],65:[1,132]},{8:[2,55]},{58:133,66:$VK,67:$VL,68:$VM,69:$VN,70:$VO,71:$VP},{58:140,66:$VK,67:$VL,68:$VM,69:$VN,70:$VO,71:$VP},{58:141,66:$VK,67:$VL,68:$VM,69:$VN,70:$VO,71:$VP},{61:142,64:$VQ},{61:144,64:$VQ},{64:[1,145]},{64:[1,146]},{29:$Vp,32:$Vq,48:$Vr,50:$Vs,52:147,59:$Vt,77:$Vu},o($VR,[2,100]),o($VR,[2,101]),o($VR,[2,102]),o($VR,[2,103]),o($VR,[2,104]),o($VR,[2,105]),o($VR,[2,106]),o($VR,[2,107]),o($VR,[2,108]),{31:[1,148]},{29:$Vp,32:$Vq,48:$Vr,50:$Vs,52:149,59:$Vt,77:$Vu},{29:[1,154],32:[1,151],48:[1,153],50:[1,152],73:150},o($VF,[2,83]),{34:$Vl,59:$Vh,75:155},{18:109,19:$VH},{22:110,23:$VI},o($Vi,[2,22]),{8:[1,156],19:[1,157],20:[1,158]},{8:[1,159],20:[1,161],23:[1,160]},o($VS,[2,13]),o($VT,[2,19]),o($VJ,[2,4]),o($Vm,[2,40]),o($Vm,[2,42]),{32:[1,162]},{8:[2,31]},{8:[2,32]},{8:[2,33]},{34:[1,163]},{36:[1,164]},{8:[2,36]},{29:[1,166],32:[1,167],48:[1,165],50:[1,168]},{8:[2,54]},{58:169,66:$VK,67:$VL,68:$VM,69:$VN,70:$VO,71:$VP},{58:170,66:$VK,67:$VL,68:$VM,69:$VN,70:$VO,71:$VP},{58:171,66:$VK,67:$VL,68:$VM,69:$VN,70:$VO,71:$VP},{61:172,64:$VQ},{61:173,64:$VQ},{61:174,64:$VQ},{64:[1,175]},{64:[1,176]},{29:$Vp,32:$Vq,48:$Vr,50:$Vs,52:177,59:$Vt,77:$Vu},o($VR,[2,72]),o($VR,[2,73]),o($VR,[2,74]),o($VR,[2,75]),o($VR,[2,76]),o($VR,[2,77]),{29:$Vp,32:$Vq,48:$Vr,50:$Vs,52:178,59:$Vt,77:$Vu},{29:$Vp,32:$Vq,48:$Vr,50:$Vs,52:179,59:$Vt,77:$Vu},{8:[2,68],64:$VU},o($VV,[2,78]),{8:[2,69],64:$VU},{8:[2,70]},{8:[2,71]},{8:[2,80]},o($VR,[2,109]),{8:[2,81]},{8:[2,82]},{8:[2,89],49:[1,181]},{8:[2,91]},{8:[2,92]},{8:[2,93]},o($VG,[2,86]),o($Vj,[2,12]),o($VS,[2,14]),{19:[1,182]},o($Vj,[2,18]),o($VT,[2,20]),{23:[1,183]},{8:[2,29]},{35:[1,184]},o($VG,[2,88]),{8:[2,48]},{8:[2,49]},{8:[2,50],49:[1,185]},{8:[2,52]},{29:$Vp,32:$Vq,48:$Vr,50:$Vs,52:186,59:$Vt,77:$Vu},{29:$Vp,32:$Vq,48:$Vr,50:$Vs,52:187,59:$Vt,77:$Vu},{29:$Vp,32:$Vq,48:$Vr,50:$Vs,52:188,59:$Vt,77:$Vu},{8:[2,60],64:$VU},{8:[2,61],64:$VU},{8:[2,62],64:$VU},{8:[2,63]},{8:[2,64]},{8:[2,65]},{8:[2,66]},{8:[2,67]},o($VV,[2,79]),{8:[2,90]},o($VS,[2,15]),o($VT,[2,21]),{32:[1,189]},{8:[2,51]},{8:[2,57]},{8:[2,58]},{8:[2,59]},{36:[1,190]},{8:[2,34]}],
-defaultActions: {3:[2,2],12:[2,1],34:[2,56],62:[2,26],63:[2,27],64:[2,28],66:[2,30],69:[2,35],72:[2,46],73:[2,47],75:[2,53],76:[2,94],77:[2,95],78:[2,96],79:[2,97],80:[2,98],81:[2,99],83:[2,55],117:[2,31],118:[2,32],119:[2,33],122:[2,36],124:[2,54],145:[2,70],146:[2,71],147:[2,80],149:[2,81],150:[2,82],152:[2,91],153:[2,92],154:[2,93],162:[2,29],165:[2,48],166:[2,49],168:[2,52],175:[2,63],176:[2,64],177:[2,65],178:[2,66],179:[2,67],181:[2,90],185:[2,51],186:[2,57],187:[2,58],188:[2,59],190:[2,34]},
+table: [{3:1,4:2,5:[1,3],6:4,9:5,12:6,13:7,14:8,15:9,16:$V0,21:10},{1:[3]},{5:[1,12],6:13,9:5,12:6,13:7,14:8,15:9,16:$V0,21:10},{1:[2,2]},{7:[1,14]},{2:$V1,10:15,11:16,25:17,26:20,27:$V2,28:$V3,29:$V4,30:$V5,33:$V6,34:$V7,37:$V8,38:$V9,40:18,42:$Va,43:23,44:$Vb,45:$Vc,46:37,48:$Vd,51:$Ve,53:$Vf,54:$Vg,57:34,59:$Vh,74:39,75:40},o($Vi,[2,7],{15:42,16:[1,43]}),o($Vi,[2,8],{21:44,16:[1,45]}),o($Vi,[2,9]),o($Vj,[2,10]),o($Vj,[2,16]),{17:[1,47],24:[1,46]},{1:[2,1]},{7:[1,48]},{8:[1,49]},{2:$V1,11:50,25:51,26:20,27:$V2,28:$V3,29:$V4,30:$V5,33:$V6,34:$V7,37:$V8,38:$V9,40:18,42:$Va,43:23,44:$Vb,45:$Vc,46:37,48:$Vd,51:$Ve,53:$Vf,54:$Vg,57:34,59:$Vh,74:39,75:40},{2:$Vk,7:[2,6],28:$V3,29:$V4,34:$Vl,38:$V9,40:52,42:$Va,43:23,44:$Vb,45:$Vc,46:37,48:$Vd,51:$Ve,53:$Vf,54:$Vg,57:34,59:$Vh,74:39,75:40},o($Vi,[2,23]),o($Vm,[2,37]),o($Vm,[2,39],{8:$Vn}),{8:[1,56]},{2:[1,58],41:[1,57]},{2:[1,60],41:[1,59]},{8:[1,61]},{2:[1,64],28:[1,62],29:[1,63]},{2:[1,66],28:[1,65]},{27:[1,67]},{2:[1,69],28:[1,68],35:$Vo},{38:[1,71]},{28:[1,73],42:[1,72]},{34:$Vl,38:$V9,46:74,59:$Vh,74:39,75:40},{29:$Vp,32:$Vq,48:$Vr,50:$Vs,52:75,59:$Vt,78:$Vu},{54:[1,82]},{29:[1,85],48:[1,84],56:83,59:[1,86],60:[1,87],62:[1,88],63:[1,89],65:[1,90]},{8:[2,56]},{31:$Vv,72:91,79:$Vw,80:$Vx,81:$Vy,82:$Vz,83:$VA,84:$VB,85:$VC,86:$VD,87:$VE},{31:$Vv,72:102,79:$Vw,80:$Vx,81:$Vy,82:$Vz,83:$VA,84:$VB,85:$VC,86:$VD,87:$VE},{31:[1,103]},{39:[1,104]},o($VF,[2,84],{76:[1,105]}),o($VG,[2,85]),o($VG,[2,87]),o($Vj,[2,11]),{17:[1,106]},o($Vj,[2,17]),{17:[1,107]},{8:[1,108]},{18:109,19:$VH,22:110,23:$VI},{8:[1,113]},o($VJ,[2,3]),{2:$Vk,7:[2,5],28:$V3,29:$V4,34:$Vl,38:$V9,40:52,42:$Va,43:23,44:$Vb,45:$Vc,46:37,48:$Vd,51:$Ve,53:$Vf,54:$Vg,57:34,59:$Vh,74:39,75:40},o($Vi,[2,24]),o($Vm,[2,38]),{8:$Vn},{35:$Vo},o($Vm,[2,45]),o($Vi,[2,25]),{8:[1,114]},o($Vm,[2,41]),{8:[1,115]},o($Vm,[2,43]),o($Vm,[2,44]),{8:[2,26]},{8:[2,27]},{8:[2,28]},{31:[1,116]},{8:[2,30]},{2:[1,119],28:[1,117],29:[1,118]},{31:[1,120]},{8:[2,35]},{32:[1,121],77:[1,122]},{39:[1,123]},{8:[2,46]},{8:[2,47]},{47:[1,124]},{8:[2,53]},{8:[2,95]},{8:[2,96]},{8:[2,97]},{8:[2,98]},{8:[2,99]},{8:[2,100]},{29:[1,127],38:[1,130],48:[1,126],55:125,59:[1,128],60:[1,129],62:[1,131],63:[1,132],65:[1,133]},{8:[2,55]},{58:134,66:$VK,67:$VL,68:$VM,69:$VN,70:$VO,71:$VP},{58:141,66:$VK,67:$VL,68:$VM,69:$VN,70:$VO,71:$VP},{58:142,66:$VK,67:$VL,68:$VM,69:$VN,70:$VO,71:$VP},{61:143,64:$VQ},{61:145,64:$VQ},{64:[1,146]},{64:[1,147]},{29:$Vp,32:$Vq,48:$Vr,50:$Vs,52:148,59:$Vt,78:$Vu},o($VR,[2,101]),o($VR,[2,102]),o($VR,[2,103]),o($VR,[2,104]),o($VR,[2,105]),o($VR,[2,106]),o($VR,[2,107]),o($VR,[2,108]),o($VR,[2,109]),{31:[1,149]},{29:$Vp,32:$Vq,48:$Vr,50:$Vs,52:150,59:$Vt,78:$Vu},{29:[1,155],32:[1,152],48:[1,154],50:[1,153],73:151},o($VF,[2,83]),{34:$Vl,59:$Vh,75:156},{18:109,19:$VH},{22:110,23:$VI},o($Vi,[2,22]),{8:[1,157],19:[1,158],20:[1,159]},{8:[1,160],20:[1,162],23:[1,161]},o($VS,[2,13]),o($VT,[2,19]),o($VJ,[2,4]),o($Vm,[2,40]),o($Vm,[2,42]),{32:[1,163]},{8:[2,31]},{8:[2,32]},{8:[2,33]},{34:[1,164]},{36:[1,165]},{36:[1,166]},{8:[2,36]},{29:[1,168],32:[1,169],48:[1,167],50:[1,170]},{8:[2,54]},{58:171,66:$VK,67:$VL,68:$VM,69:$VN,70:$VO,71:$VP},{58:172,66:$VK,67:$VL,68:$VM,69:$VN,70:$VO,71:$VP},{58:173,66:$VK,67:$VL,68:$VM,69:$VN,70:$VO,71:$VP},{61:174,64:$VQ},{61:175,64:$VQ},{61:176,64:$VQ},{64:[1,177]},{64:[1,178]},{29:$Vp,32:$Vq,48:$Vr,50:$Vs,52:179,59:$Vt,78:$Vu},o($VR,[2,72]),o($VR,[2,73]),o($VR,[2,74]),o($VR,[2,75]),o($VR,[2,76]),o($VR,[2,77]),{29:$Vp,32:$Vq,48:$Vr,50:$Vs,52:180,59:$Vt,78:$Vu},{29:$Vp,32:$Vq,48:$Vr,50:$Vs,52:181,59:$Vt,78:$Vu},{8:[2,68],64:$VU},o($VV,[2,78]),{8:[2,69],64:$VU},{8:[2,70]},{8:[2,71]},{8:[2,80]},o($VR,[2,110]),{8:[2,81]},{8:[2,82]},{8:[2,90],49:[1,183]},{8:[2,92]},{8:[2,93]},{8:[2,94]},o($VG,[2,86]),o($Vj,[2,12]),o($VS,[2,14]),{19:[1,184]},o($Vj,[2,18]),o($VT,[2,20]),{23:[1,185]},{8:[2,29]},{35:[1,186]},o($VG,[2,88]),o($VG,[2,89]),{8:[2,48]},{8:[2,49]},{8:[2,50],49:[1,187]},{8:[2,52]},{29:$Vp,32:$Vq,48:$Vr,50:$Vs,52:188,59:$Vt,78:$Vu},{29:$Vp,32:$Vq,48:$Vr,50:$Vs,52:189,59:$Vt,78:$Vu},{29:$Vp,32:$Vq,48:$Vr,50:$Vs,52:190,59:$Vt,78:$Vu},{8:[2,60],64:$VU},{8:[2,61],64:$VU},{8:[2,62],64:$VU},{8:[2,63]},{8:[2,64]},{8:[2,65]},{8:[2,66]},{8:[2,67]},o($VV,[2,79]),{8:[2,91]},o($VS,[2,15]),o($VT,[2,21]),{32:[1,191]},{8:[2,51]},{8:[2,57]},{8:[2,58]},{8:[2,59]},{36:[1,192]},{8:[2,34]}],
+defaultActions: {3:[2,2],12:[2,1],34:[2,56],62:[2,26],63:[2,27],64:[2,28],66:[2,30],69:[2,35],72:[2,46],73:[2,47],75:[2,53],76:[2,95],77:[2,96],78:[2,97],79:[2,98],80:[2,99],81:[2,100],83:[2,55],117:[2,31],118:[2,32],119:[2,33],123:[2,36],125:[2,54],146:[2,70],147:[2,71],148:[2,80],150:[2,81],151:[2,82],153:[2,92],154:[2,93],155:[2,94],163:[2,29],167:[2,48],168:[2,49],170:[2,52],177:[2,63],178:[2,64],179:[2,65],180:[2,66],181:[2,67],183:[2,91],187:[2,51],188:[2,57],189:[2,58],190:[2,59],192:[2,34]},
 parseError: function parseError (str, hash) {
     if (hash.recoverable) {
         this.trace(str);
@@ -12990,6 +13009,18 @@ var symbols = (function () {
 
 
     // *************************************************************************
+    var add_led_name = function (name, led_number) {
+        let s = get_symbol(name);
+        if (s.token !== 'UNDECLARED_SYMBOL') {
+            parser.yy.logger.log(MODULE, 'WARNING', 'Ignoring LED name "' + name + '", it is already declared as ' + s.token);
+            return;
+        }
+
+        add_symbol(name, 'LED_NAME', led_number);
+    };
+
+
+    // *************************************************************************
     var get_number_of_light_switch_positions = function () {
         return number_of_light_switch_positions;
     };
@@ -13059,6 +13090,7 @@ var symbols = (function () {
         get_if_expression: get_if_expression,
         get_number_of_light_switch_positions: get_number_of_light_switch_positions,
         add_to_leds_used: add_to_leds_used,
+        add_led_name: add_led_name,
         set_leds_used: set_leds_used,
         get_leds_used: get_leds_used,
         get_forward_declerations: get_forward_declerations,
@@ -19286,22 +19318,71 @@ var ui = (function () {
         update_tab_visibility();
     };
 
+    // *************************************************************************
+    var led_prefix_and_id_parser = function (led_string) {
+        const [prefix] = led_string.split(/\d/, 1);
+        const led_id = parseInt(led_string.substr(prefix.length));
+        return [prefix, led_id];
+    }
+
+    // *************************************************************************
+    var load_led_name = function (prefix, led_id) {
+        const leds = app.get_data()[prefix + '_leds'];
+        const led = leds[led_id];
+        return led.name;
+    }
+
+    // *************************************************************************
+    var save_led_name = function (prefix, led_id, new_name) {
+        const leds = app.get_data()[prefix + '_leds'];
+        const led = leds[led_id];
+        led.name = new_name;
+    }
 
     // *************************************************************************
     var led_feature_click_handler = function (e) {
-        var features_rows = document.getElementsByClassName(e.target.name);
-        var visible = !features_rows[0].classList.contains('hidden');
-        var i;
+        const features_rows = document.getElementsByClassName(e.target.name);
+        const current_led_feature_hidden = features_rows[0].classList.contains('hidden');
 
+        // Close all led_feature rows
         var features = document.getElementsByClassName('led_features');
-        for (i = 0; i < features.length; i += 1) {
+        for (let i = 0; i < features.length; i += 1) {
+            if (!features[i].classList.contains('hidden')) {
+                const name_input = features[i].querySelector('input.led_name');
+                if (name_input) {
+                    // Save the edited LED name
+                    const [prefix, led_id] = led_prefix_and_id_parser(name_input.id);
+                    const edit_field = document.querySelector('#' + prefix + led_id + 'name_input');
+                    const label_field = document.querySelector('#' + prefix + led_id + 'name');
+                    save_led_name(prefix, led_id, edit_field.value);
+                    label_field.textContent = edit_field.value;
+                }
+            }
+
             features[i].classList.add('hidden');
         }
 
-        if (!visible) {
-            for (i = 0; i < features_rows.length; i++) {
+        // Show all LED names
+        const led_names = document.querySelectorAll('.led_config .led_name');
+        for (let led_name of led_names) {
+            led_name.classList.remove('hidden');
+        }
+
+        // If the led_feature row where the spanner is clicked is currently
+        // closed, then open it.
+        if (current_led_feature_hidden) {
+            // Load the current LED name into the edit field
+            const [prefix, led_id] = led_prefix_and_id_parser(e.target.name);
+            const edit_field = document.querySelector('#' + prefix + led_id + 'name_input');
+            edit_field.value = load_led_name(prefix, led_id);
+
+            // Unhide the led_feature rows
+            for (let i = 0; i < features_rows.length; i++) {
                 features_rows[i].classList.remove('hidden');
             }
+
+            // Hide the LED name (since we have the edit field visible)
+            document.querySelector('#' + prefix + led_id + 'name').classList.add('hidden');
         }
     };
 
@@ -19630,6 +19711,10 @@ var ui = (function () {
             'independently\n' +
             '(8-clicks; refer to the user manual for details).\n' +
             'Define which LED patterns to show during this setup.');
+
+        set_tooltip('help_led_name',
+            'You can give LEDs a name so that their function is easier ' +
+            'to recognize.\nThese names can also be used in light programs.');
     };
 
 
@@ -20141,6 +20226,7 @@ var app = (function () {
             led.indicator_right = data[offset + 18];
 
             led.diagnostics = data[offset + 19];
+            led.name = '';
 
             return led;
         }
@@ -20423,6 +20509,8 @@ var app = (function () {
 
             for (i = 0; i < led_source.led_count; i += 1) {
                 led = led_source[i];
+
+                document.getElementById(prefix + i + 'name').textContent = led.name;
 
                 set_led_field(prefix, i, 0, led.always_on);
                 set_led_field(prefix, i, 1, led.light_switch_position0);
@@ -21158,6 +21246,20 @@ var app = (function () {
         symbols.reset();
         emitter.reset();
 
+
+        // Add symbols for the LED names
+        function add_led_symbols(led_source, offset) {
+            for (let led_id = 0; led_id < led_source.led_count; led_id++) {
+                const led = led_source[led_id];
+                if (led.name !== '') {
+                    symbols.add_led_name(led.name, offset + led_id);
+                }
+            }
+
+        }
+        add_led_symbols(local_leds, 0);
+        add_led_symbols(slave_leds, 16);
+
         ui.update_errors([]);
 
         try {
@@ -21832,6 +21934,9 @@ var app = (function () {
             if (!led.hasOwnProperty('diagnostics')) {
                 led.diagnostics = 0;
             }
+            if (!led.hasOwnProperty('name')) {
+                led.name = '';
+            }
         }
     };
 
@@ -22133,7 +22238,7 @@ var app = (function () {
         // Clear LED master and slave configuration to allow starting with a
         // clear slate
 
-        function clear_leds() {
+        function _clear_leds() {
 
             var result = {};
             var led_count = 16;
@@ -22179,6 +22284,7 @@ var app = (function () {
                 led.indicator_right = 0;
 
                 led.diagnostics = 0;
+                led.name = '';
 
                 return led;
             }
@@ -22189,8 +22295,8 @@ var app = (function () {
             return result;
         }
 
-        local_leds = clear_leds();
-        slave_leds = clear_leds();
+        local_leds = _clear_leds();
+        slave_leds = _clear_leds();
 
         update_led_fields();
         update_led_feature_usage();
@@ -22809,8 +22915,17 @@ var app = (function () {
 
 
     // *************************************************************************
+    var get_data = function () {
+        return {
+            config: config,
+            master_leds: local_leds,
+            slave_leds: slave_leds,
+        };
+    }
+
+    // *************************************************************************
     return {
-        config: config,
+        get_data: get_data,
         el: el,
         load: load_firmware,
         init: init
@@ -22875,7 +22990,7 @@ document.addEventListener('DOMContentLoaded', function () {
         <h1><span id="logo"></span> RC Light Controller configuration tool</h1>
 
         <div>
-          Configurator version: <strong>2021-11-24</strong><br>
+          Configurator version: <strong>2021-11-26</strong><br>
           Firmware version: <strong><span id="firmware_version"></span></strong>
         </div>
 
@@ -23455,7 +23570,7 @@ document.addEventListener('DOMContentLoaded', function () {
             <table class="led_table">
               <tbody>
                 <tr class="odd">
-                  <th></th>
+                  <th class="wide"></th>
                   <th class="led_table_car" data-tooltip="help_led_always_on" rowspan="2">Always on</th>
                   <th class="led_table_car" data-tooltip="help_led_light_switch" colspan="9">Light switch position</th>
                   <th class="led_table_car" data-tooltip="help_led_tail"></th>
@@ -23469,7 +23584,7 @@ document.addEventListener('DOMContentLoaded', function () {
                   <th class="led_table_diagnostics" colspan="3" data-tooltip="help_led_servo_setup">Servo output</th>
                 </tr>
                 <tr class="odd">
-                  <th>LED</th>
+                  <th class="wide">LED</th>
                   <th class="led_table_car" data-tooltip="help_led_light_switch">0</th>
                   <th class="led_table_car" data-tooltip="help_led_light_switch">1</th>
                   <th class="led_table_car" data-tooltip="help_led_light_switch">2</th>
@@ -23512,7 +23627,7 @@ document.addEventListener('DOMContentLoaded', function () {
             <table class="led_table">
               <tbody>
                 <tr class="odd">
-                  <th></th>
+                  <th class="wide"></th>
                   <th class="led_table_car" data-tooltip="help_led_always_on" rowspan="2">Always on</th>
                   <th class="led_table_car" data-tooltip="help_led_light_switch" colspan="9">Light switch position</th>
                   <th class="led_table_car" data-tooltip="help_led_tail"></th>
@@ -23526,7 +23641,7 @@ document.addEventListener('DOMContentLoaded', function () {
                   <th class="led_table_diagnostics" colspan="3" data-tooltip="help_led_servo_setup">Servo output</th>
                 </tr>
                 <tr class="odd">
-                  <th>LED</th>
+                  <th class="wide">LED</th>
                   <th class="led_table_car" data-tooltip="help_led_light_switch">0</th>
                   <th class="led_table_car" data-tooltip="help_led_light_switch">1</th>
                   <th class="led_table_car" data-tooltip="help_led_light_switch">2</th>
@@ -23962,6 +24077,9 @@ document.addEventListener('DOMContentLoaded', function () {
               If enabled, the light controller simulates driving behavior and turns lights on and off
               when the &quot;no servo signal&quot; condition applies for more than 5 seconds.
             </div>
+            <div>
+              If this setting is disabled, you can still manually control shelf queen mode from a <em>light program</em>.
+            </div>
           </div>
 
           <h3>Gearbox servo output</h3>
@@ -24198,10 +24316,22 @@ document.addEventListener('DOMContentLoaded', function () {
         <div class="box configuration">
           <h2>What's new</h2>
 
-          <div><strong>2021-11-24 Firmware 2.46</strong></div>
+          <div><strong>2021-11-26 Firmware 2.46</strong></div>
           <ul class="change-history">
             <li>
-              Car functions disabled in shelf queen mode
+              <p>It is now possible to assign human readable names to LEDs in the
+              <em>LED configuration</em> tables. These names can make it easier
+              to recognize which function is intended for a particular LED.
+              </p>
+              <p>Click on the spanner icon <i class="fa fa-wrench"></i> of a LED to assign or change its name.
+              </p>
+              <p>The LED names can also be used in light programs. Refer to section
+              <em>LED declarations</em> in the <a href="https://github.com/laneboysrc/rc-light-controller/blob/master/mk4-tlc5940-lpc812/doc/light-programs.md#led-declarations" target="_blank">light programs documentation</a>
+              for more information.
+              </p>
+            </li>
+            <li>
+              Bugfix: Car functions are now disabled in shelf queen mode
             </li>
             <li>
               Reduce firmware size
@@ -24338,7 +24468,10 @@ document.addEventListener('DOMContentLoaded', function () {
   -->
   <script id="led_row_template" type="text/html-template">
     <tr class="led_config <%=even_odd%>" data-tooltip="help_click_to_change">
-      <th data-tooltip="help_toggle_features"><%=led_number%> <i class="spanner led_table_car fa fa-wrench"></i></th>
+      <th class="wide" data-tooltip="help_toggle_features">
+        <%=led_number%> <i class="spanner led_table_car fa fa-wrench"></i>
+        <div class="led_name" data-tooltip="help_led_name" id="<%=prefix%><%=led_index%>name"></div>
+      </th>
       <td class="led_table_car"></td>
       <td class="led_table_car"></td>
       <td class="led_table_car"></td>
@@ -24363,15 +24496,22 @@ document.addEventListener('DOMContentLoaded', function () {
       <td class="led_table_diagnostics"><input type="checkbox" class="checkbox"></td>
       <td class="led_table_diagnostics"><input type="checkbox" class="checkbox"></td>
     </tr>
-    <tr data-tooltip="help_incandescent" class="<%=even_odd%> led_features <%=prefix%><%=led_index%>features hidden">
-      <td colspan="16">
+    <tr class="<%=even_odd%> led_features <%=prefix%><%=led_index%>features hidden">
+      <td colspan="2" class="led_name" data-tooltip="help_led_name" >
+        <div>
+          LED name:
+        </div>
+        <input type="text" class="led_name" id="<%=prefix%><%=led_index%>name_input">
+      </td>
+      <td colspan="14" data-tooltip="help_incandescent">
         <div>
           Incandescent light bulb simulation: <input type="number" min="0" max="100" class="incandescent" id="<%=prefix%><%=led_index%>incandescent"> % change per 20 ms
         </div>
       </td>
     </tr>
     <tr data-tooltip="help_weak_ground" class="<%=even_odd%> led_features <%=prefix%><%=led_index%>features hidden" >
-      <td colspan="16">
+      <td colspan="2"></td>
+      <td colspan="14">
         Weak ground simulation: <input type="number" min="0" max="100" class="weak_ground" id="<%=prefix%><%=led_index%>weak_ground"> % reduction
       </td>
     </tr>
