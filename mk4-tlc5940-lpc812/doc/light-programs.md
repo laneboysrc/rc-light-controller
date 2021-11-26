@@ -404,7 +404,7 @@ LED declarations serve two purpose:
 
 - They give human readable names to LEDs, which also makes it easy to swap LED outputs at a later time.
 
-LEDs are declared as follows:
+LEDs are declared in light programs as follows:
 
     use all leds
     led license_plate_light = led[0]
@@ -415,6 +415,15 @@ LEDs are declared as follows:
 
 Assigning identifiers to individual LEDs follows the form ``led x = led[y]`` where ``x`` is the identifier and ``y`` is the number of the LED output of the light controller to use. For a single light controller the output number range is ``0..15``. The LEDs on a slave light controller range from ``16..31``.
 
+LEDs can also be declared in the Configurator. In the ``LED configuration`` tab click on the spanner icon for a particular LED. This opens up new edit fields. Enter a name that is a [valid identifer](#identifiers). Now this name can be used in light programs (without additional declaration):
+
+    // Blink LEDs named 'indicator-l' and 'indicator-r' in the LED configuration table
+    loop:
+        sleep 330
+        led[indicator-l], led[indicator-r] = 100
+        sleep 330
+        led[indicator-l], led[indicator-r] = 0
+        goto loop
 
 ### Taking control of LEDs
 
