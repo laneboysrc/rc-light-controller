@@ -1432,10 +1432,22 @@
         <div class="box configuration">
           <h2>What's new</h2>
 
-          <div><strong>2021-11-24 Firmware 2.46</strong></div>
+          <div><strong>2021-11-26 Firmware 2.46</strong></div>
           <ul class="change-history">
             <li>
-              Car functions disabled in shelf queen mode
+              <p>It is now possible to assign human readable names to LEDs in the
+              <em>LED configuration</em> tables. These names can make it easier
+              to recognize which function is intended for a particular LED.
+              </p>
+              <p>Click on the spanner icon <i class="fa fa-wrench"></i> of a LED to assign or change its name.
+              </p>
+              <p>The LED names can also be used in light programs. Refer to section
+              <em>LED declarations</em> in the <a href="https://github.com/laneboysrc/rc-light-controller/blob/master/mk4-tlc5940-lpc812/doc/light-programs.md#led-declarations" target="_blank">light programs documentation</a>
+              for more information.
+              </p>
+            </li>
+            <li>
+              Bugfix: Car functions are now disabled in shelf queen mode
             </li>
             <li>
               Reduce firmware size
