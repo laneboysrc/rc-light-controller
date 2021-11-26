@@ -19,6 +19,10 @@ led[17] = 25%
 // Test LED names as declared by the user in the Configurator
 led[test1] = 100
 led[test2], led[test3] = 10
-led[test4] = 200
+led[test4] = 100
+
+// Mixed usage: LED name, declared LED, LED number
+led[test3], l1, led[17] = 50
+fade l2, led[test2], led[20] stepsize 10
 
 end
