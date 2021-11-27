@@ -1831,6 +1831,10 @@ var app = (function () {
             return;
         }
         load_file_from_disk(this.files[0])
+
+        // Reset the input element, because otherwise it would not trigger
+        // if the user tries to load the same configuration file again!
+        el.load_input.value = '';
     }
 
     // *************************************************************************
@@ -1885,13 +1889,19 @@ var app = (function () {
             firmware = parse_firmware_structure(hex_to_bin(default_firmware_image_mk4));
             config.firmware_version = default_firmware_version;
 
-            Toastify({
+            // Change the default filename for the configuration file so that
+            // when saving an updated configuration the same filename as the
+            // one where the configuration originated from is shown.
+            default_config_filename = filename;
+
+            const toast = Toastify({
                 text: 'Configuration loaded successfully from file ' + filename,
-                duration: -1,
+                duration: 3000,
                 position: 'center',
                 close: true,
                 offset: {y: -15},
                 className: 'toast',
+                onClick: () => { toast.hideToast() },
             }).showToast();
 
         } catch (err) {
