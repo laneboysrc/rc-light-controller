@@ -6,6 +6,7 @@
 
 body {
   color: black;
+  background-color: #ffffff;
   font-size: 100%;
   font-family: sans-serif;
   display: flex;
@@ -489,4 +490,50 @@ button.menu[disabled] {
 
 .change-history li {
   margin-bottom: 0.5em;
+}
+
+.file-dropper-container {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: #ffffff;
+  display: grid;
+  align-items: center;
+  justify-content: center;
+}
+
+.file-dropper-zone {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 9999;
+  background-color: transparent;
+}
+
+.file-dropper-popup {
+  background-color: #ffcf0d;
+  border: 3px dashed #000000;
+  border-radius: 20px;
+  width: 50vw;
+  height: 50vh;
+  display: grid;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+}
+
+.file-dropper-popup > div {
+  padding: 0.5em;
+  display: grid;
+  gap: 1em;
+  justify-content: center;
+}
+
+.file-dropper-popup i {
+  font-size: 6em;
+  margin: 0 auto;
 }

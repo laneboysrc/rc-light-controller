@@ -52,9 +52,7 @@
   <script inline src="preprocessor-simulator-ui.js"></script>
 
   <script inline src="templating.js"></script>
-  <!-- <script NOinline src="chrome_uart.js"></script> -->
-  <!-- <script NOinline src="flash_lpc8xx.js"></script> -->
-  <!-- <script NOinline src="flash_dfu.js"></script> -->
+  <script inline src="file-dropper.js"></script>
   <script inline src="ui.js"></script>
   <script inline src="main.js"></script>
 </head>
@@ -1432,7 +1430,7 @@
         <div class="box configuration">
           <h2>What's new</h2>
 
-          <div><strong>2021-11-26 Firmware 2.46</strong></div>
+          <div><strong>2021-11-27 Firmware 2.46</strong></div>
           <ul class="change-history">
             <li>
               <p>It is now possible to assign human readable names to LEDs in the
@@ -1445,6 +1443,9 @@
               <em>LED declarations</em> in the <a href="https://github.com/laneboysrc/rc-light-controller/blob/master/mk4-tlc5940-lpc812/doc/light-programs.md#led-declarations" target="_blank">light programs documentation</a>
               for more information.
               </p>
+            </li>
+            <li>
+              Configuration files can now be loaded by dragging them from a file manager on the Configurator window.
             </li>
             <li>
               Bugfix: Car functions are now disabled in shelf queen mode
@@ -1573,6 +1574,15 @@
     </div>
   </div>
 
+  <div class="file-dropper-container hidden">
+    <div class="file-dropper-zone"></div>
+    <div class="file-dropper-popup">
+      <div>
+        <i class="fa fa-download"></i>
+        <div>Drop your light controller configuration file here</div>
+      </div>
+    </div>
+  </div>
 
   <input type="file" id="load_input" style="display:none">
 

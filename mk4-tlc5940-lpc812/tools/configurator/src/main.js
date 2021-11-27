@@ -1825,13 +1825,16 @@ var app = (function () {
         ui.update_editor();
     };
 
-
     // *************************************************************************
-    var load_file_from_disk = function () {
+    var file_input_handler = function () {
         if (this.files.length < 1) {
             return;
         }
+        load_file_from_disk(this.files[0])
+    }
 
+    // *************************************************************************
+    var load_file_from_disk = function (file) {
         var intelHex = /^:[0-9a-fA-F][0-9a-fA-F]/;
         var json = /^\s*{/;
 
@@ -1856,7 +1859,7 @@ var app = (function () {
                 load_firmware(data);
             }
         };
-        reader.readAsArrayBuffer(this.files[0]);
+        reader.readAsArrayBuffer(file);
     };
 
 
@@ -3016,7 +3019,7 @@ var app = (function () {
         el.config_output.addEventListener('change', update_section_visibility, false);
 
         el.load.addEventListener('click', () => {el.load_input.click(); }, false);
-        el.load_input.addEventListener('change', load_file_from_disk, false);
+        el.load_input.addEventListener('change', file_input_handler, false);
         el.save_config.addEventListener('click', save_configuration, false);
         el.save_firmware.addEventListener('click', save_firmware, false);
 
@@ -3082,6 +3085,7 @@ var app = (function () {
 
     // *************************************************************************
     return {
+        load_file_from_disk: load_file_from_disk,
         get_data: get_data,
         el: el,
         load: load_firmware,
@@ -3094,6 +3098,7 @@ var app = (function () {
 document.addEventListener('DOMContentLoaded', function () {
     ui.init();
     app.init();
+    new File_dropper(app.load_file_from_disk);
 }, false);
 
 
