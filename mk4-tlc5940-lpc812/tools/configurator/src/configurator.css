@@ -537,3 +537,10 @@ button.menu[disabled] {
   font-size: 6em;
   margin: 0 auto;
 }
+
+.toast {
+  background: #ffcf0d;
+  border-radius: 10px;
+  color: black;
+}
+

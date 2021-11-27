@@ -1846,7 +1846,7 @@ var app = (function () {
 
             if (contentsString.match(json)) {
                 var decoder = new TextDecoder("utf-8");
-                load_configuration_from_disk(decoder.decode(contents));
+                load_configuration_from_disk(decoder.decode(contents), file.name);
             }
             else if (contentsString.match(intelHex)) {
                 contents = hex_to_bin(contentsString);
@@ -1864,7 +1864,7 @@ var app = (function () {
 
 
     // *************************************************************************
-    var load_configuration_from_disk = function (contents) {
+    var load_configuration_from_disk = function (contents, filename) {
         var data;
         try {
             data = JSON.parse(contents);
@@ -1884,6 +1884,16 @@ var app = (function () {
             // Use the current firmware when loading a configuration file
             firmware = parse_firmware_structure(hex_to_bin(default_firmware_image_mk4));
             config.firmware_version = default_firmware_version;
+
+            Toastify({
+                text: 'Configuration loaded successfully from file ' + filename,
+                duration: -1,
+                position: 'center',
+                close: true,
+                offset: {y: -15},
+                className: 'toast',
+            }).showToast();
+
         } catch (err) {
             log.error(err);
             window.alert(
