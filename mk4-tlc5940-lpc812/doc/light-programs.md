@@ -247,11 +247,6 @@ The syntax is as follows:
 
     The light program runs during the bright period of the respective left or right indicator light.
 
-- **winch-disabled, winch-idle, winch-in, winch-out**
-
-    The light program runs during the respective winch state. This applies if the light controller is configured to drive the [LANE Boys RC winch controller](https://github.com/laneboysrc/rc-winch-controller).
-    The winch states are mutually exclusive.
-
 - **program-state-0 .. program-state-4**
 
     The light program runs when the value of the global variable with the same name is not 0 (zero).
@@ -796,10 +791,6 @@ The following car states can be tested using ``skip if`` statements:
 - **blink-left, blink-right**
 
     The left/right indicator or hazard light is engaged and the blink timer is in the bright period.
-
-- **winch-disabled, winch-idle, winch-in, winch-out**
-
-    The state of the winch.
 
 - **servo-output-setup-centre, servo-output-setup-left, servo-output-setup-right**
 
