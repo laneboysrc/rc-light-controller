@@ -477,6 +477,7 @@ span.CodeMirror-selectedtext { background: none; }
 
 body {
   color: black;
+  background-color: #ffffff;
   font-size: 100%;
   font-family: sans-serif;
   display: flex;
@@ -960,7 +961,54 @@ button.menu[disabled] {
 
 .change-history li {
   margin-bottom: 0.5em;
-}</style>
+}
+
+.file-dropper-container {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: #ffffff;
+  display: grid;
+  align-items: center;
+  justify-content: center;
+}
+
+.file-dropper-zone {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 9999;
+  background-color: transparent;
+}
+
+.file-dropper-popup {
+  background-color: #ffcf0d;
+  border: 3px dashed #000000;
+  border-radius: 20px;
+  width: 50vw;
+  height: 50vh;
+  display: grid;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+}
+
+.file-dropper-popup > div {
+  padding: 0.5em;
+  display: grid;
+  gap: 1em;
+  justify-content: center;
+}
+
+.file-dropper-popup i {
+  font-size: 6em;
+  margin: 0 auto;
+}
+</style>
 
   <script>/* FileSaver.js
  * A saveAs() FileSaver implementation.
@@ -19292,9 +19340,89 @@ class Preprocessor_simulator {
 }());
 
 </script>
-  <!-- <script NOinline src="chrome_uart.js"></script> -->
-  <!-- <script NOinline src="flash_lpc8xx.js"></script> -->
-  <!-- <script NOinline src="flash_dfu.js"></script> -->
+  <script>'use strict';
+/*
+
+  This is a file dropper implementation that allows users to drage
+  light controller configuration files (light_controller.config.txt)
+  from the file manager onto the Configurator application.
+
+*/
+
+
+class File_dropper {
+  // --------------------------------------------------------------------------
+  constructor(file_dropped_callback) {
+    this.callback = file_dropped_callback;
+
+    if (typeof this.callback !== 'function') {
+      throw('No callback function provided');
+    }
+
+    this.container = document.querySelector('.file-dropper-container');
+    this.zone = document.querySelector('.file-dropper-zone');
+
+    if (!this.container) {
+      throw('Could not find required element with class file-dropper-container');
+    }
+    if (!this.zone) {
+      throw('Could not find required element with class file-dropper-zone');
+    }
+
+    const html = document.querySelector('html');
+    html.addEventListener('dragenter', this.dragEnterHandler);
+    this.zone.addEventListener('dragover', this.dragOverHandler);
+    this.zone.addEventListener('dragleave', this.dragLeaveHandler);
+    this.zone.addEventListener('drop', this.dropHandler);
+  }
+
+  // --------------------------------------------------------------------------
+  dragEnterHandler = (event) => {
+    event.preventDefault();
+    this.container.classList.remove('hidden');
+  }
+
+  // --------------------------------------------------------------------------
+  dragOverHandler = (event) => {
+    event.preventDefault();
+  }
+
+  // --------------------------------------------------------------------------
+  dragLeaveHandler = (event) => {
+    event.preventDefault();
+    this.container.classList.add('hidden');
+  }
+
+  // --------------------------------------------------------------------------
+  dropHandler = (event) => {
+    event.preventDefault();
+
+    this.container.classList.add('hidden');
+
+    if (event.dataTransfer.items) {
+      if (event.dataTransfer.items.length > 0) {
+        const item = event.dataTransfer.items[0];
+        if (item.kind === 'file') {
+          const file = item.getAsFile();
+          this.callback(file);
+        }
+      }
+      else {
+        console.warn('event.dataTransfer.items.length is 0 or negative?!');
+      }
+    } else {
+      if (event.dataTransfer.files.length > 0) {
+        const file = event.dataTransfer.files[0];
+        this.callback(file);
+      }
+      else {
+        console.warn('event.dataTransfer.files.length is 0 or negative?!');
+      }
+    }
+  }
+}
+
+</script>
   <script>'use strict';
 /*global CodeMirror, tmpl */
 
@@ -21668,13 +21796,16 @@ var app = (function () {
         ui.update_editor();
     };
 
-
     // *************************************************************************
-    var load_file_from_disk = function () {
+    var file_input_handler = function () {
         if (this.files.length < 1) {
             return;
         }
+        load_file_from_disk(this.files[0])
+    }
 
+    // *************************************************************************
+    var load_file_from_disk = function (file) {
         var intelHex = /^:[0-9a-fA-F][0-9a-fA-F]/;
         var json = /^\s*{/;
 
@@ -21699,7 +21830,7 @@ var app = (function () {
                 load_firmware(data);
             }
         };
-        reader.readAsArrayBuffer(this.files[0]);
+        reader.readAsArrayBuffer(file);
     };
 
 
@@ -22859,7 +22990,7 @@ var app = (function () {
         el.config_output.addEventListener('change', update_section_visibility, false);
 
         el.load.addEventListener('click', () => {el.load_input.click(); }, false);
-        el.load_input.addEventListener('change', load_file_from_disk, false);
+        el.load_input.addEventListener('change', file_input_handler, false);
         el.save_config.addEventListener('click', save_configuration, false);
         el.save_firmware.addEventListener('click', save_firmware, false);
 
@@ -22925,6 +23056,7 @@ var app = (function () {
 
     // *************************************************************************
     return {
+        load_file_from_disk: load_file_from_disk,
         get_data: get_data,
         el: el,
         load: load_firmware,
@@ -22937,6 +23069,7 @@ var app = (function () {
 document.addEventListener('DOMContentLoaded', function () {
     ui.init();
     app.init();
+    new File_dropper(app.load_file_from_disk);
 }, false);
 
 
@@ -22990,7 +23123,7 @@ document.addEventListener('DOMContentLoaded', function () {
         <h1><span id="logo"></span> RC Light Controller configuration tool</h1>
 
         <div>
-          Configurator version: <strong>2021-11-26</strong><br>
+          Configurator version: <strong>2021-11-27</strong><br>
           Firmware version: <strong><span id="firmware_version"></span></strong>
         </div>
 
@@ -24316,7 +24449,7 @@ document.addEventListener('DOMContentLoaded', function () {
         <div class="box configuration">
           <h2>What's new</h2>
 
-          <div><strong>2021-11-26 Firmware 2.46</strong></div>
+          <div><strong>2021-11-27 Firmware 2.46</strong></div>
           <ul class="change-history">
             <li>
               <p>It is now possible to assign human readable names to LEDs in the
@@ -24329,6 +24462,9 @@ document.addEventListener('DOMContentLoaded', function () {
               <em>LED declarations</em> in the <a href="https://github.com/laneboysrc/rc-light-controller/blob/master/mk4-tlc5940-lpc812/doc/light-programs.md#led-declarations" target="_blank">light programs documentation</a>
               for more information.
               </p>
+            </li>
+            <li>
+              Configuration files can now be loaded by dragging them from a file manager on the Configurator window.
             </li>
             <li>
               Bugfix: Car functions are now disabled in shelf queen mode
@@ -24457,6 +24593,15 @@ document.addEventListener('DOMContentLoaded', function () {
     </div>
   </div>
 
+  <div class="file-dropper-container hidden">
+    <div class="file-dropper-zone"></div>
+    <div class="file-dropper-popup">
+      <div>
+        <i class="fa fa-download"></i>
+        <div>Drop your light controller configuration file here</div>
+      </div>
+    </div>
+  </div>
 
   <input type="file" id="load_input" style="display:none">
 
