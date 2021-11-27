@@ -10,5 +10,3 @@ We are using the TSSOP-20 package of the LPC812 as it is easier to source (as of
 As of early 2021, many electronics components are out of stock due to global semiconductor shortage. This affects also the LPC812 microcontroller.
 
 As of April 2021 a similar microcontroller from NXP, the LPC832M101FDH20 was still in stock at some distributors (but stocks declined towards mid of April rapidly). We prepared a new circuit board for the LPC832, and also ported the firmware.
-
-**IMPORTANT: As of July 2021 the firmware has not been adapted to the LPC832 (for the switching version). The hardware has not been tested**

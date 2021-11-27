@@ -14,4 +14,4 @@ The LPC812-TSSOP20 was never built and tested.
 The LPC832-TSSOP20 version is not tested yet, but most likely will work as we successfully ported the Mk4P (basically same schematics) already to the LPC832.
 
 
-Background info: we ported to the different microcontroller variants to get around the global chip shortage in 20201.
+Background info: we ported to the different microcontroller variants to get around the global chip shortage in 2020/2021.
