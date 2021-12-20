@@ -163,7 +163,8 @@ var emitter = (function () {
             ' (' + led_list.length + ' leds)');
 
         if (led_list.length === 0) {
-            throw new Error('Internal parser error: led_list.length is 0');
+            yyerror('No LED declared', { loc: location });
+            // throw new Error('Internal parser error: led_list.length is 0');
         }
 
         if (led_list.length > 1  &&  pc > 0  &&
