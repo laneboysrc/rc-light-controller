@@ -12,7 +12,7 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
         .version = CONFIG_VERSION
     },
 
-    .firmware_version = 47,
+    .firmware_version = 50,
 
     .mode = MASTER_WITH_UART_READER,
     .esc_mode = ESC_FORWARD_BRAKE_REVERSE_TIMEOUT,

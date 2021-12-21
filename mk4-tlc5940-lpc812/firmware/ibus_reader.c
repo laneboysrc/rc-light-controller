@@ -111,13 +111,12 @@ static bool process_buffer(uint32_t *out)
         }
 
         // Checksum wrong: Discard the first byte and re-check
-        printf("i-Bus checksum wrong: expected: 0x%04x actual: 0x%04x\n", excepted_checksum, checksum);
+        // printf("i-Bus checksum wrong: expected: 0x%04x actual: 0x%04x\n", excepted_checksum, checksum);
         // printf("i-Bus packet: ");
         // for (uint8_t i = 0; i < buffer[0]; i++) {
         //     printf("%02x ", buffer[i]);
         // }
         // printf("\n");
-
 
         discard_from_buffer();
     }
