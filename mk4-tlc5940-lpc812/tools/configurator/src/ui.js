@@ -50,18 +50,6 @@ var ui = (function () {
         // Close all led_feature rows
         var features = document.getElementsByClassName('led_features');
         for (let i = 0; i < features.length; i += 1) {
-            if (!features[i].classList.contains('hidden')) {
-                const name_input = features[i].querySelector('input.led_name');
-                if (name_input) {
-                    // Save the edited LED name
-                    const [prefix, led_id] = led_prefix_and_id_parser(name_input.id);
-                    const edit_field = document.querySelector('#' + prefix + led_id + 'name_input');
-                    const label_field = document.querySelector('#' + prefix + led_id + 'name');
-                    save_led_name(prefix, led_id, edit_field.value);
-                    label_field.textContent = edit_field.value;
-                }
-            }
-
             features[i].classList.add('hidden');
         }
 
@@ -172,22 +160,21 @@ var ui = (function () {
         function init_led_section(section, prefix) {
             var led_section = document.getElementById(section);
             var led_rows = led_section.getElementsByClassName('led_config');
-            var led;
             var fields;
             var i;
             var spanner;
 
-            for (led = 0; led < led_rows.length; led += 1) {
-                fields = led_rows[led].querySelectorAll('td.led_table_car');
+            for (let led_id = 0; led_id < led_rows.length; led_id += 1) {
+                fields = led_rows[led_id].querySelectorAll('td.led_table_car');
                 for (i = 0; i < fields.length; i += 1) {
-                    fields[i].id = prefix + led + 'field' + i;
+                    fields[i].id = prefix + led_id + 'field' + i;
                     fields[i].addEventListener('click', led_config_click_handler, true);
                 }
 
-                fields = led_rows[led].querySelectorAll('td.led_table_diagnostics input');
+                fields = led_rows[led_id].querySelectorAll('td.led_table_diagnostics input');
                 for (i = 0; i < fields.length; i += 1) {
                     // The field order in the HTML is different than the
-                    // bit-field in led.diagnostics
+                    // bit-field in led_id.diagnostics
                     // We therefore have to apply some mapping. We would break
                     // backwards compatibility if we re-arrange the
                     // led.diagnostics order (dicdated by PRIORITY_RUN_CONDITION)
@@ -204,11 +191,19 @@ var ui = (function () {
                         4,  // RUN_WHEN_SERVO_OUTPUT_SETUP_RIGH
                     ];
 
-                    fields[i].id = prefix + led + 'diag' + diag_ui_map[i];
+                    fields[i].id = prefix + led_id + 'diag' + diag_ui_map[i];
                 }
 
-                spanner = led_rows[led].getElementsByClassName('spanner')[0];
-                spanner.name = prefix + led + 'features';
+                // Update the the edited LED name straight away so that
+                const edit_field = document.querySelector('#' + prefix + led_id + 'name_input');
+                const label_field = document.querySelector('#' + prefix + led_id + 'name');
+                edit_field.addEventListener('input', () => {
+                    save_led_name(prefix, led_id, edit_field.value);
+                    label_field.textContent = edit_field.value;
+                });
+
+                spanner = led_rows[led_id].getElementsByClassName('spanner')[0];
+                spanner.name = prefix + led_id + 'features';
                 spanner.addEventListener('click', led_feature_click_handler, true);
             }
         }

@@ -1,0 +1,5 @@
+run always
+
+all leds = 100
+
+end

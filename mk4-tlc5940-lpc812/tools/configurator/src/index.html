@@ -168,14 +168,13 @@
           <select id="mode">
             <option value="0">Master, servo inputs</option>
             <option value="1">Master, Pre-Processor input</option>
-            <option value="98" class="v2_show" >Master, 5ch Pre-Processor input</option>
-            <option value="2" class="v2_hide">Master, CPPM input</option>
-            <option value="5" class="v2_show" >Master, i-Bus input</option>
+            <option value="98">Master, 5ch Pre-Processor input</option>
+            <option value="5">Master, i-Bus input</option>
             <option value="3">Slave</option>
             <option value="97">Pre-Processor</option>
-            <option value="96" class="v2_show">Pre-Processor 5ch</option>
-            <option value="95" class="v2_show">Pre-Processor 5ch with switching outputs</option>
-            <option value="4" class="v2_show">Stand-alone mode</option>
+            <option value="96">Pre-Processor 5ch</option>
+            <option value="95">Pre-Processor 5ch with switching outputs</option>
+            <option value="4">Stand-alone mode</option>
             <option value="99">Hardware test</option>
           </select>
         </div>
@@ -934,17 +933,17 @@
           <h3>Indicators</h3>
           <div class="advanced_feature">
             <div>
-              <input type=number id="blink_counter_value"><span class="v2_show"><label for="blink_counter_value"> .. </label><input type=number id="blink_counter_value_dark"></span>
+              <input type=number id="blink_counter_value"><label for="blink_counter_value"> .. </label><input type=number id="blink_counter_value_dark">
               <label for="blink_counter_value">Indicator on/off time in ms</label>
             </div>
             <div>
               This value sets the frequency of the indicators and hazard lights.
               For most countries the indicator blink frequency is 1.5 Hz,
-              which means the half-period time should be 333 ms. <span class="v2_show">Enter different numbers for the bright and dark blink period when needed, e.g. for old US cars.</span>
+              which means the half-period time should be 333 ms. Enter different numbers for the bright and dark blink period when needed, e.g. for old US cars.
             </div>
           </div>
 
-          <div class="advanced_feature v2_show">
+          <div class="advanced_feature">
             <div>
               <input type="checkbox" id="us_style_combined_lights">
               <label for="us_style_combined_lights">Enable US style combined tail/brake/indicators</label>
@@ -954,7 +953,7 @@
             </div>
           </div>
 
-          <div class="advanced_feature v2_show">
+          <div class="advanced_feature">
             <div>
               <input type="checkbox" id="indicators_while_driving">
               <label for="indicators_while_driving">Allow indicators while driving</label>
@@ -1158,11 +1157,7 @@
             <div>
               The values above define what minimum and maxium pulse width a servo
               signal is allowed to have in order to consider it valid. This
-              setting only applies to servo reader <span class="v2_hide">and CPPM input </span>configurations.
-            </div>
-            <div class="v2_hide">
-              For the CPPM input the max pulse duration is the minimum idle
-              idle time to identify a start of a CPPM frame.
+              setting only applies to servo reader configurations.
             </div>
           </div>
 
@@ -1173,7 +1168,7 @@
             </div>
 
             <div>
-              This value applies to servo reader <span class="v2_hide">and CPPM input </span>configurations.
+              This value applies to servo reader configurations.
               After power on, the light controller waits for the first servo
               pulse to arrive. The time given in this field determines how
               long the light controller waits after the first servo pulse until
@@ -1449,6 +1444,13 @@
         <div class="box configuration">
           <h2>What's new</h2>
 
+          <div><strong>2021-12-20 Firmware 2.47</strong></div>
+          <ul class="change-history">
+            <li>
+              Save LED names immediately upon editing, not only when the LED features sub-table is closed.
+            </li>
+          </ul>
+
           <div><strong>2021-11-27 Firmware 2.46</strong></div>
           <ul class="change-history">
             <li>
@@ -1610,6 +1612,7 @@
   <input type="file" id="load_input" style="display:none">
 
   <div id="table_helper" style="visibility:hidden"></div>
+
 
   <!--
   This template is used by ui.js to build the table for master and slave

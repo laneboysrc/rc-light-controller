@@ -426,8 +426,8 @@ var app = (function () {
 
         new_config.firmware_version = data[offset];
 
-        log.log('config_version: ' + config_version);
-        log.log('config.firmware_version: ' + new_config.firmware_version);
+        log.log('parse_configuration config_version: ' + config_version);
+        log.log('parse_configuration config.firmware_version: ' + new_config.firmware_version);
 
         new_config.mode = data[offset + 1];
         new_config.esc_mode = data[offset + 2];
@@ -445,7 +445,11 @@ var app = (function () {
 
         new_config.slave_output = get_flag(0x0001);
         new_config.preprocessor_output = get_flag(0x0002);
-        // new_config.winch_output = get_flag(0x0004);
+
+        // Winch is deprecated, but we still load it so we can check if
+        // it was possibly used in the old firmware
+        new_config.winch_output = get_flag(0x0004);
+
         new_config.steering_wheel_servo_output = get_flag(0x0008);
         new_config.gearbox_servo_output = get_flag(0x0010);
         // reserved = get_flag(0x0020);
@@ -485,7 +489,7 @@ var app = (function () {
         new_config.initial_light_switch_position = get_uint16(data, offset + 36);
         new_config.initial_endpoint_delta = get_uint16(data, offset + 38);
         new_config.ch3_multi_click_timeout = get_uint16(data, offset + 40);
-        // new_config.winch_command_repeat_time = get_uint16(data, offset + 42);
+        // new_config.winch_command_repeat_time = get_uint16(data, offset + 42);  deprecated
 
         new_config.baudrate = get_uint32(data, offset + 44);
         new_config.no_signal_timeout = get_uint16(data, offset + 48);
@@ -564,8 +568,8 @@ var app = (function () {
             new_config.diagnostics_brightness = 255;
         }
 
-        log.log('config.mode: ' + new_config.mode);
-        log.log('config.multi_aux: ' + new_config.multi_aux);
+        log.log('parse_configuration config.mode: ' + new_config.mode);
+        log.log('parse_configuration config.multi_aux: ' + new_config.multi_aux);
         return new_config;
     };
 
@@ -894,32 +898,6 @@ var app = (function () {
             }
         }
 
-        var items;
-        var i;
-        if (config_version === 2) {
-            items = document.getElementsByClassName('v2_show');
-            for (i = 0; i < items.length; i++) {
-                items[i].classList.remove('hidden');
-            }
-
-            items = document.getElementsByClassName('v2_hide');
-            for (i = 0; i < items.length; i++) {
-                items[i].classList.add('hidden');
-            }
-        }
-        else {
-            items = document.getElementsByClassName('v2_show');
-            for (i = 0; i < items.length; i++) {
-                items[i].classList.add('hidden');
-            }
-
-            items = document.getElementsByClassName('v2_hide');
-            for (i = 0; i < items.length; i++) {
-                items[i].classList.remove('hidden');
-            }
-        }
-
-
         var new_mode = parseInt(el.mode.value, 10);
         switch (new_mode) {
         case MODE.MASTER_WITH_SERVO_READER:
@@ -1143,15 +1121,6 @@ var app = (function () {
         ensure_one_is_checked('output_th');
         ensure_one_is_checked('assign_servo_uart');
 
-        // if (el.preprocessor_output.checked || el.slave_output.checked) {
-        //     el.winch_output.classList.add('hidden');
-        //     el.winch_enable.classList.remove('hidden');
-        // }
-        // else {
-        //     el.winch_output.classList.remove('hidden');
-        //     el.winch_enable.classList.add('hidden');
-        // }
-
         if (el.slave_output.checked) {
             el.leds_slave.classList.remove('hidden');
         }
@@ -1218,6 +1187,7 @@ var app = (function () {
 
     // *************************************************************************
     var update_ui = function () {
+
         // Master/Slave/...
         if (config.multi_aux && config.mode === MODE.MASTER_WITH_UART_READER) {
             el.mode.value = MODE.MASTER_WITH_UART_READER_5CH;
@@ -1236,8 +1206,6 @@ var app = (function () {
         el.esc[config.esc_mode].checked = true;
 
         // Output functions
-        // el.winch_output.checked = Boolean(config.winch_output);
-        // el.winch_enable.checked = Boolean(config.winch_output);
         el.gearbox_servo_output.checked = Boolean(config.gearbox_servo_output);
         el.steering_wheel_servo_output.checked = Boolean(config.steering_wheel_servo_output);
         el.preprocessor_output.checked = Boolean(config.preprocessor_output);
@@ -1316,8 +1284,6 @@ var app = (function () {
 
         el.ch3_multi_click_timeout.value =
             config.ch3_multi_click_timeout * SYSTICK_IN_MS;
-        // el.winch_command_repeat_time.value =
-        //     config.winch_command_repeat_time * SYSTICK_IN_MS;
         el.no_signal_timeout.value =
             config.no_signal_timeout * SYSTICK_IN_MS;
 
@@ -1417,6 +1383,10 @@ var app = (function () {
         slave_leds = parse_leds(SECTION_SLAVE_LEDS);
         light_programs = disassemble_light_programs();
         gamma_object = parse_gamma();
+
+        upgrade_config(config);
+        upgrade_leds(local_leds);
+        upgrade_leds(slave_leds);
 
         update_ui();
 
@@ -1609,7 +1579,7 @@ var app = (function () {
         var flags = 0;
         flags |= (config.slave_output << 0);
         flags |= (config.preprocessor_output << 1);
-        // flags |= (config.winch_output << 2);
+        // flags |= (config.winch_output << 2);     // Winch is deprecated
         flags |= (config.steering_wheel_servo_output << 3);
         flags |= (config.gearbox_servo_output << 4);
         // flags |= (reserved << 5);
@@ -1659,126 +1629,117 @@ var app = (function () {
 
         set_uint16(data, offset + 60, config.startup_time);
 
-        // Handle firmware supporting config_version 2 and above
-        if (config.firmware_version >= 20) {
-            var flags2 = 0;
-            flags2 |= (config.multi_aux << 0);
-            flags2 |= (config.shelf_queen_mode << 1);
-            flags2 |= (config.us_style_combined_lights << 2);
-            flags2 |= (config.gearbox_light_program_control << 3);
-            flags2 |= (config.light_program_servo_output << 4);
-            flags2 |= (config.indicators_while_driving << 5);
-            flags2 |= (config.require_extra_click << 13);
-            flags2 |= (config.prefer_all_lights_off << 14);
-            flags2 |= (config.invert_out15s << 15);
+        let flags2 = 0;
+        flags2 |= (config.multi_aux << 0);
+        flags2 |= (config.shelf_queen_mode << 1);
+        flags2 |= (config.us_style_combined_lights << 2);
+        flags2 |= (config.gearbox_light_program_control << 3);
+        flags2 |= (config.light_program_servo_output << 4);
+        flags2 |= (config.indicators_while_driving << 5);
+        flags2 |= (config.require_extra_click << 13);
+        flags2 |= (config.prefer_all_lights_off << 14);
+        flags2 |= (config.invert_out15s << 15);
 
-            // Convenience flags for the output configuration
-            let servo_enabled = false;
-            if (config.steering_wheel_servo_output ||
-                config.gearbox_servo_output ||
-                config.light_program_servo_output) {
-                servo_enabled = true;
-            }
-            if (config.multi_aux && (
-                    config.aux_function == AUX_FUNCTION_SERVO ||
-                    config.aux2_function == AUX_FUNCTION_SERVO ||
-                    config.aux3_function == AUX_FUNCTION_SERVO )) {
-                servo_enabled = true;
-            }
+        // Convenience flags for the output configuration
+        let servo_enabled = false;
+        if (config.steering_wheel_servo_output ||
+            config.gearbox_servo_output ||
+            config.light_program_servo_output) {
+            servo_enabled = true;
+        }
+        if (config.multi_aux && (
+                config.aux_function == AUX_FUNCTION_SERVO ||
+                config.aux2_function == AUX_FUNCTION_SERVO ||
+                config.aux3_function == AUX_FUNCTION_SERVO )) {
+            servo_enabled = true;
+        }
 
-            if (servo_enabled) {
-                flags2 |= (1 << 12); // servo_output_enabled
-                if (config.assign_uart_to_out) {
-                    flags2 |= (1 << 9); // servo_on_th
-                }
-                else {
-                    flags2 |= (1 << 10); // servo_on_out
-                }
-            }
-
-            if (config.mode == MODE.MASTER_WITH_SERVO_READER) {
-                if (!servo_enabled) {
-                    flags2 |= (1 << 8); // uart_tx_on_out
-                }
+        if (servo_enabled) {
+            flags2 |= (1 << 12); // servo_output_enabled
+            if (config.assign_uart_to_out) {
+                flags2 |= (1 << 9); // servo_on_th
             }
             else {
-                flags2 |= (1 << 6); // uart_rx_on_st
-                if (config.assign_uart_to_out) {
-                    flags2 |= (1 << 8); // uart_tx_on_out
-                }
-                else {
-                    flags2 |= (1 << 7); // uart_tx_on_th
-                }
-            }
-
-            // if (!config.slave_output && !config.preprocessor_output && !config.winch_output) {
-            if (!config.slave_output && !config.preprocessor_output) {
-                flags2 |= (1 << 11); // config.uart_diagnostics_enabled
-            }
-
-            log.log("flags2=0x" + flags2.toString(16));
-            set_uint16(data, offset + 64, flags2);
-
-            set_uint16(data, offset + 68, config.blink_counter_value_dark);
-
-            set_uint8(data, offset + 70, config.aux_type);
-            set_uint8(data, offset + 71, config.aux_function);
-            set_uint8(data, offset + 72, config.aux2_type);
-            set_uint8(data, offset + 73, config.aux2_function);
-            set_uint8(data, offset + 74, config.aux3_type);
-            set_uint8(data, offset + 75, config.aux3_function);
-
-            // Pre-calculate AUX function for light switch handling hysteresis
-            // and center values
-            spacing = (200 / light_switch_positions);
-            log.log("light_switch_positions=" + light_switch_positions)
-            log.log("spacing=" + spacing)
-            config.light_switch_hysteresis = Math.round(spacing / 4);
-            log.log("light_switch_hysteresis=" + config.light_switch_hysteresis)
-
-            set_uint8(data, offset + 85, config.light_switch_hysteresis);
-
-            config.light_switch_centers = [];
-            for (i = 0; i < 9; i++) {
-                if (i >= light_switch_positions) {
-                    config.light_switch_centers.push(0);
-                }
-                else {
-                    config.light_switch_centers.push(
-                        Math.round(-100 + (spacing / 2) + (i * spacing)));
-                }
-                log.log("light_switch_centers["+i+"] = "+config.light_switch_centers[i])
-                set_int8(data, offset + 76 + i, config.light_switch_centers[i]);
+                flags2 |= (1 << 10); // servo_on_out
             }
         }
 
-        // Handle addition of 5-ch AUX thresholds
-        if (config.firmware_version >= 33) {
-            set_int8(data, offset + 86, config.aux_centre_threshold_low);
-            set_int8(data, offset + 87, config.aux_centre_threshold_high);
-            set_int8(data, offset + 88, config.aux_left_centre_threshold_low);
-            set_int8(data, offset + 89, config.aux_left_centre_threshold_high);
-            set_int8(data, offset + 90, config.aux_centre_right_threshold_low);
-            set_int8(data, offset + 91, config.aux_centre_right_threshold_high);
+        if (config.mode == MODE.MASTER_WITH_SERVO_READER) {
+            if (!servo_enabled) {
+                flags2 |= (1 << 8); // uart_tx_on_out
+            }
+        }
+        else {
+            flags2 |= (1 << 6); // uart_rx_on_st
+            if (config.assign_uart_to_out) {
+                flags2 |= (1 << 8); // uart_tx_on_out
+            }
+            else {
+                flags2 |= (1 << 7); // uart_tx_on_th
+            }
         }
 
-        if (config.firmware_version >= 37) {
-            set_uint8(data, offset + 92, config.diagnostics_brightness);
-
-            // Calculate the diagnostics_mask that allows the light controller
-            // to determine if a diagnostics function is used at all.
-            let diagnostics_mask = 0;
-            for (i = 0; i < configuration.local_leds.led_count; i += 1) {
-                diagnostics_mask |= configuration.local_leds[i].diagnostics;
-            }
-            if (configuration.slave_output) {
-                for (i = 0; i < configuration.slave_leds.led_count; i += 1) {
-                    diagnostics_mask |= configuration.slave_leds[i].diagnostics;
-                }
-            }
-            console.log('diagnostics_mask=' + diagnostics_mask);
-            set_uint8(data, offset + 93, diagnostics_mask);
+        if (!config.slave_output && !config.preprocessor_output) {
+            flags2 |= (1 << 11); // config.uart_diagnostics_enabled
         }
+
+        log.log("flags2=0x" + flags2.toString(16));
+        set_uint16(data, offset + 64, flags2);
+
+        set_uint16(data, offset + 68, config.blink_counter_value_dark);
+
+        set_uint8(data, offset + 70, config.aux_type);
+        set_uint8(data, offset + 71, config.aux_function);
+        set_uint8(data, offset + 72, config.aux2_type);
+        set_uint8(data, offset + 73, config.aux2_function);
+        set_uint8(data, offset + 74, config.aux3_type);
+        set_uint8(data, offset + 75, config.aux3_function);
+
+        // Pre-calculate AUX function for light switch handling hysteresis
+        // and center values
+        spacing = (200 / light_switch_positions);
+        log.log("light_switch_positions=" + light_switch_positions)
+        log.log("spacing=" + spacing)
+        config.light_switch_hysteresis = Math.round(spacing / 4);
+        log.log("light_switch_hysteresis=" + config.light_switch_hysteresis)
+
+        set_uint8(data, offset + 85, config.light_switch_hysteresis);
+
+        config.light_switch_centers = [];
+        for (i = 0; i < 9; i++) {
+            if (i >= light_switch_positions) {
+                config.light_switch_centers.push(0);
+            }
+            else {
+                config.light_switch_centers.push(
+                    Math.round(-100 + (spacing / 2) + (i * spacing)));
+            }
+            log.log("light_switch_centers["+i+"] = "+config.light_switch_centers[i])
+            set_int8(data, offset + 76 + i, config.light_switch_centers[i]);
+        }
+
+        set_int8(data, offset + 86, config.aux_centre_threshold_low);
+        set_int8(data, offset + 87, config.aux_centre_threshold_high);
+        set_int8(data, offset + 88, config.aux_left_centre_threshold_low);
+        set_int8(data, offset + 89, config.aux_left_centre_threshold_high);
+        set_int8(data, offset + 90, config.aux_centre_right_threshold_low);
+        set_int8(data, offset + 91, config.aux_centre_right_threshold_high);
+
+        set_uint8(data, offset + 92, config.diagnostics_brightness);
+
+        // Calculate the diagnostics_mask that allows the light controller
+        // to determine if a diagnostics function is used at all.
+        let diagnostics_mask = 0;
+        for (i = 0; i < configuration.local_leds.led_count; i += 1) {
+            diagnostics_mask |= configuration.local_leds[i].diagnostics;
+        }
+        if (configuration.slave_output) {
+            for (i = 0; i < configuration.slave_leds.led_count; i += 1) {
+                diagnostics_mask |= configuration.slave_leds[i].diagnostics;
+            }
+        }
+        console.log('diagnostics_mask=' + diagnostics_mask);
+        set_uint8(data, offset + 93, diagnostics_mask);
     };
 
 
@@ -1844,8 +1805,13 @@ var app = (function () {
 
 
     // *************************************************************************
-    var load_default_configuration = function () {
+    var load_default_firmware_image = function () {
+        let firmware_image = hex_to_bin(default_firmware_image_mk4);
+
+        parse_firmware(firmware_image);
         default_firmware_version = config.firmware_version;
+
+        update_ui();
 
         // Instead of using the disassebled source code, we use the original
         // sourcecode with comments and original variable names.
@@ -1860,6 +1826,7 @@ var app = (function () {
         ui.update_editor();
     };
 
+
     // *************************************************************************
     var file_input_handler = function () {
         if (this.files.length < 1) {
@@ -1871,6 +1838,7 @@ var app = (function () {
         // if the user tries to load the same configuration file again!
         el.load_input.value = '';
     }
+
 
     // *************************************************************************
     var load_file_from_disk = function (file) {
@@ -1904,9 +1872,8 @@ var app = (function () {
 
     // *************************************************************************
     var load_configuration_from_disk = function (contents, filename) {
-        var data;
         try {
-            data = JSON.parse(contents);
+            const data = JSON.parse(contents);
 
             config = data.config;
             local_leds = data.local_leds;
@@ -1958,52 +1925,18 @@ var app = (function () {
     var load_firmware = function (firmware_image) {
         parse_firmware(firmware_image);
 
-        // Change hardware to Mk4/Mk5 according to firmware
-        // We do that by looking at the top most byte of the stackpointer (first
-        // word in the firmware) which points to the RAM.
-        // The LPC RAM starts at 0x10000000, the SAMD21 at 0x20000000
-        if (firmware.data[3] == 0x10) {
-            el.hardware.value = 'mk4';
+        // Currently only Mk4 hardware is supported
+        el.hardware.value = 'mk4';
+
+        // Always use the firmware of the configurator
+        let bin;
+        if (el.hardware.value == 'mk4') {
+            bin = hex_to_bin(default_firmware_image_mk4);
         }
 
-        // update_visibility_from_ports();
-
-        if (default_firmware_version > config.firmware_version) {
-            let msg = 'A new firmware version is available.\n';
-            msg += 'Click OK to update the firmware, keeping your settings.\n';
-            msg += 'Click Cancel to keep the original firmware.\n';
-            if (window.confirm(msg)) {
-                let bin;
-                if (el.hardware.value == 'mk4') {
-                    bin = hex_to_bin(default_firmware_image_mk4);
-                }
-
-                firmware = parse_firmware_structure(bin);
-                config.firmware_version = default_firmware_version;
-                update_ui();
-            }
-        }
-    };
-
-
-    // *************************************************************************
-    var hardware_changed = function () {
-        let firmware_hex;
-
-        switch(el.hardware.value) {
-        case 'mk4':
-            firmware_hex = default_firmware_image_mk4;
-            break;
-        }
-
-        let bin = hex_to_bin(firmware_hex);
         firmware = parse_firmware_structure(bin);
-
-        // Change the firmware version to the default we've just loaded
         config.firmware_version = default_firmware_version;
         update_ui();
-
-        // update_visibility_from_ports();
     };
 
 
@@ -2092,6 +2025,55 @@ var app = (function () {
 
     // *************************************************************************
     var upgrade_config = function (config) {
+        // Check for deprecated features
+        //  - CPPM
+        //  - Winch
+
+        if (config.mode === MODE['MASTER_WITH_CPPM_READER']) {
+            const message = document.createElement('span');
+            message.innerHTML = 'CPPM is no longer supported.<br>You can find the last Configurator version that supports CPPM ';
+            const link = document.createElement('a');
+            link.href = 'https://laneboysrc.github.io/rc-light-controller/configurator-cppm.html';
+            link.textContent = 'here';
+            message.appendChild(link);
+
+            const toast = Toastify({
+                node: message,
+                duration: -1,
+                position: 'center',
+                close: true,
+                offset: {y: -15},
+                className: 'toast',
+                onClick: () => { toast.hideToast() },
+            }).showToast();
+
+            config.mode = MODE['MASTER_WITH_UART_READER'];
+        }
+
+        if ('winch_output' in config  &&  config.winch_output) {
+            const message = document.createElement('span');
+            message.innerHTML = 'The winch is no longer supported.<br>You can find the last Configurator version that supports the winch ';
+            const link = document.createElement('a');
+            link.href = 'https://laneboysrc.github.io/rc-light-controller/configurator-winch.html';
+                link.textContent = 'here';
+            message.appendChild(link);
+
+            const toast = Toastify({
+                node: message,
+                duration: -1,
+                position: 'center',
+                close: true,
+                offset: {y: -15},
+                className: 'toast',
+                onClick: () => { toast.hideToast() },
+            }).showToast();
+
+            config.winch_output = false;
+        }
+
+        // Force configuration version 2
+        config_version = 2;
+
         // Extend the configuration generated for config_version 1
         // Since config_version is not saved in the JSON we use the
         // firmware_version to check. firmware_version <20 means
@@ -2256,11 +2238,11 @@ var app = (function () {
             config.gearbox_light_program_control = false;
             config.light_program_servo_output = false;
             config.indicators_while_driving = false;
-            // config.winch_output = false;
-            config.require_extra_click = false;
+            // config.require_extra_click = false;
             config.prefer_all_lights_off = false;
             config.shelf_queen_mode = false;
-        } else {
+        }
+        else {
             update_boolean('preprocessor_output');
             update_boolean('slave_output');
             update_boolean('steering_wheel_servo_output');
@@ -2276,12 +2258,6 @@ var app = (function () {
             update_boolean('reverse_aux2');
             update_boolean('reverse_aux3');
             update_boolean('invert_out15s');
-            // if (el.preprocessor_output.checked || el.slave_output.checked) {
-            //     config.winch_output = Boolean(el.winch_enable.checked);
-            // }
-            // else {
-            //     update_boolean('winch_output');
-            // }
             update_boolean('shelf_queen_mode');
         }
 
@@ -2291,9 +2267,11 @@ var app = (function () {
         config.ch3_is_two_button = false;
         if (el.ch3[2].checked) {
             config.ch3_is_momentary = true;
-        } else if (el.ch3[3].checked) {
+        }
+        else if (el.ch3[3].checked) {
             config.ch3_is_local_switch = true;
-        } else if (el.ch3[1].checked) {
+        }
+        else if (el.ch3[1].checked) {
             config.ch3_is_two_button = true;
         }
 
@@ -2326,7 +2304,6 @@ var app = (function () {
         update_int('initial_endpoint_delta');
 
         update_time('ch3_multi_click_timeout');
-        // update_time('winch_command_repeat_time');
         update_time('no_signal_timeout');
         update_int('number_of_gears');
         update_time('gearbox_servo_active_time');
@@ -2391,12 +2368,10 @@ var app = (function () {
         var data = get_config();
 
         // Set ch3_is_local_switch always when UART input active
-        if (config_version !== 1) {
-            if (data.config.mode === MODE.MASTER_WITH_UART_READER ||
-                 data.config.mode === MODE.MASTER_WITH_IBUS_READER ||
-                  data.config.mode === MODE.STAND_ALONE) {
-                data.config.ch3_is_local_switch = true;
-            }
+        if (data.config.mode === MODE.MASTER_WITH_UART_READER ||
+             data.config.mode === MODE.MASTER_WITH_IBUS_READER ||
+              data.config.mode === MODE.STAND_ALONE) {
+            data.config.ch3_is_local_switch = true;
         }
 
         try {
@@ -2730,6 +2705,7 @@ var app = (function () {
         }
     };
 
+
     // *************************************************************************
     var programmer_log = function (msg, displayClass) {
         const content = new Date(Date.now()).toISOString() + ' ' + msg;
@@ -2752,10 +2728,12 @@ var app = (function () {
         }
     };
 
+
     // *************************************************************************
     var delay = async function (milliseconds) {
         await new Promise(resolve => {setTimeout(() => {resolve()}, milliseconds)});
     }
+
 
     // *************************************************************************
     var progressCallback = function (progress) {
@@ -2769,12 +2747,10 @@ var app = (function () {
         const data = get_config();
 
         // Set ch3_is_local_switch always when UART input active
-        if (config_version !== 1) {
-            if (data.config.mode === MODE.MASTER_WITH_UART_READER ||
-                 data.config.mode === MODE.MASTER_WITH_IBUS_READER ||
-                  data.config.mode === MODE.STAND_ALONE) {
-                data.config.ch3_is_local_switch = true;
-            }
+        if (data.config.mode === MODE.MASTER_WITH_UART_READER ||
+             data.config.mode === MODE.MASTER_WITH_IBUS_READER ||
+              data.config.mode === MODE.STAND_ALONE) {
+            data.config.ch3_is_local_switch = true;
         }
 
         try {
@@ -2922,15 +2898,6 @@ var app = (function () {
 
         el.program.addEventListener('click', () => { program() }, false);
 
-        // for (let index = 0; index < el.menu_buttons.length; index += 1) {
-        //     const button = el.menu_buttons[index];
-        //     button.addEventListener('click', async (event) => {
-        //         const selected_page = event.currentTarget.getAttribute('data-page');
-        //         await select_page(selected_page);
-        //     });
-        // }
-
-        // await select_page("tab_connection");
         update_programmer_ui();
 
         if (programmer) {
@@ -3001,7 +2968,6 @@ var app = (function () {
 
             'slave_output', 'preprocessor_output', 'steering_wheel_servo_output',
             'gearbox_servo_output',
-            // 'winch_output', 'winch_enable',
             'light_program_servo_output', 'indicators_while_driving',
             'gearbox_light_program_control',
             'assign_uart_to_out', 'assign_servo_to_out', 'dual_off',
@@ -3036,7 +3002,6 @@ var app = (function () {
             'aux_left_centre_threshold_low', 'aux_left_centre_threshold_high',
             'aux_centre_right_threshold_low', 'aux_centre_right_threshold_high',
             'initial_endpoint_delta', 'ch3_multi_click_timeout',
-            // 'winch_command_repeat_time',
             'no_signal_timeout', 'shelf_queen_mode',
 
             'number_of_gears','gearbox_servo_active_time','gearbox_servo_idle_time',
@@ -3083,11 +3048,6 @@ var app = (function () {
         el.save_config.addEventListener('click', save_configuration, false);
         el.save_firmware.addEventListener('click', save_firmware, false);
 
-        // el.flash.addEventListener('click', flash);
-        // el.read.addEventListener('click', read_firmware_from_flash);
-
-        el.hardware.addEventListener('change', hardware_changed, false);
-
         el.leds_clear.addEventListener('click', function () {
             if (window.confirm('Clear all LED configurations? This can not be undone.')) {
                 clear_leds();
@@ -3123,10 +3083,7 @@ var app = (function () {
 
         init_assembler();
 
-        let contents = hex_to_bin(default_firmware_image_mk4);
-        load_firmware(contents);
-        load_default_configuration();
-        hardware_changed();
+        load_default_firmware_image();
 
         init_programmer();
 
