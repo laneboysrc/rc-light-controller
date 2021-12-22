@@ -77,6 +77,37 @@ Contains the i-Bus serial communication exported by "logic" in "binary format". 
 *i-bus_decoded_packets.py_or_js* is the result of running *i-bus_capture_from_actual_receiver_in_salee_format.bin* through *i-bus_decoder_for_saleae_format.py*. It contains the i-Bus packets as captured from the FlySky receiver. It has movement data on the first 4 channels.
 
 
+## Channel mapping
+
+The FlySky NB4 transmitter is an 8 channel transmitter that ships with a 4-channel receiver.
+
+Walter from Austria suggested to be able to map the AUX channels to channels 5 and up, so that the lower 4 channels are exclusive for the receiver (ST and TH of the light controller still map to channel 1 and 2).
+What would be simple to do is be able to select the mapping of AUX from CH3 to CH12. AUX2 and AUX3 would then always be the subsequent channels of AUX.
+(We go until CH12 only because CH15 and up require complicated bit mangling, while channels 1..14 can be accessed via offset directly)
+
+David from Newzealand wrote:
+
+> What I had not noticed is that on the flysky you can bind a receiver starting at any chan number you choose, so I should be able to run a 4ch receiver without having to change to an 8 chan one to drive the lights.
+
+> Currently all are used on the 4 chan
+* 1 Thr
+* 2 St front
+* 3 St rear
+* 4 Dig
+
+> However I can bind it to be
+* 6 thr
+* 7 st front
+* 8 st rear
+* 9 dig
+
+> Then mirror 6 to 1 and 7 to 2 on the transmitter
+That leaves ibus 3-5 free for aux1-3 function
+
+This would be an alternative solution, but heavily depends on the transmitter implementation.
+We will therefore implement Walters suggestion as it is more universal.
+
+
 ## Open points:
 
 * Is the servo packet always 32 bytes long, or can there be less servo data if the transmitter supports less than 14 channels?
