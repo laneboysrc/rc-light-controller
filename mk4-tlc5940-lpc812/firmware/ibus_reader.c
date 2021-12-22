@@ -101,9 +101,9 @@ static bool process_buffer(uint32_t *out)
             // upper 4 bits that are used for the 18 channel i-Bus extension
             out[0] = *(uint16_t *)(&buffer[2]) & 0xfff;
             out[1] = *(uint16_t *)(&buffer[4]) & 0xfff;
-            out[2] = *(uint16_t *)(&buffer[6]) & 0xfff;
-            out[3] = *(uint16_t *)(&buffer[8]) & 0xfff;
-            out[4] = *(uint16_t *)(&buffer[10]) & 0xfff;
+            out[2] = *(uint16_t *)(&buffer[6 + config.ibus_aux_channel_offset]) & 0xfff;
+            out[3] = *(uint16_t *)(&buffer[8 + config.ibus_aux_channel_offset]) & 0xfff;
+            out[4] = *(uint16_t *)(&buffer[10 + config.ibus_aux_channel_offset]) & 0xfff;
 
             // Discard the buffer, we don't need it anymore
             buffer_index = 0;

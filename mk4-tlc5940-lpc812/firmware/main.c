@@ -152,7 +152,8 @@ static void output_config(void)
 {
     static bool send_config = true;
     static bool signal_seen = false;
-    uint8_t multi_aux = 0;
+    // Default: 3ch-PP protocol
+    uint8_t protocol = 0;
 
     // Set send_config only when once, until we seen a valid servo signal
     // again. Otherwise we send a CONFIG way too often
@@ -177,14 +178,18 @@ static void output_config(void)
     send_config = false;
 
     if (config.mode == MASTER_WITH_IBUS_READER) {
-        multi_aux = 2;
+        // 2..11 is for i-Bus,
+        // ibus_aux_channel_offset can be retrieved by subtracting 2 from the
+        // mode value in the Configurator.
+        protocol = 2 + config.ibus_aux_channel_offset;
     }
     else if (config.flags2.multi_aux) {
-        multi_aux = 1;
+        // 1: 5ch-PP protocol
+        protocol = 1;
     }
 
     printf("CONFIG %d %d %d %d %d %d %d %d %d\n",
-        multi_aux,
+        protocol,
         config.flags.ch3_is_momentary, config.flags.ch3_is_two_button,
         config.aux_type, config.aux_function,
         config.aux2_type, config.aux2_function,
