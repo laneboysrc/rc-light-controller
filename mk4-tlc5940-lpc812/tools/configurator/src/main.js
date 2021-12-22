@@ -568,6 +568,13 @@ var app = (function () {
             new_config.diagnostics_brightness = 255;
         }
 
+        if (new_config.firmware_version >= 51) {
+            new_config.ibus_channel_offset = data[offset + 94] + 3;
+        }
+        else {
+            new_config.ibus_channel_offset = 3;
+        }
+
         log.log('parse_configuration config.mode: ' + new_config.mode);
         log.log('parse_configuration config.multi_aux: ' + new_config.multi_aux);
         return new_config;
@@ -922,6 +929,7 @@ var app = (function () {
             show([el.aux_3ch]);
             hide([el.multi_aux]);
             hide([el.channel_reversing_multi_aux]);
+            hide([el.config_ibus_channel_offset]);
             set_name(el.dual_output_th, 'output_out');
             break;
 
@@ -948,6 +956,7 @@ var app = (function () {
             show([el.aux_3ch]);
             hide([el.multi_aux]);
             hide([el.channel_reversing_multi_aux]);
+            hide([el.config_ibus_channel_offset]);
             set_name(el.dual_output_th, 'output_th');
             break;
 
@@ -974,6 +983,7 @@ var app = (function () {
             hide([el.aux_3ch]);
             show([el.multi_aux]);
             show([el.channel_reversing_multi_aux]);
+            hide([el.config_ibus_channel_offset]);
             set_name(el.dual_output_th, 'output_th');
             break;
 
@@ -1000,31 +1010,7 @@ var app = (function () {
             hide([el.aux_3ch]);
             show([el.multi_aux]);
             show([el.channel_reversing_multi_aux]);
-            set_name(el.dual_output_th, 'output_th');
-            break;
-
-        case MODE.MASTER_WITH_CPPM_READER:
-            show_mode_info(el.mode_master_cppm);
-
-            update_menu_visibility([
-                'config_hardware',
-                'config_mode',
-                'config_esc',
-                'config_ch3',
-                'config_reversing',
-                'config_output',
-                'config_leds',
-                'config_light_programs',
-                'config_advanced',
-                'tab_programming',
-                'info',
-            ]);
-
-            hide(el.single_output);
-            show(el.dual_output);
-            show([el.aux_3ch]);
-            hide([el.multi_aux]);
-            hide([el.channel_reversing_multi_aux]);
+            show([el.config_ibus_channel_offset]);
             set_name(el.dual_output_th, 'output_th');
             break;
 
@@ -1037,6 +1023,7 @@ var app = (function () {
                 'tab_programming',
                 'info',
             ]);
+            hide([el.config_ibus_channel_offset]);
             break;
 
         case MODE.STAND_ALONE:
@@ -1057,6 +1044,7 @@ var app = (function () {
             show([el.aux_3ch]);
             hide([el.multi_aux]);
             hide([el.channel_reversing_multi_aux]);
+            hide([el.config_ibus_channel_offset]);
             set_name(el.dual_output_th, 'output_th');
             break;
 
@@ -1068,6 +1056,7 @@ var app = (function () {
                 'config_mode',
                 'tab_programming',
             ]);
+            hide([el.config_ibus_channel_offset]);
             break;
 
         case MODE.PREPROCESSOR_5CH:
@@ -1078,6 +1067,7 @@ var app = (function () {
                 'config_mode',
                 'tab_programming',
             ]);
+            hide([el.config_ibus_channel_offset]);
             break;
 
         case MODE.PREPROCESSOR_5CH_S:
@@ -1102,6 +1092,7 @@ var app = (function () {
             hide([el.aux_3ch]);
             show([el.multi_aux]);
             hide([el.channel_reversing_multi_aux]);
+            hide([el.config_ibus_channel_offset]);
             set_name(el.dual_output_th, 'output_out');
             break;
 
@@ -1114,6 +1105,7 @@ var app = (function () {
                 'tab_programming',
                 'tab_testing',
             ]);
+            hide([el.config_ibus_channel_offset]);
             break;
         }
 
@@ -1326,6 +1318,8 @@ var app = (function () {
         else {
             el.assign_servo_to_out.checked = true;
         }
+
+        el.ibus_channel_offset.value = config.ibus_channel_offset;
 
         // Show/hide various sections depending on the current settings
         update_section_visibility();
@@ -1740,6 +1734,8 @@ var app = (function () {
         }
         console.log('diagnostics_mask=' + diagnostics_mask);
         set_uint8(data, offset + 93, diagnostics_mask);
+
+        set_uint8(data, offset + 94, config.ibus_channel_offset - 3);
     };
 
 
@@ -2106,6 +2102,10 @@ var app = (function () {
             config.diagnostics_brightness = 255;
         }
 
+        if (config.firmware_version < 51) {
+            config.ibus_channel_offset = 3;
+        }
+
         if (config.aux_type == null ||
                 config.aux2_type == null ||
                 config.aux3_type == null ||
@@ -2335,6 +2335,8 @@ var app = (function () {
         update_int('aux_centre_right_threshold_high');
 
         update_led('diagnostics_brightness');
+
+        update_int('ibus_channel_offset');
 
         if (config.mode === MODE.SLAVE) {
             // Force gamma to 1.0 in slave mode as the gamma correction is
@@ -2955,6 +2957,9 @@ var app = (function () {
             'mode_preprocessor_5ch',
             'mode_preprocessor_5ch_s',
             'mode_test',
+
+            'config_ibus_channel_offset', 'ibus_channel_offset',
+            'ibus_channel_offset_aux', 'ibus_channel_offset_aux2', 'ibus_channel_offset_aux3',
 
             'config_baudrate', 'baudrate',
             'config_leds', 'leds_master', 'leds_slave', 'diagnostics_brightness',
