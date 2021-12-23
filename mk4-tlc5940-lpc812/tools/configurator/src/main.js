@@ -1320,6 +1320,9 @@ var app = (function () {
         }
 
         el.ibus_channel_offset.value = config.ibus_channel_offset;
+        el.ibus_channel_offset_aux.textContent = config.ibus_channel_offset;
+        el.ibus_channel_offset_aux2.textContent = config.ibus_channel_offset + 1;
+        el.ibus_channel_offset_aux3.textContent = config.ibus_channel_offset + 2;
 
         // Show/hide various sections depending on the current settings
         update_section_visibility();
@@ -3083,6 +3086,13 @@ var app = (function () {
 
         el.close_webusb_programmer_info.addEventListener('click', function () {
             hide(el.webusb_programmer_info);
+        });
+
+        el.ibus_channel_offset.addEventListener('change', function () {
+            const value = parseInt(el.ibus_channel_offset.value, 10);
+            el.ibus_channel_offset_aux.textContent = value;
+            el.ibus_channel_offset_aux2.textContent = value + 1;
+            el.ibus_channel_offset_aux3.textContent = value + 2;
         });
 
 

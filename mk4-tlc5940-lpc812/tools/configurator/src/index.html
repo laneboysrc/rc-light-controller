@@ -221,14 +221,14 @@
         <div id="mode_master_ibus" class="info">
           <div>
             In this mode, the light controller reads servo signals from an
-            <em>i-Bus compatible receiver</em>.
+            <em>receiver an i-Bus output</em>.
           </div>
           <div>
-            The <strong>i-Bus servo output</strong> of the receiver must be connected to the
+            The <strong>i-Bus output</strong> of the receiver must be connected to the
             <strong>ST/Rx</strong> input of the light controller.
           </div>
           <div>
-            i-Bus channel 1 to 5 are mapped to ST, TH, AUX, AUX2 and AUX3 of the light controller.
+            i-Bus channel 1 and 2 are mapped to ST and TH. The AUX channels can be mapped below.
           </div>
         </div>
         <div id="mode_master_cppm" class="info">
@@ -310,7 +310,7 @@
             <label for="ibus_channel_offset">on i-Bus maps to AUX</label>
           </div>
           <br>
-          FIXME write some useful comment here...
+          You can map any i-Bus channel between 3 and 12 to the AUX channel. AUX2 and AUX3 are always mapped to the channels following the AUX channel.
           <ul>
             <li>i-Bus channel <span id="ibus_channel_offset_aux"></span> maps to light controller AUX</li>
             <li>i-Bus channel <span id="ibus_channel_offset_aux2"></span> maps to light controller AUX2</li>
