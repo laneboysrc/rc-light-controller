@@ -2868,6 +2868,20 @@ var app = (function () {
         last_programming_failed = false;
         update_programmer_ui();
         update_section_visibility();
+
+        // Focus the programming button if we are in the programming page
+        if (is_connected) {
+            for (let index = 0; index < el.menu_buttons.length; index += 1) {
+                const button = el.menu_buttons[index];
+                if (button.classList.contains('selected')) {
+                    const page_name = button.getAttribute('data-page');
+                    if (page_name == 'tab_programming') {
+                        el.program.focus();
+                    }
+                    break;
+                }
+            }
+        }
     };
 
     // *************************************************************************
