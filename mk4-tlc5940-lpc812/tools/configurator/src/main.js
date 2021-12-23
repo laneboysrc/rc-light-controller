@@ -568,7 +568,7 @@ var app = (function () {
             new_config.diagnostics_brightness = 255;
         }
 
-        if (new_config.firmware_version >= 51) {
+        if (new_config.firmware_version >= 50) {
             new_config.ibus_channel_offset = data[offset + 94] + 3;
         }
         else {
@@ -2102,7 +2102,7 @@ var app = (function () {
             config.diagnostics_brightness = 255;
         }
 
-        if (config.firmware_version < 51) {
+        if (config.firmware_version < 50) {
             config.ibus_channel_offset = 3;
         }
 

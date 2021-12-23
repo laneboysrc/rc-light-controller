@@ -93,6 +93,8 @@ class Preprocessor_simulator {
 
     this.config = this.config_default;
 
+    this.ibus_channel_offset = 0;
+
     this.configChangedCallback = undefined;
     this.messageCallback = console.info;
 
@@ -279,16 +281,16 @@ class Preprocessor_simulator {
     data[5] = ch >> 8;
 
     ch = this._channel_to_us(this.channels[this.AUX]);
-    data[6] = ch & 0xff;
-    data[7] = ch >> 8;
+    data[6 + 2*this.ibus_channel_offset] = ch & 0xff;
+    data[7 + 2*this.ibus_channel_offset] = ch >> 8;
 
     ch = this._channel_to_us(this.channels[this.AUX2]);
-    data[8] = ch & 0xff;
-    data[9] = ch >> 8;
+    data[8 + 2*this.ibus_channel_offset] = ch & 0xff;
+    data[9 + 2*this.ibus_channel_offset] = ch >> 8;
 
     ch = this._channel_to_us(this.channels[this.AUX3]);
-    data[10] = ch & 0xff;
-    data[11] = ch >> 8;
+    data[10 + 2*this.ibus_channel_offset] = ch & 0xff;
+    data[11 + 2*this.ibus_channel_offset] = ch >> 8;
 
 
     let checksum = 0;
@@ -321,7 +323,7 @@ class Preprocessor_simulator {
     CONFIG array elements:
     ======================
     0: CONFIG
-    1: config.flags2.multi_aux
+    1: config.protocol (0 = 3chPP, 1=5chPP, 2..11=iBus
     2: config.flags.ch3_is_momentary
     3: config.flags.ch3_is_two_button,
     4: config.aux_type
@@ -362,8 +364,9 @@ class Preprocessor_simulator {
     if (values[1] != '0') {
       this.config[this.MULTI_AUX] = true;
 
-      if (values[1] == '2') {
+      if (values[1] >= '2') {
         this.config[this.IBUS] = true;
+        this.ibus_channel_offset = parseInt(values[1], 10) - 2;
       }
       else {
         this.config[this.IBUS] = false;
