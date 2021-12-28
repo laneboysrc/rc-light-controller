@@ -34,6 +34,8 @@ controllers can be cascaded for a total of 32 LED outputs.
 
 - Simulation of incandescent lights and faulty ground wiring
 
+- Optional **i-Bus** compatible input
+
 - Optional Pre-Processor for **easier wiring**
 
 - **Up to 3 AUX channels** can control light functions when using the **5-channel Pre-
