@@ -5,8 +5,8 @@ $Descr A3 16535 11693
 encoding utf-8
 Sheet 1 1
 Title "DIY RC Light Controller Mk4 S"
-Date "2021-07-20"
-Rev "2"
+Date "2022-01-09"
+Rev "3"
 Comp "LANE Boys RC"
 Comment1 "laneboysrc@gmail.com"
 Comment2 ""
@@ -798,7 +798,6 @@ NoConn ~ 9150 8250
 NoConn ~ 7000 8350
 Wire Wire Line
 	9150 8350 8600 8350
-NoConn ~ 8600 7850
 NoConn ~ 8600 7950
 NoConn ~ 8600 8450
 Wire Wire Line
@@ -820,4 +819,69 @@ Wire Wire Line
 	9150 8550 8600 8550
 Text Notes 9900 9200 0    50   ~ 0
 Pin assignment is similar to LPC812,\nwith the following exceptions:\nBLANK is PIO0_15 instesad of PIO0_6\nSIN is PIO0_23 instesad of PIO0_7
+$Comp
+L Device:Q_NMOS_GSD T1
+U 1 1 61DAA0C6
+P 10100 6900
+F 0 "T1" H 10000 7050 59  0000 L BNN
+F 1 "PMV30UN" H 10200 6900 59  0001 L BNN
+F 2 "Package_TO_SOT_SMD:SOT-23" H 10100 6900 50  0001 C CNN
+F 3 "https://assets.nexperia.com/documents/data-sheet/PMV30UN.pdf" H 10100 6900 50  0001 C CNN
+	1    10100 6900
+	-1   0    0    -1  
+$EndComp
+$Comp
+L power:GND #PWR010
+U 1 1 61DB406C
+P 10000 7200
+F 0 "#PWR010" H 10000 6950 50  0001 C CNN
+F 1 "GND" H 10005 7027 50  0000 C CNN
+F 2 "" H 10000 7200 50  0001 C CNN
+F 3 "" H 10000 7200 50  0001 C CNN
+	1    10000 7200
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	10000 7100 10000 7200
+$Comp
+L Device:R R2
+U 1 1 61DBD148
+P 10000 6400
+F 0 "R2" H 10070 6446 50  0000 L CNN
+F 1 "100k" H 10070 6355 50  0000 L CNN
+F 2 "Resistor_SMD:R_0603_1608Metric" V 9930 6400 50  0001 C CNN
+F 3 "~" H 10000 6400 50  0001 C CNN
+	1    10000 6400
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:+3V3 #PWR09
+U 1 1 61DC58F4
+P 10000 6150
+F 0 "#PWR09" H 10000 6000 50  0001 C CNN
+F 1 "+3V3" H 10015 6323 50  0000 C CNN
+F 2 "" H 10000 6150 50  0001 C CNN
+F 3 "" H 10000 6150 50  0001 C CNN
+	1    10000 6150
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	10000 6150 10000 6250
+Text Label 10700 6900 2    50   ~ 0
+ST-RX
+Wire Wire Line
+	10300 6900 10700 6900
+Wire Wire Line
+	8600 7850 9250 7850
+Wire Wire Line
+	10000 6550 10000 6650
+Wire Wire Line
+	9250 7850 9250 6650
+Wire Wire Line
+	9250 6650 10000 6650
+Connection ~ 10000 6650
+Wire Wire Line
+	10000 6650 10000 6700
+Text Notes 9600 5850 0    85   ~ 0
+S.BUS inverter
 $EndSCHEMATC
