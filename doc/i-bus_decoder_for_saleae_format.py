@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 '''
-Progran that decodes and exported binary file from a capture with the Saleae
+Progran that decodes an exported binary file from a capture with the Saleae
 logic analyzer.
 
 Use "logic" from Salaea and export only the serial port channel into .bin

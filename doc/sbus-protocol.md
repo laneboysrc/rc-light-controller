@@ -1,28 +1,24 @@
-# Inverted SBUS
+# S.Bus
 
 S.Bus is a proprietary protocol developed by Futaba.
 (Dead link: https://www.futabarc.com/sbus/index.html)
 
 S.Bus2 is an extension that supports telemetry.
 
-Some receivers on the market now output an "inverted SBUS" signal.
+Some receivers on the market output an "inverted SBUS" signal. However, it seems that those receivers are not suitable for RC cars as they only have S.Bus / Inverted S.Bus output and no traditional PWM servo output.
+
+For the light controller it only makes sense to implement standard S.Bus, which is supported by Futaba and FrSky receivers.
 
 
-## Inverted SBUS, as LANE Boys RC understands it
+## S.Bus, as LANE Boys RC understands it
 
 (Source: https://quadmeup.com/generate-s-bus-with-arduino-in-a-simple-way/)
-
-The original S.Bus system uses an inverted UART signal (idle=low).
-The LPC812 and LPC832 do not support inverted UART, hence S.Bus can not be supported.
-
-However, "inverted SBUS" as output by some receivers uses the traditional UART polarity (idle=high), which can be used with the Light Controller.
-
-The Baudrate is 100000. This is a non-standard Baudrate, which is not supported by the WebUSB programmer or the CH340G chip in the USB-to-Serial dongle. This means that the test function can not be used with "inverted SBUS".
 
 * The serial port uses 100000 BAUD, 8 bits, even parity, 2 stop bits (!)
 * There is also a fast mode that uses 200000 BAUD, 8 bits, even parity, 2 stop bits (The light controller will not support this mode)
 * Packets containing servo information are sent at regular intervals of about 10-20ms (FrSky: 6ms Futaba/FrSky fast mode: 3ms)
 * When the connection with the Transmitter is broken, the receiver sets a FAILSAFE flag in the packet
+
 * A packet is always 25 bytes long and contains the following information:
     * 1 byte HEADER
     * 22 bytes payload for 16 servo channels (11 bits per channel)
@@ -36,10 +32,28 @@ The Baudrate is 100000. This is a non-standard Baudrate, which is not supported 
 * The HEADER byte is 0x0f
 * The FOOTER byte is 0x00
 * The FOOTER2 byte is 0x4 or 0x8 (contents of the upper nibble is ignored, it contains a slot number for telemetry use)
+* FOOTER is used in the original S.Bus protocol, while S.Bus2 changed to FOOTER2.
+* The upper nibble of FOOTER2 contains a slot number used for telemetry (see _Example packets_ below).
+
 * The servo information is 11 bits per channel
     Channel values describe the servo pulse duration from 0..2047
 
-* FOOTER may have been used in S.Bus, while later S.Bus2 changed to FOOTER2. The upper nibble of FOOTER2 seems to contain a sequence number (see _Example packets_ below).
+
+## Impact of S.Bus support on the light controller
+
+The S.Bus system uses an inverted UART signal (idle=low).
+
+The LPC812 and LPC832 do not support inverted UART, hence S.Bus can not be supported without additional hardware.
+(It would be possible to support "inverted SBUS" (idle=high), but as stated above this may not be useful due to lack of receiver support).
+
+For the Mk4P and Mk4S PCB we could integrate an inverter (1 MosFET, 1 Resistor) and route the inverted UART signal to an unused pin (e.g. GPIO10). The software could then route the UART RX line to GPIO10 if S.Bus is configured.
+
+For the user this means that only newer revisions of the Mk4P light controller (Rev3) can support S.Bus.
+
+
+The Baudrate used by S.Bus is 100000. This is a non-standard Baudrate, but it should be possible with the LPC8xx microcontroller. However, in case a Slave is used the Baudrate of the Slave would also have to be 100000 Baud.
+
+The WebUSB programmer and the CH340G chip used in the USB-to-Serial dongle do neither support 100000 Baud nor the inverted UART signal. It will therefore not possible to implement the "Testing" function in the Configurator for S.Bus.
 
 
 ## Example packets
@@ -86,15 +100,15 @@ S-Bus output from FrSky TFR8SB receiver in FASST-MULTI mode:
 
 * There is conflicting info about the meaning of the servo channel value range.
 
-Is 1023 center? https://github.com/mikeshub/FUTABA_SBUS/blob/master/FUTABA_SBUS/FUTABA_SBUS.cpp
+Is 1024 center? https://github.com/mikeshub/FUTABA_SBUS/blob/master/FUTABA_SBUS/FUTABA_SBUS.cpp
 Or 992? https://quadmeup.com/generate-s-bus-with-arduino-in-a-simple-way/
 
 BetaFlight uses the following formula to convert S.Bus servo information to microseconds (servo pulse):
 servo_us = (5 * sbus / 8) + 880;
 
-Using this formula would make S.Bus value 1023 translate to 1520 us, which is exactly what Futaba traditionally used as center value for servos.
+Using this formula would make S.Bus value 1024 translate to 1520 us, which is exactly what Futaba traditionally used as center value for servos.
 
-But how does FrSky map the SBUS values? Most likely they are using 1500 as center
+But how does FrSky map the S.Bus values? Most likely they are using 1500 as center, hence the 992 value.
 
 
 * What are the possible values for FOOTER2?
@@ -105,7 +119,7 @@ https://github.com/cleanflight/cleanflight/issues/590#issuecomment-101706023
 
 * Frame detection
 
-Most libraries seem to use HEADER and FOOTER/FOOTER2 to detect frames. Those libraries will not work wiht the FASSTest 12CH mode, which uses 0x08 last byte.
+Most libraries seem to use HEADER and FOOTER/FOOTER2 to detect frames. Those libraries will not work with the FASSTest 12CH mode, which uses 0x08 last byte.
 
-BetaFlight uses the maximum frame time of 3000 us + 500 us margin. If the time since the last byte is more than this 3500us then a start of frame is assumed. This will only work with interrupt-driven UART receive.
+BetaFlight uses the maximum frame time of 3000 us + 500 us margin. If the time since the last byte is more than 3500us then a start of frame is assumed. This will only work with interrupt-driven UART receive.
 (Source: https://github.com/betaflight/betaflight/blob/master/src/main/rx/sbus.c)
