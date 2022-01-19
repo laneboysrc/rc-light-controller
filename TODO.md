@@ -1,2 +1,1 @@
-* Inverted SBUS
-
+* SBUS
