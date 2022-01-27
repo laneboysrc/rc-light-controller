@@ -434,6 +434,7 @@ typedef enum {
     SLAVE,
     STAND_ALONE,
     MASTER_WITH_IBUS_READER,
+    MASTER_WITH_SBUS_READER,
 } MASTER_MODE_T;
 
 
@@ -649,14 +650,14 @@ typedef struct {
     uint8_t diagnostics_mask;
 
     // This variable allows to move the AUX channels to different channels
-    // on the i-Bus. By default AUX maps to CH3, AUX2 to CH4, AUX3 to CH5.
+    // on i-Bus amd SBUS. By default AUX maps to CH3, AUX2 to CH4, AUX3 to CH5.
     // When setting this variable for example to "2", then AUX maps to CH5,
     // AUX2 to CH6 and AUX3 to CH7.
     //
     // The allowed value range is 0..9 (CH3..CH12)
     // Going beyond channel 14 would require bit-mangling and would add a lot of
     // code.
-    uint8_t ibus_aux_channel_offset;
+    uint8_t aux_channel_offset;
 
 } LIGHT_CONTROLLER_CONFIG_T;
 
@@ -754,6 +755,7 @@ void init_servo_reader(void);
 void read_all_servo_channels(void);
 
 bool ibus_reader_get_new_channels(uint32_t *out);
+bool sbus_reader_get_new_channels(uint32_t *out);
 
 void init_preprocessor_reader(void);
 void read_preprocessor(void);

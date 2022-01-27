@@ -177,11 +177,13 @@ static void output_config(void)
 
     send_config = false;
 
+    // FIXME: what to do with SBUS here? Disable diagmostics completely?
+
     if (config.mode == MASTER_WITH_IBUS_READER) {
         // 2..11 is for i-Bus,
-        // ibus_aux_channel_offset can be retrieved by subtracting 2 from the
+        // aux_channel_offset can be retrieved by subtracting 2 from the
         // mode value in the Configurator.
-        protocol = 2 + config.ibus_aux_channel_offset;
+        protocol = 2 + config.aux_channel_offset;
     }
     else if (config.flags2.multi_aux) {
         // 1: 5ch-PP protocol
@@ -226,6 +228,9 @@ int main(void)
     if (config.flags2.uart_tx_on_th) {
         tx_pin = HAL_GPIO_TH.pin;
     }
+
+    // FIXME: add 8E2 and RX pin on GPIO10 for SBUS
+
     HAL_uart_init(config.baudrate, rx_pin, tx_pin);
 
     // The printf function is only used for diagnostics, so we default to

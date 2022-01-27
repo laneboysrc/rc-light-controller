@@ -139,6 +139,13 @@ void read_all_servo_channels(void)
         }
     }
 #endif
+#ifdef ENABLE_SBUS_READER
+    else if (config.mode == MASTER_WITH_SBUS_READER) {
+        if (!sbus_reader_get_new_channels(raw_data)) {
+            return;
+        }
+    }
+#endif
     else {
         // Neither SERVO READER or IBUS READER: bail out!
         return;

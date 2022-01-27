@@ -21,7 +21,7 @@ For the light controller it only makes sense to implement standard S.Bus, which 
 
 * A packet is always 25 bytes long and contains the following information:
     * 1 byte HEADER
-    * 22 bytes payload for 16 servo channels (11 bits per channel)
+    * 22 bytes payload for 16 servo channels (11 bits per channel; packed)
     * 1 byte bit-field payload containing:
         * Bit 0: channel 17
         * Bit 1: channel 18
@@ -37,6 +37,8 @@ For the light controller it only makes sense to implement standard S.Bus, which 
 
 * The servo information is 11 bits per channel
     Channel values describe the servo pulse duration from 0..2047
+
+        servo_us = (5 * sbus / 8) + 880;
 
 
 ## Impact of S.Bus support on the light controller

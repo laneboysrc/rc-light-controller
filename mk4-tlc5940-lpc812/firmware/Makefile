@@ -50,11 +50,12 @@ SOURCES += light_programs.c
 SOURCES += lights.c
 SOURCES += persistent_storage.c
 SOURCES += preprocessor_output.c
+SOURCES += preprocessor_reader.c
 SOURCES += random.c
+SOURCES += sbus_reader.c
 SOURCES += servo_output.c
 SOURCES += servo_reader.c
 SOURCES += shelf_queen_mode.c
-SOURCES += preprocessor_reader.c
 SOURCES += libs/printf/printf.c
 SOURCES += hal/startup_lpc81x.c
 SOURCES += hal/hal_lpc81x.c
@@ -68,6 +69,7 @@ DEFINES += -DNODEBUG
 DEFINES += -DENABLE_SERVO_READER
 DEFINES += -DENABLE_PREPROCESSOR_READER
 DEFINES += -DENABLE_IBUS_READER
+DEFINES += -DENABLE_SBUS_READER
 
 LIBS := -lnosys
 

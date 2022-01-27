@@ -133,8 +133,10 @@ void HAL_hardware_init(void)
     // to prevent them from floating.
     // Note that if multi-aux-channel is enabled PIO0_11 is used as input with
     // an external pull-down, so we keep it as the default input!
-    HAL_gpio_clear(HAL_GPIO_PIN10);
-    HAL_gpio_out(HAL_GPIO_PIN10);
+
+    // FIXME: testing for SBUS
+    // HAL_gpio_clear(HAL_GPIO_PIN10);
+    // HAL_gpio_out(HAL_GPIO_PIN10);
 
     if (!config.flags2.multi_aux) {
         HAL_gpio_clear(HAL_GPIO_PIN11);
@@ -313,9 +315,14 @@ void HAL_uart_init(uint32_t baudrate, uint8_t rx_pin, uint8_t tx_pin)
     if (baudrate == 115200) {
         LPC_USART0->BRG = BRGVAL(115200);
     }
+    else if (baudrate == 100000) {
+        LPC_USART0->BRG = BRGVAL(100000);
+    }
     else {
         LPC_USART0->BRG = BRGVAL(38400);
     }
+
+    // FIXME: change to 8E2 for SBUS
 
     LPC_USART0->CFG = UART_CFG_DATALEN(8) | UART_CFG_ENABLE;     // 8n1
 
