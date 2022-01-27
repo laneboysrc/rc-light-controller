@@ -144,7 +144,7 @@ static const HAL_GPIO_T HAL_GPIO_ST = { .pin = 0, .iocon = &LPC_IOCON->PIO0_0 };
 static const HAL_GPIO_T HAL_GPIO_TH = { .pin = 4, .iocon = &LPC_IOCON->PIO0_4 };
 static const HAL_GPIO_T HAL_GPIO_AUX = { .pin = 13, .iocon = &LPC_IOCON->PIO0_13 };
 static const HAL_GPIO_T HAL_GPIO_OUT = { .pin = 12 };
-static const HAL_GPIO_T HAL_GPIO_PIN10 = { .pin = 10 };
+static const HAL_GPIO_T HAL_GPIO_PIN10 = { .pin = 10, .iocon = &LPC_IOCON->PIO0_10 };
 static const HAL_GPIO_T HAL_GPIO_PIN11 = { .pin = 11 };
 
 // GPIOs for 5-channel Pre-processor

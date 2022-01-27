@@ -204,6 +204,7 @@ int main(void)
 {
     uint8_t rx_pin = HAL_GPIO_NO_PIN;
     uint8_t tx_pin = HAL_GPIO_NO_PIN;
+    bool eight_e_two = false;
 
     // When GPIO0_14 is low we are dealing with a Mk4S (9 switched outputs)
     global_flags.switched_outputs = !HAL_gpio_read(HAL_GPIO_HARDWARE_CONFIG);
@@ -222,6 +223,10 @@ int main(void)
     if (config.flags2.uart_rx_on_st) {
         rx_pin = HAL_GPIO_ST.pin;
     }
+    if (config.mode == MASTER_WITH_SBUS_READER) {
+        rx_pin = HAL_GPIO_PIN10.pin;
+        eight_e_two = true;
+    }
     if (config.flags2.uart_tx_on_out) {
         tx_pin = HAL_GPIO_OUT.pin;
     }
@@ -229,9 +234,7 @@ int main(void)
         tx_pin = HAL_GPIO_TH.pin;
     }
 
-    // FIXME: add 8E2 and RX pin on GPIO10 for SBUS
-
-    HAL_uart_init(config.baudrate, rx_pin, tx_pin);
+    HAL_uart_init(config.baudrate, rx_pin, tx_pin, eight_e_two);
 
     // The printf function is only used for diagnostics, so we default to
     // STDOUT_DEBUG for the file pointer!
@@ -250,9 +253,6 @@ int main(void)
     while (milliseconds <  100);
 
     init_servo_reader();
-#ifdef ENABLE_PREPROCESSOR_READER
-    init_preprocessor_reader();
-#endif
     init_servo_output();
 
     init_lights();

@@ -757,7 +757,6 @@ void read_all_servo_channels(void);
 bool ibus_reader_get_new_channels(uint32_t *out);
 bool sbus_reader_get_new_channels(uint32_t *out);
 
-void init_preprocessor_reader(void);
 void read_preprocessor(void);
 
 

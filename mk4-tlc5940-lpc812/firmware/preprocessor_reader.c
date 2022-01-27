@@ -26,13 +26,6 @@ typedef enum {
 
 
 // ****************************************************************************
-void init_preprocessor_reader(void)
-{
-    // Nothing to do
-}
-
-
-// ****************************************************************************
 static void normalize_channel(CHANNEL_T *c, uint8_t data)
 {
     if (data > 127) {

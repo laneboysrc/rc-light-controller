@@ -287,13 +287,15 @@ Again we have to round by adding BAUDRATE * 16 / 2 to the nominator:
 
 #define UART_CFG_ENABLE (1 << 0)
 #define UART_CFG_DATALEN(d) ((unsigned)((d) - 7) << 2)
+#define UART_CFG_8N1 (UART_CFG_DATALEN(8) | (0 << 4) | (0 << 6))
+#define UART_CFG_8E2 (UART_CFG_DATALEN(8) | (2 << 4) | (1 << 6))
 #define UART_STAT_RXRDY (1 << 0)
 #define UART_STAT_TXRDY (1 << 2)
 #define UART_STAT_TXIDLE (1 << 3)
 
 
 // ****************************************************************************
-void HAL_uart_init(uint32_t baudrate, uint8_t rx_pin, uint8_t tx_pin)
+void HAL_uart_init(uint32_t baudrate, uint8_t rx_pin, uint8_t tx_pin, bool eight_e_two)
 {
     // Configure RX and TX pins
     LPC_SWM->PINASSIGN0 = (0xff << 24) |
@@ -322,9 +324,12 @@ void HAL_uart_init(uint32_t baudrate, uint8_t rx_pin, uint8_t tx_pin)
         LPC_USART0->BRG = BRGVAL(38400);
     }
 
-    // FIXME: change to 8E2 for SBUS
-
-    LPC_USART0->CFG = UART_CFG_DATALEN(8) | UART_CFG_ENABLE;     // 8n1
+    if (eight_e_two) {
+        LPC_USART0->CFG = UART_CFG_8E2 | UART_CFG_ENABLE;
+    }
+    else {
+        LPC_USART0->CFG = UART_CFG_8N1 | UART_CFG_ENABLE;
+    }
 
     LPC_USART0->INTENSET = (1 << 0);    // Enable RXRDY interrupt
     NVIC_EnableIRQ(UART0_IRQn);
