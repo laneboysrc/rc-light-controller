@@ -820,17 +820,6 @@ Wire Wire Line
 Text Notes 9900 9200 0    50   ~ 0
 Pin assignment is similar to LPC812,\nwith the following exceptions:\nBLANK is PIO0_15 instesad of PIO0_6\nSIN is PIO0_23 instesad of PIO0_7
 $Comp
-L Device:Q_NMOS_GSD T1
-U 1 1 61DAA0C6
-P 10100 6900
-F 0 "T1" H 10000 7050 59  0000 L BNN
-F 1 "PMV30UN" H 10200 6900 59  0001 L BNN
-F 2 "Package_TO_SOT_SMD:SOT-23" H 10100 6900 50  0001 C CNN
-F 3 "https://assets.nexperia.com/documents/data-sheet/PMV30UN.pdf" H 10100 6900 50  0001 C CNN
-	1    10100 6900
-	-1   0    0    -1  
-$EndComp
-$Comp
 L power:GND #PWR010
 U 1 1 61DB406C
 P 10000 7200
@@ -848,7 +837,7 @@ L Device:R R2
 U 1 1 61DBD148
 P 10000 6400
 F 0 "R2" H 10070 6446 50  0000 L CNN
-F 1 "100k" H 10070 6355 50  0000 L CNN
+F 1 "10k" H 10070 6355 50  0000 L CNN
 F 2 "Resistor_SMD:R_0603_1608Metric" V 9930 6400 50  0001 C CNN
 F 3 "~" H 10000 6400 50  0001 C CNN
 	1    10000 6400
@@ -884,4 +873,17 @@ Wire Wire Line
 	10000 6650 10000 6700
 Text Notes 9600 5850 0    85   ~ 0
 S.BUS inverter
+$Comp
+L Transistor_FET:2N7002K T1
+U 1 1 61F27A9C
+P 10100 6900
+F 0 "T1" H 10305 6946 50  0000 L CNN
+F 1 "2N7002K" H 10305 6855 50  0000 L CNN
+F 2 "Package_TO_SOT_SMD:SOT-23" H 10300 6825 50  0001 L CIN
+F 3 "https://lcsc.com/product-detail/MOSFETs_MDD-Microdiode-Electronics-2N7002K_C414015.html" H 10100 6900 50  0001 L CNN
+	1    10100 6900
+	-1   0    0    -1  
+$EndComp
+Text Notes 10300 7350 0    50   ~ 0
+Important: this MOSFET needs to have\na low gate capacitance (~20pf), as otherwise\nit will distort the UART / Servo signal
 $EndSCHEMATC
