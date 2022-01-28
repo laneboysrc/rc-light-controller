@@ -307,7 +307,7 @@ async function init() {
   }
 
   has_webserial = true;
-  if (!"serial" in navigator) {
+  if (!("serial" in navigator)) {
     show(document.querySelector('#error_webserial'));
     show(document.querySelector('#error'));
     has_webserial = false;
