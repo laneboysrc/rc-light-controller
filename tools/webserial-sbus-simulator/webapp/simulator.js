@@ -163,7 +163,7 @@ class Simulator {
         this.sbus_message_sent = true;
         this.ibus_message_sent = false;
         this.pp_message_sent = false;
-        this.messageCallback('S-Bus protocol active');
+        this.messageCallback('S.Bus protocol active');
       }
       data = this._build_sbus_packet();
     }
@@ -349,7 +349,7 @@ class Simulator {
     ordered_channels[3 + this.channel_offset] = this._channel_to_sbus(this.channels[this.AUX2]);
     ordered_channels[4 + this.channel_offset] = this._channel_to_sbus(this.channels[this.AUX3]);
 
-    data[0] = 0x0f;       // S-Bus HEADER
+    data[0] = 0x0f;       // S.Bus HEADER
     data[1] = (ordered_channels[0] & 0x0ff);
     data[2] = ((ordered_channels[0] & 0x700) >> 8) | ((ordered_channels[1] & 0x01f) << 3);
     data[3] = ((ordered_channels[1] & 0x7e0) >> 5) | ((ordered_channels[2] & 0x003) << 6);
@@ -373,7 +373,7 @@ class Simulator {
     data[21] = ((ordered_channels[15] & 0x7c0) >> 6) | ((ordered_channels[16] & 0x007) << 5);
     data[22] = ((ordered_channels[16] & 0x7f8) >> 3);
     data[23] = this.channels[this.NO_SIGNAL] ? FAILSAFE_MASK : 0x00;
-    data[24] = 0x00;      // S-Bus v1 FOOTER
+    data[24] = 0x00;      // S.Bus v1 FOOTER
 
     return data;
   }
@@ -396,7 +396,7 @@ class Simulator {
     CONFIG array elements:
     ======================
     0: CONFIG
-    1: config.protocol (0 = 3chPP, 1=5chPP, 2..11=iBus
+    1: config.protocol (0 = 3chPP, 1=5chPP, 2..11=i-Bus or S.Bus)
     2: config.flags.ch3_is_momentary
     3: config.flags.ch3_is_two_button,
     4: config.aux_type
@@ -405,6 +405,10 @@ class Simulator {
     7: config.aux2_function
     8: config.aux3_type
     9: config.aux3_function
+
+    Note: To distinguish between i-Bus and S.Bus use the UART configuration:
+      i-Bus: 115200 N81
+      S.Bus: 100000 E82
 
     AUX_TYPE_T:
     -----------
@@ -438,11 +442,14 @@ class Simulator {
       this.config[this.MULTI_AUX] = true;
 
       if (values[1] >= '2') {
+        // FIXME: figuer out how to differentiate between i-Bus and S.Bus using
+        // the UART configuration
         this.config[this.IBUS] = true;
         this.channel_offset = parseInt(values[1], 10) - 2;
       }
       else {
         this.config[this.IBUS] = false;
+        this.config[this.SBUS] = false;
       }
 
       this.config[this.AUX][this.AUX_TYPE] = values[4];
