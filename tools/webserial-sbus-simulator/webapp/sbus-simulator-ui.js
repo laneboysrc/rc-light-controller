@@ -297,7 +297,7 @@ class Simulator_ui {
       this.el.steering_neutral.disabled = true;
       this.el.throttle.disabled = true;
       this.el.throttle_neutral.disabled = true;
-      this.el.aux[this.AUX].function.disabled = true;
+      this.el.aux[this.AUX].type.disabled = true;
       this.el.aux[this.AUX].slider.disabled = true;
       this.el.aux[this.AUX].toggle.disabled = true;
       this.el.aux[this.AUX2].type.disabled = true;
