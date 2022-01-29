@@ -238,11 +238,17 @@
             <em>receiver an S.Bus output</em>.
           </div>
           <div>
-            <strong>Important: S.Bus is only supported on Mk4P Rev3 (or later) light controller!</strong>
+            <strong>Important: S.Bus is only supported on Mk4P Rev3 (or later) hardware!</strong>
           </div>
           <div>
             The <strong>S.Bus output</strong> of the receiver must be connected to the
             <strong>ST/Rx</strong> input of the light controller.
+          </div>
+          <div>
+            The <strong>Baudrate must be set 100000</strong> for S.Bus use. When using a Slave light
+            controller, please also configure the Slave for this Baudrate. Note that
+            when S.Bus is configured the Testing function of the Configurator can not
+            be used.
           </div>
           <div>
             S.Bus channel 1 and 2 are mapped to ST and TH. The AUX channels can be mapped below.
@@ -320,18 +326,18 @@
         </div>
 
         <div id="config_channel_offset" class="configuration">
-          <h3>i-Bus channel to AUX channel mapping</h3>
+          <h3><span class="ibus">i-Bus</span><span class="sbus">S.Bus</span> channel to AUX channel mapping</h3>
           <div>
             <label for="channel_offset">Channel</label>
             <input type=number id="channel_offset" min="3" max="12">
-            <label for="channel_offset">on i-Bus maps to AUX</label>
+            <label for="channel_offset">on <span class="ibus">i-Bus</span><span class="sbus">S.Bus</span> maps to AUX</label>
           </div>
           <br>
-          You can map any i-Bus channel between 3 and 12 to the AUX channel. AUX2 and AUX3 are always mapped to the channels following the AUX channel.
+          You can map any <span class="ibus">i-Bus</span><span class="sbus">S.Bus</span> channel between 3 and 12 to the AUX channel. AUX2 and AUX3 are always mapped to the channels following the AUX channel.
           <ul>
-            <li>i-Bus channel <span id="channel_offset_aux"></span> maps to light controller AUX</li>
-            <li>i-Bus channel <span id="channel_offset_aux2"></span> maps to light controller AUX2</li>
-            <li>i-Bus channel <span id="channel_offset_aux3"></span> maps to light controller AUX3</li>
+            <li><span class="ibus">i-Bus</span><span class="sbus">S.Bus</span> channel <span id="channel_offset_aux"></span> maps to light controller AUX</li>
+            <li><span class="ibus">i-Bus</span><span class="sbus">S.Bus</span> channel <span id="channel_offset_aux2"></span> maps to light controller AUX2</li>
+            <li><span class="ibus">i-Bus</span><span class="sbus">S.Bus</span> channel <span id="channel_offset_aux3"></span> maps to light controller AUX3</li>
           </ul>
         </div>
 
@@ -349,6 +355,10 @@
           Pre-Processor input and output, and the slave input and output.
           <br>
           Ensure that master and slave are using the same baudrate.
+          <br>
+          Use 100000 Baud only for S.Bus, never for Pre-Processor or i-Bus.
+          <br>
+          Use 115200 Baud for i-Bus.
         </div>
       </div>
 

@@ -768,6 +768,13 @@ var app = (function () {
     // *************************************************************************
     var mode_changed_handler = function () {
 
+        function validate_baudrate() {
+            if (config.baudrate === 100000) {
+                config.baudrate = 115200;
+                el.baudrate.value = config.baudrate;
+            }
+        }
+
         // We set the multi_aux flag only when the appropriate configuration is
         // set, otherwise clear it.
         // This is done deliberately here and not in update_section_visibility()
@@ -781,25 +788,40 @@ var app = (function () {
         switch (new_mode) {
         case MODE.MASTER_WITH_CPPM_READER:
         case MODE.MASTER_WITH_SERVO_READER:
-        case MODE.MASTER_WITH_UART_READER:
         case MODE.STAND_ALONE:
         case MODE.SLAVE:
             config.multi_aux = false;
             config.mode = new_mode;
             break;
 
+        case MODE.MASTER_WITH_UART_READER:
+            validate_baudrate();
+            config.multi_aux = false;
+            config.mode = new_mode;
+            break;
+
         case MODE.PREPROCESSOR_5CH_S:
+            validate_baudrate();
             config.multi_aux = true;
             config.mode = MODE.MASTER_WITH_SERVO_READER;
             break;
 
         case MODE.MASTER_WITH_IBUS_READER:
+            config.baudrate = 115200;
+            el.baudrate.value = config.baudrate;
+            config.multi_aux = true;
+            config.mode = new_mode;
+            break;
+
         case MODE.MASTER_WITH_SBUS_READER:
+            config.baudrate = 100000;
+            el.baudrate.value = config.baudrate;
             config.multi_aux = true;
             config.mode = new_mode;
             break;
 
         case MODE.MASTER_WITH_UART_READER_5CH:
+            validate_baudrate();
             config.multi_aux = true;
             config.mode = MODE.MASTER_WITH_UART_READER;
             break;
@@ -1009,6 +1031,8 @@ var app = (function () {
             show([el.channel_reversing_multi_aux]);
             show([el.config_channel_offset]);
             set_name(el.dual_output_th, 'output_th');
+            show(document.querySelectorAll('.ibus'));
+            hide(document.querySelectorAll('.sbus'));
             break;
 
         case MODE.MASTER_WITH_SBUS_READER:
@@ -1025,7 +1049,6 @@ var app = (function () {
                 'config_light_programs',
                 'config_advanced',
                 'tab_programming',
-                'tab_testing',
                 'info',
             ]);
 
@@ -1036,6 +1059,8 @@ var app = (function () {
             show([el.channel_reversing_multi_aux]);
             show([el.config_channel_offset]);
             set_name(el.dual_output_th, 'output_th');
+            show(document.querySelectorAll('.sbus'));
+            hide(document.querySelectorAll('.ibus'));
             break;
 
         case MODE.SLAVE:
@@ -1590,6 +1615,15 @@ var app = (function () {
         log.log('config.mode: ' + config.mode);
         log.log('config_version: ' + config_version);
         log.log('config.firmware_version: ' + config.firmware_version);
+        log.log('config.baudrate: ' + config.baudrate);
+
+        if (config.mode === MODE.MASTER_WITH_SBUS_READER &&
+            config.baudrate !== 100000) {
+            window.alert(
+                'You selected S.Bus input, but the Baudrate was not set to 100000.\n' +
+                'S.Bus will only work with 100000 Baud!');
+        }
+
 
         config.light_switch_positions = light_switch_positions;
 
