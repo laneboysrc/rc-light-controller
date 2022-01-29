@@ -77,20 +77,18 @@ void read_preprocessor(void)
 
     uint8_t uart_byte;
 
-    // FIXME: make this a positive test for the configs where we really
-    // want to have PP active! Otherwise next time we add a more we have an issue ...
-    if (config.mode == SLAVE || config.mode == MASTER_WITH_IBUS_READER  || config.mode == MASTER_WITH_SBUS_READER) {
-        return;
-    }
-
+    // read_preprocessor needs to be disabled in SLAVE mode, and when i-Bus or
+    // S.Bus are active.
+    //
     // We let the read_preprocessor function operate even if SERVO_READER
     // is active, so that for test purpose the UART can still send us
     // servo data (e.g. via WebUSB, or a dedicated serial port).
     // It is up to the HAL to make the actual function available.
-
-    // if (config.mode != MASTER_WITH_UART_READER) {
-    //     return;
-    // }
+    if ((config.mode == SLAVE) ||
+        (config.mode == MASTER_WITH_IBUS_READER) ||
+        (config.mode == MASTER_WITH_SBUS_READER)) {
+        return;
+    }
 
     while (HAL_getchar_pending()) {
         uart_byte = HAL_getchar();

@@ -12,12 +12,9 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
         .version = CONFIG_VERSION
     },
 
-    // FIXME
-    .firmware_version = 251,
+    .firmware_version = 51,
 
-    // FIXME
-    .mode = MASTER_WITH_SBUS_READER,
-    // .mode = MASTER_WITH_UART_READER,
+    .mode = MASTER_WITH_UART_READER,
     .esc_mode = ESC_FORWARD_BRAKE_REVERSE_TIMEOUT,
 
     .flags = {
@@ -42,9 +39,7 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
 
     .flags2 = {
         .multi_aux = false,
-        // FIXME
-        .shelf_queen_mode = false,
-        // .shelf_queen_mode = true,
+        .shelf_queen_mode = true,
         .us_style_combined_lights = true,
         .gearbox_light_program_control = false,
         .light_program_servo_output = false,
@@ -90,9 +85,7 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
 
     // .winch_command_repeat_time = (1000 / __SYSTICK_IN_MS),
 
-    // FIXME
-    .baudrate = 100000,
-    // .baudrate = 115200,
+    .baudrate = 115200,
     .no_signal_timeout = (500 / __SYSTICK_IN_MS),
 
     .number_of_gears = 2,
