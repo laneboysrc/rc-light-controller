@@ -199,15 +199,17 @@ class Simulator {
 
     this.channels[channel] = value;
 
-    if (this.channels[this.NO_SIGNAL]) {
-      this.transmitter_active = false;
-      this.pp_message_sent = false;
-      this.ibus_message_sent = false;
-    }
-    else {
-      if (!this.transmitter_active) {
-        this.transmitter_active = true;
-        this._transmitter();
+    if (!this.channels[this.SBUS]) {
+      if (this.channels[this.NO_SIGNAL]) {
+        this.transmitter_active = false;
+        this.pp_message_sent = false;
+        this.ibus_message_sent = false;
+      }
+      else {
+        if (!this.transmitter_active) {
+          this.transmitter_active = true;
+          this._transmitter();
+        }
       }
     }
   }
@@ -375,6 +377,32 @@ class Simulator {
     data[23] = this.channels[this.NO_SIGNAL] ? FAILSAFE_MASK : 0x00;
     data[24] = 0x00;      // S.Bus v1 FOOTER
 
+    // data[0] = 0x0f;       // S.Bus HEADER
+    // data[1] = 0xa1;
+    // data[2] = 0xa2;
+    // data[3] = 0xa3;
+    // data[4] = 0xa4;
+    // data[5] = 0xa5;
+    // data[6] = 0xa6;
+    // data[7] = 0xa7;
+    // data[8] = 0xa8;
+    // data[9] = 0xa9;
+    // data[10] = 0xb0;
+    // data[11] = 0xb1;
+    // data[12] = 0xb2;
+    // data[13] = 0xb3;
+    // data[14] = 0xb4;
+    // data[15] = 0xb5;
+    // data[16] = 0xb6;
+    // data[17] = 0xb7;
+    // data[18] = 0xb8;
+    // data[19] = 0xb9;
+    // data[20] = 0xc0;
+    // data[21] = 0xc1;
+    // data[22] = 0xc2;
+    // data[23] = 0xc3;
+    // data[24] = 0x00;      // S.Bus v1 FOOTER
+
     return data;
   }
 
@@ -442,9 +470,9 @@ class Simulator {
       this.config[this.MULTI_AUX] = true;
 
       if (values[1] >= '2') {
-        // FIXME: figuer out how to differentiate between i-Bus and S.Bus using
-        // the UART configuration
-        this.config[this.IBUS] = true;
+        // Hardcoded S.Bus support, because the UART config is 100000 8E2
+        this.config[this.SBUS] = true;
+        this.config[this.IBUS] = false;
         this.channel_offset = parseInt(values[1], 10) - 2;
       }
       else {

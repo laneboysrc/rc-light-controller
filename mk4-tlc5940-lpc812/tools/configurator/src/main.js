@@ -55,6 +55,7 @@ var app = (function () {
     var SLAVE = 'Slave';
     var STAND_ALONE = 'Stand alone';
     var MASTER_WITH_IBUS_READER = 'Master, i-Bus input';
+    var MASTER_WITH_SBUS_READER = 'Master, S.Bus input';
     var TEST = 'Hardware test';
     var PREPROCESSOR = 'Pre-processor';
     var PREPROCESSOR_5CH = 'Pre-processor 5ch';
@@ -67,6 +68,7 @@ var app = (function () {
         3: SLAVE,
         4: STAND_ALONE,
         5: MASTER_WITH_IBUS_READER,
+        6: MASTER_WITH_SBUS_READER,
         95: PREPROCESSOR_5CH_S,
         96: PREPROCESSOR_5CH,
         97: PREPROCESSOR,
@@ -75,6 +77,7 @@ var app = (function () {
 
         MASTER_WITH_CPPM_READER: 2,
         MASTER_WITH_IBUS_READER: 5,
+        MASTER_WITH_SBUS_READER: 6,
         MASTER_WITH_SERVO_READER: 0,
         MASTER_WITH_UART_READER: 1,
         MASTER_WITH_UART_READER_5CH: 98,
@@ -84,14 +87,6 @@ var app = (function () {
         SLAVE: 3,
         STAND_ALONE: 4,
         TEST: 99
-    };
-
-    var BAUDRATES = {
-        0: 38400,
-        1: 115200,
-
-        38400: 0,
-        115200: 1
     };
 
     var AUX_TYPE_TWO_POSITION = 'Two-position switch';
@@ -569,10 +564,10 @@ var app = (function () {
         }
 
         if (new_config.firmware_version >= 50) {
-            new_config.ibus_channel_offset = data[offset + 94] + 3;
+            new_config.channel_offset = data[offset + 94] + 3;
         }
         else {
-            new_config.ibus_channel_offset = 3;
+            new_config.channel_offset = 3;
         }
 
         log.log('parse_configuration config.mode: ' + new_config.mode);
@@ -799,6 +794,7 @@ var app = (function () {
             break;
 
         case MODE.MASTER_WITH_IBUS_READER:
+        case MODE.MASTER_WITH_SBUS_READER:
             config.multi_aux = true;
             config.mode = new_mode;
             break;
@@ -835,6 +831,7 @@ var app = (function () {
                 el.mode_master_uart,
                 el.mode_master_uart_5ch,
                 el.mode_master_ibus,
+                el.mode_master_sbus,
                 el.mode_preprocessor,
                 el.mode_preprocessor_5ch,
                 el.mode_preprocessor_5ch_s,
@@ -929,7 +926,7 @@ var app = (function () {
             show([el.aux_3ch]);
             hide([el.multi_aux]);
             hide([el.channel_reversing_multi_aux]);
-            hide([el.config_ibus_channel_offset]);
+            hide([el.config_channel_offset]);
             set_name(el.dual_output_th, 'output_out');
             break;
 
@@ -956,7 +953,7 @@ var app = (function () {
             show([el.aux_3ch]);
             hide([el.multi_aux]);
             hide([el.channel_reversing_multi_aux]);
-            hide([el.config_ibus_channel_offset]);
+            hide([el.config_channel_offset]);
             set_name(el.dual_output_th, 'output_th');
             break;
 
@@ -983,7 +980,7 @@ var app = (function () {
             hide([el.aux_3ch]);
             show([el.multi_aux]);
             show([el.channel_reversing_multi_aux]);
-            hide([el.config_ibus_channel_offset]);
+            hide([el.config_channel_offset]);
             set_name(el.dual_output_th, 'output_th');
             break;
 
@@ -1010,7 +1007,34 @@ var app = (function () {
             hide([el.aux_3ch]);
             show([el.multi_aux]);
             show([el.channel_reversing_multi_aux]);
-            show([el.config_ibus_channel_offset]);
+            show([el.config_channel_offset]);
+            set_name(el.dual_output_th, 'output_th');
+            break;
+
+        case MODE.MASTER_WITH_SBUS_READER:
+            show_mode_info(el.mode_master_sbus);
+
+            update_menu_visibility([
+                'config_hardware',
+                'config_mode',
+                'config_esc',
+                'config_ch3',
+                'config_reversing',
+                'config_output',
+                'config_leds',
+                'config_light_programs',
+                'config_advanced',
+                'tab_programming',
+                'tab_testing',
+                'info',
+            ]);
+
+            hide(el.single_output);
+            show(el.dual_output);
+            hide([el.aux_3ch]);
+            show([el.multi_aux]);
+            show([el.channel_reversing_multi_aux]);
+            show([el.config_channel_offset]);
             set_name(el.dual_output_th, 'output_th');
             break;
 
@@ -1023,7 +1047,7 @@ var app = (function () {
                 'tab_programming',
                 'info',
             ]);
-            hide([el.config_ibus_channel_offset]);
+            hide([el.config_channel_offset]);
             break;
 
         case MODE.STAND_ALONE:
@@ -1044,7 +1068,7 @@ var app = (function () {
             show([el.aux_3ch]);
             hide([el.multi_aux]);
             hide([el.channel_reversing_multi_aux]);
-            hide([el.config_ibus_channel_offset]);
+            hide([el.config_channel_offset]);
             set_name(el.dual_output_th, 'output_th');
             break;
 
@@ -1056,7 +1080,7 @@ var app = (function () {
                 'config_mode',
                 'tab_programming',
             ]);
-            hide([el.config_ibus_channel_offset]);
+            hide([el.config_channel_offset]);
             break;
 
         case MODE.PREPROCESSOR_5CH:
@@ -1067,7 +1091,7 @@ var app = (function () {
                 'config_mode',
                 'tab_programming',
             ]);
-            hide([el.config_ibus_channel_offset]);
+            hide([el.config_channel_offset]);
             break;
 
         case MODE.PREPROCESSOR_5CH_S:
@@ -1092,7 +1116,7 @@ var app = (function () {
             hide([el.aux_3ch]);
             show([el.multi_aux]);
             hide([el.channel_reversing_multi_aux]);
-            hide([el.config_ibus_channel_offset]);
+            hide([el.config_channel_offset]);
             set_name(el.dual_output_th, 'output_out');
             break;
 
@@ -1105,7 +1129,7 @@ var app = (function () {
                 'tab_programming',
                 'tab_testing',
             ]);
-            hide([el.config_ibus_channel_offset]);
+            hide([el.config_channel_offset]);
             break;
         }
 
@@ -1227,7 +1251,7 @@ var app = (function () {
         el.reverse_aux3.checked = Boolean(config.reverse_aux3);
 
         // Baudrate
-        el.baudrate.selectedIndex = BAUDRATES[config.baudrate];
+        el.baudrate.value = config.baudrate;
 
         // LEDs
         update_led_fields();
@@ -1319,10 +1343,10 @@ var app = (function () {
             el.assign_servo_to_out.checked = true;
         }
 
-        el.ibus_channel_offset.value = config.ibus_channel_offset;
-        el.ibus_channel_offset_aux.textContent = config.ibus_channel_offset;
-        el.ibus_channel_offset_aux2.textContent = config.ibus_channel_offset + 1;
-        el.ibus_channel_offset_aux3.textContent = config.ibus_channel_offset + 2;
+        el.channel_offset.value = config.channel_offset;
+        el.channel_offset_aux.textContent = config.channel_offset;
+        el.channel_offset_aux2.textContent = config.channel_offset + 1;
+        el.channel_offset_aux3.textContent = config.channel_offset + 2;
 
         // Show/hide various sections depending on the current settings
         update_section_visibility();
@@ -1738,7 +1762,7 @@ var app = (function () {
         console.log('diagnostics_mask=' + diagnostics_mask);
         set_uint8(data, offset + 93, diagnostics_mask);
 
-        set_uint8(data, offset + 94, config.ibus_channel_offset - 3);
+        set_uint8(data, offset + 94, config.channel_offset - 3);
     };
 
 
@@ -2106,7 +2130,7 @@ var app = (function () {
         }
 
         if (config.firmware_version < 50) {
-            config.ibus_channel_offset = 3;
+            config.channel_offset = 3;
         }
 
         if (config.aux_type == null ||
@@ -2339,7 +2363,7 @@ var app = (function () {
 
         update_led('diagnostics_brightness');
 
-        update_int('ibus_channel_offset');
+        update_int('channel_offset');
 
         if (config.mode === MODE.SLAVE) {
             // Force gamma to 1.0 in slave mode as the gamma correction is
@@ -2375,7 +2399,8 @@ var app = (function () {
         // Set ch3_is_local_switch always when UART input active
         if (data.config.mode === MODE.MASTER_WITH_UART_READER ||
              data.config.mode === MODE.MASTER_WITH_IBUS_READER ||
-              data.config.mode === MODE.STAND_ALONE) {
+               data.config.mode === MODE.MASTER_WITH_SBUS_READER ||
+                 data.config.mode === MODE.STAND_ALONE) {
             data.config.ch3_is_local_switch = true;
         }
 
@@ -2544,7 +2569,7 @@ var app = (function () {
                 hide(document.querySelector('#error_baudrate'));
                 hide(document.querySelector('#error_uart_in_use'));
                 hide(document.querySelector('#error_uart_on_out_isp'));
-                if (el.baudrate.selectedIndex == 0) {
+                if (el.baudrate.value != 115200) {
                     show(document.querySelector('#error_baudrate'));
                     show(document.querySelector('#error_testing'));
                 }
@@ -2754,7 +2779,8 @@ var app = (function () {
         // Set ch3_is_local_switch always when UART input active
         if (data.config.mode === MODE.MASTER_WITH_UART_READER ||
              data.config.mode === MODE.MASTER_WITH_IBUS_READER ||
-              data.config.mode === MODE.STAND_ALONE) {
+               data.config.mode === MODE.MASTER_WITH_SBUS_READER ||
+                data.config.mode === MODE.STAND_ALONE) {
             data.config.ch3_is_local_switch = true;
         }
 
@@ -2967,6 +2993,7 @@ var app = (function () {
             'mode_master_uart',
             'mode_master_uart_5ch',
             'mode_master_ibus',
+            'mode_master_sbus',
             'mode_master_cppm',
             'mode_slave',
             'mode_stand_alone',
@@ -2975,8 +3002,8 @@ var app = (function () {
             'mode_preprocessor_5ch_s',
             'mode_test',
 
-            'config_ibus_channel_offset', 'ibus_channel_offset',
-            'ibus_channel_offset_aux', 'ibus_channel_offset_aux2', 'ibus_channel_offset_aux3',
+            'config_channel_offset', 'channel_offset',
+            'channel_offset_aux', 'channel_offset_aux2', 'channel_offset_aux3',
 
             'config_baudrate', 'baudrate',
             'config_leds', 'leds_master', 'leds_slave', 'diagnostics_brightness',
@@ -3102,11 +3129,11 @@ var app = (function () {
             hide(el.webusb_programmer_info);
         });
 
-        el.ibus_channel_offset.addEventListener('change', function () {
-            const value = parseInt(el.ibus_channel_offset.value, 10);
-            el.ibus_channel_offset_aux.textContent = value;
-            el.ibus_channel_offset_aux2.textContent = value + 1;
-            el.ibus_channel_offset_aux3.textContent = value + 2;
+        el.channel_offset.addEventListener('change', function () {
+            const value = parseInt(el.channel_offset.value, 10);
+            el.channel_offset_aux.textContent = value;
+            el.channel_offset_aux2.textContent = value + 1;
+            el.channel_offset_aux3.textContent = value + 2;
         });
 
 

@@ -8,6 +8,7 @@
 
  *****************************************************************************/
 #include <stdint.h>
+#include <string.h>
 
 #include <hal.h>
 #include <globals.h>
@@ -32,7 +33,7 @@ static uint16_t sbus_to_microseconds(uint16_t sbus_value)
 {
     // Note: we AND the incoming value with 0x7ff as we optimized that out
     // of unpacking the SBUS packet, see decode_packet()
-    return (uint16_t)((5 * (uint32_t)(sbus_value & 0x07ff)) / 8);
+    return (uint16_t)(((5 * (uint32_t)(sbus_value & 0x07ff)) / 8) + 880);
 }
 
 
@@ -81,14 +82,35 @@ static bool decode_packet(uint32_t *out)
 
 
 // ****************************************************************************
+static bool is_header(uint8_t c)
+{
+    return (c == SBUS_HEADER);
+}
+
+
+// ****************************************************************************
+static bool is_footer(uint8_t c)
+{
+    if ((c == SBUS_FOOTER)  ||
+        ((c & SBUS_FOOTER2_MASK) == SBUS_FOOTER2a)  ||
+        ((c & SBUS_FOOTER2_MASK) == SBUS_FOOTER2b)) {
+        return true;
+    }
+
+    return false;
+}
+
+
+// ****************************************************************************
 static bool process_buffer(uint8_t incoming_byte, uint32_t *out)
 {
     static uint32_t last_byte_ms = 0;
 
-    if ((milliseconds - last_byte_ms) >= 2) {
+    // S.Bus packet start is determined by a pause of more than 2 ms
+    // between the last byte of data.
+    if ((milliseconds - last_byte_ms) > 2) {
         buffer_index = 0;
     }
-
     last_byte_ms = milliseconds;
 
     if (buffer_index < SBUS_PACKET_LENGTH) {
@@ -97,18 +119,9 @@ static bool process_buffer(uint8_t incoming_byte, uint32_t *out)
     }
 
     if (buffer_index == SBUS_PACKET_LENGTH) {
-        buffer_index = 0;
-
-        if (buffer[0] == SBUS_HEADER) {
-            uint8_t footer = buffer[SBUS_PACKET_LENGTH - 1];
-
-            if ((footer == SBUS_FOOTER)  ||
-                ((footer & SBUS_FOOTER2_MASK) == SBUS_FOOTER2a)  ||
-                ((footer & SBUS_FOOTER2_MASK) == SBUS_FOOTER2b)) {
-
-                // We have a valid SBUS packet!
-                return decode_packet(out);
-            }
+        if (is_header(buffer[0]) && is_footer(buffer[SBUS_PACKET_LENGTH - 1])) {
+            // We have a valid SBUS packet!
+            return decode_packet(out);
         }
     }
 

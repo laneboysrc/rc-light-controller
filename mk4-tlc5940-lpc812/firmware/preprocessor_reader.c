@@ -77,7 +77,9 @@ void read_preprocessor(void)
 
     uint8_t uart_byte;
 
-    if (config.mode == SLAVE || config.mode == MASTER_WITH_IBUS_READER) {
+    // FIXME: make this a positive test for the configs where we really
+    // want to have PP active! Otherwise next time we add a more we have an issue ...
+    if (config.mode == SLAVE || config.mode == MASTER_WITH_IBUS_READER  || config.mode == MASTER_WITH_SBUS_READER) {
         return;
     }
 

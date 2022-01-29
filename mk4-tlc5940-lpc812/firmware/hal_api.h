@@ -9,7 +9,7 @@ void HAL_hardware_init_final(void);
 
 void HAL_service(void);
 
-void HAL_uart_init(uint32_t baudrate, uint8_t rx_pin, uint8_t tx_pin, bool eight_e_two);
+void HAL_uart_init(uint32_t baudrate, uint8_t rx_pin, uint8_t tx_pin);
 bool HAL_getchar_pending(void);
 uint8_t HAL_getchar(void);
 void HAL_putc(void *p, char c);

@@ -1,3 +1,6 @@
 * SBUS
-** Can we use the Black Magic Proble for 100000/8E2? (need an inverter afterwards)
+** Baudrate warning and checks? Slave? Simulator not working?
 
+---
+
+* Make simulator work with 34800 BAUD?

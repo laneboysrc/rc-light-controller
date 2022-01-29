@@ -147,7 +147,7 @@ void read_all_servo_channels(void)
     }
 #endif
     else {
-        // Neither SERVO READER or IBUS READER: bail out!
+        // Neither SERVO READER or IBUS READER or SBUS READER: bail out!
         return;
     }
 

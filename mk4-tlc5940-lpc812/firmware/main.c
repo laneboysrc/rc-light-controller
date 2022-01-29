@@ -177,12 +177,15 @@ static void output_config(void)
 
     send_config = false;
 
-    // FIXME: what to do with SBUS here? Disable diagmostics completely?
-
-    if (config.mode == MASTER_WITH_IBUS_READER) {
-        // 2..11 is for i-Bus,
+    if (config.mode == MASTER_WITH_IBUS_READER  ||  config.mode == MASTER_WITH_SBUS_READER) {
+        // 2..11 is for i-Bus or S.Bus,
         // aux_channel_offset can be retrieved by subtracting 2 from the
         // mode value in the Configurator.
+        //
+        // There is no way to differentiate between S.Bus and i-Bus, because
+        // the UART setup is different:
+        //   i-Bus: 115200 8N1
+        //   S.Bus: 100000 8E2
         protocol = 2 + config.aux_channel_offset;
     }
     else if (config.flags2.multi_aux) {
@@ -204,7 +207,6 @@ int main(void)
 {
     uint8_t rx_pin = HAL_GPIO_NO_PIN;
     uint8_t tx_pin = HAL_GPIO_NO_PIN;
-    bool eight_e_two = false;
 
     // When GPIO0_14 is low we are dealing with a Mk4S (9 switched outputs)
     global_flags.switched_outputs = !HAL_gpio_read(HAL_GPIO_HARDWARE_CONFIG);
@@ -225,7 +227,6 @@ int main(void)
     }
     if (config.mode == MASTER_WITH_SBUS_READER) {
         rx_pin = HAL_GPIO_PIN10.pin;
-        eight_e_two = true;
     }
     if (config.flags2.uart_tx_on_out) {
         tx_pin = HAL_GPIO_OUT.pin;
@@ -234,7 +235,7 @@ int main(void)
         tx_pin = HAL_GPIO_TH.pin;
     }
 
-    HAL_uart_init(config.baudrate, rx_pin, tx_pin, eight_e_two);
+    HAL_uart_init(config.baudrate, rx_pin, tx_pin);
 
     // The printf function is only used for diagnostics, so we default to
     // STDOUT_DEBUG for the file pointer!

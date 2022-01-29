@@ -73,7 +73,7 @@ typedef struct {
 // PIO0_7                       (was TLC5940 SIN)
 // PIO0_8   (14, XTALIN)        was AUX2 input
 // PIO0_9   (13, XTALOUT)       Switched light output (for driving a load via a MOSFET)
-// PIO0_10  (10, Open drain)    NC
+// PIO0_10  (10, Open drain)    S.Bus input (Rev3 and newer only! Inverted signal of ST/Rx)
 // PIO0_11  (9,  Open drain)    AUX3 input
 // PIO0_12  (4,  ISP-entry)     OUT / ISP
 // PIO0_13  (3)                 AUX input

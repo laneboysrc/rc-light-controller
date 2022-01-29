@@ -28,9 +28,10 @@ static volatile const uint32_t persistent_data[HAL_NUMBER_OF_PERSISTENT_ELEMENTS
 
 volatile uint32_t milliseconds;
 
-static uint8_t receive_buffer[RECEIVE_BUFFER_SIZE];
+static volatile uint8_t receive_buffer[RECEIVE_BUFFER_SIZE];
 static volatile uint16_t read_index = 0;
 static volatile uint16_t write_index = 0;
+static volatile bool receive_buffer_overflow;
 
 static volatile bool new_raw_channel_data = false;
 
@@ -38,6 +39,7 @@ static uint8_t aux2_pin;
 static volatile bool aux3_active = false;
 static volatile uint32_t aux2_aux3_timeout;
 static uint32_t raw_data[5];
+
 
 
 // ****************************************************************************
@@ -131,13 +133,16 @@ void HAL_hardware_init(void)
 
     // Make the open drain ports PIO0_10, PIO0_11 outputs and pull to ground
     // to prevent them from floating.
-    // Note that if multi-aux-channel is enabled PIO0_11 is used as input with
-    // an external pull-down, so we keep it as the default input!
-
-    // FIXME: testing for SBUS
-    // HAL_gpio_clear(HAL_GPIO_PIN10);
-    // HAL_gpio_out(HAL_GPIO_PIN10);
-
+    //
+    // Exceptions:
+    // - If S.Bus is enabled PIO0_10 is used as input with
+    //   an external pull-up, so we keep it as the default (input)
+    // - If multi-aux-channel is enabled PIO0_11 is used as input with
+    //   an external pull-down, so we keep it as the default (input)
+    if (config.mode != MASTER_WITH_SBUS_READER) {
+        HAL_gpio_clear(HAL_GPIO_PIN10);
+        HAL_gpio_out(HAL_GPIO_PIN10);
+    }
     if (!config.flags2.multi_aux) {
         HAL_gpio_clear(HAL_GPIO_PIN11);
         HAL_gpio_out(HAL_GPIO_PIN11);
@@ -159,6 +164,7 @@ void HAL_hardware_init(void)
     HAL_gpio_glitch_filter(HAL_GPIO_AUX2);
     HAL_gpio_glitch_filter(HAL_GPIO_AUX2_S);
     HAL_gpio_glitch_filter(HAL_GPIO_AUX3);
+    HAL_gpio_glitch_filter(HAL_GPIO_PIN10);
 
 
     // ------------------------
@@ -295,8 +301,12 @@ Again we have to round by adding BAUDRATE * 16 / 2 to the nominator:
 
 
 // ****************************************************************************
-void HAL_uart_init(uint32_t baudrate, uint8_t rx_pin, uint8_t tx_pin, bool eight_e_two)
+void HAL_uart_init(uint32_t baudrate, uint8_t rx_pin, uint8_t tx_pin)
 {
+    // Defaults: 115200 8N1
+    uint32_t uart_brg = BRGVAL(115200);
+    uint32_t uart_cfg = UART_CFG_8N1 | UART_CFG_ENABLE;
+
     // Configure RX and TX pins
     LPC_SWM->PINASSIGN0 = (0xff << 24) |
                           (0xff << 16) |
@@ -314,22 +324,16 @@ void HAL_uart_init(uint32_t baudrate, uint8_t rx_pin, uint8_t tx_pin, bool eight
     LPC_SYSCON->UARTFRGDIV = 255;
     LPC_SYSCON->UARTFRGMULT = U_MULT;
 
-    if (baudrate == 115200) {
-        LPC_USART0->BRG = BRGVAL(115200);
+    if (baudrate == 100000) {
+        uart_brg = BRGVAL(100000);
+        uart_cfg = UART_CFG_8E2 | UART_CFG_ENABLE;
     }
-    else if (baudrate == 100000) {
-        LPC_USART0->BRG = BRGVAL(100000);
-    }
-    else {
-        LPC_USART0->BRG = BRGVAL(38400);
+    else if (baudrate == 38400) {
+       uart_brg = BRGVAL(38400);
     }
 
-    if (eight_e_two) {
-        LPC_USART0->CFG = UART_CFG_8E2 | UART_CFG_ENABLE;
-    }
-    else {
-        LPC_USART0->CFG = UART_CFG_8N1 | UART_CFG_ENABLE;
-    }
+    LPC_USART0->BRG = uart_brg;
+    LPC_USART0->CFG = uart_cfg;
 
     LPC_USART0->INTENSET = (1 << 0);    // Enable RXRDY interrupt
     NVIC_EnableIRQ(UART0_IRQn);
@@ -348,6 +352,7 @@ void UART0_irq_handler(void)
     // If we are bumping into the read pointer we are dealing with a buffer
     // overflow. Back off and rather destroy the last value.
     if (write_index == read_index) {
+        receive_buffer_overflow = true;
         write_index = (write_index - 1) & RECEIVE_BUFFER_INDEX_MASK;
     }
 }
@@ -369,17 +374,26 @@ void HAL_putc(void *p, char c)
 // ****************************************************************************
 bool HAL_getchar_pending(void)
 {
+    if (receive_buffer_overflow) {
+        receive_buffer_overflow = false;
+        printf("bufovf\n");
+    }
+
     if (LPC_USART0->STAT & (1 << 8)) {
-        // uart0_send_cstring("overrun\n");
-        LPC_USART0->STAT |= (1 << 8);
+        printf("overrun\n");
+        LPC_USART0->STAT = (1 << 8);
     }
     if (LPC_USART0->STAT & (1 << 13)) {
-        // uart0_send_cstring("frameerr\n");
-        LPC_USART0->STAT |= (1 << 13);
+        printf("frameerr\n");
+        LPC_USART0->STAT = (1 << 13);
+    }
+    if (LPC_USART0->STAT & (1 << 14)) {
+        printf("parityerr\n");
+        LPC_USART0->STAT = (1 << 14);
     }
     if (LPC_USART0->STAT & (1 << 15)) {
-        // uart0_send_cstring("noise\n");
-        LPC_USART0->STAT |= (1 << 15);
+        printf("noise\n");
+        LPC_USART0->STAT = (1 << 15);
     }
 
     return (read_index != write_index);
@@ -393,10 +407,14 @@ uint8_t HAL_getchar(void)
 
     while (!HAL_getchar_pending());
 
-    data = receive_buffer[read_index++];
+    data = receive_buffer[read_index];
 
-    // Wrap around the read pointer.
+    __disable_irq();
+    ++read_index;
+    // Wrap around the read pointer of necessary. Only works because the buffer
+    // size is a modulus of 2
     read_index &= RECEIVE_BUFFER_INDEX_MASK;
+    __enable_irq();
 
     return data;
 }
