@@ -224,7 +224,7 @@
         </div>
         <div id="mode_master_ibus" class="info">
           <div>
-            In this mode, the light controller reads servo signals from an
+            In this mode, the light controller reads servo signals from a
             <em>receiver an i-Bus output</em>.
           </div>
           <div>
@@ -237,7 +237,7 @@
         </div>
         <div id="mode_master_sbus" class="info">
           <div>
-            In this mode, the light controller reads servo signals from an
+            In this mode, the light controller reads servo signals from a
             <em>receiver an S.Bus output</em>.
           </div>
           <div>
@@ -248,10 +248,11 @@
             <strong>ST/Rx</strong> input of the light controller.
           </div>
           <div>
-            The <strong>Baudrate must be set 100000</strong> for S.Bus use. When using a Slave light
-            controller, please also configure the Slave for this Baudrate. Note that
-            when S.Bus is configured the Testing function of the Configurator can not
-            be used.
+            The <strong>Baudrate must be set 100000</strong>. When using a Slave light
+            controller, please also configure the Slave for this Baudrate.
+          </div>
+          <div>
+            Note that Testing function of the configurator can not be used when S.Bus is enabled.
           </div>
           <div>
             S.Bus channel 1 and 2 are mapped to ST and TH. The AUX channels can be mapped below.
@@ -272,18 +273,18 @@
         <div id="mode_slave" class="info">
           <div>
             In case more than 16 LEDs are required, it is possible to daisy-chain
-            two light controllers. One needs to be configured as <em>master</em>
+            two light controllers. One needs to be configured as <em>Master</em>
             and have the <em>Slave output</em> activated, the other one
-            must be configured as <em>slave</em>, for a total of 32 LEDs.
+            must be configured as <em>Slave</em>, for a total of 32 LEDs.
           </div>
           <div>
-            The output from the <em>master</em> must be fed into the
-            <strong>ST/Rx</strong> input on the <em>slave</em>.
+            The output from the <em>Master</em> must be fed into the
+            <strong>ST/Rx</strong> input on the <em>Slave</em>.
           </div>
           <div>
-            The <em>master</em> controls the light functions of both light
-            controllers. Ensure that the baudrate of both <em>master</em> and
-            <em>slave</em> match.
+            The <em>Master</em> controls the light functions of both light
+            controllers. Ensure that the baudrate of both <em>Master</em> and
+            <em>Slave</em> match.
           </div>
         </div>
         <div id="mode_stand_alone" class="info">
@@ -336,7 +337,7 @@
             <label for="channel_offset">on <span class="ibus">i-Bus</span><span class="sbus">S.Bus</span> maps to AUX</label>
           </div>
           <br>
-          You can map any <span class="ibus">i-Bus</span><span class="sbus">S.Bus</span> channel between 3 and 12 to the AUX channel. AUX2 and AUX3 are always mapped to the channels following the AUX channel.
+          You can map any <span class="ibus">i-Bus</span><span class="sbus">S.Bus</span> channel between 3 and 12 to the AUX channel. AUX2 and AUX3 are always mapped sequentially after the AUX channel.
           <ul>
             <li><span class="ibus">i-Bus</span><span class="sbus">S.Bus</span> channel <span id="channel_offset_aux"></span> maps to light controller AUX</li>
             <li><span class="ibus">i-Bus</span><span class="sbus">S.Bus</span> channel <span id="channel_offset_aux2"></span> maps to light controller AUX2</li>
@@ -354,12 +355,13 @@
             </select>
           </div>
           <br>
-          The baudrate for serial input/output functions. This applies to the
-          Pre-Processor input and output, and the slave input and output.
+          The baudrate for serial input/output functions. This setting applies
+          to the Pre-Processor input and output, i-Bus and S.Bus input, and the
+          Slave input and output.
           <br>
-          Ensure that master and slave are using the same baudrate.
+          Ensure that Master and Slave are using the same baudrate.
           <br>
-          Use 100000 Baud only for S.Bus, never for Pre-Processor or i-Bus.
+          Use 100000 Baud only for S.Bus.
           <br>
           Use 115200 Baud for i-Bus.
         </div>
@@ -561,7 +563,7 @@
           <br>
           <div>
             <strong>Disable outputs:</strong> When the corresponding AUX channel outputs a
-            servo pulse of larger than 1.75 ms then all light outputs are turned off.
+            servo pulse longer than 1.75 ms then all light outputs are turned off.
             This allows you to disable all manual and automatic light functions from
             the transmitter.
           </div>
@@ -622,7 +624,7 @@
         <div class="dual_output">
           <h2>Pin assignment</h2>
           <div class="radio_item">
-          When a Pre-Processor is used, the TH/Tx pin is available as second output of the light controller. The light controller can output one servo signal, and one UART signal (serial port; for example to connect a slave light controller).
+          When a Pre-Processor is used, the TH/Tx pin is available as second output of the light controller. The light controller can output one servo signal, and one UART signal (serial port; for example to connect a <em>Slave</em> light controller).
           <br>
           You can choose which of the pins receives the Servo signal. Functionality-wise it makes no difference, but it may make wiring easier.
           </div>
@@ -692,12 +694,12 @@
           <input class="dual_output_th" type="radio" name="output_out" value="1" id="slave_output">
           <label for="slave_output">Slave output</label>
           <br>
-          By using a second light controller configured as <em>slave</em>
+          By using a second light controller configured as <em>Slave</em>
           a total of 32 LEDs can be controlled. A single cable must be run
           between the
-          <span class="single_output"><em>master</em> OUT/ISP pin</span>
-          <span class="dual_output">pin on the <em>master</em> assigned to the UART function</span>
-          and the <em>slave</em> ST/Rx pin.
+          <span class="single_output"><em>Master</em> OUT/ISP pin</span>
+          <span class="dual_output">pin on the <em>Master</em> assigned to the UART function</span>
+          and the <em>Slave</em> ST/Rx pin.
           <br>
           When this option is selected, a second set of LED configuration
           becomes visible below.
@@ -1490,6 +1492,15 @@
       <div id="info" class="hidden">
         <div class="box configuration">
           <h2>What's new</h2>
+
+          <div><strong>2022-01-30 Firmware 2.51</strong></div>
+          <ul class="change-history">
+            <li>
+              Add S.Bus support. Note that S.Bus requires hardware modification
+              and can (as of January 2022) only be used with Mk4P Rev3 or later
+              light controllers.
+            </li>
+          </ul>
 
           <div><strong>2021-12-28 Firmware 2.50</strong></div>
           <ul class="change-history">
