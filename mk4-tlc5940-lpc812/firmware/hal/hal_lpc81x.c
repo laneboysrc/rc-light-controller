@@ -380,19 +380,19 @@ bool HAL_getchar_pending(void)
     }
 
     if (LPC_USART0->STAT & (1 << 8)) {
-        printf("overrun\n");
+        // printf("overrun\n");
         LPC_USART0->STAT = (1 << 8);
     }
     if (LPC_USART0->STAT & (1 << 13)) {
-        printf("frameerr\n");
+        // printf("frameerr\n");
         LPC_USART0->STAT = (1 << 13);
     }
     if (LPC_USART0->STAT & (1 << 14)) {
-        printf("parityerr\n");
+        // printf("parityerr\n");
         LPC_USART0->STAT = (1 << 14);
     }
     if (LPC_USART0->STAT & (1 << 15)) {
-        printf("noise\n");
+        // printf("noise\n");
         LPC_USART0->STAT = (1 << 15);
     }
 

@@ -1,4 +1,3 @@
-* Remove UART diagnostic messages from HAL
 * Reduce code size by differentiating based on config.mode (PP/i-Bus/S.Bus get different binaries)
 
 ---
