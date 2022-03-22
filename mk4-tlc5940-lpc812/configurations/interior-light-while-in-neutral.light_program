@@ -1,0 +1,91 @@
+// Automatic interior light when throttle is idle
+//
+// This light program turns on the interior light
+// whenever the throttle is in neutral for more
+// than 30 seconds.
+//
+// This function is active only when the lights
+// of the cars are on (= light switch position 2
+// or higher)
+//
+// The brightness of the interior light when "off"
+// can be set to a non-zero value, so that the
+// light still glows a bit even when "off".
+
+run always
+
+// We are using OUT14 as interiror light.
+// You can add more outputs if needed
+led interior_led1 = led[14]
+
+// The interior light will be on only in light switch position
+// 2 or higher
+const MIN_LIGHT_SWITCH_POSITION = 2
+
+// When the car is in Neutral, then it takes 30 seconds
+// before the interior light comes on.
+// Since the "loop" of the light program runs every 20 ms
+// (see "sleep 20") we need to set SWITCH_ON_DELAY to
+// 30000 milliseconds (30 s) divided by 20 milliseconds = 1500
+const SWITCH_ON_DELAY = 1500
+
+// Brightness value for the interior light when "on" and "off"
+const ON_BRIGHTNESS = 100
+const OFF_BRIGHTNESS = 10
+
+// Fade speed so that the interior light turns on/off slowly.
+// If you don't want fading then set this value to 0
+const DIM_SPEED = 5
+
+// Internal variable for the interior light timer
+var timer
+
+loop:
+    // This loop runs every 20 milliseconds
+    sleep 20
+
+    // If the light switch position is less than 2
+    // then turn the interior light off
+    skip if light-switch-position >= MIN_LIGHT_SWITCH_POSITION
+    goto interior_light_off
+
+    // If the car is driving forward or backwards (= throttle
+    // not in neutral) then turn the interior light off
+    if not neutral
+    goto interior_light_off_driving
+
+    // If the 30 second timer has expired turn the
+    // interior light on
+    if timer == 0
+    goto interior_light_on
+
+    // If the 30 seconds timer has not yet expired
+    // decrement its value
+    timer -= 1
+    goto loop
+
+
+interior_light_on:
+    fade all leds stepsize DIM_SPEED
+    all leds = ON_BRIGHTNESS
+    goto loop
+
+interior_light_off:
+    fade all leds stepsize DIM_SPEED
+    all leds = OFF_BRIGHTNESS
+
+    // Clear the 30 second timer so that
+    // the interior light switches on immediately
+    // when the lights get turned on
+    timer = 0
+    goto loop
+
+interior_light_off_driving:
+    fade all leds stepsize DIM_SPEED
+    all leds = OFF_BRIGHTNESS
+
+    // Restart the 30 second timer
+    timer = SWITCH_ON_DELAY
+    goto loop
+
+end
