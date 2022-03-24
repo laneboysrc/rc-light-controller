@@ -1,5 +1,5 @@
 Reference, Quantity, Value, Footprint, Datasheet, LCSC part number
-C1 ,1,"1u","Capacitor_SMD:C_0603_1608Metric","~"
+C1 ,1,"10u","Capacitor_SMD:C_0603_1608Metric","~"
 C2 ,1,"100n","Capacitor_SMD:C_0603_1608Metric","~"
 D1 ,1,"LC POWER","WLA_LED_reverse_mount:LED_1204_side_mout","2009041238_TUOZHAN-TZ-P2-1204BTS2-1-5T","C779807"
 D2 ,1,"OK","WLA_LED_reverse_mount:LED_1204_side_mout","2011131907_TUOZHAN-TZ-P2-1204YGCTA1-1-5T","C91608"

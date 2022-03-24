@@ -5,7 +5,7 @@ $Descr A4 11693 8268
 encoding utf-8
 Sheet 1 1
 Title "WebUSB Programmer for Light Controller Mk4"
-Date "2021-10-30"
+Date "2022-03-24"
 Rev "4"
 Comp "LANE Boys RC"
 Comment1 ""
@@ -389,7 +389,7 @@ L Device:C C1
 U 1 1 605205A6
 P 3300 4950
 F 0 "C1" H 3415 4996 50  0000 L CNN
-F 1 "1u" H 3415 4905 50  0000 L CNN
+F 1 "10u" H 3415 4905 50  0000 L CNN
 F 2 "Capacitor_SMD:C_0603_1608Metric" H 3338 4800 50  0001 C CNN
 F 3 "~" H 3300 4950 50  0001 C CNN
 	1    3300 4950
@@ -593,4 +593,6 @@ F 3 "~" H 9250 2050 50  0001 C CNN
 $EndComp
 Wire Wire Line
 	7750 1800 9250 1800
+Text Notes 1700 5050 0    50   ~ 0
+C1 needs to be rather large, \nbecause when the Light Controller \nis powered up the 47uF needs to \nbe charged, causing a voltage \ndrop that could crash the WebUSB \nprogrammer -- especially when \nusing longer USB cables.
 $EndSCHEMATC
