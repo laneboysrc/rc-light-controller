@@ -7,6 +7,8 @@
 // This function is active only when the lights
 // of the cars are on (= light switch position 2
 // or higher)
+// The interior light always start out dim first
+// until the 30 seconds timeout kicks in.
 //
 // The brightness of the interior light when "off"
 // can be set to a non-zero value, so that the
@@ -77,7 +79,12 @@ interior_light_off:
     // Clear the 30 second timer so that
     // the interior light switches on immediately
     // when the lights get turned on
-    timer = 0
+    // timer = 0
+
+    // Set the timer so that the interior
+    // light will remain dim until the
+    // timeout expires
+    timer = SWITCH_ON_DELAY
     goto loop
 
 interior_light_off_driving:
