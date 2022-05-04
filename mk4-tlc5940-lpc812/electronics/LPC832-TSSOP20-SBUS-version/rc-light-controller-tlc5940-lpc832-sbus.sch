@@ -513,7 +513,7 @@ F 3 "" H 11050 8950 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 Text Notes 3150 9850 0    56   ~ 0
-Special pins:\nPIO0_0  (16)   ISP UART RX\nPIO0_4  ( 4)   ISP UART TX\nPIO0_5  ( 3)   RESET\nPIO0_10 ( 8)   Open drain\nPIO0_11 ( 7)   Open drain\nPIO0_2  ( 6)   SWDIO\nPIO0_3  ( 5)   SWCLK
+Special pins:\nPIO0_0  (19)   ISP UART RX\nPIO0_4  ( 6)   ISP UART TX\nPIO0_5  ( 5)   RESET\nPIO0_10 (10)   Open drain\nPIO0_11 ( 9)   Open drain\nPIO0_2  ( 8)   SWDIO\nPIO0_3  ( 7)   SWCLK
 Text Notes 1050 2000 0    85   ~ 0
 Servo in/out
 Text Notes 11200 1350 0    85   ~ 0
@@ -998,7 +998,7 @@ Wire Wire Line
 Wire Wire Line
 	4050 4050 5050 4050
 Text Notes 8700 6850 0    50   ~ 0
-Important: this MOSFET needs to have\na low gate capacitance (~20pf), as otherwise\nit will distort the UART / Servo signal
+Important: this MOSFET needs to have\na low gate capacitance (~~20pf), as otherwise\nit will distort the UART / Servo signal
 Wire Wire Line
 	5550 7700 6650 7700
 Text Notes 7800 5250 0    85   ~ 0
