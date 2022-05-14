@@ -61,11 +61,8 @@ static bool decode_packet(uint32_t *out)
     temp[11] = (buffer[16] >> 1) | ((uint16_t)buffer[17] << 7);
     temp[12] = (buffer[17] >> 4) | ((uint16_t)buffer[18] << 4);
     temp[13] = (buffer[18] >> 7) | ((uint16_t)buffer[19] << 1) | ((uint16_t)buffer[20] << 9);
-    // i-Bus limits us to 14 channels; we also apply that limit here for simplicity
-    // (otherwise config.aux_channel_offset would have a different permissible
-    // range for i-Bus and SBUS)
-    // temp[14] = (buffer[20] >> 2) | ((uint16_t)buffer[21] << 6);
-    // temp[15] = (buffer[21] >> 5) | ((uint16_t)buffer[22] << 3);
+    temp[14] = (buffer[20] >> 2) | ((uint16_t)buffer[21] << 6);
+    temp[15] = (buffer[21] >> 5) | ((uint16_t)buffer[22] << 3);
 
     // Step 2: place the decoded servo channels into the light controller channel memory
 

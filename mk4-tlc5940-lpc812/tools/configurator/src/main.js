@@ -1030,6 +1030,14 @@ var app = (function () {
             show([el.multi_aux]);
             show([el.channel_reversing_multi_aux]);
             show([el.config_channel_offset]);
+
+            // Limit channel_offset to 12 for i-Bus
+            if (el.channel_offset.value > 12) {
+                 el.channel_offset.value = 12;
+            }
+            el.channel_offset.max = 12;
+            update_channel_offset();
+
             set_name(el.dual_output_th, 'output_th');
             show(document.querySelectorAll('.ibus'));
             hide(document.querySelectorAll('.sbus'));
@@ -1058,6 +1066,10 @@ var app = (function () {
             show([el.multi_aux]);
             show([el.channel_reversing_multi_aux]);
             show([el.config_channel_offset]);
+
+            // S.Bus can use all 16 channels for AUX/AUX2/AUX3
+            el.channel_offset.max = 14;
+
             set_name(el.dual_output_th, 'output_th');
             show(document.querySelectorAll('.sbus'));
             hide(document.querySelectorAll('.ibus'));
@@ -1381,6 +1393,13 @@ var app = (function () {
         update_led_feature_usage();
     };
 
+    // *************************************************************************
+    var update_channel_offset = function () {
+        const value = parseInt(el.channel_offset.value, 10);
+        el.channel_offset_aux.textContent = value;
+        el.channel_offset_aux2.textContent = value + 1;
+        el.channel_offset_aux3.textContent = value + 2;
+    };
 
     // *************************************************************************
     var hex_to_bin = function (intel_hex_data) {
@@ -3163,12 +3182,7 @@ var app = (function () {
             hide(el.webusb_programmer_info);
         });
 
-        el.channel_offset.addEventListener('change', function () {
-            const value = parseInt(el.channel_offset.value, 10);
-            el.channel_offset_aux.textContent = value;
-            el.channel_offset_aux2.textContent = value + 1;
-            el.channel_offset_aux3.textContent = value + 2;
-        });
+        el.channel_offset.addEventListener('change', update_channel_offset);
 
 
         init_assembler();
