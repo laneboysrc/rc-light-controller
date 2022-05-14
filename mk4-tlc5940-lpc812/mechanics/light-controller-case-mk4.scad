@@ -19,9 +19,9 @@ difference() {
 
     translate([0, 0, h_bottom]) {
         translate([2, 5, 0]) cube([18, 8.2, h_cutout]);
-        translate([8.4, 5, 0]) cube([18, 10.8, h_cutout]);
-        translate([14, 1.8, 0]) cube([12, 5, h_cutout]);
-        translate([24.5, -eps, 0]) cube([10, 18+eps+eps, h_cutout]);
+        translate([9, 5, 0]) cube([18, 10.8, h_cutout]);
+        translate([12, 1.8, 0]) cube([14, 5, h_cutout]);
+        translate([25, -eps, 0]) cube([10, 18+eps+eps, h_cutout]);
     }
 }
 
