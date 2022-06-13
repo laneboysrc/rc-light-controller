@@ -18,7 +18,7 @@ loop:
     if is blink-flag
     goto blink_on
 
-    // If we are in the "darh" blink period, turn the lights off
+    // If we are in the "dark" blink period, turn the lights off
     all leds = 0
     goto loop
 
