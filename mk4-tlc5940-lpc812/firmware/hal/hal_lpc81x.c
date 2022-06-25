@@ -874,7 +874,7 @@ void HAL_spi_init(void)
 // ****************************************************************************
 void HAL_spi_transaction(uint8_t *data, uint8_t count)
 {
-    volatile uint8_t i;
+    int i;
 
     // Wait for MSTIDLE, should be a no-op since we are waiting after
     // the transfer.

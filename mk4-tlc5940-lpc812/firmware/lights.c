@@ -120,7 +120,7 @@ static uint8_t diagnostics;
 static void output_lights(void)
 {
     uint8_t data[16];
-    uint8_t i;
+    int i;
 
     if (global_flags.switched_outputs) {
         HAL_gpio_write(HAL_GPIO_OUT0, light_setpoint[0]);

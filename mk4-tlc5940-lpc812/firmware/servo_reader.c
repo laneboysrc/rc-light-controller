@@ -106,7 +106,7 @@ static void initialize_channel(CHANNEL_T *c) {
 
 // ****************************************************************************
 static void normalize_all_channels(void) {
-    uint8_t index;
+    int index;
 
     for (index = 0; index < 5; index++) {
         normalize_channel(&channel[index]);

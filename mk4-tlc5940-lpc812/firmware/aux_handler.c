@@ -336,7 +336,7 @@ static void light_switch(CHANNEL_T *c, struct AUX_FLAGS *f)
 
 
     int8_t value;
-    uint8_t i;
+    int i;
 
     if (c->normalized == f->last_value) {
         return;

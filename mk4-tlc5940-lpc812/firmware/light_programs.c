@@ -676,7 +676,7 @@ void process_light_program_events(void)
 // ****************************************************************************
 uint32_t process_light_programs(void)
 {
-    uint32_t i;
+    unsigned int i;
     uint32_t leds_used;
 
     leds_used = 0;
