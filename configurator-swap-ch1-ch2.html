@@ -23945,8 +23945,15 @@ document.addEventListener('DOMContentLoaded', function () {
         <h1><span id="logo"></span> RC Light Controller configuration tool</h1>
 
         <div>
-          Configurator version: <strong>2022-06-25 S.BUS CH1 and CH2 swapped for GRAUPNER</strong><br>
+          Configurator version: <strong>2022-06-26 S.BUS CH1 and CH2 swapped for GRAUPNER</strong><br>
           Firmware version: <strong><span id="firmware_version"></span></strong>
+        </div>
+
+        <div>
+          <select class="hidden" id="hardware">
+            <option value="mk4">Mk4 (NXP LPC812)</option>
+          </select>
+          <span class="hidden" id="hardware_image" class="mk4"></span>
         </div>
 
       </div>
