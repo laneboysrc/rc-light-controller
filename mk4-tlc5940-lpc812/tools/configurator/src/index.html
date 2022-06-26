@@ -158,7 +158,7 @@
             <strong>It is advisable that you always save a copy of the
             configuration for future reference.</strong> While it is possible
             to retrieve all settings from a firmware image, some data like
-            variable names and comments in light programs are lost as they are
+            variable names and comments in Light Programs are lost as they are
             not stored into the firmware.
           </div>
         </div>
@@ -295,7 +295,7 @@
           </div>
           <div>
             In this mode you would either program the light controller for
-            automatic operation using the <em>light programs</em>, and/or use
+            automatic operation using the <em>Light Programs</em>, and/or use
             a push-button connected to the <strong>CH3</strong> input.
           </div>
         </div>
@@ -525,7 +525,7 @@
           <br>
           <div>
             <strong>Not used:</strong> Use this setting if you want to use this
-            AUX input within a light program, instead of one of the pre-defined
+            AUX input within a <em>Light Program</em>, instead of one of the pre-defined
             functions.
           </div>
           <br>
@@ -670,14 +670,14 @@
             </select>
             <br>
             <input type="checkbox" name="gearbox_light_program_control" value="1" id="gearbox_light_program_control">
-            <label for="gearbox_light_program_control">Control the gearbox through light programs</label>
+            <label for="gearbox_light_program_control">Control the gearbox through Light Programs</label>
             <br>
-            When enabled, the gearbox can be controlled from light programs only,
+            When enabled, the gearbox can be controlled from <em>Light Programs</em> only,
             and not via 1- or 2-clicks on CH3.
           </div>
           <div class="radio_item">
             <input type="radio" name="output_out" value="5" id="light_program_servo_output">
-            <label for="light_program_servo_output">Servo controlled from light programs</label>
+            <label for="light_program_servo_output">Servo controlled from Light Programs</label>
             <br>
             This function can be useful to control sequences of servo positions,
             or for example to randomize head movements of a figure.
@@ -727,7 +727,7 @@
         <div>
           You can configure <em>car functions</em> and light up LEDs for <em>diagnostics</em> purpose, for example when there is no signal being received. Use the <em>arrow symbols</em> <i class="fa fa-arrow-circle-left tab-previous"></i> <i class="fa fa-arrow-circle-right tab-next"></i> next to car functions or diagnostics to change between them.
         </div>
-        <div>Instead of using the table, you can also write <em>light programs</em> that define the light output for the diagnostics. Note that <em>light programs</em> have priority over table-driven diagnostics.
+        <div>Instead of using the table, you can also write <em>Light Programs</em> that define the light output for the diagnostics. Note that <em>Light Programs</em> have priority over table-driven diagnostics.
         </div>
         <div>
           <input type=number id="diagnostics_brightness" min="0" max="100" step="1">
@@ -869,10 +869,10 @@
         </div>
         <div>
           Use the <em>Check...</em> button below the editor to perform a syntax
-          check on the light programs.
+          check on the Light Programs.
         </div>
         <div class="editor">
-          <textarea id="light_programs" placeholder="Enter light programs here..."></textarea>
+          <textarea id="light_programs" placeholder="Enter Light Programs here..."></textarea>
         </div>
         <div>
           <button id="light_programs_assembler">Check...</button>
@@ -1254,7 +1254,7 @@
               when the &quot;no servo signal&quot; condition applies for more than 5 seconds.
             </div>
             <div>
-              If this setting is disabled, you can still manually control shelf queen mode from a <em>light program</em>.
+              If this setting is disabled, you can still manually control shelf queen mode from a <em>Light Program</em>.
             </div>
           </div>
 
@@ -1493,6 +1493,16 @@
         <div class="box configuration">
           <h2>What's new</h2>
 
+          <div><strong>2022-07-xx Firmware 2.53</strong></div>
+          <ul class="change-history">
+            <li>
+              Add the possibility to use the CH3 pin on the light controller as
+              digital input pin, which can be probed in <em>Light Programs</em>. The
+              pin can be tested using the global variable <em>ch3-pin</em>. Refer
+              to the  <a href="https://github.com/laneboysrc/rc-light-controller/blob/master/mk4-tlc5940-lpc812/doc/light-programs.md#led-declarations" target="_blank">Light Programs documentation</a> for more information.
+            </li>
+          </ul>
+
           <div><strong>2022-02-02 Firmware 2.51</strong></div>
           <ul class="change-history">
             <li>
@@ -1521,8 +1531,8 @@
               </p>
               <p>Click on the spanner icon <i class="fa fa-wrench"></i> of a LED to assign or change its name.
               </p>
-              <p>The LED names can also be used in light programs. Refer to section
-              <em>LED declarations</em> in the <a href="https://github.com/laneboysrc/rc-light-controller/blob/master/mk4-tlc5940-lpc812/doc/light-programs.md#led-declarations" target="_blank">light programs documentation</a>
+              <p>The LED names can also be used in <em>Light Programs</em>. Refer to section
+              <em>LED declarations</em> in the <a href="https://github.com/laneboysrc/rc-light-controller/blob/master/mk4-tlc5940-lpc812/doc/light-programs.md#led-declarations" target="_blank">Light Programs documentation</a>
               for more information.
               </p>
             </li>
@@ -1540,21 +1550,21 @@
           <div><strong>2021-11-23 Firmware 2.45</strong></div>
           <ul class="change-history">
             <li>
-              Shelf queen mode can be switched from light program
+              Shelf queen mode can be switched from <em>Light Programs</em>
             </li>
           </ul>
 
           <div><strong>2021-11-18 Firmware 2.44</strong></div>
           <ul class="change-history">
             <li>
-              Fix import of HEX files that don't have a light program
+              Fix import of HEX files that don't have a <em>Light Programs</em>
             </li>
           </ul>
 
           <div><strong>2021-11-10 Firmware 2.44</strong></div>
           <ul class="change-history">
             <li>
-              Fix light_switch_position range for light programs
+              Fix light_switch_position range for <em>Light Programs</em>
             </li>
             <li>
               Fix shelf queen mode
@@ -1567,7 +1577,7 @@
           <div><strong>2021-07-24 Firmware 2.41</strong></div>
           <ul class="change-history">
             <li>
-              No signal LED diagnostics and Initializing are now mutually exclusive, just like before we switched from light program based diagnostics to table driven diagnostics.
+              No signal LED diagnostics and Initializing are now mutually exclusive, just like before we switched from <em>Light Program</em> based diagnostics to table driven diagnostics.
             </li>
           </ul>
 
@@ -1599,10 +1609,10 @@
           <ul class="change-history">
             <li>
               The LED configuration for no-signal, initializing and other light controller internal <strong>diagnostics functions are now table driven</strong>.<br>
-              Originally they were implemented using light programs. These still continue to function, but the table driven approach is easier for users and also reduces memory size.
+              Originally they were implemented using <em>Light Programs</em>. These still continue to function, but the table driven approach is easier for users and also reduces memory size.
             </li>
             <li>
-              <strong>Save code space</strong> by making the the light programs start offset table dynamic in side. This is an internal change and has no impact on users.
+              <strong>Save code space</strong> by making the the <em>Light Programs</em> start offset table dynamic in side. This is an internal change and has no impact on users.
             </li>
             <li>
               Detailed <strong>WebUSB diagnostics</strong> in the browser console is now <strong>off</strong> by default. WebUSB diagnostics can be enabled by appending <em>#webusb</em> to the Configurator URL.

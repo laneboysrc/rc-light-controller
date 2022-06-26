@@ -216,6 +216,8 @@ var disassembler = (function () {
                 return 'aux3';
             case 14:
                 return 'hazard';
+            case 98:
+                return 'ch3-pin';
             case 99:
                 return 'shelf-queen-mode';
             default:

@@ -458,6 +458,7 @@ var symbols = (function () {
         // From shelf queen mode onwards we put the globals at the end so that
         // importing old .HEX files does not confuse the situation
         add_symbol('shelf-queen-mode', 'GLOBAL_VARIABLE', 99);
+        add_symbol('ch3-pin', 'GLOBAL_VARIABLE', 98);
     };
 
 

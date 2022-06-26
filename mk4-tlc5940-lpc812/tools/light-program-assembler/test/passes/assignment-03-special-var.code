@@ -13,5 +13,6 @@ var x
 
     hazard = 1
     shelf-queen-mode = 0
+    x = ch3-pin
 
 end

@@ -337,6 +337,13 @@ The light controller pre-defined a few global variables, accessible by all light
 
     This variable reflects the state of the CH3 (AUX), AUX2 and AUX3 inputs respectively. The range is from -100 .. 0 .. +100.
 
+
+- **ch3-pin**
+
+    This variable reflects the logic state of the CH3 input pin of the light controller. Its value reads 0 when
+    the pin is *low* and 1 when the pin is *high*. This allows external electronics to control light programs. Note that this only works when the light controller is using a Pre-Processor, i-Bus or S.Bus. It can not be used when the light controller reads servo signals directly.
+
+
 - **clicks**
 
     This variable is incremented every time six CH3-clicks are performed. Useful to control different sequences in a light program.

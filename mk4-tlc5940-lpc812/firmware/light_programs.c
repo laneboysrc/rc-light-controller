@@ -97,6 +97,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#include <hal.h>
 #include <globals.h>
 #include <printf.h>
 
@@ -121,6 +122,7 @@
 // From shelf queen mode onwards we store the globals from the back, so that
 // loading old .HEX files does not interfere.
 #define GLOBAL_VAR_SHELF_QUEEN_MODE 99
+#define GLOBAL_VAR_CH3_PIN 98
 
 typedef struct {
     const uint32_t *PC;
@@ -181,6 +183,7 @@ static void load_read_only_global_variables(void)
     var[GLOBAL_VAR_AUX] = channel[AUX].normalized;
     var[GLOBAL_VAR_AUX2] = channel[AUX2].normalized;
     var[GLOBAL_VAR_AUX3] = channel[AUX3].normalized;
+    var[GLOBAL_VAR_CH3_PIN] = HAL_gpio_read(HAL_GPIO_AUX);
 }
 
 
