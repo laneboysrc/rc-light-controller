@@ -1280,6 +1280,11 @@ var app = (function () {
             el.ch3[1].checked = true;
         }
 
+        el.ch3_local_multiaux.checked = false;
+        if (config.ch3_is_local_switch) {
+            el.ch3_local_multiaux.checked = true;
+        }
+
         // Channel reversing
         el.reverse_st.checked = Boolean(config.reverse_st);
         el.reverse_th.checked = Boolean(config.reverse_th);
@@ -2355,6 +2360,18 @@ var app = (function () {
             config.ch3_is_two_button = true;
         }
 
+        if (config.mode === MODE.STAND_ALONE) {
+            config.ch3_is_local_switch = true;
+        }
+        if (config.mode === MODE.MASTER_WITH_UART_READER) {
+            if (config.multi_aux) {
+                config.ch3_is_local_switch = el.ch3_local_multiaux.checked;
+            }
+        }
+        if (config.mode === MODE.MASTER_WITH_IBUS_READER ||
+               config.mode === MODE.MASTER_WITH_SBUS_READER) {
+            config.ch3_is_local_switch = el.ch3_local_multiaux.checked;
+        }
 
         // LEDs
         update_led_config();
@@ -2448,14 +2465,6 @@ var app = (function () {
 
         // Update data based on UI
         var data = get_config();
-
-        // Set ch3_is_local_switch always when UART input active
-        if (data.config.mode === MODE.MASTER_WITH_UART_READER ||
-             data.config.mode === MODE.MASTER_WITH_IBUS_READER ||
-               data.config.mode === MODE.MASTER_WITH_SBUS_READER ||
-                 data.config.mode === MODE.STAND_ALONE) {
-            data.config.ch3_is_local_switch = true;
-        }
 
         try {
             assemble_firmware(data);
@@ -2829,14 +2838,6 @@ var app = (function () {
         // Update data based on UI
         const data = get_config();
 
-        // Set ch3_is_local_switch always when UART input active
-        if (data.config.mode === MODE.MASTER_WITH_UART_READER ||
-             data.config.mode === MODE.MASTER_WITH_IBUS_READER ||
-               data.config.mode === MODE.MASTER_WITH_SBUS_READER ||
-                data.config.mode === MODE.STAND_ALONE) {
-            data.config.ch3_is_local_switch = true;
-        }
-
         try {
             assemble_firmware(data);
         } catch (e) {
@@ -3117,6 +3118,7 @@ var app = (function () {
             'aux_type', 'aux_function',
             'aux2_type', 'aux2_function',
             'aux3_type', 'aux3_function',
+            'ch3_local_multiaux',
 
             'webusb_connect_button', 'webusb_disconnect_button',
             'webusb_programmer_info', 'close_webusb_programmer_info',
