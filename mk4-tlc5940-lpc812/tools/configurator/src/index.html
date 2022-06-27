@@ -1505,13 +1505,15 @@
         <div class="box configuration">
           <h2>What's new</h2>
 
-          <div><strong>2022-07-xx Firmware 2.53</strong></div>
+          <div><strong>2022-06-27 Firmware 2.53</strong></div>
           <ul class="change-history">
             <li>
               Add the possibility to use the CH3 pin on the light controller as
               digital input pin, which can be probed in <em>Light Programs</em>. The
               pin can be tested using the global variable <em>ch3-pin</em>. Refer
               to the  <a href="https://github.com/laneboysrc/rc-light-controller/blob/master/mk4-tlc5940-lpc812/doc/light-programs.md#led-declarations" target="_blank">Light Programs documentation</a> for more information.
+              <br>
+              This feature only works when using a Pre-Processor, i-Bus or S.Bus.
             </li>
           </ul>
 
@@ -1519,7 +1521,7 @@
           <ul class="change-history">
             <li>
               Add S.Bus support. Note that S.Bus requires hardware modification
-              and can (as of Feb 2022) only be used with Mk4P Rev3 or later
+              and can (as of June 2022) only be used with Mk4P Rev3, Mk4 Rev7 or later
               light controllers.
             </li>
           </ul>
