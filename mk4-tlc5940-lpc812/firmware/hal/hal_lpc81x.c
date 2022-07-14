@@ -55,9 +55,9 @@ static uint32_t raw_data[5];
 //
 // UART and SPI are basically the same.
 //
-// We use the flag is_lpc832 to handle these differences at run-time.
+// We use the flag is_lpc832_or_lpc824 to handle these differences at run-time.
 // ****************************************************************************
-bool is_lpc832;
+uint16_t mcu_type;
 
 typedef struct {                            /*!< (@ 0x4002c020) INMUX Structure          */
   __IO uint32_t INP[4];                     /*!< (@ 0x40024000) Input mux registers 0..3 */
@@ -106,9 +106,14 @@ void HAL_hardware_init(void)
 #error Clock initialization code expexts __SYSTEM_CLOCK to be set to 1200000
 #endif
 
-    // Flag that allows us to check whether we deal with LPC832/LPC824 or LPC812
-    // Note: LPC824 is compatible with LPC832, so we treat it as LPC832
-    is_lpc832 = (LPC_SYSCON->DEVICE_ID == 0x8322) || (LPC_SYSCON->DEVICE_ID == 0x8242);
+    // Variable that allows us to deal with configuration that is slightly
+    // different between the various support LPC MCUs
+    //
+    // The device ID is something like 0x00008122 (LPC812M101JDH20), where the
+    // last number indicates the package variant. So we shift 4 bits to the
+    // right to obtain the MCU type number.
+    // So mcu_type will contain 0x0812 for LPC812, 0x0832 for LPC832, etc.
+    mcu_type = LPC_SYSCON->DEVICE_ID >> 4;
 
     // Turn on brown-out detection and reset
     LPC_SYSCON->BODCTRL = (1 << 4) | (1 << 2) | (3 << 0);
@@ -520,14 +525,14 @@ void HAL_servo_output_init(uint8_t pin)
     LPC_SCT->OUT[1].SET = (1 << 4);        // Event 4 will set CTOUT_1
     LPC_SCT->OUT[1].CLR = (1 << 5);        // Event 5 will clear CTOUT_1
 
-    if (is_lpc832) {
-        LPC_SWM->PINASSIGN8 = (0xff << 24) |    // CTOUT_4
+    if (mcu_type == 0x812) {
+        LPC_SWM->PINASSIGN7 = (0xff << 24) |    // I2C_SDA
                               (0xff << 16) |    // CTOUT_3
                               (0xff << 8) |     // CTOUT_2
                               (pin << 0);       // CTOUT_1
     }
     else {
-        LPC_SWM->PINASSIGN7 = (0xff << 24) |    // I2C_SDA
+        LPC_SWM->PINASSIGN8 = (0xff << 24) |    // CTOUT_4
                               (0xff << 16) |    // CTOUT_3
                               (0xff << 8) |     // CTOUT_2
                               (pin << 0);       // CTOUT_1
@@ -637,7 +642,7 @@ void HAL_servo_reader_init(void)
     // We keep AUX2 in CTIN_0 as it is a lone value in PINASSIGN5. We can
     // therefore easily swap AUX2 and AUX3 without having to worry of other
     // fields in the register.
-    if (is_lpc832) {
+    if (mcu_type != 0x812) {
         LPC_SWM->PINASSIGN6 = (aux2_pin << 24) |            // CTIN_0
                               (0xff << 16) |                // SPI1_SSEL1
                               (0xff << 8) |                 // SPI1_SSEL0
@@ -685,7 +690,7 @@ static void swap_aux2_aux3(void)
 
     if (!aux3_active) {
         aux3_active = true;
-        if (is_lpc832) {
+        if (mcu_type != 0x812) {
             LPC_SWM->PINASSIGN6 = (HAL_GPIO_AUX3.pin << 24) |   // CTIN_0
                                   (0xff << 16) |                // SPI1_SSEL
                                   (0xff << 8) |                 // SPI1_MISO
@@ -701,7 +706,7 @@ static void swap_aux2_aux3(void)
     }
     else {
         aux3_active  = false;
-        if (is_lpc832) {
+        if (mcu_type != 0x812) {
             LPC_SWM->PINASSIGN6 = (aux2_pin << 24) |            // CTIN_0
                                   (0xff << 16) |                // SPI1_SSEL
                                   (0xff << 8) |                 // SPI1_MISO
@@ -867,10 +872,11 @@ void HAL_spi_init(void)
 
     // SIN is on a different pin on the LPC832 based hardware!
     LPC_SWM->PINASSIGN4 = (0xff << 24) |
-                          (HAL_GPIO_XLAT.pin << 16) |                   // XLAT (SSEL)
+                          (HAL_GPIO_XLAT.pin << 16) |               // XLAT (SSEL)
                           (0xff << 8) |
-                          (is_lpc832 ? (HAL_GPIO_SIN_LPC832.pin << 0)   // SIN (MOSI)
-                                     : (HAL_GPIO_SIN.pin << 0));
+                          (mcu_type == 0x812 ?                      // SIN (MOSI)
+                            (HAL_GPIO_SIN.pin << 0) :
+                            (HAL_GPIO_SIN_LPC832.pin << 0));
 }
 
 

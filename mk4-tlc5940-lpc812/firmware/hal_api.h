@@ -2,7 +2,7 @@
 
 extern uint32_t entropy;
 extern volatile uint32_t milliseconds;
-extern bool is_lpc832;
+extern uint16_t mcu_type;
 
 void HAL_hardware_init(void);
 void HAL_hardware_init_final(void);
