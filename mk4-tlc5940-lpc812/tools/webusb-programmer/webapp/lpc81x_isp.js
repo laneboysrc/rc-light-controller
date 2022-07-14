@@ -124,6 +124,10 @@ class flash_lpc8xx {
       0x00008122: "LPC812M101JDH20, LPC812M101JTB16",
       0x00008322: "LPC832M101FDH20",
       0x00008341: "LPC8341201FHI33",
+      0x00008241: "LPC824M201JHI33",
+      0x00008221: "LPC822M101JHI33",
+      0x00008242: "LPC824M201JDH20",
+      0x00008222: "LPC822M101JDH20"
     }
 
     await this.send_command('J');
@@ -150,6 +154,10 @@ class flash_lpc8xx {
       0x00008122: 16 * 1024,      // LPC812M101JDH20, LPC812M101JTB16
       0x00008322: 16 * 1024,      // LPC832M101FDH20
       0x00008341: 32 * 1024,      // LPC8341201FHI33
+      0x00008241: 32 * 1024,      // LPC824M201JHI33
+      0x00008221: 16 * 1024,      // LPC822M101JHI33
+      0x00008242: 32 * 1024,      // LPC824M201JDH20
+      0x00008222: 16 * 1024       // LPC822M101JDH20
     };
 
     const part = await this.read_part_id();
@@ -268,7 +276,7 @@ class flash_lpc8xx {
       0x04, 0x00, 0xfa, 0x05, 0x0c, 0xed, 0x00, 0xe0
     ]);
 
-    await this.send_command('W ' + RAM_ADDRESS + ' ' + reset_program.length);
+    await this.send_command('W ' + this.RAM_ADDRESS + ' ' + reset_program.length);
     await this.uart.write(reset_program);
 
     // Unlock the Go command
@@ -276,7 +284,7 @@ class flash_lpc8xx {
 
     // Run the isp_program from RAM. Note that this command does not respond with
     // COMMAND_SUCCESS as it directly executes.
-    await this.uart.write('G ' + RAM_ADDRESS + ' T\r\n');
+    await this.uart.write('G ' + this.RAM_ADDRESS + ' T\r\n');
   }
 
   set onMessageCallback(fn) {
