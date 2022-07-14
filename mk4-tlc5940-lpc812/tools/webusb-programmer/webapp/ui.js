@@ -427,7 +427,7 @@ async function onWebusbDeviceDisconnected() {
 }
 
 async function init() {
-  if (window.location.protocol != 'https:') {
+  if (window.location.protocol != 'https:' && window.location.protocol != 'file:') {
     if (window.location.protocol != 'http:' || window.location.hostname != 'localhost') {
       show(document.querySelector('#error_https'));
       show(document.querySelector('#error'));

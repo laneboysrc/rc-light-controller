@@ -2972,7 +2972,7 @@ var app = (function () {
         // Important: check for HTTPS first!
         // Otherwise the WebUSB message will be shown because the browser
         // claims it does not support WebUSB when HTTP is used!
-        if (window.location.protocol != 'https:') {
+        if (window.location.protocol != 'https:' && window.location.protocol != 'file:') {
             if (window.location.protocol != 'http:' || window.location.hostname != 'localhost') {
                 show(document.querySelector('#error_https'));
                 show(document.querySelector('#error'));
