@@ -106,8 +106,9 @@ void HAL_hardware_init(void)
 #error Clock initialization code expexts __SYSTEM_CLOCK to be set to 1200000
 #endif
 
-    // Flag that allows us to check whether we deal with LPC832 or LPC812
-    is_lpc832 = (LPC_SYSCON->DEVICE_ID == 0x8322);
+    // Flag that allows us to check whether we deal with LPC832/LPC824 or LPC812
+    // Note: LPC824 is compatible with LPC832, so we treat it as LPC832
+    is_lpc832 = (LPC_SYSCON->DEVICE_ID == 0x8322) || (LPC_SYSCON->DEVICE_ID == 0x8242);
 
     // Turn on brown-out detection and reset
     LPC_SYSCON->BODCTRL = (1 << 4) | (1 << 2) | (3 << 0);
