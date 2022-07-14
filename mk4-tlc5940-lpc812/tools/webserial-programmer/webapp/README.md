@@ -1,7 +1,7 @@
-This is a stand-alone webapp that implements the user interface and business logic for the WebUSB programmer hardware.
+This is a stand-alone webapp that implements the user interface and business logic for programming a .HEX file into the NXP LPC812, LPC832 and LPC824 MCU using an off-the-shelf USB-to-Serial adapter.
 
-Note that for testing you must serve the webapp from http://localhost/ as browsers do not allow WebUSB from HTTP, only secure locations like HTTPS (and HTTP on localhost).
+Note that a driver for the USB-to-Serial adapter must be installed.
 
-## Build
+## Build (bundling all source files into a single HTML document)
 
-    ./inline-media.py index.html >../../../../gh-pages/programmer.html
+    ./inline-media.py index.html >../../../../gh-pages/webserial-programmer.html

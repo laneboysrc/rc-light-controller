@@ -254,6 +254,9 @@ async function program() {
     await isp.initialization_sequence();
     await programmer.send_command(CMD_OUT_ISP_TRISTATE);
 
+    const part_id = await isp.read_part_id();
+    log("MCU part number: " + part_id.part_name);
+
     const flash_size = await isp.get_flash_size();
     log("Flash size: " + flash_size / 1024 + " Kbytes");
     if (firmware_image.length > flash_size) {

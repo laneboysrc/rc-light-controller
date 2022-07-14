@@ -1,7 +1,6 @@
-This is a stand-alone webapp that implements the user interface and business logic for the WebUSB programmer hardware.
+This is a stand-alone webapp that implements the user interface and business logic for the WebUSB programmer hardware. It allows programming a .HEX file into the NXP LPC812, LPC832 and LPC824 MCU.
 
-Note that for testing you must serve the webapp from http://localhost/ as browsers do not allow WebUSB from HTTP, only secure locations like HTTPS (and HTTP on localhost).
 
-## Build
+## Build (bundling all source files into a single HTML document)
 
     ./inline-media.py index.html >../../../../gh-pages/programmer.html
