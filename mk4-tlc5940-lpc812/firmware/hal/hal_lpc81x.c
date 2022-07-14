@@ -135,15 +135,13 @@ void HAL_hardware_init(void)
     // to prevent them from floating.
     //
     // Exceptions:
-    // - If S.Bus is enabled PIO0_10 is used as input with
-    //   an external pull-up, so we keep it as the default (input)
     // - If multi-aux-channel is enabled PIO0_11 is used as input with
     //   an external pull-down, so we keep it as the default (input)
-    if (config.mode != MASTER_WITH_SBUS_READER) {
-        HAL_gpio_clear(HAL_GPIO_PIN10);
-        HAL_gpio_out(HAL_GPIO_PIN10);
-    }
+    HAL_gpio_clear(HAL_GPIO_PIN10);
+    HAL_gpio_out(HAL_GPIO_PIN10);
+
     if (!config.flags2.multi_aux) {
+
         HAL_gpio_clear(HAL_GPIO_PIN11);
         HAL_gpio_out(HAL_GPIO_PIN11);
     }
@@ -295,6 +293,8 @@ Again we have to round by adding BAUDRATE * 16 / 2 to the nominator:
 #define UART_CFG_DATALEN(d) ((unsigned)((d) - 7) << 2)
 #define UART_CFG_8N1 (UART_CFG_DATALEN(8) | (0 << 4) | (0 << 6))
 #define UART_CFG_8E2 (UART_CFG_DATALEN(8) | (2 << 4) | (1 << 6))
+#define UART_CFG_RXPOL (1 << 22)
+
 #define UART_STAT_RXRDY (1 << 0)
 #define UART_STAT_TXRDY (1 << 2)
 #define UART_STAT_TXIDLE (1 << 3)
@@ -326,7 +326,9 @@ void HAL_uart_init(uint32_t baudrate, uint8_t rx_pin, uint8_t tx_pin)
 
     if (baudrate == 100000) {
         uart_brg = BRGVAL(100000);
-        uart_cfg = UART_CFG_8E2 | UART_CFG_ENABLE;
+        // Set RXPOL to invert UART receiver polarity for S.Bus. Note that
+        // RXPOL only works on LPC832
+        uart_cfg = UART_CFG_8E2 | UART_CFG_RXPOL | UART_CFG_ENABLE;
     }
     else if (baudrate == 38400) {
        uart_brg = BRGVAL(38400);

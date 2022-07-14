@@ -225,9 +225,6 @@ int main(void)
     if (config.flags2.uart_rx_on_st) {
         rx_pin = HAL_GPIO_ST.pin;
     }
-    if (config.mode == MASTER_WITH_SBUS_READER) {
-        rx_pin = HAL_GPIO_PIN10.pin;
-    }
     if (config.flags2.uart_tx_on_out) {
         tx_pin = HAL_GPIO_OUT.pin;
     }
