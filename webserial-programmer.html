@@ -384,14 +384,14 @@ div.function {
       <div id="error_https" class="hidden error_topic">
         <div>
           <strong>
-            Run this program from <a href="https://laneboysrc.github.io/rc-light-controller/programmer.html">https://laneboysrc.github.io/rc-light-controller/programmer.html</a>
+            Run this program from <a href="https://laneboysrc.github.io/rc-light-controller/webserial-programmer.html">https://laneboysrc.github.io/rc-light-controller/webserial-programmer.html</a>
           </strong>
         </div>
         <div>
           <strong>
-            WebUSB does not work on <em>file:</em> or <em>http:</em> protocol (except when running on localhost)
+            WebUSB does not work on <em>http:</em> protocol (except when running on localhost)
             <br>
-            For local testing use <em>python3 -m http.server</em> and browse to <em>http://localhost:8000</em>
+            For local testing just load the Configurator from disk.
           </strong>
         </div>
       </div>
@@ -1170,6 +1170,10 @@ class flash_lpc8xx {
       0x00008122: "LPC812M101JDH20, LPC812M101JTB16",
       0x00008322: "LPC832M101FDH20",
       0x00008341: "LPC8341201FHI33",
+      0x00008241: "LPC824M201JHI33",
+      0x00008221: "LPC822M101JHI33",
+      0x00008242: "LPC824M201JDH20",
+      0x00008222: "LPC822M101JDH20"
     }
 
     await this.send_command('J');
@@ -1196,6 +1200,10 @@ class flash_lpc8xx {
       0x00008122: 16 * 1024,      // LPC812M101JDH20, LPC812M101JTB16
       0x00008322: 16 * 1024,      // LPC832M101FDH20
       0x00008341: 32 * 1024,      // LPC8341201FHI33
+      0x00008241: 32 * 1024,      // LPC824M201JHI33
+      0x00008221: 16 * 1024,      // LPC822M101JHI33
+      0x00008242: 32 * 1024,      // LPC824M201JDH20
+      0x00008222: 16 * 1024       // LPC822M101JDH20
     };
 
     const part = await this.read_part_id();
@@ -1334,6 +1342,7 @@ class flash_lpc8xx {
   }
 
 }
+
 </script>
 <script>
 'use strict';
@@ -1637,7 +1646,7 @@ async function onDeviceDisconnected() {
 }
 
 async function init() {
-  if (window.location.protocol != 'https:') {
+  if (window.location.protocol != 'https:' && window.location.protocol != 'file:') {
     if (window.location.protocol != 'http:' || window.location.hostname != 'localhost') {
       show(document.querySelector('#error_https'));
       show(document.querySelector('#error'));
@@ -1645,7 +1654,7 @@ async function init() {
   }
 
   has_webserial = true;
-  if (!"serial" in navigator) {
+  if (!("serial" in navigator)) {
     show(document.querySelector('#error_webserial'));
     show(document.querySelector('#error'));
     has_webserial = false;
