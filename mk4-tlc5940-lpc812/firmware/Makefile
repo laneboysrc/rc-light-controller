@@ -164,7 +164,7 @@ default_firmware_image: $(TARGET_HEX)
 list: $(BUILD_DIR) $(OBJECTS:.o=.lst)
 
 # Invoke the tool to program the microcontroller
-program: $(TARGET_BIN)
+program: $(TARGET_HEX)
 	$(QUIET )$(FLASH_TOOL) $<
 
 # Invoke a tool for UART communication
