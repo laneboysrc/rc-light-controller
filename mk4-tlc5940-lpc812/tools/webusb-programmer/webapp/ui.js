@@ -26,7 +26,7 @@ const MENU_TESTING = 2;
 
 let firmware_image;
 let log_stdin_running = false;
-let programming_active = false;
+let operation_active = false;
 let is_connected = false;
 let has_webusb = false;
 let last_programming_failed = false;
@@ -62,6 +62,7 @@ el.send_erase_button = document.querySelector('#send-erase');
 el.load = document.querySelector('#load');
 el.load_input = document.querySelector('#load-input');
 el.program = document.querySelector('#program');
+el.read_button = document.querySelector('#read');
 el.progress = document.querySelector('#progress');
 el.initialize = document.querySelector('#initialize');
 el.filename = document.querySelector('#filename');
@@ -123,7 +124,7 @@ function update_ui() {
   show(el.disconnect_button);
   hide(el.connect_button);
 
-  if (programming_active) {
+  if (operation_active) {
     disable(el.load);
     disable(el.menu_buttons[MENU_CONNECTION]);
     disable(el.menu_buttons[MENU_TESTING]);
@@ -152,11 +153,18 @@ function update_ui() {
     }
   }
 
-  if (firmware_image && !programming_active) {
+  if (firmware_image && !operation_active) {
     enable(el.program);
   }
   else {
     disable(el.program);
+  }
+
+  if (!operation_active) {
+    enable(el.read_button);
+  }
+  else {
+    disable(el.read_button);
   }
 }
 
@@ -238,7 +246,7 @@ async function program() {
   isp.progressCallback = progressCallback;
 
   try {
-    programming_active = true;
+    operation_active = true;
     last_programming_failed = false;
     update_ui();
     progressCallback(0);
@@ -294,7 +302,7 @@ async function program() {
     // switching to Pre-Processor simulator mode the MCU would still be in ISP
     // state.
     await delay(500);
-    programming_active = false;
+    operation_active = false;
     update_ui();
     el.program.focus();
   }
@@ -306,6 +314,11 @@ async function read() {
   isp.progressCallback = progressCallback;
 
   try {
+    operation_active = true;
+    last_programming_failed = false;
+    update_ui();
+    progressCallback(0);
+
     log("Power-cycling the light controller ...");
     await programmer.send_command(CMD_DUT_POWER_OFF);
     await programmer.send_command(CMD_OUT_ISP_LOW);
@@ -324,9 +337,10 @@ async function read() {
 
     const image_data = await isp.read();
 
-    const blob = new Blob([image_data], {type: 'application/octet-stream'});
-    log("Saving firmware image to Download folder");
-    saveAs(blob, 'firmware.bin');
+    const hex = intel_hex.fromArray(image_data);
+    const blob = new Blob([hex], {type: 'text/plain'});
+    log("Saving firmware HEX file to Download folder");
+    saveAs(blob, 'firmware.hex');
   }
   catch(e) {
     console.error(e);
@@ -340,6 +354,7 @@ async function read() {
     // switching to Pre-Processor simulator mode the MCU would still be in ISP
     // state.
     await delay(500);
+    operation_active = false;
     update_ui();
   }
 }
@@ -502,6 +517,7 @@ async function init() {
   el.load_input.addEventListener('change', load_file_from_disk, false);
 
   el.program.addEventListener('click', () => { program() }, false);
+  el.read_button.addEventListener('click', () => { read() }, false);
 
 
   for (let index = 0; index < el.menu_buttons.length; index += 1) {
