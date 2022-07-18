@@ -28,6 +28,7 @@ class WebUSB_programmer {
   constructor() {
     this.active_device = undefined;
     this.stdin_buffer = '';
+    this.uint8_buffer = new Uint8Array();
 
     this.connectedCallback = null;
     this.disconnectedCallback = null;
@@ -70,6 +71,24 @@ class WebUSB_programmer {
       bufView[i] = str.charCodeAt(i);
     }
     return bufView;
+  }
+
+  _merge_uint8arrays(uint8array_list) {
+    // Get the total length of all arrays
+    let length = 0;
+    uint8array_list.forEach(item => {
+      length += item.length;
+    });
+
+    // Create a new array with total length and merge all source arrays
+    let merged_array = new Uint8Array(length);
+    let offset = 0;
+    uint8array_list.forEach(item => {
+      merged_array.set(item, offset);
+      offset += item.length;
+    });
+
+    return merged_array;
   }
 
   async get_available_devices() {
@@ -143,11 +162,15 @@ class WebUSB_programmer {
       try {
         let result = await this.active_device.transferIn(this.TEST_EP_IN, this.EP_SIZE);
         if (result.status == 'ok') {
+
+          const array_list = [this.uint8_buffer, new Uint8Array(result.data.buffer)];
+          this.uint8_buffer = this._merge_uint8arrays(array_list);
+
           const decoder = new TextDecoder('utf-8');
           const value = decoder.decode(result.data);
-
           this.stdin_buffer += value;
-          console.log('USB R: ' + this._make_crlf_visible(value));
+
+          //console.log('USB R: ' + this._make_crlf_visible(value));
         }
         else {
           console.info('_background_receive transferIn() failed:', result.status);
@@ -162,6 +185,34 @@ class WebUSB_programmer {
 
   flush() {
     this.stdin_buffer = '';
+    this.uint8_buffer = new Uint8Array();
+  }
+
+  read(size, tries) {
+    const self = this;
+
+    return new Promise((resolve, reject) => {
+
+      if (typeof tries === 'undefined') {
+        tries = 10;
+      }
+
+      function check() {
+        if (self.uint8_buffer.length >= size) {
+          const data = self.uint8_buffer.slice(0, size);
+          resolve(data);
+          return;
+        }
+
+        tries -= 1;
+        if (tries <= 0) {
+          reject("Timeout in read()");
+          return;
+        }
+        setTimeout(check, 100);
+      }
+      check();
+    });
   }
 
   readline(terminator, tries) {

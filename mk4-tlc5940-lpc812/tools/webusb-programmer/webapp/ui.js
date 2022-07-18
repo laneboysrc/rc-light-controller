@@ -300,6 +300,51 @@ async function program() {
   }
 }
 
+async function read() {
+  const isp = new flash_lpc8xx(programmer);
+  isp.messageCallback = log;
+  isp.progressCallback = progressCallback;
+
+  try {
+    log("Power-cycling the light controller ...");
+    await programmer.send_command(CMD_DUT_POWER_OFF);
+    await programmer.send_command(CMD_OUT_ISP_LOW);
+    await delay(200);
+    await programmer.send_command(CMD_DUT_POWER_ON);
+    power_is_on = true;
+    await delay(100);
+    await isp.initialization_sequence();
+    await programmer.send_command(CMD_OUT_ISP_TRISTATE);
+
+    const part_id = await isp.read_part_id();
+    log("MCU part number: " + part_id.part_name);
+
+    const flash_size = await isp.get_flash_size();
+    log("Flash size: " + flash_size / 1024 + " Kbytes");
+
+    const image_data = await isp.read();
+
+    const blob = new Blob([image_data], {type: 'application/octet-stream'});
+    log("Saving firmware image to Download folder");
+    saveAs(blob, 'firmware.bin');
+  }
+  catch(e) {
+    console.error(e);
+    log("ERROR: firmware reading failed", "fail");
+  }
+  finally {
+    await programmer.send_command(CMD_DUT_POWER_OFF);
+    await programmer.send_command(CMD_OUT_ISP_LOW);
+    power_is_on = false;
+    // Wait 500 ms for the voltage to bled fully, otherwise when quickly
+    // switching to Pre-Processor simulator mode the MCU would still be in ISP
+    // state.
+    await delay(500);
+    update_ui();
+  }
+}
+
+
 function send_textfield_to_programmer() {
   send_isp(el.send_text.value + '\r\n');
 }

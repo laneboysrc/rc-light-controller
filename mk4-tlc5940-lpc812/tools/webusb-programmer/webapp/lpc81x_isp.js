@@ -78,6 +78,24 @@ class flash_lpc8xx {
     return answer;
   }
 
+  _merge_uint8arrays(uint8array_list) {
+    // Get the total length of all arrays
+    let length = 0;
+    uint8array_list.forEach(item => {
+      length += item.length;
+    });
+
+    // Create a new array with total length and merge all source arrays
+    let merged_array = new Uint8Array(length);
+    let offset = 0;
+    uint8array_list.forEach(item => {
+      merged_array.set(item, offset);
+      offset += item.length;
+    });
+
+    return merged_array;
+  }
+
   async send_command(string) {
     this.uart.flush();
     await this.uart.write(string + '\r\n');
@@ -244,20 +262,45 @@ class flash_lpc8xx {
   }
 
   async read() {
-      let flash_size = await this.get_flash_size();
-      this._doMessageCallback('Reading ' + flash_size + ' bytes ...');
+    let image_data = new Uint8Array();
+    let block;
 
-      await this.send_command('R ' + this.FLASH_BASE_ADDRESS + ' ' + flash_size);
-      let image_data = await this.uart.read(flash_size);
-      if (image_data.length !== flash_size) {
-          throw 'Failed to read the whole Flash memory';
+    // The read command return "0<CR><LF>" as acknowledgement before sending
+    // the flash data. Therefore we need to read an additional 3 bytes, and
+    // strip those bytes off the read data.
+    const ack_size = 3;
+
+    this._doProgressCallback(0);
+
+    let flash_size = await this.get_flash_size();
+    this._doMessageCallback('Reading ' + flash_size + ' bytes ...');
+    this._doProgressCallback(0.1);
+
+    //await this.send_command('R ' + this.FLASH_BASE_ADDRESS + ' ' + flash_size);
+    // let image_data = await this.uart.read(flash_size);
+    const read_size = 256;
+    let address = this.FLASH_BASE_ADDRESS;
+    while (address < (this.FLASH_BASE_ADDRESS + flash_size)) {
+      await this.send_command('R ' + address + ' ' + read_size);
+
+      try {
+        block = await this.uart.read(read_size + ack_size, 5);
+      }
+      catch(e) {
+        console.error(e);
+        continue;
       }
 
-      let binaryData = [];
-      for (let i = 0; i < image_data.length; i += 1) {
-          binaryData.push(image_data.charCodeAt(i));
-      }
-      return binaryData;
+      image_data = this._merge_uint8arrays([image_data, block.slice(ack_size)]);
+      this._doProgressCallback(0.1 + (0.9 * address / flash_size));
+      address += read_size;
+    }
+    if (image_data.length !== flash_size) {
+        throw 'Failed to read the whole Flash memory';
+    }
+
+    this._doProgressCallback(1.0);
+    return image_data;
   }
 
   /*
