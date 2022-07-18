@@ -276,17 +276,40 @@ class flash_lpc8xx {
     this._doMessageCallback('Reading ' + flash_size + ' bytes ...');
     this._doProgressCallback(0.1);
 
-    //await this.send_command('R ' + this.FLASH_BASE_ADDRESS + ' ' + flash_size);
-    // let image_data = await this.uart.read(flash_size);
+    // WORK-AROUND
+    // ===========
+    //
+    // In theory we should be able to read the whole firmware in one go
+    // and have the underlying UART implementation (could be a serial port, or
+    // WebUSB) handle the segmentation.
+    //
+    // Unfortunately due to a bug in the WebUSB programmer firmware when
+    // the Programmer reads large amount of data from the MCU and sends it
+    // back via USB we miss some bytes quite frequently.
+    //
+    // To work around, we can read the firmware in smaller chunks. However,
+    // even with chunks as small as 16 Bytes we get occasional errors.
+    // The smaller the chunk size, the less frequent errors occur, but also
+    // transfer speed gets reduced.
+    //
+    // When bytes are missing, the WebUSB programmer does not receive the
+    // expected amount of bytes, and the UART read function creates a timeout
+    // error.
+    //
+    // This is an indication here that something failed, and we re-read the
+    // same block from the MCU until it succeeds. Reading chunks of 256 bytes
+    // is a reasonable compromise between error frequency and read speed.
     const read_size = 256;
     let address = this.FLASH_BASE_ADDRESS;
     while (address < (this.FLASH_BASE_ADDRESS + flash_size)) {
       await this.send_command('R ' + address + ' ' + read_size);
 
       try {
+        // Use a timeout of approx 500 ms
         block = await this.uart.read(read_size + ack_size, 5);
       }
       catch(e) {
+        // Timeout error, re-read the block
         console.error(e);
         continue;
       }
