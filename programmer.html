@@ -376,7 +376,7 @@ div.function {
   <body>
 
     <div id="heading" class="widebox menu_bar">
-      <h1><span id="logo"></span> RC Light Controller programmer</h1>
+      <h1><span id="logo"></span> RC Light Controller programmer for USB-to-Serial</h1>
     </div>
 
     <div id="error" class="error hidden">
@@ -384,7 +384,7 @@ div.function {
       <div id="error_https" class="hidden error_topic">
         <div>
           <strong>
-            Run this program from <a href="https://laneboysrc.github.io/rc-light-controller/programmer.html">https://laneboysrc.github.io/rc-light-controller/programmer.html</a>
+            Run this program from <a href="https://laneboysrc.github.io/rc-light-controller/webserial-programmer.html">https://laneboysrc.github.io/rc-light-controller/webserial-programmer.html</a>
           </strong>
         </div>
         <div>
@@ -392,13 +392,12 @@ div.function {
             WebUSB does not work on <em>http:</em> protocol (except when running on localhost)
             <br>
             For local testing just load the Configurator from disk.
-
           </strong>
         </div>
       </div>
-      <div id="error_webusb" class="hidden error_topic">
+      <div id="error_webserial" class="hidden error_topic">
         <strong>
-          This web browser does not support <a href="https://caniuse.com/#search=webusb">WebUSB</a>. Please use Google Chrome (<a href="https://www.google.com/chrome/">https://www.google.com/chrome/</a>)
+          This web browser does not support <a href="https://caniuse.com/web-serial">WebSerial</a>. Please use a web browser that implements this technology, like Google Chrome, Microsoft Edge or Opera.
         </strong>
       </div>
     </div>
@@ -409,7 +408,6 @@ div.function {
         <ul>
           <li><button data="tab_connection"><i class="fa fa-connectdevelop"></i><span class="menu-label">Connection</span></button></li>
           <li><button data="tab_programming"><i class="fa fa-microchip"></i><span class="menu-label">Programming</span></button></li>
-          <li><button data="tab_testing"><i class="fa fa-sliders"></i><span class="menu-label">Testing</span></button></li>
         </ul>
       </nav>
 
@@ -417,8 +415,8 @@ div.function {
 
         <div id="tab_connection" class="hidden">
           <div class="box configuration widebox">
-            <button id="webusb_connect_button">Connect</button>
-            <button id="webusb_disconnect_button">Disconnect</button>
+            <button id="connect_button">Connect</button>
+            <button id="disconnect_button">Disconnect</button>
             <div id="connection_info" class="hidden"></div>
           </div>
         </div>
@@ -430,7 +428,6 @@ div.function {
           </div>
           <div class="widebox configuration">
             <button id="program">Program</button>
-            <button id="read">Read</button>
             <div>
               <progress id="progress" max="100" value="0"></progress>
             </div>
@@ -444,357 +441,11 @@ div.function {
           </div>
         </div>
 
-        <div id="tab_testing" class="hidden">
-          <div class="preprocessor-page" id="preprocessor-simulator">
-              <div class="column">
-                  <div class="box configuration controls">
-                      <h2>Steering</h2>
-                      <div>
-                          <input id="steering" type="range" min ="-100" max="100" step ="1" value ="0">
-                          <div class="centered">
-                              <button id="steering-neutral">center</button>
-                          </div>
-                      </div>
-                      <h2>Throttle</h2>
-                      <div>
-                          <input id="throttle" type="range" min ="-100" max="100" step ="1" value ="0">
-                          <div class="centered">
-                              <button id="throttle-neutral">center</button>
-                          </div>
-                      </div>
-                  </div>
-                  <div class='box configuration controls expert'>
-                      <h2>Expert settings</h2>
-                      <div>
-                          <input id='startup-mode' type='checkbox'> <label for='startup-mode'>Startup</label>
-                      </div>
-                      <div>
-                          <input id='no-signal' type='checkbox'> <label for='no-signal'>Simulate no signal</label>
-                      </div>
-                      <div>
-                        <label for='preprocessor-mode'>Pre-Processor protocol: </label> <select id='preprocessor-mode'>
-                            <option value='0'>Automatic</option>
-                            <option value='3'>3-channel</option>
-                            <option value='5'>5-channel</option>
-                        </select>
-                      </div>
-                  </div>              </div>
-
-              <div class='column'>
-                  <div class='box configuration controls'>
-                      <span style='float: right;'>
-                          <select id='aux-type'>
-                              <option value='0'>Two-position switch</option>
-                              <option value='1'>Two-position switch up/down</option>
-                              <option value='2'>Momentary</option>
-                              <option value='3' class='multi-aux'>Three-position switch</option>
-                              <option value='4' class='multi-aux'>Analog</option>
-                          </select>
-                      </span>
-                      <h2>AUX</h2>
-                      <div id='aux-function' class='function'></div>
-                      <div class='centered'>
-                          <button id='aux-toggle'>AUX</button>
-                      </div>
-                      <input id='aux-slider' type='range' min ='-100' max='100' step ='1' value ='0'>
-                  </div>
-                  <div class='box configuration controls multi-aux'>
-                      <span style='float: right;'>
-                         <select id='aux2-type'>
-                              <option value='0'>Two-position switch</option>
-                              <option value='1'>Two-position switch up/down</option>
-                              <option value='2'>Momentary</option>
-                              <option value='3'>Three-position switch</option>
-                              <option value='4'>Analog</option>
-                          </select>
-                      </span>
-                      <h2>AUX2</h2>
-                      <div id='aux2-function' class='function'></div>
-                      <div class='centered'>
-                          <button id='aux2-toggle'>AUX2</button>
-                      </div>
-                      <input id='aux2-slider' type='range' min ='-100' max='100' step ='1' value ='0'>
-                  </div>
-                  <div class='box configuration controls multi-aux'>
-                      <span style='float: right;'>
-                          <select id='aux3-type'>
-                              <option value='0'>Two-position switch</option>
-                              <option value='1'>Two-position switch up/down</option>
-                              <option value='2'>Momentary</option>
-                              <option value='3'>Three-position switch</option>
-                              <option value='4'>Analog</option>
-                          </select>
-                      </span>
-                      <h2>AUX3</h2>
-                      <div id='aux3-function' class='function'></div>
-                      <div class='centered'>
-                          <button id='aux3-toggle'>AUX3</button>
-                      </div>
-                      <input id='aux3-slider' type='range' min ='-100' max='100' step ='1' value ='0'>
-                  </div>
-              </div>
-          </div>
-
-          <div class="widebox response" id="diagnostics">
-              <span style="float: right; font-size: 0.75em">
-                  (newest on top)
-              </span>
-              <h2>Diagnostics sent by the light controller</h2>
-              <div class="message" id="diagnostics-messages"></div>
-          </div>
-        </div>
-
       </div>
     </div>
 
     <input type="file" id="load-input" style="display:none">
 
-<script>
-/* FileSaver.js
- * A saveAs() FileSaver implementation.
- * 2014-08-29
- *
- * By Eli Grey, http://eligrey.com
- * License: X11/MIT
- *   See https://github.com/eligrey/FileSaver.js/blob/master/LICENSE.md
- */
-
-/*global self */
-/*jslint bitwise: true, indent: 4, laxbreak: true, laxcomma: true, smarttabs: true, plusplus: true */
-
-/*! @source http://purl.eligrey.com/github/FileSaver.js/blob/master/FileSaver.js */
-
-var saveAs = saveAs
-  // IE 10+ (native saveAs)
-  || (typeof navigator !== "undefined" &&
-      navigator.msSaveOrOpenBlob && navigator.msSaveOrOpenBlob.bind(navigator))
-  // Everyone else
-  || (function(view) {
-	"use strict";
-	// IE <10 is explicitly unsupported
-	if (typeof navigator !== "undefined" &&
-	    /MSIE [1-9]\./.test(navigator.userAgent)) {
-		return;
-	}
-	var
-		  doc = view.document
-		  // only get URL when necessary in case Blob.js hasn't overridden it yet
-		, get_URL = function() {
-			return view.URL || view.webkitURL || view;
-		}
-		, save_link = doc.createElementNS("http://www.w3.org/1999/xhtml", "a")
-		, can_use_save_link = "download" in save_link
-		, click = function(node) {
-			var event = doc.createEvent("MouseEvents");
-			event.initMouseEvent(
-				"click", true, false, view, 0, 0, 0, 0, 0
-				, false, false, false, false, 0, null
-			);
-			node.dispatchEvent(event);
-		}
-		, webkit_req_fs = view.webkitRequestFileSystem
-		, req_fs = view.requestFileSystem || webkit_req_fs || view.mozRequestFileSystem
-		, throw_outside = function(ex) {
-			(view.setImmediate || view.setTimeout)(function() {
-				throw ex;
-			}, 0);
-		}
-		, force_saveable_type = "application/octet-stream"
-		, fs_min_size = 0
-		// See https://code.google.com/p/chromium/issues/detail?id=375297#c7 for
-		// the reasoning behind the timeout and revocation flow
-		, arbitrary_revoke_timeout = 10
-		, revoke = function(file) {
-			var revoker = function() {
-				if (typeof file === "string") { // file is an object URL
-					get_URL().revokeObjectURL(file);
-				} else { // file is a File
-					file.remove();
-				}
-			};
-			if (view.chrome) {
-				revoker();
-			} else {
-				setTimeout(revoker, arbitrary_revoke_timeout);
-			}
-		}
-		, dispatch = function(filesaver, event_types, event) {
-			event_types = [].concat(event_types);
-			var i = event_types.length;
-			while (i--) {
-				var listener = filesaver["on" + event_types[i]];
-				if (typeof listener === "function") {
-					try {
-						listener.call(filesaver, event || filesaver);
-					} catch (ex) {
-						throw_outside(ex);
-					}
-				}
-			}
-		}
-		, FileSaver = function(blob, name) {
-			// First try a.download, then web filesystem, then object URLs
-			var
-				  filesaver = this
-				, type = blob.type
-				, blob_changed = false
-				, object_url
-				, target_view
-				, dispatch_all = function() {
-					dispatch(filesaver, "writestart progress write writeend".split(" "));
-				}
-				// on any filesys errors revert to saving with object URLs
-				, fs_error = function() {
-					// don't create more object URLs than needed
-					if (blob_changed || !object_url) {
-						object_url = get_URL().createObjectURL(blob);
-					}
-					if (target_view) {
-						target_view.location.href = object_url;
-					} else {
-						var new_tab = view.open(object_url, "_blank");
-						if (new_tab == undefined && typeof safari !== "undefined") {
-							//Apple do not allow window.open, see http://bit.ly/1kZffRI
-							view.location.href = object_url
-						}
-					}
-					filesaver.readyState = filesaver.DONE;
-					dispatch_all();
-					revoke(object_url);
-				}
-				, abortable = function(func) {
-					return function() {
-						if (filesaver.readyState !== filesaver.DONE) {
-							return func.apply(this, arguments);
-						}
-					};
-				}
-				, create_if_not_found = {create: true, exclusive: false}
-				, slice
-			;
-			filesaver.readyState = filesaver.INIT;
-			if (!name) {
-				name = "download";
-			}
-			if (can_use_save_link) {
-				object_url = get_URL().createObjectURL(blob);
-				save_link.href = object_url;
-				save_link.download = name;
-				click(save_link);
-				filesaver.readyState = filesaver.DONE;
-				dispatch_all();
-				revoke(object_url);
-				return;
-			}
-			// Object and web filesystem URLs have a problem saving in Google Chrome when
-			// viewed in a tab, so I force save with application/octet-stream
-			// http://code.google.com/p/chromium/issues/detail?id=91158
-			// Update: Google errantly closed 91158, I submitted it again:
-			// https://code.google.com/p/chromium/issues/detail?id=389642
-			if (view.chrome && type && type !== force_saveable_type) {
-				slice = blob.slice || blob.webkitSlice;
-				blob = slice.call(blob, 0, blob.size, force_saveable_type);
-				blob_changed = true;
-			}
-			// Since I can't be sure that the guessed media type will trigger a download
-			// in WebKit, I append .download to the filename.
-			// https://bugs.webkit.org/show_bug.cgi?id=65440
-			if (webkit_req_fs && name !== "download") {
-				name += ".download";
-			}
-			if (type === force_saveable_type || webkit_req_fs) {
-				target_view = view;
-			}
-			if (!req_fs) {
-				fs_error();
-				return;
-			}
-			fs_min_size += blob.size;
-			req_fs(view.TEMPORARY, fs_min_size, abortable(function(fs) {
-				fs.root.getDirectory("saved", create_if_not_found, abortable(function(dir) {
-					var save = function() {
-						dir.getFile(name, create_if_not_found, abortable(function(file) {
-							file.createWriter(abortable(function(writer) {
-								writer.onwriteend = function(event) {
-									target_view.location.href = file.toURL();
-									filesaver.readyState = filesaver.DONE;
-									dispatch(filesaver, "writeend", event);
-									revoke(file);
-								};
-								writer.onerror = function() {
-									var error = writer.error;
-									if (error.code !== error.ABORT_ERR) {
-										fs_error();
-									}
-								};
-								"writestart progress write abort".split(" ").forEach(function(event) {
-									writer["on" + event] = filesaver["on" + event];
-								});
-								writer.write(blob);
-								filesaver.abort = function() {
-									writer.abort();
-									filesaver.readyState = filesaver.DONE;
-								};
-								filesaver.readyState = filesaver.WRITING;
-							}), fs_error);
-						}), fs_error);
-					};
-					dir.getFile(name, {create: false}, abortable(function(file) {
-						// delete file if it already exists
-						file.remove();
-						save();
-					}), abortable(function(ex) {
-						if (ex.code === ex.NOT_FOUND_ERR) {
-							save();
-						} else {
-							fs_error();
-						}
-					}));
-				}), fs_error);
-			}), fs_error);
-		}
-		, FS_proto = FileSaver.prototype
-		, saveAs = function(blob, name) {
-			return new FileSaver(blob, name);
-		}
-	;
-	FS_proto.abort = function() {
-		var filesaver = this;
-		filesaver.readyState = filesaver.DONE;
-		dispatch(filesaver, "abort");
-	};
-	FS_proto.readyState = FS_proto.INIT = 0;
-	FS_proto.WRITING = 1;
-	FS_proto.DONE = 2;
-
-	FS_proto.error =
-	FS_proto.onwritestart =
-	FS_proto.onprogress =
-	FS_proto.onwrite =
-	FS_proto.onabort =
-	FS_proto.onerror =
-	FS_proto.onwriteend =
-		null;
-
-	return saveAs;
-}(
-	   typeof self !== "undefined" && self
-	|| typeof window !== "undefined" && window
-	|| this.content
-));
-// `self` is undefined in Firefox for Android content script context
-// while `this` is nsIContentFrameMessageManager
-// with an attribute `content` that corresponds to the window
-
-if (typeof module !== "undefined" && module !== null) {
-  module.exports = saveAs;
-} else if ((typeof define !== "undefined" && define !== null) && (define.amd != null)) {
-  define([], function() {
-    return saveAs;
-  });
-}
-
-</script>
 <script>
 // This file was modified from source code found at
 //
@@ -1139,7 +790,7 @@ API:
   get is_open
 
 */
-class WebUSB_programmer {
+class WebSerial_programmer {
   VENDOR_ID = 0x6666;
   PRODUCT_ID = 0xcab7;
 
@@ -1153,32 +804,39 @@ class WebUSB_programmer {
   constructor() {
     this.active_device = undefined;
     this.stdin_buffer = '';
-    this.uint8_buffer = new Uint8Array();
+    this.serial = '';
 
     this.connectedCallback = null;
     this.disconnectedCallback = null;
 
-    navigator.usb.addEventListener('connect', this._webusb_device_connected.bind(this));
-    navigator.usb.addEventListener('disconnect', this._webusb_device_disconnected.bind(this));
+    navigator.serial.addEventListener('disconnect', this._webserial_device_disconnected);
+    navigator.serial.addEventListener('connect', this._webserial_device_connected);
   }
 
-  _webusb_device_connected(connection_event) {
+  _webserial_device_connected = (connection_event) => {
+    console.log('test');
     const device = connection_event.device;
-    console.log('USB device connected:', device);
+    console.log('UART device connected:', device);
     if (!this.active_device) {
-      if (device && device.vendorId == this.VENDOR_ID && device.productId == this.PRODUCT_ID) {
+      // if (device && device.vendorId == this.VENDOR_ID && device.productId == this.PRODUCT_ID) {
         if (this.connectedCallback) {
           this.connectedCallback(device);
         }
-      }
+      // }
     }
   }
 
-  async _webusb_device_disconnected(connection_event) {
-    console.log('USB device disconnected:', connection_event);
-    const disconnected_device = connection_event.device;
+  _webserial_device_disconnected = async (connection_event) => {
+    console.log('UART device disconnected:', connection_event);
+    const disconnected_device = connection_event.target;
     if (this.active_device &&  disconnected_device == this.active_device) {
-      await this.close();
+      try {
+        console.log('about to close')
+        await this.close();
+      }
+      catch(e) {
+        console.log(e);
+      }
       if (this.disconnectedCallback) {
         this.disconnectedCallback();
       }
@@ -1187,6 +845,10 @@ class WebUSB_programmer {
 
   _make_crlf_visible(string) {
     return string.replace(/\r/g, '\\r').replace(/\n/g, '\\n');
+  }
+
+  _to_hex(num, pad_length=2) {
+    return num.toString(16).padStart(pad_length, '0');
   }
 
   _string2arraybuffer(str) {
@@ -1198,39 +860,15 @@ class WebUSB_programmer {
     return bufView;
   }
 
-  _merge_uint8arrays(uint8array_list) {
-    // Get the total length of all arrays
-    let length = 0;
-    uint8array_list.forEach(item => {
-      length += item.length;
-    });
-
-    // Create a new array with total length and merge all source arrays
-    let merged_array = new Uint8Array(length);
-    let offset = 0;
-    uint8array_list.forEach(item => {
-      merged_array.set(item, offset);
-      offset += item.length;
-    });
-
-    return merged_array;
-  }
-
   async get_available_devices() {
-    return await navigator.usb.getDevices();
+    return await navigator.serial.getPorts();
   }
 
-  async webusb_request_device() {
+  async webserial_request_device() {
     let device;
 
-    const filters = [{
-        'vendorId': this.VENDOR_ID,
-        'productId': this.PRODUCT_ID,
-      }
-    ];
-
     try {
-      device = await navigator.usb.requestDevice({ 'filters': filters });
+      device = await navigator.serial.requestPort();
     }
     catch (e) {
       console.log("requestDevice() failed: " + e);
@@ -1244,20 +882,17 @@ class WebUSB_programmer {
 
     // If none given, show the request device dialog
     if (!device || !device.open) {
-      device = await this.webusb_request_device();
+      device = await this.webserial_request_device();
     }
     if (!device) {
       return;
     }
 
-
     try {
-      await device.open();
-      if (device.configuration === null) {
-        await device.selectConfiguration(1);
-      }
+      await device.open({ baudRate: 115200, parity: 'none', dataBits: 8, stopBits: 1 });
 
-      await device.claimInterface(this.TEST_INTERFACE);
+      const info = await device.getInfo();
+      this.serial = `${this._to_hex(info.usbVendorId)}:${this._to_hex(info.usbProductId)}`;
     }
     catch (e) {
       console.error('Failed to open the device', e);
@@ -1265,16 +900,25 @@ class WebUSB_programmer {
     }
 
     this.active_device = device;
+    this.keep_reading = true;
     this._background_receive();
   }
 
   async close() {
+    console.log("close()");
+
     if (this.active_device) {
       try {
+        this.keep_reading = false;
+        if (this.reader) {
+          this.reader.cancel();
+        }
+        await this.readableStreamClosed.catch(() => {}); // Ignore the error
         await this.active_device.close();
+        console.log("close() successful");
       }
       catch (e) {
-        // console.info('close() exception:', e);
+        console.info('close() exception:', e);
       }
       finally {
         this.active_device = undefined;
@@ -1283,61 +927,37 @@ class WebUSB_programmer {
   }
 
   async _background_receive() {
-    while (true) {
+    const decoder = new TextDecoderStream();
+    this.readableStreamClosed = this.active_device.readable.pipeTo(decoder.writable);
+    const inputStream = decoder.readable;
+
+    while (this.active_device.readable && this.keep_reading) {
+      this.reader = inputStream.getReader();
       try {
-        let result = await this.active_device.transferIn(this.TEST_EP_IN, this.EP_SIZE);
-        if (result.status == 'ok') {
+        while (true) {
+          const { value, done } = await this.reader.read();
+            if (done) {
+              console.log('_background_receive: cancel() has been called');
+              break;
+            }
 
-          const array_list = [this.uint8_buffer, new Uint8Array(result.data.buffer)];
-          this.uint8_buffer = this._merge_uint8arrays(array_list);
-
-          const decoder = new TextDecoder('utf-8');
-          const value = decoder.decode(result.data);
-          this.stdin_buffer += value;
-
-          //console.log('USB R: ' + this._make_crlf_visible(value));
-        }
-        else {
-          console.info('_background_receive transferIn() failed:', result.status);
+            this.stdin_buffer += value;
+            console.log('UART R: ' + this._make_crlf_visible(value));
         }
       }
       catch (e) {
-        console.info('_background_receive transferIn() exception:', e);
-        return;
+        console.info('_background_receive exception:', e);
+      }
+      finally {
+        console.log('reader.releaseLock()');
+        this.reader.releaseLock();
+        this.reader = undefined;
       }
     }
   }
 
   flush() {
     this.stdin_buffer = '';
-    this.uint8_buffer = new Uint8Array();
-  }
-
-  read(size, tries) {
-    const self = this;
-
-    return new Promise((resolve, reject) => {
-
-      if (typeof tries === 'undefined') {
-        tries = 10;
-      }
-
-      function check() {
-        if (self.uint8_buffer.length >= size) {
-          const data = self.uint8_buffer.slice(0, size);
-          resolve(data);
-          return;
-        }
-
-        tries -= 1;
-        if (tries <= 0) {
-          reject("Timeout in read()");
-          return;
-        }
-        setTimeout(check, 100);
-      }
-      check();
-    });
   }
 
   readline(terminator, tries) {
@@ -1375,21 +995,7 @@ class WebUSB_programmer {
       return;
     }
 
-    const setup = {
-      "requestType": "vendor",
-      "recipient": "device",
-      "request": this.VENDOR_CODE_COMMAND,
-      "value": cmd,
-      "index": 0
-    };
-
-    let result = await this.active_device.controlTransferOut(setup);
-    if (result.status != "ok") {
-      console.log("send_command(" + cmd + ") FAIL: " + result.staus);
-    }
-    else {
-      console.log("send_command(" + cmd + ") OK");
-    }
+    console.log("send_command(" + cmd + ") IGNORED");
   }
 
   async write(data, dont_log) {
@@ -1397,33 +1003,22 @@ class WebUSB_programmer {
 
     if (!dont_log) {
       if (data instanceof Uint8Array) {
-        console.log('USB W: <data len=' + data.length + '>');
+        console.log('UART W: <data len=' + data.length + '>');
       }
       else {
-        console.log('USB W: ' + this._make_crlf_visible(data));
+        console.log('UART W: ' + this._make_crlf_visible(data));
         data = this._string2arraybuffer(data);
       }
     }
 
-    while (data.length) {
-      const bytes = data.slice(0, transfer_size);
-      data = data.slice(transfer_size);
-      try {
-        const result = await this.active_device.transferOut(this.TEST_EP_OUT, bytes);
-        if (result.status != 'ok') {
-          console.error('transferOut() failed:', result.status);
-        }
-      }
-      catch (e) {
-        console.error('transferOut() exception:', e);
-        return;
-      }
-
-      // Delay to allow the other side to process the data
-      // Experimenation showed that when setting the timeout to 5 ms the transfer
-      // rate went up significantly compared to 1 ms. This happened regardless
-      // whether the endpoint interval was set to 5 or 1 ?!?
-      await new Promise(resolve => {setTimeout(() => {resolve()}, 5)});
+    try {
+      const writer = this.active_device.writable.getWriter();
+      await writer.write(data);
+      writer.releaseLock();
+    }
+    catch (e) {
+      console.error('transferOut() exception:', e);
+      return;
     }
   }
 
@@ -1441,7 +1036,7 @@ class WebUSB_programmer {
 
   get serial_number() {
     if (this.is_open) {
-      return this.active_device.serialNumber;
+      return this.serial;
     }
     return '';
   }
@@ -1527,24 +1122,6 @@ class flash_lpc8xx {
       throw('Expected "' + _make_crlf_visible(expected_string) + '", got "' + _make_crlf_visible(answer));
     }
     return answer;
-  }
-
-  _merge_uint8arrays(uint8array_list) {
-    // Get the total length of all arrays
-    let length = 0;
-    uint8array_list.forEach(item => {
-      length += item.length;
-    });
-
-    // Create a new array with total length and merge all source arrays
-    let merged_array = new Uint8Array(length);
-    let offset = 0;
-    uint8array_list.forEach(item => {
-      merged_array.set(item, offset);
-      offset += item.length;
-    });
-
-    return merged_array;
   }
 
   async send_command(string) {
@@ -1682,14 +1259,19 @@ class flash_lpc8xx {
 
     this._doMessageCallback("Unlocking the programming functions ...");
 
+    // Obtain the flash size and determine the last sector number for the
+    // prepare and erase command
+    const flash_size = await this.get_flash_size();
+    const last_sector = (flash_size / this.SECTOR_SIZE) - 1;
+
     // Unlock the chip with the magic number
     await this.send_command('U 23130');
 
     // Erase the whole chip
     this._doMessageCallback('Erasing the flash memory ...');
     this._doProgressCallback(0.15);
-    await this.send_command('P 0 15');
-    await this.send_command('E 0 15');
+    await this.send_command('P 0 ' + last_sector);
+    await this.send_command('E 0 ' + last_sector);
 
     this._doMessageCallback('Program the firmware image ...');
     for (let index = 0; index < used_sectors; index += 1) {
@@ -1713,68 +1295,20 @@ class flash_lpc8xx {
   }
 
   async read() {
-    let image_data = new Uint8Array();
-    let block;
+      let flash_size = await this.get_flash_size();
+      this._doMessageCallback('Reading ' + flash_size + ' bytes ...');
 
-    // The read command return "0<CR><LF>" as acknowledgement before sending
-    // the flash data. Therefore we need to read an additional 3 bytes, and
-    // strip those bytes off the read data.
-    const ack_size = 3;
-
-    this._doProgressCallback(0);
-
-    let flash_size = await this.get_flash_size();
-    this._doMessageCallback('Reading ' + flash_size + ' bytes ...');
-    this._doProgressCallback(0.1);
-
-    // WORK-AROUND
-    // ===========
-    //
-    // In theory we should be able to read the whole firmware in one go
-    // and have the underlying UART implementation (could be a serial port, or
-    // WebUSB) handle the segmentation.
-    //
-    // Unfortunately due to a bug in the WebUSB programmer firmware when
-    // the Programmer reads large amount of data from the MCU and sends it
-    // back via USB we miss some bytes quite frequently.
-    //
-    // To work around, we can read the firmware in smaller chunks. However,
-    // even with chunks as small as 16 Bytes we get occasional errors.
-    // The smaller the chunk size, the less frequent errors occur, but also
-    // transfer speed gets reduced.
-    //
-    // When bytes are missing, the WebUSB programmer does not receive the
-    // expected amount of bytes, and the UART read function creates a timeout
-    // error.
-    //
-    // This is an indication here that something failed, and we re-read the
-    // same block from the MCU until it succeeds. Reading chunks of 256 bytes
-    // is a reasonable compromise between error frequency and read speed.
-    const read_size = 256;
-    let address = this.FLASH_BASE_ADDRESS;
-    while (address < (this.FLASH_BASE_ADDRESS + flash_size)) {
-      await this.send_command('R ' + address + ' ' + read_size);
-
-      try {
-        // Use a timeout of approx 500 ms
-        block = await this.uart.read(read_size + ack_size, 5);
-      }
-      catch(e) {
-        // Timeout error, re-read the block
-        console.error(e);
-        continue;
+      await this.send_command('R ' + this.FLASH_BASE_ADDRESS + ' ' + flash_size);
+      let image_data = await this.uart.read(flash_size);
+      if (image_data.length !== flash_size) {
+          throw 'Failed to read the whole Flash memory';
       }
 
-      image_data = this._merge_uint8arrays([image_data, block.slice(ack_size)]);
-      this._doProgressCallback(0.1 + (0.9 * address / flash_size));
-      address += read_size;
-    }
-    if (image_data.length !== flash_size) {
-        throw 'Failed to read the whole Flash memory';
-    }
-
-    this._doProgressCallback(1.0);
-    return image_data;
+      let binaryData = [];
+      for (let i = 0; i < image_data.length; i += 1) {
+          binaryData.push(image_data.charCodeAt(i));
+      }
+      return binaryData;
   }
 
   /*
@@ -1816,979 +1350,34 @@ class flash_lpc8xx {
 
 </script>
 <script>
-/*
-
-This is the mid-level interface to the light controller. It simulates
-a Pre-Processor, where ST, TH and AUX data is sent over a UART to the light
-controller.
-
-It also reads diagnostics messages from the light controller to show them
-to the user.
-
-This module expects operating on a (virtual) UART that has already been opened
-and configured with the right baudrate.
-The uart object must support the following functions:
-* uart.write(data)
-* uart.readline(terminator, number_of_retries_before_timeout)
-
-The preprocessor-simulator object provides the following methods:
-
-  channel_changed(channel, value)
-    channel: one of ST, TH, AUX, AUX2, AUX3, STARTUP_MODE, NO_SIGNAL and
-             MULTI_AUX
-             Together they determine the output of the Pre-Processor simulator
-             as sent to the light controller
-    value: the value to set <channel> to. For servo channels this is
-           -100..0..+100. For STARTUP_MODE, NO_SIGNAL and MULTI_AUX it is
-           0 (off) or 1 (on)`
-
-  set onMessageCallback(fn)
-    Set a callback function that will receive a string whenever a diagnostics
-    line (terminated by \n) was read from the light controller.
-    Note that also the CONFIG (which determines the detailed configuration the
-    AUX channels in the light controller have been configured) are sent via
-    this method.
-
-  getAuxFunctionLabel(aux_function_number)
-    Retrieve a human readable text for the given AUX function number.
-    Example: For AUX_FUNCTION_MULTI_FUNCTION, which is 1, this function would
-    return "Multi-function switch"
-
-  get config_default
-  get config_manual_3ch
-  get config_manual_5ch
-    Retrieve default AUX type and AUX function values for various use-cases.
-    Useful to apply as UI defaults.
-
-*/
-
-class Preprocessor_simulator {
-  ST = 'ST';
-  TH = 'TH';
-  AUX = 'AUX';
-  AUX2 = 'AUX2';
-  AUX3 = 'AUX3';
-  STARTUP_MODE = 'STARTUP_MODE';
-  NO_SIGNAL = 'NO_SIGNAL';
-  MULTI_AUX = 'MULTI_AUX';
-
-  AUX_TYPE = 'AUX_TYPE';
-  AUX_TYPE_TWO_POSITION = 0;
-  AUX_TYPE_TWO_POSITION_UP_DOWN = 1;
-  AUX_TYPE_MOMENTARY = 2;
-  AUX_TYPE_THREE_POSITION = 3;
-  AUX_TYPE_ANALOG = 4;
-
-  AUX_FUNCTION = 'AUX_FUNCTION';
-  AUX_FUNCTION_NOT_USED = 0;
-  AUX_FUNCTION_MULTI_FUNCTION = 1;
-  AUX_FUNCTION_GEARBOX = 2;
-  AUX_FUNCTION_WINCH = 3;
-  AUX_FUNCTION_SERVO = 4;
-  AUX_FUNCTION_INDICATORS = 5;
-  AUX_FUNCTION_HAZARD = 6;
-  AUX_FUNCTION_LIGHT_SWITCH = 7;
-
-  CONFIG_TYPE = 'CONFIG_TYPE';
-  CONFIG_TYPE_DEFAULT = 'DEFAULT';
-  CONFIG_TYPE_AUTO = 'AUTO';
-  CONFIG_TYPE_MANUAL = 'MANUAL';
-
-  SLAVE_MAGIC_BYTE = 0x87;
-
-  constructor(uart) {
-    this.uart = uart;
-
-    this.channels = {};
-    this.channels[this.ST] = 0;
-    this.channels[this.TH] = 0;
-    this.channels[this.AUX] = 0;
-    this.channels[this.AUX2] = 0;
-    this.channels[this.AUX3] = 0;
-    this.channels[this.STARTUP_MODE] = 0;
-    this.channels[this.NO_SIGNAL] = 0;
-
-    this.config = this.config_default;
-
-    this.configChangedCallback = undefined;
-
-    this.reader_active = true;
-    this.transmitter_active = true;
-    this._reader();
-    this._transmitter();
-  }
-
-  close() {
-    this.reader_active = false;
-    this.transmitter_active = false;
-  }
-
-  async _reader() {
-    console.log('Preprocessor_simulator.reader() start');
-    this.uart.flush();
-
-    while (this.reader_active) {
-      let line = '';
-      try {
-        line = await this.uart.readline('\n', 0);
-      }
-      catch (e) {
-        await new Promise(resolve => {setTimeout(() => {resolve()}, 100)});;
-      }
-
-      if (line) {
-        if (line.startsWith('CONFIG')) {
-          this._parse_config(line);
-        }
-
-        if (this.messageCallback) {
-          this.messageCallback(line);
-        }
-      }
-    }
-
-    console.log('Preprocessor_simulator.reader() end');
-  }
-
-  async _transmitter() {
-      let st = this.channels[this.ST];
-      if (st < 0) {
-          st = 256 + st;
-      }
-
-      let th = this.channels[this.TH];
-      if (th < 0) {
-          th = 256 + th;
-      }
-
-      let aux = this.channels[this.AUX];
-      if (aux < 0) {
-          aux = 256 + aux;
-      }
-
-      let aux2 = this.channels[this.AUX2];
-      if (aux2 < 0) {
-          aux2 = 256 + aux2;
-      }
-
-      let aux3 = this.channels[this.AUX3];
-      if (aux3 < 0) {
-          aux3 = 256 + aux3;
-      }
-
-      let mode_byte = 0;
-      if (this.channels[this.AUX] > 0) {
-          mode_byte += 0x01;
-      }
-      if (this.channels[this.STARTUP_MODE]) {
-          mode_byte += 0x10;
-      }
-      if (this.channels[this.MULTI_AUX]) {
-          mode_byte += 0x08;
-      }
-
-      let data;
-      if (this.channels[this.MULTI_AUX]) {
-        data = new Uint8Array(7);
-        data[0] = this.SLAVE_MAGIC_BYTE;
-        data[1] = st;
-        data[2] = th;
-        data[3] = mode_byte;
-        data[4] = aux;
-        data[5] = aux2;
-        data[6] = aux3;
-      }
-      else {
-        data = new Uint8Array(4);
-        data[0] = this.SLAVE_MAGIC_BYTE;
-        data[1] = st;
-        data[2] = th;
-        data[3] = mode_byte;
-      }
-
-      try {
-        this.uart.write(data, 'dont-log');
-      }
-      catch (e) {
-          console.error('uart.write exception:', e);
-          return;
-      }
-
-      if (this.transmitter_active) {
-        setTimeout(this._transmitter.bind(this), 20);
-      }
-  }
-
-  channel_changed(channel, value) {
-    value = parseInt(value, 10);
-
-    if (value < - 100 || value > 100) {
-      throw 'value ' + value + ' is out of range -100..0..+100';
-    }
-
-    this.channels[channel] = value;
-
-    if (this.channels[this.NO_SIGNAL]) {
-      this.transmitter_active = false;
-    }
-    else {
-      if (!this.transmitter_active) {
-        this.transmitter_active = true;
-        this._transmitter();
-      }
-    }
-  }
-
-  set onMessageCallback(fn) {
-    this.messageCallback = fn;
-  }
-
-
-  _parse_config(msg) {
-    if (msg == this.last_received_config) {
-      return;
-    }
-
-    this.last_received_config = msg;
-    console.log('New config: ' + msg);
-
-    let values = msg.split(' ');
-    if (values.length < 1) {
-      return;
-    }
-
-    /*
-
-    CONFIG array elements:
-    ======================
-    0: CONFIG
-    1: config.flags2.multi_aux
-    2: config.flags.ch3_is_momentary
-    3: config.flags.ch3_is_two_button,
-    4: config.aux_type
-    5: config.aux_function
-    6: config.aux2_type
-    7: config.aux2_function
-    8: config.aux3_type
-    9: config.aux3_function
-
-    AUX_TYPE_T:
-    -----------
-    TWO_POSITION = 0,
-    TWO_POSITION_UP_DOWN = 1,
-    MOMENTARY = 2,
-    THREE_POSITION = 3,
-    ANALOG = 4
-
-    AUX_FUNCTION_T:
-    ---------------
-    NOT_USED = 0,
-    MULTI_FUNCTION = 1,
-    GEARBOX = 2,
-    WINCH = 3,
-    SERVO = 4,
-    INDICATORS = 5,
-    HAZARD = 6,
-    LIGHT_SWITCH = 7
-
-    */
-
-    if (values.length < 10) {
-      console.error('CONFIG has less than 10 entries: "' + msg + '" (length=' + values.length + ')');
-      return;
-    }
-
-    this.config[this.CONFIG_TYPE] = this.CONFIG_TYPE_AUTO;
-
-    if ((values[1] != '0')) {
-      this.config[this.MULTI_AUX] = true;
-
-      this.config[this.AUX][this.AUX_TYPE] = values[4];
-      this.config[this.AUX2][this.AUX_TYPE] = values[6];
-      this.config[this.AUX3][this.AUX_TYPE] = values[8];
-
-      this.config[this.AUX][this.AUX_FUNCTION] = values[5];
-      this.config[this.AUX2][this.AUX_FUNCTION] = values[7];
-      this.config[this.AUX3][this.AUX_FUNCTION] = values[9];
-    }
-    else {
-      this.config[this.MULTI_AUX] = false;
-
-      // 2: config.flags.ch3_is_momentary
-      if (values[2] != '0') {
-          this.config[this.AUX][this.AUX_TYPE] = this.AUX_TYPE_MOMENTARY;
-      }
-      // 3: config.flags.ch3_is_two_button
-      else if (values[3] != '0') {
-          this.config[this.AUX][this.AUX_TYPE] = this.AUX_TYPE_TWO_POSITION_UP_DOWN;
-      }
-      else {
-          this.config[this.AUX][this.AUX_TYPE] = this.AUX_TYPE_TWO_POSITION;
-      }
-
-      this.config[this.AUX2][this.AUX_TYPE] = values[6];
-      this.config[this.AUX3][this.AUX_TYPE] = values[8];
-      this.config[this.AUX2][this.AUX_FUNCTION] = values[7];
-      this.config[this.AUX3][this.AUX_FUNCTION] = values[9];
-    }
-
-    if (this.configChangedCallback) {
-      this.configChangedCallback(this.config);
-    }
-  }
-
-  getAuxFunctionLabel(aux_function_number) {
-    switch (parseInt(aux_function_number)) {
-    case 0:
-      return 'Not used';
-
-    case 1:
-      return 'Multi-function switch';
-
-    case 2:
-      return 'Gearbox';
-
-    case 3:
-      return 'Winch';
-
-    case 4:
-      return 'Servo';
-
-    case 5:
-      return 'Indicators';
-
-    case 6:
-      return 'Hazard';
-
-    case 7:
-      return 'Light switch';
-
-    default:
-      return 'UNDEFINED aux_function_number ' + aux_function_number;
-    }
-  }
-
-  set onConfigChangedCallback(fn) {
-    this.configChangedCallback = fn;
-  }
-
-  get config_default() {
-    const config = {};
-    config[this.CONFIG_TYPE] = this.CONFIG_TYPE_DEFAULT;
-    config[this.MULTI_AUX] = false;
-    config[this.AUX] = {};
-    config[this.AUX][this.AUX_TYPE] = this.AUX_TYPE_TWO_POSITION;
-    config[this.AUX][this.AUX_FUNCTION] = this.AUX_FUNCTION_MULTI_FUNCTION;
-    config[this.AUX2] = {};
-    config[this.AUX2][this.AUX_TYPE] = this.AUX_TYPE_ANALOG;
-    config[this.AUX2][this.AUX_FUNCTION] = this.AUX_FUNCTION_NOT_USED;
-    config[this.AUX3] = {};
-    config[this.AUX3][this.AUX_TYPE] = this.AUX_TYPE_ANALOG;
-    config[this.AUX3][this.AUX_FUNCTION] = this.AUX_FUNCTION_NOT_USED;
-    return config;
-  }
-
-  get config_manual_3ch() {
-    const config = {};
-    config[this.CONFIG_TYPE] = this.CONFIG_TYPE_MANUAL;
-    config[this.MULTI_AUX] = false;
-    config[this.AUX] = {};
-    config[this.AUX][this.AUX_TYPE] = this.AUX_TYPE_TWO_POSITION;
-    config[this.AUX][this.AUX_FUNCTION] = this.AUX_FUNCTION_MULTI_FUNCTION;
-    config[this.AUX2] = {};
-    config[this.AUX2][this.AUX_TYPE] = this.AUX_TYPE_ANALOG;
-    config[this.AUX2][this.AUX_FUNCTION] = this.AUX_FUNCTION_NOT_USED;
-    config[this.AUX3] = {};
-    config[this.AUX3][this.AUX_TYPE] = this.AUX_TYPE_ANALOG;
-    config[this.AUX3][this.AUX_FUNCTION] = this.AUX_FUNCTION_NOT_USED;
-    return config;
-  }
-
-  get config_manual_5ch() {
-    const config = {};
-    config[this.CONFIG_TYPE] = this.CONFIG_TYPE_MANUAL;
-    config[this.MULTI_AUX] = true;
-    config[this.AUX] = {};
-    config[this.AUX][this.AUX_TYPE] = this.AUX_TYPE_TWO_POSITION;
-    config[this.AUX][this.AUX_FUNCTION] = this.AUX_FUNCTION_MULTI_FUNCTION;
-    config[this.AUX2] = {};
-    config[this.AUX2][this.AUX_TYPE] = this.AUX_TYPE_ANALOG;
-    config[this.AUX2][this.AUX_FUNCTION] = this.AUX_FUNCTION_NOT_USED;
-    config[this.AUX3] = {};
-    config[this.AUX3][this.AUX_TYPE] = this.AUX_TYPE_ANALOG;
-    config[this.AUX3][this.AUX_FUNCTION] = this.AUX_FUNCTION_NOT_USED;
-    return config;
-  }
-}
-</script>
-<script>
-class Preprocessor_simulator_ui {
-  MAX_LOG_LINES = 20;
-  SIMULATOR_CHANNEL = '_preprocessor_sim_channel';
-
-  AUX = 'AUX';
-  AUX2 = 'AUX2';
-  AUX3 = 'AUX3';
-
-  UP_DOWN_TIMEOUT = 500;
-
-  constructor(simulator) {
-    // Store the simulator hardware access instance that has been passed to us.
-    this.simulator = simulator;
-    this.closed = false;
-
-    this.el = {};
-    this.el.aux = {};
-    this.el.aux[this.AUX] = {};
-    this.el.aux[this.AUX2] = {};
-    this.el.aux[this.AUX3] = {};
-
-    // Collect all UI elements that are relevant in 5-ch mode only, so that
-    // we can show/hide them as necessary in a simple forEach() loop.
-    this.el.multi_aux = document.querySelectorAll('.multi-aux');
-
-    this.el.diagnostics = document.querySelector('#diagnostics-messages');
-    this.el.startup_mode = document.querySelector('#startup-mode');
-    this.el.no_signal = document.querySelector('#no-signal');
-    this.el.preprocessor_mode = document.querySelector('#preprocessor-mode');
-
-    this.el.steering = document.querySelector('#steering');
-    this.el.throttle = document.querySelector('#throttle');
-    this.el.steering_neutral = document.querySelector('#steering-neutral');
-    this.el.throttle_neutral = document.querySelector('#throttle-neutral');
-    this.el.steering[this.SIMULATOR_CHANNEL] = this.simulator.ST;
-    this.el.throttle[this.SIMULATOR_CHANNEL] = this.simulator.TH;
-
-    this.el.aux[this.AUX].channel = this.simulator.AUX;
-    this.el.aux[this.AUX].type = document.querySelector('#aux-type');
-    this.el.aux[this.AUX].function = document.querySelector('#aux-function');
-    this.el.aux[this.AUX].slider = document.querySelector('#aux-slider');
-    this.el.aux[this.AUX].toggle = document.querySelector('#aux-toggle');
-
-    this.el.aux[this.AUX2].channel = this.simulator.AUX2;
-    this.el.aux[this.AUX2].type = document.querySelector('#aux2-type');
-    this.el.aux[this.AUX2].function = document.querySelector('#aux2-function');
-    this.el.aux[this.AUX2].slider = document.querySelector('#aux2-slider');
-    this.el.aux[this.AUX2].toggle = document.querySelector('#aux2-toggle');
-
-    this.el.aux[this.AUX3].channel = this.simulator.AUX3;
-    this.el.aux[this.AUX3].type = document.querySelector('#aux3-type');
-    this.el.aux[this.AUX3].function = document.querySelector('#aux3-function');
-    this.el.aux[this.AUX3].slider = document.querySelector('#aux3-slider');
-    this.el.aux[this.AUX3].toggle = document.querySelector('#aux3-toggle');
-
-    // Cache for all event listernes that we've set, so that we can remove them
-    // when the simulator is shut down.
-    this.event_listeners = [];
-
-    this._addEventListener(this.el.startup_mode, 'change', this.startup_mode_changed.bind(this));
-    this._addEventListener(this.el.no_signal, 'change', this.no_signal_changed.bind(this));
-    this._addEventListener(this.el.preprocessor_mode, 'change', this.preprocessor_mode_changed.bind(this));
-
-    this._addEventListener(this.el.steering, 'change', this.slider_changed.bind(this));
-    this._addEventListener(this.el.steering, 'input', this.slider_changed.bind(this));
-    this._addEventListener(this.el.throttle, 'change', this.slider_changed.bind(this));
-    this._addEventListener(this.el.throttle, 'input', this.slider_changed.bind(this));
-
-    this._addEventListener(this.el.steering_neutral, 'click', this.slider_center.bind(this, this.el.steering));
-    this._addEventListener(this.el.throttle_neutral, 'click', this.slider_center.bind(this, this.el.throttle));
-
-    this._addEventListener(this.el.aux[this.AUX].slider, 'change', this.aux_slider_changed.bind(this, this.el.aux[this.AUX]));
-    this._addEventListener(this.el.aux[this.AUX].slider, 'input', this.aux_slider_changed.bind(this, this.el.aux[this.AUX]));
-    this._addEventListener(this.el.aux[this.AUX2].slider, 'change', this.aux_slider_changed.bind(this, this.el.aux[this.AUX2]));
-    this._addEventListener(this.el.aux[this.AUX2].slider, 'input', this.aux_slider_changed.bind(this, this.el.aux[this.AUX2]));
-    this._addEventListener(this.el.aux[this.AUX3].slider, 'change', this.aux_slider_changed.bind(this, this.el.aux[this.AUX3]));
-    this._addEventListener(this.el.aux[this.AUX3].slider, 'input', this.aux_slider_changed.bind(this, this.el.aux[this.AUX3]));
-
-    this._addEventListener(this.el.aux[this.AUX].toggle, 'mousedown', this.aux_toggle.bind(this, this.el.aux[this.AUX]));
-    this._addEventListener(this.el.aux[this.AUX].toggle, 'mouseup', this.aux_toggle.bind(this, this.el.aux[this.AUX]));
-    this._addEventListener(this.el.aux[this.AUX2].toggle, 'mousedown', this.aux_toggle.bind(this, this.el.aux[this.AUX2]));
-    this._addEventListener(this.el.aux[this.AUX2].toggle, 'mouseup', this.aux_toggle.bind(this, this.el.aux[this.AUX2]));
-    this._addEventListener(this.el.aux[this.AUX3].toggle, 'mousedown', this.aux_toggle.bind(this, this.el.aux[this.AUX3]));
-    this._addEventListener(this.el.aux[this.AUX3].toggle, 'mouseup', this.aux_toggle.bind(this, this.el.aux[this.AUX3]));
-
-    this._addEventListener(this.el.aux[this.AUX].type, 'change', this.aux_type_changed.bind(this, this.el.aux[this.AUX]));
-    this._addEventListener(this.el.aux[this.AUX2].type, 'change', this.aux_type_changed.bind(this, this.el.aux[this.AUX2]));
-    this._addEventListener(this.el.aux[this.AUX3].type, 'change', this.aux_type_changed.bind(this, this.el.aux[this.AUX3]));
-
-
-    this.el.no_signal.checked = false;
-    this.el.startup_mode.checked = true;
-
-    this.el.preprocessor_mode.value = 0;
-    this.config_3ch = this.simulator.config_manual_3ch;
-    this.config_5ch = this.simulator.config_manual_5ch;
-    this.config_auto = this.simulator.config_default;
-    this.config_changed(this.config_auto);
-
-    this.log_testing_clear();
-    simulator.onMessageCallback = this.log_testing.bind(this);
-    simulator.onConfigChangedCallback = this.config_changed.bind(this);
-
-    this.startup_mode_changed();
-    setTimeout(this.startup_mode_auto_timeout.bind(this), 1000);
-  }
-
-  _addEventListener(element, event, listener) {
-    this.event_listeners.push({'element': element, 'event': event, 'listener': listener});
-    element.addEventListener(event, listener, false);
-  }
-
-  _removeEventListener(entry) {
-    entry.element.removeEventListener(entry.event, entry.listener, false);
-  }
-
-  _deep_clone(object_to_clone) {
-    return Object.assign({}, object_to_clone);
-  }
-
-  show(element) {
-    element.classList.remove('hidden');
-  }
-
-  hide(element) {
-    element.classList.add('hidden');
-  }
-
-  close() {
-    this.closed = true;
-    // Remove all event listeners that we have set
-    const self = this;
-    this.event_listeners.forEach(entry => self._removeEventListener(entry));
-  }
-
-  slider_changed(event) {
-    if (this.SIMULATOR_CHANNEL in event.target) {
-      this.simulator.channel_changed(event.target[this.SIMULATOR_CHANNEL], event.target.value);
-    }
-  }
-
-  slider_center(target, event) {
-    if (this.SIMULATOR_CHANNEL in target) {
-      target.value = 0;
-      this.simulator.channel_changed(target[this.SIMULATOR_CHANNEL], target.value);
-    }
-  }
-
-  aux_slider_changed(aux, event) {
-    this.simulator.channel_changed(aux.channel, aux.slider.value);
-  }
-
-  aux_toggle(aux, event) {
-    const s = this.simulator;
-
-    if (event.type == 'keydown') {
-      if (aux.buttonDown) {
-        return;
-      }
-      aux.buttonDown = true;
-    }
-    else if (event.type == 'keyup') {
-      aux.buttonDown = false;
-    }
-
-    if (aux.type.value == s.AUX_TYPE_ANALOG) {
-      if (event.type == 'keydown' || event.type == 'mousedown') {
-        this.update_aux_value(aux, 0);
-      }
-    }
-    else if (aux.type.value == s.AUX_TYPE_MOMENTARY) {
-      if (event.type == 'keydown' || event.type == 'mousedown') {
-        this.update_aux_value(aux, +100);
-      }
-      else {
-        this.update_aux_value(aux, -100);
-      }
-    }
-    else if (aux.type.value == s.AUX_TYPE_THREE_POSITION) {
-      if (event.type == 'keydown' || event.type == 'mousedown') {
-        if (parseInt(aux.slider.value, 10) > 0) {
-          this.update_aux_value(aux, 0);
-          aux.direction_down = true;
-        }
-        else if (parseInt(aux.slider.value, 10) < 0) {
-          this.update_aux_value(aux, 0);
-          aux.direction_down = false;
-        }
-        else {
-          if (aux.direction_down) {
-            this.update_aux_value(aux, -100);
-          }
-          else {
-            this.update_aux_value(aux, 100);
-          }
-        }
-      }
-    }
-    else {
-      if (event.type == 'keydown' || event.type == 'mousedown') {
-        if (aux.type.value == s.AUX_TYPE_TWO_POSITION_UP_DOWN) {
-          if (Date.now() > aux.upDownTimeout) {
-            this.update_aux_value(aux, -100);
-            aux.upDownTimeout = Date.now() + this.UP_DOWN_TIMEOUT;
-            return;
-          }
-        }
-
-        aux.upDownTimeout = Date.now() + this.UP_DOWN_TIMEOUT;
-        if (parseInt(aux.slider.value, 10) > 0) {
-          this.update_aux_value(aux, -100);
-        }
-        else  {
-          this.update_aux_value(aux, +100);
-        }
-      }
-    }
-  }
-
-  aux_type_changed(aux) {
-    const s = this.simulator;
-
-    const type = parseInt(aux.type.value);
-
-    switch (type) {
-    case s.AUX_TYPE_TWO_POSITION:
-    case s.AUX_TYPE_TWO_POSITION_UP_DOWN:
-      if (aux.slider.value <= 0) {
-        this.update_aux_value(aux, -100);
-      }
-      else {
-        this.update_aux_value(aux, 100);
-      }
-
-      aux.slider.step = 200;
-      aux.toggle.textContent = 'toggle';
-      break;
-
-    case s.AUX_TYPE_MOMENTARY:
-      aux.slider.step = 200;
-      this.update_aux_value(aux, -100);
-      aux.toggle.textContent = 'toggle';
-      break;
-
-    case s.AUX_TYPE_THREE_POSITION:
-      aux.slider.step = 100;
-      aux.toggle.textContent = 'toggle';
-      break;
-
-    case s.AUX_TYPE_ANALOG:
-      aux.slider.step = 1;
-      aux.toggle.textContent = 'center';
-      break;
-    }
-  }
-
-  update_aux_value(aux, value) {
-    aux.slider.value = value;
-    this.simulator.channel_changed(aux.channel, aux.slider.value);
-  }
-
-  startup_mode_changed() {
-    if (this.el.startup_mode.checked) {
-      this.el.steering.value = 0;
-      this.el.throttle.value = 0;
-
-      this.simulator.channel_changed(this.el.steering[this.SIMULATOR_CHANNEL], this.el.steering.value);
-      this.simulator.channel_changed(this.el.throttle[this.SIMULATOR_CHANNEL], this.el.throttle.value);
-      this.simulator.channel_changed(this.simulator.STARTUP_MODE, 100);
-    }
-    else {
-      this.simulator.channel_changed(this.simulator.STARTUP_MODE, 0);
-    }
-    this.update_ui_state();
-  }
-
-  startup_mode_auto_timeout() {
-    if (this.closed) {
-      return;
-    }
-
-    if (this.el.startup_mode.checked) {
-      this.el.startup_mode.checked = false;
-      this.startup_mode_changed();
-    }
-  }
-
-  no_signal_changed() {
-    if (this.el.no_signal.checked) {
-      this.simulator.channel_changed(this.simulator.NO_SIGNAL, 100);
-    }
-    else {
-      this.simulator.channel_changed(this.simulator.NO_SIGNAL, 0);
-    }
-    this.update_ui_state();
-  }
-
-  preprocessor_mode_changed() {
-    const new_mode = parseInt(this.el.preprocessor_mode.value);
-    switch (new_mode) {
-      case 3:
-        this.config_changed(this.config_3ch);
-        break;
-
-      case 5:
-        this.config_changed(this.config_5ch);
-        break;
-
-      case 0:
-      default:
-        this.config_changed(this.config_auto);
-        break;
-    }
-  }
-
-  config_changed(new_config) {
-    console.info('config_changed()')
-    /* We have to deal with 4 types of configuration:
-        - User manually sets 3-channel mode
-        - User manually sets 5-channel mode
-        - Automatic 3-channel mode based on light controller sending CONFIG
-        - Automatic 5-channel mode based on light controller sending CONFIG
-        - Default 3-channel mode for old light controller firmware that dones't
-          send CONFIG
-
-        From the UI point of view we want to have radio buttons or a drop-down
-        box where the user can select AUTO, 3-CH and 5-CH mode.
-
-        The default 3-channel mode and manual 3-channel mode are the same
-        functionality-wise, with the difference being that when the UI changes
-        back to AUTO we have to know that we are in this default 3-ch mode.
-
-        Implementation-wise, we have a currently-active-config, and an
-        auto-config. The auto-config is set at application start (default 3-ch)
-        and every time the light controller sends the CONFIG data debug string.
-        The currently-active-config is set based on the UI.
-
-        If auto-config origintes from the CONFIG data debug string sent by
-        the light controloler, the user should not be allowed to make changes
-        to the AUX type. However, in any manual or default config the user must
-        be able to change the AUX type. Ideally we store the last user selected
-        AUX type so that users can switch back/forth before auto and manual
-        without loosing their last manual setting.
-
-        If the auto-config is 3ch, then the initial manual 3ch setting should
-        follow the auto config.
-        If the auto config is 5ch, then the initial manual 5ch setting should
-        follow the auto config.
-    */
-
-    if (this.config) {
-      const s = this.simulator;
-
-      // Backup the current manual config
-      if (this.config[s.CONFIG_TYPE] != s.CONFIG_TYPE_AUTO) {
-        if (this.config[s.MULTI_AUX]) {
-          this.config_5ch = this._deep_clone(this.config);
-        }
-        else {
-          this.config_3ch = this._deep_clone(this.config);
-        }
-      }
-      else {
-        this.config_auto = this._deep_clone(this.config);
-      }
-    }
-
-    // Apply the newly requested config
-    this.config = this._deep_clone(new_config);
-    this.update_ui_state();
-  }
-
-  update_ui_state() {
-    console.info('update_ui_state()')
-    const s = this.simulator;
-
-    if (this.config[s.CONFIG_TYPE] == s.CONFIG_TYPE_AUTO) {
-      this.el.steering.disabled = false;
-      this.el.steering_neutral.disabled = false;
-      this.el.throttle.disabled = false;
-      this.el.throttle_neutral.disabled = false;
-      this.el.aux[this.AUX].type.disabled = true;
-      this.el.aux[this.AUX].slider.disabled = false;
-      this.el.aux[this.AUX].toggle.disabled = false;
-      this.el.aux[this.AUX2].type.disabled = true;
-      this.el.aux[this.AUX2].slider.disabled = !this.config[s.MULTI_AUX];
-      this.el.aux[this.AUX2].toggle.disabled = !this.config[s.MULTI_AUX];
-      this.el.aux[this.AUX3].type.disabled = true;
-      this.el.aux[this.AUX3].slider.disabled = !this.config[s.MULTI_AUX];
-      this.el.aux[this.AUX3].toggle.disabled = !this.config[s.MULTI_AUX];
-      if (this.config[s.MULTI_AUX]) {
-        this.el.multi_aux.forEach(element => { this.show(element); });
-      }
-      else {
-        this.el.multi_aux.forEach(element => { this.hide(element); });
-      }
-      this.show(this.el.aux[this.AUX].function);
-      this.show(this.el.aux[this.AUX2].function);
-      this.show(this.el.aux[this.AUX3].function);
-    }
-    else if (this.config[s.MULTI_AUX]) {
-      this.el.steering.disabled = false;
-      this.el.steering_neutral.disabled = false;
-      this.el.throttle.disabled = false;
-      this.el.throttle_neutral.disabled = false;
-      this.el.aux[this.AUX].type.disabled = false;
-      this.el.aux[this.AUX].slider.disabled = false;
-      this.el.aux[this.AUX].toggle.disabled = false;
-      this.el.aux[this.AUX2].type.disabled = false;
-      this.el.aux[this.AUX2].slider.disabled = false;
-      this.el.aux[this.AUX2].toggle.disabled = false;
-      this.el.aux[this.AUX3].type.disabled = false;
-      this.el.aux[this.AUX3].slider.disabled = false;
-      this.el.aux[this.AUX3].toggle.disabled = false;
-      this.el.multi_aux.forEach(element => { this.show(element); });
-      this.hide(this.el.aux[this.AUX].function);
-      this.hide(this.el.aux[this.AUX2].function);
-      this.hide(this.el.aux[this.AUX3].function);
-    }
-    else {
-      this.el.steering.disabled = false;
-      this.el.steering_neutral.disabled = false;
-      this.el.throttle.disabled = false;
-      this.el.throttle_neutral.disabled = false;
-      this.el.aux[this.AUX].type.disabled = false;
-      this.el.aux[this.AUX].slider.disabled = false;
-      this.el.aux[this.AUX].toggle.disabled = false;
-      this.el.aux[this.AUX2].type.disabled = true;
-      this.el.aux[this.AUX2].slider.disabled = true;
-      this.el.aux[this.AUX2].toggle.disabled = true;
-      this.el.aux[this.AUX3].type.disabled = true;
-      this.el.aux[this.AUX3].slider.disabled = true;
-      this.el.aux[this.AUX3].toggle.disabled = true;
-      this.el.multi_aux.forEach(element => { this.hide(element); });
-      this.hide(this.el.aux[this.AUX].function);
-      this.hide(this.el.aux[this.AUX2].function);
-      this.hide(this.el.aux[this.AUX3].function);
-    }
-
-    if (this.el.startup_mode.checked || this.el.no_signal.checked) {
-      this.el.steering.disabled = true;
-      this.el.steering_neutral.disabled = true;
-      this.el.throttle.disabled = true;
-      this.el.throttle_neutral.disabled = true;
-      this.el.aux[this.AUX].function.disabled = true;
-      this.el.aux[this.AUX].slider.disabled = true;
-      this.el.aux[this.AUX].toggle.disabled = true;
-      this.el.aux[this.AUX2].type.disabled = true;
-      this.el.aux[this.AUX2].slider.disabled = true;
-      this.el.aux[this.AUX2].toggle.disabled = true;
-      this.el.aux[this.AUX3].type.disabled = true;
-      this.el.aux[this.AUX3].slider.disabled = true;
-      this.el.aux[this.AUX3].toggle.disabled = true;
-    }
-
-    this.el.aux[this.AUX].function.textContent = s.getAuxFunctionLabel(this.config[s.AUX][s.AUX_FUNCTION]);
-    this.el.aux[this.AUX2].function.textContent = s.getAuxFunctionLabel(this.config[s.AUX2][s.AUX_FUNCTION]);
-    this.el.aux[this.AUX3].function.textContent = s.getAuxFunctionLabel(this.config[s.AUX3][s.AUX_FUNCTION]);
-
-    this.el.aux[this.AUX].type.value = this.config[s.AUX][s.AUX_TYPE];
-    this.el.aux[this.AUX2].type.value = this.config[s.AUX2][s.AUX_TYPE];
-    this.el.aux[this.AUX3].type.value = this.config[s.AUX3][s.AUX_TYPE];
-
-    this.aux_type_changed(this.el.aux[this.AUX]);
-    this.aux_type_changed(this.el.aux[this.AUX2]);
-    this.aux_type_changed(this.el.aux[this.AUX3]);
-
-    this.simulator.channel_changed(s.MULTI_AUX, this.config[s.MULTI_AUX] ? 1 : 0);
-  }
-
-  log_testing(msg, displayClass) {
-    const content = new Date(Date.now()).toISOString() + ' ' + msg;
-    const div = document.createElement('div');
-    div.textContent = content;
-    console.log("sim: " + content);
-
-    if (displayClass) {
-      div.classList.add(displayClass);
-    }
-
-    if (this.el.diagnostics.firstChild) {
-      this.el.diagnostics.insertBefore(div, this.el.diagnostics.firstChild);
-      while (this.el.diagnostics.childElementCount > this.MAX_LOG_LINES) {
-        this.el.diagnostics.removeChild(this.el.diagnostics.lastChild);
-      }
-    }
-    else {
-      this.el.diagnostics.appendChild(div);
-    }
-  }
-
-  log_testing_clear() {
-    while (this.el.diagnostics.childElementCount > 0) {
-      this.el.diagnostics.removeChild(this.el.diagnostics.lastChild);
-    }
-  }
-}
-</script>
-<script>
 'use strict';
 
 const MAX_UART_LOG_LINES = 20;
 
-const CMD_DUT_POWER_OFF = 10;
-const CMD_DUT_POWER_ON = 11;
-const CMD_OUT_ISP_LOW = 20;
-const CMD_OUT_ISP_HIGH = 21;
-const CMD_OUT_ISP_TRISTATE = 22;
-const CMD_CH3_LOW = 23;
-const CMD_CH3_HIGH = 24;
-const CMD_CH3_TRISTATE = 25;
-const CMD_BAUDRATE_38400 = 30;
-const CMD_BAUDRATE_115200 = 31;
-const CMD_LED_OK_OFF = 40;
-const CMD_LED_OK_ON = 41;
-const CMD_LED_BUSY_OFF = 42;
-const CMD_LED_BUSY_ON = 43;
-const CMD_LED_ERROR_OFF = 44;
-const CMD_LED_ERROR_ON = 45;
-const CMD_PING = 99;
-
 const MENU_CONNECTION = 0;
 const MENU_PROGRAMMING = 1;
-const MENU_TESTING = 2;
 
 let firmware_image;
 let log_stdin_running = false;
-let operation_active = false;
+let programming_active = false;
 let is_connected = false;
-let has_webusb = false;
+let has_webserial = false;
 let last_programming_failed = false;
 let programmer;
-let simulator_ui;
-let simulator;
-let power_is_on = false;
-
-let testing_active = false;
 
 const el = {};
 
 el.menu_buttons = document.querySelectorAll('nav button');
 
-el.connect_button = document.querySelector("#webusb_connect_button");
-el.disconnect_button = document.querySelector("#webusb_disconnect_button");
+el.connect_button = document.querySelector("#connect_button");
+el.disconnect_button = document.querySelector("#disconnect_button");
 el.connection_info = document.querySelector("#connection_info");
-el.send_button = document.querySelector("#send");
-el.send_text =  document.querySelector("#send-text");
-el.dut_power = document.querySelector("#dut-power");
-el.led_ok = document.querySelector("#led-ok");
-el.led_busy = document.querySelector("#led-busy");
-el.led_error = document.querySelector("#led-error");
-el.status = document.querySelector('#status');
-el.isp = document.querySelector('#isp');
-el.send_questionmark_button = document.querySelector('#send-questionmark');
-el.send_synchronized_button = document.querySelector('#send-synchronized');
-el.send_crystal_button = document.querySelector('#send-crystal');
-el.send_a0_button = document.querySelector('#send-a0');
-el.send_unlock_button = document.querySelector('#send-unlock');
-el.send_prepare_button = document.querySelector('#send-prepare');
-el.send_erase_button = document.querySelector('#send-erase');
 el.load = document.querySelector('#load');
 el.load_input = document.querySelector('#load-input');
 el.program = document.querySelector('#program');
-el.read_button = document.querySelector('#read');
 el.progress = document.querySelector('#progress');
-el.initialize = document.querySelector('#initialize');
 el.filename = document.querySelector('#filename');
+el.status = document.querySelector('#status');
 
 
 function log(msg, displayClass) {
@@ -2829,7 +1418,7 @@ function disable(element) {
 }
 
 function update_ui() {
-  if (!has_webusb) {
+  if (!has_webserial) {
     hide(document.querySelector('.body'));
     return;
   }
@@ -2839,7 +1428,6 @@ function update_ui() {
     hide(el.disconnect_button);
     show(el.connect_button);
     disable(el.menu_buttons[MENU_PROGRAMMING]);
-    disable(el.menu_buttons[MENU_TESTING]);
     return;
   }
 
@@ -2847,47 +1435,21 @@ function update_ui() {
   show(el.disconnect_button);
   hide(el.connect_button);
 
-  if (operation_active) {
+  if (programming_active) {
     disable(el.load);
     disable(el.menu_buttons[MENU_CONNECTION]);
-    disable(el.menu_buttons[MENU_TESTING]);
-    programmer.send_command(CMD_LED_OK_OFF);
-    programmer.send_command(CMD_LED_BUSY_ON);
-    programmer.send_command(CMD_LED_ERROR_OFF);
-  }
-  else if (testing_active) {
-    programmer.send_command(CMD_LED_OK_OFF);
-    programmer.send_command(CMD_LED_BUSY_ON);
-    programmer.send_command(CMD_LED_ERROR_OFF);
   }
   else {
     enable(el.load);
     enable(el.menu_buttons[MENU_CONNECTION]);
     enable(el.menu_buttons[MENU_PROGRAMMING]);
-    enable(el.menu_buttons[MENU_TESTING]);
-    programmer.send_command(CMD_LED_BUSY_OFF);
-    if (last_programming_failed) {
-      programmer.send_command(CMD_LED_OK_OFF);
-      programmer.send_command(CMD_LED_ERROR_ON);
-    }
-    else {
-      programmer.send_command(CMD_LED_OK_ON);
-      programmer.send_command(CMD_LED_ERROR_OFF);
-    }
   }
 
-  if (firmware_image && !operation_active) {
+  if (firmware_image && !programming_active) {
     enable(el.program);
   }
   else {
     disable(el.program);
-  }
-
-  if (!operation_active) {
-    enable(el.read_button);
-  }
-  else {
-    disable(el.read_button);
   }
 }
 
@@ -2898,7 +1460,7 @@ async function update_programmer_connection(device_serial) {
   }
   else {
     is_connected = true;
-    el.connection_info.textContent = 'Connected to Light Controller Programmer with serial number ' + device_serial;
+    el.connection_info.textContent = 'Connected to USB-to-serial adapter ' + device_serial;
     await select_page('tab_programming');
   }
   last_programming_failed = false;
@@ -2969,21 +1531,12 @@ async function program() {
   isp.progressCallback = progressCallback;
 
   try {
-    operation_active = true;
+    programming_active = true;
     last_programming_failed = false;
     update_ui();
     progressCallback(0);
 
-    log("Power-cycling the light controller ...");
-    await programmer.send_command(CMD_DUT_POWER_OFF);
-    await programmer.send_command(CMD_OUT_ISP_LOW);
-    await delay(200);
-    await programmer.send_command(CMD_DUT_POWER_ON);
-    power_is_on = true;
-    await delay(100);
-    progressCallback(0.02);
     await isp.initialization_sequence();
-    await programmer.send_command(CMD_OUT_ISP_TRISTATE);
 
     const part_id = await isp.read_part_id();
     log("MCU part number: " + part_id.part_name);
@@ -2997,18 +1550,14 @@ async function program() {
 
     await isp.program(firmware_image);
 
-    // UPDATE: the code below is not needed anymore.
-    // Instead we added a MOSFET that pulls the supply voltage of the light
-    // controller low when it is powered off, bleeding off any voltage
-    // stored in the light controller.
-
     // We let the downloaded isp_program run for 200 ms. This causes the voltage to
     // drop off sharply after we switch it off. If we don't do this then
     // the capacitor on the light controller stays at a low voltage, causing
     // the MCU to not properly reset (most likely because the ISP isp_program does
     // not use brown-out detection and maybe sleeps the CPU?)
-    // await programmer.reset_mcu();
-    // await delay(200);
+    log("Resetting the light controller ...");
+    await isp.reset_mcu();
+    await delay(200);
     log("SUCCESS: programming complete", "success");
   }
   catch(e) {
@@ -3018,70 +1567,11 @@ async function program() {
     log("ERROR: programming failed", "fail");
   }
   finally {
-    await programmer.send_command(CMD_DUT_POWER_OFF);
-    await programmer.send_command(CMD_OUT_ISP_LOW);
-    power_is_on = false;
-    // Wait 500 ms for the voltage to bled fully, otherwise when quickly
-    // switching to Pre-Processor simulator mode the MCU would still be in ISP
-    // state.
-    await delay(500);
-    operation_active = false;
+    programming_active = false;
     update_ui();
     el.program.focus();
   }
 }
-
-async function read() {
-  const isp = new flash_lpc8xx(programmer);
-  isp.messageCallback = log;
-  isp.progressCallback = progressCallback;
-
-  try {
-    operation_active = true;
-    last_programming_failed = false;
-    update_ui();
-    progressCallback(0);
-
-    log("Power-cycling the light controller ...");
-    await programmer.send_command(CMD_DUT_POWER_OFF);
-    await programmer.send_command(CMD_OUT_ISP_LOW);
-    await delay(200);
-    await programmer.send_command(CMD_DUT_POWER_ON);
-    power_is_on = true;
-    await delay(100);
-    await isp.initialization_sequence();
-    await programmer.send_command(CMD_OUT_ISP_TRISTATE);
-
-    const part_id = await isp.read_part_id();
-    log("MCU part number: " + part_id.part_name);
-
-    const flash_size = await isp.get_flash_size();
-    log("Flash size: " + flash_size / 1024 + " Kbytes");
-
-    const image_data = await isp.read();
-
-    const hex = intel_hex.fromArray(image_data);
-    const blob = new Blob([hex], {type: 'text/plain'});
-    log("Saving firmware HEX file to Download folder");
-    saveAs(blob, 'firmware.hex');
-  }
-  catch(e) {
-    console.error(e);
-    log("ERROR: firmware reading failed", "fail");
-  }
-  finally {
-    await programmer.send_command(CMD_DUT_POWER_OFF);
-    await programmer.send_command(CMD_OUT_ISP_LOW);
-    power_is_on = false;
-    // Wait 500 ms for the voltage to bled fully, otherwise when quickly
-    // switching to Pre-Processor simulator mode the MCU would still be in ISP
-    // state.
-    await delay(500);
-    operation_active = false;
-    update_ui();
-  }
-}
-
 
 function send_textfield_to_programmer() {
   send_isp(el.send_text.value + '\r\n');
@@ -3135,68 +1625,16 @@ async function select_page(selected_page) {
     }
   }
 
-  if (selected_page == 'tab_testing') {
-    if (!testing_active) {
-      testing_active = true;
-      last_programming_failed = false;
-      if (programmer) {
-        await programmer.send_command(CMD_OUT_ISP_TRISTATE);
-        await programmer.send_command(CMD_CH3_TRISTATE);
-        await programmer.send_command(CMD_DUT_POWER_ON);
-        power_is_on = true;
-      }
-
-      simulator = new Preprocessor_simulator(programmer);
-      simulator_ui = new Preprocessor_simulator_ui(simulator);
-    }
-  }
-  else {
-    testing_active = false;
-    if (simulator) {
-      simulator.close();
-      simulator_ui.close();
-    }
-    simulator = undefined;
-    simulator_ui = undefined;
-
-    if (programmer && power_is_on) {
-      await programmer.send_command(CMD_DUT_POWER_OFF);
-      await programmer.send_command(CMD_OUT_ISP_LOW);
-      await programmer.send_command(CMD_CH3_LOW);
-      power_is_on = false;
-    }
-  }
-
   update_ui();
 };
 
 async function connect(device) {
   await programmer.open(device);
   if (programmer.is_open) {
-    await programmer.send_command(CMD_DUT_POWER_OFF);
-    await programmer.send_command(CMD_OUT_ISP_LOW);
-    await programmer.send_command(CMD_CH3_LOW);
-    power_is_on = false;
-
-    const msg = 'Connected to Light Controller Programmer with serial number ' + programmer.serial_number;
+    const msg = 'Connected to USB-to-serial adapter ' + programmer.serial_number;
     console.log(msg);
     update_programmer_connection(programmer.serial_number);
-    keep_programmer_alive();
   }
-}
-
-async function keep_programmer_alive() {
-  // Send a PING command to the programmer every one second.
-  // The programmer uses this command to see whether the host is still connected
-  // to it, as the USB stack does not provide any info when e.g. when the webpage
-  // with the programmer has been closed.
-  try {
-    await programmer.send_command(CMD_PING);
-  }
-  catch (e) {
-    return;
-  }
-  setTimeout(keep_programmer_alive, 1000);
 }
 
 async function disconnect() {
@@ -3204,11 +1642,11 @@ async function disconnect() {
   update_programmer_connection();
 }
 
-async function onWebusbDeviceConnected(device) {
+async function onDeviceConnected(device) {
   connect(device);
 }
 
-async function onWebusbDeviceDisconnected() {
+async function onDeviceDisconnected() {
   update_programmer_connection();
 }
 
@@ -3220,17 +1658,17 @@ async function init() {
     }
   }
 
-  has_webusb = true;
-  if (!navigator || !navigator.usb) {
-      show(document.querySelector('#error_webusb'));
-      show(document.querySelector('#error'));
-    has_webusb = false;
+  has_webserial = true;
+  if (!("serial" in navigator)) {
+    show(document.querySelector('#error_webserial'));
+    show(document.querySelector('#error'));
+    has_webserial = false;
   }
 
-  if (has_webusb) {
-    programmer = new WebUSB_programmer();
-    programmer.onConnectedCallback = onWebusbDeviceConnected;
-    programmer.onDisconnectedCallback = onWebusbDeviceDisconnected;
+  if (has_webserial) {
+    programmer = new WebSerial_programmer();
+    programmer.onConnectedCallback = onDeviceConnected;
+    programmer.onDisconnectedCallback = onDeviceDisconnected;
   }
 
   el.connect_button.addEventListener('click', connect);
@@ -3240,7 +1678,6 @@ async function init() {
   el.load_input.addEventListener('change', load_file_from_disk, false);
 
   el.program.addEventListener('click', () => { program() }, false);
-  el.read_button.addEventListener('click', () => { read() }, false);
 
 
   for (let index = 0; index < el.menu_buttons.length; index += 1) {
@@ -3257,7 +1694,7 @@ async function init() {
   if (programmer) {
     const available_devices = await programmer.get_available_devices();
     if (available_devices.length) {
-      console.log('Paired USB devices: ', available_devices);
+      console.log('Paired USB-to-serial devices: ', available_devices);
       connect(available_devices[0]);
     }
   }
