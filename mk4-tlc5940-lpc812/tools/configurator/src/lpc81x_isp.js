@@ -213,14 +213,19 @@ class flash_lpc8xx {
 
     this._doMessageCallback("Unlocking the programming functions ...");
 
+    // Obtain the flash size and determine the last sector number for the
+    // prepare and erase command
+    const flash_size = await this.get_flash_size();
+    const last_sector = (flash_size / this.SECTOR_SIZE) - 1;
+
     // Unlock the chip with the magic number
     await this.send_command('U 23130');
 
     // Erase the whole chip
     this._doMessageCallback('Erasing the flash memory ...');
     this._doProgressCallback(0.15);
-    await this.send_command('P 0 15');
-    await this.send_command('E 0 15');
+    await this.send_command('P 0 ' + last_sector);
+    await this.send_command('E 0 ' + last_sector);
 
     this._doMessageCallback('Program the firmware image ...');
     for (let index = 0; index < used_sectors; index += 1) {
