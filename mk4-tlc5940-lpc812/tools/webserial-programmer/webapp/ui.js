@@ -138,6 +138,8 @@ async function log_stdin_start() {
 }
 
 function load_file_from_disk() {
+  console.log('load_file_from_disk');
+
   if (this.files.length < 1) {
     return;
   }
@@ -159,6 +161,11 @@ function load_file_from_disk() {
     }
     console.log('Firmware loaded; ' + firmware_image.length + ' Bytes');
     update_ui();
+
+    // Reset the input element, because otherwise it would not trigger
+    // if the user tries to load the same configuration file again!
+    el.load_input.value = '';
+
     el.program.focus();
   };
 
