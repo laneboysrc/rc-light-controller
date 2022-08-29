@@ -18919,14 +18919,19 @@ class WebUSB_programmer {
 
     this._doMessageCallback("Unlocking the programming functions ...");
 
+    // Obtain the flash size and determine the last sector number for the
+    // prepare and erase command
+    const flash_size = await this.get_flash_size();
+    const last_sector = (flash_size / this.SECTOR_SIZE) - 1;
+
     // Unlock the chip with the magic number
     await this.send_command('U 23130');
 
     // Erase the whole chip
     this._doMessageCallback('Erasing the flash memory ...');
     this._doProgressCallback(0.15);
-    await this.send_command('P 0 15');
-    await this.send_command('E 0 15');
+    await this.send_command('P 0 ' + last_sector);
+    await this.send_command('E 0 ' + last_sector);
 
     this._doMessageCallback('Program the firmware image ...');
     for (let index = 0; index < used_sectors; index += 1) {
@@ -20250,15 +20255,17 @@ var ui = (function () {
             cell.removeChild(cell.firstChild);
         }
 
+        // input.setSelectionRange(0, 99);
         cell.appendChild(input);
         input.focus();
+        input.select();
 
         function blur_handler(e) {
             var blur_cell = e.target.parentNode;
 
             var newValue = parseInt(input.value, 10);
             if (isNaN(newValue)  ||  !isFinite(newValue)) {
-                newValue = originalValue;
+                newValue = 0;
             }
             else if (newValue < input.min) {
                 newValue = parseInt(input.min, 10);
@@ -20503,7 +20510,7 @@ var ui = (function () {
         set_tooltip('help_click_to_change', 'Click to change');
 
         set_tooltip('help_toggle_features',
-            'Click to show/hide advanced LED features');
+            'Click to show/hide advanced LED features and give the LED a name');
 
         set_tooltip('help_incandescent',
             'LEDs emit light instantly, while incandescent lamps gradually ' +
@@ -23962,7 +23969,7 @@ document.addEventListener('DOMContentLoaded', function () {
         <h1><span id="logo"></span> RC Light Controller configuration tool</h1>
 
         <div>
-          Configurator version: <strong>2022-07-16</strong><br>
+          Configurator version: <strong>2022-08-30</strong><br>
           Firmware version: <strong><span id="firmware_version"></span></strong>
         </div>
 
@@ -25355,6 +25362,14 @@ document.addEventListener('DOMContentLoaded', function () {
       <div id="info" class="hidden">
         <div class="box configuration">
           <h2>What's new</h2>
+
+          <div><strong>2022-08-30 Firmware 2.54</strong></div>
+          <ul class="change-history">
+            <li>
+              Improve LED value editing. The value is selected upon editing
+              start. Clearing the field assumes input 0.
+            </li>
+          </ul>
 
           <div><strong>2022-07-14 Firmware 2.54</strong></div>
           <ul class="change-history">
