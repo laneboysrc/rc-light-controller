@@ -104,15 +104,17 @@ var ui = (function () {
             cell.removeChild(cell.firstChild);
         }
 
+        // input.setSelectionRange(0, 99);
         cell.appendChild(input);
         input.focus();
+        input.select();
 
         function blur_handler(e) {
             var blur_cell = e.target.parentNode;
 
             var newValue = parseInt(input.value, 10);
             if (isNaN(newValue)  ||  !isFinite(newValue)) {
-                newValue = originalValue;
+                newValue = 0;
             }
             else if (newValue < input.min) {
                 newValue = parseInt(input.min, 10);
@@ -357,7 +359,7 @@ var ui = (function () {
         set_tooltip('help_click_to_change', 'Click to change');
 
         set_tooltip('help_toggle_features',
-            'Click to show/hide advanced LED features');
+            'Click to show/hide advanced LED features and give the LED a name');
 
         set_tooltip('help_incandescent',
             'LEDs emit light instantly, while incandescent lamps gradually ' +
