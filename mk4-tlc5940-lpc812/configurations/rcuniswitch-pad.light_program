@@ -1,0 +1,332 @@
+// Control light functions using a transmitter modified
+// with the RCuniSwitch PAD.
+//
+// RCuniSwitch PAD info:
+// https://www.rockcrawler.de/thread/44979-rcuniswitch-system%C3%BCberblick/?postID=1601749#post1601749
+//
+// The system must use the 5-channel Pre-Processor (5ch PP), i-Bus or S.Bus
+// for this light program to be useful (3chPP or Servo reader always
+// use Multi-function control on CH3/AUX).
+//
+// The following fuctions can be controlled:
+// S1: Light switch "off" (light switch position 0)
+// S2: Parking lights (light switch position 1)
+// S3: Main beam (light switch position 2)
+// S4: High beam (light switch position 3)
+// S5: (not used in this demo)
+// S6: Toggle light bar (OUT15S) on/off
+// S7: Toggle hazard lights on/off
+// S8: (not used)
+// S9: (not used)
+// S10: (not used)
+// S11: Search light (OUT14 on while button is pushed; off when released)
+// S12: Headlight flasher (OUT4,5 on while button is pushed)
+
+// This light program runs "always"; basically in the background
+// while the light controller operates normally.
+run always
+
+// LED definition for the outputs we directly control in this light
+// program. The light bar is on OUT15S, the "search light" on OUT14.
+led light_bar = led[15]
+led search_light = led[14]
+
+// Note that OUT4 and OUT5 (high beam left/right) are not declared
+// here but in a separate light program that is only ran when
+// the headlight flasher is active. This the "LED configuration"
+// table can still operate OUT4 and OUT5 and we only temporarily
+// take control of those LEDs when the headlight flasher is active.
+
+
+// Temporary variable that holds the AUX channel value of the AUX
+// channel that the RCuniSwitch PAD is connnected to on the
+// transmitter. By using this temporary variable we only have to
+// modify a single location in the source code to switch AUX
+// channels.
+var RCuniSwitch-PAD
+
+// This variable contains the switch number that is currently
+// pressed. Its value is "0" when no switch is pressed, "1"
+// for S1, "2" for S2 and so on.
+var pressedSwitch
+
+// previousValue is used to ensure that the read AUX input
+// is stable before generating a new value in "pressedSwitch".
+var previousValue
+
+// Used to trigger a switch function only once when the
+// corresponding switch is pressed, and the switch has to
+// be released before the function can fire again.
+var waitForRelease
+
+
+// The RCuniSwitch PAD on our modified transmitter gave the following
+// readings on the Pre-Processor:
+//
+// S1: -98
+// S2: -73
+// S3: -53
+// S4: -38
+// S5: -24
+// S6: -12
+// No button pressed: 0
+// S7: +12
+// S8: +24
+// S9: +37
+// S10: +53
+// S11: +72
+// S12: +97
+//
+// (Values are in the range -100 .. 0 .. +100, which corresponds to
+// servo pulse width of 1000 .. 1500 .. 2000 us)
+//
+// We define the switch points half-way between the measured
+// values, so that we have some tolerance in detecting the switch
+// position.
+// For example, we detect switch S12 when the AUX is greater than
+// 72 + (97 - 72) / 2 = 85
+const s1 = -85
+const s2 = -63
+const s3 = -45
+const s4 = -31
+const s5 = -18
+const s6 = -6
+const s7 = 6
+const s8 = 18
+const s9 = 31
+const s10 = 45
+const s11 = 63
+const s12 = 85
+
+loop:
+    // Wait a bit so that other functions in the light
+    // controller can do their job too
+    sleep 20
+
+    // Assing which AUX channel the RCuniSwitch PAD
+    // is connected to. In this example we used AUX3
+    // on the 5ch PP.
+    RCuniSwitch-PAD = aux3
+
+    // Store the last value we detected and assume
+    // that all switches are currently released
+    previousValue = pressedSwitch
+    pressedSwitch = 0
+
+    // Check each of the switch thresholds and set
+    // "pressedSwitch" to the value of the switch.
+    // Note that the order here is important, as
+    // "RCuniSwitch-PAD < s6" will also be true
+    // for S1..S5
+    // Only after we have done all checks will
+    // "RCuniSwitch-PAD" contain the correct value.
+    if RCuniSwitch-PAD < s6
+    pressedSwitch = 6
+    if RCuniSwitch-PAD < s5
+    pressedSwitch = 5
+    if RCuniSwitch-PAD < s4
+    pressedSwitch = 4
+    if RCuniSwitch-PAD < s3
+    pressedSwitch = 3
+    if RCuniSwitch-PAD < s2
+    pressedSwitch = 2
+    if RCuniSwitch-PAD < s1
+    pressedSwitch = 1
+
+    if RCuniSwitch-PAD > s7
+    pressedSwitch = 7
+    if RCuniSwitch-PAD > s8
+    pressedSwitch = 8
+    if RCuniSwitch-PAD > s9
+    pressedSwitch = 9
+    if RCuniSwitch-PAD > s10
+    pressedSwitch = 10
+    if RCuniSwitch-PAD > s11
+    pressedSwitch = 11
+    if RCuniSwitch-PAD > s12
+    pressedSwitch = 12
+
+    // Only if we detect the same switch position twice in
+    // a row do we process it. This avoids transitions of
+    // the measured servo pulse to cause spurious triggers.
+    if pressedSwitch != previousValue
+    goto loop
+
+    // If no switch is pressed then go to the
+    // "all_released" function.
+    if pressedSwitch == 0
+    goto all_released
+
+    // For all other functions: if we processed the function
+    // already then don't do anything.
+    if waitForRelease == 1
+    goto loop
+
+    waitForRelease = 1
+
+    // Branch to the appropriate function depending on
+    // the pressed switch.
+    if pressedSwitch == 1
+    goto s1_pressed
+    if pressedSwitch == 2
+    goto s2_pressed
+    if pressedSwitch == 3
+    goto s3_pressed
+    if pressedSwitch == 4
+    goto s4_pressed
+    if pressedSwitch == 5
+    goto s5_pressed
+    if pressedSwitch == 6
+    goto s6_pressed
+    if pressedSwitch == 7
+    goto s7_pressed
+    if pressedSwitch == 8
+    goto s8_pressed
+    if pressedSwitch == 9
+    goto s9_pressed
+    if pressedSwitch == 10
+    goto s10_pressed
+    if pressedSwitch == 11
+    goto s11_pressed
+    if pressedSwitch == 12
+    goto s12_pressed
+
+
+// Action when none of the buttons is pressed
+all_released:
+    // No button pressed: clear "waitForRelease"
+    // so that the next detected switch is accepted
+    waitForRelease = 0
+
+    // Headlight flashing function: Stop the headlight
+    // flashing when the button has been released.
+    // Note that turning the High Beam LEDs on for
+    // headlight flashing is implemented in a separate
+    // light program triggered by program-state-0
+    // so that the high beam LEDs can also be used in
+    // the normal light switch configuration as high
+    // beam function.
+    program-state-0 = 0
+
+    // Search light function: Turn the search light off
+    // when the button has been released.
+    // Here we control the LED directly as the search
+    // light LED output is exclusively controlled by
+    // this light program
+    search_light = 0
+
+    // Repeat processing
+    goto loop
+
+// Action when S1 is pressed
+s1_pressed:
+    // Set the light switch position to 0 (all lights off)
+    light-switch-position = 0
+    goto loop
+
+// Action when S2 is pressed
+s2_pressed:
+    // Set the light switch position to 1 (parking lights)
+    light-switch-position = 1
+    goto loop
+
+// Action when S3 is pressed
+s3_pressed:
+    // Set the light switch position to 2 (main beam)
+    light-switch-position = 2
+    goto loop
+
+// Action when S4 is pressed
+s4_pressed:
+    // Set the light switch position to 3 (high beam)
+    light-switch-position = 3
+    goto loop
+
+// Action when S5 is pressed
+s5_pressed:
+    // (No action in this demo)
+    goto loop
+
+// Action when S6 is pressed
+s6_pressed:
+    // Go to the function below that toggles
+    // the light bar on/off
+    goto toggle_lightbar
+
+// Action when S7 is pressed
+s7_pressed:
+    goto toggle_hazard
+
+// Action when S8 is pressed
+s8_pressed:
+    goto loop
+
+// Action when S9 is pressed
+s9_pressed:
+    goto loop
+
+// Action when S10 is pressed
+s10_pressed:
+    goto loop
+
+// Action when S11 is pressed
+s11_pressed:
+    // Switch the search light LED on.
+    // The LED will be switched off again when all
+    // buttons have been released (see "all_released" above)
+    search_light = 100
+    goto loop
+
+// Action when S12 is pressed
+s12_pressed:
+    // Set the special variable program-state-0 so
+    // that another light program triggered by this variable
+    // will run and turn the high beam LEDs on.
+    // program-state-0 will be cleared when all
+    // buttons have been released (see "all_released" above)
+    program-state-0 = 1
+    goto loop
+
+
+// Function to toggle the hazard lights
+toggle_hazard:
+    if is hazard
+    goto hazard_off
+    hazard = 1
+    goto loop
+hazard_off:
+    hazard = 0
+    goto loop
+
+// Function to toggle the light bar (OUT15S)
+toggle_lightbar:
+    if light_bar > 0
+    goto lightbar_off
+    light_bar = 100
+    goto loop
+lightbar_off:
+    light_bar = 0
+    goto loop
+
+end
+
+
+// Helper light program for the headlight flasher.
+// This program runs while the button controlling
+// the headlight flasher is pressed.
+// While the headlight flasher is active, the light
+// program takes control over LEDs 4 and 5 and turns
+// them on.
+// When the light program is not running then other
+// parts of the system can control LED 4 and 5, for
+// example the light switch (table LED configuration)
+// uses them for the high beam function.
+run when program-state-0
+led high_beam_l = led[4]
+led high_beam_r = led[5]
+
+loop:
+    sleep 0
+    all leds = 100
+    goto loop
+end
