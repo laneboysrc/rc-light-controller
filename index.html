@@ -23969,7 +23969,7 @@ document.addEventListener('DOMContentLoaded', function () {
         <h1><span id="logo"></span> RC Light Controller configuration tool</h1>
 
         <div>
-          Configurator version: <strong>2022-08-30</strong><br>
+          Configurator version: <strong>2022-11-06</strong><br>
           Firmware version: <strong><span id="firmware_version"></span></strong>
         </div>
 
@@ -24219,9 +24219,9 @@ document.addEventListener('DOMContentLoaded', function () {
           <br>
           Ensure that Master and Slave are using the same baudrate.
           <br>
-          Use 100000 Baud only for S.Bus.
+          Use <strong>115200</strong> Baud for <strong>Pre-Processor and i-Bus</strong>.
           <br>
-          Use 115200 Baud for i-Bus.
+          Use <strong>100000</strong> Baud only for <strong>S.Bus</strong>.
         </div>
       </div>
 
@@ -25362,6 +25362,13 @@ document.addEventListener('DOMContentLoaded', function () {
       <div id="info" class="hidden">
         <div class="box configuration">
           <h2>What's new</h2>
+
+          <div><strong>2022-11-06 Firmware 2.54</strong></div>
+          <ul class="change-history">
+            <li>
+              Improve description of how to select the correct baudrate.
+            </li>
+          </ul>
 
           <div><strong>2022-08-30 Firmware 2.54</strong></div>
           <ul class="change-history">
