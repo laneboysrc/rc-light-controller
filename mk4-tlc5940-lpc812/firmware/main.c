@@ -232,7 +232,8 @@ int main(void)
         tx_pin = HAL_GPIO_TH.pin;
     }
 
-    HAL_uart_init(config.baudrate, rx_pin, tx_pin);
+    // NOTE: don't invert RX input when in SLAVE mode!
+    HAL_uart_init(config.baudrate, rx_pin, tx_pin, config.mode != SLAVE);
 
     // The printf function is only used for diagnostics, so we default to
     // STDOUT_DEBUG for the file pointer!

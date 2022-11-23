@@ -307,7 +307,7 @@ Again we have to round by adding BAUDRATE * 16 / 2 to the nominator:
 
 
 // ****************************************************************************
-void HAL_uart_init(uint32_t baudrate, uint8_t rx_pin, uint8_t tx_pin)
+void HAL_uart_init(uint32_t baudrate, uint8_t rx_pin, uint8_t tx_pin, bool invert_100000)
 {
     // Defaults: 115200 8N1
     uint32_t uart_brg = BRGVAL(115200);
@@ -332,9 +332,14 @@ void HAL_uart_init(uint32_t baudrate, uint8_t rx_pin, uint8_t tx_pin)
 
     if (baudrate == 100000) {
         uart_brg = BRGVAL(100000);
+
+        uart_cfg = UART_CFG_8E2 | UART_CFG_ENABLE;
+
         // Set RXPOL to invert UART receiver polarity for S.Bus. Note that
         // RXPOL only works on LPC832
-        uart_cfg = UART_CFG_8E2 | UART_CFG_RXPOL | UART_CFG_ENABLE;
+        if (invert_100000) {
+            uart_cfg |= UART_CFG_RXPOL;
+        }
     }
     else if (baudrate == 38400) {
        uart_brg = BRGVAL(38400);
