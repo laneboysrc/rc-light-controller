@@ -1,0 +1,36 @@
+// After reversing, keep the reversing lights on
+// until the car drives forward again
+run always
+loop:
+  // Wait a bit so that other tasks can run
+  sleep 20
+
+    // If the car is reversing, set a special variable
+    // that will cause the reversing lights to turn on
+    if is reversing
+    program-state-0 = 1
+
+  // If the car is driving forward (but not reversing
+    // or neutral), clear the special variable. This
+    // stops the light program that controls the reversing
+    // lights, so they go off.
+    if is forward
+    program-state-0 = 0
+
+    // Keep doing this forever
+    goto loop
+end
+
+// This light program runs when the special variable
+// 'program-state-0' is '1'. While the program runs,
+// the reversing lights (OUT10 and OUT11 in this example)
+// are turned on at full brightness
+run when program-state-0
+  led rev1 = led[10]
+  led rev2 = led[11]
+
+loop:
+  sleep 0
+  all leds = 100%
+    goto loop
+end
