@@ -916,11 +916,11 @@ void HAL_ws2811_init(uint8_t tx_pin)
     spi1_mosi_pin = tx_pin;
     HAL_gpio_out_mask((1 << spi1_mosi_pin));
 
-    // // Use 3 MHz SPI clock. This means a single 'ws2811-bit' takes 3 bits
+    // // Use 4 MHz SPI clock. This means a single 'ws2811-bit' takes 3 bits
     // // over SPI. We send two ws2811-bits in a single SPI frame (6 bit frame).
-    LPC_SPI1->DIV = (HAL_SYSTEM_CLOCK / 3000000) - 1;
+    LPC_SPI1->DIV = (HAL_SYSTEM_CLOCK / 6000000) - 1;
 
-    LPC_SPI1->CFG = (1 << 0) |          // Enable SPI0
+    LPC_SPI1->CFG = (1 << 0) |          // Enable SPI1
                     (1 << 2) |          // Master mode
                     (0 << 3) |          // LSB First mode disabled
                     (0 << 4) |          // CPHA = 0
@@ -933,7 +933,7 @@ void HAL_ws2811_init(uint8_t tx_pin)
                        ((6 - 1) << 24); // 6 bit frames
 
     if (mcu_type != 0x812) {
-        LPC_SWM->PINASSIGN5 = (spi1_mosi_pin << 24) |  // SCK
+        LPC_SWM->PINASSIGN5 = (spi1_mosi_pin << 24) |  // SPI1_MOSI
                               (0xff << 16) |    // SPI1_SCK
                               (0xff << 8) |     // SPI0_SSEL3
                               (0xff << 0);      // SPI0_SSEL2
@@ -942,7 +942,7 @@ void HAL_ws2811_init(uint8_t tx_pin)
         LPC_SWM->PINASSIGN5 = (aux2_pin << 24) |            // CTIN_0
                               (0xff << 16) |                // SPI1_SSEL
                               (0xff << 8) |                 // SPI1_MISO
-                              (spi1_mosi_pin << 0);                // SPI1_MOSI
+                              (spi1_mosi_pin << 0);         // SPI1_MOSI
     }
 }
 
@@ -953,8 +953,16 @@ void HAL_ws2811_transaction(uint8_t *data, uint8_t count)
     int i;
     int j;
 
-    const uint8_t LOW = 0x5;    // 0b100;
-    const uint8_t HIGH = 0x6;   // 0b110;
+    const uint8_t LOW = 0x30;
+    const uint8_t HIGH = 0x3c;
+
+
+
+    // 0.4
+    // 0.8
+    // 0.85
+    // 0.45
+
 
     // Wait for MSTIDLE, should be a no-op since we are waiting after
     // the transfer.
@@ -962,18 +970,18 @@ void HAL_ws2811_transaction(uint8_t *data, uint8_t count)
 
     for (i = 0; i < count; i++) {
 
-        // Transmit two ws2811-bits in a single SPI frame (6 bit frame)
-        for (j = 0; j < 4 ; j++) {
+        // Transmit one ws2811-bit in a single SPI frame (10 bit frame)
+        for (j = 0; j < 8 ; j++) {
             uint8_t value;
 
-            value = (data[i] & 0x80 ? HIGH : LOW) << 3;
-            value |= data[i] & 0x40 ? HIGH : LOW;
-            data[i] = data[i] << 2;
-
+            value = data[i] & 0x80 ? HIGH : LOW;
+            // value = (i == 4) ? HIGH : LOW;
             // Wait for TXRDY
             while (!(LPC_SPI1->STAT & (1 << 1)));
 
             LPC_SPI1->TXDAT = value;
+
+            data[i] = data[i] << 1;
         }
     }
 

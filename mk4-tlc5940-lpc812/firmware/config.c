@@ -28,7 +28,7 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
         // .winch_output = false,
         .steering_wheel_servo_output = true,
         .gearbox_servo_output = false,
-        .ws2811_output = false,
+        .ws2811_output = true,
 
         .ch3_is_local_switch = false,
         .ch3_is_momentary = false,
@@ -49,10 +49,10 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
         // Important: those flags need to be set correctly depeding on the
         // flags above (slave_outout, preprocessor_output ...)
         .uart_rx_on_st = true,
-        .uart_tx_on_th = true,
-        .uart_tx_on_out = false,
-        .servo_on_th = false,
-        .servo_on_out = true,
+        .uart_tx_on_th = false,
+        .uart_tx_on_out = true,
+        .servo_on_th = true,
+        .servo_on_out = false,
         .uart_diagnostics_enabled = true,
         .servo_output_enabled = true,
 
