@@ -1820,7 +1820,7 @@ var app = (function () {
         for (i = 0; i < configuration.local_leds.led_count; i += 1) {
             diagnostics_mask |= configuration.local_leds[i].diagnostics;
         }
-        if (configuration.slave_output || configration.ws2811_output) {
+        if (configuration.slave_output || configuration.ws2811_output) {
             for (i = 0; i < configuration.slave_leds.led_count; i += 1) {
                 diagnostics_mask |= configuration.slave_leds[i].diagnostics;
             }

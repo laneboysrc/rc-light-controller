@@ -35,8 +35,8 @@ static volatile bool receive_buffer_overflow;
 
 static volatile bool new_raw_channel_data = false;
 
-static uint8_t aux2_pin;
-static uint8_t spi1_mosi_pin;
+static uint8_t aux2_pin = 0xff;
+static uint8_t spi1_mosi_pin = 0xff;
 static volatile bool aux3_active = false;
 static volatile uint32_t aux2_aux3_timeout;
 static uint32_t raw_data[5];
@@ -124,9 +124,9 @@ void HAL_hardware_init(void)
     LPC_FLASHCTRL->FLASHCFG = 0;
 
 
-    // Turn on peripheral clocks for SCTimer, IOCON, SPI0
+    // Turn on peripheral clocks for SCTimer, IOCON, SPI1, SPI0
     // (GPIO, SWM alrady enabled after reset)
-    LPC_SYSCON->SYSAHBCLKCTRL |= (1 << 8) | (1 << 18) | (1 << 11);
+    LPC_SYSCON->SYSAHBCLKCTRL |= (1 << 8) | (1 << 18) | (1 << 12) | (1 << 11);
 
 
     // ------------------------
@@ -670,7 +670,7 @@ void HAL_servo_reader_init(void)
         LPC_SWM->PINASSIGN5 = (aux2_pin << 24) |            // CTIN_0
                               (0xff << 16) |                // SPI1_SSEL
                               (0xff << 8) |                 // SPI1_MISO
-                              (0xff << 0);                  // SPI1_MOSI
+                              (spi1_mosi_pin << 0);         // SPI1_MOSI
 
         LPC_SWM->PINASSIGN6 = (0xff << 24) |                // CTOUT_0
                               (HAL_GPIO_AUX.pin << 16) |    // CTIN_3
@@ -916,8 +916,8 @@ void HAL_ws2811_init(uint8_t tx_pin)
     spi1_mosi_pin = tx_pin;
     HAL_gpio_out_mask((1 << spi1_mosi_pin));
 
-    // Use 3 MHz SPI clock. This means a single 'ws2811-bit' takes 3 bits
-    // over SPI. We send two ws2811-bits in a single SPI frame (6 bit frame).
+    // // Use 3 MHz SPI clock. This means a single 'ws2811-bit' takes 3 bits
+    // // over SPI. We send two ws2811-bits in a single SPI frame (6 bit frame).
     LPC_SPI1->DIV = (HAL_SYSTEM_CLOCK / 3000000) - 1;
 
     LPC_SPI1->CFG = (1 << 0) |          // Enable SPI0
@@ -973,7 +973,7 @@ void HAL_ws2811_transaction(uint8_t *data, uint8_t count)
             // Wait for TXRDY
             while (!(LPC_SPI1->STAT & (1 << 1)));
 
-            LPC_SPI1->TXDAT = data[i - 1];
+            LPC_SPI1->TXDAT = value;
         }
     }
 
