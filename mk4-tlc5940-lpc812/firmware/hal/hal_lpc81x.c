@@ -36,6 +36,7 @@ static volatile bool receive_buffer_overflow;
 static volatile bool new_raw_channel_data = false;
 
 static uint8_t aux2_pin;
+static uint8_t spi1_mosi_pin;
 static volatile bool aux3_active = false;
 static volatile uint32_t aux2_aux3_timeout;
 static uint32_t raw_data[5];
@@ -697,15 +698,15 @@ static void swap_aux2_aux3(void)
         aux3_active = true;
         if (mcu_type != 0x812) {
             LPC_SWM->PINASSIGN6 = (HAL_GPIO_AUX3.pin << 24) |   // CTIN_0
-                                  (0xff << 16) |                // SPI1_SSEL
-                                  (0xff << 8) |                 // SPI1_MISO
-                                  (0xff << 0);                  // SPI1_MOSI
+                                  (0xff << 16) |                // SPI1_SSEL0
+                                  (0xff << 8) |                 // SPI1_SSEL1
+                                  (0xff << 0);                  // SPI1_MISO
         }
         else {
             LPC_SWM->PINASSIGN5 = (HAL_GPIO_AUX3.pin << 24) |   // CTIN_0
                                   (0xff << 16) |                // SPI1_SSEL
                                   (0xff << 8) |                 // SPI1_MISO
-                                  (0xff << 0);                  // SPI1_MOSI
+                                  (spi1_mosi_pin << 0);         // SPI1_MOSI
         }
 
     }
@@ -713,15 +714,15 @@ static void swap_aux2_aux3(void)
         aux3_active  = false;
         if (mcu_type != 0x812) {
             LPC_SWM->PINASSIGN6 = (aux2_pin << 24) |            // CTIN_0
-                                  (0xff << 16) |                // SPI1_SSEL
-                                  (0xff << 8) |                 // SPI1_MISO
-                                  (0xff << 0);                  // SPI1_MOSI
+                                  (0xff << 16) |                // SPI1_SSEL0
+                                  (0xff << 8) |                 // SPI1_SSEL1
+                                  (0xff << 0);                  // SPI1_MISO
         }
         else {
             LPC_SWM->PINASSIGN5 = (aux2_pin << 24) |            // CTIN_0
                                   (0xff << 16) |                // SPI1_SSEL
                                   (0xff << 8) |                 // SPI1_MISO
-                                  (0xff << 0);                  // SPI1_MOSI
+                                  (spi1_mosi_pin << 0);         // SPI1_MOSI
         }
     }
 
@@ -906,6 +907,81 @@ void HAL_spi_transaction(uint8_t *data, uint8_t count)
 
     // Wait for the transfer to finish
     while (!(LPC_SPI0->STAT & (1 << 8)));
+}
+
+
+// ****************************************************************************
+void HAL_ws2811_init(uint8_t tx_pin)
+{
+    spi1_mosi_pin = tx_pin;
+    HAL_gpio_out_mask((1 << spi1_mosi_pin));
+
+    // Use 3 MHz SPI clock. This means a single 'ws2811-bit' takes 3 bits
+    // over SPI. We send two ws2811-bits in a single SPI frame (6 bit frame).
+    LPC_SPI1->DIV = (HAL_SYSTEM_CLOCK / 3000000) - 1;
+
+    LPC_SPI1->CFG = (1 << 0) |          // Enable SPI0
+                    (1 << 2) |          // Master mode
+                    (0 << 3) |          // LSB First mode disabled
+                    (0 << 4) |          // CPHA = 0
+                    (0 << 5) |          // CPOL = 0
+                    (0 << 8);           // SPOL = 0
+
+    LPC_SPI1->TXCTRL = (1 << 21) |      // set EOF
+                       (1 << 22) |      // RXIGNORE, otherwise SPI hangs until
+                                        //   we read the data register
+                       ((6 - 1) << 24); // 6 bit frames
+
+    if (mcu_type != 0x812) {
+        LPC_SWM->PINASSIGN5 = (spi1_mosi_pin << 24) |  // SCK
+                              (0xff << 16) |    // SPI1_SCK
+                              (0xff << 8) |     // SPI0_SSEL3
+                              (0xff << 0);      // SPI0_SSEL2
+    }
+    else {
+        LPC_SWM->PINASSIGN5 = (aux2_pin << 24) |            // CTIN_0
+                              (0xff << 16) |                // SPI1_SSEL
+                              (0xff << 8) |                 // SPI1_MISO
+                              (spi1_mosi_pin << 0);                // SPI1_MOSI
+    }
+}
+
+
+// ****************************************************************************
+void HAL_ws2811_transaction(uint8_t *data, uint8_t count)
+{
+    int i;
+    int j;
+
+    const uint8_t LOW = 0x5;    // 0b100;
+    const uint8_t HIGH = 0x6;   // 0b110;
+
+    // Wait for MSTIDLE, should be a no-op since we are waiting after
+    // the transfer.
+    while (!(LPC_SPI1->STAT & (1 << 8)));
+
+    for (i = 0; i < count; i++) {
+
+        // Transmit two ws2811-bits in a single SPI frame (6 bit frame)
+        for (j = 0; j < 4 ; j++) {
+            uint8_t value;
+
+            value = (data[i] & 0x80 ? HIGH : LOW) << 3;
+            value |= data[i] & 0x40 ? HIGH : LOW;
+            data[i] = data[i] << 2;
+
+            // Wait for TXRDY
+            while (!(LPC_SPI1->STAT & (1 << 1)));
+
+            LPC_SPI1->TXDAT = data[i - 1];
+        }
+    }
+
+    // Force END OF TRANSFER
+    LPC_SPI1->STAT = (1 << 7);
+
+    // Wait for the transfer to finish
+    while (!(LPC_SPI1->STAT & (1 << 8)));
 }
 
 

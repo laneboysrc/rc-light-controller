@@ -154,6 +154,14 @@ static void output_lights(void)
     else {
         HAL_gpio_write(HAL_GPIO_SWITCHED_LIGHT_OUTPUT, light_setpoint[15]);
     }
+
+    if (config.flags.ws2811_output) {
+        for (i = 0; i < 16; i++) {
+           data[i] = gamma_table.gamma_table[light_actual[16 + i]];
+        }
+        HAL_ws2811_transaction(data, 16);
+    }
+
 }
 
 
@@ -657,16 +665,14 @@ static void process_car_lights(void)
             &max_change_per_systick[i]);
     }
 
-    if (config.flags.slave_output) {
-        // Handle LEDs connected to a slave light controller
-        for (i = 0; i < slave_leds.led_count ; i++) {
-            if (leds_used & (1 << (16 + i))) {
-                continue;
-            }
-
-            process_light(&slave_leds.car_lights[i], &light_setpoint[16 + i],
-                &max_change_per_systick[16 + i]);
+    // Handle LEDs connected to a slave light controller
+    for (i = 0; i < slave_leds.led_count ; i++) {
+        if (leds_used & (1 << (16 + i))) {
+            continue;
         }
+
+        process_light(&slave_leds.car_lights[i], &light_setpoint[16 + i],
+            &max_change_per_systick[16 + i]);
     }
 
     // Apply max_change_per_systick while copying from light_setpoint to

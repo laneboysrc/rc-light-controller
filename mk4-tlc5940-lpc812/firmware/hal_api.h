@@ -20,6 +20,9 @@ void HAL_putc(void *p, char c);
 void HAL_spi_init(void);
 void HAL_spi_transaction(uint8_t *data, uint8_t count);
 
+void HAL_ws2811_init(uint8_t tx_pin);
+void HAL_ws2811_transaction(uint8_t *data, uint8_t count);
+
 volatile const uint32_t *HAL_persistent_storage_read(void);
 const char *HAL_persistent_storage_write(const uint32_t *new_data);
 
