@@ -916,8 +916,8 @@ void HAL_ws2811_init(uint8_t tx_pin)
     spi1_mosi_pin = tx_pin;
     HAL_gpio_out_mask((1 << spi1_mosi_pin));
 
-    // // Use 4 MHz SPI clock. This means a single 'ws2811-bit' takes 3 bits
-    // // over SPI. We send two ws2811-bits in a single SPI frame (6 bit frame).
+    // Use 6 MHz SPI clock. This means a single 'ws2811-bit' takes 6 bits
+    // over SPI. We send two ws2811-bits in a single SPI frame (12 bit frame).
     LPC_SPI1->DIV = (HAL_SYSTEM_CLOCK / 6000000) - 1;
 
     LPC_SPI1->CFG = (1 << 0) |          // Enable SPI1
@@ -930,7 +930,7 @@ void HAL_ws2811_init(uint8_t tx_pin)
     LPC_SPI1->TXCTRL = (1 << 21) |      // set EOF
                        (1 << 22) |      // RXIGNORE, otherwise SPI hangs until
                                         //   we read the data register
-                       ((6 - 1) << 24); // 6 bit frames
+                       ((12 - 1) << 24); // 12 bit frames
 
     if (mcu_type != 0x812) {
         LPC_SWM->PINASSIGN5 = (spi1_mosi_pin << 24) |  // SPI1_MOSI
@@ -956,37 +956,39 @@ void HAL_ws2811_transaction(uint8_t *data, uint8_t count)
     const uint8_t LOW = 0x30;
     const uint8_t HIGH = 0x3c;
 
-
-
-    // 0.4
-    // 0.8
-    // 0.85
-    // 0.45
-
-
     // Wait for MSTIDLE, should be a no-op since we are waiting after
     // the transfer.
     while (!(LPC_SPI1->STAT & (1 << 8)));
 
+    __disable_irq();
+
+    while (!(LPC_SPI1->STAT & (1 << 1)));
+    LPC_SPI1->TXDAT = 0;
+
     for (i = 0; i < count; i++) {
+        uint8_t byte = data[i];
 
-        // Transmit one ws2811-bit in a single SPI frame (10 bit frame)
-        for (j = 0; j < 8 ; j++) {
-            uint8_t value;
+        // Transmit two ws2811-bits in a single SPI frame (12 bit frame)
+        for (j = 0; j < 4 ; j++) {
+            uint16_t value;
 
-            value = data[i] & 0x80 ? HIGH : LOW;
-            // value = (i == 4) ? HIGH : LOW;
+            value = (byte & 0x80 ? HIGH : LOW) << 6;
+            value |= byte & 0x40 ? HIGH : LOW;
+            byte = byte << 2;
             // Wait for TXRDY
             while (!(LPC_SPI1->STAT & (1 << 1)));
 
             LPC_SPI1->TXDAT = value;
-
-            data[i] = data[i] << 1;
         }
     }
 
+    while (!(LPC_SPI1->STAT & (1 << 1)));
+    LPC_SPI1->TXDAT = 0;
+
     // Force END OF TRANSFER
     LPC_SPI1->STAT = (1 << 7);
+
+    __enable_irq();
 
     // Wait for the transfer to finish
     while (!(LPC_SPI1->STAT & (1 << 8)));

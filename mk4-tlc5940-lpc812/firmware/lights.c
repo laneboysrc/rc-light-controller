@@ -156,11 +156,10 @@ static void output_lights(void)
     }
 
     if (config.flags.ws2811_output) {
-        for (i = 0; i < 15; i++) {
-           // data[i] = gamma_table.gamma_table[light_actual[16 + i]];
-           data[i] = light_actual[16 + i];
+        for (i = 0; i < 16; i++) {
+           data[i] = gamma_table.gamma_table[light_actual[16 + i]];
         }
-        HAL_ws2811_transaction(data, 16);
+        HAL_ws2811_transaction(data, 15);
     }
 
 }
