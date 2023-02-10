@@ -953,8 +953,30 @@ void HAL_ws2811_transaction(uint8_t *data, uint8_t count)
     int i;
     int j;
 
+    // WS2812B: 6 bit / 6 MHz
     const uint8_t LOW = 0x30;
     const uint8_t HIGH = 0x3c;
+
+    // WS2811:
+    // 0: H=500ns  L=2000ns  +/-150ns
+    // 1: H=1200ns L=1300ns  +/-150ns
+    //
+    // 4 MHz => 250ns => 10 bit
+    // 0: H=2 L=8
+    // 1: H=5 L=5
+    //
+    // Double speed
+    // 0: H=250ns L=1000ns  +/-150ns?
+    // 1: H=600ns L=650ns   +/-150ns?
+    // 4 MHz => 250ns => 5 bit
+    // 0: H=1 L=4
+    // 1: H=2 L=3 (H and L may be out of tolerance!)
+    // 3 MHz => 333ns => 4 bit   <= would be ideal to transmit 4 bits at a time!
+    // 0: H=1 L=3 (H may be out of tolerance!)
+    // 1: H=2 L=2
+    // 6 MHz => 167ns => 7 bit
+    // 0: H=1 L=6 (H may be out of tolerance!)
+    // 1: H=3 L=4 (H may be out of tolerance!)
 
     // Wait for MSTIDLE, should be a no-op since we are waiting after
     // the transfer.
