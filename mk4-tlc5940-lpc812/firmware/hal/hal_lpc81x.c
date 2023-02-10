@@ -957,7 +957,14 @@ void HAL_ws2811_transaction(uint8_t *data, uint8_t count)
     const uint8_t LOW = 0x30;
     const uint8_t HIGH = 0x3c;
 
-    // WS2811:
+    // WS2811 CN datasheet:
+    // 0: H=220ns~380ns L=580ns~1us
+    // 1: H=580ns~1us L=220ns~420ns
+    // 4 MHz => 250ns => 4 bit  <= would be ideal to transmit 4 bits at a time!
+    // 0: H=1 L=3
+    // 1: H=3 L=1
+
+    // WS2811 English datasheet:
     // 0: H=500ns  L=2000ns  +/-150ns
     // 1: H=1200ns L=1300ns  +/-150ns
     //
