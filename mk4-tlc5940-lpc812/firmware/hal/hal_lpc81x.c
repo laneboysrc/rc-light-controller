@@ -928,7 +928,7 @@ void HAL_ws2811_init(uint8_t tx_pin)
     LPC_SPI1->TXCTRL = (1 << 21) |      // set EOF
                        (1 << 22) |      // RXIGNORE, otherwise SPI hangs until
                                         //   we read the data register
-                       ((8 - 1) << 24); // 8 bit frames
+                       ((16 - 1) << 24); // 16 bit frames
 
     if (mcu_type != 0x812) {
         LPC_SWM->PINASSIGN5 = (spi1_mosi_pin << 24) |  // SPI1_MOSI
@@ -949,7 +949,7 @@ void HAL_ws2811_init(uint8_t tx_pin)
 void HAL_ws2811_transaction(uint8_t *data, uint8_t count)
 {
     int i;
-    int j;
+    // int j;
 
     // WS2812B: 6 bit / 6 MHz
     // const uint8_t LOW = 0x30;
@@ -961,8 +961,27 @@ void HAL_ws2811_transaction(uint8_t *data, uint8_t count)
     // 4 MHz => 250ns => 4 bit  <= would be ideal to transmit 4 bits at a time!
     // 0: H=1 L=3
     // 1: H=3 L=1
-    const uint8_t LOW = 0x08;
-    const uint8_t HIGH = 0x0e;
+    // const uint8_t LOW = 0x08;
+    // const uint8_t HIGH = 0x0e;
+
+    static const uint16_t led_data[] = {
+        0x8888, // 0
+        0x888e, // 1
+        0x88e8, // 2
+        0x88ee, // 3
+        0x8e88, // 4
+        0x8e8e, // 5
+        0x8ee8, // 6
+        0x8eee, // 7
+        0xe888, // 8
+        0xe88e, // 9
+        0xe8e8, // a
+        0xe8ee, // b
+        0xee88, // c
+        0xee8e, // d
+        0xeee8, // e
+        0xeeee, // f
+    };
 
     // WS2811 English datasheet:
     // 0: H=500ns  L=2000ns  +/-150ns
@@ -996,19 +1015,16 @@ void HAL_ws2811_transaction(uint8_t *data, uint8_t count)
 
     for (i = 0; i < count; i++) {
         uint8_t byte = data[i];
+        uint16_t value;
 
-        // Transmit two ws2811-bits in a single SPI frame (12 bit frame)
-        for (j = 0; j < 4 ; j++) {
-            uint16_t value;
 
-            value = (byte & 0x80 ? HIGH : LOW) << 4;
-            value |= byte & 0x40 ? HIGH : LOW;
-            byte = byte << 2;
-            // Wait for TXRDY
-            while (!(LPC_SPI1->STAT & (1 << 1)));
+        value = led_data[byte >> 4];
+        while (!(LPC_SPI1->STAT & (1 << 1)));
+        LPC_SPI1->TXDAT = value;
 
-            LPC_SPI1->TXDAT = value;
-        }
+        value = led_data[byte & 0x0f];
+        while (!(LPC_SPI1->STAT & (1 << 1)));
+        LPC_SPI1->TXDAT = value;
     }
 
     while (!(LPC_SPI1->STAT & (1 << 1)));
