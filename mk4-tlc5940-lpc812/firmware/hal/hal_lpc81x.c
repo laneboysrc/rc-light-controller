@@ -916,9 +916,7 @@ void HAL_ws2811_init(uint8_t tx_pin)
     spi1_mosi_pin = tx_pin;
     HAL_gpio_out_mask((1 << spi1_mosi_pin));
 
-    // Use 6 MHz SPI clock. This means a single 'ws2811-bit' takes 6 bits
-    // over SPI. We send two ws2811-bits in a single SPI frame (12 bit frame).
-    LPC_SPI1->DIV = (HAL_SYSTEM_CLOCK / 6000000) - 1;
+    LPC_SPI1->DIV = (HAL_SYSTEM_CLOCK / 4000000) - 1;
 
     LPC_SPI1->CFG = (1 << 0) |          // Enable SPI1
                     (1 << 2) |          // Master mode
@@ -930,7 +928,7 @@ void HAL_ws2811_init(uint8_t tx_pin)
     LPC_SPI1->TXCTRL = (1 << 21) |      // set EOF
                        (1 << 22) |      // RXIGNORE, otherwise SPI hangs until
                                         //   we read the data register
-                       ((12 - 1) << 24); // 12 bit frames
+                       ((8 - 1) << 24); // 8 bit frames
 
     if (mcu_type != 0x812) {
         LPC_SWM->PINASSIGN5 = (spi1_mosi_pin << 24) |  // SPI1_MOSI
@@ -954,8 +952,8 @@ void HAL_ws2811_transaction(uint8_t *data, uint8_t count)
     int j;
 
     // WS2812B: 6 bit / 6 MHz
-    const uint8_t LOW = 0x30;
-    const uint8_t HIGH = 0x3c;
+    // const uint8_t LOW = 0x30;
+    // const uint8_t HIGH = 0x3c;
 
     // WS2811 CN datasheet:
     // 0: H=220ns~380ns L=580ns~1us
@@ -963,6 +961,8 @@ void HAL_ws2811_transaction(uint8_t *data, uint8_t count)
     // 4 MHz => 250ns => 4 bit  <= would be ideal to transmit 4 bits at a time!
     // 0: H=1 L=3
     // 1: H=3 L=1
+    const uint8_t LOW = 0x08;
+    const uint8_t HIGH = 0x0e;
 
     // WS2811 English datasheet:
     // 0: H=500ns  L=2000ns  +/-150ns
@@ -1001,7 +1001,7 @@ void HAL_ws2811_transaction(uint8_t *data, uint8_t count)
         for (j = 0; j < 4 ; j++) {
             uint16_t value;
 
-            value = (byte & 0x80 ? HIGH : LOW) << 6;
+            value = (byte & 0x80 ? HIGH : LOW) << 4;
             value |= byte & 0x40 ? HIGH : LOW;
             byte = byte << 2;
             // Wait for TXRDY
