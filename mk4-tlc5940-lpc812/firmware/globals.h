@@ -467,15 +467,17 @@ typedef struct {
         // If mode is MASTER_WITH_SERVO_READER  then all flags are mutually
         // exculsive.
         // If mode is MASTER_WITH_UART_READER or MASTER_WITH_CPPM_INPUT then
-        // there can be one UART output (slave, preprocessor or ws2811_output)
-        // and one servo output (steering wheel or gearbox servo; or switched
-        // light output)
+        // there can be one UART output (slave, preprocessor or winch) and one
+        // servo output (steering wheel or gearbox servo; or switched light
+        // output)
         unsigned int slave_output : 1;
         unsigned int preprocessor_output : 1;
+        // unsigned int winch_output : 1;
         unsigned int reserved1 : 1;     // previously winch output
         unsigned int steering_wheel_servo_output : 1;
         unsigned int gearbox_servo_output : 1;
-        unsigned int ws2811_output : 1;
+
+        unsigned int reserved0 : 1;
 
         unsigned int ch3_is_local_switch : 1;
         unsigned int ch3_is_momentary : 1;

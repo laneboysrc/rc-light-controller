@@ -12,7 +12,7 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
         .version = CONFIG_VERSION
     },
 
-    .firmware_version = 57,
+    .firmware_version = 55,
 
     .mode = MASTER_WITH_UART_READER,
     .esc_mode = ESC_FORWARD_BRAKE_REVERSE_TIMEOUT,
@@ -28,7 +28,6 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
         // .winch_output = false,
         .steering_wheel_servo_output = true,
         .gearbox_servo_output = false,
-        .ws2811_output = false,
 
         .ch3_is_local_switch = false,
         .ch3_is_momentary = false,
