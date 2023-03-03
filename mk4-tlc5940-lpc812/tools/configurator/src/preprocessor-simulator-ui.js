@@ -104,6 +104,12 @@ class Preprocessor_simulator_ui {
 
     this.startup_mode_changed();
     setTimeout(this.startup_mode_auto_timeout.bind(this), 1000);
+
+    // Send the AUX values to the Simulator so that the sent signals after
+    // initialization immediately represent the slider values
+    this.aux_slider_changed(this.el.aux[this.AUX]);
+    this.aux_slider_changed(this.el.aux[this.AUX2]);
+    this.aux_slider_changed(this.el.aux[this.AUX3]);
   }
 
   _addEventListener(element, event, listener) {
