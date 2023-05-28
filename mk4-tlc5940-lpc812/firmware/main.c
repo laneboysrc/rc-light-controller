@@ -232,13 +232,19 @@ int main(void)
         tx_pin = HAL_GPIO_TH.pin;
     }
 
-    // If the output function is set to WS2811 then use SPI with the assigned
-    // TX pin, and clear tx_pin so that the UART initialization does not
-    // use the pin itself.
+    // // If the output function is set to WS2811 then use SPI with the assigned
+    // // TX pin, and clear tx_pin so that the UART initialization does not
+    // // use the pin itself.
+    // if (config.flags.ws2811_output) {
+    //     HAL_ws2811_init(tx_pin);
+    //     tx_pin = HAL_GPIO_NO_PIN;
+    // }
+
+    // If the output function is set to WS2811 then use SPI with the OUT15S pin.
     if (config.flags.ws2811_output) {
-        HAL_ws2811_init(tx_pin);
-        tx_pin = HAL_GPIO_NO_PIN;
+        HAL_ws2811_init(HAL_GPIO_SWITCHED_LIGHT_OUTPUT.pin);
     }
+
 
     // NOTE: don't invert RX input when in SLAVE mode!
     HAL_uart_init(config.baudrate, rx_pin, tx_pin, config.mode != SLAVE);

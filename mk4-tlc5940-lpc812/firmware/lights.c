@@ -148,11 +148,13 @@ static void output_lights(void)
     // dedicated output pin.
     // Fading is not applied. 0 turns the output off, any other value on.
 
-    if (config.flags2.invert_out15s) {
-        HAL_gpio_write(HAL_GPIO_SWITCHED_LIGHT_OUTPUT, !light_setpoint[15]);
-    }
-    else {
-        HAL_gpio_write(HAL_GPIO_SWITCHED_LIGHT_OUTPUT, light_setpoint[15]);
+    if (!config.flags.ws2811_output) {
+        if (config.flags2.invert_out15s) {
+            HAL_gpio_write(HAL_GPIO_SWITCHED_LIGHT_OUTPUT, !light_setpoint[15]);
+        }
+        else {
+            HAL_gpio_write(HAL_GPIO_SWITCHED_LIGHT_OUTPUT, light_setpoint[15]);
+        }
     }
 
     if (config.flags.ws2811_output) {
