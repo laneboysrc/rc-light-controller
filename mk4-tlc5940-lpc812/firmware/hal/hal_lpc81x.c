@@ -42,6 +42,12 @@ static volatile uint32_t aux2_aux3_timeout;
 static uint32_t raw_data[5];
 
 
+// With a SPI clock of 4 MHz we need 4 bits to transmit a bit of WS281x encoded
+// data.
+// So to transmit the 8 bits for a single LED (note: Ws281x contain 3 LEDs) we
+// need 8 * 4 = 32 bits, which is two uint16.
+static uint16_t ws281x_bitstream[MAX_NUMBER_OF_WS281X * LEDS_PER_WS281X * 2];
+
 
 // ****************************************************************************
 // LPC832 specific functionality
@@ -946,19 +952,14 @@ void HAL_ws2811_init(uint8_t tx_pin)
 
 
 // ****************************************************************************
-void HAL_ws2811_transaction(uint8_t *data, uint8_t count)
+void HAL_ws2811_transaction(uint8_t *data, uint8_t count, bool inverted)
 {
     int i;
-    // int j;
-
-    // WS2812B: 6 bit / 6 MHz
-    // const uint8_t LOW = 0x30;
-    // const uint8_t HIGH = 0x3c;
 
     // WS2811 CN datasheet:
     // 0: H=220ns~380ns L=580ns~1us
     // 1: H=580ns~1us L=220ns~420ns
-    // 4 MHz => 250ns => 4 bit  <= would be ideal to transmit 4 bits at a time!
+    // 4 MHz => 250ns => 4 bit  <= would be ideal to transmit 4 bits in a 16 bit transaction!
     // 0: H=1 L=3
     // 1: H=3 L=1
     // const uint8_t LOW = 0x08;
@@ -983,68 +984,27 @@ void HAL_ws2811_transaction(uint8_t *data, uint8_t count)
         0xeeee, // f
     };
 
-    // Inverted data, for use out OUT15S
-    // 0: L=1 H=3
-    // 1: L=3 H=1
-    // static const uint16_t led_data[] = {
-    //     0x7777, // 0
-    //     0x7771, // 7
-    //     0x7717, // 2
-    //     0x7711, // 3
-    //     0x7177, // 4
-    //     0x7171, // 5
-    //     0x7117, // 6
-    //     0x7111, // 1
-    //     0x1777, // 8
-    //     0x1771, // 9
-    //     0x1717, // a
-    //     0x1711, // b
-    //     0x1177, // c
-    //     0x1171, // d
-    //     0x1117, // e
-    //     0x1111, // f
-    // };
+    int ws_index = 0;
+    uint16_t inversion = 0;
 
-
-    // Wait for MSTIDLE, should be a no-op since we are waiting after
-    // the transfer.
-    // while (!(LPC_SPI1->STAT & (1 << 8)));
-
-    // __disable_irq();
-
-    // Set data out to 0 at the begin; if we don't do that for some reason
-    // the first data byte sent is all high
-    // UNCLEAR WHY THIS IS NEEDED
-    // while (!(LPC_SPI1->STAT & (1 << 1)));
-    // LPC_SPI1->TXDAT = 0xffff;
-    // LPC_SPI1->TXDAT = 0x0000;
+    if (inverted) {
+        inversion = 0xffff;
+    }
 
     for (i = 0; i < count; i++) {
         uint8_t byte = data[i];
+
+        ws281x_bitstream[ws_index++] = led_data[byte >> 4] ^ inversion;
+        ws281x_bitstream[ws_index++] = led_data[byte & 0x0f] ^ inversion;
+    }
+
+    for (i = 0; i < ws_index; i++) {
         uint16_t value;
 
-        value = led_data[byte >> 4];
-        while (!(LPC_SPI1->STAT & (1 << 1)));
-        LPC_SPI1->TXDAT = value;
-
-        value = led_data[byte & 0x0f];
+        value = ws281x_bitstream[i];
         while (!(LPC_SPI1->STAT & (1 << 1)));
         LPC_SPI1->TXDAT = value;
     }
-
-    // UNCLEAR WHY THIS IS NEEDED
-    // Set data out to 0 for reset
-    // while (!(LPC_SPI1->STAT & (1 << 1)));
-    // LPC_SPI1->TXDAT = 0xffff;
-    // LPC_SPI1->TXDAT = 0x0000;
-
-    // Force END OF TRANSFER
-    // LPC_SPI1->STAT = (1 << 7);
-
-    // __enable_irq();
-
-    // Wait for the transfer to finish
-    // while (!(LPC_SPI1->STAT & (1 << 8)));
 }
 
 

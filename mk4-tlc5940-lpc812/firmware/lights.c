@@ -114,6 +114,7 @@ LED_T light_actual[MAX_LIGHTS];
 uint8_t max_change_per_systick[MAX_LIGHTS];
 static uint8_t diagnostics;
 
+uint8_t ws281x_buffer[WS281X_BUFFER_SIZE];
 
 
 // ****************************************************************************
@@ -159,11 +160,10 @@ static void output_lights(void)
 
     if (config.flags.ws2811_output) {
         for (i = 0; i < 16; i++) {
-           data[i] = gamma_table.gamma_table[light_actual[16 + i]];
+           ws281x_buffer[i] = gamma_table.gamma_table[light_actual[16 + i]];
         }
-        HAL_ws2811_transaction(data, 15);
+        HAL_ws2811_transaction(ws281x_buffer, 15, false);
     }
-
 }
 
 

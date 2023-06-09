@@ -59,6 +59,9 @@ var disassembler = (function () {
         'XOR_I': 0x1f,
         'MOD': 0x38,
         'MOD_I': 0x39,
+        'EXTERN_LEDS_SET_COUNT': 0x3a,
+        'EXTERN_LEDS_SET': 0x3b,
+        'EXTERN_LEDS_ADD': 0x3c,
         'ABS': 0x40,                // VAR = |VAR| (steering, throttle)
         'SKIP_IF_EQ_V': 0x20,       // ==       var, type, id
         'SKIP_IF_EQ_VI': 0x21,      // ==       var, immediate
@@ -743,7 +746,7 @@ var disassembler = (function () {
             return STATE_END_OF_PROGRAM;
 
         case opcodes.GOTO:
-            var address = (instruction & 0xffffff);
+            const address = (instruction & 0xffffff);
 
             if (asm[offset + address].label === null) {
                 asm[offset + address].label = 'label' + address;
@@ -851,9 +854,37 @@ var disassembler = (function () {
                 decode_variable_assignment(instruction, '= abs');
             break;
 
+        case opcodes.EXTERN_LEDS_SET_COUNT:
+            asm[offset + pc++].code = 'extern-leds-set-count ' + instruction & 0xffff;
+            break;
+
+        case opcodes.EXTERN_LEDS_SET:
+            const address_set = (instruction & 0xffffff);
+
+            if (asm[offset + address].label === null) {
+                asm[offset + address].label = 'label' + address_set;
+            }
+
+            asm[offset + pc++].code = 'extern-leds-set ' + asm[offset + address_set].label;
+            break;
+
+        case opcodes.EXTERN_LEDS_ADD:
+            const address_add = (instruction & 0xffffff);
+
+            if (asm[offset + address].label === null) {
+                asm[offset + address].label = 'label' + address_add;
+            }
+
+            asm[offset + pc++].code = 'extern-leds-add ' + asm[offset + address_add].label;
+            break;
+
         default:
+            let b0 = instruction & 0xff;
+            let b1 = (instruction >> 8) & 0xff;
+            let b2 = (instruction >> 16) & 0xff;
+            let b3 = (instruction >> 24) & 0xff;
             asm[offset + pc++].code =
-                'TODO 0x' + instruction.toString(16);
+                'DATA 0x' + b0.toString(16) + ' 0x' + b1.toString(16) + ' 0x' + b2.toString(16) + ' 0x' + b3.toString(16);
             break;
         }
 

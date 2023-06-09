@@ -744,6 +744,21 @@ extern SERVO_ENDPOINTS_T servo_output_endpoint;
 
 
 // ****************************************************************************
+// WS281x related configuration
+// Note that we support 8 bit data per LED only
+
+// Number of WS281x chips we support
+#define MAX_NUMBER_OF_WS281X (20)
+
+// A single WS281x contains 3 LEDs
+#define LEDS_PER_WS281X (3)
+
+#define WS281X_BUFFER_SIZE (MAX_NUMBER_OF_WS281X * LEDS_PER_WS281X)
+
+extern uint8_t ws281x_buffer[WS281X_BUFFER_SIZE];
+
+
+// ****************************************************************************
 // Globally accessible functions from various modules
 
 void load_persistent_storage(void);

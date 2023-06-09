@@ -1,7 +1,7 @@
 # Ideas regarding adding WS2812 support to Configurator
 
 * Opcodes
-    * 0x08..0x0f and 0x38..0x3f are free
+    * 0x08..0x0f and 0x3a..0x3f are free
     * `extern-leds-set <immediate>`
         * The `immediate` value is the `PC` of the data to set, similar to `GOTO`
         * We do not use `leds-extern = <immediate>` as this would be a special case for all the other `=` and `+=` usage
@@ -24,10 +24,9 @@
 
 ## Opcode assignment
 
-* 0x38 data
-* 0x39 extern-leds-set-count
-* 0x3a extern-leds-set
-* 0x3b extern-leds-add
+* 0x3a extern-leds-set-count
+* 0x3b extern-leds-set
+* 0x3c extern-leds-add
 
 
 ## Example
@@ -62,9 +61,13 @@ Color order: R G B
 
 ## Output configuration
 
-* OUT/ISP instead of UART
-* TH/Tx instead of UART
+* OUT/ISP
+* TH/Tx
 * OUT15S
 * Inverted option
+* Slave vs light program option
 
+## Improvements
+
+* Have the configurator pre-calculate inverted WS281x data bits
 

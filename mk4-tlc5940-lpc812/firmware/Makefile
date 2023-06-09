@@ -159,6 +159,7 @@ echosize: $(TARGET_ELF)
 default_firmware_image: $(TARGET_HEX)
 	@echo [TEXT2JS] $<
 	$(ECHO) $(TEXT2JS) $< default_firmware_image_mk4 >$(DEFAULT_FIRMWARE_IMAGE_JS)
+	$(ECHO) make -C ../tools/configurator all
 
 # Create list files that include C code as well as Assembler
 list: $(BUILD_DIR) $(OBJECTS:.o=.lst)
