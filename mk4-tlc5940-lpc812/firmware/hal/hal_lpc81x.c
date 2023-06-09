@@ -964,80 +964,60 @@ void HAL_ws2811_transaction(uint8_t *data, uint8_t count)
     // const uint8_t LOW = 0x08;
     // const uint8_t HIGH = 0x0e;
 
-    // static const uint16_t led_data[] = {
-    //     0x8888, // 0
-    //     0x888e, // 1
-    //     0x88e8, // 2
-    //     0x88ee, // 3
-    //     0x8e88, // 4
-    //     0x8e8e, // 5
-    //     0x8ee8, // 6
-    //     0x8eee, // 7
-    //     0xe888, // 8
-    //     0xe88e, // 9
-    //     0xe8e8, // a
-    //     0xe8ee, // b
-    //     0xee88, // c
-    //     0xee8e, // d
-    //     0xeee8, // e
-    //     0xeeee, // f
-    // };
+    static const uint16_t led_data[] = {
+        0x8888, // 0
+        0x888e, // 1
+        0x88e8, // 2
+        0x88ee, // 3
+        0x8e88, // 4
+        0x8e8e, // 5
+        0x8ee8, // 6
+        0x8eee, // 7
+        0xe888, // 8
+        0xe88e, // 9
+        0xe8e8, // a
+        0xe8ee, // b
+        0xee88, // c
+        0xee8e, // d
+        0xeee8, // e
+        0xeeee, // f
+    };
 
     // Inverted data, for use out OUT15S
     // 0: L=1 H=3
     // 1: L=3 H=1
-    static const uint16_t led_data[] = {
-        0x7777, // 0
-        0x7771, // 7
-        0x7717, // 2
-        0x7711, // 3
-        0x7177, // 4
-        0x7171, // 5
-        0x7117, // 6
-        0x7111, // 1
-        0x1777, // 8
-        0x1771, // 9
-        0x1717, // a
-        0x1711, // b
-        0x1177, // c
-        0x1171, // d
-        0x1117, // e
-        0x1111, // f
-    };
+    // static const uint16_t led_data[] = {
+    //     0x7777, // 0
+    //     0x7771, // 7
+    //     0x7717, // 2
+    //     0x7711, // 3
+    //     0x7177, // 4
+    //     0x7171, // 5
+    //     0x7117, // 6
+    //     0x7111, // 1
+    //     0x1777, // 8
+    //     0x1771, // 9
+    //     0x1717, // a
+    //     0x1711, // b
+    //     0x1177, // c
+    //     0x1171, // d
+    //     0x1117, // e
+    //     0x1111, // f
+    // };
 
-
-
-    // WS2811 English datasheet:
-    // 0: H=500ns  L=2000ns  +/-150ns
-    // 1: H=1200ns L=1300ns  +/-150ns
-    //
-    // 4 MHz => 250ns => 10 bit
-    // 0: H=2 L=8
-    // 1: H=5 L=5
-    //
-    // Double speed
-    // 0: H=250ns L=1000ns  +/-150ns?
-    // 1: H=600ns L=650ns   +/-150ns?
-    // 4 MHz => 250ns => 5 bit
-    // 0: H=1 L=4
-    // 1: H=2 L=3 (H and L may be out of tolerance!)
-    // 3 MHz => 333ns => 4 bit   <= would be ideal to transmit 4 bits at a time!
-    // 0: H=1 L=3 (H may be out of tolerance!)
-    // 1: H=2 L=2
-    // 6 MHz => 167ns => 7 bit
-    // 0: H=1 L=6 (H may be out of tolerance!)
-    // 1: H=3 L=4 (H may be out of tolerance!)
 
     // Wait for MSTIDLE, should be a no-op since we are waiting after
     // the transfer.
     while (!(LPC_SPI1->STAT & (1 << 8)));
 
-    // __disable_irq();
+    __disable_irq();
 
     // Set data out to 0 at the begin; if we don't do that for some reason
     // the first data byte sent is all high
+    // UNCLEAR WHY THIS IS NEEDED
     while (!(LPC_SPI1->STAT & (1 << 1)));
-    LPC_SPI1->TXDAT = 0xffff;
+    // LPC_SPI1->TXDAT = 0xffff;
+    LPC_SPI1->TXDAT = 0x0000;
 
     for (i = 0; i < count; i++) {
         uint8_t byte = data[i];
@@ -1052,14 +1032,16 @@ void HAL_ws2811_transaction(uint8_t *data, uint8_t count)
         LPC_SPI1->TXDAT = value;
     }
 
+    // UNCLEAR WHY THIS IS NEEDED
     // Set data out to 0 for reset
     while (!(LPC_SPI1->STAT & (1 << 1)));
-    LPC_SPI1->TXDAT = 0xffff;
+    // LPC_SPI1->TXDAT = 0xffff;
+    LPC_SPI1->TXDAT = 0x0000;
 
     // Force END OF TRANSFER
     LPC_SPI1->STAT = (1 << 7);
 
-    // __enable_irq();
+    __enable_irq();
 
     // Wait for the transfer to finish
     while (!(LPC_SPI1->STAT & (1 << 8)));
