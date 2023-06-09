@@ -1,4 +1,0 @@
-(sym_lib_table
-  (lib (name wla-atsamd21)(type Legacy)(uri ${KIPRJMOD}/wla-atsamd21.lib)(options "")(descr ""))
-  (lib (name webusb-programmer-rescue)(type Legacy)(uri ${KIPRJMOD}/webusb-programmer-rescue.lib)(options "")(descr ""))
-)
