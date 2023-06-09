@@ -921,7 +921,7 @@ void HAL_ws2811_init(uint8_t tx_pin)
     LPC_SPI1->CFG = (1 << 0) |          // Enable SPI1
                     (1 << 2) |          // Master mode
                     (0 << 3) |          // LSB First mode disabled
-                    (0 << 4) |          // CPHA = 0
+                    (1 << 4) |          // CPHA = 1
                     (0 << 5) |          // CPOL = 0
                     (0 << 8);           // SPOL = 0
 
@@ -1008,16 +1008,16 @@ void HAL_ws2811_transaction(uint8_t *data, uint8_t count)
 
     // Wait for MSTIDLE, should be a no-op since we are waiting after
     // the transfer.
-    while (!(LPC_SPI1->STAT & (1 << 8)));
+    // while (!(LPC_SPI1->STAT & (1 << 8)));
 
-    __disable_irq();
+    // __disable_irq();
 
     // Set data out to 0 at the begin; if we don't do that for some reason
     // the first data byte sent is all high
     // UNCLEAR WHY THIS IS NEEDED
-    while (!(LPC_SPI1->STAT & (1 << 1)));
+    // while (!(LPC_SPI1->STAT & (1 << 1)));
     // LPC_SPI1->TXDAT = 0xffff;
-    LPC_SPI1->TXDAT = 0x0000;
+    // LPC_SPI1->TXDAT = 0x0000;
 
     for (i = 0; i < count; i++) {
         uint8_t byte = data[i];
@@ -1034,17 +1034,17 @@ void HAL_ws2811_transaction(uint8_t *data, uint8_t count)
 
     // UNCLEAR WHY THIS IS NEEDED
     // Set data out to 0 for reset
-    while (!(LPC_SPI1->STAT & (1 << 1)));
+    // while (!(LPC_SPI1->STAT & (1 << 1)));
     // LPC_SPI1->TXDAT = 0xffff;
-    LPC_SPI1->TXDAT = 0x0000;
+    // LPC_SPI1->TXDAT = 0x0000;
 
     // Force END OF TRANSFER
-    LPC_SPI1->STAT = (1 << 7);
+    // LPC_SPI1->STAT = (1 << 7);
 
-    __enable_irq();
+    // __enable_irq();
 
     // Wait for the transfer to finish
-    while (!(LPC_SPI1->STAT & (1 << 8)));
+    // while (!(LPC_SPI1->STAT & (1 << 8)));
 }
 
 
