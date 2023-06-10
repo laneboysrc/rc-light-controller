@@ -12,7 +12,7 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
         .version = CONFIG_VERSION
     },
 
-    .firmware_version = 57,
+    .firmware_version = 201,
 
     .mode = MASTER_WITH_UART_READER,
     .esc_mode = ESC_FORWARD_BRAKE_REVERSE_TIMEOUT,
@@ -28,7 +28,6 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
         // .winch_output = false,
         .steering_wheel_servo_output = false,
         .gearbox_servo_output = false,
-        .ws2811_output = true,
 
         .ch3_is_local_switch = false,
         .ch3_is_momentary = false,
@@ -36,6 +35,8 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
 
         .auto_brake_lights_forward_enabled = true,
         .auto_brake_lights_reverse_enabled = true,
+
+
     },
 
     .flags2 = {
@@ -57,6 +58,14 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
         .servo_output_enabled = true,
 
         .require_extra_click = false,
+    },
+
+    .flags3 = {
+        .ws2811_output = true,
+        .ws2811_on_th = false,
+        .ws2811_on_out = true,
+        .ws2811_on_out15s = false,
+        .ws2811_invert = false,
     },
 
     .auto_brake_counter_value_forward_min = (500 / __SYSTICK_IN_MS),

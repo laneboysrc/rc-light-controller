@@ -65,9 +65,7 @@ Color order: R G B
 * TH/Tx
 * OUT15S
 * Inverted option
-* Slave vs light program option
 
-## Improvements
 
-* Have the configurator pre-calculate inverted WS281x data bits
+
 

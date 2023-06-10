@@ -9,7 +9,7 @@
 #define STDOUT_DEBUG ((void *) 2)
 
 
-#define CONFIG_VERSION 2
+#define CONFIG_VERSION 3
 #define __SYSTICK_IN_MS 20
 
 
@@ -660,6 +660,17 @@ typedef struct {
     // Going beyond channel 14 would require bit-mangling and would add a lot of
     // code.
     uint8_t aux_channel_offset;
+
+    struct {
+        // Enables handling of two additional AUX channels
+        unsigned int ws2811_output : 1;
+        unsigned int ws2811_on_th : 1;
+        unsigned int ws2811_on_out : 1;
+        unsigned int ws2811_on_out15s : 1;
+        unsigned int ws2811_invert : 1;
+
+        unsigned int reserved0 : 11;
+    } flags3;
 
 } LIGHT_CONTROLLER_CONFIG_T;
 

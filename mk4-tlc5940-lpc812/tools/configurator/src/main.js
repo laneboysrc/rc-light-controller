@@ -429,6 +429,7 @@ var app = (function () {
 
         var flags = get_uint32(data, offset + 4);
         var flags2 = get_uint16(data, offset + 64);
+        var flags3 = get_uint16(data, offset + 96);
 
         function get_flag(bit_mask) {
             return Boolean(flags & bit_mask);
@@ -436,6 +437,10 @@ var app = (function () {
 
         function get_flag2(bit_mask) {
             return Boolean(flags2 & bit_mask);
+        }
+
+        function get_flag3(bit_mask) {
+            return Boolean(flags3 & bit_mask);
         }
 
         new_config.slave_output = get_flag(0x0001);
@@ -448,11 +453,19 @@ var app = (function () {
         new_config.steering_wheel_servo_output = get_flag(0x0008);
         new_config.gearbox_servo_output = get_flag(0x0010);
 
-        if (new_config.firmware_version >= 56) {
-            new_config.ws2811_output = get_flag(0x0020);
+        if (new_config.firmware_version >= 201) {
+            new_config.ws2811_output = get_flag3(0x0001);
+            new_config.ws2811_on_th = get_flag3(0x0002);
+            new_config.ws2811_on_out = get_flag3(0x0004);
+            new_config.ws2811_on_out15s = get_flag3(0x0008);
+            new_config.ws2811_invert = get_flag3(0x0010);
         }
         else {
             new_config.ws2811_output = false;
+            new_config.ws2811_on_th = false;
+            new_config.ws2811_on_out = false;
+            new_config.ws2811_on_out15s = false;
+            new_config.ws2811_invert = false;
         }
 
         new_config.ch3_is_local_switch = get_flag(0x0040);
@@ -632,7 +645,7 @@ var app = (function () {
                 if (SECTIONS[section_id] === undefined) {
                     log.log('Warning: unknown section ' + i);
                 } else {
-                    if (config_version > 2) {
+                    if (config_version > 3) {
                         throw new Error('Unknown configuration version ' +
                             config_version);
                     }
@@ -1669,7 +1682,7 @@ var app = (function () {
         // flags |= (config.winch_output << 2);     // Winch is deprecated
         flags |= (config.steering_wheel_servo_output << 3);
         flags |= (config.gearbox_servo_output << 4);
-        flags |= (config.ws2811_output << 5);
+        // flags |= (config.ws2811_output << 5);
         flags |= (config.ch3_is_local_switch << 6);
         flags |= (config.ch3_is_momentary << 7);
         flags |= (config.auto_brake_lights_forward_enabled << 8);
@@ -1773,6 +1786,17 @@ var app = (function () {
         log.log("flags2=0x" + flags2.toString(16));
         set_uint16(data, offset + 64, flags2);
 
+
+        let flags3 = 0;
+        flags3 |= (config.ws2811_output << 0);
+        flags3 |= (config.ws2811_on_th << 1);
+        flags3 |= (config.ws2811_on_out << 2);
+        flags3 |= (config.ws2811_on_out15s << 3);
+        flags3 |= (config.ws2811_invert << 4);
+        log.log("flags3=0x" + flags3.toString(16));
+        set_uint16(data, offset + 96, flags3);
+
+
         set_uint16(data, offset + 68, config.blink_counter_value_dark);
 
         set_uint8(data, offset + 70, config.aux_type);
@@ -1829,6 +1853,7 @@ var app = (function () {
         set_uint8(data, offset + 93, diagnostics_mask);
 
         set_uint8(data, offset + 94, config.channel_offset - 3);
+
     };
 
 
@@ -2158,8 +2183,8 @@ var app = (function () {
             config.winch_output = false;
         }
 
-        // Force configuration version 2
-        config_version = 2;
+        // Force configuration version 3
+        config_version = 3;
 
         // Extend the configuration generated for config_version 1
         // Since config_version is not saved in the JSON we use the
@@ -2211,6 +2236,14 @@ var app = (function () {
             config.aux2_function = AUX_FUNCTION.AUX_FUNCTION_NOT_USED;
             config.aux3_type = AUX_TYPE.AUX_TYPE_TWO_POSITION;
             config.aux3_function = AUX_FUNCTION.AUX_FUNCTION_NOT_USED;
+        }
+
+        if (config.firmware_version < 201) {
+            config.ws2811_output = false;
+            config.ws2811_on_th = false;
+            config.ws2811_on_out = false;
+            config.ws2811_on_out15s = false;
+            config.ws2811_invert = false;
         }
     };
 
