@@ -150,7 +150,7 @@ static void output_lights(void)
     // dedicated output pin.
     // Fading is not applied. 0 turns the output off, any other value on.
 
-    if (!config.flags.ws2811_output) {
+    if (!config.flags3.ws2811_on_out15s) {
         if (config.flags2.invert_out15s) {
             HAL_gpio_write(HAL_GPIO_SWITCHED_LIGHT_OUTPUT, !light_setpoint[15]);
         }
@@ -159,11 +159,11 @@ static void output_lights(void)
         }
     }
 
-    if (config.flags.ws2811_output  &&  extern_leds_count == 0) {
+    if (config.flags3.ws2811_enabled  &&  extern_leds_count == 0) {
         for (i = 0; i < 16; i++) {
            ws281x_buffer[i] = gamma_table.gamma_table[light_actual[16 + i]];
         }
-        HAL_ws2811_transaction(ws281x_buffer, 15, false);
+        HAL_ws2811_transaction(ws281x_buffer, 15, config.flags3.ws2811_invert);
     }
 }
 

@@ -471,7 +471,7 @@ typedef struct {
         // If mode is MASTER_WITH_SERVO_READER  then all flags are mutually
         // exculsive.
         // If mode is MASTER_WITH_UART_READER or MASTER_WITH_CPPM_INPUT then
-        // there can be one UART output (slave, preprocessor or ws2811_output)
+        // there can be one UART output (slave, preprocessor)
         // and one servo output (steering wheel or gearbox servo; or switched
         // light output)
         unsigned int slave_output : 1;
@@ -479,7 +479,7 @@ typedef struct {
         unsigned int reserved1 : 1;     // previously winch output
         unsigned int steering_wheel_servo_output : 1;
         unsigned int gearbox_servo_output : 1;
-        unsigned int ws2811_output : 1;
+        unsigned int reserved2 : 1;
 
         unsigned int ch3_is_local_switch : 1;
         unsigned int ch3_is_momentary : 1;
@@ -662,8 +662,7 @@ typedef struct {
     uint8_t aux_channel_offset;
 
     struct {
-        // Enables handling of two additional AUX channels
-        unsigned int ws2811_output : 1;
+        unsigned int ws2811_enabled : 1;
         unsigned int ws2811_on_th : 1;
         unsigned int ws2811_on_out : 1;
         unsigned int ws2811_on_out15s : 1;

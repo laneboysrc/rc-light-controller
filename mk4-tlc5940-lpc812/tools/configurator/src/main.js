@@ -454,14 +454,12 @@ var app = (function () {
         new_config.gearbox_servo_output = get_flag(0x0010);
 
         if (new_config.firmware_version >= 201) {
-            new_config.ws2811_output = get_flag3(0x0001);
             new_config.ws2811_on_th = get_flag3(0x0002);
             new_config.ws2811_on_out = get_flag3(0x0004);
             new_config.ws2811_on_out15s = get_flag3(0x0008);
             new_config.ws2811_invert = get_flag3(0x0010);
         }
         else {
-            new_config.ws2811_output = false;
             new_config.ws2811_on_th = false;
             new_config.ws2811_on_out = false;
             new_config.ws2811_on_out15s = false;
@@ -1331,14 +1329,10 @@ var app = (function () {
         el.invert_out15s.checked = Boolean(config.invert_out15s);
 
         // WS281x support
-        if (config.ws2811_output) {
-            el.ws2811_on_out.checked = Boolean(config.ws2811_on_out);
-            el.ws2811_on_th.checked = Boolean(config.ws2811_on_th);
-            el.ws2811_on_out15s.checked = Boolean(config.ws2811_on_out15s);
-        }
-        else {
-            el.ws2811_disabled.checked = true;
-        }
+        el.ws2811_disabled.checked = true;  // Default, overwritten by others below
+        el.ws2811_on_out.checked = Boolean(config.ws2811_on_out);
+        el.ws2811_on_th.checked = Boolean(config.ws2811_on_th);
+        el.ws2811_on_out15s.checked = Boolean(config.ws2811_on_out15s);
         el.ws2811_invert.checked = Boolean(config.ws2811_invert);
 
         // CH3/AUX type
@@ -1736,7 +1730,7 @@ var app = (function () {
         // flags |= (config.winch_output << 2);     // Winch is deprecated
         flags |= (config.steering_wheel_servo_output << 3);
         flags |= (config.gearbox_servo_output << 4);
-        // flags |= (config.ws2811_output << 5);
+        // flags |= (config.??? << 5);
         flags |= (config.ch3_is_local_switch << 6);
         flags |= (config.ch3_is_momentary << 7);
         flags |= (config.auto_brake_lights_forward_enabled << 8);
@@ -1758,7 +1752,7 @@ var app = (function () {
         flags2 |= (config.prefer_all_lights_off << 14);
         flags2 |= (config.invert_out15s << 15);
 
-        flags3 |= (config.ws2811_output << 0);
+        flags3 |= (config.ws2811_enabled << 0);
         flags3 |= (config.ws2811_on_th << 1);
         flags3 |= (config.ws2811_on_out << 2);
         flags3 |= (config.ws2811_on_out15s << 3);
@@ -1778,7 +1772,18 @@ var app = (function () {
                 config.aux3_function == AUX_FUNCTION_SERVO )) {
             servo_enabled = true;
         }
-
+        if (config.ws2811_enabled) {
+            if (!config.assign_uart_to_out || config.mode == MODE.MASTER_WITH_SERVO_READER) {
+                if (config.ws2811_on_out) {
+                    servo_enabled = false;
+                }
+            }
+            else {
+                if (config.ws2811_on_th) {
+                    servo_enabled = false;
+                }
+            }
+        }
         if (servo_enabled) {
             flags2 |= (1 << 12); // servo_output_enabled
             if (config.assign_uart_to_out) {
@@ -1790,22 +1795,31 @@ var app = (function () {
         }
 
         if (config.mode == MODE.MASTER_WITH_SERVO_READER) {
-            if (!servo_enabled) {
+            if (!servo_enabled && !config.ws2811_enabled) {
                 flags2 |= (1 << 8); // uart_tx_on_out
             }
         }
         else {
             flags2 |= (1 << 6); // uart_rx_on_st
             if (config.assign_uart_to_out) {
-                flags2 |= (1 << 8); // uart_tx_on_out
+                if (!config.ws2811_on_out) {
+                    flags2 |= (1 << 8); // uart_tx_on_out
+                }
             }
             else {
-                flags2 |= (1 << 7); // uart_tx_on_th
+                if (!config.ws2811_on_th) {
+                    flags2 |= (1 << 7); // uart_tx_on_th
+                }
             }
         }
 
-        if (!config.slave_output && !config.preprocessor_output && !config.ws2811_output) {
-            flags2 |= (1 << 11); // config.uart_diagnostics_enabled
+        if (!config.slave_output && !config.preprocessor_output) {
+            if (config.assign_uart_to_out && !config.ws2811_on_out) {
+                flags2 |= (1 << 11); // config.uart_diagnostics_enabled
+            }
+            if (!config.assign_uart_to_out && !config.ws2811_on_th) {
+                flags2 |= (1 << 11); // config.uart_diagnostics_enabled
+            }
         }
 
 
@@ -1898,7 +1912,7 @@ var app = (function () {
         for (i = 0; i < configuration.local_leds.led_count; i += 1) {
             diagnostics_mask |= configuration.local_leds[i].diagnostics;
         }
-        if (configuration.slave_output || configuration.ws2811_output) {
+        if (configuration.slave_output || configuration.ws2811_enabled) {
             for (i = 0; i < configuration.slave_leds.led_count; i += 1) {
                 diagnostics_mask |= configuration.slave_leds[i].diagnostics;
             }
@@ -1960,7 +1974,7 @@ var app = (function () {
         // For the LOCAL LEDs, always adjust "light_switch_positions" ...
         assemble_leds(SECTION_LOCAL_LEDS, configuration.local_leds, true);
         // ... but for SLAVE LEDs only when slave is enabled!
-        assemble_leds(SECTION_SLAVE_LEDS, configuration.slave_leds, configuration.config.slave_output || configuration.ws2811_output);
+        assemble_leds(SECTION_SLAVE_LEDS, configuration.slave_leds, configuration.config.slave_output || configuration.ws2811_enabled);
         assemble_light_programs(configuration.light_programs);
 
         assemble_gamma(configuration.gamma);
@@ -2293,7 +2307,6 @@ var app = (function () {
         }
 
         if (config.firmware_version < 201) {
-            config.ws2811_output = false;
             config.ws2811_on_th = false;
             config.ws2811_on_out = false;
             config.ws2811_on_out15s = false;
@@ -2411,7 +2424,6 @@ var app = (function () {
             // Force all output functions to OFF in slave mode
             config.preprocessor_output = false;
             config.slave_output = false;
-            config.ws2811_output = false;
             config.steering_wheel_servo_output = false;
             config.gearbox_servo_output = false;
             config.gearbox_light_program_control = false;
@@ -2424,7 +2436,6 @@ var app = (function () {
         else {
             update_boolean('preprocessor_output');
             update_boolean('slave_output');
-            update_boolean('ws2811_output');
             update_boolean('steering_wheel_servo_output');
             update_boolean('gearbox_servo_output');
             update_boolean('gearbox_light_program_control');
@@ -2529,6 +2540,17 @@ var app = (function () {
         update_led('diagnostics_brightness');
 
         update_int('channel_offset');
+
+
+        update_boolean('ws2811_invert');
+        update_boolean('ws2811_on_out');
+        update_boolean('ws2811_on_th');
+        update_boolean('ws2811_on_out15s');
+        if (config.mode == MODE.MASTER_WITH_SERVO_READER) {
+            config.ws2811_on_th = false;
+        }
+        config.ws2811_enabled = config.ws2811_on_out || config.ws2811_on_th || config.ws2811_on_out15s;
+
 
         if (config.mode === MODE.SLAVE) {
             // Force gamma to 1.0 in slave mode as the gamma correction is

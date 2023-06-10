@@ -235,9 +235,16 @@ int main(void)
     // // If the output function is set to WS2811 then use SPI with the assigned
     // // TX pin, and clear tx_pin so that the UART initialization does not
     // // use the pin itself.
-    if (config.flags.ws2811_output) {
-        HAL_ws2811_init(tx_pin);
-        tx_pin = HAL_GPIO_NO_PIN;
+    if (config.flags3.ws2811_enabled) {
+        if (config.flags3.ws2811_on_th) {
+            HAL_ws2811_init(HAL_GPIO_TH.pin);
+        }
+        else if (config.flags3.ws2811_on_out) {
+            HAL_ws2811_init(HAL_GPIO_OUT.pin);
+        }
+        else if (config.flags3.ws2811_on_out15s) {
+            HAL_ws2811_init(HAL_GPIO_SWITCHED_LIGHT_OUTPUT.pin);
+        }
     }
 
     // If the output function is set to WS2811 then use SPI with the OUT15S pin.
