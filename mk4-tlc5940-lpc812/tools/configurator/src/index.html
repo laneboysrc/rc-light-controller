@@ -174,13 +174,13 @@
             <option value="98">Master, 5ch Pre-Processor input</option>
             <option value="5">Master, i-Bus input</option>
             <option value="6">Master, S.Bus input</option>
-            <option value="3">Slave</option>
+<!--             <option value="3">Slave</option>
             <option value="97">Pre-Processor</option>
             <option value="96">Pre-Processor 5ch</option>
             <option value="95">Pre-Processor 5ch with switching outputs</option>
             <option value="4">Stand-alone mode</option>
             <option value="99">Hardware test</option>
-          </select>
+ -->          </select>
         </div>
         <div id="mode_master_servo" class="info">
           <div>
@@ -717,20 +717,39 @@
           becomes visible below.
         </div>
         <div class="radio_item">
-          <input class="dual_output_th" type="radio" name="output_out" value="5" id="ws2811_output">
-          <label for="ws2811_output">WS2811 addressable LED output</label>
-          <br>
-          The light controller can control LEDs connected to up to 5 WS2811 LED driver ICs, for a total of 31 LEDs. For example, the LED Kit in the Traxxas TRX-4M uses such WS2811 ICs.
-          <br>
-          LEDs connected to the WS2811 chips correspond to LED output number 16..30. LED output 31 is not available.
-        </div>
-        <div class="radio_item">
           <input class="dual_output_th" type="radio" name="output_out" value="2" id="preprocessor_output">
           <label for="preprocessor_output">Pre-processour output</label>
           <br>
           When enabled, the light controller outputs the steering, throttle
           and CH3/AUX signals as serial data stream. This function can be
           useful for connecting custom hardware to the light controller.
+        </div>
+
+        <h3>WS281x addressable LED output</h3>
+        <div class="radio_item">
+          The light controller can control LEDs connected to up to 5 WS2811 LED driver ICs, for a total of 31 LEDs. For example, the LED Kit in the Traxxas TRX-4M uses such WS2811 ICs.
+          <br>
+          LEDs connected to the WS2811 chips correspond to LED output number 16..30. LED output 31 is not available.
+        </div>
+        <div class="radio_item">
+          <input type="radio" name="ws2811" value="0" id="ws2811_disabled">
+          <label for="ws2811_disabled">Disabled</label>
+        </div>
+        <div class="radio_item">
+          <input type="radio" name="ws2811" value="1" id="ws2811_on_out">
+          <label for="ws2811_on_out">WS281x output on OUT/ISP</label>
+        </div>
+        <div class="radio_item dual_output">
+          <input type="radio" name="ws2811" value="2" id="ws2811_on_th">
+          <label for="ws2811_on_th">WS281x output on TH/Tx</label>
+        </div>
+        <div class="radio_item">
+          <input type="radio" name="ws2811" value="3" id="ws2811_on_out15s">
+          <label for="ws2811_on_out15s">WS281x output on OUT15S</label>
+        </div>
+        <div>
+          <input type="checkbox" id="ws2811_invert">
+          <label for="ws2811_invert">Invert WS281x output signal level</label>
         </div>
       </div>
 

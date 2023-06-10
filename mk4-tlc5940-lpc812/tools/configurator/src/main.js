@@ -856,9 +856,8 @@ var app = (function () {
         update_section_visibility();
     };
 
-
     // *************************************************************************
-    var update_section_visibility = function () {
+    var update_section_visibility = function (e) {
         function set_name(elements, name) {
             var i;
             for (i = 0; i < elements.length; i += 1) {
@@ -1190,11 +1189,52 @@ var app = (function () {
             break;
         }
 
+        if (e && e.target) {
+            // log.log(e);
+            // FIXME: handle assign_uart_to_out and assign_servo_to_out changes
+            if (e.target == el.slave_output ||
+                e.target == el.preprocessor_output) {
+                if (el.assign_uart_to_out.checked && el.ws2811_on_out.checked) {
+                    el.ws2811_disabled.checked = true;
+                }
+                if (el.assign_servo_to_out.checked && el.ws2811_on_th.checked) {
+                    el.ws2811_disabled.checked = true;
+                }
+            }
+            else if (e.target == el.steering_wheel_servo_output ||
+                     e.target == el.gearbox_servo_output ||
+                     e.target == el.light_program_servo_output) {
+                if (el.assign_uart_to_out.checked && el.ws2811_on_th.checked) {
+                    el.ws2811_disabled.checked = true;
+                }
+                if (el.assign_servo_to_out.checked && el.ws2811_on_out.checked) {
+                    el.ws2811_disabled.checked = true;
+                }
+            }
+            else if (e.target == el.ws2811_on_out) {
+                if (el.assign_uart_to_out.checked) {
+                    el.dual_off.checked = true;
+                }
+                if (el.assign_servo_to_out.checked) {
+                    el.single_off.checked = true;
+                }
+            }
+            else if (e.target == el.ws2811_on_th) {
+                if (el.assign_uart_to_out.checked) {
+                    el.single_off.checked = true;
+                }
+                if (el.assign_servo_to_out.checked) {
+                    el.dual_off.checked = true;
+                }
+            }
+        }
+
         ensure_one_is_checked('output_out');
         ensure_one_is_checked('output_th');
         ensure_one_is_checked('assign_servo_uart');
+        ensure_one_is_checked('ws2811');
 
-        if (el.slave_output.checked  ||  el.ws2811_output.checked) {
+        if (el.slave_output.checked  || !el.ws2811_disabled.checked) {
             el.leds_slave.classList.remove('hidden');
         }
         else {
@@ -1283,13 +1323,23 @@ var app = (function () {
         el.steering_wheel_servo_output.checked = Boolean(config.steering_wheel_servo_output);
         el.preprocessor_output.checked = Boolean(config.preprocessor_output);
         el.slave_output.checked = Boolean(config.slave_output);
-        el.ws2811_output.checked = Boolean(config.ws2811_output);
         el.gearbox_light_program_control.checked = Boolean(config.gearbox_light_program_control);
         el.light_program_servo_output.checked = Boolean(config.light_program_servo_output);
         el.indicators_while_driving.checked = Boolean(config.indicators_while_driving);
         el.require_extra_click.checked = Boolean(config.require_extra_click);
         el.prefer_all_lights_off.checked = Boolean(config.prefer_all_lights_off);
         el.invert_out15s.checked = Boolean(config.invert_out15s);
+
+        // WS281x support
+        if (config.ws2811_output) {
+            el.ws2811_on_out.checked = Boolean(config.ws2811_on_out);
+            el.ws2811_on_th.checked = Boolean(config.ws2811_on_th);
+            el.ws2811_on_out15s.checked = Boolean(config.ws2811_on_out15s);
+        }
+        else {
+            el.ws2811_disabled.checked = true;
+        }
+        el.ws2811_invert.checked = Boolean(config.ws2811_invert);
 
         // CH3/AUX type
         el.ch3[0].checked = true;
@@ -1676,7 +1726,11 @@ var app = (function () {
         set_uint8(data, offset + 1, config.mode);
         set_uint8(data, offset + 2, config.esc_mode);
 
-        var flags = 0;
+
+        let flags = 0;
+        let flags2 = 0;
+        let flags3 = 0;
+
         flags |= (config.slave_output << 0);
         flags |= (config.preprocessor_output << 1);
         // flags |= (config.winch_output << 2);     // Winch is deprecated
@@ -1693,43 +1747,7 @@ var app = (function () {
         flags |= (config.reverse_aux << 13);
         flags |= (config.reverse_aux2 << 14);
         flags |= (config.reverse_aux3 << 15);
-        set_uint32(data, offset + 4, flags);
 
-        set_uint16(data, offset + 8,  config.auto_brake_counter_value_forward_min);
-        set_uint16(data, offset + 10, config.auto_brake_counter_value_forward_max);
-        set_uint16(data, offset + 12, config.auto_brake_counter_value_reverse_min);
-        set_uint16(data, offset + 14, config.auto_brake_counter_value_reverse_max);
-        set_uint16(data, offset + 16, config.auto_reverse_counter_value_min);
-        set_uint16(data, offset + 18, config.auto_reverse_counter_value_max);
-
-        set_uint16(data, offset + 20, config.brake_disarm_counter_value);
-        set_uint16(data, offset + 22, config.blink_counter_value);
-        set_uint16(data, offset + 24, config.indicator_idle_time_value);
-        set_uint16(data, offset + 26, config.indicator_off_timeout_value);
-
-        set_uint16(data, offset + 28, config.centre_threshold_low);
-        set_uint16(data, offset + 30, config.centre_threshold_high);
-        set_uint16(data, offset + 32, config.blink_threshold);
-        set_uint16(data, offset + 34, config.light_switch_positions);
-        set_uint16(data, offset + 36, config.initial_light_switch_position);
-        set_uint16(data, offset + 38, config.initial_endpoint_delta);
-        set_uint16(data, offset + 40, config.ch3_multi_click_timeout);
-
-        // set_uint16(data, offset + 42, config.winch_command_repeat_time);
-        set_uint16(data, offset + 42, 0);
-
-        set_uint32(data, offset + 44, config.baudrate);
-        set_uint16(data, offset + 48, config.no_signal_timeout);
-        set_uint16(data, offset + 50, config.number_of_gears);
-        set_uint16(data, offset + 52, config.gearbox_servo_active_time);
-        set_uint16(data, offset + 54, config.gearbox_servo_idle_time);
-
-        set_uint16(data, offset + 56, config.servo_pulse_min);
-        set_uint16(data, offset + 58, config.servo_pulse_max);
-
-        set_uint16(data, offset + 60, config.startup_time);
-
-        let flags2 = 0;
         flags2 |= (config.multi_aux << 0);
         flags2 |= (config.shelf_queen_mode << 1);
         flags2 |= (config.us_style_combined_lights << 2);
@@ -1739,6 +1757,13 @@ var app = (function () {
         flags2 |= (config.require_extra_click << 13);
         flags2 |= (config.prefer_all_lights_off << 14);
         flags2 |= (config.invert_out15s << 15);
+
+        flags3 |= (config.ws2811_output << 0);
+        flags3 |= (config.ws2811_on_th << 1);
+        flags3 |= (config.ws2811_on_out << 2);
+        flags3 |= (config.ws2811_on_out15s << 3);
+        flags3 |= (config.ws2811_invert << 4);
+
 
         // Convenience flags for the output configuration
         let servo_enabled = false;
@@ -1783,19 +1808,48 @@ var app = (function () {
             flags2 |= (1 << 11); // config.uart_diagnostics_enabled
         }
 
+
+        log.log("flags=0x" + flags.toString(16));
+        set_uint32(data, offset + 4, flags);
         log.log("flags2=0x" + flags2.toString(16));
         set_uint16(data, offset + 64, flags2);
-
-
-        let flags3 = 0;
-        flags3 |= (config.ws2811_output << 0);
-        flags3 |= (config.ws2811_on_th << 1);
-        flags3 |= (config.ws2811_on_out << 2);
-        flags3 |= (config.ws2811_on_out15s << 3);
-        flags3 |= (config.ws2811_invert << 4);
         log.log("flags3=0x" + flags3.toString(16));
         set_uint16(data, offset + 96, flags3);
 
+
+        set_uint16(data, offset + 8,  config.auto_brake_counter_value_forward_min);
+        set_uint16(data, offset + 10, config.auto_brake_counter_value_forward_max);
+        set_uint16(data, offset + 12, config.auto_brake_counter_value_reverse_min);
+        set_uint16(data, offset + 14, config.auto_brake_counter_value_reverse_max);
+        set_uint16(data, offset + 16, config.auto_reverse_counter_value_min);
+        set_uint16(data, offset + 18, config.auto_reverse_counter_value_max);
+
+        set_uint16(data, offset + 20, config.brake_disarm_counter_value);
+        set_uint16(data, offset + 22, config.blink_counter_value);
+        set_uint16(data, offset + 24, config.indicator_idle_time_value);
+        set_uint16(data, offset + 26, config.indicator_off_timeout_value);
+
+        set_uint16(data, offset + 28, config.centre_threshold_low);
+        set_uint16(data, offset + 30, config.centre_threshold_high);
+        set_uint16(data, offset + 32, config.blink_threshold);
+        set_uint16(data, offset + 34, config.light_switch_positions);
+        set_uint16(data, offset + 36, config.initial_light_switch_position);
+        set_uint16(data, offset + 38, config.initial_endpoint_delta);
+        set_uint16(data, offset + 40, config.ch3_multi_click_timeout);
+
+        // set_uint16(data, offset + 42, config.winch_command_repeat_time);
+        set_uint16(data, offset + 42, 0);
+
+        set_uint32(data, offset + 44, config.baudrate);
+        set_uint16(data, offset + 48, config.no_signal_timeout);
+        set_uint16(data, offset + 50, config.number_of_gears);
+        set_uint16(data, offset + 52, config.gearbox_servo_active_time);
+        set_uint16(data, offset + 54, config.gearbox_servo_idle_time);
+
+        set_uint16(data, offset + 56, config.servo_pulse_min);
+        set_uint16(data, offset + 58, config.servo_pulse_max);
+
+        set_uint16(data, offset + 60, config.startup_time);
 
         set_uint16(data, offset + 68, config.blink_counter_value_dark);
 
@@ -3111,11 +3165,14 @@ var app = (function () {
             'reverse_st', 'reverse_th', 'reverse_aux', 'reverse_aux2', 'reverse_aux3',
 
             'slave_output', 'preprocessor_output', 'steering_wheel_servo_output',
-            'gearbox_servo_output', 'ws2811_output',
+            'gearbox_servo_output',
             'light_program_servo_output', 'indicators_while_driving',
             'gearbox_light_program_control',
-            'assign_uart_to_out', 'assign_servo_to_out', 'dual_off',
+            'assign_uart_to_out', 'assign_servo_to_out', 'single_off', 'dual_off',
             'require_extra_click', 'prefer_all_lights_off', 'invert_out15s',
+
+            'ws2811_disabled', 'ws2811_on_out', 'ws2811_on_th', 'ws2811_on_out15s',
+            'ws2811_invert',
 
             'leds_clear',
 
@@ -3179,6 +3236,7 @@ var app = (function () {
         el.dual_output = document.getElementsByClassName('dual_output');
         el.dual_output_th = document.getElementsByClassName('dual_output_th');
         el.assign_servo_uart = document.getElementsByName('assign_servo_uart');
+        el.ws2811 = document.getElementsByName('ws2811');
 
 
         set_led_feature_handler('leds_master', 'master');
