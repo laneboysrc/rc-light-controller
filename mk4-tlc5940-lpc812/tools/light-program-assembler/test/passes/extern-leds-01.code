@@ -1,0 +1,29 @@
+run always
+
+    extern-leds-count 9
+
+loop:
+  extern-leds-set red
+    sleep 500
+  extern-leds-add add_green
+    sleep 500
+  extern-leds-set off
+    sleep 500
+  goto loop
+
+red:
+  data 0 8 0 0
+  data 8 0 0 8
+  data 0 0 0 0
+
+add_green:
+  data 50 0 0 0
+  data 0 0 0 0
+  data 0 0 0 0
+
+off:
+  data 0 0 0 0
+  data 0 0 0 0
+  data 0 0 0 0
+
+end

@@ -855,14 +855,14 @@ var disassembler = (function () {
             break;
 
         case opcodes.EXTERN_LEDS_SET_COUNT:
-            asm[offset + pc++].code = 'extern-leds-set-count ' + instruction & 0xffff;
+            asm[offset + pc++].code = 'extern-leds-count ' + (instruction & 0xffff);
             break;
 
         case opcodes.EXTERN_LEDS_SET:
             const address_set = (instruction & 0xffffff);
 
-            if (asm[offset + address].label === null) {
-                asm[offset + address].label = 'label' + address_set;
+            if (asm[offset + address_set].label === null) {
+                asm[offset + address_set].label = 'label' + address_set;
             }
 
             asm[offset + pc++].code = 'extern-leds-set ' + asm[offset + address_set].label;
@@ -871,8 +871,8 @@ var disassembler = (function () {
         case opcodes.EXTERN_LEDS_ADD:
             const address_add = (instruction & 0xffffff);
 
-            if (asm[offset + address].label === null) {
-                asm[offset + address].label = 'label' + address_add;
+            if (asm[offset + address_add].label === null) {
+                asm[offset + address_add].label = 'label' + address_add;
             }
 
             asm[offset + pc++].code = 'extern-leds-add ' + asm[offset + address_add].label;
@@ -884,7 +884,7 @@ var disassembler = (function () {
             let b2 = (instruction >> 16) & 0xff;
             let b3 = (instruction >> 24) & 0xff;
             asm[offset + pc++].code =
-                'DATA 0x' + b0.toString(16) + ' 0x' + b1.toString(16) + ' 0x' + b2.toString(16) + ' 0x' + b3.toString(16);
+                'data 0x' + b0.toString(16) + ' 0x' + b1.toString(16) + ' 0x' + b2.toString(16) + ' 0x' + b3.toString(16);
             break;
         }
 

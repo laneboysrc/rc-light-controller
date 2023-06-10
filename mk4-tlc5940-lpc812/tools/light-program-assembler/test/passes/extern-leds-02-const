@@ -1,0 +1,71 @@
+run always
+
+const BLUE = 0x10
+const RED = 0x80
+const GREEN = 0x20
+
+    extern-leds-count 9
+
+loop:
+  sleep 20
+    if is braking
+    goto set_red
+    if is neutral
+    goto set_blue
+
+  if throttle > 66
+    goto set_green3
+  if throttle > 33
+    goto set_green2
+
+set_green1:
+    extern-leds-set green1
+    goto loop
+
+set_green2:
+    extern-leds-set green2
+    goto loop
+
+set_green3:
+    extern-leds-set green3
+    goto loop
+
+set_blue:
+    extern-leds-set blue
+  goto loop
+
+set_red:
+    extern-leds-set red
+  goto loop
+
+blue:
+  data 0 0 BLUE 0
+  data 0 0 0 0
+  data 0 0 0 0
+
+red:
+  data 0 RED 0 0
+  data RED 0 0 RED
+  data 0 0 0 0
+
+green1:
+  data GREEN 0 0 0
+  data 0 0 0 0
+  data 0 0 0 0
+
+green2:
+  data GREEN 0 0 GREEN
+  data 0 0 0 0
+  data 0 0 0 0
+
+green3:
+  data GREEN 0 0 GREEN
+  data 0 0 GREEN 0
+  data 0 0 0 0
+
+off:
+  data 0 0 0 0
+  data 0 0 0 0
+  data 0 0 0 0
+
+end

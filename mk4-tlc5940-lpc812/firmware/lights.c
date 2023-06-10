@@ -115,6 +115,7 @@ uint8_t max_change_per_systick[MAX_LIGHTS];
 static uint8_t diagnostics;
 
 uint8_t ws281x_buffer[WS281X_BUFFER_SIZE];
+int16_t extern_leds_count = 0;
 
 
 // ****************************************************************************
@@ -158,7 +159,7 @@ static void output_lights(void)
         }
     }
 
-    if (config.flags.ws2811_output) {
+    if (config.flags.ws2811_output  &&  extern_leds_count == 0) {
         for (i = 0; i < 16; i++) {
            ws281x_buffer[i] = gamma_table.gamma_table[light_actual[16 + i]];
         }

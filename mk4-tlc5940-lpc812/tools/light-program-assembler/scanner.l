@@ -53,7 +53,7 @@ reserved keywords:
   return yytext.toUpperCase();
 }
 
-"goto"|"const"|"var"|"leds"|"led"|"sleep"|"skip"|"if"|"fade"|"stepsize"|"when"|"or"|"global"|"random"|"abs"|"end"|"use" {
+"goto"|"const"|"var"|"leds"|"led"|"sleep"|"skip"|"if"|"fade"|"stepsize"|"when"|"or"|"global"|"random"|"abs"|"end"|"use"|"data"|"extern-leds-count"|"extern-leds-set"|"extern-leds-add" {
   yy.line_is_empty = false;
   yy.logger.log(MODULE, "DEBUG", "Reserved word: " + yytext);
   return yytext.toUpperCase();

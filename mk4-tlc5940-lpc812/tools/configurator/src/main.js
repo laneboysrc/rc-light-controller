@@ -1870,8 +1870,6 @@ var app = (function () {
         data = firmware.data;
         offset = firmware.offset[SECTION_LIGHT_PROGRAMS];
 
-        console.log()
-
         firmware.data = data.slice(0, offset).concat(code);
     };
 

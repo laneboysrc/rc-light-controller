@@ -96,6 +96,7 @@
 ******************************************************************************/
 #include <stdint.h>
 #include <stdbool.h>
+#include <string.h>
 
 #include <hal.h>
 #include <globals.h>
@@ -142,6 +143,7 @@ extern LED_T light_actual[];
 extern uint8_t max_change_per_systick[];
 extern uint8_t light_switch_position;
 
+static bool extern_leds_modified;
 
 void init_light_programs(void);
 void process_light_program_events(void);
@@ -484,6 +486,33 @@ static uint8_t percent_to_uint8(int percentage)
 
 
 // ****************************************************************************
+static void set_extern_leds(const uint8_t *data)
+{
+    if (extern_leds_count <= 0) {
+        return;
+    }
+
+    memcpy(ws281x_buffer, data, extern_leds_count);
+    extern_leds_modified = true;
+}
+
+
+// ****************************************************************************
+static void add_extern_leds(const uint8_t *data)
+{
+    if (extern_leds_count <= 0) {
+        return;
+    }
+
+    for (int i = 0; i < extern_leds_count; i++) {
+        uint16_t value = (uint16_t)(ws281x_buffer[i]) + (uint16_t)(data[i]);
+        ws281x_buffer[i] = (value > 0xff) ? 0xff : value;
+    }
+
+    extern_leds_modified = true;
+}
+
+// ****************************************************************************
 static void execute_program(
     const uint32_t *program, LIGHT_PROGRAM_CPU_T *c, uint32_t *leds_used)
 {
@@ -644,6 +673,18 @@ static void execute_program(
                 var[var_id] = parameter;
                 break;
 
+            case OPCODE_EXTERN_LEDS_SET_COUNT:
+                extern_leds_count = (int16_t)(instruction & 0xffff);
+                break;
+
+            case OPCODE_EXTERN_LEDS_SET:
+                set_extern_leds((const uint8_t *)(program + FIRST_OPCODE_OFFSET + (instruction & 0x00ffffff)));
+                break;
+
+            case OPCODE_EXTERN_LEDS_ADD:
+                add_extern_leds((const uint8_t *)(program + FIRST_OPCODE_OFFSET + (instruction & 0x00ffffff)));
+                break;
+
             case OPCODE_END_OF_PROGRAM:
                 --c->PC;
                 c->event = 0;
@@ -683,6 +724,7 @@ uint32_t process_light_programs(void)
     uint32_t leds_used;
 
     leds_used = 0;
+    extern_leds_modified = false;
     load_light_program_environment();
 
     // Place relevant data into global variables  that light programs can
@@ -751,6 +793,10 @@ uint32_t process_light_programs(void)
     }
     else if (var[GLOBAL_VAR_SHELF_QUEEN_MODE] == 1) {
         set_shelf_queen_mode(ON);
+    }
+
+    if (extern_leds_modified  &&  extern_leds_count > 0) {
+        HAL_ws2811_transaction(ws281x_buffer, extern_leds_count, false);
     }
 
     return leds_used;

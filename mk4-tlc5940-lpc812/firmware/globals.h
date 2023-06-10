@@ -87,6 +87,10 @@
 #define OPCODE_MOD              0x38    // VAR %= type, id
 #define OPCODE_MOD_I            0x39    // VAR %= immediate
 
+#define OPCODE_EXTERN_LEDS_SET_COUNT 0x3a // extern_leds_count = immediate
+#define OPCODE_EXTERN_LEDS_SET  0x3b    // SET EXTERN LEDS instruction offset
+#define OPCODE_EXTERN_LEDS_ADD  0x3c    // ADD EXTERN LEDS instruction offset
+
 
 #define FIRST_SKIP_IF_OPCODE    0x20
 #define OPCODE_SKIP_IF_EQ_V     0x20    // var == type, id
@@ -756,7 +760,7 @@ extern SERVO_ENDPOINTS_T servo_output_endpoint;
 #define WS281X_BUFFER_SIZE (MAX_NUMBER_OF_WS281X * LEDS_PER_WS281X)
 
 extern uint8_t ws281x_buffer[WS281X_BUFFER_SIZE];
-
+extern int16_t extern_leds_count;
 
 // ****************************************************************************
 // Globally accessible functions from various modules

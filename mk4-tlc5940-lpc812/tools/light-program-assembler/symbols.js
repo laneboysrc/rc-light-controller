@@ -119,6 +119,10 @@ var symbols = (function () {
         'use': {'token': 'USE'},
         'var': {'token': 'VAR'},
         'when': {'token': 'WHEN'},
+        'data': {'token': 'DATA', 'opcode': 0x00000000},
+        'extern-leds-count': {'token': 'EXTERN-LEDS-COUNT', 'opcode': 0x3a000000},
+        'extern-leds-set': {'token': 'EXTERN-LEDS-SET', 'opcode': 0x3b000000},
+        'extern-leds-add': {'token': 'EXTERN-LEDS-ADD', 'opcode': 0x3c000000},
 
         '=': {'token': '=', 'opcode': 0x10000000},
         '>': {'token': 'GT', 'opcode': 0x2c000000},

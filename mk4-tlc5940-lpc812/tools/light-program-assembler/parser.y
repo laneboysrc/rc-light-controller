@@ -200,6 +200,33 @@ command
       { yy.emitter.emit($3, @1); }
   | IF if_expression
       { yy.emitter.emit($2, @1); }
+  | DATA numeric_value numeric_value numeric_value numeric_value
+      { yy.emitter.emit(
+        ($2 & 0xff) +
+        (($3 & 0xff) << 8) +
+        (($4 & 0xff) << 16) +
+        (($5 & 0xff) << 24))
+      }
+  | EXTERN-LEDS-COUNT numeric_value
+      { yy.emitter.emit(yy.symbols.get_reserved_word($1).opcode + ($2 & 0xffff), @1); }
+  | EXTERN-LEDS-SET LABEL
+      { yy.emitter.emit(
+          yy.symbols.get_reserved_word($1).opcode +
+          (yy.symbols.get_symbol($2).opcode & 0xffffff), @1);
+      }
+  | EXTERN-LEDS-SET UNDECLARED_SYMBOL
+      { yy.symbols.add_symbol($2, "LABEL", -1, @2);
+        yy.emitter.emit(yy.symbols.get_reserved_word($1).opcode, @1);
+      }
+  | EXTERN-LEDS-ADD LABEL
+      { yy.emitter.emit(
+          yy.symbols.get_reserved_word($1).opcode +
+          (yy.symbols.get_symbol($2).opcode & 0xffffff), @1);
+      }
+  | EXTERN-LEDS-ADD UNDECLARED_SYMBOL
+      { yy.symbols.add_symbol($2, "LABEL", -1, @2);
+        yy.emitter.emit(yy.symbols.get_reserved_word($1).opcode, @1);
+      }
   | expression
   ;
 
@@ -354,6 +381,13 @@ parameter
       { $$ = (PARAMETER_TYPE_LED * 256) + yy.symbols.get_symbol($1).opcode; }
   | RANDOM
       { $$ = (PARAMETER_TYPE_RANDOM * 256); }
+  ;
+
+numeric_value
+  : NUMBER
+      { $$ = (Number($1)); }
+  | CONSTANT
+      { $$ = (yy.symbols.get_symbol($1).opcode); }
   ;
 
 assignment_operator

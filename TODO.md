@@ -6,7 +6,7 @@
         * The `immediate` value is the `PC` of the data to set, similar to `GOTO`
         * We do not use `leds-extern = <immediate>` as this would be a special case for all the other `=` and `+=` usage
     * `extern-leds-add <immediate>`
-    - `extern-leds-set-count <immediate>` to define how many bytes to process
+    - `extern-leds-count <immediate>` to define how many bytes to process
     * `data <immediate< <immediate> <immediate> <immediate>` to store 4 bytes
         * Note that an RGB LED counts as 3 LEDs
         * While this is inconvenient for RGB LEDs, we can overcome this by writing an external tool that generates `data` instructions
@@ -24,7 +24,7 @@
 
 ## Opcode assignment
 
-* 0x3a extern-leds-set-count
+* 0x3a extern-leds-count
 * 0x3b extern-leds-set
 * 0x3c extern-leds-add
 
@@ -38,7 +38,7 @@ Color order: R G B
 
     run always
 
-    extern-leds-set-count 12        // 4 addressable LEDs, each having 3 colors
+    extern-leds-count 12        // 4 addressable LEDs, each having 3 colors
 
     loop:
         extern-leds-set STRIP_OFF
