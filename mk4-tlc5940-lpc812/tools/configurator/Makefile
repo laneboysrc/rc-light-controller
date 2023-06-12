@@ -3,7 +3,7 @@
 ###############################################################################
 # Configuration options for our application
 BUILD_DIR = build
-TARGET := $(BUILD_DIR)/configurator.html
+TARGET := $(BUILD_DIR)/configurator-ws281x.html
 
 
 ###############################################################################
