@@ -1,6 +1,6 @@
 # Light programs
 
-__Note: This document is specifically for the custom light controller firmware that supports addressable LEDs such as WS2811 and WS2812. Scroll to the end of the document for WS281x extensions.__
+__Note: This document is specifically for the custom light controller firmware that supports addressable LEDs such as WS2811 and WS2812. Scroll to the end of the document for WS281x specific light program statements.__
 
 Light programs are simple scripts that allow end-users to build custom light sequences that go beyond the fixed car related functions built into the Mk4 Light Controller.
 
@@ -967,7 +967,8 @@ should be sent by `extern-leds-set` and `extern-leds-add` commands.
 `extern-leds-count` can also be used to switch between using addressable LEDs
 as light controller Slave, or in light programs. When ``extern-leds-count` is
 0 (zero) then the light controller outputs brightness data based on the LEDs
-16..30 in the LED configuration tab of the Configurator.'
+16..30 (LED 31 is not available for addressable LEDs) in the LED configuration
+tab of the Configurator.
 
 If `extern-leds-count` is a positive number, Light programs control the
 addressable LEDs.
@@ -976,13 +977,13 @@ addressable LEDs.
 `data` statements define a list of brightness values that can be sent to the
 addressable LEDs
 
-Every `data` defines 4 bytes of brightness data. Multiple `data` statements
+Every `data` statement defines 4 bytes of brightness data. Multiple `data` statements
 follow each-other to form the brightness values for all used addressable LEDs.
-Unused bytes must be defined as every `data` statement must exactly have 4 bytes.
-The value of the padding bytes is not relevant.
+For unused bytes it is necessary to provide a value because every `data` statement must have exactly 4 bytes.
+The value of those padding bytes is not relevant.
 
 `data` can be a decimal number (0..255), a hexadecimal value (e.g. 0xb7) or a
-`const`.
+[const](#constants).
 
     run always
     const BLUE_DIM = 0x20
@@ -1001,10 +1002,10 @@ The value of the padding bytes is not relevant.
     end
 
 In order to be able to reference the first `data` statement a `label` is used.
-See `goto` for more information on labels.
+See [Labels](#labels) for more information on labels.
 
-It is important the the program flow of a light program does not try to execute
-`data` statements, as this will most likely crash the light controller. Ensure
+It is important that the program flow of a light program does not try to execute
+`data` statements, as this may crash the light controller. Ensure
 that there is a `goto` statement before the first `data` statement to avoid this.
 
 
