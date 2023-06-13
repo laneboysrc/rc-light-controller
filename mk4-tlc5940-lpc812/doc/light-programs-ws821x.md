@@ -1,10 +1,12 @@
 # Light programs
 
+__Note: This document is specifically for the custom light controller firmware that supports addressable LEDs such as WS2811 and WS2812. Scroll to the end of the document for WS281x extensions.__
+
 Light programs are simple scripts that allow end-users to build custom light sequences that go beyond the fixed car related functions built into the Mk4 Light Controller.
 
 Light programs can be triggered when the light controller goes into certain states of operation. For example, a light program can be written to flash a 3rd brake light whenever the brakes are enganged.
 
-Light programs are entered into the corresponding edit field in the light controller [Configurator](https://laneboysrc.github.io/rc-light-controller/).
+Light programs are entered into the corresponding edit field in the light controller [Configurator](https://laneboysrc.github.io/rc-light-controller/configurator-ws281x.html).
 
 A total number of 20 light programs can exist at a certain time.
 
@@ -898,6 +900,153 @@ We can now create a second light program with the run condition ``run when progr
     led headlamp-r = led[5]
 
         headlamp-l, headlamp-r = 100
+
+    end
+
+
+# WS281x addressable LED control
+
+The following statements are available to control addressable LEDs:
+
+- **extern-leds-count**
+
+    Define how many external LEDs are in use. Note that a single WS2812 3-color LED counts as 3 LEDs (one per color).
+
+- **extern-leds-set**
+
+    Sets brightness data for the number of LEDs previously defined by ``extern-leds-count``.
+
+- **extern-leds-add**
+
+    Adds brightness data to the LEDs.
+
+- **data**
+
+    Declares brightness data.
+
+
+Here is a simple light program that blinks 3 WS2812 RGB LEDs red - green - blue:
+
+    run always
+
+        extern-leds-count 9         // 3 WS2812 LEDs, each having 3 LEDs (r/g/b)
+
+    loop:
+        extern-leds-set all_red     // Set LED data to label "all_red" below
+        sleep 300                   // Wait 300 milliseconds
+        extern-leds-set all_green
+        sleep 300
+        extern-leds-set all_blue
+        sleep 300
+        goto loop                   // Repeat the sequence
+
+        // Define the data bytes that are sent as brightness values to the LEDs
+        // Each data ``statement`` must have 4 bytes, pad with 0 if necessary.
+        // The order depends on the addressable LED. Most WS2812 RGB LEDs have
+        // a order of green-red-blue.
+    all_red:
+        data 0 0xff 0 0             // G1  R1  B1  G2
+        data 0xff 0 0 0xff          // R2  B2  G3  R3
+        data 0 0 0 0                // B3  pad pad pad
+
+    all_green:
+        data 0xff 0 0 0xff          // G1  R1  B1  G2
+        data 0 0 0xff 0             // R2  B2  G3  R3
+        data 0 0 0 0                // B3  pad pad pad
+
+    all_blue:
+        data 0 0 0xff 0             // G1  R1  B1  G2
+        data 0 0xff 0 0             // R2  B2  G3  R3
+        data 0xff 0 0 0             // B3  pad pad pad
+
+    end
+
+The statement `extern-leds-count` defines the number of brightness values that
+should be sent by `extern-leds-set` and `extern-leds-add` commands.
+
+`extern-leds-count` can also be used to switch between using addressable LEDs
+as light controller Slave, or in light programs. When ``extern-leds-count` is
+0 (zero) then the light controller outputs brightness data based on the LEDs
+16..30 in the LED configuration tab of the Configurator.'
+
+If `extern-leds-count` is a positive number, Light programs control the
+addressable LEDs.
+
+
+`data` statements define a list of brightness values that can be sent to the
+addressable LEDs
+
+Every `data` defines 4 bytes of brightness data. Multiple `data` statements
+follow each-other to form the brightness values for all used addressable LEDs.
+Unused bytes must be defined as every `data` statement must exactly have 4 bytes.
+The value of the padding bytes is not relevant.
+
+`data` can be a decimal number (0..255), a hexadecimal value (e.g. 0xb7) or a
+`const`.
+
+    run always
+    const BLUE_DIM = 0x20
+
+        extern-leds-count 3
+
+    loop:
+        extern-leds-set demo
+        sleep 1000
+        goto loop
+
+    demo:
+        // decimal, hex and constant
+        data 48 0x40 BLUE_DIM 0       // G1  R1  B1  pad
+
+    end
+
+In order to be able to reference the first `data` statement a `label` is used.
+See `goto` for more information on labels.
+
+It is important the the program flow of a light program does not try to execute
+`data` statements, as this will most likely crash the light controller. Ensure
+that there is a `goto` statement before the first `data` statement to avoid this.
+
+
+`extern-leds-set` sets the brightness values of the addressable LEDs to the
+first `extern-leds-count` bytes of the data from the provided `label`.
+
+The brightness data is only sent to the LEDs when all light programs have yielded,
+either due to `sleep` statments for because the maxiumum number of statements in
+a single loop were exceeded.
+
+`extern-leds-add` adds the first `extern-leds-count` brightness values the data
+from the provided `label`. This is clamped at maxium brightness (255)
+
+
+    run always
+        // Singe WS2812 LED
+        // Red is always on at a low brightness
+        // Blue flashes on/off randomly
+
+        // Helper variable because "random" can not be used in "if" directly
+        var random_number
+
+        extern-leds-count 3
+
+    loop:
+        // Red is always on, dim
+        extern-leds-set red_dim
+
+        // If a random number (-32768..32767) is positive ADD the blue LED data
+        random_number = random
+        if random_number > 0
+        extern-leds-add blue
+
+        sleep 20
+        goto loop
+
+    red_dim:
+        data 0 20 0 0       // G1  R1  B1  pad
+
+    blue:
+        data 0 0 255 0      // G1  R1  B1  pad
+
 
     end
 

@@ -205,7 +205,7 @@ command
         ($2 & 0xff) +
         (($3 & 0xff) << 8) +
         (($4 & 0xff) << 16) +
-        (($5 & 0xff) << 24))
+        ((($5 & 0xff) > 0xfd ? 0xfd : ($5 & 0xff)) << 24))
       }
   | EXTERN-LEDS-COUNT numeric_value
       { yy.emitter.emit(yy.symbols.get_reserved_word($1).opcode + ($2 & 0xffff), @1); }

@@ -115,53 +115,22 @@
           Firmware version: <strong><span id="firmware_version"></span></strong>
         </div>
 
+        <div><strong>
+          This custom version of the Configurator is specifically for use with addressable LEDs such as WS2811 and WS2812.
+        </strong></div>
+
         <div>
-        This tool is part of the LANE Boys RC Light Controller documented at <a href="https://github.com/laneboysrc/rc-light-controller" target="_blank">https://github.com/laneboysrc/rc-light-controller</a>.
+          Please use the standard Configurator at <a href="https://laneboysrc.github.io/rc-light-controller/">https://laneboysrc.github.io/rc-light-controller/</a> for normal Light Controller installations.
         </div>
 
         <div>
-          <select class="hidden" id="hardware">
-            <option value="mk4">Mk4 (NXP LPC812)</option>
-          </select>
-          <span id="hardware_image" class="mk4"></span>
+          For information on how to use Addressable LEDs with the Light Controller please refere to <a href="">FIXME</a>
         </div>
 
-        <div>
-          For more information please refer to the user manual:
-          <br>
-          <a href="https://laneboysrc.github.io/rc-light-controller/light-controller-instructions-mk4.pdf" target="_blank">Mk4 Light Controller documentation</a> (PDF)
-          <br>
-          <a href="https://laneboysrc.github.io/rc-light-controller/light-controller-instructions-mk4-deutsch.pdf" target="_blank">Mk4 Light Controller Anleitung</a> (Deutsch, PDF)
-        </div>
 
-        <div class="info">
-          <h2>Quick start</h2>
-          <div>
-            Using the menu on the left you can adjust the configuration to suit
-            your vehicle and RC system.
-          </div>
-          <div>
-            After you are done, you can save the firmware image, which will have
-            the selected configuration embedded. The firmware will be stored in
-            the download folder of your web browser.
-          </div>
-          <div>
-            Flash the firmware into the light controller as described in the
-            light controller user manual.
-          </div>
-          <div>
-            You can also save the configuration into a text file, which
-            can be loaded at a later point in time; for example to make
-            further tweaks.
-          </div>
-          <div>
-            <strong>It is advisable that you always save a copy of the
-            configuration for future reference.</strong> While it is possible
-            to retrieve all settings from a firmware image, some data like
-            variable names and comments in Light Programs are lost as they are
-            not stored into the firmware.
-          </div>
-        </div>
+        <select class="hidden" id="hardware">
+          <option value="mk4">Mk4 (NXP LPC812)</option>
+        </select>
       </div>
 
 
@@ -898,8 +867,7 @@
         <h2>Light programs</h2>
         <div>
           Light programs are small scripts that can perform custom light
-          sequences. See <a href="https://github.com/laneboysrc/rc-light-controller/blob/master/mk4-tlc5940-lpc812/doc/light-programs.md" target="_blank">light-programs.md</a> for an details on the
-          programming language.
+          sequences. See <a href="https://github.com/laneboysrc/rc-light-controller/blob/ws281x/mk4-tlc5940-lpc812/doc/light-programs-ws821x.md" target="_blank">light-programs-ws821x.md</a> for details on the programming language and the WS281x specific extensions.
         </div>
         <div>
           Press <strong>F11</strong> to toggle fullscreen mode within your browser
