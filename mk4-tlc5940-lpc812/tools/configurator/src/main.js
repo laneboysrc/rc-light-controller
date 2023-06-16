@@ -447,14 +447,7 @@ var app = (function () {
 
         new_config.steering_wheel_servo_output = get_flag(0x0008);
         new_config.gearbox_servo_output = get_flag(0x0010);
-
-        if (new_config.firmware_version >= 56) {
-            new_config.ws2811_output = get_flag(0x0020);
-        }
-        else {
-            new_config.ws2811_output = false;
-        }
-
+        // reserved = get_flag(0x0020);
         new_config.ch3_is_local_switch = get_flag(0x0040);
         new_config.ch3_is_momentary = get_flag(0x0080);
         new_config.auto_brake_lights_forward_enabled = get_flag(0x0100);
@@ -1181,7 +1174,7 @@ var app = (function () {
         ensure_one_is_checked('output_th');
         ensure_one_is_checked('assign_servo_uart');
 
-        if (el.slave_output.checked  ||  el.ws2811_output.checked) {
+        if (el.slave_output.checked) {
             el.leds_slave.classList.remove('hidden');
         }
         else {
@@ -1270,7 +1263,6 @@ var app = (function () {
         el.steering_wheel_servo_output.checked = Boolean(config.steering_wheel_servo_output);
         el.preprocessor_output.checked = Boolean(config.preprocessor_output);
         el.slave_output.checked = Boolean(config.slave_output);
-        el.ws2811_output.checked = Boolean(config.ws2811_output);
         el.gearbox_light_program_control.checked = Boolean(config.gearbox_light_program_control);
         el.light_program_servo_output.checked = Boolean(config.light_program_servo_output);
         el.indicators_while_driving.checked = Boolean(config.indicators_while_driving);
@@ -1669,7 +1661,7 @@ var app = (function () {
         // flags |= (config.winch_output << 2);     // Winch is deprecated
         flags |= (config.steering_wheel_servo_output << 3);
         flags |= (config.gearbox_servo_output << 4);
-        flags |= (config.ws2811_output << 5);
+        // flags |= (reserved << 5);
         flags |= (config.ch3_is_local_switch << 6);
         flags |= (config.ch3_is_momentary << 7);
         flags |= (config.auto_brake_lights_forward_enabled << 8);
@@ -1766,7 +1758,7 @@ var app = (function () {
             }
         }
 
-        if (!config.slave_output && !config.preprocessor_output && !config.ws2811_output) {
+        if (!config.slave_output && !config.preprocessor_output) {
             flags2 |= (1 << 11); // config.uart_diagnostics_enabled
         }
 
@@ -1820,7 +1812,7 @@ var app = (function () {
         for (i = 0; i < configuration.local_leds.led_count; i += 1) {
             diagnostics_mask |= configuration.local_leds[i].diagnostics;
         }
-        if (configuration.slave_output || configuration.ws2811_output) {
+        if (configuration.slave_output) {
             for (i = 0; i < configuration.slave_leds.led_count; i += 1) {
                 diagnostics_mask |= configuration.slave_leds[i].diagnostics;
             }
@@ -1883,7 +1875,7 @@ var app = (function () {
         // For the LOCAL LEDs, always adjust "light_switch_positions" ...
         assemble_leds(SECTION_LOCAL_LEDS, configuration.local_leds, true);
         // ... but for SLAVE LEDs only when slave is enabled!
-        assemble_leds(SECTION_SLAVE_LEDS, configuration.slave_leds, configuration.config.slave_output || configuration.ws2811_output);
+        assemble_leds(SECTION_SLAVE_LEDS, configuration.slave_leds, configuration.config.slave_output);
         assemble_light_programs(configuration.light_programs);
 
         assemble_gamma(configuration.gamma);
@@ -2326,7 +2318,6 @@ var app = (function () {
             // Force all output functions to OFF in slave mode
             config.preprocessor_output = false;
             config.slave_output = false;
-            config.ws2811_output = false;
             config.steering_wheel_servo_output = false;
             config.gearbox_servo_output = false;
             config.gearbox_light_program_control = false;
@@ -2339,7 +2330,6 @@ var app = (function () {
         else {
             update_boolean('preprocessor_output');
             update_boolean('slave_output');
-            update_boolean('ws2811_output');
             update_boolean('steering_wheel_servo_output');
             update_boolean('gearbox_servo_output');
             update_boolean('gearbox_light_program_control');
@@ -3080,7 +3070,7 @@ var app = (function () {
             'reverse_st', 'reverse_th', 'reverse_aux', 'reverse_aux2', 'reverse_aux3',
 
             'slave_output', 'preprocessor_output', 'steering_wheel_servo_output',
-            'gearbox_servo_output', 'ws2811_output',
+            'gearbox_servo_output',
             'light_program_servo_output', 'indicators_while_driving',
             'gearbox_light_program_control',
             'assign_uart_to_out', 'assign_servo_to_out', 'dual_off',
