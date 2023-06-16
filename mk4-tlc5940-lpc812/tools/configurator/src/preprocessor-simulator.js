@@ -50,6 +50,9 @@ class Preprocessor_simulator {
   AUX = 'AUX';
   AUX2 = 'AUX2';
   AUX3 = 'AUX3';
+  AUX4 = 'AUX4';
+  AUX5 = 'AUX5';
+  AUX6 = 'AUX6';
   STARTUP_MODE = 'STARTUP_MODE';
   NO_SIGNAL = 'NO_SIGNAL';
   MULTI_AUX = 'MULTI_AUX';
@@ -88,6 +91,9 @@ class Preprocessor_simulator {
     this.channels[this.AUX] = 0;
     this.channels[this.AUX2] = 0;
     this.channels[this.AUX3] = 0;
+    this.channels[this.AUX4] = 0;
+    this.channels[this.AUX5] = 0;
+    this.channels[this.AUX6] = 0;
     this.channels[this.STARTUP_MODE] = 0;
     this.channels[this.NO_SIGNAL] = 0;
 
@@ -292,6 +298,18 @@ class Preprocessor_simulator {
     data[10 + 2*this.ibus_channel_offset] = ch & 0xff;
     data[11 + 2*this.ibus_channel_offset] = ch >> 8;
 
+    ch = this._channel_to_us(this.channels[this.AUX4]);
+    data[12 + 2*this.ibus_channel_offset] = ch & 0xff;
+    data[13 + 2*this.ibus_channel_offset] = ch >> 8;
+
+    ch = this._channel_to_us(this.channels[this.AUX5]);
+    data[14 + 2*this.ibus_channel_offset] = ch & 0xff;
+    data[15 + 2*this.ibus_channel_offset] = ch >> 8;
+
+    ch = this._channel_to_us(this.channels[this.AUX6]);
+    data[16 + 2*this.ibus_channel_offset] = ch & 0xff;
+    data[17 + 2*this.ibus_channel_offset] = ch >> 8;
+
 
     let checksum = 0;
     for (let i = 0; i < data[0] - 2; i++) {
@@ -455,6 +473,15 @@ class Preprocessor_simulator {
     config[this.AUX3] = {};
     config[this.AUX3][this.AUX_TYPE] = this.AUX_TYPE_ANALOG;
     config[this.AUX3][this.AUX_FUNCTION] = this.AUX_FUNCTION_NOT_USED;
+    config[this.AUX4] = {};
+    config[this.AUX4][this.AUX_TYPE] = this.AUX_TYPE_ANALOG;
+    config[this.AUX4][this.AUX_FUNCTION] = this.AUX_FUNCTION_NOT_USED;
+    config[this.AUX5] = {};
+    config[this.AUX5][this.AUX_TYPE] = this.AUX_TYPE_ANALOG;
+    config[this.AUX5][this.AUX_FUNCTION] = this.AUX_FUNCTION_NOT_USED;
+    config[this.AUX6] = {};
+    config[this.AUX6][this.AUX_TYPE] = this.AUX_TYPE_ANALOG;
+    config[this.AUX6][this.AUX_FUNCTION] = this.AUX_FUNCTION_NOT_USED;
     return config;
   }
 
@@ -472,6 +499,15 @@ class Preprocessor_simulator {
     config[this.AUX3] = {};
     config[this.AUX3][this.AUX_TYPE] = this.AUX_TYPE_ANALOG;
     config[this.AUX3][this.AUX_FUNCTION] = this.AUX_FUNCTION_NOT_USED;
+    config[this.AUX4] = {};
+    config[this.AUX4][this.AUX_TYPE] = this.AUX_TYPE_ANALOG;
+    config[this.AUX4][this.AUX_FUNCTION] = this.AUX_FUNCTION_NOT_USED;
+    config[this.AUX5] = {};
+    config[this.AUX5][this.AUX_TYPE] = this.AUX_TYPE_ANALOG;
+    config[this.AUX5][this.AUX_FUNCTION] = this.AUX_FUNCTION_NOT_USED;
+    config[this.AUX6] = {};
+    config[this.AUX6][this.AUX_TYPE] = this.AUX_TYPE_ANALOG;
+    config[this.AUX6][this.AUX_FUNCTION] = this.AUX_FUNCTION_NOT_USED;
     return config;
   }
 
@@ -489,6 +525,15 @@ class Preprocessor_simulator {
     config[this.AUX3] = {};
     config[this.AUX3][this.AUX_TYPE] = this.AUX_TYPE_ANALOG;
     config[this.AUX3][this.AUX_FUNCTION] = this.AUX_FUNCTION_NOT_USED;
+    config[this.AUX4] = {};
+    config[this.AUX4][this.AUX_TYPE] = this.AUX_TYPE_ANALOG;
+    config[this.AUX4][this.AUX_FUNCTION] = this.AUX_FUNCTION_NOT_USED;
+    config[this.AUX5] = {};
+    config[this.AUX5][this.AUX_TYPE] = this.AUX_TYPE_ANALOG;
+    config[this.AUX5][this.AUX_FUNCTION] = this.AUX_FUNCTION_NOT_USED;
+    config[this.AUX6] = {};
+    config[this.AUX6][this.AUX_TYPE] = this.AUX_TYPE_ANALOG;
+    config[this.AUX6][this.AUX_FUNCTION] = this.AUX_FUNCTION_NOT_USED;
     return config;
   }
 
@@ -506,6 +551,15 @@ class Preprocessor_simulator {
     config[this.AUX3] = {};
     config[this.AUX3][this.AUX_TYPE] = this.AUX_TYPE_ANALOG;
     config[this.AUX3][this.AUX_FUNCTION] = this.AUX_FUNCTION_NOT_USED;
+    config[this.AUX4] = {};
+    config[this.AUX4][this.AUX_TYPE] = this.AUX_TYPE_ANALOG;
+    config[this.AUX4][this.AUX_FUNCTION] = this.AUX_FUNCTION_NOT_USED;
+    config[this.AUX5] = {};
+    config[this.AUX5][this.AUX_TYPE] = this.AUX_TYPE_ANALOG;
+    config[this.AUX5][this.AUX_FUNCTION] = this.AUX_FUNCTION_NOT_USED;
+    config[this.AUX6] = {};
+    config[this.AUX6][this.AUX_TYPE] = this.AUX_TYPE_ANALOG;
+    config[this.AUX6][this.AUX_FUNCTION] = this.AUX_FUNCTION_NOT_USED;
     return config;
   }
 }

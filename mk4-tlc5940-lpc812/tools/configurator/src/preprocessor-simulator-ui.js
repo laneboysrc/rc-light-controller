@@ -5,6 +5,10 @@ class Preprocessor_simulator_ui {
   AUX = 'AUX';
   AUX2 = 'AUX2';
   AUX3 = 'AUX3';
+  AUX4 = 'AUX4';
+  AUX5 = 'AUX5';
+  AUX5 = 'AUX5';
+  AUX6 = 'AUX6';
 
   UP_DOWN_TIMEOUT = 500;
 
@@ -18,10 +22,14 @@ class Preprocessor_simulator_ui {
     this.el.aux[this.AUX] = {};
     this.el.aux[this.AUX2] = {};
     this.el.aux[this.AUX3] = {};
+    this.el.aux[this.AUX4] = {};
+    this.el.aux[this.AUX5] = {};
+    this.el.aux[this.AUX6] = {};
 
     // Collect all UI elements that are relevant in 5-ch mode only, so that
     // we can show/hide them as necessary in a simple forEach() loop.
     this.el.multi_aux = document.querySelectorAll('.multi-aux');
+    this.el.i_bus = document.querySelectorAll('.i-bus');
 
     this.el.diagnostics = document.querySelector('#diagnostics-messages');
     this.el.startup_mode = document.querySelector('#startup-mode');
@@ -53,6 +61,19 @@ class Preprocessor_simulator_ui {
     this.el.aux[this.AUX3].slider = document.querySelector('#aux3-slider');
     this.el.aux[this.AUX3].toggle = document.querySelector('#aux3-toggle');
 
+    this.el.aux[this.AUX4].channel = this.simulator.AUX4;
+    this.el.aux[this.AUX4].slider = document.querySelector('#aux4-slider');
+    this.el.aux[this.AUX4].toggle = document.querySelector('#aux4-toggle');
+
+    this.el.aux[this.AUX5].channel = this.simulator.AUX5;
+    this.el.aux[this.AUX5].slider = document.querySelector('#aux5-slider');
+    this.el.aux[this.AUX5].toggle = document.querySelector('#aux5-toggle');
+
+    this.el.aux[this.AUX6].channel = this.simulator.AUX6;
+    this.el.aux[this.AUX6].slider = document.querySelector('#aux6-slider');
+    this.el.aux[this.AUX6].toggle = document.querySelector('#aux6-toggle');
+
+
     // Cache for all event listernes that we've set, so that we can remove them
     // when the simulator is shut down.
     this.event_listeners = [];
@@ -75,6 +96,12 @@ class Preprocessor_simulator_ui {
     this._addEventListener(this.el.aux[this.AUX2].slider, 'input', this.aux_slider_changed.bind(this, this.el.aux[this.AUX2]));
     this._addEventListener(this.el.aux[this.AUX3].slider, 'change', this.aux_slider_changed.bind(this, this.el.aux[this.AUX3]));
     this._addEventListener(this.el.aux[this.AUX3].slider, 'input', this.aux_slider_changed.bind(this, this.el.aux[this.AUX3]));
+    this._addEventListener(this.el.aux[this.AUX4].slider, 'change', this.aux_slider_changed.bind(this, this.el.aux[this.AUX4]));
+    this._addEventListener(this.el.aux[this.AUX4].slider, 'input', this.aux_slider_changed.bind(this, this.el.aux[this.AUX4]));
+    this._addEventListener(this.el.aux[this.AUX5].slider, 'change', this.aux_slider_changed.bind(this, this.el.aux[this.AUX5]));
+    this._addEventListener(this.el.aux[this.AUX5].slider, 'input', this.aux_slider_changed.bind(this, this.el.aux[this.AUX5]));
+    this._addEventListener(this.el.aux[this.AUX6].slider, 'change', this.aux_slider_changed.bind(this, this.el.aux[this.AUX6]));
+    this._addEventListener(this.el.aux[this.AUX6].slider, 'input', this.aux_slider_changed.bind(this, this.el.aux[this.AUX6]));
 
     this._addEventListener(this.el.aux[this.AUX].toggle, 'mousedown', this.aux_toggle.bind(this, this.el.aux[this.AUX]));
     this._addEventListener(this.el.aux[this.AUX].toggle, 'mouseup', this.aux_toggle.bind(this, this.el.aux[this.AUX]));
@@ -82,6 +109,12 @@ class Preprocessor_simulator_ui {
     this._addEventListener(this.el.aux[this.AUX2].toggle, 'mouseup', this.aux_toggle.bind(this, this.el.aux[this.AUX2]));
     this._addEventListener(this.el.aux[this.AUX3].toggle, 'mousedown', this.aux_toggle.bind(this, this.el.aux[this.AUX3]));
     this._addEventListener(this.el.aux[this.AUX3].toggle, 'mouseup', this.aux_toggle.bind(this, this.el.aux[this.AUX3]));
+    this._addEventListener(this.el.aux[this.AUX4].toggle, 'mousedown', this.aux_toggle.bind(this, this.el.aux[this.AUX4]));
+    this._addEventListener(this.el.aux[this.AUX4].toggle, 'mouseup', this.aux_toggle.bind(this, this.el.aux[this.AUX4]));
+    this._addEventListener(this.el.aux[this.AUX5].toggle, 'mousedown', this.aux_toggle.bind(this, this.el.aux[this.AUX5]));
+    this._addEventListener(this.el.aux[this.AUX5].toggle, 'mouseup', this.aux_toggle.bind(this, this.el.aux[this.AUX5]));
+    this._addEventListener(this.el.aux[this.AUX6].toggle, 'mousedown', this.aux_toggle.bind(this, this.el.aux[this.AUX6]));
+    this._addEventListener(this.el.aux[this.AUX6].toggle, 'mouseup', this.aux_toggle.bind(this, this.el.aux[this.AUX6]));
 
     this._addEventListener(this.el.aux[this.AUX].type, 'change', this.aux_type_changed.bind(this, this.el.aux[this.AUX]));
     this._addEventListener(this.el.aux[this.AUX2].type, 'change', this.aux_type_changed.bind(this, this.el.aux[this.AUX2]));
@@ -110,6 +143,9 @@ class Preprocessor_simulator_ui {
     this.aux_slider_changed(this.el.aux[this.AUX]);
     this.aux_slider_changed(this.el.aux[this.AUX2]);
     this.aux_slider_changed(this.el.aux[this.AUX3]);
+    this.aux_slider_changed(this.el.aux[this.AUX4]);
+    this.aux_slider_changed(this.el.aux[this.AUX5]);
+    this.aux_slider_changed(this.el.aux[this.AUX6]);
   }
 
   _addEventListener(element, event, listener) {
@@ -170,7 +206,7 @@ class Preprocessor_simulator_ui {
       aux.buttonDown = false;
     }
 
-    if (aux.type.value == s.AUX_TYPE_ANALOG) {
+    if (!('type' in aux) || aux.type.value == s.AUX_TYPE_ANALOG) {
       if (event.type == 'keydown' || event.type == 'mousedown') {
         this.update_aux_value(aux, 0);
       }
@@ -402,8 +438,18 @@ class Preprocessor_simulator_ui {
       this.el.aux[this.AUX3].type.disabled = true;
       this.el.aux[this.AUX3].slider.disabled = !this.config[s.MULTI_AUX];
       this.el.aux[this.AUX3].toggle.disabled = !this.config[s.MULTI_AUX];
+      this.el.aux[this.AUX4].slider.disabled = !this.config[s.MULTI_AUX];
+      this.el.aux[this.AUX4].toggle.disabled = !this.config[s.MULTI_AUX];
+      this.el.aux[this.AUX5].slider.disabled = !this.config[s.MULTI_AUX];
+      this.el.aux[this.AUX5].toggle.disabled = !this.config[s.MULTI_AUX];
+      this.el.aux[this.AUX6].slider.disabled = !this.config[s.MULTI_AUX];
+      this.el.aux[this.AUX6].toggle.disabled = !this.config[s.MULTI_AUX];
+
       if (this.config[s.MULTI_AUX]) {
         this.el.multi_aux.forEach(element => { this.show(element); });
+        if (!this.config[s.IBUS]) {
+          this.el.i_bus.forEach(element => { this.hide(element); });
+        }
       }
       else {
         this.el.multi_aux.forEach(element => { this.hide(element); });
@@ -426,7 +472,16 @@ class Preprocessor_simulator_ui {
       this.el.aux[this.AUX3].type.disabled = false;
       this.el.aux[this.AUX3].slider.disabled = false;
       this.el.aux[this.AUX3].toggle.disabled = false;
+      this.el.aux[this.AUX4].slider.disabled = false;
+      this.el.aux[this.AUX4].toggle.disabled = false;
+      this.el.aux[this.AUX5].slider.disabled = false;
+      this.el.aux[this.AUX5].toggle.disabled = false;
+      this.el.aux[this.AUX6].slider.disabled = false;
+      this.el.aux[this.AUX6].toggle.disabled = false;
       this.el.multi_aux.forEach(element => { this.show(element); });
+      if (!this.config[s.IBUS]) {
+        this.el.i_bus.forEach(element => { this.hide(element); });
+      }
       this.hide(this.el.aux[this.AUX].function);
       this.hide(this.el.aux[this.AUX2].function);
       this.hide(this.el.aux[this.AUX3].function);
@@ -445,6 +500,12 @@ class Preprocessor_simulator_ui {
       this.el.aux[this.AUX3].type.disabled = true;
       this.el.aux[this.AUX3].slider.disabled = true;
       this.el.aux[this.AUX3].toggle.disabled = true;
+      this.el.aux[this.AUX4].slider.disabled = true;
+      this.el.aux[this.AUX4].toggle.disabled = true;
+      this.el.aux[this.AUX5].slider.disabled = true;
+      this.el.aux[this.AUX5].toggle.disabled = true;
+      this.el.aux[this.AUX6].slider.disabled = true;
+      this.el.aux[this.AUX6].toggle.disabled = true;
       this.el.multi_aux.forEach(element => { this.hide(element); });
       this.hide(this.el.aux[this.AUX].function);
       this.hide(this.el.aux[this.AUX2].function);
@@ -465,6 +526,12 @@ class Preprocessor_simulator_ui {
       this.el.aux[this.AUX3].type.disabled = true;
       this.el.aux[this.AUX3].slider.disabled = true;
       this.el.aux[this.AUX3].toggle.disabled = true;
+      this.el.aux[this.AUX4].slider.disabled = true;
+      this.el.aux[this.AUX4].toggle.disabled = true;
+      this.el.aux[this.AUX5].slider.disabled = true;
+      this.el.aux[this.AUX5].toggle.disabled = true;
+      this.el.aux[this.AUX6].slider.disabled = true;
+      this.el.aux[this.AUX6].toggle.disabled = true;
     }
 
     this.el.aux[this.AUX].function.textContent = s.getAuxFunctionLabel(this.config[s.AUX][s.AUX_FUNCTION]);

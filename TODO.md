@@ -5,6 +5,4 @@
 * Make simulator work with 34800 BAUD?
 
 
-* Test servo reader
-* Light program documentation add aux4..6
-* * Simulator add 3 AUX
+* Test servo reader on 5chPP and 3chPP

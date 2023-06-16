@@ -333,9 +333,9 @@ Light program 1 and 3 declare another global variable ``VARIABLE3``. Light progr
 
 The light controller pre-defined a few global variables, accessible by all light programs:
 
-- **aux, aux2, aux3**
+- **aux, aux2, aux3, aux4, aux5, aux6**
 
-    This variable reflects the state of the CH3 (AUX), AUX2 and AUX3 inputs respectively. The range is from -100 .. 0 .. +100.
+    This variable reflects the state of the CH3 (AUX), AUX2 to AUX6 inputs respectively. The range is from -100 .. 0 .. +100. AUX4, AUX5 and AUX6 are only available when using i-Bus or S.Bus.
 
 
 - **ch3-pin**
@@ -394,9 +394,10 @@ The light controller pre-defined a few global variables, accessible by all light
 
 > **Important**:
 >
-> Do not write to *steering*, *throttle*, *aux*, *aux2* and *aux3*. Those variables should be considered read-only; write operations may have undeterministic effects on other light programs using these variables.
+> Do not write to *steering*, *throttle*, *aux*, *aux2* to *aux6*. Those variables should be considered read-only; write operations may have undeterministic effects on other light programs using these variables.
 >
-> *aux*, *aux2* and *aux3* are only usable in conjunction with the 5-channel Pre-Processor.
+> *aux*, *aux2* and *aux3* are only usable in conjunction with the 5-channel Pre-Processor, i-Bus or S.Bus.
+> *aux4*, *aux5* and *aux6* are only usable in conjunction with i-Bus or S.Bus.
 
 ### LED declarations
 
@@ -479,7 +480,7 @@ Most statements support a variety of different arguments:
     x = servo       // Current servo position -100..0..+100,
                     //   only useful if light program servo control is enabled
 
-Note: aux, aux2 and aux3 are only available when a 5-channel Pre-Processor hardware is used.
+Note: aux, aux2 and aux3 are only available when a 5-channel Pre-Processor, i-Bus or S.Bus is used.
 
 
 ### Assignments

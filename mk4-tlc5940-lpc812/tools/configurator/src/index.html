@@ -1435,7 +1435,7 @@
                           <option value='0'>Automatic</option>
                           <option value='3'>3-channel</option>
                           <option value='5'>5-channel</option>
-                          <option value='95'>i-Bus 5-channel</option>
+                          <option value='95'>i-Bus</option>
                       </select>
                     </div>
                 </div>              </div>
@@ -1443,6 +1443,7 @@
             <div class='column'>
                 <div class='box configuration controls'>
                     <span style='float: right;'>
+                        <button id='aux-toggle'>AUX</button>
                         <select id='aux-type'>
                             <option value='0'>Two-position switch</option>
                             <option value='1'>Two-position switch up/down</option>
@@ -1453,14 +1454,12 @@
                     </span>
                     <h2>AUX</h2>
                     <div id='aux-function' class='function'></div>
-                    <div class='centered'>
-                        <button id='aux-toggle'>AUX</button>
-                    </div>
                     <input id='aux-slider' type='range' min ='-100' max='100' step ='1' value ='0'>
                 </div>
                 <div class='box configuration controls multi-aux'>
                     <span style='float: right;'>
-                       <select id='aux2-type'>
+                        <button id='aux2-toggle'>AUX2</button>
+                        <select id='aux2-type'>
                             <option value='0'>Two-position switch</option>
                             <option value='1'>Two-position switch up/down</option>
                             <option value='2'>Momentary</option>
@@ -1470,13 +1469,11 @@
                     </span>
                     <h2>AUX2</h2>
                     <div id='aux2-function' class='function'></div>
-                    <div class='centered'>
-                        <button id='aux2-toggle'>AUX2</button>
-                    </div>
                     <input id='aux2-slider' type='range' min ='-100' max='100' step ='1' value ='0'>
                 </div>
                 <div class='box configuration controls multi-aux'>
                     <span style='float: right;'>
+                        <button id='aux3-toggle'>AUX3</button>
                         <select id='aux3-type'>
                             <option value='0'>Two-position switch</option>
                             <option value='1'>Two-position switch up/down</option>
@@ -1487,10 +1484,28 @@
                     </span>
                     <h2>AUX3</h2>
                     <div id='aux3-function' class='function'></div>
-                    <div class='centered'>
-                        <button id='aux3-toggle'>AUX3</button>
-                    </div>
                     <input id='aux3-slider' type='range' min ='-100' max='100' step ='1' value ='0'>
+                </div>
+                <div class='box configuration controls multi-aux i-bus'>
+                    <span style='float: right;'>
+                      <button id='aux4-toggle'>center</button>
+                    </span>
+                    <h2>AUX4</h2>
+                    <input id='aux4-slider' type='range' min ='-100' max='100' step ='1' value ='0'>
+                </div>
+                <div class='box configuration controls multi-aux i-bus'>
+                    <span style='float: right;'>
+                      <button id='aux5-toggle'>center</button>
+                    </span>
+                    <h2>AUX5</h2>
+                    <input id='aux5-slider' type='range' min ='-100' max='100' step ='1' value ='0'>
+                </div>
+                <div class='box configuration controls multi-aux i-bus'>
+                    <span style='float: right;'>
+                      <button id='aux6-toggle'>center</button>
+                    </span>
+                    <h2>AUX6</h2>
+                    <input id='aux6-slider' type='range' min ='-100' max='100' step ='1' value ='0'>
                 </div>
             </div>
         </div>
