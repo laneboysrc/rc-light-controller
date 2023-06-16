@@ -108,7 +108,7 @@ static void initialize_channel(CHANNEL_T *c) {
 static void normalize_all_channels(void) {
     int index;
 
-    for (index = 0; index < 5; index++) {
+    for (index = 0; index < NUMBER_OF_CHANNELS; index++) {
         normalize_channel(&channel[index]);
     }
 }
@@ -117,7 +117,8 @@ static void normalize_all_channels(void) {
 // ****************************************************************************
 void read_all_servo_channels(void)
 {
-    uint32_t raw_data[5];
+    static uint32_t raw_data[NUMBER_OF_CHANNELS];
+    int index;
 
     if (global_flags.systick) {
         if (servo_reader_timer) {
@@ -152,11 +153,19 @@ void read_all_servo_channels(void)
     }
 
 
-    channel[ST].raw_data = raw_data[0];
-    channel[TH].raw_data = raw_data[1];
-    channel[AUX].raw_data = raw_data[2];
-    channel[AUX2].raw_data = raw_data[3];
-    channel[AUX3].raw_data = raw_data[4];
+    // For loop instead of direct assignment saves flash space
+    for (index = 0; index < NUMBER_OF_CHANNELS ; index++) {
+        channel[index].raw_data = raw_data[index];
+    }
+    // channel[ST].raw_data = raw_data[0];
+    // channel[TH].raw_data = raw_data[1];
+    // channel[AUX].raw_data = raw_data[2];
+    // channel[AUX2].raw_data = raw_data[3];
+    // channel[AUX3].raw_data = raw_data[4];
+    // channel[AUX4].raw_data = raw_data[5];
+    // channel[AUX5].raw_data = raw_data[6];
+    // channel[AUX6].raw_data = raw_data[7];
+
 
     switch (servo_reader_state) {
         case WAIT_FOR_FIRST_PULSE:

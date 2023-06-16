@@ -105,6 +105,7 @@ void set_hazard_lights(bool state)
 void process_indicators(void)
 {
     bool throttle_neutral;
+    int8_t st;
 
     if (global_flags.systick) {
         if (indicator_timer) {
@@ -143,6 +144,8 @@ void process_indicators(void)
     else {
         throttle_neutral = (channel[TH].absolute <= config.centre_threshold_high);
     }
+
+    st = channel[ST].normalized;
 
     switch (indicator_state) {
         // ---------------------------------
@@ -190,7 +193,7 @@ void process_indicators(void)
             }
 
             indicator_timer = config.indicator_idle_time_value;
-            indicator_state = (channel[ST].normalized < 0) ?
+            indicator_state = (st < 0) ?
                 BLINK_ARMED_LEFT : BLINK_ARMED_RIGHT;
             return;
 
@@ -203,7 +206,7 @@ void process_indicators(void)
 
             // Note: we are testing here the +/- value of steering
             // to catch if the user quickly changed direction
-            if (channel[ST].normalized > -config.blink_threshold) {
+            if (st > -config.blink_threshold) {
                 indicator_state = BLINK_ARMED;
                 return;
             }
@@ -222,7 +225,7 @@ void process_indicators(void)
 
             // Note: we are testing here the +/- value of steering
             // to catch if the user quickly changed direction
-            if (channel[ST].normalized < config.blink_threshold) {
+            if (st < config.blink_threshold) {
                 indicator_state = BLINK_ARMED;
                 return;
             }
@@ -234,12 +237,12 @@ void process_indicators(void)
 
         // ---------------------------------
         case BLINK_LEFT:
-            if (channel[ST].normalized > config.blink_threshold) {
+            if (st > config.blink_threshold) {
                 set_blink_off();
                 return;
             }
 
-            if (channel[ST].normalized > -config.blink_threshold) {
+            if (st > -config.blink_threshold) {
                 indicator_timer = config.indicator_off_timeout_value;
                 indicator_state = BLINK_LEFT_WAIT;
             }
@@ -247,12 +250,12 @@ void process_indicators(void)
 
         // ---------------------------------
         case BLINK_LEFT_WAIT:
-            if (channel[ST].normalized > config.blink_threshold) {
+            if (st > config.blink_threshold) {
                 set_blink_off();
                 return;
             }
 
-            if (channel[ST].normalized < -config.blink_threshold) {
+            if (st < -config.blink_threshold) {
                 indicator_state = BLINK_LEFT;
                 return;
             }
@@ -264,12 +267,12 @@ void process_indicators(void)
 
         // ---------------------------------
         case BLINK_RIGHT:
-            if (channel[ST].normalized < -config.blink_threshold) {
+            if (st < -config.blink_threshold) {
                 set_blink_off();
                 return;
             }
 
-            if (channel[ST].normalized < config.blink_threshold) {
+            if (st < config.blink_threshold) {
                 indicator_timer = config.indicator_off_timeout_value;
                 indicator_state = BLINK_RIGHT_WAIT;
             }
@@ -277,12 +280,12 @@ void process_indicators(void)
 
         // ---------------------------------
         case BLINK_RIGHT_WAIT:
-            if (channel[ST].normalized < -config.blink_threshold) {
+            if (st < -config.blink_threshold) {
                 set_blink_off();
                 return;
             }
 
-            if (channel[ST].normalized > config.blink_threshold) {
+            if (st > config.blink_threshold) {
                 indicator_state = BLINK_RIGHT;
                 return;
             }

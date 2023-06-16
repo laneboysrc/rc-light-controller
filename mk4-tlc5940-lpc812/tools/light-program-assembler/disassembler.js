@@ -216,6 +216,12 @@ var disassembler = (function () {
                 return 'aux3';
             case 14:
                 return 'hazard';
+            case 95:
+                return 'aux6';
+            case 96:
+                return 'aux5';
+            case 97:
+                return 'aux4';
             case 98:
                 return 'ch3-pin';
             case 99:

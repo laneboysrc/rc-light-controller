@@ -337,12 +337,16 @@
             <label for="channel_offset">on <span class="ibus">i-Bus</span><span class="sbus">S.Bus</span> maps to AUX</label>
           </div>
           <br>
-          You can map any <span class="ibus">i-Bus</span><span class="sbus">S.Bus</span> channel between 3 and <span class="ibus">12</span><span class="sbus">14</span> to the AUX channel. AUX2 and AUX3 are always mapped sequentially after the AUX channel.
+          You can map any <span class="ibus">i-Bus</span><span class="sbus">S.Bus</span> channel between 3 and <span class="ibus">9</span><span class="sbus">11</span> to the AUX channel. AUX2 to AUX6 are always mapped sequentially after the AUX channel.
           <ul>
             <li><span class="ibus">i-Bus</span><span class="sbus">S.Bus</span> channel <span id="channel_offset_aux"></span> maps to light controller AUX</li>
             <li><span class="ibus">i-Bus</span><span class="sbus">S.Bus</span> channel <span id="channel_offset_aux2"></span> maps to light controller AUX2</li>
             <li><span class="ibus">i-Bus</span><span class="sbus">S.Bus</span> channel <span id="channel_offset_aux3"></span> maps to light controller AUX3</li>
+            <li><span class="ibus">i-Bus</span><span class="sbus">S.Bus</span> channel <span id="channel_offset_aux4"></span> maps to light controller AUX4</li>
+            <li><span class="ibus">i-Bus</span><span class="sbus">S.Bus</span> channel <span id="channel_offset_aux5"></span> maps to light controller AUX5</li>
+            <li><span class="ibus">i-Bus</span><span class="sbus">S.Bus</span> channel <span id="channel_offset_aux6"></span> maps to light controller AUX6</li>
           </ul>
+          Note: AUX4, AUX5 and AUX6 can only be used for custom functions in light programs.
         </div>
 
         <div id="config_baudrate" class="configuration">
@@ -1504,6 +1508,14 @@
       <div id="info" class="hidden">
         <div class="box configuration">
           <h2>What's new</h2>
+
+          <div><strong>2023-06-16 Firmware 2.56</strong></div>
+          <ul class="change-history">
+            <li>
+              Added support for AUX4 to AUX6. i-Bus and S.Bus only. AUX4 to
+              AUX6 can only be used in light programs.
+            </li>
+          </ul>
 
           <div><strong>2022-11-23 Firmware 2.55</strong></div>
           <ul class="change-history">

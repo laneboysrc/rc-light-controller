@@ -1031,11 +1031,11 @@ var app = (function () {
             show([el.channel_reversing_multi_aux]);
             show([el.config_channel_offset]);
 
-            // Limit channel_offset to 12 for i-Bus
-            if (el.channel_offset.value > 12) {
-                 el.channel_offset.value = 12;
+            // Limit channel_offset to 9 for i-Bus
+            if (el.channel_offset.value > 9) {
+                 el.channel_offset.value = 9;
             }
-            el.channel_offset.max = 12;
+            el.channel_offset.max = 9;
             update_channel_offset();
 
             set_name(el.dual_output_th, 'output_th');
@@ -1067,8 +1067,8 @@ var app = (function () {
             show([el.channel_reversing_multi_aux]);
             show([el.config_channel_offset]);
 
-            // S.Bus can use all 16 channels for AUX/AUX2/AUX3
-            el.channel_offset.max = 14;
+            // S.Bus can use all 16 channels for AUX/AUX2/AUX3/AUX4/AUX5/AUX6
+            el.channel_offset.max = 11;
 
             set_name(el.dual_output_th, 'output_th');
             show(document.querySelectorAll('.sbus'));
@@ -1386,9 +1386,7 @@ var app = (function () {
         }
 
         el.channel_offset.value = config.channel_offset;
-        el.channel_offset_aux.textContent = config.channel_offset;
-        el.channel_offset_aux2.textContent = config.channel_offset + 1;
-        el.channel_offset_aux3.textContent = config.channel_offset + 2;
+        update_channel_offset();
 
         // Show/hide various sections depending on the current settings
         update_section_visibility();
@@ -1404,6 +1402,9 @@ var app = (function () {
         el.channel_offset_aux.textContent = value;
         el.channel_offset_aux2.textContent = value + 1;
         el.channel_offset_aux3.textContent = value + 2;
+        el.channel_offset_aux4.textContent = value + 3;
+        el.channel_offset_aux5.textContent = value + 4;
+        el.channel_offset_aux6.textContent = value + 5;
     };
 
     // *************************************************************************
@@ -3058,6 +3059,7 @@ var app = (function () {
 
             'config_channel_offset', 'channel_offset',
             'channel_offset_aux', 'channel_offset_aux2', 'channel_offset_aux3',
+            'channel_offset_aux4', 'channel_offset_aux5', 'channel_offset_aux6',
 
             'config_baudrate', 'baudrate',
             'config_leds', 'leds_master', 'leds_slave', 'diagnostics_brightness',

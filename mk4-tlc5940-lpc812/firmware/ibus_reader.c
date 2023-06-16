@@ -104,6 +104,9 @@ static bool process_buffer(uint32_t *out)
             out[2] = *(uint16_t *)(&buffer[6 + 2*config.aux_channel_offset]) & 0xfff;
             out[3] = *(uint16_t *)(&buffer[8 + 2*config.aux_channel_offset]) & 0xfff;
             out[4] = *(uint16_t *)(&buffer[10 + 2*config.aux_channel_offset]) & 0xfff;
+            out[5] = *(uint16_t *)(&buffer[12 + 2*config.aux_channel_offset]) & 0xfff;
+            out[6] = *(uint16_t *)(&buffer[14 + 2*config.aux_channel_offset]) & 0xfff;
+            out[7] = *(uint16_t *)(&buffer[16 + 2*config.aux_channel_offset]) & 0xfff;
 
             // Discard the buffer, we don't need it anymore
             buffer_index = 0;

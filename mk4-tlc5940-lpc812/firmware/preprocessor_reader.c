@@ -54,14 +54,14 @@ static void publish_channels(uint8_t channel_data[])
     normalize_channel(&channel[ST], channel_data[0]);
     normalize_channel(&channel[TH], channel_data[1]);
 
-    if (config.flags2.multi_aux && (channel_data[2] & (1 << 3))) {
+    // if (config.flags2.multi_aux && (channel_data[2] & (1 << 3))) {
         normalize_channel(&channel[AUX], channel_data[3]);
         normalize_channel(&channel[AUX2], channel_data[4]);
         normalize_channel(&channel[AUX3], channel_data[5]);
-    }
-    else {
-        normalize_channel(&channel[AUX], (channel_data[2] & (1 << 0)) ? 100 : -100);
-    }
+    // }
+    // else {
+    //     normalize_channel(&channel[AUX], (channel_data[2] & (1 << 0)) ? 100 : -100);
+    // }
 
     global_flags.initializing = (channel_data[2] & (1 << 4)) ? true : false;
 
@@ -126,6 +126,7 @@ void read_preprocessor(void)
                     state = STATE_AUX_VALUE;
                 }
                 else {
+                    channel_data[3]  = (channel_data[2] & (1 << 0)) ? 100 : -100;
                     publish_channels(channel_data);
                     state = STATE_WAIT_FOR_MAGIC_BYTE;
                 }

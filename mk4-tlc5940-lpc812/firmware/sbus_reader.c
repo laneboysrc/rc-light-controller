@@ -40,7 +40,7 @@ static uint16_t sbus_to_microseconds(uint16_t sbus_value)
 // ****************************************************************************
 static bool decode_packet(uint32_t *out)
 {
-    uint16_t temp[16];
+    static uint16_t temp[16];
 
     // Step 1: unpack the servo channels from the SBUS packet
     //
@@ -71,6 +71,9 @@ static bool decode_packet(uint32_t *out)
     out[2] = sbus_to_microseconds(temp[2 + config.aux_channel_offset]);
     out[3] = sbus_to_microseconds(temp[3 + config.aux_channel_offset]);
     out[4] = sbus_to_microseconds(temp[4 + config.aux_channel_offset]);
+    out[5] = sbus_to_microseconds(temp[5 + config.aux_channel_offset]);
+    out[6] = sbus_to_microseconds(temp[6 + config.aux_channel_offset]);
+    out[7] = sbus_to_microseconds(temp[7 + config.aux_channel_offset]);
 
     // This function returns 'true' (new data available) if failsafe is
     // false, otherwise it returns 'false' (no new data)

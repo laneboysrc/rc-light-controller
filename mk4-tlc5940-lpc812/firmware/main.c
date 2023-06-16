@@ -15,7 +15,7 @@
 
 GLOBAL_FLAGS_T global_flags;
 
-CHANNEL_T channel[5] = {
+CHANNEL_T channel[NUMBER_OF_CHANNELS] = {
     {   // STEERING
         .normalized = 0,
         .absolute = 0,
@@ -70,7 +70,41 @@ CHANNEL_T channel[5] = {
             .centre = 1500,
             .right = 2000,
         }
+    },
+    {   // AUX4
+        .normalized = 0,
+        .absolute = 0,
+        .reversed = false,
+        .auto_endpoint = false,
+        .endpoint = {
+            .left = 1000,
+            .centre = 1500,
+            .right = 2000,
+        }
+    },
+    {   // AUX5
+        .normalized = 0,
+        .absolute = 0,
+        .reversed = false,
+        .auto_endpoint = false,
+        .endpoint = {
+            .left = 1000,
+            .centre = 1500,
+            .right = 2000,
+        }
+    },
+    {   // AUX6
+        .normalized = 0,
+        .absolute = 0,
+        .reversed = false,
+        .auto_endpoint = false,
+        .endpoint = {
+            .left = 1000,
+            .centre = 1500,
+            .right = 2000,
+        }
     }
+
 };
 
 static uint32_t next_tick;
@@ -249,7 +283,7 @@ int main(void)
     // It is also important in terms of servo reader function, because some
     // RC electronics like the Hobbywing Quicrun 1080 are outputing serial
     // data after startup, which interferes with the initialization procedure
-    while (milliseconds <  100);
+    while (milliseconds < 100);
 
     init_servo_reader();
     init_servo_output();

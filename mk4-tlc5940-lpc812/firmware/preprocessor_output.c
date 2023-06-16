@@ -22,7 +22,7 @@
 #define PACKET_LENGTH_MULTI 7
 
 static bool ch3_2pos = false;
-static uint8_t tx_data[7];
+static uint8_t tx_data[7] = {SLAVE_MAGIC_BYTE};
 static uint8_t next_tx_index = 0xff;
 
 
@@ -45,7 +45,7 @@ void output_preprocessor(void)
             }
         }
 
-        tx_data[0] = SLAVE_MAGIC_BYTE;
+        // tx_data[0] = SLAVE_MAGIC_BYTE;
         tx_data[1] = channel[ST].normalized;
         tx_data[2] = channel[TH].normalized;
         tx_data[3] = (ch3_2pos ? (1 << 0) : 0) |

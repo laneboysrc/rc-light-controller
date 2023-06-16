@@ -123,6 +123,9 @@
 // loading old .HEX files does not interfere.
 #define GLOBAL_VAR_SHELF_QUEEN_MODE 99
 #define GLOBAL_VAR_CH3_PIN 98
+#define GLOBAL_VAR_AUX4 97
+#define GLOBAL_VAR_AUX5 96
+#define GLOBAL_VAR_AUX6 95
 
 typedef struct {
     const uint32_t *PC;
@@ -183,6 +186,9 @@ static void load_read_only_global_variables(void)
     var[GLOBAL_VAR_AUX] = channel[AUX].normalized;
     var[GLOBAL_VAR_AUX2] = channel[AUX2].normalized;
     var[GLOBAL_VAR_AUX3] = channel[AUX3].normalized;
+    var[GLOBAL_VAR_AUX4] = channel[AUX4].normalized;
+    var[GLOBAL_VAR_AUX5] = channel[AUX5].normalized;
+    var[GLOBAL_VAR_AUX6] = channel[AUX6].normalized;
     var[GLOBAL_VAR_CH3_PIN] = HAL_gpio_read(HAL_GPIO_AUX);
 }
 
@@ -390,7 +396,7 @@ static int16_t get_parameter_value(uint32_t instruction)
             return (int16_t)random_min_max(1, 0xffff);
 
         default:
-            printf("UNKNOWN PARAMETER TYPE 0x%08x\n", type);
+            // printf("UNKNOWN PARAMETER TYPE 0x%08x\n", type);
             return 0;
     }
 }
@@ -471,7 +477,7 @@ static void execute_skip_if(uint8_t opcode, uint32_t instruction,
 // Clamp input between 0 .. 100%
 static uint8_t percent_to_uint8(int percentage)
 {
-    if (percentage < 0) {
+    if (percentage <= 0) {
         return 0;
     }
 

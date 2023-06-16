@@ -25,11 +25,15 @@
 // parsing a light controller binary by an external tool
 #define ROM_MAGIC 0x6372424c                // LBrc (LANE Boys RC) in little endian
 
+#define NUMBER_OF_CHANNELS 8
 #define ST 0
 #define TH 1
 #define AUX 2
 #define AUX2 3
 #define AUX3 4
+#define AUX4 5
+#define AUX5 6
+#define AUX6 7
 
 // Percentage that an AUX value has to change before causing a trigger
 #define AUX_HYSTERESIS 10
@@ -741,7 +745,7 @@ extern const GAMMA_TABLE_T gamma_table;
 extern const LIGHT_PROGRAMS_T light_programs;
 
 extern GLOBAL_FLAGS_T global_flags;
-extern CHANNEL_T channel[5];
+extern CHANNEL_T channel[NUMBER_OF_CHANNELS];
 extern SERVO_ENDPOINTS_T servo_output_endpoint;
 
 

@@ -427,46 +427,46 @@ static void us_style_combined_lights(LED_T *led, const CAR_LIGHT_T *light)
 }
 
 
-static void not_quite_us_style_combined_lights(LED_T *led, const CAR_LIGHT_T *light)
-{
-    // not-really-US style as implemented in our XR311
-    //                         BLINKFLAG
-    //                      on          off
-    // --------------------------------------
-    // Tail + Brake off     blink       off
-    // Tail                 tail        off
-    // Brake                brake       off
-    // Tail + Brake         brake       tail
+// static void not_quite_us_style_combined_lights(LED_T *led, const CAR_LIGHT_T *light)
+// {
+//     // not-really-US style as implemented in our XR311
+//     //                         BLINKFLAG
+//     //                      on          off
+//     // --------------------------------------
+//     // Tail + Brake off     blink       off
+//     // Tail                 tail        off
+//     // Brake                brake       off
+//     // Tail + Brake         brake       tail
 
-    if (global_flags.blink_flag) {
-        // Bright blink period: Brake value has highest priority, followed
-        // by tail and finally the indicator value
+//     if (global_flags.blink_flag) {
+//         // Bright blink period: Brake value has highest priority, followed
+//         // by tail and finally the indicator value
 
-        if (global_flags.braking) {
-            mix_car_light(led, light, BRAKE_LIGHT);
-        }
-        else if (light_switch_position > 0) {
-            mix_car_light(led, light, TAIL_LIGHT);
-        }
-        else {
-            if (global_flags.blink_indicator_left
-                || global_flags.blink_hazard) {
-                mix_car_light(led, light, INDICATOR_LEFT);
-            }
-            if (global_flags.blink_indicator_right
-                || global_flags.blink_hazard) {
-                mix_car_light(led, light, INDICATOR_RIGHT);
-            }
-        }
-    }
-    else {
-        // Dark blink period: light is off unless both tail and brake are
-        // active
-        if (light_switch_position > 0 && global_flags.braking) {
-            mix_car_light(led, light, TAIL_LIGHT);
-        }
-    }
-}
+//         if (global_flags.braking) {
+//             mix_car_light(led, light, BRAKE_LIGHT);
+//         }
+//         else if (light_switch_position > 0) {
+//             mix_car_light(led, light, TAIL_LIGHT);
+//         }
+//         else {
+//             if (global_flags.blink_indicator_left
+//                 || global_flags.blink_hazard) {
+//                 mix_car_light(led, light, INDICATOR_LEFT);
+//             }
+//             if (global_flags.blink_indicator_right
+//                 || global_flags.blink_hazard) {
+//                 mix_car_light(led, light, INDICATOR_RIGHT);
+//             }
+//         }
+//     }
+//     else {
+//         // Dark blink period: light is off unless both tail and brake are
+//         // active
+//         if (light_switch_position > 0 && global_flags.braking) {
+//             mix_car_light(led, light, TAIL_LIGHT);
+//         }
+//     }
+// }
 
 
 // ****************************************************************************
@@ -478,12 +478,12 @@ static void combined_tail_brake_indicators(LED_T *led, const CAR_LIGHT_T *light)
             (global_flags.blink_indicator_right &&
                 !is_value_zero(light, INDICATOR_RIGHT))) {
 
-        if (config.flags2.us_style_combined_lights) {
+        // if (config.flags2.us_style_combined_lights) {
             us_style_combined_lights(led, light);
-        }
-        else {
-            not_quite_us_style_combined_lights(led, light);
-        }
+        // }
+        // else {
+            // not_quite_us_style_combined_lights(led, light);
+        // }
     }
     else {
         // No indicator active: process like normal tail/brake lights
