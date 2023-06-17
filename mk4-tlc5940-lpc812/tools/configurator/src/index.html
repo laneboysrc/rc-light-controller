@@ -120,16 +120,15 @@
         </strong></div>
 
         <div>
-          Please use the standard Configurator at <a href="https://laneboysrc.github.io/rc-light-controller/">https://laneboysrc.github.io/rc-light-controller/</a> for normal Light Controller installations.
+          For details please refer to the user manual at <a href="https://laneboysrc.github.io/rc-light-controller/light-controller-instructions-ws281x.pdf">https://laneboysrc.github.io/rc-light-controller/light-controller-instructions-ws281x.pdf</a>
         </div>
 
         <div>
-          For information on how to use Addressable LEDs with the Light Controller please refere to <a href="">FIXME</a>
+          For normal light controller installations please use the standard Configurator at <a href="https://laneboysrc.github.io/rc-light-controller/">https://laneboysrc.github.io/rc-light-controller/</a>.
         </div>
 
-
         <select class="hidden" id="hardware">
-          <option value="mk4">Mk4 (NXP LPC812)</option>
+          <option value="mk4">Mk4 (NXP LPC824)</option>
         </select>
       </div>
 
@@ -1500,161 +1499,10 @@
         <div class="box configuration">
           <h2>What's new</h2>
 
-          <div><strong>2022-11-23 Firmware 2.55</strong></div>
+          <div><strong>2023-06-17 Firmware 3.201</strong></div>
           <ul class="change-history">
             <li>
-              Fix Slave not working at 100000 BAUD.
-            </li>
-          </ul>
-
-          <div><strong>2022-11-06 Firmware 2.54</strong></div>
-          <ul class="change-history">
-            <li>
-              Improve description of how to select the correct baudrate.
-            </li>
-          </ul>
-
-          <div><strong>2022-08-30 Firmware 2.54</strong></div>
-          <ul class="change-history">
-            <li>
-              Improve LED value editing. The value is selected upon editing
-              start. Clearing the field assumes input 0.
-            </li>
-          </ul>
-
-          <div><strong>2022-07-14 Firmware 2.54</strong></div>
-          <ul class="change-history">
-            <li>
-              Use polarity reversing on UART Rx input for LPC832! This means
-              we no longer need the inverter on the PCB.
-            </li>
-          </ul>
-
-          <div><strong>2022-06-27 Firmware 2.53</strong></div>
-          <ul class="change-history">
-            <li>
-              Add the possibility to use the CH3 pin on the light controller as
-              digital input pin, which can be probed in <em>Light Programs</em>. The
-              pin can be tested using the global variable <em>ch3-pin</em>. Refer
-              to the  <a href="https://github.com/laneboysrc/rc-light-controller/blob/master/mk4-tlc5940-lpc812/doc/light-programs.md#led-declarations" target="_blank">Light Programs documentation</a> for more information.
-              <br>
-              This feature only works when using a Pre-Processor, i-Bus or S.Bus.
-            </li>
-          </ul>
-
-          <div><strong>2022-02-02 Firmware 2.51</strong></div>
-          <ul class="change-history">
-            <li>
-              Add S.Bus support. Note that S.Bus requires hardware modification
-              and can (as of June 2022) only be used with Mk4P Rev3, Mk4 Rev7 or later
-              light controllers.
-            </li>
-          </ul>
-
-          <div><strong>2021-12-28 Firmware 2.50</strong></div>
-          <ul class="change-history">
-            <li>
-              Add i-Bus support. Tested with FlySky NB4 and FGr4S receiver.
-            </li>
-            <li>
-              Save LED names immediately upon editing, not only when the LED features sub-table is closed.
-            </li>
-          </ul>
-
-          <div><strong>2021-11-27 Firmware 2.46</strong></div>
-          <ul class="change-history">
-            <li>
-              <p>It is now possible to assign human readable names to LEDs in the
-              <em>LED configuration</em> tables. These names can make it easier
-              to recognize which function is intended for a particular LED.
-              </p>
-              <p>Click on the spanner icon <i class="fa fa-wrench"></i> of a LED to assign or change its name.
-              </p>
-              <p>The LED names can also be used in <em>Light Programs</em>. Refer to section
-              <em>LED declarations</em> in the <a href="https://github.com/laneboysrc/rc-light-controller/blob/master/mk4-tlc5940-lpc812/doc/light-programs.md#led-declarations" target="_blank">Light Programs documentation</a>
-              for more information.
-              </p>
-            </li>
-            <li>
-              Configuration files can now be loaded by dragging them from a file manager on the Configurator window.
-            </li>
-            <li>
-              Bugfix: Car functions are now disabled in shelf queen mode
-            </li>
-            <li>
-              Reduce firmware size
-            </li>
-          </ul>
-
-          <div><strong>2021-11-23 Firmware 2.45</strong></div>
-          <ul class="change-history">
-            <li>
-              Shelf queen mode can be switched from <em>Light Programs</em>
-            </li>
-          </ul>
-
-          <div><strong>2021-11-18 Firmware 2.44</strong></div>
-          <ul class="change-history">
-            <li>
-              Fix import of HEX files that don't have a <em>Light Programs</em>
-            </li>
-          </ul>
-
-          <div><strong>2021-11-10 Firmware 2.44</strong></div>
-          <ul class="change-history">
-            <li>
-              Fix light_switch_position range for <em>Light Programs</em>
-            </li>
-            <li>
-              Fix shelf queen mode
-            </li>
-            <li>
-              Finalize firmware for NXP LPC832
-            </li>
-          </ul>
-
-          <div><strong>2021-07-24 Firmware 2.41</strong></div>
-          <ul class="change-history">
-            <li>
-              No signal LED diagnostics and Initializing are now mutually exclusive, just like before we switched from <em>Light Program</em> based diagnostics to table driven diagnostics.
-            </li>
-          </ul>
-
-          <div><strong>2021-05-25 Firmware 2.40</strong></div>
-          <ul class="change-history">
-            <li>
-              Fix PINENABLE issue that makes all LEDs light up. Now the configurator is finally working with both LPC812 and LPC832 MCUs.
-            </li>
-          </ul>
-
-          <div><strong>2021-05-13 Firmware 2.37</strong></div>
-          <ul class="change-history">
-            <li>
-              Limit LED table value to 0..100 when entering larger numbers, instead of discarding the entry.
-            </li>
-            <li>
-              Show MCU type number in the WebUSB programming diagnostics.
-            </li>
-          </ul>
-
-          <div><strong>2021-05-11 Firmware 2.37</strong></div>
-          <ul class="change-history">
-            <li>
-              Fix import of old .HEX files
-            </li>
-          </ul>
-
-          <div><strong>2021-05-01 Firmware 2.37</strong></div>
-          <ul class="change-history">
-            <li>
-              The LED configuration for no-signal, initializing and other light controller internal <strong>diagnostics functions are now table driven</strong>.<br>
-              Originally they were implemented using <em>Light Programs</em>. These still continue to function, but the table driven approach is easier for users and also reduces memory size.
-            </li>
-            <li>
-              <strong>Save code space</strong> by making the the <em>Light Programs</em> start offset table dynamic in side. This is an internal change and has no impact on users.
-            </li>
-            <li>
-              Detailed <strong>WebUSB diagnostics</strong> in the browser console is now <strong>off</strong> by default. WebUSB diagnostics can be enabled by appending <em>#webusb</em> to the Configurator URL.
+              First release, derived from Light Controller Firmware 2.55
             </li>
           </ul>
 
