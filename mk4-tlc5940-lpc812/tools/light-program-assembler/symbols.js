@@ -465,10 +465,10 @@ var symbols = (function () {
             'aux5',
             'aux6',
         ];
-        next_variable_index = 99;
+        let top_variable_index = 99;
         for (i = 0; i < global_variables.length; i += 1) {
-            add_symbol(global_variables[i], 'GLOBAL_VARIABLE', next_variable_index);
-            next_variable_index -= 1;
+            add_symbol(global_variables[i], 'GLOBAL_VARIABLE', top_variable_index);
+            top_variable_index -= 1;
         }
     };
 
