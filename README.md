@@ -8,6 +8,4 @@ The documentation for the experimental firmware can be found at [https://laneboy
 
 The Configurator is at [https://laneboysrc.github.io/rc-light-controller/configurator-ws281x.html](https://laneboysrc.github.io/rc-light-controller/configurator-ws281x.html)
 
-WS281x specific features for light programs can be found at [https://github.com/laneboysrc/rc-light-controller/blob/ws281x/mk4-tlc5940-lpc812/doc/light-
-programs-ws821x.md](https://github.com/laneboysrc/rc-light-controller/blob/ws281x/mk4-tlc5940-lpc812/doc/light-
-programs-ws821x.md)
+WS281x specific features for light programs can be found at [https://github.com/laneboysrc/rc-light-controller/blob/ws281x/mk4-tlc5940-lpc812/doc/light-programs-ws821x.md](https://github.com/laneboysrc/rc-light-controller/blob/ws281x/mk4-tlc5940-lpc812/doc/light-programs-ws821x.md)
