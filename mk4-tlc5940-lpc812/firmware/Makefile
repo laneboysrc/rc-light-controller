@@ -95,6 +95,7 @@ CFLAGS += -funsigned-bitfields
 CFLAGS += -fdata-sections
 CFLAGS += -ffunction-sections
 CFLAGS += -fno-common
+CFLAGS += -fshort-enums
 CFLAGS += -fpack-struct=4
 CFLAGS += -MMD -MP -MT $(BUILD_DIR)/$(*F).o -MF $(BUILD_DIR)/$(@F).d
 CFLAGS += $(INCLUDES) $(DEFINES)
