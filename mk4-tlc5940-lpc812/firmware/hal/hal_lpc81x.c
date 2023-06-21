@@ -9,6 +9,10 @@
 #include <printf.h>
 
 
+// FIXME: test code only
+static void setup_spi_dma(void);
+
+
 void SysTick_handler(void);
 void HardFault_handler(void);
 void SCT_irq_handler(void);
@@ -202,6 +206,10 @@ void HAL_hardware_init_final(void)
     // are running!
     LPC_SCT->CTRL_H &= ~(1 << 2);          // Start the SCTimer H
     LPC_SCT->CTRL_L &= ~(1 << 2);          // Start the SCTimer L
+
+
+    // FIXME: test purpose only
+    setup_spi_dma();
 }
 
 
@@ -1029,4 +1037,245 @@ bool HAL_switch_triggered(void)
         }
     }
     return false;
+}
+
+
+
+
+
+
+/** @defgroup DMA_8XX CHIP: LPC8xx DMA Controller driver
+ * @ingroup CHIP_8XX_Drivers
+ * @{
+ */
+
+/**
+ * @brief DMA Controller shared registers structure
+ */
+typedef struct {                    /*!< DMA shared registers structure */
+    __IO uint32_t  ENABLESET;       /*!< DMA Channel Enable read and Set for all DMA channels */
+    __I  uint32_t  RESERVED0;
+    __O  uint32_t  ENABLECLR;       /*!< DMA Channel Enable Clear for all DMA channels */
+    __I  uint32_t  RESERVED1;
+    __I  uint32_t  ACTIVE;          /*!< DMA Channel Active status for all DMA channels */
+    __I  uint32_t  RESERVED2;
+    __I  uint32_t  BUSY;            /*!< DMA Channel Busy status for all DMA channels */
+    __I  uint32_t  RESERVED3;
+    __IO uint32_t  ERRINT;          /*!< DMA Error Interrupt status for all DMA channels */
+    __I  uint32_t  RESERVED4;
+    __IO uint32_t  INTENSET;        /*!< DMA Interrupt Enable read and Set for all DMA channels */
+    __I  uint32_t  RESERVED5;
+    __O  uint32_t  INTENCLR;        /*!< DMA Interrupt Enable Clear for all DMA channels */
+    __I  uint32_t  RESERVED6;
+    __IO uint32_t  INTA;            /*!< DMA Interrupt A status for all DMA channels */
+    __I  uint32_t  RESERVED7;
+    __IO uint32_t  INTB;            /*!< DMA Interrupt B status for all DMA channels */
+    __I  uint32_t  RESERVED8;
+    __O  uint32_t  SETVALID;        /*!< DMA Set ValidPending control bits for all DMA channels */
+    __I  uint32_t  RESERVED9;
+    __O  uint32_t  SETTRIG;         /*!< DMA Set Trigger control bits for all DMA channels */
+    __I  uint32_t  RESERVED10;
+    __O  uint32_t  ABORT;           /*!< DMA Channel Abort control for all DMA channels */
+} LPC_DMA_COMMON_T;
+
+/**
+ * @brief DMA Controller shared registers structure
+ */
+typedef struct {                    /*!< DMA channel register structure */
+    __IO uint32_t  CFG;             /*!< DMA Configuration register */
+    __I  uint32_t  CTLSTAT;         /*!< DMA Control and status register */
+    __IO uint32_t  XFERCFG;         /*!< DMA Transfer configuration register */
+    __I  uint32_t  RESERVED;
+} LPC_DMA_CHANNEL_T;
+
+/* Reserved bits masks... */
+#define DMA_CFG_RESERVED            ((3<<2)|(1<<7)|(3<<12)|0xfffc0000)
+#define DMA_CTLSTAT_RESERVED        (~(1|(1<<2)))
+#define DMA_XFERCFG_RESERVED        ((3<<6)|(3<<10)|(0x3fu<<26))
+
+/* DMA channel mapping - each channel is mapped to an individual peripheral
+   and direction or a DMA imput mux trigger */
+typedef enum {
+    DMAREQ_USART0_RX,                   /*!< USART0 receive DMA channel */
+    DMA_CH0 = DMAREQ_USART0_RX,
+    DMAREQ_USART0_TX,                   /*!< USART0 transmit DMA channel */
+    DMA_CH1 = DMAREQ_USART0_TX,
+    DMAREQ_USART1_RX,                   /*!< USART1 receive DMA channel */
+    DMA_CH2 = DMAREQ_USART1_RX,
+    DMAREQ_USART1_TX,                   /*!< USART1 transmit DMA channel */
+    DMA_CH3 = DMAREQ_USART1_TX,
+    DMAREQ_USART2_RX,                   /*!< USART2 receive DMA channel */
+    DMA_CH4 = DMAREQ_USART2_RX,
+    DMAREQ_USART2_TX,                   /*!< USART2 transmit DMA channel */
+    DMA_CH5 = DMAREQ_USART2_TX,
+    DMAREQ_SPI0_RX,
+    DMA_CH6 = DMAREQ_SPI0_RX,           /*!< SPI0 receive DMA channel */
+    DMAREQ_SPI0_TX,
+    DMA_CH7 = DMAREQ_SPI0_TX,           /*!< SPI0 transmit DMA channel */
+    DMAREQ_SPI1_RX,
+    DMA_CH8 = DMAREQ_SPI1_RX,           /*!< SPI1 receive DMA channel */
+    DMAREQ_SPI1_TX,
+    DMA_CH9 = DMAREQ_SPI1_TX,           /*!< SPI1 transmit DMA channel */
+    DMAREQ_I2C0_MST,
+    DMA_CH10 = DMAREQ_I2C0_MST,         /*!< I2C0 Master DMA channel */
+    DMAREQ_I2C0_SLV,
+    DMA_CH11 = DMAREQ_I2C0_SLV,         /*!< I2C0 Slave DMA channel */
+    DMAREQ_I2C1_MST,
+    DMA_CH12 = DMAREQ_I2C1_MST,         /*!< I2C1 Master DMA channel */
+    DMAREQ_I2C1_SLV,
+    DMA_CH13 = DMAREQ_I2C1_SLV,         /*!< I2C1 Slave DMA channel */
+    DMAREQ_I2C2_MST,
+    DMA_CH14 = DMAREQ_I2C2_MST,         /*!< I2C2 Master DMA channel */
+    DMAREQ_I2C2_SLV,
+    DMA_CH15 = DMAREQ_I2C2_SLV,         /*!< I2C2 Slave DMA channel */
+    DMAREQ_I2C3_MST,
+    DMA_CH16 = DMAREQ_I2C3_MST,         /*!< I2C2 Master DMA channel */
+    DMAREQ_I2C3_SLV,
+    DMA_CH17 = DMAREQ_I2C3_SLV,         /*!< I2C2 Slave DMA channel */
+} DMA_CHID_T;
+
+/* On LPC82x, Max DMA channel is 18 */
+#define MAX_DMA_CHANNEL         (DMA_CH17 + 1)
+
+/* Reserved bits masks... */
+#define DMA_COMMON_RESERVED         (~(0UL) << MAX_DMA_CHANNEL)
+#define DMA_ENABLESET_RESERVED      DMA_COMMON_RESERVED
+#define DMA_ENABLECLR_RESERVED      DMA_COMMON_RESERVED
+#define DMA_ACTIVE_RESERVED         DMA_COMMON_RESERVED
+#define DMA_BUSY_RESERVED           DMA_COMMON_RESERVED
+#define DMA_ERRINT_RESERVED         DMA_COMMON_RESERVED
+#define DMA_INTENSET_RESERVED       DMA_COMMON_RESERVED
+#define DMA_INTENCLR_RESERVED       DMA_COMMON_RESERVED
+#define DMA_INTA_RESERVED           DMA_COMMON_RESERVED
+#define DMA_INTB_RESERVED           DMA_COMMON_RESERVED
+#define DMA_SETVALID_RESERVED       DMA_COMMON_RESERVED
+#define DMA_SETTRIG_RESERVED        DMA_COMMON_RESERVED
+#define DMA_ABORT_RESERVED          DMA_COMMON_RESERVED
+
+/**
+ * @brief DMA Controller register block structure
+ */
+typedef struct {                    /*!< DMA Structure */
+    __IO uint32_t  CTRL;            /*!< DMA control register */
+    __I  uint32_t  INTSTAT;         /*!< DMA Interrupt status register */
+    __IO uint32_t  SRAMBASE;        /*!< DMA SRAM address of the channel configuration table */
+    __I  uint32_t  RESERVED2[5];
+    LPC_DMA_COMMON_T DMACOMMON[1];  /*!< DMA shared channel (common) registers */
+    __I  uint32_t  RESERVED0[225];
+    LPC_DMA_CHANNEL_T CHANNEL[MAX_DMA_CHANNEL];   /*!< DMA channel registers */
+} LPC_DMA_T;
+
+/* Reserved bits masks... */
+#define DMA_CTRL_RESERVED           (~1)
+#define DMA_INTSTAT_RESERVED        (~7)
+#define DMA_SRAMBASE_RESERVED       (0xFF)
+
+/* DMA interrupt status bits (common) */
+#define DMA_INTSTAT_ACTIVEINT       0x2     /*!< Summarizes whether any enabled interrupts are pending */
+#define DMA_INTSTAT_ACTIVEERRINT    0x4     /*!< Summarizes whether any error interrupts are pending */
+
+#define LPC_DMA_BASE          (0x50008000UL)  /* Available only on LPC82x */
+#define LPC_DMATIRGMUX_BASE   (0x40028000UL)  /* Available only on LPC82x */
+
+#define LPC_DMA             ((LPC_DMA_T         *) LPC_DMA_BASE)
+#define LPC_DMATRIGMUX      ((LPC_DMATRIGMUX_T  *) LPC_DMATIRGMUX_BASE)
+
+
+/* DMA channel source/address/next descriptor */
+typedef struct {
+    uint32_t  xfercfg;      /*!< Transfer configuration (only used in linked lists and ping-pong configs) */
+    uint32_t  source;       /*!< DMA transfer source end address */
+    uint32_t  dest;         /*!< DMA transfer desintation end address */
+    uint32_t  next;         /*!< Link to next DMA descriptor, must be 16 byte aligned */
+} DMA_CHDESC_T;
+
+/* DMA channel transfer configuration registers definitions */
+#define DMA_XFERCFG_CFGVALID        (1 << 0)    /*!< Configuration Valid flag */
+#define DMA_XFERCFG_RELOAD          (1 << 1)    /*!< Indicates whether the channels control structure will be reloaded when the current descriptor is exhausted */
+#define DMA_XFERCFG_SWTRIG          (1 << 2)    /*!< Software Trigger */
+#define DMA_XFERCFG_CLRTRIG         (1 << 3)    /*!< Clear Trigger */
+#define DMA_XFERCFG_SETINTA         (1 << 4)    /*!< Set Interrupt flag A for this channel to fire when descriptor is complete */
+#define DMA_XFERCFG_SETINTB         (1 << 5)    /*!< Set Interrupt flag B for this channel to fire when descriptor is complete */
+#define DMA_XFERCFG_WIDTH_8         (0 << 8)    /*!< 8-bit transfers are performed */
+#define DMA_XFERCFG_WIDTH_16        (1 << 8)    /*!< 16-bit transfers are performed */
+#define DMA_XFERCFG_WIDTH_32        (2 << 8)    /*!< 32-bit transfers are performed */
+#define DMA_XFERCFG_SRCINC_0        (0 << 12)   /*!< DMA source address is not incremented after a transfer */
+#define DMA_XFERCFG_SRCINC_1        (1 << 12)   /*!< DMA source address is incremented by 1 (width) after a transfer */
+#define DMA_XFERCFG_SRCINC_2        (2 << 12)   /*!< DMA source address is incremented by 2 (width) after a transfer */
+#define DMA_XFERCFG_SRCINC_4        (3 << 12)   /*!< DMA source address is incremented by 4 (width) after a transfer */
+#define DMA_XFERCFG_DSTINC_0        (0 << 14)   /*!< DMA destination address is not incremented after a transfer */
+#define DMA_XFERCFG_DSTINC_1        (1 << 14)   /*!< DMA destination address is incremented by 1 (width) after a transfer */
+#define DMA_XFERCFG_DSTINC_2        (2 << 14)   /*!< DMA destination address is incremented by 2 (width) after a transfer */
+#define DMA_XFERCFG_DSTINC_4        (3 << 14)   /*!< DMA destination address is incremented by 4 (width) after a transfer */
+#define DMA_XFERCFG_XFERCOUNT(n)    ((n - 1) << 16) /*!< DMA transfer count in 'transfers', between (0)1 and (1023)1024 */
+
+
+/* Support definitions for setting the configuration of a DMA channel. You
+   will need to get more information on these options from the User manual. */
+#define DMA_CFG_PERIPHREQEN     (1 << 0)    /*!< Enables Peripheral DMA requests */
+#define DMA_CFG_HWTRIGEN        (1 << 1)    /*!< Use hardware triggering via imput mux */
+#define DMA_CFG_TRIGPOL_LOW     (0 << 4)    /*!< Hardware trigger is active low or falling edge */
+#define DMA_CFG_TRIGPOL_HIGH    (1 << 4)    /*!< Hardware trigger is active high or rising edge */
+#define DMA_CFG_TRIGTYPE_EDGE   (0 << 5)    /*!< Hardware trigger is edge triggered */
+#define DMA_CFG_TRIGTYPE_LEVEL  (1 << 5)    /*!< Hardware trigger is level triggered */
+#define DMA_CFG_TRIGBURST_SNGL  (0 << 6)    /*!< Single transfer. Hardware trigger causes a single transfer */
+#define DMA_CFG_TRIGBURST_BURST (1 << 6)    /*!< Burst transfer (see UM) */
+#define DMA_CFG_BURSTPOWER_1    (0 << 8)    /*!< Set DMA burst size to 1 transfer */
+#define DMA_CFG_BURSTPOWER_2    (1 << 8)    /*!< Set DMA burst size to 2 transfers */
+#define DMA_CFG_BURSTPOWER_4    (2 << 8)    /*!< Set DMA burst size to 4 transfers */
+#define DMA_CFG_BURSTPOWER_8    (3 << 8)    /*!< Set DMA burst size to 8 transfers */
+#define DMA_CFG_BURSTPOWER_16   (4 << 8)    /*!< Set DMA burst size to 16 transfers */
+#define DMA_CFG_BURSTPOWER_32   (5 << 8)    /*!< Set DMA burst size to 32 transfers */
+#define DMA_CFG_BURSTPOWER_64   (6 << 8)    /*!< Set DMA burst size to 64 transfers */
+#define DMA_CFG_BURSTPOWER_128  (7 << 8)    /*!< Set DMA burst size to 128 transfers */
+#define DMA_CFG_BURSTPOWER_256  (8 << 8)    /*!< Set DMA burst size to 256 transfers */
+#define DMA_CFG_BURSTPOWER_512  (9 << 8)    /*!< Set DMA burst size to 512 transfers */
+#define DMA_CFG_BURSTPOWER_1024 (10 << 8)   /*!< Set DMA burst size to 1024 transfers */
+#define DMA_CFG_BURSTPOWER(n)   ((n) << 8)  /*!< Set DMA burst size to 2^n transfers, max n=10 */
+#define DMA_CFG_SRCBURSTWRAP    (1 << 14)   /*!< Source burst wrapping is enabled for this DMA channel */
+#define DMA_CFG_DSTBURSTWRAP    (1 << 15)   /*!< Destination burst wrapping is enabled for this DMA channel */
+#define DMA_CFG_CHPRIORITY(p)   ((p) << 16) /*!< Sets DMA channel priority, min 0 (highest), max 3 (lowest) */
+
+
+/* Support macro for DMA_CHDESC_T */
+#define DMA_ADDR(addr)      ((uint32_t) (addr))
+
+__attribute__ ((aligned(512))) DMA_CHDESC_T Chip_DMA_Table[MAX_DMA_CHANNEL];
+
+
+#define ARRAY_SIZE 10
+static uint8_t data[ARRAY_SIZE] = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A};
+
+static void setup_spi_dma(void) {
+    // Enable SPI and DMA clocks
+
+    // Chip_DMA_Init(LPC_DMA);
+    LPC_SYSCON->SYSAHBCLKCTRL |= (1 << 29);
+
+    // Chip_DMA_Enable(LPC_DMA);
+    LPC_DMA->CTRL = 1;
+
+    // Chip_DMA_EnableChannel(LPC_DMA, DMAREQ_SPI0_TX);
+    LPC_DMA->DMACOMMON[0].ENABLESET = (1 << DMAREQ_SPI0_TX);
+
+    // Chip_DMA_SetSRAMBase(LPC_DMA, DMA_ADDR(Chip_DMA_Table));
+    LPC_DMA->SRAMBASE = DMA_ADDR(Chip_DMA_Table);
+
+    // Chip_DMA_SetupChannelConfig(LPC_DMA, DMAREQ_SPI0_TX, (DMA_CFG_PERIPHREQEN | DMA_CFG_TRIGBURST_SNGL | DMA_CFG_CHPRIORITY(3)));
+    LPC_DMA->CHANNEL[DMAREQ_SPI0_TX].CFG = DMA_CFG_PERIPHREQEN | DMA_CFG_TRIGBURST_SNGL | DMA_CFG_CHPRIORITY(3);
+
+    // // Set DMA descriptor
+    Chip_DMA_Table[DMAREQ_SPI0_TX].source   = DMA_ADDR(&data[ARRAY_SIZE-1]);
+    Chip_DMA_Table[DMAREQ_SPI0_TX].dest     = DMA_ADDR(&LPC_SPI0->TXDAT);
+    Chip_DMA_Table[DMAREQ_SPI0_TX].next     = DMA_ADDR(0);
+    Chip_DMA_Table[DMAREQ_SPI0_TX].xfercfg  = DMA_XFERCFG_CFGVALID | DMA_XFERCFG_SWTRIG | DMA_XFERCFG_WIDTH_8 | DMA_XFERCFG_SRCINC_1 |
+                                              DMA_XFERCFG_DSTINC_0 | DMA_XFERCFG_XFERCOUNT(ARRAY_SIZE);
+
+    // Setup transfer descriptor and validate it
+    // Chip_DMA_SetupTranChannel(LPC_DMA, DMAREQ_SPI0_TX, &Chip_DMA_Table[DMAREQ_SPI0_TX]);
+    ((DMA_CHDESC_T *) (LPC_DMA->SRAMBASE & ~DMA_SRAMBASE_RESERVED))[DMAREQ_SPI0_TX] = Chip_DMA_Table[DMAREQ_SPI0_TX];
+
+    // Setup data transfer --> Start sending data
+    // Chip_DMA_SetupChannelTransfer(LPC_DMA, DMAREQ_SPI0_TX, Chip_DMA_Table[DMAREQ_SPI0_TX].xfercfg);
+    LPC_DMA->CHANNEL[DMAREQ_SPI0_TX].XFERCFG = (LPC_DMA->CHANNEL[DMAREQ_SPI0_TX].XFERCFG & ~(DMA_XFERCFG_RESERVED | (0x3FF << 16))) | DMA_XFERCFG_XFERCOUNT(Chip_DMA_Table[DMAREQ_SPI0_TX].xfercfg);
 }
