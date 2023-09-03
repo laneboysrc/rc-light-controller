@@ -1,0 +1,4 @@
+*.kicad_prl
+fp-info-cache
+gerber/
+webusb-programmer-rev5-backups/
