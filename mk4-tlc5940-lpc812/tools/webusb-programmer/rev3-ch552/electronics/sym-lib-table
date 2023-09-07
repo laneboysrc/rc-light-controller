@@ -1,3 +1,0 @@
-(sym_lib_table
-  (lib (name wla-atsamd21)(type Legacy)(uri ${KIPRJMOD}/wla-atsamd21.lib)(options "")(descr ""))
-)

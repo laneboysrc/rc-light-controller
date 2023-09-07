@@ -1,3 +1,0 @@
-(fp_lib_table
-  (lib (name rc-light-controller-tlc5940-lpc812)(type KiCad)(uri /home/laneboysrc/projects/rc-light-controller/mk4-tlc5940-lpc812/electronics-pinheader/rc-light-controller-tlc5940-lpc812.pretty)(options "")(descr ""))
-)

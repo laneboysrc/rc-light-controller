@@ -1,7 +1,0 @@
-target extended-remote /dev/ttyACM0
-monitor swdp_scan
-file build/firmware_with_bootloader.elf
-attach 1
-load
-detach
-quit
