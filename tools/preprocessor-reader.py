@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 '''
 
 preprocessor-reader.py
@@ -13,8 +13,6 @@ Author:         Werner Lane
 E-mail:         laneboysrc@gmail.com
 
 '''
-
-from __future__ import print_function
 
 import argparse
 import serial
@@ -116,7 +114,7 @@ def main():
 
     try:
         uart = serial.Serial(args.tty, args.baudrate)
-    except serial.SerialException, error:
+    except serial.SerialException as error:
         print("%s" % error)
         sys.exit(0)
 

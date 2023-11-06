@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 '''
 
 Validate the binary image of the TLC5940/LPC812 based light controller
@@ -8,7 +8,6 @@ Each section has a magic value 0x6372424c, followed by the section identifier
 and a version number.
 
 '''
-from __future__ import print_function
 import sys
 import struct
 import argparse
