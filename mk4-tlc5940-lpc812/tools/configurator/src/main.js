@@ -945,7 +945,14 @@ var app = (function () {
 
             show(el.single_output);
             hide(el.dual_output);
-            show([el.aux_3ch]);
+            if (el.enable_aux_3ch_advanced.checked) {
+                show([el.aux_3ch_advanced]);
+                hide([el.aux_3ch]);
+            }
+            else {
+                hide([el.aux_3ch_advanced]);
+                show([el.aux_3ch]);
+            }
             hide([el.multi_aux]);
             hide([el.channel_reversing_multi_aux]);
             hide([el.config_channel_offset]);
@@ -972,7 +979,14 @@ var app = (function () {
 
             hide(el.single_output);
             show(el.dual_output);
-            show([el.aux_3ch]);
+            if (el.enable_aux_3ch_advanced.checked) {
+                show([el.aux_3ch_advanced]);
+                hide([el.aux_3ch]);
+            }
+            else {
+                hide([el.aux_3ch_advanced]);
+                show([el.aux_3ch]);
+            }
             hide([el.multi_aux]);
             hide([el.channel_reversing_multi_aux]);
             hide([el.config_channel_offset]);
@@ -1000,6 +1014,7 @@ var app = (function () {
             hide(el.single_output);
             show(el.dual_output);
             hide([el.aux_3ch]);
+            hide([el.aux_3ch_advanced]);
             show([el.multi_aux]);
             show([el.channel_reversing_multi_aux]);
             hide([el.config_channel_offset]);
@@ -1027,6 +1042,7 @@ var app = (function () {
             hide(el.single_output);
             show(el.dual_output);
             hide([el.aux_3ch]);
+            hide([el.aux_3ch_advanced]);
             show([el.multi_aux]);
             show([el.channel_reversing_multi_aux]);
             show([el.config_channel_offset]);
@@ -1063,6 +1079,7 @@ var app = (function () {
             hide(el.single_output);
             show(el.dual_output);
             hide([el.aux_3ch]);
+            hide([el.aux_3ch_advanced]);
             show([el.multi_aux]);
             show([el.channel_reversing_multi_aux]);
             show([el.config_channel_offset]);
@@ -1102,7 +1119,14 @@ var app = (function () {
 
             hide(el.single_output);
             show(el.dual_output);
-            show([el.aux_3ch]);
+            if (el.enable_aux_3ch_advanced.checked) {
+                show([el.aux_3ch_advanced]);
+                hide([el.aux_3ch]);
+            }
+            else {
+                hide([el.aux_3ch_advanced]);
+                show([el.aux_3ch]);
+            }
             hide([el.multi_aux]);
             hide([el.channel_reversing_multi_aux]);
             hide([el.config_channel_offset]);
@@ -1151,6 +1175,7 @@ var app = (function () {
             show(el.single_output);
             hide(el.dual_output);
             hide([el.aux_3ch]);
+            hide([el.aux_3ch_advanced]);
             show([el.multi_aux]);
             hide([el.channel_reversing_multi_aux]);
             hide([el.config_channel_offset]);
@@ -3067,7 +3092,7 @@ var app = (function () {
             'config_ch3',
             'config_output',
 
-            'aux_3ch', 'multi_aux', 'channel_reversing_multi_aux',
+            'aux_3ch', 'aux_3ch_advanced', 'multi_aux', 'channel_reversing_multi_aux',
 
             'reverse_st', 'reverse_th', 'reverse_aux', 'reverse_aux2', 'reverse_aux3',
 
@@ -3107,6 +3132,8 @@ var app = (function () {
             'aux_left_centre_threshold_low', 'aux_left_centre_threshold_high',
             'aux_centre_right_threshold_low', 'aux_centre_right_threshold_high',
             'initial_endpoint_delta', 'ch3_multi_click_timeout',
+            'enable_aux_3ch_advanced',
+
             'no_signal_timeout', 'shelf_queen_mode',
 
             'number_of_gears','gearbox_servo_active_time','gearbox_servo_idle_time',
@@ -3188,6 +3215,7 @@ var app = (function () {
 
         el.channel_offset.addEventListener('change', update_channel_offset);
 
+        el.enable_aux_3ch_advanced.addEventListener('change', update_section_visibility, false);
 
         init_assembler();
 

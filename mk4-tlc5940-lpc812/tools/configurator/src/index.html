@@ -524,6 +524,7 @@
               <option class="function_disable_outputs" value="8">Disable outputs</option>
             </select>
           </div>
+          <br>
           <div>
             <strong>Not used:</strong> Use this setting if you want to use this
             AUX input within a <em>Light Program</em>, instead of one of the pre-defined
@@ -582,8 +583,77 @@
             input in <em>light programs</em>. In that case disable the
             push button functionality.
           </div>
-
         </div>
+
+        <div id="aux_3ch_advanced">
+          <h2>AUX configuration</h2>
+          <div>
+            <label for="aux_type">AUX type</label> <select id="aux_type">
+              <option value="0">Two-position switch</option>
+              <option value="1">Two-position switch, up/down buttons</option>
+              <option value="2">Momentary push button</option>
+              <option value="3">Three-position switch</option>
+              <option value="4">Analog control</option>
+            </select>
+            <label for="aux_function">Function</label> <select id="aux_function">
+              <option class="function_not_used" value="0">Not used</option>
+              <option class="function_multi_function" value="1">Multi-function control</option>
+              <!-- <option value="2">Gearbox</option> -->
+              <!-- <option value="3">Winch</option> -->
+              <option class="function_servo" value="4">Servo control</option>
+              <option class="function_indicators" value="5">Indicators</option>
+              <option class="function_hazard" value="6">Hazard lights on/off</option>
+              <option class="function_light_switch" value="7">Light switch</option>
+              <option class="function_disable_outputs" value="8">Disable outputs</option>
+            </select>
+          </div>
+          <br>
+          <div>
+            <strong>Not used:</strong> Use this setting if you want to use this
+            AUX input within a <em>Light Program</em>, instead of one of the pre-defined
+            functions.
+          </div>
+          <br>
+          <div>
+            <strong>Multi-function:</strong> 1-click is &quot;more lights&quot;; 2-clicks
+            is &quot;less lights&quot;; 3-clicks
+            is &quot;toggle lights on/off&quot;; 4-clicks
+            is &quot;hazard lights on/off&quot; ...
+          </div>
+          <br>
+          <div>
+            <strong>Servo control:</strong> Control a servo connected to the light
+            controller output from this AUX channel. Note that the servo end points,
+            center position and reversing can be adjusted using 7-clicks.
+            <br>
+            This function is only applicable when <em>Steering wheel servo ouput</em>
+            is enabled in the <em>Output functions</em> tab.
+          </div>
+          <br>
+          <div>
+            <strong>Indicators:</strong> Manually control the indicators. Disables
+            the automatic indicator functionality of the light controller.
+          </div>
+          <br>
+          <div>
+            <strong>Hazard lights on/off:</strong> Manually control hazard lights.
+          </div>
+          <br>
+          <div>
+            <strong>Light switch:</strong> Control the virtual light switch, as
+            configured in the <em>LED configuration</em> tab, directly from
+            an AUX channel. Your AUX channel should have at least as many positions
+            as you have light switch positions in use.
+          </div>
+          <br>
+          <div>
+            <strong>Disable outputs:</strong> When the corresponding AUX channel outputs a
+            servo pulse longer than 1.75 ms then all light outputs are turned off.
+            This allows you to disable all manual and automatic light functions from
+            the transmitter.
+          </div>
+        </div>
+
       </div>
 
       <div id="config_reversing" class="box configuration hidden">
@@ -1111,6 +1181,18 @@
               in which case the lights will be switched on to the highest used light switch position.
               <br>
               By default (checkbox off), 3-clicks will switch to the highest used light switch position -- except when the light switch is already at that highes position, in which case the lights will be switched off (light switch position 0)
+            </div>
+          </div>
+
+          <div class="advanced_feature">
+            <div>
+              <input type="checkbox" id="enable_aux_3ch_advanced">
+              <label for="enable_aux_3ch_advanced">Enable advanced CH3/AUX configuration</label>
+            </div>
+            <div>
+              For 3 channel use, by default CH3/AUX is assumed to be multi-function control for lights and hazard lights.
+              <br>
+              If this setting is enabled, you can configure the CH3/AUX channel for a custom function.
             </div>
           </div>
 
