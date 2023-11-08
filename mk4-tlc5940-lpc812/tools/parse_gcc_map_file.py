@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 '''
 parse_gcc_map_file.py
 
@@ -11,8 +11,6 @@ Hint: to generate the map file add the -Map=MAPFILENAME to the linker flags
 Author:         Werner Lane
 E-mail:         laneboysrc@gmail.com
 '''
-
-from __future__ import print_function
 
 import sys
 import os

@@ -1,9 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 '''
 Gamma correction for LEDs
 '''
 
-from __future__ import print_function
 import sys
 from decimal import Decimal, ROUND_HALF_UP
 
