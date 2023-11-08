@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 '''
 
 Validate the binary image of the TLC5940/LPC812 based light controller
@@ -25,7 +25,7 @@ def parse_commandline():
     ''' Command line option parsing '''
     parser = argparse.ArgumentParser(
         description='''\
-Validate the binary image of the TLC5940/LPC812 based light controller
+Validate the binary image of the TLC5940/LPC8xx based light controller
 to ensure it contains the required sections for the configuration tool.
 
 Each section has a magic value 0x6372424c, followed by the section identifier
@@ -34,7 +34,7 @@ and a version number.''')
     parser.add_argument("-v", "--verbose", action='store_true',
         help='Print info about sections found and their location.')
 
-    parser.add_argument("image_file", nargs=1, type=argparse.FileType('rb'),
+    parser.add_argument("image_file", nargs=1, type=argparse.FileType('rt'),
         help="the filename of the light controller binary image")
 
     return parser.parse_args()
