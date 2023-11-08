@@ -516,6 +516,8 @@ var app = (function () {
 
             new_config.aux_type = data[offset + 70];
             new_config.aux_function = data[offset + 71];
+            new_config.aux_type_advanced = data[offset + 70];
+            new_config.aux_function_advanced = data[offset + 71];
             new_config.aux2_type = data[offset + 72];
             new_config.aux2_function = data[offset + 73];
             new_config.aux3_type = data[offset + 74];
@@ -532,6 +534,8 @@ var app = (function () {
 
             new_config.aux_type = AUX_TYPE.AUX_TYPE_TWO_POSITION;
             new_config.aux_function = AUX_FUNCTION.AUX_FUNCTION_MULTI_FUNCTION;
+            new_config.aux_type_advanced = AUX_TYPE.AUX_TYPE_TWO_POSITION;
+            new_config.aux_function_advanced = AUX_FUNCTION.AUX_FUNCTION_MULTI_FUNCTION;
             new_config.aux2_type = AUX_TYPE.AUX_TYPE_TWO_POSITION;
             new_config.aux2_function = AUX_FUNCTION.AUX_FUNCTION_NOT_USED;
             new_config.aux3_type = AUX_TYPE.AUX_TYPE_TWO_POSITION;
@@ -1265,6 +1269,7 @@ var app = (function () {
 
     // *************************************************************************
     var update_ui = function () {
+        el.enable_aux_3ch_advanced.checked = config.enable_aux_3ch_advanced;
 
         // Master/Slave/...
         if (config.multi_aux && config.mode === MODE.MASTER_WITH_UART_READER) {
@@ -1393,6 +1398,8 @@ var app = (function () {
 
         el.aux_type.value = config.aux_type;
         el.aux_function.value = config.aux_function;
+        el.aux_type_advanced.value = config.aux_type_advanced;
+        el.aux_function_advanced.value = config.aux_function_advanced;
         el.aux2_type.value = config.aux2_type;
         el.aux2_function.value = config.aux2_function;
         el.aux3_type.value = config.aux3_type;
@@ -1400,6 +1407,7 @@ var app = (function () {
 
         // Ensure proper enabling/disabling of allowed AUX functions based on AUX type
         (aux_type_changed_handler.bind({'type': el.aux_type, 'fn': el.aux_function}))();
+        (aux_type_changed_handler.bind({'type': el.aux_type_advanced, 'fn': el.aux_function_advanced}))();
         (aux_type_changed_handler.bind({'type': el.aux2_type, 'fn': el.aux2_function}))();
         (aux_type_changed_handler.bind({'type': el.aux3_type, 'fn': el.aux3_function}))();
 
@@ -1793,8 +1801,14 @@ var app = (function () {
 
         set_uint16(data, offset + 68, config.blink_counter_value_dark);
 
-        set_uint8(data, offset + 70, config.aux_type);
-        set_uint8(data, offset + 71, config.aux_function);
+        if (config.enable_aux_3ch_advanced) {
+            set_uint8(data, offset + 70, config.aux_type_advanced);
+            set_uint8(data, offset + 71, config.aux_function_advanced);
+        }
+        else {
+            set_uint8(data, offset + 70, config.aux_type);
+            set_uint8(data, offset + 71, config.aux_function);
+        }
         set_uint8(data, offset + 72, config.aux2_type);
         set_uint8(data, offset + 73, config.aux2_function);
         set_uint8(data, offset + 74, config.aux3_type);
@@ -2194,6 +2208,8 @@ var app = (function () {
 
             config.aux_type = AUX_TYPE.AUX_TYPE_TWO_POSITION;
             config.aux_function = AUX_FUNCTION.AUX_FUNCTION_MULTI_FUNCTION;
+            config.aux_type_advanced = AUX_TYPE.AUX_TYPE_TWO_POSITION;
+            config.aux_function_advanced = AUX_FUNCTION.AUX_FUNCTION_MULTI_FUNCTION;
             config.aux2_type = AUX_TYPE.AUX_TYPE_TWO_POSITION;
             config.aux2_function = AUX_FUNCTION.AUX_FUNCTION_NOT_USED;
             config.aux3_type = AUX_TYPE.AUX_TYPE_TWO_POSITION;
@@ -2231,6 +2247,12 @@ var app = (function () {
             config.aux2_function = AUX_FUNCTION.AUX_FUNCTION_NOT_USED;
             config.aux3_type = AUX_TYPE.AUX_TYPE_TWO_POSITION;
             config.aux3_function = AUX_FUNCTION.AUX_FUNCTION_NOT_USED;
+        }
+
+        if (config.aux_type_advanced == null ||
+               config.aux_function_advanced == null) {
+            config.aux_type_advanced = AUX_TYPE.AUX_TYPE_TWO_POSITION;
+            config.aux_function_advanced = AUX_FUNCTION.AUX_FUNCTION_MULTI_FUNCTION;
         }
     };
 
@@ -2307,6 +2329,9 @@ var app = (function () {
         log.log('config_version: ' + config_version);
         log.log('config.firmware_version: ' + config.firmware_version);
 
+
+        // Advanced AUX configuration for 3 channel use
+        update_boolean('enable_aux_3ch_advanced');
 
         // Baudrate
         update_int('baudrate');
@@ -2443,6 +2468,8 @@ var app = (function () {
 
         update_int('aux_type');
         update_int('aux_function');
+        update_int('aux_type_advanced');
+        update_int('aux_function_advanced');
         update_int('aux2_type');
         update_int('aux2_function');
         update_int('aux3_type');
@@ -3145,6 +3172,7 @@ var app = (function () {
             'startup_time', 'us_style_combined_lights', 'gamma_value',
 
             'aux_type', 'aux_function',
+            'aux_type_advanced', 'aux_function_advanced',
             'aux2_type', 'aux2_function',
             'aux3_type', 'aux3_function',
             'ch3_local_multiaux',
@@ -3202,6 +3230,9 @@ var app = (function () {
         el.aux_type.addEventListener('change',
             aux_type_changed_handler.bind({'type': el.aux_type, 'fn': el.aux_function})
         );
+        el.aux_type_advanced.addEventListener('change',
+            aux_type_changed_handler.bind({'type': el.aux_type_advanced, 'fn': el.aux_function_advanced})
+        );
         el.aux2_type.addEventListener('change',
             aux_type_changed_handler.bind({'type': el.aux2_type, 'fn': el.aux2_function})
         );
@@ -3242,7 +3273,7 @@ var app = (function () {
         get_data: get_data,
         el: el,
         load: load_firmware,
-        init: init
+        init: init,
     };
 }());
 
