@@ -56,7 +56,7 @@ void output_preprocessor(void)
         tx_data[1] = channel[ST].normalized;
         tx_data[2] = channel[TH].normalized;
         tx_data[3] = (ch3_2pos ? (1 << 0) : 0) |
-                     (config.flags2.multi_aux ? (1 << 3) : 0) |
+                     (1 << 3) | // Always output multi-aux protocol
                      (global_flags.initializing ? (1 << 4) : 0);
         tx_data[4] = channel[AUX].normalized;
         tx_data[5] = channel[AUX2].normalized;
