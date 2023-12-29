@@ -1761,9 +1761,9 @@ var app = (function () {
             servo_enabled = true;
         }
         if (config.multi_aux && (
-                config.aux_function == AUX_FUNCTION_SERVO ||
-                config.aux2_function == AUX_FUNCTION_SERVO ||
-                config.aux3_function == AUX_FUNCTION_SERVO )) {
+                config.aux_function == AUX_FUNCTION.AUX_FUNCTION_SERVO ||
+                config.aux2_function == AUX_FUNCTION.AUX_FUNCTION_SERVO ||
+                config.aux3_function == AUX_FUNCTION.AUX_FUNCTION_SERVO )) {
             servo_enabled = true;
         }
 
