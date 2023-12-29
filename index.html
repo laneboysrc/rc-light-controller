@@ -22591,9 +22591,9 @@ var app = (function () {
             servo_enabled = true;
         }
         if (config.multi_aux && (
-                config.aux_function == AUX_FUNCTION_SERVO ||
-                config.aux2_function == AUX_FUNCTION_SERVO ||
-                config.aux3_function == AUX_FUNCTION_SERVO )) {
+                config.aux_function == AUX_FUNCTION.AUX_FUNCTION_SERVO ||
+                config.aux2_function == AUX_FUNCTION.AUX_FUNCTION_SERVO ||
+                config.aux3_function == AUX_FUNCTION.AUX_FUNCTION_SERVO )) {
             servo_enabled = true;
         }
 
@@ -24166,7 +24166,7 @@ document.addEventListener('DOMContentLoaded', function () {
         <h1><span id="logo"></span> RC Light Controller configuration tool</h1>
 
         <div>
-          Configurator version: <strong>2023-11-09</strong><br>
+          Configurator version: <strong>2023-12-30</strong><br>
           Firmware version: <strong><span id="firmware_version"></span></strong>
         </div>
 
@@ -24596,10 +24596,10 @@ document.addEventListener('DOMContentLoaded', function () {
           <div>
             <strong>Servo control:</strong> Control a servo connected to the light
             controller output from this AUX channel. Note that the servo end points,
-            center position and reversing can be adjusted using 7-clicks.
+            center position and reversing can be adjusted using 7-clicks on a <em>Multi-function control</em>.
             <br>
-            This function is only applicable when <em>Steering wheel servo ouput</em>
-            is enabled in the <em>Output functions</em> tab.
+            This function is only applicable when <em>(no output function)</em>
+            is selected as <em>Servo output function</em> in the <em>Output functions</em> tab.
           </div>
           <br>
           <div>
@@ -24785,7 +24785,7 @@ document.addEventListener('DOMContentLoaded', function () {
             <input type="radio" name="output_out" value="0" id="single_off">
             <label for="single_off">(no output function)</label>
             <br>
-            The light controller does not output a signal
+            The light controller does not output a servo signal
             <span class="single_output">on pin OUT/ISP.</span>
             <span class="dual_output">on the pin assigned to the servo function.</span>
           </div>
@@ -25660,6 +25660,13 @@ document.addEventListener('DOMContentLoaded', function () {
       <div id="info" class="hidden">
         <div class="box configuration">
           <h2>What's new</h2>
+
+          <div><strong>2023-12-30 Firmware 2.57</strong></div>
+          <ul class="change-history">
+            <li>
+              Fix servo output via AUX channel.
+            </li>
+          </ul>
 
           <div><strong>2023-11-09 Firmware 2.57</strong></div>
           <ul class="change-history">
