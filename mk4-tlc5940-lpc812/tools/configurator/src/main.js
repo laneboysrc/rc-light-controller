@@ -1974,7 +1974,8 @@ var app = (function () {
         // For the LOCAL LEDs, always adjust "light_switch_positions" ...
         assemble_leds(SECTION_LOCAL_LEDS, configuration.local_leds, true);
         // ... but for SLAVE LEDs only when slave is enabled!
-        assemble_leds(SECTION_SLAVE_LEDS, configuration.slave_leds, configuration.config.slave_output || configuration.ws2811_enabled);
+
+        assemble_leds(SECTION_SLAVE_LEDS, configuration.slave_leds, configuration.config.slave_output || configuration.config.ws2811_enabled);
         assemble_light_programs(configuration.light_programs);
 
         assemble_gamma(configuration.gamma);

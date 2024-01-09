@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 '''
 
 Tool for creating a JavaScript string containing the content of a given
@@ -8,7 +8,6 @@ This is useful for embedding text (and also Intel-hex files) in a
 JavaScript application.
 
 '''
-from __future__ import print_function
 import argparse
 import os
 import sys
@@ -21,7 +20,7 @@ def parse_commandline():
         description='''\
 Tool for creating a JavaScript string containing the content of a text file.''')
 
-    parser.add_argument("text_file", nargs=1, type=argparse.FileType('rb'),
+    parser.add_argument("text_file", nargs=1, type=argparse.FileType('rt'),
         help="the filename of the text file format")
 
     parser.add_argument("var_name", nargs=1,

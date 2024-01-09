@@ -160,10 +160,15 @@ static void output_lights(void)
     }
 
     if (config.flags3.ws2811_enabled  &&  extern_leds_count == 0) {
-        for (i = 0; i < 16; i++) {
+        // Slave LEDs 0..14 go to the first 5 LEDs
+        for (i = 0; i < 15; i++) {
            ws281x_buffer[i] = gamma_table.gamma_table[light_actual[16 + i]];
         }
-        HAL_ws2811_transaction(ws281x_buffer, 15, config.flags3.ws2811_invert);
+        // Master LEDs 0..14 are mirrored to the WS2811 6..10
+        for (i = 0; i < 15; i++) {
+           ws281x_buffer[15 + i] = gamma_table.gamma_table[light_actual[i]];
+        }
+        HAL_ws2811_transaction(ws281x_buffer, 30, config.flags3.ws2811_invert);
     }
 }
 
