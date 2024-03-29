@@ -30,7 +30,7 @@ connector_cutout_offset = pcb_cutout_offset-[pcb.x/2, 0, 0];
 post_d1 = 4;
 post_d12 = 6;
 post_h1 = cutout_z-pcb.z - 0.3; // Reduce height slightly due to printing not being precise
-hole_d = 1.7;                   // Determined through test prints, may not work on your printer...
+hole_d = 1.6;                   // Determined through test prints, may not work on your printer...
 
 post1_pos = [9, 5, pcb_cutout_offset.z-fudge];
 post2_pos = [pcb.x-9, 5, pcb_cutout_offset.z-fudge];
