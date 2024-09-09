@@ -1,3 +1,4 @@
-* Make simulator work with 34800 BAUD?
+DEFECTS:
 
-* webserial-sbus-simulator add 3 AUX channels
+* ALL LEDS does not work properly with LED names declared in the table
+
