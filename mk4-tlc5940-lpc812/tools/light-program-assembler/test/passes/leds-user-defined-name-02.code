@@ -1,0 +1,38 @@
+run always
+
+var x
+
+led l1 = led[18]
+led l2 = led[19]
+
+led lx = led[23]
+
+fade all leds stepsize 50
+
+all leds = 25%
+
+// Test LED names as declared by the user in the Configurator
+led[test1] = 100
+led[test2], led[test3] = 10
+led[test4] = 100
+
+// Mixed usage: LED name, declared LED, LED number
+led[test3], l1, led[17] = 50
+fade l2, led[test2], led[20] stepsize 10
+
+end
+
+// Second light program
+// (we had a bug where user names only worked in the first program!)
+run when no-signal
+
+// Test LED names as declared by the user in the Configurator
+led[test1] = 100
+led[test2], led[test3] = 10
+led[test4] = 100
+
+// Mixed usage: LED name, LED number
+led[test3], led[17] = 50
+fade led[20], led[test2] stepsize 10
+
+end

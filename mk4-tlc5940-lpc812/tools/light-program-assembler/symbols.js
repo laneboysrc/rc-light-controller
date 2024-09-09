@@ -230,7 +230,7 @@ var symbols = (function () {
         forward_declaration_table = [];
 
         for (i = symbol_table.length - 1; i >= 0; i -= 1) {
-            if (symbol_table[i].token !== 'GLOBAL_VARIABLE') {
+            if (symbol_table[i].token !== 'GLOBAL_VARIABLE' && symbol_table[i].token !== 'LED_NAME') {
                 symbol_table.splice(i, 1);
             }
         }
