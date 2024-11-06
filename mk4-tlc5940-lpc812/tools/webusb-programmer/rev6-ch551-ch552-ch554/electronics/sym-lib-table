@@ -1,0 +1,3 @@
+(sym_lib_table
+  (lib (name "wla-project-specific-components")(type "KiCad")(uri "${KIPRJMOD}/wla-project-specific-components.kicad_sym")(options "")(descr ""))
+)
