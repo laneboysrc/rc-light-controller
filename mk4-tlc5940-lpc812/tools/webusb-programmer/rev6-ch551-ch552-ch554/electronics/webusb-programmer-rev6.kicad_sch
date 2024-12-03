@@ -2246,7 +2246,7 @@
     (property "Value" "B5819WS" (id 1) (at 81.915 114.935 90)
       (effects (font (size 1.27 1.27)) (justify right))
     )
-    (property "Footprint" "Diode_SMD:D_SOD-123F" (id 2) (at 92.71 113.03 0)
+    (property "Footprint" "Diode_SMD:D_SOD-123" (id 2) (at 92.71 113.03 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "~" (id 3) (at 92.71 113.03 0)
@@ -2371,7 +2371,7 @@
       (reference "D5") (unit 1) (value "MCU POWER") (footprint "WLA_LED_reverse_mount:LED_0805_2012Metric_see_through")
     )
     (path "/a7bb18ee-f118-4fbc-b69e-bcab853f2f90"
-      (reference "D6") (unit 1) (value "B5819WS") (footprint "Diode_SMD:D_SOD-123F")
+      (reference "D6") (unit 1) (value "B5819WS") (footprint "Diode_SMD:D_SOD-123")
     )
     (path "/00000000-0000-0000-0000-00005e6fe83d"
       (reference "J1") (unit 1) (value "Light Controller") (footprint "WLA_pinheader:PinHeader_1x06_P2.54mm_Flat")
