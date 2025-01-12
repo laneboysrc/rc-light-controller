@@ -1606,6 +1606,25 @@
         <div class="box configuration">
           <h2>What's new</h2>
 
+          <div><strong>2025-01-12 Firmware 2.58</strong></div>
+          <ul class="change-history">
+            <li>
+              Light program servo output now available on a Slave light controller.<br>
+              It is now possible to connect a servo to OUT/ISP on a Slave and
+              have the servo controlled by a light program in the Master light
+              controller.<br>
+              This feature has the following limitation:
+              <ul>
+                <li>The servo on the Slave can <strong>only be controlled from a light program</strong> in the Master.</li>
+                <li>The servo on the Master can be configured independently from the Slave. For example, the Master servo output can be set to <em>Steering wheel output</em> and the Slave servo independently controlled from a light program. However, when the Master is configured for light program control then servos connected to Master and Slave will move synchronusly.</li>
+                <li>The endpoints on the Slave can not be adjusted. The servo pulse range is fixed 1.0 .. 2.0 ms with 1.5 ms being <em>center</em>.<br>
+                (On the Master it is possible to adjustment center and endpoints with 8 klicks the Multi-Function control; See user manual for more info.)<br>
+                You can adjust your light program to limit servo travel on the Slave</li>
+                <li>The servo can only be connected to OUT/ISP on the Slave. Some (analog) servos have a high load on the signal line, preventing the Slave from operating. It is advisable to use digital servos.</li>
+              </ul>
+            </li>
+          </ul>
+
           <div><strong>2024-09-09 Firmware 2.57</strong></div>
           <ul class="change-history">
             <li>

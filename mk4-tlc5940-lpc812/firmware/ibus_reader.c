@@ -30,7 +30,7 @@ functions to those channels in the transmitter.
 
 #define SBUS_SERVO_PACKET_ID (0x40)
 
-static uint8_t buffer[MAX_SERVO_PACKET_LENGTH];
+static uint8_t buffer[MAX_SERVO_PACKET_LENGTH] __attribute__((aligned(4)));
 static uint8_t buffer_index = 0;
 
 

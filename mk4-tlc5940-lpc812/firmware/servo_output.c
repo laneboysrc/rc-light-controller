@@ -9,7 +9,7 @@
 
 
 static bool next = false;
-static int16_t servo_position;
+static int16_t servo_position = 0;
 static uint16_t servo_pulse;
 
 static uint16_t gearbox_servo_counter;
@@ -69,6 +69,12 @@ void set_servo_position(int16_t value)
     value = MIN(value, 100);
 
     servo_position = value;
+}
+
+// ****************************************************************************
+int8_t get_servo_position(void)
+{
+    return servo_position;
 }
 
 // ****************************************************************************

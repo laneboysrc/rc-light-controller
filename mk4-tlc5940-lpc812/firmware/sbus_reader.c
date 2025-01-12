@@ -24,7 +24,7 @@
 
 #define FAILSAFE_MASK (0x08)
 
-static uint8_t buffer[SBUS_PACKET_LENGTH];
+static uint8_t buffer[SBUS_PACKET_LENGTH] __attribute__((aligned(4)));
 static uint8_t buffer_index = 0;
 
 

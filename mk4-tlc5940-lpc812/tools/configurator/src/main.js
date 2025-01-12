@@ -2372,11 +2372,14 @@ var app = (function () {
             config.steering_wheel_servo_output = false;
             config.gearbox_servo_output = false;
             config.gearbox_light_program_control = false;
-            config.light_program_servo_output = false;
             config.indicators_while_driving = false;
             // config.require_extra_click = false;
             config.prefer_all_lights_off = false;
             config.shelf_queen_mode = false;
+            // Firmware v58: enable the servo output on OUT/ISP, controlled
+            // in light programs on the master
+            config.light_program_servo_output = true;
+            config.assign_uart_to_out = false;
         }
         else {
             update_boolean('preprocessor_output');

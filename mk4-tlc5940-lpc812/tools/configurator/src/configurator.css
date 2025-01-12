@@ -382,6 +382,7 @@ button.menu[disabled] {
 }
 
 .message {
+  max-width: 400px;
   font-family: monospace;
   line-height: 1.25em;
   min-height: 1.25em;

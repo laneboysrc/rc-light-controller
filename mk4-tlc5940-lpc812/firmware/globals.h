@@ -784,7 +784,7 @@ void gearbox_action(uint8_t ch3_clicks);
 void set_gear(uint8_t new_gear);
 void set_servo_pulse(uint16_t value);
 void set_servo_position(int16_t value);
-
+int8_t get_servo_position(void);
 
 // void process_winch(void);
 // void winch_action(uint8_t ch3_clicks);

@@ -696,6 +696,9 @@ static void process_car_lights(void)
         for (i = 0; i < slave_leds.led_count ; i++) {
             HAL_putc(STDOUT, gamma_table.gamma_table[light_actual[16 + i]] >> 2);
         }
+
+        // Firmware 58: also send the light program servo output to the slave
+        HAL_putc(STDOUT, get_servo_position());
     }
 }
 
@@ -719,20 +722,25 @@ static void process_slave(void)
             state = 1;
         }
         else {
-            if (state >= 1) {
+            if (state >= 1 && state <= 16) {
                 // Set both lights_setpoint and lights_actual as lights_setpoint
                 // drives the switched light output and lights_actual drives
                 // the TLC5940
                 light_setpoint[state - 1] = uart_byte << 2;
                 light_actual[state - 1]   = uart_byte << 2;
-                ++state;
 
                 // Once we got all 16 LED values we send the data to the LEDs
                 // and reset the state machine to wait for the next packet
-                if (state > 16) {
-                    state = 0;
+                if (state == 16) {
                     output_lights();
                 }
+                ++state;
+            }
+            // From firmware version 58 onwards the master sends the light
+            // program servo position to the slave
+            else if (state == 17) {
+                state = 0;
+                set_servo_position((int8_t) uart_byte);
             }
         }
     }
