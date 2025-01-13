@@ -63,11 +63,11 @@
       35,
       36
     ],
-    "visible_layers": "0005034_80000001",
+    "visible_layers": "000d034_80000001",
     "zone_display_mode": 0
   },
   "meta": {
-    "filename": "rc-light-controller-pinheader-lpc832.kicad_prl",
+    "filename": "rc-light-controller-switching-lpc832.kicad_prl",
     "version": 3
   },
   "project": {
