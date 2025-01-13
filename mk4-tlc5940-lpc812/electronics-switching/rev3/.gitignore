@@ -3,3 +3,4 @@
 *.kicad_pcb-bak
 fp-info-cache
 rc-light-controller-switching-lpc832-backups
+gerber/
