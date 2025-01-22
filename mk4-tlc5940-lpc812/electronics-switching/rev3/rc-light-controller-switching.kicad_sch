@@ -2624,7 +2624,7 @@
     (in_bom yes) (on_board yes)
     (uuid 00000000-0000-0000-0000-000060f75db2)
     (property "Reference" "U1" (id 0) (at 165.1 146.05 0))
-    (property "Value" "LPC832M101FDH20" (id 1) (at 157.48 148.59 0))
+    (property "Value" "LPC824M201JDH20" (id 1) (at 157.48 148.59 0))
     (property "Footprint" "Package_SO:TSSOP-20_4.4x6.5mm_P0.65mm" (id 2) (at 200.66 148.59 0)
       (effects (font (size 1.27 1.27)) hide)
     )
@@ -2822,7 +2822,7 @@
       (reference "T9") (unit 1) (value "PMV30UN") (footprint "Package_TO_SOT_SMD:SOT-23")
     )
     (path "/00000000-0000-0000-0000-000060f75db2"
-      (reference "U1") (unit 1) (value "LPC832M101FDH20") (footprint "Package_SO:TSSOP-20_4.4x6.5mm_P0.65mm")
+      (reference "U1") (unit 1) (value "LPC824M201JDH20") (footprint "Package_SO:TSSOP-20_4.4x6.5mm_P0.65mm")
     )
     (path "/00000000-0000-0000-0000-000009b5dc2d"
       (reference "U2") (unit 1) (value "MCP1703A-3302_SOT23") (footprint "Package_TO_SOT_SMD:SOT-23W")
