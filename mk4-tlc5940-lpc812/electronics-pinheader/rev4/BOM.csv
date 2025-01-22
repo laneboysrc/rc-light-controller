@@ -7,7 +7,7 @@ J1 ,1,Pinheader right-angle 2x17,Connector_PinHeader_2.54mm:PinHeader_2x17_P2.54
 J2 J3 ,2,Pinheader straight 1x06,rc-light-controller-tlc5940-lpc812:PinHeader_1x06_P2.54mm_Flat,~
 R1 ,1,2k 1%,Resistor_SMD:R_0603_1608Metric,~
 RN1 ,1,1k x4,Resistor_SMD:R_Array_Convex_4x0603,https://datasheet.lcsc.com/szlcsc/1810311812_UNI-ROYAL-Uniroyal-Elec-4D03WGJ0102T5E_C20197.pdf
-T9 ,1,PMV30UN,Package_TO_SOT_SMD:SOT-23,https://assets.nexperia.com/documents/data-sheet/PMV30UN.pdf
-U1 ,1,LPC832M101FDH20,Package_SO:TSSOP-20_4.4x6.5mm_P0.65mm,http://www.nxp.com/documents/data_sheet/LPC81XM.pdf
+T9 ,1,AO3400,Package_TO_SOT_SMD:SOT-23,https://www.lcsc.com/product-detail/MOSFETs_PUOLOP-AO3400-SOT23_C332101.html
+U1 ,1,LPC824M201JDH20,Package_SO:TSSOP-20_4.4x6.5mm_P0.65mm,https://www.nxp.com/part/LPC824M201JDH20
 U2 ,1,TLC5940PWPR,rc-light-controller-tlc5940-lpc812:SOP65P640X120-29N,http://www.ti.com/lit/ds/symlink/tlc5940.pdf
 U3 ,1,MCP1703A-3302_SOT23,Package_TO_SOT_SMD:SOT-23W,http://ww1.microchip.com/downloads/en/DeviceDoc/20005122B.pdf
