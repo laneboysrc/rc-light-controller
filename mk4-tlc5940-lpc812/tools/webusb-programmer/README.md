@@ -1,11 +1,14 @@
-This is a programmer for the NXP LPC812 micro-controller, using the ISP (serial) protocol.
+This is a programmer for the NXP LPC812/823/824 micro-controller, using the ISP (serial) protocol.
 
 It connects to a PC or Android phone via USB and uses WebUSB (available in Chrome, Opera and Edge browsers) to communicate with a web app.
 
 The great thing about this programmer is that no driver or software needs to be installed. Just connect the WebUSB programmer to the PC, load the Light Controller Configurator in the web browser, and program your light controller.
 
+REV6 uses standard 0805 LEDs instead of the hard-to-work-with 1204 side firing LEDs we used in earlier revisions.
 
-The current revision is REV4. This revision can work with the CH551G or CH552G microcontroller from WCH. REV3 was working fine, but due to the *chip crisis* of 2021 it was not possible to get hold of the ST power switch anywhere. So we re-designed the electronics to use a very cheap motor driver to switch the power to the light controller. The firmware was also modified to use UART0, because only UART0 is available on CH551G.
+REV5 switched from MicroUSB to USB Type C.
+
+REV4 can work with the CH551G, CH552G or CH554G microcontroller from WCH. REV3 was working fine, but due to the *chip crisis* of 2021 it was not possible to get hold of the ST power switch anywhere. So we re-designed the electronics to use a very cheap motor driver to switch the power to the light controller. The firmware was also modified to use UART0, because only UART0 is available on CH551G.
 
 REV3 was the first version using the inexpensive CH552G microcontroller from WCH that has an 8051 core and USB device capability. The BOM has been reduced to the minimum so that long-term we can provide the WebUSB programmers instead of USB-to-Serial adapters. The LEDs are now side mounted so they can be viewed from both sides of the PCB.
 
