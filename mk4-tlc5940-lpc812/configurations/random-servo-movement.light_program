@@ -1,0 +1,91 @@
+// Move a servo to random positions in random intervals
+//
+// This light program is useful to animate a figure head
+// or animal in a vehicle using a servo. The servo moves
+// to a random position, then waits for a random amount
+// of time before moving to another random position, and
+// so on.
+//
+// Important: to use this light program you must enable
+// "Servo controlled from Light Programs" in the
+// "Output functions" tab of the Configurator.
+run always
+
+// Here you can configure the range of the servo movement.
+// The maxiumu range is -100 .. +100. You must ensure that
+// SERVO_MIN is smaller than SERVO_MAX
+const SERVO_MIN = -100
+const SERVO_MAX = 100
+
+// Here you can configure the minimum and maxium time
+// duration from which the program chooses a random
+// time.
+// The unit is in Milliseconds; 1000 ms equals 1 second
+const TIME_MIN_MS = 500
+const TIME_MAX_MS = 5000
+
+// Variables used for calculating random servo position
+// and random time intervals
+var range
+var temp
+
+loop:
+  // First we calculate a new random servo position
+
+    // Calculate the maxiumum value the servo can move
+    // in absolute terms: Since the servo can go from
+    // -100 to +100, the range of movement is 200.
+  range = SERVO_MAX
+    range -= SERVO_MIN
+    // Obtain a random number. The number is between
+    // -32768 and 32767. If the number is negative
+    // we make it positive by multiplying by -1.
+    // So the final random number ends up between
+    // 0 and 32767
+  temp = random
+    if temp < 0
+    temp *= -1
+    // Restrict the random number to the range of
+    // servo movement
+    temp %= range
+    // Shift the servo movement down to the minimum
+    temp += SERVO_MIN
+
+  // Instead of moving the servo quickly to the
+    // new position, we slowly have it move to
+    // the new position
+move_servo:
+    if servo == temp
+    goto wait
+    if servo > temp
+    servo -= 1
+    if servo < temp
+    servo += 1
+    sleep 20
+    goto move_servo
+
+  // If you want the servo to move quickly, comment
+    // out the code block above and un-comment the
+    // following line.
+  // servo = temp
+
+wait:
+
+  // Calculate a random time to wait before
+    // the next movement. The steps are the
+    // same as above for the servo position.
+    range = TIME_MAX_MS
+    range -= TIME_MIN_MS
+  temp = random
+    if temp < 0
+    temp *= -1
+    temp %= range
+    temp += TIME_MIN_MS
+
+    // Wait for the random time duration.
+  sleep temp
+
+  // Continue to the next random servo position.
+  goto loop
+
+end
