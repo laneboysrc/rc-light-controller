@@ -33,7 +33,7 @@ static bool initialized;
 
 static struct AUX_FLAGS {
     unsigned int last_state : 4;
-    unsigned int transitioned : 1;
+    // unsigned int transitioned : 1;
     int16_t last_value;
 } aux_flags[3];
 
@@ -169,58 +169,35 @@ static void add_click(void)
 // ****************************************************************************
 static void multi_function(CHANNEL_T *c, struct AUX_FLAGS *f, AUX_TYPE_T type)
 {
-    if (type == MOMENTARY) {
-        // Code for AUX having a momentory signal when pressed
+    if (f->last_state) {
+        if (c->normalized < config.aux_centre_threshold_low) {
+            f->last_state = false;
 
-        // We only care about the switch transition from aux_flags.last_state
-        // (set upon initialization) to the opposite position, which is when
-        // we add a click.
-        if ((c->normalized > 0)  !=  (f->last_state)) {
+            // If we are dealing with a momentary push button ignore the
+            // release of the button
+            if (type == MOMENTARY) {
+                return;
+            }
 
-            // Did we register this transition already?
-            if (!f->transitioned) {
-                // No: Register transition and add click
-                f->transitioned = true;
+            // If we have a transmitter with a two position CH3 that uses two
+            // buttons to switch between the positions (like the
+            // HobbyKing X3S or the Tactic TTC300) then we ignore the first
+            // click of the 'down' button is pressed.
+            // This way the user can deterministically enter a number of clicks
+            // without having to remember if the last command ended with the
+            // up or down button.
+            //
+            // The disadvantage is that always an additional down button press
+            // has to be carried out.
+            if (type != TWO_POSITION_UP_DOWN || click_counter) {
                 add_click();
             }
-        }
-        else {
-            f->transitioned = false;
         }
     }
     else {
-        // Code for AUX being a two position switch (HK-310, GT3B) or
-        // up/down buttons (X3S, Tactic TTC300; config.flags.ch3_is_two_button)
-
-        // Check whether ch3 has changed with respect to LAST_STATE
-        if ((c->normalized > 0)  !=  (f->last_state)) {
-            f->last_state = (c->normalized > 0);
-
-            // If we have a transmitter with a two position CH3 that uses two buttons
-            // to switch between the positions (like the HobbyKing X3S or the Tactic
-            // TTC300) then we ignore the first click if the 'down' button is pressed.
-            // This way the user can deterministically enter a number of clicks without
-            // having to remember if the last command ended with the up or down button.
-            //
-            // The disadvantage is that always an additional down button press has to
-            // be carried out.
-            if (type == TWO_POSITION_UP_DOWN) {
-                if (click_counter || f->last_state) {
-                    add_click();
-                }
-                else {
-                    // // If the winch is running any movement of AUX immediately
-                    // // turns off the winch (without waiting for click timeout!)
-                    // if (abort_winching()) {
-                    //     // If winching was aborted disable this series of clicks
-                    //     // by setting the click count to an unused high value
-                    //     clicks = IGNORE_CLICK_COUNT;
-                    // }
-                }
-            }
-            else {
-                add_click();
-            }
+        if (c->normalized > config.aux_centre_threshold_high) {
+            f->last_state = true;
+            add_click();
         }
     }
 }
