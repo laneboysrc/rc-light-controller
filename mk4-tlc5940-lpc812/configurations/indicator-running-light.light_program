@@ -1,0 +1,40 @@
+// Light program that implements a 3-LED running light for the indicators
+run when indicator-left
+
+led l1 = led[6]
+led l2 = led[7]
+led l3 = led[8]
+
+const brightness = 100
+
+loop:
+  l1 = brightness
+    sleep 80
+  l2 = brightness
+    sleep 80
+  l3 = brightness
+    sleep 180
+    all leds = 0
+    sleep 340
+  goto loop
+end
+
+run when indicator-right
+
+led l1 = led[11]
+led l2 = led[12]
+led l3 = led[13]
+
+const brightness = 100
+
+loop:
+  l1 = brightness
+    sleep 80
+  l2 = brightness
+    sleep 80
+  l3 = brightness
+    sleep 180
+    all leds = 0
+    sleep 340
+    goto loop
+end
