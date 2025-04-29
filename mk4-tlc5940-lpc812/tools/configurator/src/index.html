@@ -1292,7 +1292,7 @@
               <input type=number id="servo_pulse_min">
               <label for="servo_pulse_min"> .. </label>
               <input type=number id="servo_pulse_max">
-              <label for="servo_pulse_max">min/max pulse duration in ms that are valid servo pulses</label>
+              <label for="servo_pulse_max">min/max pulse duration in μs that are valid servo pulses</label>
             </div>
 
             <div>
@@ -1353,6 +1353,29 @@
             </div>
             <div>
               If this setting is disabled, you can still manually control shelf queen mode from a <em>Light Program</em>.
+            </div>
+          </div>
+
+          <h3>Servo output</h3>
+          <div class="advanced_feature">
+            <div>
+              <input type=number id="servo_out_pulse_left">
+              <label for="servo_out_pulse_left"> .. </label>
+              <input type=number id="servo_out_pulse_centre">
+              <label for="servo_out_pulse_centre"> .. </label>
+              <input type=number id="servo_out_pulse_right">
+              <label for="servo_out_pulse_right">min/center/max pulse duration in μs for the servo outout</label>
+            </div>
+
+            <div>
+              Servo signals have a nominal pulse width of 1.5 ms when in center,
+              and 1.0 / 2.0 ms when at the end points. For special uses cases it
+              may be required to change these values for a servo that is
+              connected to the light controller.
+            </div>
+            <div>
+              Please consult the documentation of your servo before changing
+              these values. Using wrong values may physically damage the servo.
             </div>
           </div>
 

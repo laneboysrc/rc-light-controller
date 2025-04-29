@@ -574,6 +574,17 @@ var app = (function () {
             new_config.channel_offset = 3;
         }
 
+        if (new_config.firmware_version >= 60) {
+            new_config.servo_out_pulse_left = get_uint16(data, offset + 96);
+            new_config.servo_out_pulse_centre = get_uint16(data, offset + 98);
+            new_config.servo_out_pulse_right = get_uint16(data, offset + 100);
+        }
+        else {
+            new_config.servo_out_pulse_left = 1000;
+            new_config.servo_out_pulse_centre = 1500;
+            new_config.servo_out_pulse_right = 2000;
+        }
+
         log.log('parse_configuration config.mode: ' + new_config.mode);
         log.log('parse_configuration config.multi_aux: ' + new_config.multi_aux);
         return new_config;
@@ -1421,6 +1432,10 @@ var app = (function () {
         el.channel_offset.value = config.channel_offset;
         update_channel_offset();
 
+        el.servo_out_pulse_left.value = config.servo_out_pulse_left;
+        el.servo_out_pulse_centre.value = config.servo_out_pulse_centre;
+        el.servo_out_pulse_right.value = config.servo_out_pulse_right;
+
         // Show/hide various sections depending on the current settings
         update_section_visibility();
 
@@ -1861,6 +1876,10 @@ var app = (function () {
         set_uint8(data, offset + 93, diagnostics_mask);
 
         set_uint8(data, offset + 94, config.channel_offset - 3);
+
+        set_uint16(data, offset + 96, config.servo_out_pulse_left);
+        set_uint16(data, offset + 98, config.servo_out_pulse_centre);
+        set_uint16(data, offset + 100, config.servo_out_pulse_right);
     };
 
 
@@ -2254,6 +2273,14 @@ var app = (function () {
             config.aux_type_advanced = AUX_TYPE.AUX_TYPE_TWO_POSITION;
             config.aux_function_advanced = AUX_FUNCTION.AUX_FUNCTION_MULTI_FUNCTION;
         }
+
+        if (config.servo_out_pulse_left == null ||
+                config.servo_out_pulse_centre == null ||
+                config.servo_out_pulse_right == null) {
+            config.servo_out_pulse_left = 1000;
+            config.servo_out_pulse_centre = 1500;
+            config.servo_out_pulse_right = 2000;
+        }
     };
 
     // *************************************************************************
@@ -2490,6 +2517,10 @@ var app = (function () {
         update_led('diagnostics_brightness');
 
         update_int('channel_offset');
+
+        update_int('servo_out_pulse_left');
+        update_int('servo_out_pulse_centre');
+        update_int('servo_out_pulse_right');
 
         if (config.mode === MODE.SLAVE) {
             // Force gamma to 1.0 in slave mode as the gamma correction is
@@ -3183,6 +3214,8 @@ var app = (function () {
             'webusb_connect_button', 'webusb_disconnect_button',
             'webusb_programmer_info', 'close_webusb_programmer_info',
             'connection_info', 'program', 'progress', 'status',
+
+            'servo_out_pulse_left', 'servo_out_pulse_centre', 'servo_out_pulse_right',
 
         ].forEach(function (name) {
             el[name] = document.getElementById(name);
