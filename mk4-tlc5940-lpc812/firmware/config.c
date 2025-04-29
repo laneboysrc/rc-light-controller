@@ -12,7 +12,7 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
         .version = CONFIG_VERSION
     },
 
-    .firmware_version = 59,
+    .firmware_version = 60,
 
     .mode = MASTER_WITH_UART_READER,
     .esc_mode = ESC_FORWARD_BRAKE_REVERSE_TIMEOUT,
@@ -118,6 +118,10 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
 
     .diagnostics_brightness = 255,
     .diagnostics_mask = 0x7f,
+
+    .servo_out_pulse_left = 1000,
+    .servo_out_pulse_centre = 1500,
+    .servo_out_pulse_right = 2000,
 };
 
 

@@ -663,6 +663,12 @@ typedef struct {
     // code.
     uint8_t aux_channel_offset;
 
+    // v60: add configuratble servo outputs defaults
+    // Based on user request where the default 1-2ms where not sufficient
+    uint16_t servo_out_pulse_left;
+    uint16_t servo_out_pulse_centre;
+    uint16_t servo_out_pulse_right;
+
 } LIGHT_CONTROLLER_CONFIG_T;
 
 

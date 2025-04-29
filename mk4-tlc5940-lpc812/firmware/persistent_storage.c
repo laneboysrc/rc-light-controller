@@ -37,9 +37,9 @@ void load_persistent_storage(void)
     defaults[OFFSET_VERSION] = PERSISTENT_DATA_VERSION;
     defaults[OFFSET_STEERING_REVERSED] = config.flags.reverse_st;
     defaults[OFFSET_THROTTLE_REVERSED] = config.flags.reverse_th;
-    defaults[OFFSET_SERVO_LEFT] = 1000;
-    defaults[OFFSET_SERVO_CENTRE] = 1500;
-    defaults[OFFSET_SERVO_RIGHT] = 2000;
+    defaults[OFFSET_SERVO_LEFT] = config.servo_out_pulse_left;
+    defaults[OFFSET_SERVO_CENTRE] = config.servo_out_pulse_centre;
+    defaults[OFFSET_SERVO_RIGHT] = config.servo_out_pulse_right;
 
     if (defaults[0] != persistent_data[0]) {
         ptr = defaults;
