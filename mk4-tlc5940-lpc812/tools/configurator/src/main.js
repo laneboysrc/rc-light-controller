@@ -17,6 +17,8 @@ var app = (function () {
     var config_version;
     var local_leds;
     var slave_leds;
+    var slave2_leds;
+    var slave3_leds;
     var gamma_object;
     var light_programs;
 
@@ -32,18 +34,24 @@ var app = (function () {
     var SECTION_LIGHT_PROGRAMS = 'Light programs';
     var SECTION_LOCAL_LEDS = 'Local LEDs';
     var SECTION_SLAVE_LEDS = 'Slave LEDs';
+    var SECTION_SLAVE2_LEDS = 'Slave2 LEDs';
+    var SECTION_SLAVE3_LEDS = 'Slave3 LEDs';
 
     var SECTIONS = {
         0x01: SECTION_CONFIG,
         0x02: SECTION_GAMMA,
         0x10: SECTION_LOCAL_LEDS,
         0x20: SECTION_SLAVE_LEDS,
+        0x21: SECTION_SLAVE2_LEDS,
+        0x22: SECTION_SLAVE3_LEDS,
         0x30: SECTION_LIGHT_PROGRAMS,
 
         SECTION_CONFIG: 0x01,
         SECTION_GAMMA: 0x02,
         SECTION_LOCAL_LEDS: 0x10,
         SECTION_SLAVE_LEDS: 0x20,
+        SECTION_SLAVE2_LEDS: 0x21,
+        SECTION_SLAVE3_LEDS: 0x22,
         SECTION_LIGHT_PROGRAMS: 0x30
     };
 
@@ -585,6 +593,15 @@ var app = (function () {
             new_config.servo_out_pulse_right = 2000;
         }
 
+        // multislave extension
+        if (new_config.firmware_version >= 220) {
+            new_config.slave_number = data[offset + 102];
+        }
+        else {
+            new_config.slave_number = 0x87;
+        }
+
+
         log.log('parse_configuration config.mode: ' + new_config.mode);
         log.log('parse_configuration config.multi_aux: ' + new_config.multi_aux);
         return new_config;
@@ -736,6 +753,8 @@ var app = (function () {
 
         set_led_fields(local_leds, 'master');
         set_led_fields(slave_leds, 'slave');
+        set_led_fields(slave2_leds, 'slave2');
+        set_led_fields(slave3_leds, 'slave3');
     };
 
 
@@ -1216,9 +1235,13 @@ var app = (function () {
 
         if (el.slave_output.checked) {
             el.leds_slave.classList.remove('hidden');
+            el.leds_slave2.classList.remove('hidden');
+            el.leds_slave3.classList.remove('hidden');
         }
         else {
             el.leds_slave.classList.add('hidden');
+            el.leds_slave2.classList.add('hidden');
+            el.leds_slave3.classList.add('hidden');
         }
     };
 
@@ -1275,6 +1298,8 @@ var app = (function () {
 
         set_feature_active('leds_master', 'master');
         set_feature_active('leds_slave', 'slave');
+        set_feature_active('leds_slave2', 'slave2');
+        set_feature_active('leds_slave3', 'slave3');
     };
 
 
@@ -1436,6 +1461,8 @@ var app = (function () {
         el.servo_out_pulse_centre.value = config.servo_out_pulse_centre;
         el.servo_out_pulse_right.value = config.servo_out_pulse_right;
 
+        el.slave_number.value = config.slave_number;
+
         // Show/hide various sections depending on the current settings
         update_section_visibility();
 
@@ -1478,6 +1505,8 @@ var app = (function () {
         config = undefined;
         local_leds = undefined;
         slave_leds = undefined;
+        slave2_leds = undefined;
+        slave3_leds = undefined;
         gamma_object = undefined;
         light_programs = '';
 
@@ -1500,12 +1529,16 @@ var app = (function () {
         config = parse_configuration();
         local_leds = parse_leds(SECTION_LOCAL_LEDS);
         slave_leds = parse_leds(SECTION_SLAVE_LEDS);
+        slave2_leds = parse_leds(SECTION_SLAVE2_LEDS);
+        slave3_leds = parse_leds(SECTION_SLAVE3_LEDS);
         light_programs = disassemble_light_programs();
         gamma_object = parse_gamma();
 
         upgrade_config(config);
         upgrade_leds(local_leds);
         upgrade_leds(slave_leds);
+        upgrade_leds(slave2_leds);
+        upgrade_leds(slave3_leds);
 
         update_ui();
 
@@ -1540,6 +1573,8 @@ var app = (function () {
         }
         add_led_symbols(local_leds, 0);
         add_led_symbols(slave_leds, 16);
+        add_led_symbols(slave2_leds, 32);
+        add_led_symbols(slave3_leds, 48);
 
         ui.update_errors([]);
 
@@ -1880,6 +1915,9 @@ var app = (function () {
         set_uint16(data, offset + 96, config.servo_out_pulse_left);
         set_uint16(data, offset + 98, config.servo_out_pulse_centre);
         set_uint16(data, offset + 100, config.servo_out_pulse_right);
+
+        // multislave
+        set_uint8(data, offset + 102, config.slave_number);
     };
 
 
@@ -1935,6 +1973,8 @@ var app = (function () {
         assemble_leds(SECTION_LOCAL_LEDS, configuration.local_leds, true);
         // ... but for SLAVE LEDs only when slave is enabled!
         assemble_leds(SECTION_SLAVE_LEDS, configuration.slave_leds, configuration.config.slave_output);
+        assemble_leds(SECTION_SLAVE2_LEDS, configuration.slave2_leds, configuration.config.slave_output);
+        assemble_leds(SECTION_SLAVE3_LEDS, configuration.slave3_leds, configuration.config.slave_output);
         assemble_light_programs(configuration.light_programs);
 
         assemble_gamma(configuration.gamma);
@@ -2018,6 +2058,8 @@ var app = (function () {
             config = data.config;
             local_leds = data.local_leds;
             slave_leds = data.slave_leds;
+            slave2_leds = data.slave2_leds;
+            slave3_leds = data.slave3_leds;
             light_programs = data.light_programs;
             gamma_object = data.gamma;
 
@@ -2026,6 +2068,8 @@ var app = (function () {
             upgrade_config(config);
             upgrade_leds(local_leds);
             upgrade_leds(slave_leds);
+            upgrade_leds(slave2_leds);
+            upgrade_leds(slave3_leds);
 
             // Use the current firmware when loading a configuration file
             firmware = parse_firmware_structure(hex_to_bin(default_firmware_image_mk4));
@@ -2160,6 +2204,8 @@ var app = (function () {
 
         get_led_fields(local_leds, 'master');
         get_led_fields(slave_leds, 'slave');
+        get_led_fields(slave2_leds, 'slave2');
+        get_led_fields(slave3_leds, 'slave3');
     };
 
 
@@ -2281,6 +2327,11 @@ var app = (function () {
             config.servo_out_pulse_centre = 1500;
             config.servo_out_pulse_right = 2000;
         }
+
+        // multislave
+        if (config.slave_number == null) {
+            config.slave_number = 0x87;
+        }
     };
 
     // *************************************************************************
@@ -2347,6 +2398,8 @@ var app = (function () {
             upgrade_config(configuration.config);
             upgrade_leds(configuration.local_leds);
             upgrade_leds(configuration.slave_leds);
+            upgrade_leds(configuration.slave2_leds);
+            upgrade_leds(configuration.slave3_leds);
             // Patch firmware version
             configuration.config.firmware_version = config.firmware_version;
             configuration.config.baudrate = config.baudrate;
@@ -2517,6 +2570,8 @@ var app = (function () {
         update_int('servo_out_pulse_centre');
         update_int('servo_out_pulse_right');
 
+        update_int('slave_number');
+
         if (config.mode === MODE.SLAVE) {
             // Force gamma to 1.0 in slave mode as the gamma correction is
             // already handled in the master
@@ -2541,6 +2596,8 @@ var app = (function () {
         data.config = config;
         data.local_leds = local_leds;
         data.slave_leds = slave_leds;
+        data.slave2_leds = slave2_leds;
+        data.slave3_leds = slave3_leds;
         data.gamma = gamma_object;
         data.light_programs = light_programs;
 
@@ -2671,6 +2728,8 @@ var app = (function () {
 
         local_leds = _clear_leds();
         slave_leds = _clear_leds();
+        slave2_leds = _clear_leds();
+        slave3_leds = _clear_leds();
 
         update_led_fields();
         update_led_feature_usage();
@@ -3151,7 +3210,8 @@ var app = (function () {
             'channel_offset_aux4', 'channel_offset_aux5', 'channel_offset_aux6',
 
             'config_baudrate', 'baudrate',
-            'config_leds', 'leds_master', 'leds_slave', 'diagnostics_brightness',
+            'config_leds', 'leds_master', 'leds_slave', 'leds_slave2', 'leds_slave3',
+            'diagnostics_brightness',
             'config_esc',
             'config_ch3',
             'config_output',
@@ -3220,6 +3280,8 @@ var app = (function () {
 
             'servo_out_pulse_left', 'servo_out_pulse_centre', 'servo_out_pulse_right',
 
+            'slave_number',
+
         ].forEach(function (name) {
             el[name] = document.getElementById(name);
         });
@@ -3238,6 +3300,8 @@ var app = (function () {
 
         set_led_feature_handler('leds_master', 'master');
         set_led_feature_handler('leds_slave', 'slave');
+        set_led_feature_handler('leds_slave2', 'slave2');
+        set_led_feature_handler('leds_slave3', 'slave3');
 
         el.mode.addEventListener('change', mode_changed_handler, false);
 
@@ -3303,6 +3367,8 @@ var app = (function () {
             config: config,
             master_leds: local_leds,
             slave_leds: slave_leds,
+            slave2_leds: slave2_leds,
+            slave3_leds: slave3_leds,
         };
     }
 

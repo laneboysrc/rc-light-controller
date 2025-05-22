@@ -213,6 +213,8 @@ var ui = (function () {
 
         init_led_section('leds_master', 'master');
         init_led_section('leds_slave', 'slave');
+        init_led_section('leds_slave2', 'slave2');
+        init_led_section('leds_slave3', 'slave3');
 
         let tab_buttons = document.getElementsByClassName('tab-next');
         for (let i = 0; i < tab_buttons.length; i += 1) {
@@ -305,6 +307,8 @@ var ui = (function () {
         clear_led_tables();
         init_led_table('leds_master', 0, 'master');
         init_led_table('leds_slave', 16, 'slave');
+        init_led_table('leds_slave2', 32, 'slave2');
+        init_led_table('leds_slave3', 48, 'slave3');
     };
 
 

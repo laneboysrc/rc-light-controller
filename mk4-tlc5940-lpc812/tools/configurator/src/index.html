@@ -116,51 +116,9 @@
         </div>
 
         <div>
-        This tool is part of the LANE Boys RC Light Controller documented at <a href="https://github.com/laneboysrc/rc-light-controller" target="_blank">https://github.com/laneboysrc/rc-light-controller</a>.
-        </div>
-
-        <div>
-          <select class="hidden" id="hardware">
-            <option value="mk4">Mk4 (NXP LPC812)</option>
-          </select>
-          <span id="hardware_image" class="mk4"></span>
-        </div>
-
-        <div>
-          For more information please refer to the user manual:
-          <br>
-          <a href="https://laneboysrc.github.io/rc-light-controller/light-controller-instructions-mk4.pdf" target="_blank">Mk4 Light Controller documentation</a> (PDF)
-          <br>
-          <a href="https://laneboysrc.github.io/rc-light-controller/light-controller-instructions-mk4-deutsch.pdf" target="_blank">Mk4 Light Controller Anleitung</a> (Deutsch, PDF)
-        </div>
-
-        <div class="info">
-          <h2>Quick start</h2>
-          <div>
-            Using the menu on the left you can adjust the configuration to suit
-            your vehicle and RC system.
-          </div>
-          <div>
-            After you are done, you can save the firmware image, which will have
-            the selected configuration embedded. The firmware will be stored in
-            the download folder of your web browser.
-          </div>
-          <div>
-            Flash the firmware into the light controller as described in the
-            light controller user manual.
-          </div>
-          <div>
-            You can also save the configuration into a text file, which
-            can be loaded at a later point in time; for example to make
-            further tweaks.
-          </div>
-          <div>
-            <strong>It is advisable that you always save a copy of the
-            configuration for future reference.</strong> While it is possible
-            to retrieve all settings from a firmware image, some data like
-            variable names and comments in Light Programs are lost as they are
-            not stored into the firmware.
-          </div>
+        This is a special firmware/Configurator version that supports up to <strong>3 Slaves</strong>, so 64 LEDs in total.
+        <br>
+        The Slaves can be connected via Y cables to the Master, or daisy-chained by connecting the OUT/ISP of one Slave to the ST/Rx on the next Slave.
         </div>
       </div>
 
@@ -273,19 +231,37 @@
         <div id="mode_slave" class="info">
           <div>
             In case more than 16 LEDs are required, it is possible to daisy-chain
-            two light controllers. One needs to be configured as <em>Master</em>
-            and have the <em>Slave output</em> activated, the other one
-            must be configured as <em>Slave</em>, for a total of 32 LEDs.
+            up to 4 light controllers. One needs to be configured as <em>Master</em>
+            and have the <em>Slave output</em> activated, the other light controllers
+            must be configured as <em>Slave</em>, for a total of 64 LEDs.
           </div>
           <div>
             The output from the <em>Master</em> must be fed into the
-            <strong>ST/Rx</strong> input on the <em>Slave</em>.
+            <strong>ST/Rx</strong> input on the <em>Slave</em>. You can use a
+            Y-cable to connect multiple <em>Slaves</em>, or daisy-chain by
+            connecting the <strong>OUT/ISP</strong> output on one <em>Slave</em> to
+            the <strong>ST/Rx</strong> input of the next <em>Slave</em>.
           </div>
           <div>
-            The <em>Master</em> controls the light functions of both light
-            controllers. Ensure that the baudrate of both <em>Master</em> and
-            <em>Slave</em> match.
+            The <em>Master</em> controls the light functions of all light
+            controllers. Ensure that the baudrate of <em>Master</em> and
+            <em>Slaves</em> match.
           </div>
+
+          <h3>Slave number</h3>
+          <div>
+            Every <em>Slaves</em> needs to get its own number assigned.
+            <em>Slave 1</em> outputs LED numbers 16..31, <em>Slave 2</em> outputs LED numbers 32..47,
+            and <em>Slave 2</em> outputs LED numbers 48..63,
+          </div>
+          <div>
+            <select id="slave_number">
+              <option value="135">Slave 1</option>
+              <option value="134">Slave 2</option>
+              <option value="133">Slave 3</option>
+            </select>
+          </div>
+
         </div>
         <div id="mode_stand_alone" class="info">
           <div>
@@ -780,15 +756,12 @@
           <input class="dual_output_th" type="radio" name="output_out" value="1" id="slave_output">
           <label for="slave_output">Slave output</label>
           <br>
-          By using a second light controller configured as <em>Slave</em>
-          a total of 32 LEDs can be controlled. A single cable must be run
+          By using a up to 3 light controller configured as <em>Slave</em>
+          a total of 64 LEDs can be controlled. A cable must be run
           between the
           <span class="single_output"><em>Master</em> OUT/ISP pin</span>
           <span class="dual_output">pin on the <em>Master</em> assigned to the UART function</span>
           and the <em>Slave</em> ST/Rx pin.
-          <br>
-          When this option is selected, a second set of LED configuration
-          becomes visible below.
         </div>
         <div class="radio_item">
           <input class="dual_output_th" type="radio" name="output_out" value="2" id="preprocessor_output">
@@ -883,7 +856,7 @@
         </div>
 
         <div id="leds_slave">
-          <h3>Slave</h3>
+          <h3>Slave 1</h3>
           <div>
             <div class="diagnostics-container">
                 <i class="fa fa-arrow-circle-left tab-previous"></i>
@@ -938,6 +911,121 @@
             </table>
           </div>
         </div>
+
+        <div id="leds_slave2">
+          <h3>Slave 2</h3>
+          <div>
+            <div class="diagnostics-container">
+                <i class="fa fa-arrow-circle-left tab-previous"></i>
+                <span class="led_table_car">Car functions</span><span class="led_table_diagnostics">Diagnostics</span>
+                <i class="fa fa-arrow-circle-right tab-next"></i>
+            </div>
+            <table class="led_table">
+              <tbody>
+                <tr class="odd">
+                  <th class="wide"></th>
+                  <th class="led_table_car" data-tooltip="help_led_always_on" rowspan="2">Always on</th>
+                  <th class="led_table_car" data-tooltip="help_led_light_switch" colspan="9">Light switch position</th>
+                  <th class="led_table_car" data-tooltip="help_led_tail"></th>
+                  <th class="led_table_car" data-tooltip="help_led_brake"></th>
+                  <th class="led_table_car" data-tooltip="help_led_reverse"></th>
+                  <th class="led_table_car" data-tooltip="help_led_indicator" colspan="2">Indicator</th>
+
+                  <th class="led_table_diagnostics" data-tooltip="help_led_initializing"></th>
+                  <th class="led_table_diagnostics" data-tooltip="help_led_no_signal"></th>
+                  <th class="led_table_diagnostics" colspan="2" data-tooltip="help_led_reversing">Reversing</th>
+                  <th class="led_table_diagnostics" colspan="3" data-tooltip="help_led_servo_setup">Servo output</th>
+                </tr>
+                <tr class="odd">
+                  <th class="wide">LED</th>
+                  <th class="led_table_car" data-tooltip="help_led_light_switch">0</th>
+                  <th class="led_table_car" data-tooltip="help_led_light_switch">1</th>
+                  <th class="led_table_car" data-tooltip="help_led_light_switch">2</th>
+                  <th class="led_table_car" data-tooltip="help_led_light_switch">3</th>
+                  <th class="led_table_car" data-tooltip="help_led_light_switch">4</th>
+                  <th class="led_table_car" data-tooltip="help_led_light_switch">5</th>
+                  <th class="led_table_car" data-tooltip="help_led_light_switch">6</th>
+                  <th class="led_table_car" data-tooltip="help_led_light_switch">7</th>
+                  <th class="led_table_car" data-tooltip="help_led_light_switch">8</th>
+                  <th class="led_table_car" data-tooltip="help_led_tail">Tail</th>
+                  <th class="led_table_car" data-tooltip="help_led_brake">Brake</th>
+                  <th class="led_table_car" data-tooltip="help_led_reverse">Reverse</th>
+                  <th class="led_table_car" data-tooltip="help_led_indicator">left</th>
+                  <th class="led_table_car" data-tooltip="help_led_indicator">right</th>
+
+                  <th class="led_table_diagnostics" data-tooltip="help_led_initializing">Initializing</th>
+                  <th class="led_table_diagnostics" data-tooltip="help_led_no_signal">No signal</th>
+                  <th class="led_table_diagnostics" data-tooltip="help_led_reversing">steering</th>
+                  <th class="led_table_diagnostics" data-tooltip="help_led_reversing">throttle</th>
+                  <th class="led_table_diagnostics" data-tooltip="help_led_servo_setup">left</th>
+                  <th class="led_table_diagnostics" data-tooltip="help_led_servo_setup">centre</th>
+                  <th class="led_table_diagnostics" data-tooltip="help_led_servo_setup">right</th>
+                </tr>
+
+                <!-- LED rows will be inserted here -->
+
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div id="leds_slave3">
+          <h3>Slave 3</h3>
+          <div>
+            <div class="diagnostics-container">
+                <i class="fa fa-arrow-circle-left tab-previous"></i>
+                <span class="led_table_car">Car functions</span><span class="led_table_diagnostics">Diagnostics</span>
+                <i class="fa fa-arrow-circle-right tab-next"></i>
+            </div>
+            <table class="led_table">
+              <tbody>
+                <tr class="odd">
+                  <th class="wide"></th>
+                  <th class="led_table_car" data-tooltip="help_led_always_on" rowspan="2">Always on</th>
+                  <th class="led_table_car" data-tooltip="help_led_light_switch" colspan="9">Light switch position</th>
+                  <th class="led_table_car" data-tooltip="help_led_tail"></th>
+                  <th class="led_table_car" data-tooltip="help_led_brake"></th>
+                  <th class="led_table_car" data-tooltip="help_led_reverse"></th>
+                  <th class="led_table_car" data-tooltip="help_led_indicator" colspan="2">Indicator</th>
+
+                  <th class="led_table_diagnostics" data-tooltip="help_led_initializing"></th>
+                  <th class="led_table_diagnostics" data-tooltip="help_led_no_signal"></th>
+                  <th class="led_table_diagnostics" colspan="2" data-tooltip="help_led_reversing">Reversing</th>
+                  <th class="led_table_diagnostics" colspan="3" data-tooltip="help_led_servo_setup">Servo output</th>
+                </tr>
+                <tr class="odd">
+                  <th class="wide">LED</th>
+                  <th class="led_table_car" data-tooltip="help_led_light_switch">0</th>
+                  <th class="led_table_car" data-tooltip="help_led_light_switch">1</th>
+                  <th class="led_table_car" data-tooltip="help_led_light_switch">2</th>
+                  <th class="led_table_car" data-tooltip="help_led_light_switch">3</th>
+                  <th class="led_table_car" data-tooltip="help_led_light_switch">4</th>
+                  <th class="led_table_car" data-tooltip="help_led_light_switch">5</th>
+                  <th class="led_table_car" data-tooltip="help_led_light_switch">6</th>
+                  <th class="led_table_car" data-tooltip="help_led_light_switch">7</th>
+                  <th class="led_table_car" data-tooltip="help_led_light_switch">8</th>
+                  <th class="led_table_car" data-tooltip="help_led_tail">Tail</th>
+                  <th class="led_table_car" data-tooltip="help_led_brake">Brake</th>
+                  <th class="led_table_car" data-tooltip="help_led_reverse">Reverse</th>
+                  <th class="led_table_car" data-tooltip="help_led_indicator">left</th>
+                  <th class="led_table_car" data-tooltip="help_led_indicator">right</th>
+
+                  <th class="led_table_diagnostics" data-tooltip="help_led_initializing">Initializing</th>
+                  <th class="led_table_diagnostics" data-tooltip="help_led_no_signal">No signal</th>
+                  <th class="led_table_diagnostics" data-tooltip="help_led_reversing">steering</th>
+                  <th class="led_table_diagnostics" data-tooltip="help_led_reversing">throttle</th>
+                  <th class="led_table_diagnostics" data-tooltip="help_led_servo_setup">left</th>
+                  <th class="led_table_diagnostics" data-tooltip="help_led_servo_setup">centre</th>
+                  <th class="led_table_diagnostics" data-tooltip="help_led_servo_setup">right</th>
+                </tr>
+
+                <!-- LED rows will be inserted here -->
+
+              </tbody>
+            </table>
+          </div>
+        </div>
+
       </div>
 
 

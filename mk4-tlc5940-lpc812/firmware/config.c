@@ -123,7 +123,7 @@ const LIGHT_CONTROLLER_CONFIG_T config = {
     .servo_out_pulse_centre = 1500,
     .servo_out_pulse_right = 2000,
 
-    .slave_magic_byte = 0x85,   // Slave3
+    .slave_magic_byte = 0x87,
 };
 
 
