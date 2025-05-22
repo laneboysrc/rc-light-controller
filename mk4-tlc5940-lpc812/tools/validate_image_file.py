@@ -16,9 +16,9 @@ from intelhex import IntelHex, HexRecordError
 ROM_MAGIC = 0x6372424c          # LBrc (LANE Boys RC) in little endian
 
 SECTIONS = {0x01: "Configuration", 0x02: "Gamma table", 0x30: "Light programs",
-    0x10: "Local LEDs", 0x20: "Slave LEDs"}
+    0x10: "Local LEDs", 0x20: "Slave LEDs", 0x21: "Slave2 LEDs", 0x22: "Slave3 LEDs"}
 
-MAX_FILE_SIZE = 16 * 1024       # 16 kBytes FLASH size of the LCP812
+MAX_FILE_SIZE = 32 * 1024       # 32 kBytes FLASH size of the LCP824
 
 
 def parse_commandline():
@@ -69,7 +69,7 @@ def dump_sections(args):
 
 
     if len(content) > MAX_FILE_SIZE:
-        print('ERROR: Binary image file larger than 16 kBytes')
+        print('ERROR: Binary image file larger than 32 kBytes')
         sys.exit(1)
 
 

@@ -107,7 +107,7 @@ LDFLAGS += -Wl,--gc-sections
 LDFLAGS += -Wl,-Os
 LDFLAGS += -Wl,-Map=$(TARGET_MAP) -Wl,--cref
 
-LINKER_SCRIPT := hal/lpc812.ld
+LINKER_SCRIPT := hal/lpc824.ld
 
 
 ###############################################################################

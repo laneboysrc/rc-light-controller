@@ -282,6 +282,8 @@ typedef enum {
     GAMMA_TABLE = 0x02,
     LOCAL_LEDS = 0x10,
     SLAVE_LEDS = 0x20,
+    SLAVE2_LEDS = 0x21,
+    SLAVE3_LEDS = 0x22,
     LIGHT_PROGRAMS = 0x30
 } ROM_SECTION_T;
 
@@ -669,6 +671,13 @@ typedef struct {
     uint16_t servo_out_pulse_centre;
     uint16_t servo_out_pulse_right;
 
+    // v220 multislave: add configuratble magic byte for multi-slave support
+    // 0x87 = Slave (original value)
+    // 0x86 = Slave2
+    // 0x85 = Slave3
+    uint8_t slave_magic_byte;
+
+
 } LIGHT_CONTROLLER_CONFIG_T;
 
 
@@ -747,6 +756,8 @@ extern uint32_t entropy;
 extern const LIGHT_CONTROLLER_CONFIG_T config;
 extern const CAR_LIGHT_ARRAY_T local_leds;
 extern const CAR_LIGHT_ARRAY_T slave_leds;
+extern const CAR_LIGHT_ARRAY_T slave2_leds;
+extern const CAR_LIGHT_ARRAY_T slave3_leds;
 extern const GAMMA_TABLE_T gamma_table;
 extern const LIGHT_PROGRAMS_T light_programs;
 

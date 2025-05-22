@@ -86,7 +86,7 @@
 #define SLAVE_MAGIC_BYTE ((uint8_t)0x87)
 
 // 16 lights locally, another 16 potentially at a slave
-#define MAX_LIGHTS 32
+#define MAX_LIGHTS 64
 
 
 typedef enum {
@@ -667,6 +667,18 @@ static void process_car_lights(void)
             process_light(&slave_leds.car_lights[i], &light_setpoint[16 + i],
                 &max_change_per_systick[16 + i]);
         }
+
+        // Handle LEDs connected to a second slave light controller
+        for (i = 0; i < slave2_leds.led_count ; i++) {
+            process_light(&slave2_leds.car_lights[i], &light_setpoint[32 + i],
+                &max_change_per_systick[32 + i]);
+        }
+
+        // Handle LEDs connected to a second slave light controller
+        for (i = 0; i < slave3_leds.led_count ; i++) {
+            process_light(&slave3_leds.car_lights[i], &light_setpoint[48 + i],
+                &max_change_per_systick[48 + i]);
+        }
     }
 
     // Apply max_change_per_systick while copying from light_setpoint to
@@ -699,6 +711,18 @@ static void process_car_lights(void)
 
         // Firmware 58: also send the light program servo output to the slave
         HAL_putc(STDOUT, get_servo_position());
+
+
+        // Firmware 220 multislave: output slave2_leds and slave3_leds
+        HAL_putc(STDOUT, SLAVE_MAGIC_BYTE - 1);
+        for (i = 0; i < slave2_leds.led_count ; i++) {
+            HAL_putc(STDOUT, gamma_table.gamma_table[light_actual[32 + i]] >> 2);
+        }
+
+        HAL_putc(STDOUT, SLAVE_MAGIC_BYTE - 2);
+        for (i = 0; i < slave3_leds.led_count ; i++) {
+            HAL_putc(STDOUT, gamma_table.gamma_table[light_actual[48 + i]] >> 2);
+        }
     }
 }
 
@@ -718,7 +742,7 @@ static void process_slave(void)
         // times.
         // If we receive the MAGIC value we know it is the first byte, so we
         // can kick off the state machine.
-        if (uart_byte == SLAVE_MAGIC_BYTE) {
+        if (uart_byte == config.slave_magic_byte) {
             state = 1;
         }
         else {
@@ -743,6 +767,9 @@ static void process_slave(void)
                 set_servo_position((int8_t) uart_byte);
             }
         }
+
+        // v220 multislave: Have the slave pass through all data for
+        HAL_putc(STDOUT, uart_byte);
     }
 }
 
