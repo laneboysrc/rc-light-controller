@@ -2395,8 +2395,6 @@ var app = (function () {
         if (config.mode === MODE.SLAVE) {
             // Force all output functions to OFF in slave mode
             config.preprocessor_output = false;
-            // Firmware v220 multislave: pass the slave through
-            config.slave_output = true;
             config.steering_wheel_servo_output = false;
             config.gearbox_servo_output = false;
             config.gearbox_light_program_control = false;
@@ -2404,11 +2402,6 @@ var app = (function () {
             // config.require_extra_click = false;
             config.prefer_all_lights_off = false;
             config.shelf_queen_mode = false;
-            // Firmware v58: enable the servo output on OUT/ISP, controlled
-            // in light programs on the master
-            config.light_program_servo_output = true;
-            // Firmware v220 multislave: Servo on TH/Tx, Slave output on OUT/ISP
-            config.assign_uart_to_out = true;
         }
         else {
             update_boolean('preprocessor_output');
@@ -2528,6 +2521,14 @@ var app = (function () {
             // Force gamma to 1.0 in slave mode as the gamma correction is
             // already handled in the master
             gamma_object.gamma_value = '1.0';
+
+            // Firmware v58: enable the servo output on OUT/ISP, controlled
+            // in light programs on the master
+            config.light_program_servo_output = true;
+            // Firmware v220 multislave: pass the slave through
+            config.slave_output = true;
+            // Firmware v220 multislave: Servo on TH/Tx, Slave output on OUT/ISP
+            config.assign_uart_to_out = true;
         }
         else {
             update_gamma('gamma_value');
