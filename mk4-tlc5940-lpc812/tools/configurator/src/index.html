@@ -116,9 +116,13 @@
         </div>
 
         <div>
-        This is a special firmware/Configurator version that supports up to <strong>3 Slaves</strong>, so 64 LEDs in total.
-        <br>
-        The Slaves can be connected via Y cables to the Master, or daisy-chained by connecting the OUT/ISP of one Slave to the ST/Rx on the next Slave.
+        This is a special firmware/Configurator version that supports 1 <strong>Master</strong> and up to <strong>3 Slaves</strong>, so <strong>64 LEDs</strong> in total.
+        </div>
+        <div>
+        The <em>Slaves</em> can be connected via Y cables to the <em>Master</em>, all <em>Slaves</em> in parallel.
+        </div>
+        <div>
+        Alternatively, <em>Slaves</em> can be daisy-chained by connecting the <strong>OUT/ISP</strong> of one <em>Slave</em> to the <strong>ST/Rx</strong> on the next. The order does not matter; <em>Slave 1</em> can be chained after <em>Slave 3</em>, for example.
         </div>
       </div>
 
@@ -236,13 +240,6 @@
             must be configured as <em>Slave</em>, for a total of 64 LEDs.
           </div>
           <div>
-            The output from the <em>Master</em> must be fed into the
-            <strong>ST/Rx</strong> input on the <em>Slave</em>. You can use a
-            Y-cable to connect multiple <em>Slaves</em>, or daisy-chain by
-            connecting the <strong>OUT/ISP</strong> output on one <em>Slave</em> to
-            the <strong>ST/Rx</strong> input of the next <em>Slave</em>.
-          </div>
-          <div>
             The <em>Master</em> controls the light functions of all light
             controllers. Ensure that the baudrate of <em>Master</em> and
             <em>Slaves</em> match.
@@ -252,7 +249,7 @@
           <div>
             Every <em>Slaves</em> needs to get its own number assigned.
             <em>Slave 1</em> outputs LED numbers 16..31, <em>Slave 2</em> outputs LED numbers 32..47,
-            and <em>Slave 2</em> outputs LED numbers 48..63,
+            and <em>Slave 2</em> outputs LED numbers 48..63.
           </div>
           <div>
             <select id="slave_number">
