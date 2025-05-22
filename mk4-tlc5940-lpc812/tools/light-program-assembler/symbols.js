@@ -7,6 +7,7 @@ var symbols = (function () {
     var forward_declaration_table = [];
     var next_variable_index = 0;
     var leds_used = 0;
+    var leds2_used = 0;
     var number_of_light_switch_positions = 0;
 
     var undeclared_symbol = {'token': 'UNDECLARED_SYMBOL', 'opcode': 0};
@@ -226,6 +227,7 @@ var symbols = (function () {
     var remove_local_symbols = function () {
         var i;
         leds_used = 0;
+        leds2_used = 0;
 
         forward_declaration_table = [];
 
@@ -327,8 +329,8 @@ var symbols = (function () {
         }
 
         if (token === 'LED_ID') {
-            if (opcode < 0  ||  opcode > 31) {
-                parser.yy.emitter.yyerror('LED index out of range (must be 0..31)', {
+            if (opcode < 0  ||  opcode > 63) {
+                parser.yy.emitter.yyerror('LED index out of range (must be 0..63)', {
                     loc: location
                 });
             } else {
@@ -366,12 +368,18 @@ var symbols = (function () {
     var get_leds_used = function () {
         return leds_used;
     };
+    var get_leds2_used = function () {
+        return leds2_used;
+    };
 
 
     // *************************************************************************
     var set_leds_used = function (led_bits) {
         parser.yy.logger.log(MODULE, 'DEBUG', 'set_leds_used() ' + led_bits);
         leds_used = led_bits;
+        // HACK: since set_leds_used is only called for "use all leds" we
+        // set don't implement this function properly
+        leds2_used = led_bits;
     };
 
 
@@ -379,7 +387,16 @@ var symbols = (function () {
     var add_to_leds_used = function (led_number) {
         parser.yy.logger.log(MODULE, 'DEBUG', 'add_to_leds_used() ' + led_number);
 
-        var led_bit = Math.pow(2, led_number);
+        if (led_number > 31) {
+            const led_bit = Math.pow(2, led_number - 32);
+            if (!(leds2_used & led_bit)) {
+                // Add LED to bit-field of leds_used
+                leds2_used += led_bit;
+            }
+            return;
+        }
+
+        const led_bit = Math.pow(2, led_number);
         if (!(leds_used & led_bit)) {
             // Add LED to bit-field of leds_used
             leds_used += led_bit;
@@ -442,6 +459,7 @@ var symbols = (function () {
         forward_declaration_table = [];
         next_variable_index = 0;
         leds_used = 0;
+        leds2_used = 0;
         number_of_light_switch_positions = 0;
 
         if (parser !== undefined) {
@@ -493,6 +511,7 @@ var symbols = (function () {
         add_led_name: add_led_name,
         set_leds_used: set_leds_used,
         get_leds_used: get_leds_used,
+        get_leds2_used: get_leds2_used,
         get_forward_declerations: get_forward_declerations,
         remove_local_symbols: remove_local_symbols,
         dump_symbol_table: dump_symbol_table,

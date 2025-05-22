@@ -6,7 +6,7 @@ var emitter = (function () {
     var MAX_LIGHT_PROGRAMS = 25;
     // var MAX_LIGHT_PROGRAM_VARIABLES = 100;
 
-    var NUMBER_OF_LEDS = 32;
+    var NUMBER_OF_LEDS = 64;
 
     // Taken from globals.h of the light controller firmware:
     var FIRST_SKIP_IF_OPCODE  = 0x20;
@@ -16,7 +16,8 @@ var emitter = (function () {
     var OPCODE_SKIP_IF_NONE   = 0xA0;    // 101 + 29 bits run_state!
 
     var LEDS_USED_OFFSET = 2;
-    var FIRST_INSTRUCTION_OFFSET = 3;
+    var LEDS2_USED_OFFSET = 3;
+    var FIRST_INSTRUCTION_OFFSET = 4;
 
     var number_of_programs = 0;
     var start_offset = [];
@@ -104,7 +105,7 @@ var emitter = (function () {
         var i;
 
         if (led_index >= NUMBER_OF_LEDS) {
-            yyerror('LED index out of range (must be 0..31)', {
+            yyerror('LED index out of range (must be 0..63)', {
                 loc: location
             });
             return;
@@ -113,13 +114,17 @@ var emitter = (function () {
         if (led_index < 0) {
             // 'All used LEDs' requested
             var leds_used = parser.yy.symbols.get_leds_used();
+            var leds2_used = parser.yy.symbols.get_leds2_used();
             led_list = [];
 
             parser.yy.logger.log(MODULE, 'INFO', 'Adding all LEDs: ' + hex(leds_used));
 
-            for (i = 0; i < NUMBER_OF_LEDS; i += 1) {
+            for (i = 0; i < 32; i += 1) {
                 if (leds_used & Math.pow(2, i)) {
                     led_list.push(i);
+                }
+                if (leds2_used & Math.pow(2, i)) {
+                    led_list.push(i + 32);
                 }
             }
             return;
@@ -203,6 +208,7 @@ var emitter = (function () {
         instruction_list.push(priority_run_condition);
         instruction_list.push(run_condition);
         instruction_list.push(0);   // Placeholder for 'leds used'
+        instruction_list.push(0);   // Placeholder for 'leds2 used'
     };
 
 
@@ -222,8 +228,8 @@ var emitter = (function () {
         parser.yy.symbols.dump_symbol_table();
 
         // Fill in LEDS_USED word!
-        instruction_list[start_offset[number_of_programs] + LEDS_USED_OFFSET] =
-            parser.yy.symbols.get_leds_used();
+        instruction_list[start_offset[number_of_programs] + LEDS_USED_OFFSET] = parser.yy.symbols.get_leds_used();
+        instruction_list[start_offset[number_of_programs] + LEDS2_USED_OFFSET] = parser.yy.symbols.get_leds2_used();
 
         resolve_forward_declarations();
 

@@ -5,7 +5,7 @@ var x
 led l1 = led[18]
 led l2 = led[19]
 
-led lx = led[23]
+led lx = led[52]
 
 fade all leds stepsize 50
 

@@ -634,9 +634,10 @@ static void process_car_lights(void)
 {
     int i;
     uint32_t leds_used;
+    uint32_t leds2_used;
     static uint8_t old_light_switch_position = 0xff;
 
-    leds_used = process_light_programs();
+    process_light_programs(&leds_used, &leds2_used);
 
 
     if (light_switch_position != old_light_switch_position) {
@@ -670,12 +671,20 @@ static void process_car_lights(void)
 
         // Handle LEDs connected to a second slave light controller
         for (i = 0; i < slave2_leds.led_count ; i++) {
+            if (leds2_used & (1 << i)) {
+                continue;
+            }
+
             process_light(&slave2_leds.car_lights[i], &light_setpoint[32 + i],
                 &max_change_per_systick[32 + i]);
         }
 
         // Handle LEDs connected to a second slave light controller
         for (i = 0; i < slave3_leds.led_count ; i++) {
+            if (leds2_used & (1 << (16 + i))) {
+                continue;
+            }
+
             process_light(&slave3_leds.car_lights[i], &light_setpoint[48 + i],
                 &max_change_per_systick[48 + i]);
         }

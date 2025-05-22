@@ -151,7 +151,8 @@
 #define PRIORITY_STATE_OFFSET 0
 #define RUN_STATE_OFFSET 1
 #define LEDS_USED_OFFSET 2
-#define FIRST_OPCODE_OFFSET 3
+#define LEDS2_USED_OFFSET 3
+#define FIRST_OPCODE_OFFSET 4
 
 
 #define LED_USED(x) (1 << x)
@@ -825,7 +826,7 @@ void set_shelf_queen_mode(bool state);
 
 void init_light_programs(void);
 void process_light_program_events(void);
-uint32_t process_light_programs(void);
+void process_light_programs(uint32_t *leds_used, uint32_t *leds2_used);
 uint8_t get_priority_run_state(void);
 
 

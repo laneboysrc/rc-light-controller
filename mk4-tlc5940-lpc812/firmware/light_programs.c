@@ -148,7 +148,6 @@ extern uint8_t light_switch_position;
 
 void init_light_programs(void);
 void process_light_program_events(void);
-uint32_t process_light_programs(void);
 
 
 // ****************************************************************************
@@ -491,13 +490,17 @@ static uint8_t percent_to_uint8(int percentage)
 
 // ****************************************************************************
 static void execute_program(
-    const uint32_t *program, LIGHT_PROGRAM_CPU_T *c, uint32_t *leds_used)
+    const uint32_t *program, LIGHT_PROGRAM_CPU_T *c, uint32_t *leds_used, uint32_t *leds2_used)
 {
     uint32_t leds_already_used;
+    uint32_t leds2_already_used;
     int instructions_executed = 0;
 
     leds_already_used = *leds_used;
     *leds_used |= *(program + LEDS_USED_OFFSET);
+
+    leds2_already_used = *leds2_used;
+    *leds2_used |= *(program + LEDS2_USED_OFFSET);
 
     if (c->timer) {
         if (--c->timer) {
@@ -562,8 +565,15 @@ static void execute_program(
                 // fall through
             case OPCODE_SET_I:
                 for (i = min; i <= max; i++) {
-                    if ((leds_already_used & (1 << i)) == 0) {
-                        light_setpoint[i] = percent_to_uint8(value);
+                    if (i < 32) {
+                        if ((leds_already_used & (1 << i)) == 0) {
+                            light_setpoint[i] = percent_to_uint8(value);
+                        }
+                    }
+                    else {
+                        if ((leds2_already_used & (1 << (i - 32))) == 0) {
+                            light_setpoint[i] = percent_to_uint8(value);
+                        }
                     }
                 }
                 break;
@@ -573,8 +583,15 @@ static void execute_program(
                 // fall through
             case OPCODE_FADE_I:
                 for (i = min; i <= max; i++) {
-                    if ((leds_already_used & (1 << i)) == 0) {
-                        max_change_per_systick[i] = percent_to_uint8(value);
+                    if (i < 32) {
+                        if ((leds_already_used & (1 << i)) == 0) {
+                            max_change_per_systick[i] = percent_to_uint8(value);
+                        }
+                    }
+                    else {
+                        if ((leds2_already_used & (1 << (i - 32))) == 0) {
+                            max_change_per_systick[i] = percent_to_uint8(value);
+                        }
                     }
                 }
                 break;
@@ -683,12 +700,12 @@ void process_light_program_events(void)
 
 
 // ****************************************************************************
-uint32_t process_light_programs(void)
+void process_light_programs(uint32_t *leds_used, uint32_t *leds2_used)
 {
     unsigned int i;
-    uint32_t leds_used;
 
-    leds_used = 0;
+    *leds_used = 0;
+    *leds2_used = 0;
     load_light_program_environment();
 
     // Place relevant data into global variables  that light programs can
@@ -699,7 +716,7 @@ uint32_t process_light_programs(void)
     // Run all programs that were triggered by an event
     for (i = 0; i < light_programs.number_of_programs; i++) {
         if (cpu[i].event) {
-            execute_program((uint32_t *)light_programs.programs[i], &cpu[i], &leds_used);
+            execute_program((uint32_t *)light_programs.programs[i], &cpu[i], leds_used, leds2_used);
             limit_variables();
         }
     }
@@ -715,7 +732,7 @@ uint32_t process_light_programs(void)
         }
 
         if (*((uint32_t *)light_programs.programs[i] + PRIORITY_STATE_OFFSET) & priority_run_state) {
-            execute_program((uint32_t *)light_programs.programs[i], &cpu[i], &leds_used);
+            execute_program((uint32_t *)light_programs.programs[i], &cpu[i], leds_used, leds2_used);
             limit_variables();
         }
         else {
@@ -730,7 +747,7 @@ uint32_t process_light_programs(void)
         }
 
         if (*((uint32_t *)light_programs.programs[i] + RUN_STATE_OFFSET) & run_state) {
-            execute_program((uint32_t *)light_programs.programs[i], &cpu[i], &leds_used);
+            execute_program((uint32_t *)light_programs.programs[i], &cpu[i], leds_used, leds2_used);
             limit_variables();
         }
         else {
@@ -758,7 +775,5 @@ uint32_t process_light_programs(void)
     else if (var[GLOBAL_VAR_SHELF_QUEEN_MODE] == 1) {
         set_shelf_queen_mode(ON);
     }
-
-    return leds_used;
 }
 
