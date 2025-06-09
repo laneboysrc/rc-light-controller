@@ -20486,6 +20486,7 @@ var ui = (function () {
 
     // *************************************************************************
     var load_led_name = function (prefix, led_id) {
+        console.log(`prefix: ${prefix}, led_id: ${led_id}`, app.get_data()[prefix + '_leds'])
         const leds = app.get_data()[prefix + '_leds'];
         const led = leds[led_id];
         return led.name;
@@ -20669,8 +20670,8 @@ var ui = (function () {
 
         init_led_section('leds_master', 'master');
         init_led_section('leds_slave', 'slave');
-        init_led_section('leds_slave2', 'slave2');
-        init_led_section('leds_slave3', 'slave3');
+        init_led_section('leds_slaveA', 'slaveA');
+        init_led_section('leds_slaveB', 'slaveB');
 
         let tab_buttons = document.getElementsByClassName('tab-next');
         for (let i = 0; i < tab_buttons.length; i += 1) {
@@ -20763,8 +20764,8 @@ var ui = (function () {
         clear_led_tables();
         init_led_table('leds_master', 0, 'master');
         init_led_table('leds_slave', 16, 'slave');
-        init_led_table('leds_slave2', 32, 'slave2');
-        init_led_table('leds_slave3', 48, 'slave3');
+        init_led_table('leds_slaveA', 32, 'slaveA');
+        init_led_table('leds_slaveB', 48, 'slaveB');
     };
 
 
@@ -21020,8 +21021,8 @@ var app = (function () {
     var config_version;
     var local_leds;
     var slave_leds;
-    var slave2_leds;
-    var slave3_leds;
+    var slaveA_leds;
+    var slaveB_leds;
     var gamma_object;
     var light_programs;
 
@@ -21756,8 +21757,8 @@ var app = (function () {
 
         set_led_fields(local_leds, 'master');
         set_led_fields(slave_leds, 'slave');
-        set_led_fields(slave2_leds, 'slave2');
-        set_led_fields(slave3_leds, 'slave3');
+        set_led_fields(slaveA_leds, 'slaveA');
+        set_led_fields(slaveB_leds, 'slaveB');
     };
 
 
@@ -22238,13 +22239,13 @@ var app = (function () {
 
         if (el.slave_output.checked) {
             el.leds_slave.classList.remove('hidden');
-            el.leds_slave2.classList.remove('hidden');
-            el.leds_slave3.classList.remove('hidden');
+            el.leds_slaveA.classList.remove('hidden');
+            el.leds_slaveB.classList.remove('hidden');
         }
         else {
             el.leds_slave.classList.add('hidden');
-            el.leds_slave2.classList.add('hidden');
-            el.leds_slave3.classList.add('hidden');
+            el.leds_slaveA.classList.add('hidden');
+            el.leds_slaveB.classList.add('hidden');
         }
     };
 
@@ -22301,8 +22302,8 @@ var app = (function () {
 
         set_feature_active('leds_master', 'master');
         set_feature_active('leds_slave', 'slave');
-        set_feature_active('leds_slave2', 'slave2');
-        set_feature_active('leds_slave3', 'slave3');
+        set_feature_active('leds_slaveA', 'slaveA');
+        set_feature_active('leds_slaveB', 'slaveB');
     };
 
 
@@ -22508,8 +22509,8 @@ var app = (function () {
         config = undefined;
         local_leds = undefined;
         slave_leds = undefined;
-        slave2_leds = undefined;
-        slave3_leds = undefined;
+        slaveA_leds = undefined;
+        slaveB_leds = undefined;
         gamma_object = undefined;
         light_programs = '';
 
@@ -22532,16 +22533,16 @@ var app = (function () {
         config = parse_configuration();
         local_leds = parse_leds(SECTION_LOCAL_LEDS);
         slave_leds = parse_leds(SECTION_SLAVE_LEDS);
-        slave2_leds = parse_leds(SECTION_SLAVE2_LEDS);
-        slave3_leds = parse_leds(SECTION_SLAVE3_LEDS);
+        slaveA_leds = parse_leds(SECTION_SLAVE2_LEDS);
+        slaveB_leds = parse_leds(SECTION_SLAVE3_LEDS);
         light_programs = disassemble_light_programs();
         gamma_object = parse_gamma();
 
         upgrade_config(config);
         upgrade_leds(local_leds);
         upgrade_leds(slave_leds);
-        upgrade_leds(slave2_leds);
-        upgrade_leds(slave3_leds);
+        upgrade_leds(slaveA_leds);
+        upgrade_leds(slaveB_leds);
 
         update_ui();
 
@@ -22576,8 +22577,8 @@ var app = (function () {
         }
         add_led_symbols(local_leds, 0);
         add_led_symbols(slave_leds, 16);
-        add_led_symbols(slave2_leds, 32);
-        add_led_symbols(slave3_leds, 48);
+        add_led_symbols(slaveA_leds, 32);
+        add_led_symbols(slaveB_leds, 48);
 
         ui.update_errors([]);
 
@@ -22976,8 +22977,8 @@ var app = (function () {
         assemble_leds(SECTION_LOCAL_LEDS, configuration.local_leds, true);
         // ... but for SLAVE LEDs only when slave is enabled!
         assemble_leds(SECTION_SLAVE_LEDS, configuration.slave_leds, configuration.config.slave_output);
-        assemble_leds(SECTION_SLAVE2_LEDS, configuration.slave2_leds, configuration.config.slave_output);
-        assemble_leds(SECTION_SLAVE3_LEDS, configuration.slave3_leds, configuration.config.slave_output);
+        assemble_leds(SECTION_SLAVE2_LEDS, configuration.slaveA_leds, configuration.config.slave_output);
+        assemble_leds(SECTION_SLAVE3_LEDS, configuration.slaveB_leds, configuration.config.slave_output);
         assemble_light_programs(configuration.light_programs);
 
         assemble_gamma(configuration.gamma);
@@ -23061,8 +23062,8 @@ var app = (function () {
             config = data.config;
             local_leds = data.local_leds;
             slave_leds = data.slave_leds;
-            slave2_leds = data.slave2_leds;
-            slave3_leds = data.slave3_leds;
+            slaveA_leds = data.slaveA_leds;
+            slaveB_leds = data.slaveB_leds;
             light_programs = data.light_programs;
             gamma_object = data.gamma;
 
@@ -23071,8 +23072,8 @@ var app = (function () {
             upgrade_config(config);
             upgrade_leds(local_leds);
             upgrade_leds(slave_leds);
-            upgrade_leds(slave2_leds);
-            upgrade_leds(slave3_leds);
+            upgrade_leds(slaveA_leds);
+            upgrade_leds(slaveB_leds);
 
             // Use the current firmware when loading a configuration file
             firmware = parse_firmware_structure(hex_to_bin(default_firmware_image_mk4));
@@ -23207,8 +23208,8 @@ var app = (function () {
 
         get_led_fields(local_leds, 'master');
         get_led_fields(slave_leds, 'slave');
-        get_led_fields(slave2_leds, 'slave2');
-        get_led_fields(slave3_leds, 'slave3');
+        get_led_fields(slaveA_leds, 'slaveA');
+        get_led_fields(slaveB_leds, 'slaveB');
     };
 
 
@@ -23401,8 +23402,8 @@ var app = (function () {
             upgrade_config(configuration.config);
             upgrade_leds(configuration.local_leds);
             upgrade_leds(configuration.slave_leds);
-            upgrade_leds(configuration.slave2_leds);
-            upgrade_leds(configuration.slave3_leds);
+            upgrade_leds(configuration.slaveA_leds);
+            upgrade_leds(configuration.slaveB_leds);
             // Patch firmware version
             configuration.config.firmware_version = config.firmware_version;
             configuration.config.baudrate = config.baudrate;
@@ -23599,8 +23600,8 @@ var app = (function () {
         data.config = config;
         data.local_leds = local_leds;
         data.slave_leds = slave_leds;
-        data.slave2_leds = slave2_leds;
-        data.slave3_leds = slave3_leds;
+        data.slaveA_leds = slaveA_leds;
+        data.slaveB_leds = slaveB_leds;
         data.gamma = gamma_object;
         data.light_programs = light_programs;
 
@@ -23731,8 +23732,8 @@ var app = (function () {
 
         local_leds = _clear_leds();
         slave_leds = _clear_leds();
-        slave2_leds = _clear_leds();
-        slave3_leds = _clear_leds();
+        slaveA_leds = _clear_leds();
+        slaveB_leds = _clear_leds();
 
         update_led_fields();
         update_led_feature_usage();
@@ -24213,7 +24214,7 @@ var app = (function () {
             'channel_offset_aux4', 'channel_offset_aux5', 'channel_offset_aux6',
 
             'config_baudrate', 'baudrate',
-            'config_leds', 'leds_master', 'leds_slave', 'leds_slave2', 'leds_slave3',
+            'config_leds', 'leds_master', 'leds_slave', 'leds_slaveA', 'leds_slaveB',
             'diagnostics_brightness',
             'config_esc',
             'config_ch3',
@@ -24303,8 +24304,8 @@ var app = (function () {
 
         set_led_feature_handler('leds_master', 'master');
         set_led_feature_handler('leds_slave', 'slave');
-        set_led_feature_handler('leds_slave2', 'slave2');
-        set_led_feature_handler('leds_slave3', 'slave3');
+        set_led_feature_handler('leds_slaveA', 'slaveA');
+        set_led_feature_handler('leds_slaveB', 'slaveB');
 
         el.mode.addEventListener('change', mode_changed_handler, false);
 
@@ -24370,8 +24371,8 @@ var app = (function () {
             config: config,
             master_leds: local_leds,
             slave_leds: slave_leds,
-            slave2_leds: slave2_leds,
-            slave3_leds: slave3_leds,
+            slaveA_leds: slaveA_leds,
+            slaveB_leds: slaveB_leds,
         };
     }
 
@@ -24444,7 +24445,7 @@ document.addEventListener('DOMContentLoaded', function () {
         <h1><span id="logo"></span> RC Light Controller configuration tool</h1>
 
         <div>
-          Configurator version: <strong>2025-05-22</strong><br>
+          Configurator version: <strong>2025-06-09</strong><br>
           Firmware version: <strong><span id="firmware_version"></span></strong>
         </div>
 
@@ -25242,7 +25243,7 @@ document.addEventListener('DOMContentLoaded', function () {
           </div>
         </div>
 
-        <div id="leds_slave2">
+        <div id="leds_slaveA">
           <h3>Slave 2</h3>
           <div>
             <div class="diagnostics-container">
@@ -25299,7 +25300,7 @@ document.addEventListener('DOMContentLoaded', function () {
           </div>
         </div>
 
-        <div id="leds_slave3">
+        <div id="leds_slaveB">
           <h3>Slave 3</h3>
           <div>
             <div class="diagnostics-container">
@@ -26047,242 +26048,10 @@ document.addEventListener('DOMContentLoaded', function () {
         <div class="box configuration">
           <h2>What's new</h2>
 
-          <div><strong>2025-05-01 Firmware 2.60</strong></div>
+          <div><strong>2025-06-09 Firmware 2.60</strong></div>
           <ul class="change-history">
             <li>
-              The advanced settings now allow configuring the servo output. Previously the range of the servo output pulse was fixed at 1 to 2 ms, with is an industry standard.
-              Now it is possible to adjust the minimum and maximum pulse duration, as well as the center position. Note that using values outside of the one supported by particular servo may cause phsical damage.
-            </li>
-          </ul>
-
-          <div><strong>2025-02-04 Firmware 2.59</strong></div>
-          <ul class="change-history">
-            <li>
-              The multi-function control, which requires a two-position switch or momentary pushbutton, now uses the advanced setting for &quot;threshold low/high for two-position AUX function&quot; to determine its switching point.
-              This allows using controls on the transmitter that are not strictly a two-position switch, such as an analog stick with a spring returning the stick to center position.
-            </li>
-          </ul>
-
-          <div><strong>2025-01-30 Firmware 2.58</strong></div>
-          <ul class="change-history">
-            <li>
-              Prevent light programs from being automatically translated by browser-internal language translations.
-            </li>
-          </ul>
-
-          <div><strong>2025-01-12 Firmware 2.58</strong></div>
-          <ul class="change-history">
-            <li>
-              Light program servo output now available on a Slave light controller.<br>
-              It is now possible to connect a servo to OUT/ISP on a Slave and
-              have the servo controlled by a light program in the Master light
-              controller.<br>
-              This feature has the following limitation:
-              <ul>
-                <li>The servo on the Slave can <strong>only be controlled from a light program</strong> in the Master.</li>
-                <li>The servo on the Master can be configured independently from the Slave. For example, the Master servo output can be set to <em>Steering wheel output</em> and the Slave servo independently controlled from a light program. However, when the Master is configured for light program control then servos connected to Master and Slave will move synchronusly.</li>
-                <li>The endpoints on the Slave can not be adjusted. The servo pulse range is fixed 1.0 .. 2.0 ms with 1.5 ms being <em>center</em>.<br>
-                (On the Master it is possible to adjustment center and endpoints with 8 klicks the Multi-Function control; See user manual for more info.)<br>
-                You can adjust your light program to limit servo travel on the Slave</li>
-                <li>The servo can only be connected to OUT/ISP on the Slave. Some (analog) servos have a high load on the signal line, preventing the Slave from operating. It is advisable to use digital servos.</li>
-              </ul>
-            </li>
-          </ul>
-
-          <div><strong>2024-09-09 Firmware 2.57</strong></div>
-          <ul class="change-history">
-            <li>
-              Fix user defined LED names (in the LED configuration table) were only working in the first light program.
-            </li>
-          </ul>
-
-          <div><strong>2023-12-30 Firmware 2.57</strong></div>
-          <ul class="change-history">
-            <li>
-              Fix servo output via AUX channel.
-            </li>
-            <li>
-              Fix description that servo setup requires 8-clicks, not 7.
-            </li>
-          </ul>
-
-          <div><strong>2023-11-09 Firmware 2.57</strong></div>
-          <ul class="change-history">
-            <li>
-              3 channel Pre-processor now outputs 5 channel protocol so
-              that the light controller as access to raw channel data instead
-              of just an on/off value. AUX2 and AUX3 always report 0 (center).
-            </li>
-            <li>
-              Add advanced setting for configuring AUX to an arbitrary function
-              rather than always being fixed to Multi-function control. This
-              is useful if a 3 channel system has a RCUniSwitch PAD installed.
-            </li>
-          </ul>
-
-          <div><strong>2023-06-16 Firmware 2.56</strong></div>
-          <ul class="change-history">
-            <li>
-              Added support for AUX4 to AUX6. i-Bus and S.Bus only. AUX4 to
-              AUX6 can only be used in light programs.
-            </li>
-          </ul>
-
-          <div><strong>2022-11-23 Firmware 2.55</strong></div>
-          <ul class="change-history">
-            <li>
-              Fix Slave not working at 100000 BAUD.
-            </li>
-          </ul>
-
-          <div><strong>2022-11-06 Firmware 2.54</strong></div>
-          <ul class="change-history">
-            <li>
-              Improve description of how to select the correct baudrate.
-            </li>
-          </ul>
-
-          <div><strong>2022-08-30 Firmware 2.54</strong></div>
-          <ul class="change-history">
-            <li>
-              Improve LED value editing. The value is selected upon editing
-              start. Clearing the field assumes input 0.
-            </li>
-          </ul>
-
-          <div><strong>2022-07-14 Firmware 2.54</strong></div>
-          <ul class="change-history">
-            <li>
-              Use polarity reversing on UART Rx input for LPC832! This means
-              we no longer need the inverter on the PCB.
-            </li>
-          </ul>
-
-          <div><strong>2022-06-27 Firmware 2.53</strong></div>
-          <ul class="change-history">
-            <li>
-              Add the possibility to use the CH3 pin on the light controller as
-              digital input pin, which can be probed in <em>Light Programs</em>. The
-              pin can be tested using the global variable <em>ch3-pin</em>. Refer
-              to the  <a href="https://github.com/laneboysrc/rc-light-controller/blob/master/mk4-tlc5940-lpc812/doc/light-programs.md#led-declarations" target="_blank">Light Programs documentation</a> for more information.
-              <br>
-              This feature only works when using a Pre-Processor, i-Bus or S.Bus.
-            </li>
-          </ul>
-
-          <div><strong>2022-02-02 Firmware 2.51</strong></div>
-          <ul class="change-history">
-            <li>
-              Add S.Bus support. Note that S.Bus requires hardware modification
-              and can (as of June 2022) only be used with Mk4P Rev3, Mk4 Rev7 or later
-              light controllers.
-            </li>
-          </ul>
-
-          <div><strong>2021-12-28 Firmware 2.50</strong></div>
-          <ul class="change-history">
-            <li>
-              Add i-Bus support. Tested with FlySky NB4 and FGr4S receiver.
-            </li>
-            <li>
-              Save LED names immediately upon editing, not only when the LED features sub-table is closed.
-            </li>
-          </ul>
-
-          <div><strong>2021-11-27 Firmware 2.46</strong></div>
-          <ul class="change-history">
-            <li>
-              <p>It is now possible to assign human readable names to LEDs in the
-              <em>LED configuration</em> tables. These names can make it easier
-              to recognize which function is intended for a particular LED.
-              </p>
-              <p>Click on the spanner icon <i class="fa fa-wrench"></i> of a LED to assign or change its name.
-              </p>
-              <p>The LED names can also be used in <em>Light Programs</em>. Refer to section
-              <em>LED declarations</em> in the <a href="https://github.com/laneboysrc/rc-light-controller/blob/master/mk4-tlc5940-lpc812/doc/light-programs.md#led-declarations" target="_blank">Light Programs documentation</a>
-              for more information.
-              </p>
-            </li>
-            <li>
-              Configuration files can now be loaded by dragging them from a file manager on the Configurator window.
-            </li>
-            <li>
-              Bugfix: Car functions are now disabled in shelf queen mode
-            </li>
-            <li>
-              Reduce firmware size
-            </li>
-          </ul>
-
-          <div><strong>2021-11-23 Firmware 2.45</strong></div>
-          <ul class="change-history">
-            <li>
-              Shelf queen mode can be switched from <em>Light Programs</em>
-            </li>
-          </ul>
-
-          <div><strong>2021-11-18 Firmware 2.44</strong></div>
-          <ul class="change-history">
-            <li>
-              Fix import of HEX files that don't have a <em>Light Programs</em>
-            </li>
-          </ul>
-
-          <div><strong>2021-11-10 Firmware 2.44</strong></div>
-          <ul class="change-history">
-            <li>
-              Fix light_switch_position range for <em>Light Programs</em>
-            </li>
-            <li>
-              Fix shelf queen mode
-            </li>
-            <li>
-              Finalize firmware for NXP LPC832
-            </li>
-          </ul>
-
-          <div><strong>2021-07-24 Firmware 2.41</strong></div>
-          <ul class="change-history">
-            <li>
-              No signal LED diagnostics and Initializing are now mutually exclusive, just like before we switched from <em>Light Program</em> based diagnostics to table driven diagnostics.
-            </li>
-          </ul>
-
-          <div><strong>2021-05-25 Firmware 2.40</strong></div>
-          <ul class="change-history">
-            <li>
-              Fix PINENABLE issue that makes all LEDs light up. Now the configurator is finally working with both LPC812 and LPC832 MCUs.
-            </li>
-          </ul>
-
-          <div><strong>2021-05-13 Firmware 2.37</strong></div>
-          <ul class="change-history">
-            <li>
-              Limit LED table value to 0..100 when entering larger numbers, instead of discarding the entry.
-            </li>
-            <li>
-              Show MCU type number in the WebUSB programming diagnostics.
-            </li>
-          </ul>
-
-          <div><strong>2021-05-11 Firmware 2.37</strong></div>
-          <ul class="change-history">
-            <li>
-              Fix import of old .HEX files
-            </li>
-          </ul>
-
-          <div><strong>2021-05-01 Firmware 2.37</strong></div>
-          <ul class="change-history">
-            <li>
-              The LED configuration for no-signal, initializing and other light controller internal <strong>diagnostics functions are now table driven</strong>.<br>
-              Originally they were implemented using <em>Light Programs</em>. These still continue to function, but the table driven approach is easier for users and also reduces memory size.
-            </li>
-            <li>
-              <strong>Save code space</strong> by making the the <em>Light Programs</em> start offset table dynamic in side. This is an internal change and has no impact on users.
-            </li>
-            <li>
-              Detailed <strong>WebUSB diagnostics</strong> in the browser console is now <strong>off</strong> by default. WebUSB diagnostics can be enabled by appending <em>#webusb</em> to the Configurator URL.
+              Fix LED features not working for Slave 2 and 3.
             </li>
           </ul>
 
