@@ -909,7 +909,7 @@
           </div>
         </div>
 
-        <div id="leds_slave2">
+        <div id="leds_slaveA">
           <h3>Slave 2</h3>
           <div>
             <div class="diagnostics-container">
@@ -966,7 +966,7 @@
           </div>
         </div>
 
-        <div id="leds_slave3">
+        <div id="leds_slaveB">
           <h3>Slave 3</h3>
           <div>
             <div class="diagnostics-container">
@@ -1714,242 +1714,10 @@
         <div class="box configuration">
           <h2>What's new</h2>
 
-          <div><strong>2025-05-01 Firmware 2.60</strong></div>
+          <div><strong>2025-06-09 Firmware 2.60</strong></div>
           <ul class="change-history">
             <li>
-              The advanced settings now allow configuring the servo output. Previously the range of the servo output pulse was fixed at 1 to 2 ms, with is an industry standard.
-              Now it is possible to adjust the minimum and maximum pulse duration, as well as the center position. Note that using values outside of the one supported by particular servo may cause phsical damage.
-            </li>
-          </ul>
-
-          <div><strong>2025-02-04 Firmware 2.59</strong></div>
-          <ul class="change-history">
-            <li>
-              The multi-function control, which requires a two-position switch or momentary pushbutton, now uses the advanced setting for &quot;threshold low/high for two-position AUX function&quot; to determine its switching point.
-              This allows using controls on the transmitter that are not strictly a two-position switch, such as an analog stick with a spring returning the stick to center position.
-            </li>
-          </ul>
-
-          <div><strong>2025-01-30 Firmware 2.58</strong></div>
-          <ul class="change-history">
-            <li>
-              Prevent light programs from being automatically translated by browser-internal language translations.
-            </li>
-          </ul>
-
-          <div><strong>2025-01-12 Firmware 2.58</strong></div>
-          <ul class="change-history">
-            <li>
-              Light program servo output now available on a Slave light controller.<br>
-              It is now possible to connect a servo to OUT/ISP on a Slave and
-              have the servo controlled by a light program in the Master light
-              controller.<br>
-              This feature has the following limitation:
-              <ul>
-                <li>The servo on the Slave can <strong>only be controlled from a light program</strong> in the Master.</li>
-                <li>The servo on the Master can be configured independently from the Slave. For example, the Master servo output can be set to <em>Steering wheel output</em> and the Slave servo independently controlled from a light program. However, when the Master is configured for light program control then servos connected to Master and Slave will move synchronusly.</li>
-                <li>The endpoints on the Slave can not be adjusted. The servo pulse range is fixed 1.0 .. 2.0 ms with 1.5 ms being <em>center</em>.<br>
-                (On the Master it is possible to adjustment center and endpoints with 8 klicks the Multi-Function control; See user manual for more info.)<br>
-                You can adjust your light program to limit servo travel on the Slave</li>
-                <li>The servo can only be connected to OUT/ISP on the Slave. Some (analog) servos have a high load on the signal line, preventing the Slave from operating. It is advisable to use digital servos.</li>
-              </ul>
-            </li>
-          </ul>
-
-          <div><strong>2024-09-09 Firmware 2.57</strong></div>
-          <ul class="change-history">
-            <li>
-              Fix user defined LED names (in the LED configuration table) were only working in the first light program.
-            </li>
-          </ul>
-
-          <div><strong>2023-12-30 Firmware 2.57</strong></div>
-          <ul class="change-history">
-            <li>
-              Fix servo output via AUX channel.
-            </li>
-            <li>
-              Fix description that servo setup requires 8-clicks, not 7.
-            </li>
-          </ul>
-
-          <div><strong>2023-11-09 Firmware 2.57</strong></div>
-          <ul class="change-history">
-            <li>
-              3 channel Pre-processor now outputs 5 channel protocol so
-              that the light controller as access to raw channel data instead
-              of just an on/off value. AUX2 and AUX3 always report 0 (center).
-            </li>
-            <li>
-              Add advanced setting for configuring AUX to an arbitrary function
-              rather than always being fixed to Multi-function control. This
-              is useful if a 3 channel system has a RCUniSwitch PAD installed.
-            </li>
-          </ul>
-
-          <div><strong>2023-06-16 Firmware 2.56</strong></div>
-          <ul class="change-history">
-            <li>
-              Added support for AUX4 to AUX6. i-Bus and S.Bus only. AUX4 to
-              AUX6 can only be used in light programs.
-            </li>
-          </ul>
-
-          <div><strong>2022-11-23 Firmware 2.55</strong></div>
-          <ul class="change-history">
-            <li>
-              Fix Slave not working at 100000 BAUD.
-            </li>
-          </ul>
-
-          <div><strong>2022-11-06 Firmware 2.54</strong></div>
-          <ul class="change-history">
-            <li>
-              Improve description of how to select the correct baudrate.
-            </li>
-          </ul>
-
-          <div><strong>2022-08-30 Firmware 2.54</strong></div>
-          <ul class="change-history">
-            <li>
-              Improve LED value editing. The value is selected upon editing
-              start. Clearing the field assumes input 0.
-            </li>
-          </ul>
-
-          <div><strong>2022-07-14 Firmware 2.54</strong></div>
-          <ul class="change-history">
-            <li>
-              Use polarity reversing on UART Rx input for LPC832! This means
-              we no longer need the inverter on the PCB.
-            </li>
-          </ul>
-
-          <div><strong>2022-06-27 Firmware 2.53</strong></div>
-          <ul class="change-history">
-            <li>
-              Add the possibility to use the CH3 pin on the light controller as
-              digital input pin, which can be probed in <em>Light Programs</em>. The
-              pin can be tested using the global variable <em>ch3-pin</em>. Refer
-              to the  <a href="https://github.com/laneboysrc/rc-light-controller/blob/master/mk4-tlc5940-lpc812/doc/light-programs.md#led-declarations" target="_blank">Light Programs documentation</a> for more information.
-              <br>
-              This feature only works when using a Pre-Processor, i-Bus or S.Bus.
-            </li>
-          </ul>
-
-          <div><strong>2022-02-02 Firmware 2.51</strong></div>
-          <ul class="change-history">
-            <li>
-              Add S.Bus support. Note that S.Bus requires hardware modification
-              and can (as of June 2022) only be used with Mk4P Rev3, Mk4 Rev7 or later
-              light controllers.
-            </li>
-          </ul>
-
-          <div><strong>2021-12-28 Firmware 2.50</strong></div>
-          <ul class="change-history">
-            <li>
-              Add i-Bus support. Tested with FlySky NB4 and FGr4S receiver.
-            </li>
-            <li>
-              Save LED names immediately upon editing, not only when the LED features sub-table is closed.
-            </li>
-          </ul>
-
-          <div><strong>2021-11-27 Firmware 2.46</strong></div>
-          <ul class="change-history">
-            <li>
-              <p>It is now possible to assign human readable names to LEDs in the
-              <em>LED configuration</em> tables. These names can make it easier
-              to recognize which function is intended for a particular LED.
-              </p>
-              <p>Click on the spanner icon <i class="fa fa-wrench"></i> of a LED to assign or change its name.
-              </p>
-              <p>The LED names can also be used in <em>Light Programs</em>. Refer to section
-              <em>LED declarations</em> in the <a href="https://github.com/laneboysrc/rc-light-controller/blob/master/mk4-tlc5940-lpc812/doc/light-programs.md#led-declarations" target="_blank">Light Programs documentation</a>
-              for more information.
-              </p>
-            </li>
-            <li>
-              Configuration files can now be loaded by dragging them from a file manager on the Configurator window.
-            </li>
-            <li>
-              Bugfix: Car functions are now disabled in shelf queen mode
-            </li>
-            <li>
-              Reduce firmware size
-            </li>
-          </ul>
-
-          <div><strong>2021-11-23 Firmware 2.45</strong></div>
-          <ul class="change-history">
-            <li>
-              Shelf queen mode can be switched from <em>Light Programs</em>
-            </li>
-          </ul>
-
-          <div><strong>2021-11-18 Firmware 2.44</strong></div>
-          <ul class="change-history">
-            <li>
-              Fix import of HEX files that don't have a <em>Light Programs</em>
-            </li>
-          </ul>
-
-          <div><strong>2021-11-10 Firmware 2.44</strong></div>
-          <ul class="change-history">
-            <li>
-              Fix light_switch_position range for <em>Light Programs</em>
-            </li>
-            <li>
-              Fix shelf queen mode
-            </li>
-            <li>
-              Finalize firmware for NXP LPC832
-            </li>
-          </ul>
-
-          <div><strong>2021-07-24 Firmware 2.41</strong></div>
-          <ul class="change-history">
-            <li>
-              No signal LED diagnostics and Initializing are now mutually exclusive, just like before we switched from <em>Light Program</em> based diagnostics to table driven diagnostics.
-            </li>
-          </ul>
-
-          <div><strong>2021-05-25 Firmware 2.40</strong></div>
-          <ul class="change-history">
-            <li>
-              Fix PINENABLE issue that makes all LEDs light up. Now the configurator is finally working with both LPC812 and LPC832 MCUs.
-            </li>
-          </ul>
-
-          <div><strong>2021-05-13 Firmware 2.37</strong></div>
-          <ul class="change-history">
-            <li>
-              Limit LED table value to 0..100 when entering larger numbers, instead of discarding the entry.
-            </li>
-            <li>
-              Show MCU type number in the WebUSB programming diagnostics.
-            </li>
-          </ul>
-
-          <div><strong>2021-05-11 Firmware 2.37</strong></div>
-          <ul class="change-history">
-            <li>
-              Fix import of old .HEX files
-            </li>
-          </ul>
-
-          <div><strong>2021-05-01 Firmware 2.37</strong></div>
-          <ul class="change-history">
-            <li>
-              The LED configuration for no-signal, initializing and other light controller internal <strong>diagnostics functions are now table driven</strong>.<br>
-              Originally they were implemented using <em>Light Programs</em>. These still continue to function, but the table driven approach is easier for users and also reduces memory size.
-            </li>
-            <li>
-              <strong>Save code space</strong> by making the the <em>Light Programs</em> start offset table dynamic in side. This is an internal change and has no impact on users.
-            </li>
-            <li>
-              Detailed <strong>WebUSB diagnostics</strong> in the browser console is now <strong>off</strong> by default. WebUSB diagnostics can be enabled by appending <em>#webusb</em> to the Configurator URL.
+              Fix LED features not working for Slave 2 and 3.
             </li>
           </ul>
 

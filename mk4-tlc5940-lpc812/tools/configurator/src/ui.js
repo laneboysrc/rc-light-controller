@@ -30,6 +30,7 @@ var ui = (function () {
 
     // *************************************************************************
     var load_led_name = function (prefix, led_id) {
+        console.log(`prefix: ${prefix}, led_id: ${led_id}`, app.get_data()[prefix + '_leds'])
         const leds = app.get_data()[prefix + '_leds'];
         const led = leds[led_id];
         return led.name;
@@ -213,8 +214,8 @@ var ui = (function () {
 
         init_led_section('leds_master', 'master');
         init_led_section('leds_slave', 'slave');
-        init_led_section('leds_slave2', 'slave2');
-        init_led_section('leds_slave3', 'slave3');
+        init_led_section('leds_slaveA', 'slaveA');
+        init_led_section('leds_slaveB', 'slaveB');
 
         let tab_buttons = document.getElementsByClassName('tab-next');
         for (let i = 0; i < tab_buttons.length; i += 1) {
@@ -307,8 +308,8 @@ var ui = (function () {
         clear_led_tables();
         init_led_table('leds_master', 0, 'master');
         init_led_table('leds_slave', 16, 'slave');
-        init_led_table('leds_slave2', 32, 'slave2');
-        init_led_table('leds_slave3', 48, 'slave3');
+        init_led_table('leds_slaveA', 32, 'slaveA');
+        init_led_table('leds_slaveB', 48, 'slaveB');
     };
 
 

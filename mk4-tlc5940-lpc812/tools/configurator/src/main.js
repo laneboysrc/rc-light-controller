@@ -17,8 +17,8 @@ var app = (function () {
     var config_version;
     var local_leds;
     var slave_leds;
-    var slave2_leds;
-    var slave3_leds;
+    var slaveA_leds;
+    var slaveB_leds;
     var gamma_object;
     var light_programs;
 
@@ -753,8 +753,8 @@ var app = (function () {
 
         set_led_fields(local_leds, 'master');
         set_led_fields(slave_leds, 'slave');
-        set_led_fields(slave2_leds, 'slave2');
-        set_led_fields(slave3_leds, 'slave3');
+        set_led_fields(slaveA_leds, 'slaveA');
+        set_led_fields(slaveB_leds, 'slaveB');
     };
 
 
@@ -1235,13 +1235,13 @@ var app = (function () {
 
         if (el.slave_output.checked) {
             el.leds_slave.classList.remove('hidden');
-            el.leds_slave2.classList.remove('hidden');
-            el.leds_slave3.classList.remove('hidden');
+            el.leds_slaveA.classList.remove('hidden');
+            el.leds_slaveB.classList.remove('hidden');
         }
         else {
             el.leds_slave.classList.add('hidden');
-            el.leds_slave2.classList.add('hidden');
-            el.leds_slave3.classList.add('hidden');
+            el.leds_slaveA.classList.add('hidden');
+            el.leds_slaveB.classList.add('hidden');
         }
     };
 
@@ -1298,8 +1298,8 @@ var app = (function () {
 
         set_feature_active('leds_master', 'master');
         set_feature_active('leds_slave', 'slave');
-        set_feature_active('leds_slave2', 'slave2');
-        set_feature_active('leds_slave3', 'slave3');
+        set_feature_active('leds_slaveA', 'slaveA');
+        set_feature_active('leds_slaveB', 'slaveB');
     };
 
 
@@ -1505,8 +1505,8 @@ var app = (function () {
         config = undefined;
         local_leds = undefined;
         slave_leds = undefined;
-        slave2_leds = undefined;
-        slave3_leds = undefined;
+        slaveA_leds = undefined;
+        slaveB_leds = undefined;
         gamma_object = undefined;
         light_programs = '';
 
@@ -1529,16 +1529,16 @@ var app = (function () {
         config = parse_configuration();
         local_leds = parse_leds(SECTION_LOCAL_LEDS);
         slave_leds = parse_leds(SECTION_SLAVE_LEDS);
-        slave2_leds = parse_leds(SECTION_SLAVE2_LEDS);
-        slave3_leds = parse_leds(SECTION_SLAVE3_LEDS);
+        slaveA_leds = parse_leds(SECTION_SLAVE2_LEDS);
+        slaveB_leds = parse_leds(SECTION_SLAVE3_LEDS);
         light_programs = disassemble_light_programs();
         gamma_object = parse_gamma();
 
         upgrade_config(config);
         upgrade_leds(local_leds);
         upgrade_leds(slave_leds);
-        upgrade_leds(slave2_leds);
-        upgrade_leds(slave3_leds);
+        upgrade_leds(slaveA_leds);
+        upgrade_leds(slaveB_leds);
 
         update_ui();
 
@@ -1573,8 +1573,8 @@ var app = (function () {
         }
         add_led_symbols(local_leds, 0);
         add_led_symbols(slave_leds, 16);
-        add_led_symbols(slave2_leds, 32);
-        add_led_symbols(slave3_leds, 48);
+        add_led_symbols(slaveA_leds, 32);
+        add_led_symbols(slaveB_leds, 48);
 
         ui.update_errors([]);
 
@@ -1973,8 +1973,8 @@ var app = (function () {
         assemble_leds(SECTION_LOCAL_LEDS, configuration.local_leds, true);
         // ... but for SLAVE LEDs only when slave is enabled!
         assemble_leds(SECTION_SLAVE_LEDS, configuration.slave_leds, configuration.config.slave_output);
-        assemble_leds(SECTION_SLAVE2_LEDS, configuration.slave2_leds, configuration.config.slave_output);
-        assemble_leds(SECTION_SLAVE3_LEDS, configuration.slave3_leds, configuration.config.slave_output);
+        assemble_leds(SECTION_SLAVE2_LEDS, configuration.slaveA_leds, configuration.config.slave_output);
+        assemble_leds(SECTION_SLAVE3_LEDS, configuration.slaveB_leds, configuration.config.slave_output);
         assemble_light_programs(configuration.light_programs);
 
         assemble_gamma(configuration.gamma);
@@ -2058,8 +2058,8 @@ var app = (function () {
             config = data.config;
             local_leds = data.local_leds;
             slave_leds = data.slave_leds;
-            slave2_leds = data.slave2_leds;
-            slave3_leds = data.slave3_leds;
+            slaveA_leds = data.slaveA_leds;
+            slaveB_leds = data.slaveB_leds;
             light_programs = data.light_programs;
             gamma_object = data.gamma;
 
@@ -2068,8 +2068,8 @@ var app = (function () {
             upgrade_config(config);
             upgrade_leds(local_leds);
             upgrade_leds(slave_leds);
-            upgrade_leds(slave2_leds);
-            upgrade_leds(slave3_leds);
+            upgrade_leds(slaveA_leds);
+            upgrade_leds(slaveB_leds);
 
             // Use the current firmware when loading a configuration file
             firmware = parse_firmware_structure(hex_to_bin(default_firmware_image_mk4));
@@ -2204,8 +2204,8 @@ var app = (function () {
 
         get_led_fields(local_leds, 'master');
         get_led_fields(slave_leds, 'slave');
-        get_led_fields(slave2_leds, 'slave2');
-        get_led_fields(slave3_leds, 'slave3');
+        get_led_fields(slaveA_leds, 'slaveA');
+        get_led_fields(slaveB_leds, 'slaveB');
     };
 
 
@@ -2398,8 +2398,8 @@ var app = (function () {
             upgrade_config(configuration.config);
             upgrade_leds(configuration.local_leds);
             upgrade_leds(configuration.slave_leds);
-            upgrade_leds(configuration.slave2_leds);
-            upgrade_leds(configuration.slave3_leds);
+            upgrade_leds(configuration.slaveA_leds);
+            upgrade_leds(configuration.slaveB_leds);
             // Patch firmware version
             configuration.config.firmware_version = config.firmware_version;
             configuration.config.baudrate = config.baudrate;
@@ -2596,8 +2596,8 @@ var app = (function () {
         data.config = config;
         data.local_leds = local_leds;
         data.slave_leds = slave_leds;
-        data.slave2_leds = slave2_leds;
-        data.slave3_leds = slave3_leds;
+        data.slaveA_leds = slaveA_leds;
+        data.slaveB_leds = slaveB_leds;
         data.gamma = gamma_object;
         data.light_programs = light_programs;
 
@@ -2728,8 +2728,8 @@ var app = (function () {
 
         local_leds = _clear_leds();
         slave_leds = _clear_leds();
-        slave2_leds = _clear_leds();
-        slave3_leds = _clear_leds();
+        slaveA_leds = _clear_leds();
+        slaveB_leds = _clear_leds();
 
         update_led_fields();
         update_led_feature_usage();
@@ -3210,7 +3210,7 @@ var app = (function () {
             'channel_offset_aux4', 'channel_offset_aux5', 'channel_offset_aux6',
 
             'config_baudrate', 'baudrate',
-            'config_leds', 'leds_master', 'leds_slave', 'leds_slave2', 'leds_slave3',
+            'config_leds', 'leds_master', 'leds_slave', 'leds_slaveA', 'leds_slaveB',
             'diagnostics_brightness',
             'config_esc',
             'config_ch3',
@@ -3300,8 +3300,8 @@ var app = (function () {
 
         set_led_feature_handler('leds_master', 'master');
         set_led_feature_handler('leds_slave', 'slave');
-        set_led_feature_handler('leds_slave2', 'slave2');
-        set_led_feature_handler('leds_slave3', 'slave3');
+        set_led_feature_handler('leds_slaveA', 'slaveA');
+        set_led_feature_handler('leds_slaveB', 'slaveB');
 
         el.mode.addEventListener('change', mode_changed_handler, false);
 
@@ -3367,8 +3367,8 @@ var app = (function () {
             config: config,
             master_leds: local_leds,
             slave_leds: slave_leds,
-            slave2_leds: slave2_leds,
-            slave3_leds: slave3_leds,
+            slaveA_leds: slaveA_leds,
+            slaveB_leds: slaveB_leds,
         };
     }
 
