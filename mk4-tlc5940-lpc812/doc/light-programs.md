@@ -48,7 +48,7 @@ The ``loop:`` statement defines a label that can be used to jump to from a ``got
 Then all LEDs are switched off, after which led[2] and led[3] are specifically set to fully on (100% brightness).
 
 The light program pauses then for one 20 ms period (``sleep 0``), which causes the LED values we assigned to be actually executed and other light controller functions to run.
-Without the sleep statement the light program would run for 50 internal instructions before being forcefully paused, which is unnecessary. After the 20 ms are over, the ``goto`` statement is executed and the light program continues from the begin.
+Without the sleep statement the light program would run for 30 internal instructions before being forcefully paused, which is unnecessary. After the 20 ms are over, the ``goto`` statement is executed and the light program continues from the begin.
 
 The following sections explain all elements of the light program language in detail.
 
