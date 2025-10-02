@@ -1,0 +1,17 @@
+// Light program that flashes the brake lights
+run when braking
+
+led brake1 = led[8]
+led brake2 = led[9]
+
+const ON_TIME = 60
+const OFF_TIME = 60
+
+loop:
+  all leds = 100
+    sleep ON_TIME
+  all leds = 0
+    sleep OFF_TIME
+  goto loop
+
+end

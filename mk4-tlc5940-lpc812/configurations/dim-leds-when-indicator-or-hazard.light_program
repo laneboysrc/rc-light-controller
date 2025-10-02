@@ -1,0 +1,16 @@
+// Dim the running light when the indicator is active
+// Note: for a fading effect set the
+// "Incandescent light bulb simulation" to a low value,
+// e.g. 5. You can find this setting in the "LED configuration"
+// tab by clicking the spanner icon next to the LED
+// number
+run when indicator-left or indicator-right or hazard
+const DIM = 0   // Value to dim to (here we use 0 = off)
+
+// Define which leds to dim
+led l1 = led[0]
+// You can specify more LEDs if needed
+//led l2 = led[5]
+
+  all leds = DIM    // Dim all leds defined above
+end
