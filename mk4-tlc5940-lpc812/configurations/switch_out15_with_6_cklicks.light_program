@@ -1,0 +1,38 @@
+// Switch on the light bar (connected to OUT15S) with 6 clicks, independent
+// of the virtual light switch
+run always
+
+led light_bar = led[15]
+// If you want to add more LEDs you can declare them here.
+// The names don't matter, all declared LEDs are switched by
+// the light program
+//
+// led some_name = led[4]
+// led some_other_name = led[7]
+
+off_loop:
+    // Turn all declared lights off
+    all leds = 0%
+    // Be friendly and wait for a short time, so that other light controller
+    // functions also get their turn
+    sleep 20
+
+    // The special variable clicks increments every time 6 klicks are performed
+    // on the multi-function AUX
+    skip if clicks > 0
+    goto off_loop
+    
+    // Reset the clicks variable
+    clicks = 0
+
+on_loop:
+    // Turn all declared lights on
+    all leds = 100%
+    sleep 20
+    skip if clicks > 0
+    goto on_loop
+
+// Reset the clicks variable
+    clicks = 0
+    goto off_loop
+end
