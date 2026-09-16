@@ -9,7 +9,7 @@
 			"file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$",
 			"name": "MK4 make all",
 			"syntax": "Packages/Makefile/Make Output.sublime-syntax",
-			"working_dir": "${project_path}/mk4-tlc5940-lpc812/firmware"
+			"working_dir": "${project_path}/mk4-tlc5940-lpc812/firmware",
 		},
 		{
 			"cmd":
@@ -20,7 +20,7 @@
 			"file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$",
 			"name": "MK4 make program",
 			"syntax": "Packages/Makefile/Make Output.sublime-syntax",
-			"working_dir": "${project_path}/mk4-tlc5940-lpc812/firmware"
+			"working_dir": "${project_path}/mk4-tlc5940-lpc812/firmware",
 		},
 		{
 			"cmd":
@@ -32,7 +32,7 @@
 			"file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$",
 			"name": "MK4 make clean all",
 			"syntax": "Packages/Makefile/Make Output.sublime-syntax",
-			"working_dir": "${project_path}/mk4-tlc5940-lpc812/firmware"
+			"working_dir": "${project_path}/mk4-tlc5940-lpc812/firmware",
 		},
 		{
 			"cmd":
@@ -43,7 +43,7 @@
 			"file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$",
 			"name": "RXSIM program",
 			"syntax": "Packages/Makefile/Make Output.sublime-syntax",
-			"working_dir": "${project_path}/tools/receiver-simulator"
+			"working_dir": "${project_path}/tools/receiver-simulator",
 		},
 		{
 			"cmd":
@@ -53,13 +53,23 @@
 			"file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$",
 			"name": "RXSIM make all",
 			"syntax": "Packages/Makefile/Make Output.sublime-syntax",
-			"working_dir": "${project_path}/tools/receiver-simulator"
+			"working_dir": "${project_path}/tools/receiver-simulator",
 		}
 	],
 	"folders":
 	[
 		{
-			"path": "."
+			"path": ".",
 		}
-	]
+	],
+	"settings":
+	{
+		"LSP":
+		{
+			"clangd":
+			{
+				"enabled": true
+			}
+		}
+	},
 }

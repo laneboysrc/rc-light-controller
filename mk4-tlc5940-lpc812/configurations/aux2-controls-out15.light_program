@@ -1,0 +1,23 @@
+// AUX2 controls a light bar on OUT15S
+run always
+    led l = led[15]
+
+loop:
+    // Wait a short time (20 ms) so that we don't
+    // waste computing power.
+    sleep 20
+
+    // If the AUX2 value is greater than 30
+    // (range of AUX2 is -100 .. 0 .. +100)
+    // then turn OUT15 on
+
+    // Since we only deal with one LED we can turn it off by default
+    // and then turn on if the AUX2 is >30.
+    // This won't flicker because the actual execution only happens
+    // during the next "sleep" statement.
+    l = 0
+    if aux2 >30
+    l = 100
+
+    goto loop
+end
