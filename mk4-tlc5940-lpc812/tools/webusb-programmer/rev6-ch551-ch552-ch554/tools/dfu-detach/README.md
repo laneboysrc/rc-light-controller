@@ -10,3 +10,8 @@ ole00/chprog: Yet another CH55x programmer with v1 and v2 bootloader detection a
 https://github.com/ole00/chprog
 
 This tool is designed to be compiled and run on Linux, or any other operating system that has gcc and libusb v1.
+
+On Debian install libusb as follows:
+```bash
+sudo apt install libusb-1.0-0-dev
+```
